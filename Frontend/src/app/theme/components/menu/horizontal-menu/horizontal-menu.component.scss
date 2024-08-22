@@ -1,0 +1,34 @@
+@import "../../../styles/variables";
+.horizontal-menu-item{
+    position: relative;
+    .mat-mdc-button{
+        height: $horizontal-menu-height;
+        font-weight: 400;
+        color: inherit;
+        padding: 0 16px;
+    }
+    .horizontal-menu-icon{
+        margin-right: 5px;
+    }
+    .horizontal-sub-menu{
+        position: absolute;
+        width: 190px;
+        max-height: 0;
+        overflow: hidden;
+        -webkit-transition: max-height 0.25s ease-out;  
+        -moz-transition: max-height 0.25s ease-out;  
+        transition: max-height 0.25s ease-out;    
+        .mat-mdc-button{
+            width: 100%;
+            height: 36px; 
+        }
+    }
+}
+.horizontal-menu-item:hover > .horizontal-sub-menu{
+    max-height: 740px;
+    overflow: visible;
+}
+.horizontal-sub-menu .horizontal-sub-menu{
+    left: 100%;
+    top: 0;
+}
