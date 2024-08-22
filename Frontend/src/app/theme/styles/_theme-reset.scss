@@ -1,0 +1,154 @@
+@use 'sass:map';
+@use '@angular/material' as mat;  
+@import "variables";
+
+@mixin theme-reset($theme) {  
+    $color-config:  mat.m2-get-color-config($theme);
+    $primary:       map.get($color-config, 'primary');
+    $accent:        map.get($color-config, 'accent');
+    $warn:          map.get($color-config, 'warn'); 
+    $foreground:    map.get($color-config, 'foreground');
+    $background:    map.get($color-config, 'background');
+
+    .bg-primary { 
+        background: mat.m2-get-color-from-palette($primary);
+        color: mat.m2-get-color-from-palette($primary, default-contrast);
+    }
+    .bg-accent {
+        background: mat.m2-get-color-from-palette($accent);
+        color: mat.m2-get-color-from-palette($accent, default-contrast);
+    }
+    .bg-warn {
+        background: mat.m2-get-color-from-palette($warn);
+        color: mat.m2-get-color-from-palette($warn, default-contrast);
+    }
+    .muted-text{
+        color: mat.m2-get-color-from-palette($foreground, secondary-text);
+    }
+    .default-contrast {
+        color: mat.m2-get-color-from-palette($primary, default-contrast) !important; 
+    }
+    .gradient-primary{  
+        background: mat.m2-get-color-from-palette($primary, lighter);
+        background: -moz-linear-gradient(to bottom, rgba(255,255,255, 0.5) 0%,mat.m2-get-color-from-palette($primary, lighter)50%, mat.m2-get-color-from-palette($primary)  100%); 
+        background: -webkit-linear-gradient(to bottom, rgba(255,255,255, 0.5) 0%,mat.m2-get-color-from-palette($primary, lighter)50%, mat.m2-get-color-from-palette($primary)  100%); 
+        background: linear-gradient(to bottom, rgba(255,255,255, 0.5) 0%,mat.m2-get-color-from-palette($primary, lighter)50%, mat.m2-get-color-from-palette($primary)  100%); 
+    } 
+    .mat-toolbar{
+        padding: 0 $flex-distance;
+        min-height: $toolbar-height;
+        .mdc-icon-button {
+            color: mat.m2-get-color-from-palette($primary, default-contrast);
+        }
+    }
+    .mat-toolbar-row, 
+    .mat-toolbar-single-row{
+        height: $toolbar-height;
+    }
+    .mat-mdc-raised-button.small-logo{
+        color: mat.m2-get-color-from-palette($primary);
+    }
+    .mat-mdc-icon-button {
+        color: mat.m2-get-color-from-palette($foreground, base);
+    }
+    .horizontal-menu {
+        background: mat.m2-get-color-from-palette($primary, darker) !important;
+    }
+    .horizontal-menu-item { 
+        .horizontal-sub-menu {
+            background: mat.m2-get-color-from-palette($primary, darker);
+        }
+    }
+    .breadcrumb{
+        a{
+            color: mat.m2-get-color-from-palette($primary);
+        }
+        .breadcrumb-item+.breadcrumb-item:before{
+            color: mat.m2-get-color-from-palette($foreground, text);
+        }
+    }
+    .user-block{
+        border-bottom: 1px solid mat.m2-get-color-from-palette($foreground, divider);
+    }
+    .active-link{
+        border-radius: 0;
+        background-color: mat.m2-get-color-from-palette($primary); 
+        color: #fff;
+    }
+    .warn-color{
+        color: mat.m2-get-color-from-palette($warn) !important;
+    }
+    .primary-color{
+        color: mat.m2-get-color-from-palette($primary) !important;
+    }
+
+    /* angular-calendar */
+    .cal-day-view .cal-hour-segment:hover, 
+    .cal-day-view .cal-drag-over .cal-hour-segment,
+    .cal-week-view .cal-day-headers .cal-header:hover, 
+    .cal-week-view .cal-day-headers .cal-drag-over,
+    .cal-month-view .cal-cell-row .cal-cell:hover, 
+    .cal-month-view .cal-cell.cal-has-events.cal-open{
+        background-color: rgba(mat.m2-get-color-from-palette($primary), 0.4);  
+    }
+    .cal-month-view .cal-cell-row:hover{
+        background-color: rgba(mat.m2-get-color-from-palette($primary), 0.05);         
+    }
+    .cal-week-view .cal-header.cal-today,
+    .cal-month-view .cal-day-cell.cal-today{
+        background-color: rgba(mat.m2-get-color-from-palette($primary), 0.4);   
+    }
+    .cal-day-view .cal-hour:nth-child(odd){
+        background-color: inherit;
+    }
+    .cal-event-action i{
+        margin: 4px;
+    }
+    
+    /* ngx-pagination */
+    .gradus-pagination .ngx-pagination{
+        margin-bottom: 0;
+        padding: 4px;
+        .current { 
+            background: mat.m2-get-color-from-palette($primary);
+            color: mat.m2-get-color-from-palette($primary, default-contrast);
+        }
+        a:hover, button:hover{
+            background: rgba(mat.m2-get-color-from-palette($primary), 0.2);
+            color: mat.m2-get-color-from-palette($foreground, base);
+        }
+    } 
+
+    /* ngx-quill */
+    .ql-snow .ql-picker,
+    .ql-editor.ql-blank::before{
+        color: mat.m2-get-color-from-palette($foreground, text);
+    }
+    .ql-snow .ql-stroke{
+        stroke: mat.m2-get-color-from-palette($foreground, text);
+    }
+    .ql-snow .ql-fill{
+        fill: mat.m2-get-color-from-palette($foreground, text);
+    }
+    .ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-label, 
+    .ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-options{
+        background: mat.m2-get-color-from-palette($background, app-bar);
+    }
+
+    /* ngx-charts */
+    .ngx-charts{
+        text{
+            fill: mat.m2-get-color-from-palette($foreground, text); 
+        }       
+    } 
+
+    .messages{ 
+        .mat-mdc-tab:not(.mat-mdc-tab-disabled) .mdc-tab__text-label {
+            color: rgba(mat.m2-get-color-from-palette($background, card), 0.6);
+        } 
+        .mat-mdc-tab:not(.mat-mdc-tab-disabled).mdc-tab--active .mdc-tab__text-label {
+            color: mat.m2-get-color-from-palette($background, card);
+        }
+    }
+    
+}

@@ -1,0 +1,20 @@
+@if (router.url != '/') {
+    <div fxLayout="row wrap">
+        <div fxFlex="100" class="p-2">
+            <mat-card fxLayout="row" class="breadcrumb">
+                @if (router.url != '/') {
+                    <a routerLink="/" class="breadcrumb-item" fxLayout="row" fxLayoutAlign="start center" (click)="closeSubMenus()">
+                        <mat-icon>home</mat-icon>
+                        <span class="breadcrumb-title">Home</span>
+                    </a>
+                }
+                @for (breadcrumb of breadcrumbs; track breadcrumb; let i = $index) { 
+                    <div class="breadcrumb-item" fxLayout="row" fxLayoutAlign="start center">                 
+                        <a [hidden]="i == (breadcrumbs.length - 1)" [routerLink]="[breadcrumb.url]">{{breadcrumb.name}}</a>   
+                        <span [hidden]="i != (breadcrumbs.length - 1)" class="breadcrumb-title active">{{breadcrumb.name}}</span>
+                    </div> 
+                }                
+            </mat-card>
+        </div> 
+    </div>
+}
