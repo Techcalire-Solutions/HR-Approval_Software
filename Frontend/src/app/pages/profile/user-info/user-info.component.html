@@ -1,0 +1,119 @@
+<mat-card class="p-0">  
+    <div class="bg-primary text-center py-3">       
+        <h2>Edit your data:</h2> 
+    </div> 
+    
+    <form [formGroup]="personalForm" (ngSubmit)="onSubmit(personalForm.value)" fxLayout="row wrap" class="user-form p-1">
+
+        <div fxFlex="100" fxFlex.gt-sm="20" fxFlex.sm="50" class="px-2 pb-3 pt-2">
+            <mat-form-field appearance="outline">
+                <mat-label>Salutation</mat-label> 
+                <mat-select placeholder="Select salutation" formControlName="salutation">
+                    @for (salutation of salutations; track salutation) {
+                        <mat-option [value]="salutation">{{salutation.name}}</mat-option>
+                    }                    
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <div fxFlex="100" fxFlex.gt-sm="40" fxFlex.sm="50" class="px-2 pb-3 pt-2">
+            <mat-form-field appearance="outline">
+                <mat-label>First Name</mat-label>
+                <input matInput autocomplete="off" placeholder="First Name" formControlName="firstname" type="text">
+                @if (personalForm.controls.firstname.errors?.required) {
+                    <mat-error>First Name is required</mat-error>   
+                }                        
+            </mat-form-field> 
+        </div>
+
+        <div fxFlex="100" fxFlex.gt-sm="40" fxFlex.sm="50" class="px-2 pb-3 pt-2">
+            <mat-form-field appearance="outline">
+                <mat-label>Last Name</mat-label>
+                <input matInput autocomplete="off" placeholder="Last Name" formControlName="lastname" type="text">
+                @if (personalForm.controls.lastname.errors?.required) {
+                    <mat-error>Last Name is required</mat-error>   
+                }                            
+            </mat-form-field> 
+        </div>
+
+        <div fxFlex="100" fxFlex.gt-sm="33.3" fxFlex.sm="50" class="px-2 pb-3 pt-2">
+            <mat-form-field appearance="outline">
+                <mat-label>Gender</mat-label> 
+                <mat-select placeholder="Select gender" formControlName="gender">
+                    @for (gender of genders; track gender) {
+                        <mat-option [value]="gender">{{gender.name}}</mat-option>
+                    }                 
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <div fxFlex="100" fxFlex.gt-sm="33.3" fxFlex.sm="50" class="px-2 pb-3 pt-2">
+            <mat-form-field appearance="outline">
+                <mat-label>Contact email</mat-label>
+                <input matInput autocomplete="off" placeholder="Email" formControlName="email" type="text">
+                @if (personalForm.controls.email.errors?.required) {
+                    <mat-error>Email is required</mat-error> 
+                }                            
+            </mat-form-field> 
+        </div>
+
+        <div fxFlex="100" fxFlex.gt-sm="33.3" fxFlex.sm="50" class="px-2 pb-3 pt-2">
+            <mat-form-field appearance="outline">
+                <mat-label>Phone</mat-label>
+                <input matInput autocomplete="off" placeholder="Phone" formControlName="phone" type="text">
+                @if (personalForm.controls.phone.errors?.required) {
+                    <mat-error>Phone is required</mat-error>  
+                }                              
+            </mat-form-field> 
+        </div>
+
+        <div fxFlex="100" fxFlex.gt-sm="20" fxFlex.sm="50" class="px-2 pb-3 pt-2">
+            <mat-form-field appearance="outline">
+                <mat-label>Zip Code</mat-label>
+                <input matInput autocomplete="off" placeholder="Zip Code" formControlName="zipcode" type="text">
+                @if (personalForm.controls.zipcode.errors?.required) {
+                    <mat-error>Zip Code is required</mat-error> 
+                }                              
+            </mat-form-field> 
+        </div>
+
+        <div fxFlex="100" fxFlex.gt-sm="40" fxFlex.sm="50" class="px-2 pb-3 pt-2">
+            <mat-form-field appearance="outline">
+                <mat-label>Country</mat-label> 
+                <mat-select placeholder="Select country" formControlName="country">
+                    @for (country of countries; track country) {
+                        <mat-option [value]="country">{{country.name}}</mat-option>
+                    }                   
+                </mat-select>
+                @if (personalForm.controls.country.errors?.required) {
+                    <mat-error>Country is required</mat-error>
+                }               
+            </mat-form-field>
+        </div>
+
+        <div fxFlex="100" fxFlex.gt-sm="40" fxFlex.sm="50" class="px-2 pb-3 pt-2">
+            <mat-form-field appearance="outline">
+                <mat-label>State</mat-label> 
+                <mat-select placeholder="Select state" formControlName="state">
+                    @for (state of states; track state) {
+                        <mat-option [value]="state">{{state.name}}</mat-option>
+                    }                  
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <div fxFlex="100" class="px-2 pb-3 pt-2">
+            <mat-form-field appearance="outline">
+                <mat-label>Address</mat-label> 
+                <textarea matInput placeholder="Enter address" formControlName="address"></textarea> 
+            </mat-form-field>
+        </div>
+
+        <div fxFlex="100" class="pb-3 text-center">
+            <button mat-raised-button color="primary" class="uppercase mx-1" type="submit">Update</button>             
+        </div>
+
+    </form> 
+   
+</mat-card>
+ 
