@@ -128,3 +128,13 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Ignore all cache files
+*.cache
+
+# Ignore specific cache directory
+/path/to/cache/
+
+# Ignore all cache directories with a specific name
+**/cache/
+
