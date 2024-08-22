@@ -1,0 +1,35 @@
+<div [fxLayout]="(menuParentId == 0) ? 'row' : 'column'" fxLayoutAlign="start center">
+    @for (menu of menuItems; track menu.id) { 
+        <div class="horizontal-menu-item w-100">
+            @if (menu.routerLink && !menu.hasSubMenu) {
+                <a mat-button fxLayout="row" [fxLayoutAlign]="(settings.menuType=='default') ? 'start center' : 'center center'"
+                    [routerLink]="[menu.routerLink]" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact:true}"
+                    [matTooltip]="menu.title" matTooltipPosition="above" [matTooltipDisabled]="(settings.menuType=='mini') ? 'false' : 'true'"
+                    [id]="'horizontal-menu-item-'+menu.id">
+                    <mat-icon class="horizontal-menu-icon">{{menu.icon}}</mat-icon>
+                    <span class="horizontal-menu-title">{{menu.title}}</span>
+                </a>
+            }
+            @if (menu.href && !menu.subMenu) {
+                <a mat-button fxLayout="row" [fxLayoutAlign]="(settings.menuType=='default') ? 'start center' : 'center center'"
+                    [attr.href]="menu.href || ''" [attr.target]="menu.target || ''"
+                    [matTooltip]="menu.title" matTooltipPosition="above" [matTooltipDisabled]="(settings.menuType=='mini') ? 'false' : 'true'"
+                    [id]="'horizontal-menu-item-'+menu.id">
+                    <mat-icon class="horizontal-menu-icon">{{menu.icon}}</mat-icon>
+                    <span class="horizontal-menu-title">{{menu.title}}</span>
+                </a>
+            }
+            @if (menu.hasSubMenu) {
+                <a mat-button fxLayout="row" [fxLayoutAlign]="(settings.menuType=='default') ? 'start center' : 'center center'"
+                    [matTooltip]="menu.title" matTooltipPosition="above" [matTooltipDisabled]="(settings.menuType=='mini') ? 'false' : 'true'"
+                    [id]="'horizontal-menu-item-'+menu.id">
+                    <mat-icon class="horizontal-menu-icon">{{menu.icon}}</mat-icon>
+                    <span class="horizontal-menu-title">{{menu.title}}</span>
+                </a>
+                <div class="horizontal-sub-menu" [id]="'horizontal-sub-menu-'+menu.id">
+                    <app-horizontal-menu [menuParentId]="menu.id"></app-horizontal-menu>
+                </div>
+            }            
+        </div>
+    }
+</div>
