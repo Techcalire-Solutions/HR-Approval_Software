@@ -7,6 +7,9 @@ export const routes: Routes = [
       {path: '', loadComponent: () => import('./dashboard/dashboard.component').then(c => c.DashboardComponent),
         data: { breadcrumb: 'Dashboard' }
       },
+      {path: 'dashboard', loadComponent: () => import('./dashboard/dashboard.component').then(c => c.DashboardComponent),
+        data: { breadcrumb: 'Dashboard' }
+      },
 
       {
         path: 'role',
@@ -22,6 +25,11 @@ export const routes: Routes = [
         path: 'profile', 
         loadChildren: () => import('./profile/profile.routes').then(p => p.routes),
         data: { breadcrumb: 'Profile' } 
+      },
+      {
+        path: 'team',
+        loadComponent: () => import('./team/team.component').then(c => c.TeamComponent),
+        data: { breadcrumb: 'Team' }
       },
     ]
   }
