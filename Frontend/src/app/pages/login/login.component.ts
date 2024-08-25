@@ -48,25 +48,7 @@ export class LoginComponent {
 
 
   user: any;
-  // loginForm = this.fb.group({
-  //   email: ['', [Validators.required, Validators.email]],
-  //   password: ['', [Validators.required]]
-  // });
-
-  // setCurrentUser(){
-  //   if(localStorage.getItem('token')){
-  //     const token: any = localStorage.getItem('token')
-  //     let user = JSON.parse(token)
-  //     console.log(user)
-  //     // this._http.setCurrentUser(user)
-  //     let roleid = user.userToken.role
-  //     this.adminService.getRoleById(roleid).subscribe((res)=>{
-  //       let role = res.roleName.toLowerCase();
-  //       this.router.navigate([role]);
-  //     })
-
-  //   }
-  // }
+ 
 
   datePipe = new DatePipe('en-US')
   setCurrentUser(){
