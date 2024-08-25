@@ -17,7 +17,12 @@ export const routes: Routes = [
         path: 'users',
         loadComponent: () => import('./users/users.component').then(c => c.UsersComponent),
         data: { breadcrumb: 'Users' }
-      }
+      },
+      { 
+        path: 'profile', 
+        loadChildren: () => import('./profile/profile.routes').then(p => p.routes),
+        data: { breadcrumb: 'Profile' } 
+      },
     ]
   }
 ];
