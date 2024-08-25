@@ -21,5 +21,15 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
   styleUrl: './profile.component.scss'
 })
 export class ProfileComponent {
+  ngOnInit(){
+    if(localStorage.getItem('token')){
+      const token: any = localStorage.getItem('token')
+      let user = JSON.parse(token)
+      console.log(user)
 
+      let roleid = user.role
+      console.log(roleid);
+  }
+
+}
 }
