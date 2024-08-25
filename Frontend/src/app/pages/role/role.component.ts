@@ -3,6 +3,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { RoleService } from '@services/role.service';
 import { TablesService, Element } from '@services/tables.service';
+import { Role } from '../../common/interfaces/role';
 export interface PeriodicElement {
   name: string;
   position: number;
@@ -31,17 +32,14 @@ const ELEMENT_DATA: PeriodicElement[] = [
 })
 export class RoleComponent {
   displayedColumns: string[] = ['position', 'name'];
-  dataSource = ELEMENT_DATA;
-
-  // public displayedColumns = ['position', 'name'];
-  // public dataSource: any; 
+  
   constructor(private tablesService: TablesService,private roleService:RoleService) { 
     // this.dataSource = new MatTableDataSource<Element>(this.tablesService.getData());
   }
-  
+  dataSource : Role[]=[]
   ngOnInit(){
     this.roleService.getRole().subscribe((res)=>{
-      console.log(res)
+       this.dataSource = res;
   })}
 
 

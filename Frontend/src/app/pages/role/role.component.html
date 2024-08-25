@@ -7,11 +7,11 @@
     <mat-table #table [dataSource]="dataSource" class="mat-elevation-z8">       
         <ng-container matColumnDef="position">
             <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
-            <mat-cell *matCellDef="let element"> {{element.position}} </mat-cell>
+            <mat-cell *matCellDef="let element"> {{element.id}} </mat-cell>
         </ng-container>         
         <ng-container matColumnDef="name">
             <mat-header-cell *matHeaderCellDef>Role Name </mat-header-cell>
-            <mat-cell *matCellDef="let element"> {{element.name}} </mat-cell>
+            <mat-cell *matCellDef="let element"> {{element.roleName}} </mat-cell>
         </ng-container>     
     
         <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
