@@ -25,8 +25,8 @@ export const routes: Routes = [
         path: 'addApproval',
         loadComponent: () => import('./add-approval/add-approval.component').then(c => c.AddApprovalComponent),
         data: { breadcrumb: 'Add Approval' }
-      }
       },
+
       {
         path: 'profile',
         loadChildren: () => import('./profile/profile.routes').then(p => p.routes),
