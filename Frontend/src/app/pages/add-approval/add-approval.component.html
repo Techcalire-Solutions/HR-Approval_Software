@@ -1,0 +1,50 @@
+<mat-card>
+  <mat-toolbar class="table-header">
+    <div class="row" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+      <div class="col">
+        <h1>UPLOAD</h1>
+      </div>
+      <div class="col" style="margin-left: auto; margin-right: 5px;" onClick="history.back()">
+        <span class="material-icons">exit_to_app</span>
+      </div>
+    </div>
+  </mat-toolbar>
+
+  <mat-card-content>
+    <form [formGroup]="piForm">
+      <!-- Invoice Number -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Invoice Number</mat-label>
+        <input matInput placeholder="Enter Invoice Number" formControlName="piNo">
+      </mat-form-field>
+
+      <!-- Key Account Manager -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Key Account Manager</mat-label>
+        <mat-select placeholder="Select KAM" formControlName="kamId">
+          <mat-option *ngFor="let item of kam" [value]="item.id">
+            {{item.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Upload Field -->
+      <div class="file-upload">
+        <input type="file" (change)="uploadFile($event)" #fileInput hidden>
+        <div *ngIf="imageUrl; else noFileTemplate">
+          <img [src]="imageUrl" alt="Image" height="200" width="200" (click)="fileInput.click()">
+          <mat-icon (click)="clearFileInput()">delete</mat-icon>
+        </div>
+        <ng-template #noFileTemplate>
+          <span class="material-icons" (click)="fileInput.click()">cloud_upload</span>
+          <p (click)="fileInput.click()">Browse file to upload</p>
+        </ng-template>
+      </div>
+
+      <!-- Save Button -->
+      <button mat-raised-button color="primary" type="button" (click)="onSubmit()" [disabled]="!piForm.valid">
+        Save
+      </button>
+    </form>
+  </mat-card-content>
+</mat-card>

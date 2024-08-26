@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, ReplaySubject, catchError, mapTo, of, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { User } from '../common/models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -47,7 +48,9 @@ export class LoginService {
     console.log(localStorage.getItem(this.JWT_TOKEN) as string)
     localStorage.setItem('token', JSON.stringify(tokens))
   }
-
+  getUserByRole(id: number):Observable<User[]>{
+    return this._http.get<User[]>(this.url + '/user/findbyrole/'+id)
+  }
   getJWTToken() {
     return localStorage.getItem(this.JWT_TOKEN);
 

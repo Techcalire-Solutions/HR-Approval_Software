@@ -17,6 +17,11 @@ export const routes: Routes = [
         path: 'users',
         loadComponent: () => import('./users/users.component').then(c => c.UsersComponent),
         data: { breadcrumb: 'Users' }
+      },
+      {
+        path: 'addApproval',
+        loadComponent: () => import('./add-approval/add-approval.component').then(c => c.AddApprovalComponent),
+        data: { breadcrumb: 'Add Approval' }
       }
     ]
   }
