@@ -23,7 +23,7 @@ export class LoginService {
 
   private doLoginUser(userName: String, tokens: any){
     this.loggedUser = userName
-    console.log(this.loggedUser) //123 - current phone number
+    console.log(this.loggedUser) 
     this.storeTokens(tokens)
   }
 
@@ -61,17 +61,6 @@ export class LoginService {
 
   }
 
-
-  // loginUser(data:any){
-  //   return this._http.post(this.url+'/user/login',data).pipe(
-  //     map((res:any)=>{
-  //       const user=res;
-  //       localStorage.setItem('token',JSON.stringify(user))
-  //       this.currentUserSource.next(user)
-  //       return user.role.toLowerCase();
-  //     })
-  //   )
-  //  }
 
 
 
