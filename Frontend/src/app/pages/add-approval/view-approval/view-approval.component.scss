@@ -1,0 +1,271 @@
+.table-header {
+  // background-color: #327ebd;
+  // color: white;
+  padding: 0 5px;
+}
+.table-container {
+  padding: 5px 15px 15px 15px;
+}
+.table-component-holder {
+  border: 1px solid #cbddec;
+  background-color: white;
+}
+
+table {
+  border: 1px solid #ccc;
+  border-collapse: collapse;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  table-layout: fixed;
+}
+table caption {
+  font-size: 1.5em;
+  margin: .5em 0 .75em;
+  font-family:Roboto,"Helvetica Neue",sans-serif;
+}
+table tr {
+  background: #f8f8f8;
+  border: 1px solid #4d4b4b;
+  padding: .35em;
+}
+table tr:nth-child(odd) td{
+  font-family:Roboto,"Helvetica Neue",sans-serif;
+}
+table tr:nth-child(even) td{
+  background:rgba(145, 151, 187, 0.34);
+  font-family:Roboto,"Helvetica Neue",sans-serif;
+}
+::ng-deep .mat-sort-header-container{
+      justify-content: center;
+}
+
+table th,
+table td {
+  padding: .625em;
+  text-align: center;
+  font-family:Roboto,"Helvetica Neue",sans-serif;
+}
+table th {
+  background:#cfcfcf;
+  font-size: .85em;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+@media screen and (max-width: 600px) {
+  // table {
+  //      border: 0;
+  // }
+  // table caption {
+  //     font-size: 1.3em;
+  // }
+  table thead {
+      // border: none;
+      // clip: rect(0 0 0 0);
+      // height: 1px;
+      // margin: -1px;
+      overflow: hidden;
+      // padding: 0;
+      position: absolute;
+      width: 1px;
+  }
+  // table tr {
+  //     border-bottom: 3px solid #ddd;
+  //     display: block;
+  //     margin-bottom: .625em;
+  // }
+  table td {
+      border-bottom: 1px solid #ddd;
+      display: block;
+      font-size: .8em;
+      text-align: right;
+      height: 15px;
+  }
+
+  table td:before {
+      /*
+      * aria-label has no advantage, it won't be read inside a table
+      content: attr(aria-label);
+      */
+      content: attr(data-label);
+      float: left;
+      font-weight: bold;
+      text-transform: uppercase;
+  }
+  table td:last-child {
+      border-bottom: 0;
+  }
+
+}
+mat-button-toggle-group{
+  cursor:pointer;
+}
+
+::ng-deep .mat-sort-header-container{
+  justify-content: center;
+}
+/* Structure */
+.example-container {
+display: flex;
+flex-direction: column;
+min-width: 300px;
+}
+
+.example-header {
+min-height: 64px;
+display: flex;
+align-items: center;
+padding-left: 24px;
+font-size: 20px;
+}
+
+.mat-table {
+overflow: auto;
+max-height: 500px;
+}
+.widgetHolder{
+margin: 0 auto;
+.widgetHolder-content {
+  padding: 20px;
+}
+}
+
+.row {
+display: flex;
+flex-direction: row;
+}
+
+.col {
+flex: 1;
+margin-right: 20px;
+width: 100%;
+}
+
+.input-group {
+display: flex;
+justify-content: flex-end;
+}
+
+.input-group input {
+padding: 10px;
+border: 1px solid #ddd;
+border-radius: 5px;
+width: 200px;
+}
+
+.action-icons {
+display: flex;
+justify-content: space-between;
+gap: 8px; /* Adjust the gap as needed */
+}
+
+html, body {
+height: 100%;
+margin: 0;
+display: flex;
+flex-direction: column;
+}
+
+.page-container {
+  flex-grow: 1;
+}
+
+.components-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Full viewport height */
+}
+
+html, body {
+height: 100%;
+margin: 0;
+display: flex;
+flex-direction: column;
+}
+
+.components-container {
+display: flex;
+flex-direction: column;
+min-height: 100vh; /* Full viewport height */
+}
+
+mat-card {
+flex-grow: 1; /* Ensure the content takes up all available space */
+}
+
+/* Global styles */
+.footer {
+  background-color: #2b38af;
+  // padding: 15px 0;
+  position: sticky;
+}
+
+.footer .mat-tab-group {
+margin-bottom: 10px;
+}
+
+.icon-container {
+display: flex;
+justify-content: space-between;
+}
+
+.icon-container a {
+flex: 1; /* This allows each icon to take up equal space */
+text-align: center; /* Centers the icon within its allocated space */
+}
+
+/* Style for the bottom-bar container */
+.bottom-bar {
+  position: sticky;
+  background: linear-gradient(0deg,#203f7a, #b0c8c5);
+  bottom: 0;
+  width: 100%;
+  padding: 1rem;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.25); /* Set your desired background color */
+  padding: 10px 0; /* Adjust the padding as needed */
+  text-align: center; /* Center-align the content */
+  align-items: center;
+}
+/* Style for the line-1 image */
+.bottom-bar-child {
+  width: 50px; /* Set the width of the image as needed */
+  height: auto; /* Maintain aspect ratio */
+  margin-right: 10px; /* Adjust the margin as needed */
+}
+
+/* Style for the powered-by text */
+.powered-by {
+  font-size: 14px; /* Set the font size as needed */
+  color: #333; /* Set the text color */
+}
+
+// .bottom-bar {
+//   background-color: white;
+//   padding: 15px 0;
+// }
+
+// .bottom-bar .mat-tab-group {
+//   margin-bottom: 10px;
+// }
+
+.icon-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.icon-container a {
+  flex: 1; /* This allows each icon to take up equal space */
+  text-align: center; /* Centers the icon within its allocated space */
+}
+
+.selected {
+  background-color: rgb(9, 23, 70); /* or any other highlight style */
+  border-radius: 100%; /* Optional: Make the highlight rounded */
+  padding: 5px;
+}
+
+span{
+  color: white;
+}
+
+
