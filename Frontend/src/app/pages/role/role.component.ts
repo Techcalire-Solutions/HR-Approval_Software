@@ -22,6 +22,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { PipesModule } from '../../theme/pipes/pipes.module';
+import { AddRoleDialogComponent } from './add-role-dialog/add-role-dialog.component';
 export interface PeriodicElement {
   name: string;
   position: number;
@@ -71,7 +72,7 @@ export class RoleComponent {
   public searchText: string;
   public page:any;
   public settings: Settings;
-  displayedColumns: string[] = ['position', 'name'];
+  displayedColumns: string[] = ['position', 'name','abbreviation'];
   
 
   constructor(private tablesService: TablesService,private roleService:RoleService,public settingsService: SettingsService,
@@ -86,6 +87,7 @@ this.settings = this.settingsService.settings;
     this.roleService.getRole().subscribe((res)=>{
        this.dataSource = res;
   })}
+
   public getUsers(): void {
     this.users = null; //for show spinner each time
     this.usersService.getUser().subscribe((users: any) =>{
@@ -94,6 +96,13 @@ this.settings = this.settingsService.settings;
       this.users = users
     });
   }
+
+  getRoles(){
+    this.roleService.getRole().subscribe((res)=>{
+      this.dataSource = res;
+    })
+  }
+
   public addUser(user:User){
     this.usersService.addUser(user).subscribe(user => this.getUsers());
   }
@@ -117,13 +126,11 @@ this.settings = this.settingsService.settings;
   }
 
   public openUserDialog(user: any){
-    let dialogRef = this.dialog.open(UserDialogComponent, {
+    let dialogRef = this.dialog.open(AddRoleDialogComponent, {
       data: user
     });
     dialogRef.afterClosed().subscribe(user => {
-      if(user){
-          (user.id) ? this.updateUser(user) : this.addUser(user);
-      }
+      this.getRoles() 
     });
   }
 
