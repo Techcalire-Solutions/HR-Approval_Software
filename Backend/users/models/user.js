@@ -11,13 +11,14 @@ const User = sequelize.define('user', {
   status: {type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true}
 },
 {
-  freezeTableName: true
+  freezeTableName: true,
+  timestamps : true
 });
 
 Role.hasMany(User,{foreignKey : 'roleId', onUpdate : 'CASCADE'})
 User.belongsTo(Role)
 
-User.sync({ alter: true })
+User.sync({ force: true })
   .then(() => console.log("Packing table Sync"))
   .catch((err) => console.log("Error syncing table PackingChild:", err));
 
