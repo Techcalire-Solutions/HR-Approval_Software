@@ -53,7 +53,8 @@ async function syncModel() {
         {roleName: 'Sales Executive',abbreviation:'SE'},
         {roleName: 'Key Account Manager',abbreviation:'KAM'},
         {roleName: 'Manager',abbreviation:'Manager'},
-        {roleName: 'Accountant',abbreviation:'Accountant'}
+        {roleName: 'Accountant',abbreviation:'Accountant'},
+        {roleName: 'Administrator',abbreviation:'Admin'},
     ]
     const role = await Role.findAll({});
     if(role.length === 0){
@@ -63,7 +64,12 @@ async function syncModel() {
     }
 
     const userData = [
-        { name: "Admin", email: "admin@gmail.com", phoneNumber:"1234567890", password: "password", roleId: 1, status: true },
+       
+        { name: "Ashbin", email: "ashbin@gmail.com", phoneNumber:"9846335577", password: "password", roleId: 1, status: true },
+        { name: "Sijin", email: "sijin@gmail.com", phoneNumber:"9846442233", password: "password", roleId: 2, status: true },
+        { name: "Shibin", email: "shibin@gmail.com", phoneNumber:"9847391646", password: "password", roleId: 3, status: true },
+        { name: "Fawas", email: "fawas@gmail.com", phoneNumber:"98667799551", password: "password", roleId: 4, status: true },
+        { name: "Admin", email: "admin@gmail.com", phoneNumber:"1234567890", password: "password", roleId: 5, status: true },
     ];
     const user = await User.findAll({});
     const salt = await bcrypt.genSalt(10);
