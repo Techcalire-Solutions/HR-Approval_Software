@@ -1,42 +1,41 @@
 <button mat-icon-button [matMenuTriggerFor]="userMenu" #userMenuTrigger="matMenuTrigger">
-    <mat-icon>account_circle</mat-icon>
+  <mat-icon>account_circle</mat-icon>
 </button>
 <mat-menu #userMenu="matMenu" [overlapTrigger]="false" class="toolbar-dropdown-menu user-menu">
-    <!--<span (mouseleave)="userMenuTrigger.closeMenu()">-->
-        <mat-toolbar color="primary">
-            <div fxLayout="row" fxLayoutAlign="space-around center" class="user-info">
-                <img [src]="userImage" alt="user-image" width="80" class="rounded mat-elevation-z6">
-                <ng-container *ngFor="let u of user">
-                    <p>{{ u.name }}<br> <small>Web developer</small></p>
-                  </ng-container>
-                  
-                <!-- <p>{{user.name}}<br> <small>Web developer</small></p> -->
-            </div>  
-        </mat-toolbar>
-        <a mat-menu-item routerLink="/login/profile/projects"> 
-            <mat-icon>person</mat-icon>
-            <span>Profile</span> 
-        </a>
-        <a mat-menu-item routerLink="/login/profile/user-info"> 
-            <mat-icon>edit</mat-icon>
-            <span>Edit Profile</span> 
-        </a>
-        <a mat-menu-item routerLink="settings"> 
-            <mat-icon>settings</mat-icon>
-            <span>Settings</span> 
-        </a>
-        <a mat-menu-item routerLink="/"> 
-            <mat-icon>lock</mat-icon>
-            <span>Lock screen</span> 
-        </a>
-        <a mat-menu-item routerLink="help"> 
-            <mat-icon>help</mat-icon>
-            <span>Help</span> 
-        </a>
-        <div class="divider"></div>
-        <a mat-menu-item routerLink="/login"> 
-            <mat-icon>power_settings_new</mat-icon>
-            <span>Log out</span> 
-        </a>
-    <!--</span>-->
+  <!--<span (mouseleave)="userMenuTrigger.closeMenu()">-->
+  <mat-toolbar color="primary">
+      <div fxLayout="row" fxLayoutAlign="space-around center" class="user-info">
+          <img [src]="userImage" alt="user-image" width="80" class="rounded mat-elevation-z6">
+          <ng-container *ngIf="user">
+              <p>Nishida{{ user.name }}<br> <small>{{user.role}}</small></p>
+          </ng-container>
+          <p>Nishida{{ user.name }}<br> <small>{{user.role}}</small></p>
+      </div>
+  </mat-toolbar>
+  <a mat-menu-item routerLink="/profile/projects">
+      <mat-icon>person</mat-icon>
+      <span>Profile</span>
+  </a>
+  <a mat-menu-item routerLink="/profile/user-info">
+      <mat-icon>edit</mat-icon>
+      <span>Edit Profile</span>
+  </a>
+  <a mat-menu-item routerLink="settings">
+      <mat-icon>settings</mat-icon>
+      <span>Settings</span>
+  </a>
+  <a mat-menu-item routerLink="/">
+      <mat-icon>lock</mat-icon>
+      <span>Lock screen</span>
+  </a>
+  <a mat-menu-item routerLink="help">
+      <mat-icon>help</mat-icon>
+      <span>Help</span>
+  </a>
+  <div class="divider"></div>
+  <a mat-menu-item routerLink="/login">
+      <mat-icon>power_settings_new</mat-icon>
+      <span>Log out</span>
+  </a>
+  <!--</span>-->
 </mat-menu>
