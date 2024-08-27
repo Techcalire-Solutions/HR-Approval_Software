@@ -26,6 +26,11 @@ export const routes: Routes = [
         loadComponent: () => import('./add-approval/add-approval.component').then(c => c.AddApprovalComponent),
         data: { breadcrumb: 'Add Approval' }
       },
+      {
+        path: 'viewApproval',
+        loadComponent: () => import('./add-approval/view-approval/view-approval.component').then(c => c.ViewApprovalComponent),
+        data: { breadcrumb: 'Add Approval' }
+      },
 
       {
         path: 'profile',
