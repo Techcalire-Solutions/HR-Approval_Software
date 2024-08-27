@@ -46,7 +46,7 @@ export class AddRoleDialogComponent {
               public fb: FormBuilder,private roleService:RoleService) {
     this.form = this.fb.group({
  
-      roleName: [null, Validators.compose([Validators.required, Validators.minLength(5)])],
+      roleName: [null, Validators.compose([Validators.required, Validators.minLength(2)])],
       abbreviation: [null, Validators.compose([Validators.required, Validators.minLength(2)])],
 
     });
