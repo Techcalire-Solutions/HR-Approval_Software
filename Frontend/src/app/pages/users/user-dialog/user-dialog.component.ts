@@ -13,6 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
+import { RoleService } from '@services/role.service';
 
 @Component({
   selector: 'app-user-dialog',
@@ -40,58 +41,33 @@ export class UserDialogComponent implements OnInit {
   public passwordHide:boolean = true;
   constructor(public dialogRef: MatDialogRef<UserDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public user: User,
-              public fb: FormBuilder) {
+              public fb: FormBuilder,private roleService:RoleService) {
     this.form = this.fb.group({
-      id: null,
-      username: [null, Validators.compose([Validators.required, Validators.minLength(5)])],
-      password: [null, Validators.compose([Validators.required, Validators.minLength(6)])],
-      // profile: this.fb.group({
-      //   name: null,
-      //   surname: null,
-      //   birthday: null,
-      //   gender: null,
-      //   image: null
-      // }),
-      // work: this.fb.group({
-      //   company: null,
-      //   position: null,
-      //   salary: null
-      // }),
-      // contacts: this.fb.group({
-      //   email: null,
-      //   phone: null,
-      //   address: null
-      // }),
-      // social: this.fb.group({
-      //   facebook: null,
-      //   twitter: null,
-      //   google: null
-      // }),
-      // settings: this.fb.group({
-      //   isActive: null,
-      //   isDeleted: null,
-      //   registrationDate: null,
-      //   joinedDate: null
-      // })
+ 
+      roleName: [null, Validators.compose([Validators.required, Validators.minLength(5)])],
+      abbreviation: [null, Validators.compose([Validators.required, Validators.minLength(2)])],
+
     });
   }
 
   ngOnInit() {
-    if(this.user){
-      this.form.setValue(this.user);
-    }
-    else{
-      this.user = new User();
-      // this.user.profile = new UserProfile();
-      // this.user.work = new UserWork();
-      // this.user.contacts = new UserContacts();
-      // this.user.social = new UserSocial();
-      // this.user.settings = new UserSettings();
-    }
+
   }
 
   close(): void {
     this.dialogRef.close();
   }
+  onSubmit(){
+   
+    console.log(this.form.getRawValue());
+    this.roleService.addRole(this.form.getRawValue()).subscribe((res)=>{
+      this.dialogRef.close();
+    })
+   
+  }
+  SubmitForm(){
+
+  }
+
 
 }
