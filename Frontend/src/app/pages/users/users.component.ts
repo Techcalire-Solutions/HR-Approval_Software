@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { UsersService } from '@services/users.service';
+import { UsersService } from '../../services/users.service';
 import { User } from '../../common/models/user.model';
-import { Settings, SettingsService } from '@services/settings.service';
+import { Settings, SettingsService } from '../../services/settings.service';
 import { MatDialog } from '@angular/material/dialog';
 import { UserDialogComponent } from './user-dialog/user-dialog.component';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
