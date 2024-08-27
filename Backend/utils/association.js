@@ -8,10 +8,10 @@ async function syncModel() {
     await sequelize.sync({alter: true})
 
     const roleData = [
-        {roleName: 'Initiator Sales Person'},
+        {roleName: 'Sales Executive'},
         {roleName: 'Key Account Manager'},
-        {roleName: 'Authorizer Manager'},
-        {roleName: 'Maker Accountant'}
+        {roleName: 'Manager'},
+        {roleName: 'Accountant'}
     ]
     const role = await Role.findAll({});
     if(role.length === 0){

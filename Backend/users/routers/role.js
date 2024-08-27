@@ -101,7 +101,7 @@ router.get('/', async (req, res) => {
 
 // })
 
-router.get('/:id', authenticateToken, async (req, res) => {
+router.get('/:id',  async (req, res) => {
   try {
     const role = await Role.findOne({where: {id: req.params.id}, order:['id']})
 

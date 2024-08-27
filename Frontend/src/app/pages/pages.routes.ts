@@ -21,10 +21,16 @@ export const routes: Routes = [
         loadComponent: () => import('./users/users.component').then(c => c.UsersComponent),
         data: { breadcrumb: 'Users' }
       },
-      { 
-        path: 'profile', 
+      {
+        path: 'addApproval',
+        loadComponent: () => import('./add-approval/add-approval.component').then(c => c.AddApprovalComponent),
+        data: { breadcrumb: 'Add Approval' }
+      },
+
+      {
+        path: 'profile',
         loadChildren: () => import('./profile/profile.routes').then(p => p.routes),
-        data: { breadcrumb: 'Profile' } 
+        data: { breadcrumb: 'Profile' }
       },
       {
         path: 'team',
