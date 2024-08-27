@@ -15,9 +15,13 @@ syncModel()
 const role = require('../users/routers/role');
 const user = require('../users/routers/user');
 const auth = require('../users/routers/auth');
+const team = require('../users/routers/team');
+const teamMember = require('../users/routers/teamMember');
 app.use('/role', role);
 app.use('/user', user);
 app.use('/auth', auth);
+app.use('/team', team);
+app.use('/teamMember', teamMember);
 
 const invoice = require('../invoices/routers/invoice');
 const pi = require('../invoices/routers/performaInvoice');
