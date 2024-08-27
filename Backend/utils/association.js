@@ -1,11 +1,36 @@
-const Role = require("../users/models/role");
-const User = require("../users/models/user");
+
+const Team = require("../users/models/team");
+const TeamMember = require("../users/models/teamMember");
 const sequelize = require('./db');
 const bcrypt = require('bcrypt');
+const Role = require('../users/models/role');
+const User = require('../users/models/user');
 
 
 async function syncModel() {
     await sequelize.sync({alter: true})
+
+    const team = await Team.findAll({});
+
+  if (team.length === 0) {
+    Team.bulkCreate([
+      { teamName: "Team A", userId: 1 }
+      // { teamName: "Team B", userId: 2 }
+    ]).then(async () => {
+      const teams = await Team.findAll(); 
+      for (const team of teams) {
+        // const teamId = team.id;
+        const teamMembers = [
+          { teamId:1, userId: 1 },
+          { teamId:1, userId: 5 }, 
+          { teamId:1, userId: 4 }, 
+
+        
+        ];
+        await TeamMember.bulkCreate(teamMembers);
+      }
+    });
+  }
 
     const roleData = [
         {roleName: 'Sales Executive',abbreviation:'SE'},
