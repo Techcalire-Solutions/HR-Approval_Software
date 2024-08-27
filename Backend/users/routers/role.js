@@ -6,11 +6,11 @@ const { Op, fn, col, where } = require('sequelize');
 const sequelize = require('../../utils/db');
 
 
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
     try {
-            const { roleName, status } = req.body;
+            const { roleName,abbreviation, status } = req.body;
 
-            const role = new Role({roleName, status});
+            const role = new Role({roleName,abbreviation, status});
 
             await role.save();
 
@@ -21,12 +21,9 @@ router.post('/', async (req, res) => {
     }
 })
 
-router.get('/', async (req, res) => {
-  console.log("GET API------INITIAL 1 ")
+router.get('/', authenticateToken, async (req, res) => {
   try {
-    console.log("GET API------INITIAL  2")
     const roles = await Role.findAll({});
-    console.log("ROLES------------------",roles)
     res.send(roles);
   } catch (error) {
     res.status(500).send({ error: error.message });
@@ -101,7 +98,7 @@ router.get('/', async (req, res) => {
 
 // })
 
-router.get('/:id',  async (req, res) => {
+router.get('/:id', authenticateToken,  async (req, res) => {
   try {
     const role = await Role.findOne({where: {id: req.params.id}, order:['id']})
 

@@ -1,0 +1,48 @@
+<h1 mat-dialog-title>
+    <!-- @if (user.id) {
+        <span>Edit</span>
+    } @else {
+        <span>Add</span>
+    }
+     Role -->
+</h1>
+<div mat-dialog-content>
+    <form [formGroup]="form" class="user-form" >
+        <mat-tab-group class="vertical-tabs">
+            <mat-tab label="New">
+                <div fxLayout="column" class="form-field-outer">
+                    <mat-form-field class="w-100">
+                        <mat-label><mat-icon>person</mat-icon> Role Name</mat-label>
+                        <input matInput formControlName="roleName" required>
+                        <mat-error>
+                            @if (form.controls.roleName.errors?.required) {
+                                roleName is required
+                            }
+                            @if (form.controls.roleName.hasError('minlength')) {
+                                UsernroleNameame isn't long enough, minimum of 5 characters
+                            }
+                        </mat-error>
+                    </mat-form-field>
+                    <mat-form-field class="w-100">
+                        <mat-label><mat-icon>vpn_key</mat-icon> Password</mat-label>
+                        <input matInput formControlName="abbreviation" required [type]="passwordHide ? 'abbreviation' : 'text'">
+                        <mat-icon matSuffix (click)="passwordHide = !passwordHide">{{passwordHide ? 'visibility' : 'visibility_off'}}</mat-icon>
+                        <mat-error>
+                            @if (form.controls.abbreviation.errors?.required) {
+                                Password is required
+                            }
+                            @if (form.controls.abbreviation.hasError('minlength')) {
+                                Password isn't long enough, minimum of 6 characters
+                            }
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+            </mat-tab>
+ </mat-tab-group>
+    </form>
+</div>
+<div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
+
+ <button mat-raised-button color="primary" [mat-dialog-close]="form.value" [disabled]="!form.valid" type="button" (click)="onSubmit()" >SAVE  </button> 
+    <button mat-raised-button color="warn" (click)="close()">Cancel</button>
+</div>
