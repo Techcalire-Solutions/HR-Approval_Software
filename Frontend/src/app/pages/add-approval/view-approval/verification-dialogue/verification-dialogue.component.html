@@ -1,1 +1,62 @@
-<p>verification-dialogue works!</p>
+
+<div class="custom-dialog">
+  <h1 class="dialog-title">Change Status</h1>
+  <div class="dialog-content">
+    Are you sure you are changing the invoice {{invoiceNo}} to {{status}} status?
+  </div>
+
+  <div >
+    <form [formGroup]="form">
+      <mat-form-field appearance="outline">
+        <mat-label>Notes</mat-label>
+        <input matInput placeholder="" formControlName="remarks">
+        <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+      </mat-form-field>
+
+      <mat-form-field class="full-width" appearance="outline" *ngIf="status === 'KAM VERIFIED'">
+        <mat-label>Authorizer Manager</mat-label>
+        <mat-select placeholder="" formControlName="amId">
+          <!-- <mat-form-field class="full-width">
+            <div class="row">
+              <input matInput (input)="filterRole($event)" placeholder="Search">
+            </div>
+          </mat-form-field> -->
+          <mat-option *ngFor="let item of am" [value]="item.id">
+            {{item.name}}
+          </mat-option>
+          <!-- <mat-option *ngIf="kam.length === 0" [value]="'add'">
+            <span class="material-icons" style="font-size: 25px; color: rgb(0, 128, 55);" (click)="addRole()">playlist_add</span>
+          </mat-option> -->
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="full-width" appearance="outline" *ngIf="status === 'AM VERIFIED'">
+        <mat-label>Accountant</mat-label>
+        <mat-select placeholder="" formControlName="accountantId">
+          <!-- <mat-form-field class="full-width">
+            <div class="row">
+              <input matInput (input)="filterRole($event)" placeholder="Search">
+            </div>
+          </mat-form-field> -->
+          <mat-option *ngFor="let item of am" [value]="item.id">
+            {{item.name}}
+          </mat-option>
+          <!-- <mat-option *ngIf="kam.length === 0" [value]="'add'">
+            <span class="material-icons" style="font-size: 25px; color: rgb(0, 128, 55);" (click)="addRole()">playlist_add</span>
+          </mat-option> -->
+        </mat-select>
+      </mat-form-field>
+
+
+      <mat-form-field appearance="outline" *ngIf="status === 'AM REJECTED' || status === 'KAM REJECTED'">
+        <mat-label>Sales Person</mat-label>
+        <input matInput placeholder="" formControlName="spId" readonly>
+      </mat-form-field>
+    </form>
+  </div>
+  <div class="dialog-actions">
+    <button class="cancel-button" (click)="onCancelClick()">No</button>
+    <button class="confirm-button" cdkFocusInitial (click)="onConfirmClick()">Yes</button>
+  </div>
+</div>
+

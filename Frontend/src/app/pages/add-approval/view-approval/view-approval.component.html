@@ -76,22 +76,22 @@
         </a>
         <a (click)="onTabClick('bookmark')">
           <span (click)="onStepSelectionChange('pending')" class="material-symbols-outlined"
-            [ngClass]="{'selected': selectedTab === 'bookmark'}"> for_you
+            [ngClass]="{'selected': selectedTab === 'bookmark'}"> PENDING
           </span>
         </a>
         <a (click)="onTabClick('factCheck')">
           <span (click)="onStepSelectionChange('assigned')" class="material-symbols-outlined"
-            [ngClass]="{'selected': selectedTab === 'factCheck'}"> assignment_ind
+            [ngClass]="{'selected': selectedTab === 'factCheck'}"> ASSIGNED INVOICES
           </span>
         </a>
         <a (click)="onTabClick('list')">
           <span (click)="onStepSelectionChange('completed')" class="material-symbols-outlined"
-            [ngClass]="{'selected': selectedTab === 'list'}"> assignment_turned_in
+            [ngClass]="{'selected': selectedTab === 'list'}"> APPROVED
           </span>
         </a>
         <a (click)="onTabClick('invoice')">
           <span (click)="onStepSelectionChange('all')" class="material-symbols-outlined"
-            [ngClass]="{'selected': selectedTab === 'invoice'}"> receipt
+            [ngClass]="{'selected': selectedTab === 'invoice'}"> BANK RECEIPT RECEIVED
           </span>
         </a>
       </section>
