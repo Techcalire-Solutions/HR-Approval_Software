@@ -20,11 +20,15 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { PipesModule } from '../../theme/pipes/pipes.module';
 import { User } from '../../common/models/user.model';
 import { UsersService } from '../../services/users.service';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { TeamService } from '@services/team.service';
+import { Team } from '../../common/interfaces/team';
 
 @Component({
   selector: 'app-team',
   standalone: true,
   imports: [
+    MatTableModule,
     FormsModule,
     FlexLayoutModule,
     MatButtonModule,
@@ -47,43 +51,50 @@ import { UsersService } from '../../services/users.service';
   providers: [UsersService]
 })
 export class TeamComponent {
+  displayedColumns: string[] = ['position', 'name'];
   public users: User[] | null;
   public searchText: string;
   public page:any;
   public settings: Settings;
   constructor(public settingsService: SettingsService,
               public dialog: MatDialog,
-              public usersService: UsersService){
+              public teamService: TeamService){
     this.settings = this.settingsService.settings;
   }
-
+  dataSource : Team[]=[]
   ngOnInit() {
-    this.getUsers();
+    this.getTeams();
     console.log("usersssssssssssssssssssssssssssss")
+    this.teamService.getTeam().subscribe((res)=>{
+      this.dataSource = res;
+ })
   }
 
-  public getUsers(): void {
+  public getTeams(): void {
     this.users = null; //for show spinner each time
-    this.usersService.getUser().subscribe((users: any) =>{
+    this.teamService.getTeam().subscribe((users: any) =>{
       console.log(users);
 
       this.users = users
     });
   }
-  public addUser(user:User){
-    this.usersService.addUser(user).subscribe(user => this.getUsers());
+  applyFilter(filterValue: string) {
+    // this.dataSource.filter = filterValue.trim().toLowerCase();
   }
-  public updateUser(user:User){
-    this.usersService.updateUser(user).subscribe(user => this.getUsers());
+  public addTeam(user:User){
+    this.teamService.addTeam(user).subscribe(user => this.getTeams());
   }
-  public deleteUser(user:User){
-    this.usersService.deleteUser(user.id).subscribe(user => this.getUsers());
-  }
+  // public updateUser(user:User){
+  //   this.usersService.updateUser(user).subscribe(user => this.getUsers());
+  // }
+  // public deleteUser(user:User){
+  //   this.usersService.deleteUser(user.id).subscribe(user => this.getUsers());
+  // }
 
 
   public onPageChanged(event: any){
     this.page = event;
-    this.getUsers();
+    // this.getTeam();
     if(this.settings.fixedHeader){
         document.getElementById('main-content')!.scrollTop = 0;
     }
@@ -97,9 +108,9 @@ export class TeamComponent {
       data: user
     });
     dialogRef.afterClosed().subscribe(user => {
-      if(user){
-          (user.id) ? this.updateUser(user) : this.addUser(user);
-      }
+      // if(user){
+      //     (user.id) ? this.updateUser(user) : this.addUser(user);
+      // }
     });
   }
 
