@@ -15,9 +15,8 @@ export class TokenInterceptor implements HttpInterceptor {
   constructor(private router: Router) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    const myToken = localStorage.getItem("JWT_TOKEN");
-    console.log(myToken);
 
+    const myToken = localStorage.getItem("JWT_TOKEN");
     if(myToken){
       request = request.clone({
         setHeaders: {Authorization: `Bearer ${myToken}`}
