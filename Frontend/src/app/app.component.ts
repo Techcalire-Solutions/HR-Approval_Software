@@ -15,8 +15,7 @@ import { TokenInterceptor } from './common/interceptors/token.interceptor';
     HttpClientModule,
   ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
-  providers: [{ provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true}]
+  styleUrl: './app.component.scss'
 })
 export class AppComponent {
   settingsService = inject(SettingsService);
