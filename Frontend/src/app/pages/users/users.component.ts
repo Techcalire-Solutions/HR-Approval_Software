@@ -94,9 +94,10 @@ export class UsersComponent implements OnInit {
       data: user
     });
     dialogRef.afterClosed().subscribe(user => {
-      if(user){
-          (user.id) ? this.updateUser(user) : this.addUser(user);
-      }
+      this.getUsers()
+      // if(user){
+      //     (user.id) ? this.updateUser(user) : this.addUser(user);
+      // }
     });
   }
 

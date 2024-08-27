@@ -1,46 +1,95 @@
-<h1 mat-dialog-title>
-    <!-- @if (user.id) {
-        <span>Edit</span>
-    } @else {
-        <span>Add</span>
-    }
-     Role -->
-</h1>
+<mat-toolbar style="background-color: #283593; color: white;">
+    <p class="text-lg">ADD USER</p>
+  </mat-toolbar>
 <div mat-dialog-content>
     <form [formGroup]="form" class="user-form" >
-        <mat-tab-group class="vertical-tabs">
-            <mat-tab label="New">
-                <div fxLayout="column" class="form-field-outer">
-                    <mat-form-field class="w-100">
-                        <mat-label><mat-icon>person</mat-icon> Role Name</mat-label>
-                        <input matInput formControlName="roleName" required>
-                        <mat-error>
-                            @if (form.controls.roleName.errors?.required) {
-                                roleName is required
-                            }
-                            @if (form.controls.roleName.hasError('minlength')) {
-                                UsernroleNameame isn't long enough, minimum of 5 characters
-                            }
-                        </mat-error>
-                    </mat-form-field>
-                    <mat-form-field class="w-100">
-                        <mat-label><mat-icon>vpn_key</mat-icon> Password</mat-label>
-                        <input matInput formControlName="abbreviation" required [type]="passwordHide ? 'abbreviation' : 'text'">
-                        <mat-icon matSuffix (click)="passwordHide = !passwordHide">{{passwordHide ? 'visibility' : 'visibility_off'}}</mat-icon>
-                        <mat-error>
-                            @if (form.controls.abbreviation.errors?.required) {
-                                Password is required
-                            }
-                            @if (form.controls.abbreviation.hasError('minlength')) {
-                                Password isn't long enough, minimum of 6 characters
-                            }
-                        </mat-error>
-                    </mat-form-field>
-                </div>
-            </mat-tab>
- </mat-tab-group>
+      <mat-tab-group class="vertical-tabs">
+        <mat-tab label="New">
+          <div fxLayout="column" class="form-field-outer">
+            <!-- Name Field -->
+            <mat-form-field class="w-100">
+              <mat-label><mat-icon>person</mat-icon> Name</mat-label>
+              <input matInput formControlName="name" required>
+              <mat-error *ngIf="form.controls.name.hasError('required')">
+                Name is required
+              </mat-error>
+              <mat-error *ngIf="form.controls.name.hasError('minlength')">
+                Name isn't long enough, minimum of 5 characters
+              </mat-error>
+            </mat-form-field>
+  
+            <!-- Email Field -->
+            <mat-form-field class="w-100">
+              <mat-label><mat-icon>email</mat-icon> Email</mat-label>
+              <input matInput formControlName="email" required>
+              <mat-error *ngIf="form.controls.email.hasError('required')">
+                Email is required
+              </mat-error>
+              <mat-error *ngIf="form.controls.email.hasError('minlength')">
+                Email isn't long enough, minimum of 5 characters
+              </mat-error>
+            </mat-form-field>
+  
+            <!-- Phone Number Field -->
+            <mat-form-field class="w-100">
+              <mat-label><mat-icon>phone</mat-icon> Phone Number</mat-label>
+              <input matInput formControlName="phoneNumber" required>
+              <mat-error *ngIf="form.controls.phoneNumber.hasError('required')">
+                Phone number is required
+              </mat-error>
+              <mat-error *ngIf="form.controls.phoneNumber.hasError('minlength')">
+                Phone number isn't long enough, minimum of 5 characters
+              </mat-error>
+            </mat-form-field>
+  
+            <!-- Password Field -->
+            <mat-form-field>
+                <mat-label>Enter your password</mat-label>
+                <input 
+                  matInput 
+                  [type]="hidePassword ? 'password' : 'text'" 
+                  formControlName="password"
+                />
+                <button
+                  mat-icon-button
+                  matSuffix
+                  (click)="togglePasswordVisibility()"
+                  [attr.aria-label]="hidePassword ? 'Show password' : 'Hide password'"
+                  [attr.aria-pressed]="!hidePassword"
+                >
+                  <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                <mat-error *ngIf="form.controls.password.hasError('required')">
+                  Password is required
+                </mat-error>
+                <mat-error *ngIf="form.controls.password.hasError('minlength')">
+                  Password isn't long enough, minimum of 5 characters
+                </mat-error>
+              </mat-form-field>
+              
+  
+            <!-- Role Field -->
+            <mat-form-field class="w-100">
+              <mat-label><mat-icon>person</mat-icon> Role</mat-label>
+              <mat-select formControlName="roleId" required>
+                <mat-option *ngFor="let role of roles" [value]="role.id">
+                  {{ role.roleName }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="form.controls.roleId.hasError('required')">
+                Role is required
+              </mat-error>
+              <mat-error *ngIf="form.controls.roleId.hasError('minlength')">
+                Role isn't long enough, minimum of 5 characters
+              </mat-error>
+            </mat-form-field>
+  
+          </div>
+        </mat-tab>
+      </mat-tab-group>
     </form>
-</div>
+  </div>
+  
 <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
 
  <button mat-raised-button color="primary" [mat-dialog-close]="form.value" [disabled]="!form.valid" type="button" (click)="onSubmit()" >SAVE  </button> 
