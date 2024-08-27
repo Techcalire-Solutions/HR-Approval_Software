@@ -1,6 +1,6 @@
 const express = require('express');
 const Team = require('../models/team');
-
+const TeamMember = require('../models/teamMember');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const { Op, fn, col, where } = require('sequelize');
