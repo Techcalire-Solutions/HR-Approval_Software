@@ -1,7 +1,7 @@
 <mat-toolbar color="primary" [fxLayoutAlign]="(settings.menuType != 'mini') ? 'space-between center' : 'center center'" class="sidenav-header">
-    <a mat-raised-button color="accent" routerLink="/" (click)="closeSubMenus()" class="small-logo">HR</a>
+    <a mat-raised-button color="accent" routerLink="/" (click)="closeSubMenus()" class="small-logo">GRADUS</a>
     @if (settings.menuType == 'default') {
-        <a class="logo" routerLink="/" (click)="closeSubMenus()">SOFTWARE</a>
+        <a class="logo" routerLink="/" (click)="closeSubMenus()"></a>
     }
     @if (settings.menuType != 'mini') {
         <svg class="pin" (click)="settings.sidenavIsPinned = !settings.sidenavIsPinned">
@@ -44,9 +44,10 @@
             <a mat-icon-button routerLink="/mailbox">
                 <mat-icon>mail_outline</mat-icon>
             </a>
-            <a mat-icon-button routerLink="/login">
-                <mat-icon>power_settings_new</mat-icon>
+            <a mat-icon-button (click)="logout()">
+              <mat-icon>power_settings_new</mat-icon>
             </a>
+
         </div>
     }
 </div>
