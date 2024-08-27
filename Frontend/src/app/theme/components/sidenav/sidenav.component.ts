@@ -47,21 +47,33 @@ export class SidenavComponent implements OnInit , PipeTransform{
       });
     }
   }
+
   public userImage = 'img/users/user.jpg';
   public menuItems: Array<any>;
   public settings: Settings;
-  constructor(private router: Router, public settingsService: SettingsService,public invoiceService:InvoiceService, public menuService: MenuService){
+  constructor(private router: Router, public settingsService: SettingsService,public invoiceService:InvoiceService, public menuService: MenuService,
+    private userService:UsersService
+  ){
       this.settings = this.settingsService.settings;
   }
 user:any
 role: String
+roleId:number;
+userId :number ;
+userJoinedDate : any;
+users:User;
   ngOnInit() {
     this.menuItems = this.menuService.getVerticalMenuItems();
 
     const token = localStorage.getItem('token');
+    console.log(token)
     if (token) {
       this.user = JSON.parse(token);
-      console.log(this.user);
+      console.log(this.user)
+      console.log(this.user.role);
+      this.roleId = this.user.role
+      this.userId= this.user.id
+
 
       this.invoiceService.getRoleById(this.user.role).subscribe((res)=>{
         console.log(res);
@@ -70,6 +82,16 @@ role: String
 
     })
   }
+  this.userService.getUserById(this.userId).subscribe((res)=>{
+    console.log(res)
+    // this.userJoinedDate = res;
+
+  })
+
+
+  this.userService.getUserByRoleId( this.roleId).subscribe((res)=>{
+    console.log(res)
+  })
   }
   logout() {
     // Clear authentication tokens or session data here

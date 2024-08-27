@@ -32,6 +32,17 @@ router.post('/', async(req, res)=> {
     }    
 })
 
+router.get('/findbyuser/:id', async (req, res) => {
+    try {
+      const user = await User.findAll({
+        where: {id: req.params.id}
+      })
+      res.send(user);
+    } catch (error) {
+      res.send(error.message)
+    }
+  })
+
 router.post('/branchlogin', async(req, res)=> {
     try {
         const { branchCode, authorizationCode } = req.body;

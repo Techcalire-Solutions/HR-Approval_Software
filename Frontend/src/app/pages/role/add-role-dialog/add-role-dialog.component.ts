@@ -16,6 +16,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatTabsModule } from '@angular/material/tabs';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { RoleService } from '@services/role.service';
+import {MatToolbarModule} from '@angular/material/toolbar';
 
 @Component({
   selector: 'app-add-role-dialog',
@@ -33,7 +34,8 @@ import { RoleService } from '@services/role.service';
     MatDialogModule,
     MatButtonModule,
     MatCheckboxModule,
-    DatePipe
+    DatePipe,
+    MatToolbarModule,
   ],
   templateUrl: './add-role-dialog.component.html',
   styleUrl: './add-role-dialog.component.scss'
