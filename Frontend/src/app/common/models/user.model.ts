@@ -1,3 +1,5 @@
+import { Role } from "../interfaces/role";
+
 export class User {
   id: number;
   name: string
@@ -7,6 +9,7 @@ export class User {
   roleId: number
   status: boolean
   image: string
+  role: Role
 }
 
 export class UserProfile {

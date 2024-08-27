@@ -1,4 +1,4 @@
-import { Component, OnInit, PipeTransform, ViewEncapsulation } from '@angular/core';  
+import { Component, OnInit, PipeTransform, ViewEncapsulation } from '@angular/core';
 import { Settings, SettingsService } from '../../../services/settings.service';
 import { MenuService } from '../../../services/menu.service';
 import { VerticalMenuComponent } from '../menu/vertical-menu/vertical-menu.component';
@@ -11,6 +11,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { User } from '../../../common/models/user.model';
 import { CommonModule } from '@angular/common';
+import { UsersService } from '../../../services/users.service';
+import { InvoiceService } from '@services/invoice.service';
 
 @Component({
   selector: 'app-sidenav',
@@ -47,20 +49,28 @@ export class SidenavComponent implements OnInit , PipeTransform{
   public userImage = 'img/users/user.jpg';
   public menuItems: Array<any>;
   public settings: Settings;
-  constructor(public settingsService: SettingsService, public menuService: MenuService){
-      this.settings = this.settingsService.settings; 
+  constructor(public settingsService: SettingsService,public invoiceService:InvoiceService, public menuService: MenuService){
+      this.settings = this.settingsService.settings;
   }
 user:any
+role: String
   ngOnInit() {
     this.menuItems = this.menuService.getVerticalMenuItems();
-    
+
     const token = localStorage.getItem('token');
     if (token) {
       this.user = JSON.parse(token);
       console.log(this.user);
-    }
+
+      this.invoiceService.getRoleById(this.user.role).subscribe((res)=>{
+        console.log(res);
+
+         this.role = res.roleName
+
+    })
   }
-  
+  }
+
 
   public closeSubMenus(){
     let menu = document.getElementById("vertical-menu");

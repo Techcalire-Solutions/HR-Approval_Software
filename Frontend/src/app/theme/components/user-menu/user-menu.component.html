@@ -6,9 +6,10 @@
   <mat-toolbar color="primary">
       <div fxLayout="row" fxLayoutAlign="space-around center" class="user-info">
           <img [src]="userImage" alt="user-image" width="80" class="rounded mat-elevation-z6">
-          <ng-container *ngFor="let u of user">
-              <p>{{ u.name }}<br> <small>Web developer</small></p>
+          <ng-container *ngIf="user">
+              <p>Nishida{{ user.name }}<br> <small>{{user.role}}</small></p>
           </ng-container>
+          <p>Nishida{{ user.name }}<br> <small>{{user.role}}</small></p>
       </div>
   </mat-toolbar>
   <a mat-menu-item routerLink="/profile/projects">

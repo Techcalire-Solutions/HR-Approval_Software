@@ -42,7 +42,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     MessagesComponent,
     UserMenuComponent,
     HorizontalMenuComponent,
-    BreadcrumbComponent
+    BreadcrumbComponent,
+
   ],
   templateUrl: './pages.component.html',
   styleUrl: './pages.component.scss'
