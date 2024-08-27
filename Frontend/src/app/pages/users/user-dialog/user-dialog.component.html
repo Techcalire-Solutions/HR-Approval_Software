@@ -1,141 +1,48 @@
 <h1 mat-dialog-title>
-    @if (user.id) {
+    <!-- @if (user.id) {
         <span>Edit</span>
     } @else {
         <span>Add</span>
     }
-     user
+     Role -->
 </h1>
 <div mat-dialog-content>
-    <form [formGroup]="form" class="user-form">
+    <form [formGroup]="form" class="user-form" >
         <mat-tab-group class="vertical-tabs">
-            <mat-tab label="Basic">
+            <mat-tab label="New">
                 <div fxLayout="column" class="form-field-outer">
                     <mat-form-field class="w-100">
-                        <mat-label><mat-icon>person</mat-icon> Username</mat-label>
-                        <input matInput formControlName="username" required>
+                        <mat-label><mat-icon>person</mat-icon> Role Name</mat-label>
+                        <input matInput formControlName="roleName" required>
                         <mat-error>
-                            @if (form.controls.username.errors?.required) {
-                                Username is required
+                            @if (form.controls.roleName.errors?.required) {
+                                roleName is required
                             }
-                            @if (form.controls.username.hasError('minlength')) {
-                                Username isn't long enough, minimum of 5 characters
+                            @if (form.controls.roleName.hasError('minlength')) {
+                                UsernroleNameame isn't long enough, minimum of 5 characters
                             }
                         </mat-error>
                     </mat-form-field>
                     <mat-form-field class="w-100">
                         <mat-label><mat-icon>vpn_key</mat-icon> Password</mat-label>
-                        <input matInput formControlName="password" required [type]="passwordHide ? 'password' : 'text'">
+                        <input matInput formControlName="abbreviation" required [type]="passwordHide ? 'abbreviation' : 'text'">
                         <mat-icon matSuffix (click)="passwordHide = !passwordHide">{{passwordHide ? 'visibility' : 'visibility_off'}}</mat-icon>
                         <mat-error>
-                            @if (form.controls.password.errors?.required) {
+                            @if (form.controls.abbreviation.errors?.required) {
                                 Password is required
                             }
-                            @if (form.controls.password.hasError('minlength')) {
+                            @if (form.controls.abbreviation.hasError('minlength')) {
                                 Password isn't long enough, minimum of 6 characters
                             }
                         </mat-error>
                     </mat-form-field>
                 </div>
             </mat-tab>
-            <mat-tab label="Personal" formGroupName="profile">
-                <div fxLayout="column" class="form-field-outer">
-                    <mat-form-field class="w-100">
-                        <mat-label>Name</mat-label>
-                        <input matInput formControlName="name">
-                    </mat-form-field>
-                    <mat-form-field class="w-100">
-                        <mat-label>Surname</mat-label>
-                        <input matInput formControlName="surname">
-                    </mat-form-field>
-                    <mat-form-field class="w-100">
-                        <mat-label>Birthday</mat-label>
-                        <input matInput [matDatepicker]="birthday" formControlName="birthday">
-                        <mat-datepicker-toggle matSuffix [for]="birthday"></mat-datepicker-toggle>
-                        <mat-datepicker #birthday></mat-datepicker>
-                    </mat-form-field>
-                    <mat-radio-group formControlName="gender">
-                        <mat-radio-button value="male" labelPosition="before">Male</mat-radio-button>
-                        <mat-radio-button value="female" labelPosition="before">Female</mat-radio-button>
-                    </mat-radio-group>
-                    <mat-form-field class="w-100">
-                        <mat-label>Image url</mat-label>
-                        <input matInput formControlName="image">
-                    </mat-form-field>
-                </div>
-            </mat-tab>
-            <mat-tab label="Work" formGroupName="work">
-                <div fxLayout="column" class="form-field-outer">
-                    <mat-form-field class="w-100">
-                        <mat-label>Company</mat-label>
-                        <input matInput formControlName="company">
-                    </mat-form-field>
-                    <mat-form-field class="w-100">
-                        <mat-label>Position</mat-label>
-                        <input matInput formControlName="position">
-                    </mat-form-field>
-                    <mat-form-field class="w-100">
-                        <mat-label>Salary</mat-label>
-                        <input matInput formControlName="salary">
-                        <span matTextPrefix>$&nbsp;</span>
-                        <span matTextSuffix>.00</span>
-                    </mat-form-field>
-                </div>
-            </mat-tab>
-            <mat-tab label="Contacts" formGroupName="contacts">
-                <div fxLayout="column" class="form-field-outer">
-                    <mat-form-field class="w-100">
-                        <mat-label>Email</mat-label>
-                        <input matInput formControlName="email">
-                    </mat-form-field>
-                    <mat-form-field class="w-100">
-                        <mat-label>Phone</mat-label>
-                        <input matInput formControlName="phone">
-                    </mat-form-field>
-                    <mat-form-field class="w-100">
-                        <mat-label>Address</mat-label>
-                        <input matInput formControlName="address">
-                    </mat-form-field>
-                </div>
-            </mat-tab>
-            <mat-tab label="Social life" formGroupName="social">
-                <div fxLayout="column" class="form-field-outer">
-                    <mat-form-field class="w-100">
-                        <mat-label>Facebook</mat-label>
-                        <input matInput formControlName="facebook">
-                    </mat-form-field>
-                    <mat-form-field class="w-100">
-                        <mat-label>Twitter</mat-label>
-                        <input matInput formControlName="twitter">
-                    </mat-form-field>
-                    <mat-form-field class="w-100">
-                        <mat-label>Google</mat-label>
-                        <input matInput formControlName="google">
-                    </mat-form-field>
-                </div>
-            </mat-tab>
-            <mat-tab label="Settings" formGroupName="settings">
-                <div fxLayout="column" class="form-field-outer">
-                    <mat-checkbox formControlName="isActive">Active</mat-checkbox>
-                    <mat-checkbox formControlName="isDeleted">Blocked</mat-checkbox>
-
-                    <!-- @if (user.id) {
-                        <p><span>Registration date:</span> <i>{{user.settings.registrationDate | date:"dd MMMM, yyyy 'at' HH:mm" }}</i></p>
-                        <p><span>Last joined date:</span> <i>{{user.settings.joinedDate | date:"dd MMMM, yyyy 'at' HH:mm" }}</i> </p>
-                    }                    -->
-
-                </div>
-            </mat-tab>
-        </mat-tab-group>
+ </mat-tab-group>
     </form>
 </div>
 <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
-    <button mat-raised-button color="primary" [mat-dialog-close]="form.value" [disabled]="!form.valid">
-        @if (user.id) {
-            Update
-        } @else {
-            Save
-        }
-    </button>
+
+ <button mat-raised-button color="primary" [mat-dialog-close]="form.value" [disabled]="!form.valid" type="button" (click)="onSubmit()" >SAVE  </button> 
     <button mat-raised-button color="warn" (click)="close()">Cancel</button>
 </div>
