@@ -1,4 +1,4 @@
-import { MatToolbarModule } from '@angular/material/toolbar';
+
 import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
@@ -32,6 +32,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatSortModule} from '@angular/material/sort';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatToolbarModule} from '@angular/material/toolbar';
+
 @NgModule({
   declarations: [],
   imports: [
@@ -45,7 +47,6 @@ import {MatTooltipModule} from '@angular/material/tooltip';
     MatSelectModule,
     MatInputModule,
     MatRadioModule,
-    MatToolbarModule,
     CdkAccordionModule,
     MatExpansionModule,
     MatDividerModule,
@@ -68,7 +69,8 @@ import {MatTooltipModule} from '@angular/material/tooltip';
     MatProgressSpinnerModule,
     MatChipsModule,
     MatSortModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatToolbarModule
   ],
 
   exports: [

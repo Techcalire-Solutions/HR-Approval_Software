@@ -1,11 +1,7 @@
-<h1 mat-dialog-title>
-    <!-- @if (user.id) {
-        <span>Edit</span>
-    } @else {
-        <span>Add</span>
-    }
-     Role -->
-</h1>
+<mat-toolbar style="background-color: #283593; color: white;">
+    <p class="text-lg">ADD ROLES</p>
+  </mat-toolbar>
+
 <div mat-dialog-content>
     <form [formGroup]="form" class="user-form" >
         <mat-tab-group class="vertical-tabs">
@@ -16,23 +12,22 @@
                         <input matInput formControlName="roleName" required>
                         <mat-error>
                             @if (form.controls.roleName.errors?.required) {
-                                roleName is required
+                                RoleName is required
                             }
                             @if (form.controls.roleName.hasError('minlength')) {
-                                UsernroleNameame isn't long enough, minimum of 5 characters
+                                RoleName isn't long enough, minimum of 5 characters
                             }
                         </mat-error>
                     </mat-form-field>
                     <mat-form-field class="w-100">
                         <mat-label><mat-icon>text_fields</mat-icon> Abbreviation</mat-label>
-                        <input matInput formControlName="abbreviation" required [type]="passwordHide ? 'abbreviation' : 'text'">
-                        <mat-icon matSuffix (click)="passwordHide = !passwordHide">{{passwordHide ? 'visibility' : 'visibility_off'}}</mat-icon>
+                        <input matInput formControlName="abbreviation" required>
                         <mat-error>
                             @if (form.controls.abbreviation.errors?.required) {
-                                Password is required
+                                Abbreviation is required
                             }
                             @if (form.controls.abbreviation.hasError('minlength')) {
-                                Password isn't long enough, minimum of 6 characters
+                                Abbreviation isn't long enough, minimum of 5 characters
                             }
                         </mat-error>
                     </mat-form-field>
