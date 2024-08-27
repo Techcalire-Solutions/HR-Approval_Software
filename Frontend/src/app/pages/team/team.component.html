@@ -49,10 +49,10 @@
                                 <mat-icon>mode_edit</mat-icon>
                                 <span>Edit</span>
                             </button>
-                            <button mat-menu-item (click)="deleteUser(user);">
+                            <!-- <button mat-menu-item (click)="deleteUser(user);">
                                 <mat-icon>delete</mat-icon>
                                 <span>Delete</span>
-                            </button>
+                            </button> -->
                         </span>
                     </mat-menu>
                     <div class="user-content" fxLayout="row" fxLayoutAlign="space-around center">
@@ -123,10 +123,10 @@
                                 <mat-icon>mode_edit</mat-icon>
                                 <span>Edit</span>
                             </button>
-                            <button mat-menu-item (click)="deleteUser(user);">
+                            <!-- <button mat-menu-item (click)="deleteUser(user);">
                                 <mat-icon>delete</mat-icon>
                                 <span>Delete</span>
-                            </button>
+                            </button> -->
                         </span>
                     </mat-menu>
                     <div class="user-content" fxLayout="row" fxLayoutAlign="space-around center">
@@ -215,3 +215,25 @@
         <mat-spinner color="primary"></mat-spinner>
     </div>
 }
+
+
+<div class="p-2">
+  <div class="mat-elevation-z8 p-1">
+      <mat-form-field class="w-100">
+          <input matInput (keyup)="applyFilter($any($event.target).value)" placeholder="Type to filter all columns">
+      </mat-form-field>
+  </div>
+  <mat-table #table [dataSource]="dataSource" class="mat-elevation-z8">
+      <ng-container matColumnDef="position">
+          <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
+          <mat-cell *matCellDef="let element"> {{element.id}} </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef>Role Name </mat-header-cell>
+          <mat-cell *matCellDef="let element"> {{element.roleName}} </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
+</div>
