@@ -2,6 +2,10 @@
     padding: 0 12px;
     font-weight: 400;
 }
+.team-member {
+  margin-bottom: 10px; /* Adjust the spacing as needed */
+}
+
 .user-content{
     padding: 10px;
     .user-img{
@@ -17,10 +21,10 @@
         .mat-icon{
             position: absolute;
             top: -8px;
-            left: -8px;            
+            left: -8px;
             font-size: 96px;
             height: 96px;
-            width: 96px;            
+            width: 96px;
         }
     }
     .mat-mdc-slide-toggle{
@@ -34,11 +38,11 @@
         }
         .mat-icon{
             padding: 2px 10px;
-        } 
+        }
         &.blocked{
             opacity: 0.5;
         }
-    }    
+    }
 }
 
 .user-search{
@@ -47,15 +51,15 @@
     transition: 0.3s;
     .mat-mdc-form-field{
         width: 100% !important;
-        text-align: center !important; 
+        text-align: center !important;
         .mat-mdc-form-field-infix {
             min-height: 36px;
             padding: 8px 0 !important;
         }
         .mat-mdc-form-field-subscript-wrapper {
             display: none;
-        }        
-    } 
+        }
+    }
     .mat-mdc-input-element{
         text-align: center;
     }

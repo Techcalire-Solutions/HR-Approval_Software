@@ -23,11 +23,13 @@ import { UsersService } from '../../services/users.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { TeamService } from '@services/team.service';
 import { Team } from '../../common/interfaces/team';
-
+import { MatDividerModule } from '@angular/material/divider';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-team',
   standalone: true,
   imports: [
+    CommonModule,
     MatTableModule,
     FormsModule,
     FlexLayoutModule,
@@ -43,7 +45,8 @@ import { Team } from '../../common/interfaces/team';
     NgxPaginationModule,
     PipesModule,
     DatePipe,
-    UserDialogComponent
+    UserDialogComponent,
+    MatDividerModule
   ],
   templateUrl: './team.component.html',
   styleUrl: './team.component.scss',
@@ -51,7 +54,8 @@ import { Team } from '../../common/interfaces/team';
   providers: [UsersService]
 })
 export class TeamComponent {
-  displayedColumns: string[] = ['position', 'name'];
+  displayedColumns: string[] = ['position', 'name', 'teamMembers'];
+
   public users: User[] | null;
   public searchText: string;
   public page:any;
@@ -67,6 +71,8 @@ export class TeamComponent {
     console.log("usersssssssssssssssssssssssssssss")
     this.teamService.getTeam().subscribe((res)=>{
       this.dataSource = res;
+      console.log('team res: ' , res);
+
  })
   }
 
