@@ -17,6 +17,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 @Component({
   selector: 'app-add-approval',
   standalone: true,
@@ -27,7 +30,11 @@ import { MatSelectModule } from '@angular/material/select';
     MatToolbarModule,
     MatIconModule,
     MatButtonModule,
-    MatSelectModule,],
+    MatSelectModule,
+    MatInputModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './add-approval.component.html',
   styleUrl: './add-approval.component.scss'
 })
@@ -49,7 +56,7 @@ export class AddApprovalComponent {
     this.generateInvoiceNumber()
     this.id = this.route.snapshot.params['id'];
     if(this.id){
-      // this.patchdata(this.id);
+      this.patchdata(this.id);
     }
     this.getKAM();
   }
@@ -121,64 +128,34 @@ export class AddApprovalComponent {
       });
     }
   }
-  filterRole(event: Event | string) {
-    let value: string = "";
-    if (typeof event === "string") {
-      value = event;
-    } else if (event instanceof Event) {
-      value = (event.target as HTMLInputElement).value;
-    }
-    this.getRole(value)
-  }
-  roles: any[] = [];
-  roleSubscription?: Subscription;
-  getRole(value?: string){
-    this.roleSubscription = this.invoiceService.getRole(value).subscribe(role => {
-      this.roles = role;
-    })
-  }
+
   invSub!: Subscription;
   prefix: string = '';
   ivNum: string = '';
   generateInvoiceNumber() {
     this.invSub = this.invoiceService.getPI().subscribe((res: PerformaInvoice[]) => {
-      // Check if there are any employees in the array
       if (res.length > 0) {
-        const maxId: any = res.reduce((prevMax, inv) => {
-          // Extract the numeric part of the employee ID and convert it to a number
+        const maxId = res.reduce((prevMax, inv) => {
           const idNumber = parseInt(inv.piNo.replace(/\D/g, ''), 10);
-
           this.prefix = this.extractLetters(inv.piNo);
-
-          // Check if the extracted numeric part is a valid number
-          if (!isNaN(idNumber)) {
-            return idNumber > prevMax ? idNumber : prevMax;
-          } else {
-            // If the extracted part is not a valid number, return the previous max
-            return prevMax;
-          }
+          return !isNaN(idNumber) && idNumber > prevMax ? idNumber : prevMax;
         }, 0);
-        // Increment the maxId by 1 to get the next ID
-          console.log(maxId);
 
-          let nextId = maxId + 1;
-          const paddedId = `${this.prefix}${nextId.toString().padStart(3, "0")}`;
-
-          this.ivNum = paddedId;
-
-          this.piForm.get('piNo')?.setValue(this.ivNum);
+        let nextId = maxId + 1;
+        const paddedId = `${this.prefix}${nextId.toString().padStart(3, "0")}`;
+        this.ivNum = paddedId;
       } else {
-        // If there are no employees in the array, set the employeeId to 'EMP001'
-        let nextId = 0o1;
+        let nextId = 1;
         let prefix = "PI-";
         const paddedId = `${prefix}${nextId.toString().padStart(3, "0")}`;
-
         this.ivNum = paddedId;
-
-        this.piForm.get('piNo')?.setValue(this.ivNum);
       }
+
+      this.piForm.get('piNo')?.setValue(this.ivNum);
+      console.log('Generated Invoice Number:', this.ivNum);
     });
   }
+
 
   extractLetters(input: string): string {
     // return input.replace(/[^a-zA-Z]/g, "");
@@ -209,30 +186,30 @@ export class AddApprovalComponent {
     });
   }
 
-  // piSub!: Subscription;
-  // editStatus: boolean = false;
-  // fileName!: string;
-  // patchdata(id: number){
-  //   this.editStatus = true;
-  //   this.piSub = this.invoiceService.getPIById(id).subscribe(inv => {
-  //     this.fileName = inv.url
-  //     console.log(this.fileName);
+  piSub!: Subscription;
+  editStatus: boolean = false;
+  fileName!: string;
+  patchdata(id: number){
+    this.editStatus = true;
+    this.piSub = this.invoiceService.getPIById(id).subscribe(inv => {
+      this.fileName = inv.url
+      console.log(this.fileName);
 
-  //     let remarks = inv.performaInvoiceStatuses.find((s: { status: any; }) => s.status === inv.status)?.remarks;
-  //     this.piForm.patchValue({piNo: inv.piNo, status: inv.status, remarks: remarks, kamId: inv.kamId})
-  //     if(inv.url != '') this.imageUrl = this.url + inv.url;
-  //     console.log(this.imageUrl);
+      let remarks = inv.performaInvoiceStatuses.find(s => s.status === inv.status)?.remarks;
+      this.piForm.patchValue({piNo: inv.piNo, status: inv.status, remarks: remarks, kamId: inv.kamId})
+      if(inv.url != '') this.imageUrl = this.url + inv.url;
+      console.log(this.imageUrl);
 
-  //   });
-  // }
+    });
+  }
 
   clearFileInput() {
-    // let file = this.fileName
-  //   let id = this.id
-  //   this.invoiceService.deleteInvoice(id, file).subscribe(inv => {
-  //     console.log(inv);
-  //     this.imageUrl = '';
-  //     this.file = '';
-  //   });
+    let file = this.fileName
+    let id = this.id
+    this.invoiceService.deleteInvoice(id, file).subscribe(inv => {
+      console.log(inv);
+      this.imageUrl = '';
+      this.file = '';
+    });
   }
 }

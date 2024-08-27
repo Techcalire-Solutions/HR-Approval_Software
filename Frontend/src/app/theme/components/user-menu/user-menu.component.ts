@@ -5,8 +5,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
-import { User } from '../../../common/models/user.model';
+
 import { CommonModule } from '@angular/common';
+import { User } from '../../../common/models/user.model';
 
 
 @Component({
@@ -28,19 +29,18 @@ import { CommonModule } from '@angular/common';
 export class UserMenuComponent implements OnInit {
   public userImage = 'img/users/user.jpg';
   constructor() { }
-  user:User[]=[]
-
+  user:User
   ngOnInit() {
 
       if(localStorage.getItem('token')){
         const token: any = localStorage.getItem('token')
         this.user = JSON.parse(token)
-        // console.log(user)
-  
+        console.log('38',this.user)
+
         // let roleid = user.role
-        // console.log(roleid);
+        console.log('41',this.user.name);
     }
-  
+
 
   }
 

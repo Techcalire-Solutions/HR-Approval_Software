@@ -79,4 +79,7 @@ export class InvoiceService {
   getRole(filterValue?: string, page?: number, pagesize?:number): Observable<Role[]> {
     return this._http.get<Role[]>(this.url + `/role/find/?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
   }
+  getRoleById(id: number): Observable<Role>{
+    return this._http.get<Role>(this.url + '/role/'+id);
+  }
 }
