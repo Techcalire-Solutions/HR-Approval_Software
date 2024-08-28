@@ -29,11 +29,12 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let invoice of invoices let i = index"
-                [routerLink]="['invoice/open/', invoice.id]"
-                (mousedown)="onMouseDown($event, invoice)"
-                (mouseup)="onMouseUp($event)"
-                (mouseleave)="onMouseLeave($event)">
+              <tr *ngFor="let invoice of invoices; let i = index"
+              [routerLink]="['/login/viewInvoices/', invoice.id]"
+              (mousedown)="onMouseDown($event, invoice)"
+              (mouseup)="onMouseUp($event)"
+              (mouseleave)="onMouseLeave($event)">
+
                 <td [attr.data-label]="'InvoiceNo'">{{invoice.piNo}}</td>
                 <td [attr.data-label]="'SP'">{{invoice.salesPerson?.name}}</td>
                 <td [attr.data-label]="'KAM'">{{invoice.kam?.name}}</td>
@@ -86,12 +87,12 @@
         </a>
         <a (click)="onTabClick('list')">
           <span (click)="onStepSelectionChange('completed')" class="material-symbols-outlined"
-            [ngClass]="{'selected': selectedTab === 'list'}"> APPROVED
+            [ngClass]="{'selected': selectedTab === 'list'}"> COMPLETED
           </span>
         </a>
         <a (click)="onTabClick('invoice')">
           <span (click)="onStepSelectionChange('all')" class="material-symbols-outlined"
-            [ngClass]="{'selected': selectedTab === 'invoice'}"> BANK RECEIPT RECEIVED
+            [ngClass]="{'selected': selectedTab === 'invoice'}"> ALL INVOICES
           </span>
         </a>
       </section>
