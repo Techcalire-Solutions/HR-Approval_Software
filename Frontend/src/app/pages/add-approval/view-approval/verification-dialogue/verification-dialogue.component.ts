@@ -9,11 +9,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
-
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-verification-dialogue',
   standalone: true,
-  imports: [ReactiveFormsModule,
+  imports: [CommonModule,
+    ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -45,6 +46,9 @@ export class VerificationDialogueComponent {
     this.form.get('spId')?.setValue(this.dialogData.sp)
     if(this.status == 'KAM VERIFIED') this.getAm()
     if(this.status == 'AM VERIFIED') this.getMa()
+
+      console.log('current status: ' , this.status);
+
   }
 
 
@@ -68,18 +72,15 @@ export class VerificationDialogueComponent {
     this.userSub = this.loginService.getUserByRole(3).subscribe(data => {
       console.log('data', data);
 
-      // Ensure to match the expected structure
-      this.am = data.map(item => ({
-        ...item,
-        // createdAt: item.createdAt || null // Add default value if not present
-      }));
-    });
+      this.am = data;
+      });
+
   }
 
 
   getMa(){
     this.userSub = this.loginService.getUserByRole(4).subscribe(data => {
-      // this.am = data;
+      this.am = data;
     });
   }
 
