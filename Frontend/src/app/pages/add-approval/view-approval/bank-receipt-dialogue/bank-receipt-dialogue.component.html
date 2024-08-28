@@ -1,0 +1,50 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+  </head>
+
+  <body>
+
+    <div class="wrapper">
+      <mat-card-header>
+        <mat-card-title>
+          <div>
+            PROFORMA INVOICE: {{piNo}}
+
+            <!-- <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon" class="d-block mr-0 ml-auto"
+              onClick="history.back()" style="margin-left: auto;">
+              <span class="material-icons" style="color: white;">exit_to_app</span>
+            </button> -->
+          </div>
+
+        </mat-card-title>
+      </mat-card-header>
+      <form action="#" #form class="form">
+        <input type="file" class="file-input" hidden #fileInput>
+        <span class="material-icons">cloud_upload</span>
+        <p>Add Bank Slip</p>
+      </form>
+      <section class="progress-area" #progressArea>
+        <li class="row" *ngIf="file">
+          <span class="material-icons">file_copy</span>
+          <div class="content">
+            <div class="details">
+              <span class="name" *ngIf="uploadComplete">{{file.name}} . Uploading</span>
+              <mat-progress-bar mode="indeterminate" *ngIf="uploadComplete"></mat-progress-bar>
+              <span *ngIf="!uploadComplete" class="name">{{file.name}} . Uploaded</span>
+              <!-- <span class=percent">${fileLoaded}%</span> -->
+            </div>
+          </div>
+        </li>
+      </section>
+
+      <button  mat-raised-button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid">
+        <span class="material-icons" style="font-size: 25px;">save</span>
+      </button>
+
+      <button class="cancel-button" (click)="onCancelClick()">No</button>
+    </div>
+  </body>
+</html>

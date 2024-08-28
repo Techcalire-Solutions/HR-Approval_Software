@@ -17,6 +17,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
+import { BankReceiptDialogueComponent } from './bank-receipt-dialogue/bank-receipt-dialogue.component';
 @Component({
   selector: 'app-view-approval',
   standalone: true,
@@ -91,8 +92,8 @@ export class ViewApprovalComponent {
 
       if(this.roleName === 'Sales Executive') { this.status = 'REJECTED'; this.sp = true }
       if(this.roleName === 'Key Account Manager') { this.status = 'GENERATED'; this.kam = true }
-      if(this.roleName === 'Authorizer Manager') { this.status = 'KAM VERIFIED'; this.am = true }
-      if(this.roleName === 'Maker Accountant') { this.status = 'AM VERIFIED'; this.ma = true }
+      if(this.roleName === 'Manager') { this.status = 'KAM VERIFIED'; this.am = true }
+      if(this.roleName === 'Accountant') { this.status = 'AM VERIFIED'; this.ma = true }
       this.getInvoices();
       console.log(this.status);
 
@@ -136,9 +137,9 @@ export class ViewApprovalComponent {
       apiCall = this.invoiceService.getPIBySP(this.status, this.filterValue, this.currentPage, this.pageSize);
     } else if (this.roleName === 'Key Account Manager') {
       apiCall = this.invoiceService.getPIByKAM(this.status, this.filterValue, this.currentPage, this.pageSize);
-    } else if (this.roleName === 'Authorizer Manager') {
+    } else if (this.roleName === 'Manager') {
       apiCall = this.invoiceService.getPIByAM(this.status, this.filterValue, this.currentPage, this.pageSize);
-    } else if (this.roleName === 'Maker Accountant') {
+    } else if (this.roleName === 'Accountant') {
       this.pageStatus = false
       apiCall = this.invoiceService.getPIByMA(this.status, this.filterValue, this.currentPage, this.pageSize);
     }
@@ -228,7 +229,7 @@ export class ViewApprovalComponent {
 
       }
 
-    }else if(this.roleName === 'Authorizer Manager') {
+    }else if(this.roleName === 'Manager') {
       if(status === 'pending'){
         this.pageStatus = true;
         this.status = 'KAM VERIFIED';
@@ -303,19 +304,19 @@ export class ViewApprovalComponent {
   }
 
   addBankSlip(piNo: string, id: number){
-    // const dialogRef = this.dialog.open(AttachBankSlipComponent, {
-    //   data: { invoiceNo: piNo, id: id }
-    // });
+    const dialogRef = this.dialog.open(BankReceiptDialogueComponent, {
+      data: { invoiceNo: piNo, id: id }
+    });
 
-    // dialogRef.afterClosed().subscribe(result => {
-    //   if(result){
-    //     this.getInvoices()
-    //     this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
-    //     // this.invoiceService.updatePIStatusWithBankSlip(data).subscribe(result => {
-    //     //   console.log(result);
-    //     // });
-    //   }
-    // })
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        this.getInvoices()
+        this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
+        // this.invoiceService.updatePIStatusWithBankSlip(data).subscribe(result => {
+        //   console.log(result);
+        // });
+      }
+    })
   }
 
   private pressTimer: any;
