@@ -66,7 +66,7 @@ export class UserDialogComponent implements OnInit {
         ],
         password: [
           null, 
-          Validators.compose([Validators.required, Validators.minLength(8)])
+          Validators.compose([Validators.required, Validators.minLength(4)])
         ],
         roleId: [
           null, 
@@ -110,15 +110,10 @@ export class UserDialogComponent implements OnInit {
       console.log(res)
       this.getUsers();
       this.dialogRef.close();
-     
     
     })
-   
   }
   
-  SubmitForm(){
-
-  }
 
 
 }
