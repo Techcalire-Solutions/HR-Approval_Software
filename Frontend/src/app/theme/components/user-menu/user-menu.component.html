@@ -5,7 +5,9 @@
   <!--<span (mouseleave)="userMenuTrigger.closeMenu()">-->
   <mat-toolbar color="primary">
       <div fxLayout="row" fxLayoutAlign="space-around center" class="user-info">
-          <img [src]="userImage" alt="user-image" width="80" class="rounded mat-elevation-z6">
+      <img [src]="userImage" alt="user-image" width="80" class="rounded mat-elevation-z6"> 
+       
+
           <ng-container *ngIf="user">
               <p>{{ user.name }}<br> <small>{{role}}</small></p>
           </ng-container>
