@@ -29,11 +29,12 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let invoice of invoices let i = index"
-                [routerLink]="['invoice/open/', invoice.id]"
-                (mousedown)="onMouseDown($event, invoice)"
-                (mouseup)="onMouseUp($event)"
-                (mouseleave)="onMouseLeave($event)">
+              <tr *ngFor="let invoice of invoices; let i = index"
+              [routerLink]="['/login/viewInvoices/', invoice.id]"
+              (mousedown)="onMouseDown($event, invoice)"
+              (mouseup)="onMouseUp($event)"
+              (mouseleave)="onMouseLeave($event)">
+
                 <td [attr.data-label]="'InvoiceNo'">{{invoice.piNo}}</td>
                 <td [attr.data-label]="'SP'">{{invoice.salesPerson?.name}}</td>
                 <td [attr.data-label]="'KAM'">{{invoice.kam?.name}}</td>

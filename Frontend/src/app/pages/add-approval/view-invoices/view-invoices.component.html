@@ -1,0 +1,149 @@
+<mat-card *ngIf="pi">
+  <div class="row">
+    <div class="col">
+      <mat-card-header>
+        <mat-card-title>
+          PROFORMA INVOICE: {{ piNo | uppercase }}
+        </mat-card-title>
+      </mat-card-header>
+    </div>
+
+    <div class="col">
+      <mat-card-header>
+        <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon"
+        class="d-block mr-0 ml-auto" onClick="history.back()" style="margin-left: auto;">
+          <mat-icon>exit_to_app</mat-icon>
+        </button>
+      </mat-card-header>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <mat-card-content>
+        <div class="row">
+          <div class="col">
+            <mat-card-content>
+              <div class="pdf-container">
+                <iframe [src]="url | safe" width="100%" height="600px"></iframe>
+              </div>
+            </mat-card-content>
+          </div>
+          <div class="col" *ngIf="bankSlip">
+            <mat-card-content>
+              <div class="pdf-container">
+                <iframe [src]="bankSlip | safe" width="100%" height="600px"></iframe>
+              </div>
+            </mat-card-content>
+          </div>
+        </div>
+      </mat-card-content>
+    </div>
+  </div>
+
+
+  <mat-card-actions *ngIf="pi.status != 'BANK SLIP ISSUED' && !sp && !ma">
+    <button mat-raised-button type="button" class="btn btn-success" (click)="verified('approved')">
+      <span class="material-icons" style="font-size: 25px;">task_alt</span>
+    </button>
+
+    <button mat-raised-button type="button" class="btn btn-success" (click)="verified('rejected')" style="margin-left: 5px;">
+      <span class="material-icons" style="font-size: 25px;">highlight_off</span>
+    </button>
+  </mat-card-actions>
+
+  <mat-card-actions *ngIf="ma" >
+    <button mat-raised-button type="button" class="btn btn-success" (click)="addBankSlip(piNo)">
+      <span class="material-icons" style="font-size: 25px;">task_alt</span>
+    </button>
+  </mat-card-actions>
+  <mat-card>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <style>
+            /* Add styles for sticky tabs */
+            .tabs {
+                position: -webkit-sticky; /* For Safari */
+                position: sticky;
+                bottom: 0;
+                width: 100%;
+                background-color: #f1f1f1;
+                display: flex;
+                justify-content: center;
+                padding: 10px 0;
+                box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+            }
+
+            .tabs a {
+                padding: 14px 20px;
+                text-decoration: none;
+                color: black;
+                text-align: center;
+                flex: 1;
+                border-right: 1px solid #ddd;
+            }
+
+            .tabs a:last-child {
+                border-right: none;
+            }
+
+            .tabs a.active {
+                background-color: #ddd;
+                font-weight: bold;
+            }
+
+            .tabs a:hover {
+                background-color: #ccc;
+            }
+        </style>
+    </head>
+    <body>
+        <mat-spinner *ngIf="submittingForm" class="spinner-overlay"></mat-spinner>
+        <main class="table" id="customers_table">
+            <section class="table__header">
+                <div class="row">
+                    <div class="col">
+                        <h4>STATUS</h4>
+                    </div>
+
+                    <div class="col">
+                        <div class="input-group">
+                            <input type="search" placeholder="Search Data..." (keyup)="applyFilter($event)">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="table__body">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Remarks</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of status">
+                            <td>{{row.status}}</td>
+                            <td>{{row.remarks}}</td>
+                            <td>{{row.date | date: 'dd/MM/yyyy'}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+
+        <!-- Sticky tabs at the bottom -->
+        <!-- <div class="tabs">
+            <a routerLink="role">ROLE</a>
+            <a>USER</a>
+        </div> -->
+    </body>
+    </html>
+
+  </mat-card>
+</mat-card>
+
