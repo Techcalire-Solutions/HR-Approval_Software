@@ -59,9 +59,9 @@
                         <div fxFlex="30" fxLayout="column" fxLayoutAlign="center center">
                             <div class="user-img">
                                 @if (user.image) {
-                                    <img [src]="user.image" class="transition-2" [class.blocked]="!user.status">
+                                    <img [src]="userImage" class="transition-2" [class.blocked]="!user.status">
                                 } @else {
-                                    <img src="../../../assets/img/no_image_part.png" class="transition-2" [class.blocked]="!user.status">
+                                    <img [src]="userImage" class="transition-2" [class.blocked]="!user.status">
                                 }
                                 @if (!user.status) {
                                     <mat-icon class="warn-color">block</mat-icon>
