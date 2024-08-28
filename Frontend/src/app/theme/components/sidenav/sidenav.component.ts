@@ -48,7 +48,7 @@ export class SidenavComponent implements OnInit , PipeTransform{
     }
   }
 
-  public userImage = 'img/users/default-user.jpg';
+  public userImage = 'img/users/user-copy.jpg';
   public menuItems: Array<any>;
   public settings: Settings;
   constructor(private router: Router, public settingsService: SettingsService,public invoiceService:InvoiceService, public menuService: MenuService,
