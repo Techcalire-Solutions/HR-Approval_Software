@@ -28,7 +28,9 @@ import { InvoiceService } from '@services/invoice.service';
   encapsulation: ViewEncapsulation.None,
 })
 export class UserMenuComponent implements OnInit {
-  public userImage = 'img/users/user.jpg';
+ public userImage = 'img/users/default-user.jpg';
+
+
   constructor(private router:Router,private invoiceService:InvoiceService) { }
   user:any
   role:any;
