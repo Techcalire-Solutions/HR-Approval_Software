@@ -59,10 +59,10 @@ export class ViewInvoicesComponent {
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;
-      if(this.roleName === 'Initiator Sales Person') this.sp = true;
+      if(this.roleName === 'Sales Executive') this.sp = true;
       if(this.roleName === 'Key Account Manager') this.kam = true;
-      if(this.roleName === 'Authorizer Manager') this.am = true;
-      if(this.roleName === 'Maker Accountant') this.ma = true;
+      if(this.roleName === 'Manager') this.am = true;
+      if(this.roleName === 'Accountant') this.ma = true;
     })
   }
 
