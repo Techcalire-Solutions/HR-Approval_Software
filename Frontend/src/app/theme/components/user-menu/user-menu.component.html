@@ -5,35 +5,37 @@
   <!--<span (mouseleave)="userMenuTrigger.closeMenu()">-->
   <mat-toolbar color="primary">
       <div fxLayout="row" fxLayoutAlign="space-around center" class="user-info">
-          <img [src]="userImage" alt="user-image" width="80" class="rounded mat-elevation-z6">
+      <img [src]="userImage" alt="user-image" width="80" class="rounded mat-elevation-z6"> 
+       
+
           <ng-container *ngIf="user">
-              <p>Nishida{{ user.name }}<br> <small>{{user.role}}</small></p>
+              <p>{{ user.name }}<br> <small>{{role}}</small></p>
           </ng-container>
-          <p>Nishida{{ user.name }}<br> <small>{{user.role}}</small></p>
+          <!-- <p>{{ user.name }}<br> <small>{{user.role}}</small></p> -->
       </div>
   </mat-toolbar>
-  <a mat-menu-item routerLink="/profile/projects">
+  <a mat-menu-item >
       <mat-icon>person</mat-icon>
       <span>Profile</span>
   </a>
-  <a mat-menu-item routerLink="/profile/user-info">
+  <a mat-menu-item >
       <mat-icon>edit</mat-icon>
       <span>Edit Profile</span>
   </a>
-  <a mat-menu-item routerLink="settings">
+  <a mat-menu-item >
       <mat-icon>settings</mat-icon>
       <span>Settings</span>
   </a>
-  <a mat-menu-item routerLink="/">
+  <a mat-menu-item >
       <mat-icon>lock</mat-icon>
       <span>Lock screen</span>
   </a>
-  <a mat-menu-item routerLink="help">
+  <a mat-menu-item >
       <mat-icon>help</mat-icon>
       <span>Help</span>
   </a>
   <div class="divider"></div>
-  <a mat-menu-item routerLink="/login">
+  <a mat-menu-item   (click)="logout()">
       <mat-icon>power_settings_new</mat-icon>
       <span>Log out</span>
   </a>
