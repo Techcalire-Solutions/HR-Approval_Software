@@ -71,7 +71,7 @@
                                 <mat-slide-toggle color="primary" [checked]="user.status" (change)="user.status = !user.status"></mat-slide-toggle>
                             </div>
                         </div>
-                        <div fxFlex="70" fxLayout="column" class="user-details transition-2" [class.blocked]="user.status">
+                        <div fxFlex="70" fxLayout="column" class="user-details transition-2" [class.blocked]="!user.status">
                             <p fxLayout="row" fxLayoutAlign="start center">
                                 <mat-icon class="muted-text">card_membership</mat-icon>
                                 <span>{{user.role.roleName}}</span>

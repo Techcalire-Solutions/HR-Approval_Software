@@ -47,9 +47,9 @@
   >
     <img [src]="userImage" alt="user-image" />
     <div class="user-info">
-      <p class="name">Emilio Verdines</p>
+      <p class="name">{{user.name}}</p>
       <p *ngIf="settings.menuType == 'default'" class="position">
-        Web developer<br />
+        {{role}}<br />
         <small class="muted-text">Member since May. 2016</small>
       </p>
     </div>
@@ -77,6 +77,14 @@
   [class.user-block-show]="settings.sidenavUserBlock"
 >
   <div id="vertical-menu">
-    <app-vertical-menu [menuItems]="menuItems" [menuParentId]="0"></app-vertical-menu>
+    <!-- Show full menu for Administrator -->
+    <ng-container *ngIf="role === 'Administrator'">
+      <app-vertical-menu [menuItems]="menuService.getVerticalMenuItems()" [menuParentId]="0"></app-vertical-menu>
+    </ng-container>
+
+    <!-- Show filtered menu for other roles -->
+    <ng-container *ngIf="role === 'Sales Executive' || role === 'Key Account Manager' || role === 'Manager' || role === 'Accountant'">
+      <app-vertical-menu [menuItems]="filteredMenuItems" [menuParentId]="0"></app-vertical-menu>
+    </ng-container>
   </div>
 </ng-scrollbar>
