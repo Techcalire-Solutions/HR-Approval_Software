@@ -4,6 +4,7 @@ const {Op, fn, col, where} = require('sequelize');
 const authenticateToken = require('../../middleware/authorization');
 const PerformaInvoiceStatus = require('../models/invoiceStatus');
 const PerformaInvoice = require('../models/performaInvoice');
+const sequelize = require('../../utils/db');
 
 router.post('/updatestatus', authenticateToken, async (req, res) => {
     const { performaInvoiceId,  remarks, amId, accountantId} = req.body;
@@ -43,8 +44,9 @@ router.post('/updatestatustobankslip', authenticateToken, async (req, res) => {
     }
 })
 
-router.get('/findbypi/:id', authenticateToken, async (req, res) => {
+router.get('/findbypi', authenticateToken, async (req, res) => {
     try {
+        console.log(req.query.search);
         
         let whereClause = { performaInvoiceId: req.query.id };
         if (req.query.search && req.query.search != 'undefined') {
@@ -54,7 +56,7 @@ router.get('/findbypi/:id', authenticateToken, async (req, res) => {
                 sequelize.where(
                   sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('status'), ' ', '')),
                   {
-                    [Op.like]: '%${searchTerm}%'
+                    [Op.like]: `%${searchTerm}%`
                   }
                 )
               ], performaInvoiceId: req.query.id

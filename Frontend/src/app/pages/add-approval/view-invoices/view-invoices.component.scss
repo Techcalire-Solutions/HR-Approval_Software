@@ -71,3 +71,156 @@ mat-card-title {
 .col:last-child {
   margin-right: 0;
 }
+
+/* Adjust the column layout on smaller screens */
+@media (max-width: 767px) {
+  .row {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pdf-container iframe {
+    width: 100%;
+    height: 400px; /* Adjust the height if necessary */
+  }
+
+  // .col {
+  //   margin-bottom: 20px; /* Add some spacing between the columns */
+  // }
+}
+
+/* Ensure iframe is responsive */
+.pdf-container iframe {
+  width: 100%;
+  height: 600px; /* You can adjust this as needed */
+  max-width: 100%;
+  border: none; /* Remove border if any */
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.table {
+  width: 100%;
+  // margin: 20px auto;
+  border-collapse: separate; /* Use separate to allow corner rounding */
+  border-spacing: 0;
+  overflow: hidden;
+  border-radius: 10px; /* Rounded corners for the table */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for a subtle 3D effect */
+}
+
+.table__header {
+  padding: 10px;
+  background-color: #0000000b;
+  color: black;
+  border-top-left-radius: 10px; /* Rounded top left corner */
+  border-top-right-radius: 10px; /* Rounded top right corner */
+}
+
+.table__body {
+  max-height: 400px;
+  overflow-x: auto;
+  overflow-y: auto;
+  border: 1px solid #0000000b;
+  border-bottom-left-radius: 10px; /* Rounded bottom left corner */
+  border-bottom-right-radius: 10px; /* Rounded bottom right corner */
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  transition: transform 0.2s ease-in-out;
+}
+
+th {
+  background-color: rgb(145, 195, 243);
+  color: black;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+td {
+  background-color: #fff;
+  position: relative;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+
+thead th:first-child, tbody td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+}
+
+.status {
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}
+
+.status.delivered {
+  background-color: #4CAF50;
+}
+
+.input-group {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+  margin-top: 15px;
+}
+
+.input-group input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 200px;
+}
+
+/* Specify widths for each column */
+th:nth-child(1), td:nth-child(1) { width: 20%; }
+th:nth-child(2), td:nth-child(2) { width: 25%; }
+th:nth-child(3), td:nth-child(3) { width: 20%; }
+th:nth-child(4), td:nth-child(4) { width: 15%; }
+th:nth-child(5), td:nth-child(5) { width: 10%; }
+th:nth-child(6), td:nth-child(6) { width: 10%; }
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.col {
+  flex: 1;
+  margin-right: 20px;
+  width: 100%;
+}
+
+.icon:hover{
+  color: red;
+  cursor: pointer;
+  transform: scale(1.5);
+}
+
+.spinner-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+}
