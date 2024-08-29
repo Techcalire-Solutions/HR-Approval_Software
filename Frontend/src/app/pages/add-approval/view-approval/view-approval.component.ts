@@ -88,7 +88,6 @@ export class ViewApprovalComponent {
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;
-      console.log(this.roleName);
 
       if(this.roleName === 'Sales Executive') { this.status = 'REJECTED'; this.sp = true }
       if(this.roleName === 'Key Account Manager') { this.status = 'GENERATED'; this.kam = true }
@@ -132,6 +131,7 @@ export class ViewApprovalComponent {
     let invoice!: PerformaInvoice[];
 
     let apiCall;
+    console.log(this.status);
 
     if (this.roleName === 'Sales Executive') {
       apiCall = this.invoiceService.getPIBySP(this.status, this.filterValue, this.currentPage, this.pageSize);
@@ -247,7 +247,7 @@ export class ViewApprovalComponent {
 
       }
 
-    }else if(this.roleName === 'Maker Accountant') {
+    }else if(this.roleName === 'Accountant') {
       if(status === 'pending'){
         this.pageStatus = false;
         this.status = 'AM VERIFIED'
