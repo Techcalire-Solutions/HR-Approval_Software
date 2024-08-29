@@ -261,9 +261,11 @@ router.get('/findbyam', authenticateToken, async(req, res) => {
 })
 
 router.get('/findbyma', authenticateToken, async(req, res) => {
+    console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+    
     let status = req.query.status;
     let user = req.user.id;
-    
+
     let where = { accountantId: user };
 
     if (status !== '' && status !== 'undefined' && status !== 'REJECTED') {
@@ -290,8 +292,10 @@ router.get('/findbyma', authenticateToken, async(req, res) => {
     if (req.query.pageSize && req.query.page ) {
         limit = req.query.pageSize;
         offset = (req.query.page - 1) * req.query.pageSize;
-      }
+    }
     try {
+        console.log(where,"_____________________________________");
+        
         const pi = await PerformaInvoice.findAll({
             where: where, limit, offset,
             order: [['id', 'DESC']],
