@@ -8,8 +8,8 @@ const User = require('../users/models/user');
 
 
 async function syncModel() {
-    
     await sequelize.sync({alter: true})
+
     Team.belongsTo(User, {
         foreignKey: "userId",
         as: "leader",
