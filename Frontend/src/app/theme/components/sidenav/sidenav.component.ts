@@ -108,13 +108,15 @@ users:User;
 
 
   logout() {
+    console.log('logout clicked');
+
     // Clear authentication tokens or session data here
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('JWT_TOKEN');
     localStorage.removeItem('REFRESH_TOKEN');
     sessionStorage.clear(); // Clear all session storage if needed
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
   }
   // logout(){
   //   const dialogRef = this.dialog.open(LogoutComponent, {

@@ -6,10 +6,11 @@ const authenticateToken = require('../../middleware/authorization');
 const Role = require('../models/role')
 const {Op, fn, col, where} = require('sequelize');
 const sequelize = require('../../utils/db'); 
+const multer = require('../../utils/userImageMulter'); // Import the configured multer instance
 
 router.post('/add', async (req, res) => {
   console.log(req.body);
-  const { name, email, phoneNumber, password, roleId, status} = req.body;
+  const { name, email, phoneNumber, password, roleId, status, userImage, url} = req.body;
   try {
     try {
       const userExist = await User.findOne({
@@ -24,7 +25,7 @@ router.post('/add', async (req, res) => {
     } 
     const pass = await bcrypt.hash(password, 10);
     
-    const user = new User({name, email, phoneNumber, password: pass, roleId, status});
+    const user = new User({name, email, phoneNumber, password: pass, roleId, status, userImage, url});
     await user.save();
     console.log(user);
     
@@ -211,6 +212,57 @@ router.delete('/delete/:id', authenticateToken, async(req, res)=>{
         res.send(error.message)
     }
 })
+
+router.post('/fileupload', multer.single('file'), authenticateToken, (req, res) => {
+  try {
+    console.log(req.body);
+    
+    console.log('File uploaded:', req.file);
+
+    if (!req.file) {
+      return res.status(400).send({ message: 'No file uploaded' });
+    }
+
+    // Construct the URL path
+    const fileUrl = `/users/userImages/${req.file.filename}`;
+
+    res.status(200).send({
+      message: 'File uploaded successfully',
+      file: req.file,
+      fileUrl: fileUrl
+    });
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    res.status(500).send({ message: error.message });
+  }
+});
+router.delete('/filedelete/:id', async (req, res) => {
+  let id = req.params.id;
+  try {
+    const pi = await PerformaInvoice.findByPk(id);
+    let filename = pi.url
+    const directoryPath = path.join(__dirname, '../userImages'); // Replace 'uploads' with your folder name
+    const filePath = path.join(directoryPath, filename);
+
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            return res.status(404).json({ message: 'File not found' });
+        }
+
+        // Delete the file
+        fs.unlink(filePath, (err) => {
+            if (err) {
+                return res.status(500).json({ message: 'Error deleting file' });
+            }
+
+            return res.status(200).json({ message: 'File deleted successfully' });
+        });
+    })
+  } catch (error) {
+    console.error('Error deleting file:', error);
+    res.status(500).send({ message: error.message });
+  }
+});
 
 router.get('/findbyrole/:id', async (req, res) => {
   try {

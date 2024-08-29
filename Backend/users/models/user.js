@@ -8,7 +8,9 @@ const User = sequelize.define('user', {
   phoneNumber: {type: DataTypes.STRING},
   password: {type: DataTypes.STRING, allowNull: false},
   roleId: {type: DataTypes.INTEGER, allowNull: false},
-  status: {type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true}
+  status: {type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true},
+  userImage : {type : DataTypes.STRING},
+  url : {type : DataTypes.STRING},
 },
 {
   freezeTableName: true,
