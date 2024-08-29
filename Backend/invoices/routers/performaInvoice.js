@@ -261,7 +261,6 @@ router.get('/findbyam', authenticateToken, async(req, res) => {
 })
 
 router.get('/findbyma', authenticateToken, async(req, res) => {
-    console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
     
     let status = req.query.status;
     let user = req.user.id;
@@ -294,7 +293,6 @@ router.get('/findbyma', authenticateToken, async(req, res) => {
         offset = (req.query.page - 1) * req.query.pageSize;
     }
     try {
-        console.log(where,"_____________________________________");
         
         const pi = await PerformaInvoice.findAll({
             where: where, limit, offset,
