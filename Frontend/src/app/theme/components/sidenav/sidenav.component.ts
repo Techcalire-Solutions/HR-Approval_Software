@@ -82,16 +82,6 @@ users:User;
 
     })
   }
-  this.userService.getUserById(this.userId).subscribe((res)=>{
-    console.log(res)
-    // this.userJoinedDate = res;
-
-  })
-
-
-  this.userService.getUserByRoleId( this.roleId).subscribe((res)=>{
-    console.log(res)
-  })
   }
   logout() {
     // Clear authentication tokens or session data here
