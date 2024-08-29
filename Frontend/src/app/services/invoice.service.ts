@@ -62,7 +62,7 @@ export class InvoiceService {
   }
 
   getPIStatusByPIId(id: number, search: string): Observable<PerformaInvoiceStatus[]>{
-    return this._http.get<PerformaInvoiceStatus[]>(this.url + '/invoiceStatus/findbypi/?search=${search}&id=${id}');
+    return this._http.get<PerformaInvoiceStatus[]>(this.url + `/invoiceStatus/findbypi/?search=${search}&id=${id}`);
   }
 
   updatePIStatus(data: any){
