@@ -18,7 +18,7 @@ const User = sequelize.define('user', {
 Role.hasMany(User,{foreignKey : 'roleId', onUpdate : 'CASCADE'})
 User.belongsTo(Role)
 
-User.sync({ force: true })
+User.sync({ alter: true })
   .then(() => console.log("Packing table Sync"))
   .catch((err) => console.log("Error syncing table PackingChild:", err));
 
