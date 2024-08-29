@@ -18,6 +18,9 @@ import { MaterialModule } from '../../../common/material/material.module';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import { Role } from '../../../common/interfaces/role';
 import { UsersService } from '../../../services/users.service';
+import { Subscription } from 'rxjs';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { environment } from '../../../../environments/environment';
 
 
 @Component({
@@ -44,45 +47,87 @@ import { UsersService } from '../../../services/users.service';
   styleUrl: './user-dialog.component.scss'
 })
 export class UserDialogComponent implements OnInit {
+  url = environment.apiUrl;
   public form: FormGroup;
   public passwordHide:boolean = true;
-  constructor(public dialogRef: MatDialogRef<UserDialogComponent>,
-         
+  constructor(private sanitizer: DomSanitizer,public dialogRef: MatDialogRef<UserDialogComponent>,
+
               public fb: FormBuilder,private roleService:RoleService,private userService:UsersService) {
-    this.form = this.fb.group({
- 
-  
-        name: [
-          null, 
-          Validators.compose([Validators.required, Validators.minLength(5)])
-        ],
-        email: [
-          null, 
-          Validators.compose([Validators.required, Validators.email])
-        ],
-        phoneNumber: [
-          null, 
-          Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)])
-        ],
-        password: [
-          null, 
-          Validators.compose([Validators.required, Validators.minLength(4)])
-        ],
-        roleId: [
-          null, 
-          Validators.compose([Validators.required])
-        ]
-      })
-      
+
+
 
 
   }
 
   ngOnInit() {
+    this.form = this.fb.group({
+
+      url: ['', Validators.required],
+      name: [
+        null,
+        Validators.compose([Validators.required, Validators.minLength(5)])
+      ],
+      email: [
+        null,
+        Validators.compose([Validators.required, Validators.email])
+      ],
+      phoneNumber: [
+        null,
+        Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)])
+      ],
+      password: [
+        null,
+        Validators.compose([Validators.required, Validators.minLength(4)])
+      ],
+      roleId: [
+        null,
+        Validators.compose([Validators.required])
+      ]
+    })
     this.getRoles()
     this.getUsers()
 
+
   }
+  uploadProgress: number | null = null;
+  uploadComplete: boolean = false;
+  file!: any;
+  uploadSub!: Subscription;
+  fileType: string = '';
+  imageUrl!: string;
+  public safeUrl!: SafeResourceUrl;
+  uploadFile(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.file = input.files?.[0];
+    this.fileType = this.file.type.split('/')[1];
+    if (this.file) {
+      this.uploadComplete = false; // Set to false to show the progress bar
+
+      let fileName = this.file.name;
+      if (fileName.length > 12) {
+        const splitName = fileName.split('.');
+        fileName = splitName[0].substring(0, 12) + "... ." + splitName[1];
+      }
+
+      this.uploadSub = this.userService.uploadImage(this.file).subscribe({
+        next: (invoice) => {
+          this.imageUrl = this.url + invoice.fileUrl;
+          if (this.imageUrl) {
+            this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.imageUrl);
+          }
+          this.form.get('url')?.setValue(invoice.fileUrl);
+          this.uploadComplete = true; // Set to true when upload is complete
+        },
+        error: (error) => {
+          console.error('Upload failed:', error);
+          this.uploadComplete = true; // Set to true to remove the progress bar even on error
+        }
+      });
+    }
+  }
+
+
+
   hidePassword: boolean = true;
   togglePasswordVisibility() {
     this.hidePassword = !this.hidePassword;
@@ -92,7 +137,7 @@ export class UserDialogComponent implements OnInit {
     this.roleService.getRole().subscribe((res)=>{
       this.roles = res;
     })
-    
+
   }
   getUsers(){
    this.userService.getUser().subscribe((res)=>{
@@ -104,16 +149,16 @@ export class UserDialogComponent implements OnInit {
     this.dialogRef.close();
   }
   onSubmit(){
-   
+
     console.log(this.form.getRawValue());
     this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
       console.log(res)
       this.getUsers();
       this.dialogRef.close();
-    
+
     })
   }
-  
+
 
 
 }
