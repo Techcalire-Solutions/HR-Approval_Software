@@ -8,7 +8,6 @@ const sequelize = require('../../utils/db');
 
 router.post('/updatestatus', authenticateToken, async (req, res) => {
     const { performaInvoiceId,  remarks, amId, accountantId} = req.body;
-    console.log(req.body);
     
     try {
         const status = new PerformaInvoiceStatus({ performaInvoiceId, status: req.body.status, date: Date.now(), remarks });
