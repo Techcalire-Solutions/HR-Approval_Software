@@ -204,15 +204,12 @@ flex-grow: 1; /* Ensure the content takes up all available space */
 margin-bottom: 10px;
 }
 
-.icon-container {
-display: flex;
-justify-content: space-between;
+.icon-container a {
+  flex: 1;
+  text-align: center;
+  margin: 0 5px; /* Adds space between icons */
 }
 
-.icon-container a {
-flex: 1; /* This allows each icon to take up equal space */
-text-align: center; /* Centers the icon within its allocated space */
-}
 
 /* Style for the bottom-bar container */
 .bottom-bar {
@@ -220,17 +217,31 @@ text-align: center; /* Centers the icon within its allocated space */
   background: linear-gradient(0deg,#203f7a, #b0c8c5);
   bottom: 0;
   width: 100%;
-  padding: 1rem;
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.25); /* Set your desired background color */
+  height: 55px; /* Set a fixed height for the bottom bar */
   padding: 10px 0; /* Adjust the padding as needed */
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.25); /* Set your desired background color */
   text-align: center; /* Center-align the content */
   align-items: center;
 }
-/* Style for the line-1 image */
-.bottom-bar-child {
-  width: 50px; /* Set the width of the image as needed */
-  height: auto; /* Maintain aspect ratio */
-  margin-right: 10px; /* Adjust the margin as needed */
+
+/* Style for the icon-container */
+.icon-container {
+  display: flex;
+  justify-content: space-between;
+  max-width: 80%; /* Adjust the maximum width as needed */
+  margin: 0 auto; /* Center the container */
+}
+
+/* Style for each link within the icon-container */
+.icon-container a {
+  flex: 1; /* This allows each icon to take up equal space */
+  text-align: center; /* Centers the icon within its allocated space */
+}
+
+/* Optional: Style for the icons to ensure they fit well */
+.icon-container span {
+  display: block;
+  padding: 5px; /* Adjust the padding as needed */
 }
 
 /* Style for the powered-by text */
@@ -248,15 +259,15 @@ text-align: center; /* Centers the icon within its allocated space */
 //   margin-bottom: 10px;
 // }
 
-.icon-container {
-  display: flex;
-  justify-content: space-between;
-}
+// .icon-container {
+//   display: flex;
+//   justify-content: space-between;
+// }
 
-.icon-container a {
-  flex: 1; /* This allows each icon to take up equal space */
-  text-align: center; /* Centers the icon within its allocated space */
-}
+// .icon-container a {
+//   flex: 1; /* This allows each icon to take up equal space */
+//   text-align: center; /* Centers the icon within its allocated space */
+// }
 
 .selected {
   background-color: rgb(9, 23, 70); /* or any other highlight style */
@@ -268,4 +279,86 @@ span{
   color: white;
 }
 
+/* Approve Button */
+.approve-button {
+  background-color: #28a745; /* Green background */
+  color: #fff; /* White text */
+  border: none; /* Remove default border */
+  padding: 5px 5px; /* Smaller padding */
+  font-size: 10px; /* Smaller font size */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth background color transition */
+  margin-right: 10px; /* Space between buttons */
+}
 
+.approve-button:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+
+/* Reject Button */
+.reject-button {
+  background-color: #dc3545; /* Red background */
+  color: #fff; /* White text */
+  border: none; /* Remove default border */
+  padding: 5px 5px; /* Smaller padding */
+  font-size: 10px; /* Smaller font size */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth background color transition */
+}
+
+.reject-button:hover {
+  background-color: #c82333; /* Darker red on hover */
+}
+
+
+
+/* Add Bank Slip Button */
+.add-bank-slip-button {
+  background-color: #145ca9; /* Blue background */
+  color: #fff; /* White text */
+  border: none; /* Remove default border */
+  padding: 8px 16px; /* Padding */
+  font-size: 14px; /* Font size */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth background color transition */
+  margin-left: 5px; /* Space between buttons or elements */
+}
+
+.add-bank-slip-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+/* Update Button */
+.update-button {
+  background-color: #0056b3;/* Blue background */
+  color: #fff; /* White text */
+  border: none; /* Remove default border */
+  padding: 5px 5px; /* Smaller padding */
+  font-size: 10px; /* Smaller font size */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth background color transition */
+  margin-right: 10px; /* Space between buttons */
+}
+
+.update-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Delete Button */
+.delete-button {
+  background-color: #dc3545; /* Red background */
+  color: #fff; /* White text */
+  border: none; /* Remove default border */
+  padding: 5px 5px; /* Smaller padding */
+  font-size: 10px; /* Smaller font size */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth background color transition */
+}
+
+.delete-button:hover {
+  background-color: #c82333; /* Darker red on hover */
+}

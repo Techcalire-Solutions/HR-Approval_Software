@@ -57,16 +57,14 @@
                     </mat-menu>
                     <div class="user-content" fxLayout="row" fxLayoutAlign="space-around center">
                         <div fxFlex="30" fxLayout="column" fxLayoutAlign="center center">
-                            <div class="user-img">
-                                @if (user.image) {
-                                    <img [src]="userImage" class="transition-2" [class.blocked]="!user.status">
-                                } @else {
-                                    <img [src]="userImage" class="transition-2" [class.blocked]="!user.status">
-                                }
-                                @if (!user.status) {
-                                    <mat-icon class="warn-color">block</mat-icon>
-                                }
-                            </div>
+                          <div class="user-img">
+                            <img *ngIf="user.url; else defaultImage" [src]="user.url | safe" class="transition-2" [class.blocked]="!user.status">
+                            <ng-template #defaultImage>
+                                <img [src]="userImage" class="transition-2" [class.blocked]="!user.status">
+                            </ng-template>
+                            <mat-icon *ngIf="!user.status" class="warn-color">block</mat-icon>
+                        </div>
+
                             <div class="user-social">
                                 <mat-slide-toggle color="primary" [checked]="user.status" (change)="user.status = !user.status"></mat-slide-toggle>
                             </div>

@@ -326,6 +326,77 @@ router.get('/findbyma', authenticateToken, async(req, res) => {
     }
 })
 
+
+router.get('/findbyadmin', authenticateToken, async (req, res) => {
+    let status = req.query.status;
+    let user = req.user.id;
+    let userRole = req.user.role; // Assuming role is part of the user object
+
+    // Default where condition
+    let where = {};
+
+    // If the user is not an Administrator, apply the accountantId filter
+    if (userRole == 'Administrator') {
+        where.accountantId = user;
+
+        if (status !== '' && status !== 'undefined' && status !== 'REJECTED') {
+            where.status = status;
+        } else if (status === 'REJECTED') {
+            where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
+        }
+    }
+
+    if (req.query.search !== '' && req.query.search !== 'undefined') {
+        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+        where[Op.or] = [
+            ...(where[Op.or] || []),
+            sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('piNo'), ' ', '')),
+                {
+                    [Op.like]: `%${searchTerm}%`
+                }
+            )
+        ];
+    }  
+
+    let limit; 
+    let offset; 
+    if (req.query.pageSize && req.query.page) {
+        limit = req.query.pageSize;
+        offset = (req.query.page - 1) * req.query.pageSize;
+    }
+
+    try {
+        const pi = await PerformaInvoice.findAll({
+            where: where,
+            limit,
+            offset,
+            order: [['id', 'DESC']],
+            include: [
+                { model: PerformaInvoiceStatus },
+                { model: User, as: 'salesPerson', attributes: ['name'] },
+                { model: User, as: 'kam', attributes: ['name'] },
+                { model: User, as: 'am', attributes: ['name'] },
+                { model: User, as: 'accountant', attributes: ['name'] },
+            ]
+        });
+
+        let totalCount = await PerformaInvoice.count({ where: where });
+        
+        if (req.query.page && req.query.pageSize !== 'undefined') {
+            const response = {
+                count: totalCount,
+                items: pi,
+            };
+            res.json(response);
+        } else {
+            res.send(pi);
+        }
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
 router.patch('/bankslip/:id', authenticateToken, async(req, res) => {
     const { bankSlip} = req.body;
     try {
