@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { User } from '../common/models/user.model';
 import { Role } from '../common/interfaces/role';
 
@@ -24,6 +24,20 @@ export class UsersService {
     return this.http.post( 'http://localhost:8000/user/add', data);
   }
 
+  uploadImage(file: any): Observable<any> {
+    if (file instanceof File) {
+      const formData = new FormData();
+      formData.append("file", file, file.name);
+      return this.http.post(this.apiUrl + '/user/fileupload', formData);
+    } else {
+      // Handle the case where 'file' is not a File object
+      return throwError("Invalid file type");
+    }
+  }
+
+  // deleteInvoice(id: number, fileName: string){
+  //   return this._http.delete(this.url + `/invoice/filedelete/?id=${id}&fileName=${fileName}`);
+  // }
   updateUser(user:User){
       return this.http.put(this.apiUrl, user);
   }

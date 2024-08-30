@@ -8,7 +8,7 @@ export class User {
   password: string
   roleId: number
   status: boolean
-  image: string
+  url: string
   role: Role
 }
 

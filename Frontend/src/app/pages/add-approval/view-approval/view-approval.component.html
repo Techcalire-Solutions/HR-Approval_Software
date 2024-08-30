@@ -20,10 +20,10 @@
             <thead>
               <tr>
                 <th mat-sort-header="invoiceNo" scope="col">InvoiceNo</th>
-                <th mat-sort-header="sp" scope="col">SP</th>
+                <th mat-sort-header="sp" scope="col">Sales Executive</th>
                 <th mat-sort-header="kam" scope="col">KAM</th>
-                <th mat-sort-header="am" scope="col">AM</th>
-                <th mat-sort-header="ma" scope="col">MA</th>
+                <th mat-sort-header="am" scope="col">Manager</th>
+                <th mat-sort-header="ma" scope="col">Accountant</th>
                 <th mat-sort-header="status" scope="col">Status</th>
                 <th mat-sort-header="view" scope="col">View</th>
               </tr>
@@ -70,11 +70,11 @@
 
     <div class="container pt-4">
       <section class="icon-container mb-4">
-        <a (click)="onTabClick('upload')" *ngIf="roleName ==='Sales Executive'" routerLink="invoice/upload">
+        <!-- <a (click)="onTabClick('upload')" *ngIf="roleName ==='Sales Executive'" routerLink="invoice/upload">
           <span class="material-symbols-outlined"
             [ngClass]="{'selected': selectedTab === 'upload'}">upload_file
           </span>
-        </a>
+        </a> -->
         <a (click)="onTabClick('bookmark')">
           <span (click)="onStepSelectionChange('pending')" class="material-symbols-outlined"
             [ngClass]="{'selected': selectedTab === 'bookmark'}"> PENDING

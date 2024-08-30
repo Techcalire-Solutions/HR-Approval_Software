@@ -88,7 +88,7 @@ export class UsersComponent implements OnInit {
         document.getElementsByClassName('mat-drawer-content')[0].scrollTop = 0;
     }
   }
-  public userImage = 'img/users/default-user.jpg';
+  public userImage = 'img/users/avatar.png';
 
   public openUserDialog(user: any){
     let dialogRef = this.dialog.open(UserDialogComponent, {
