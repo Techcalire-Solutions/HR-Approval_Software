@@ -36,6 +36,12 @@ export const routes: Routes = [
         loadComponent: () => import('./add-approval/view-invoices/view-invoices.component').then(c => c.ViewInvoicesComponent),
         data: { breadcrumb: 'View Invoices' }
       },
+      {
+        path: 'updatePI/:id',
+        loadComponent: () => import('./add-approval/update-pi/update-pi.component').then(c => c.UpdatePIComponent),
+        data: { breadcrumb: 'Update PI' }
+      },
+
 
       {
         path: 'profile',

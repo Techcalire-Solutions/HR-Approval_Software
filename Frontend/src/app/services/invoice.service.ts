@@ -48,6 +48,9 @@ export class InvoiceService {
   getPIByMA(status?: string, search?: string, currentPage?: number, pageSize?: number): Observable<PerformaInvoice[]>{
     return this._http.get<PerformaInvoice[]>(this.url + `/performaInvoice/findbyma/?status=${status}&search=${search}&page=${currentPage}&pageSize=${pageSize}`);
   }
+  getPIByAdmin(status?: string, search?: string, currentPage?: number, pageSize?: number): Observable<PerformaInvoice[]>{
+    return this._http.get<PerformaInvoice[]>(this.url + `/performaInvoice/findbyadmin/?status=${status}&search=${search}&page=${currentPage}&pageSize=${pageSize}`);
+  }
 
   addPI(data: any){
     return this._http.post(this.url + '/performaInvoice/save', data);
