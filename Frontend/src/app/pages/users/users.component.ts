@@ -18,6 +18,10 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { PipesModule } from '../../theme/pipes/pipes.module';
 import { MatCardModule } from '@angular/material/card';
 import { DatePipe } from '@angular/common';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
+import { SafePipe } from '../add-approval/view-invoices/safe.pipe';
+
 
 @Component({
   selector: 'app-users',
@@ -37,7 +41,9 @@ import { DatePipe } from '@angular/common';
     NgxPaginationModule,
     PipesModule,
     DatePipe,
-    UserDialogComponent
+    UserDialogComponent,
+    CommonModule,
+    SafePipe
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
@@ -49,7 +55,8 @@ export class UsersComponent implements OnInit {
   public searchText: string;
   public page:any;
   public settings: Settings;
-  constructor(public settingsService: SettingsService,
+  constructor(private sanitizer: DomSanitizer,
+    public settingsService: SettingsService,
               public dialog: MatDialog,
               public usersService: UsersService){
     this.settings = this.settingsService.settings;
@@ -57,8 +64,12 @@ export class UsersComponent implements OnInit {
 
   ngOnInit() {
     this.getUsers();
-  }
 
+
+  }
+  getSanitizedUrl(url: string): SafeUrl {
+    return this.sanitizer.bypassSecurityTrustUrl(url);
+  }
   public getUsers(): void {
     this.users = null; //for show spinner each time
     this.usersService.getUser().subscribe((users: any) =>{

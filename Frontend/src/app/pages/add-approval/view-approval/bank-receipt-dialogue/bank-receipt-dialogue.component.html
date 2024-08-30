@@ -23,8 +23,8 @@
       </mat-card-header>
       <form action="#" #form class="form">
         <input type="file" class="file-input" hidden #fileInput>
-        <span class="material-icons">cloud_upload</span>
-        <p>Add Bank Slip</p>
+        <!-- <span class="material-icons">cloud_upload</span> -->
+        <p>Click to Upload Bank Slip</p>
       </form>
       <section class="progress-area" #progressArea>
         <li class="row" *ngIf="file">
@@ -41,10 +41,10 @@
       </section>
 
       <button  mat-raised-button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid">
-        <span class="material-icons" style="font-size: 25px;">save</span>
+        <span class="material-icons" style="font-size: 25px;">Save</span>
       </button>
 
-      <button class="cancel-button" (click)="onCancelClick()">No</button>
+      <button class="cancel-button" (click)="onCancelClick()">Cancel</button>
     </div>
   </body>
 </html>

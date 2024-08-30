@@ -25,7 +25,7 @@
                 <th mat-sort-header="am" scope="col">Manager</th>
                 <th mat-sort-header="ma" scope="col">Accountant</th>
                 <th mat-sort-header="status" scope="col">Status</th>
-                <th mat-sort-header="view" scope="col">View</th>
+                <th mat-sort-header="view" scope="col">Manage</th>
               </tr>
             </thead>
             <tbody>
@@ -43,11 +43,30 @@
                 <td [attr.data-label]="'Status'">{{invoice.status}}</td>
                 <td (click)="$event.stopPropagation()">
                   <div class="action-icons">
-                    <mat-icon class="icon" [routerLink]="['invoice/update', invoice.id]" *ngIf="sp">edit_note</mat-icon>
-                    <mat-icon class="icon" [routerLink]="['invoice/update', invoice.id]" *ngIf="sp">delete</mat-icon>
-                    <mat-icon class="icon" (click)="verified('approved', invoice.piNo, invoice.salesPerson.name, invoice.id)" *ngIf="!sp && pageStatus">task_alt</mat-icon>
-                    <mat-icon class="icon" (click)="verified('rejected', invoice.piNo, invoice.salesPerson.name, invoice.id)" *ngIf="!sp && pageStatus">highlight_off</mat-icon>
-                    <mat-icon class="icon" (click)="addBankSlip(invoice.piNo, invoice.id)" *ngIf="!sp && ma">file_present</mat-icon>
+                    <button class="update-button" [routerLink]="['/login/updatePI', invoice.id]" *ngIf="sp">Update</button>
+                    <button class="delete-button" [routerLink]="['invoice/update', invoice.id]" *ngIf="sp">Delete</button>
+
+
+                   <!-- Approve Button -->
+<button mat-raised-button class="approve-button"
+(click)="verified('approved', invoice.piNo, invoice.salesPerson.name, invoice.id)"
+*ngIf="!sp && pageStatus">
+APPROVE
+</button>
+
+<!-- Reject Button -->
+<button mat-raised-button class="reject-button"
+(click)="verified('rejected', invoice.piNo, invoice.salesPerson.name, invoice.id)"
+*ngIf="!sp && pageStatus">
+REJECT
+</button>
+
+<button mat-raised-button class="add-bank-slip-button"
+(click)="addBankSlip(invoice.piNo, invoice.id)"
+*ngIf="!sp && ma">
+Add Wireslip
+</button>
+
                   </div>
                 </td>
               </tr>
@@ -75,22 +94,22 @@
             [ngClass]="{'selected': selectedTab === 'upload'}">upload_file
           </span>
         </a> -->
-        <a (click)="onTabClick('bookmark')">
+        <a (click)="onTabClick('bookmark')" *ngIf="!admin">
           <span (click)="onStepSelectionChange('pending')" class="material-symbols-outlined"
             [ngClass]="{'selected': selectedTab === 'bookmark'}"> PENDING
           </span>
         </a>
-        <a (click)="onTabClick('factCheck')">
+        <a (click)="onTabClick('factCheck')" *ngIf="!admin">
           <span (click)="onStepSelectionChange('assigned')" class="material-symbols-outlined"
             [ngClass]="{'selected': selectedTab === 'factCheck'}"> ASSIGNED INVOICES
           </span>
         </a>
-        <a (click)="onTabClick('list')">
+        <a (click)="onTabClick('list')" *ngIf="!admin">
           <span (click)="onStepSelectionChange('completed')" class="material-symbols-outlined"
             [ngClass]="{'selected': selectedTab === 'list'}"> COMPLETED
           </span>
         </a>
-        <a (click)="onTabClick('invoice')">
+        <a (click)="onTabClick('invoice')" *ngIf="admin">
           <span (click)="onStepSelectionChange('all')" class="material-symbols-outlined"
             [ngClass]="{'selected': selectedTab === 'invoice'}"> ALL INVOICES
           </span>

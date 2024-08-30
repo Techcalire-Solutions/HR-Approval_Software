@@ -10,11 +10,11 @@ body{
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: #6990f2;
+  background: white;
 }
 
 .wrapper{
-  background: #fff;
+  background: white;
   width: auto;
   padding: 30px;
   border-radius: 5px;
@@ -124,43 +124,4 @@ section .details span{
 }
 
 
-/* Success Button */
-.btn-success {
-  background-color: #28a745; /* Green background */
-  color: #fff; /* White text */
-  border: none; /* Remove default border */
-  padding: 10px 20px; /* Padding */
-  font-size: 16px; /* Font size */
-  border-radius: 4px; /* Rounded corners */
-  cursor: pointer; /* Pointer cursor on hover */
-  transition: background-color 0.3s ease; /* Smooth background color transition */
-}
-
-.btn-success:hover {
-  background-color: #218838; /* Darker green on hover */
-}
-
-/* Cancel Button */
-.cancel-button {
-  background-color: #dc3545; /* Red background */
-  color: #fff; /* White text */
-  border: none; /* Remove default border */
-  padding: 10px 20px; /* Padding */
-  font-size: 16px; /* Font size */
-  border-radius: 4px; /* Rounded corners */
-  cursor: pointer; /* Pointer cursor on hover */
-  transition: background-color 0.3s ease; /* Smooth background color transition */
-  margin-left: 10px; /* Spacing between buttons */
-}
-
-.cancel-button:hover {
-  background-color: #c82333; /* Darker red on hover */
-}
-
-/* Icon Style within the Button */
-.btn-success .material-icons {
-  vertical-align: middle; /* Align the icon vertically in the middle */
-  margin-right: 8px; /* Space between the icon and text */
-  font-size: 25px; /* Size of the icon */
-}
 
