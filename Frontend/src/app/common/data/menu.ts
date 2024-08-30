@@ -1,16 +1,15 @@
 import { Menu } from '../models/menu.model';
 
 export const verticalMenuItems = [
-    new Menu (1, 'Dashboard', '/login', null, 'dashboard', null, false, 0),
-    new Menu (2, 'Role', '/login/role', null, 'group', null, false, 0),
-    new Menu (3, 'User', '/login/users', null, 'person', null, false, 0),
-    new Menu (4, 'Team', '/login/team', null, 'groups', null, false, 0),
+  new Menu(1, 'Dashboard', '/login', null, 'dashboard', null, false, 0),
+  new Menu(2, 'Role', '/login/role', null, 'group', null, false, 0),
+  new Menu(3, 'User', '/login/users', null, 'person', null, false, 0),
+  new Menu(4, 'Team', '/login/team', null, 'groups', null, false, 0),
+  new Menu(5, 'Approval Uploads', '', null, 'upload_file', null, true, 0),
+  new Menu(6, 'Add', '/login/addApproval', null, 'add_circle', null, false, 5),
+  new Menu(7, 'View', '/login/viewApproval', null, 'visibility', null, false, 5),
+];
 
-
-    new Menu (5, 'Approval Uploads', '', null, 'upload_file', null, true, 0),
-    new Menu (6, 'Add', '/login/addApproval', null, 'add_circle', null, false, 5),
-    new Menu (7, 'View', '/login/viewApproval', null, 'visibility', null, false, 5),
-]
 
 export const horizontalMenuItems = [
     new Menu (1, 'Dashboard', '/', null, 'dashboard', null, false, 0),

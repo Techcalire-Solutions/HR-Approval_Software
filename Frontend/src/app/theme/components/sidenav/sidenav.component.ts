@@ -2,7 +2,7 @@ import { Component, OnInit, PipeTransform, ViewEncapsulation } from '@angular/co
 import { Settings, SettingsService } from '../../../services/settings.service';
 import { MenuService } from '../../../services/menu.service';
 import { VerticalMenuComponent } from '../menu/vertical-menu/vertical-menu.component';
-
+import { ChangeDetectorRef } from '@angular/core';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 
@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
 import { UsersService } from '../../../services/users.service';
 import { InvoiceService } from '@services/invoice.service';
 import { Router } from '@angular/router';
+import { Menu } from '../../../common/models/menu.model';
 
 @Component({
   selector: 'app-sidenav',
@@ -51,7 +52,7 @@ export class SidenavComponent implements OnInit , PipeTransform{
   public userImage = 'img/users/user-copy.jpg';
   public menuItems: Array<any>;
   public settings: Settings;
-  constructor(private router: Router, public settingsService: SettingsService,public invoiceService:InvoiceService, public menuService: MenuService,
+  constructor(private cdr: ChangeDetectorRef, private router: Router, public settingsService: SettingsService,public invoiceService:InvoiceService, public menuService: MenuService,
     private userService:UsersService
   ){
       this.settings = this.settingsService.settings;
@@ -62,38 +63,53 @@ roleId:number;
 userId :number ;
 userJoinedDate : any;
 users:User;
-  ngOnInit() {
-    this.menuItems = this.menuService.getVerticalMenuItems();
+// menuItems: Menu[] = [];
+  filteredMenuItems: Menu[] = [];
 
+  ngOnInit() {
     const token = localStorage.getItem('token');
-    console.log(token)
     if (token) {
       this.user = JSON.parse(token);
-      console.log(this.user)
-      console.log(this.user.role);
-      this.roleId = this.user.role
-      this.userId= this.user.id
+      this.roleId = this.user.role;
+      this.userId = this.user.id;
 
-
-      this.invoiceService.getRoleById(this.user.role).subscribe((res)=>{
-        console.log(res);
-
-         this.role = res.roleName
-
-    })
+      this.invoiceService.getRoleById(this.user.role).subscribe((res) => {
+        this.role = res.roleName;
+        this.filterMenuItemsByRole(this.role.trim());
+      });
+    }
   }
-  this.userService.getUserById(this.userId).subscribe((res)=>{
-    console.log(res)
-    // this.userJoinedDate = res;
 
-  })
-
-
-  this.userService.getUserByRoleId( this.roleId).subscribe((res)=>{
-    console.log(res)
-  })
+  filterMenuItemsByRole(role: string) {
+    console.log("Filtering menus for role:", role);
+    if (role === 'Administrator') {
+      this.menuItems = this.menuService.getVerticalMenuItems();
+    } else if (
+      role === 'Sales Executive' ||
+      role === 'Key Account Manager' ||
+      role === 'Manager' ||
+      role === 'Accountant'
+    ) {
+      this.filteredMenuItems = this.menuService.getVerticalMenuItems().filter(item =>
+        item.title === 'Dashboard' ||
+        item.title === 'Approval Uploads' ||
+        (item.title === 'Add' && item.parentId === 5) || // Ensure "Add" is under "Approval Uploads"
+        (item.title === 'View' && item.parentId === 5)  // Ensure "View" is under "Approval Uploads"
+      );
+    } else {
+      console.log("Role not recognized:", role);
+      this.menuItems = [];
+      this.filteredMenuItems = [];
+    }
+    console.log("Filtered menu items:", this.filteredMenuItems);
   }
+
+
+
+
   logout() {
+    console.log('logout clicked');
+
     // Clear authentication tokens or session data here
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
