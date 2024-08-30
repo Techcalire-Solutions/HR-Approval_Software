@@ -50,14 +50,14 @@
                    <!-- Approve Button -->
 <button mat-raised-button class="approve-button"
 (click)="verified('approved', invoice.piNo, invoice.salesPerson.name, invoice.id)"
-*ngIf="!sp && pageStatus">
+*ngIf="!sp && pageStatus && !admin">
 APPROVE
 </button>
 
 <!-- Reject Button -->
 <button mat-raised-button class="reject-button"
 (click)="verified('rejected', invoice.piNo, invoice.salesPerson.name, invoice.id)"
-*ngIf="!sp && pageStatus">
+*ngIf="!sp && pageStatus && !admin">
 REJECT
 </button>
 
