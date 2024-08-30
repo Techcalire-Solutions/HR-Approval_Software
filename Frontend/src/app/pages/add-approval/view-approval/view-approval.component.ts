@@ -85,6 +85,7 @@ export class ViewApprovalComponent {
   kam: boolean = false;
   am: boolean = false;
   ma: boolean = false;
+  admin: boolean = false;
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;
@@ -93,6 +94,7 @@ export class ViewApprovalComponent {
       if(this.roleName === 'Key Account Manager') { this.status = 'GENERATED'; this.kam = true }
       if(this.roleName === 'Manager') { this.status = 'KAM VERIFIED'; this.am = true }
       if(this.roleName === 'Accountant') { this.status = 'AM VERIFIED'; this.ma = true }
+      if(this.roleName === 'Administrator') { this.admin = true }
       this.getInvoices();
       console.log(this.status);
 
@@ -142,6 +144,8 @@ export class ViewApprovalComponent {
     } else if (this.roleName === 'Accountant') {
       this.pageStatus = false
       apiCall = this.invoiceService.getPIByMA(this.status, this.filterValue, this.currentPage, this.pageSize);
+    }else if (this.roleName === 'Administrator') {
+      apiCall = this.invoiceService.getPIByAdmin(this.status, this.filterValue, this.currentPage, this.pageSize);
     }
 
     if (apiCall) {

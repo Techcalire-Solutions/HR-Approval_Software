@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { DatePipe } from '@angular/common';
-import { map } from 'rxjs';
+import { CommonModule, DatePipe } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoginService } from '@services/login.service';
 
@@ -12,83 +11,74 @@ import { LoginService } from '@services/login.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
   imports: [
+    CommonModule,
     ReactiveFormsModule
   ]
 })
 export class LoginComponent {
   isSignUpMode = false;
-
-  constructor( private fb: FormBuilder,  private router: Router, private loginService: LoginService  ) {}
+  errorMessage: string | null = null;
 
   loginForm = this.fb.group({
-    email: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required]
   });
+
+  signUpForm = this.fb.group({
+    username: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', Validators.required]
+  });
+
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private loginService: LoginService,
+    private snackBar: MatSnackBar
+  ) {}
 
   toggleSignUpMode(isSignUp: boolean = true): void {
     this.isSignUpMode = isSignUp;
   }
 
   onSignIn(): void {
-    console.log(this.loginForm.getRawValue())
-    this.loginService.loginUser(this.loginForm.getRawValue()).subscribe((res)=>{
-      // this.user =res
-      console.log('res'+res)
-      if(res){
-        this.setCurrentUser()
-      }
-      // this.router.navigateByUrl('/admin')
+    if (this.loginForm.invalid) {
+      this.errorMessage = 'Please fill in all fields correctly.Incorrect Username/password';
+      return;
+    }
 
-    })
+    this.loginService.loginUser(this.loginForm.value).subscribe({
+      next: (res) => {
+        this.setCurrentUser(res);
+        this.router.navigate(['/login']); // Redirect after successful login
+      },
+      error: (err) => {
+        this.errorMessage = 'Invalid username or password';
+        this.snackBar.open('Invalid username or password', 'Close', {
+          duration: 3000,
+        });
+      }
+    });
   }
 
   onSignUp(): void {
+    if (this.signUpForm.invalid) {
+      this.snackBar.open('Please fill in all fields correctly.', 'Close', {
+        duration: 3000,
+      });
+      return;
+    }
+
     // Handle sign-up logic here
+    this.snackBar.open('Sign-up functionality is not implemented yet.', 'Close', {
+      duration: 3000,
+    });
   }
 
-
-  user: any;
- 
-
-  datePipe = new DatePipe('en-US')
-  setCurrentUser(){
-    if(localStorage.getItem('token')){
-      const token: any = localStorage.getItem('token')
-      let user = JSON.parse(token)
-      console.log(user)
-
-      let roleid = user.role
-      console.log(roleid);
-
-      // this.loginService.getRoleById(roleid).subscribe((res)=>{
-      //   console.log(res);
-
-        // let role = res.roleName.toLowerCase();
-
-          // this.loginService.getAttendance().pipe(
-          //   map((x : Attendance[]) => x.filter((y) =>
-          //     this.datePipe.transform(y.date, 'yyyy-MM-dd') == this.datePipe.transform(new Date(), 'yyyy-MM-dd') &&
-          //     y.logStatus == true
-          //   ))
-          // ).subscribe((res)=>{
-          //   let attn = res
-          //   console.log(attn.length)
-          //   if(attn.length == 0){
-          //      // ATTENDANCE
-          //     let data = {
-          //       userId: user.userToken.id,
-          //       logStatus: true
-          //     }
-          //     console.log(data)
-          //     this.loginService.addAttendance(data).subscribe((res)=>{
-          //       console.log(res);
-
-          //       this._snackBar.open("Welcome" + user.userToken.name,"" ,{duration:3000})
-          //     })
-          //   }
-          // })
-          this.router.navigate(['login']);
-      // })
-    }
-  }
+  setCurrentUser(user: any): void {
+    if (user && user.token) {
+      localStorage.setItem('token', JSON.stringify(user.token));
+      // Handle additional user data if needed
+    }
+  }
 }
