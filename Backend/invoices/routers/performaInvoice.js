@@ -425,7 +425,7 @@ router.patch('/update/:id', authenticateToken, async(req, res) => {
         pi.kamId = kamId;
         let count = pi.count + 1;
         pi.count = count;
-        pi.status = `GENERATED_${count}`;
+        pi.status = `GENERATED`;
 
         await pi.save();
 
