@@ -1,5 +1,7 @@
 
 
+
+
 <mat-card>
   <mat-toolbar class="table-header">
     <div class="row" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
@@ -47,7 +49,7 @@
           </mat-select>
         </mat-form-field>
       </form>
-      <mat-icon *ngIf="imageUrl" style="font-size: 25px;" (click)="clearFileInput()">delete</mat-icon>
+      <span class="material-icons" *ngIf="imageUrl" style="font-size: 25px;" (click)="clearFileInput()">delete</span>
 
       <!-- <form #form class="form">
         <ng-container *ngIf="imageUrl && imageUrl != ''; else noImageTemplate">
