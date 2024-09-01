@@ -40,7 +40,7 @@
                 <td [attr.data-label]="'KAM'">{{invoice.kam?.name}}</td>
                 <td [attr.data-label]="'AM'">{{invoice.am?.name}}</td>
                 <td [attr.data-label]="'MA'">{{invoice.accountant?.name}}</td>
-                <td [attr.data-label]="'Status'">{{invoice.status}}</td>
+                <td [attr.data-label]="'Status'">{{invoice.status}}_{{invoice.count}}</td>
                 <td (click)="$event.stopPropagation()">
                   <div class="action-icons">
                     <button class="update-button" [routerLink]="['/login/updatePI', invoice.id]" *ngIf="sp">Update</button>

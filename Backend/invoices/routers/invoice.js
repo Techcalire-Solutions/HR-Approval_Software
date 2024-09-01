@@ -10,10 +10,6 @@ const PerformaInvoiceStatus = require('../models/invoiceStatus');
 
 router.post('/fileupload', multer.single('file'), authenticateToken, (req, res) => {
   try {
-    console.log(req.body);
-    
-    console.log('File uploaded:', req.file);
-
     if (!req.file) {
       return res.status(400).send({ message: 'No file uploaded' });
     }

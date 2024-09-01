@@ -38,7 +38,7 @@
   fxLayout="column"
   fxLayoutAlign="center center"
   class="user-block transition-2"
-  [class.show]="settings.sidenavUserBlock"
+  [class.show]="settings.sidenavUserBlock" *ngIf="user"
 >
   <div
     [fxLayout]="(settings.menuType != 'default') ? 'column' : 'row'"
