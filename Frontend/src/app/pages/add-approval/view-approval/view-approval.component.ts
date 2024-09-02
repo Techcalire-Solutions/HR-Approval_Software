@@ -137,7 +137,9 @@ export class ViewApprovalComponent {
 
     if (this.roleName === 'Sales Executive') {
       apiCall = this.invoiceService.getPIBySP(this.status, this.filterValue, this.currentPage, this.pageSize);
-    } else if (this.roleName === 'Key Account Manager') {
+    }else if (this.roleName === 'Team Lead') {
+      apiCall = this.invoiceService.getPIBySP(this.status, this.filterValue, this.currentPage, this.pageSize);
+    }  else if (this.roleName === 'Key Account Manager') {
       apiCall = this.invoiceService.getPIByKAM(this.status, this.filterValue, this.currentPage, this.pageSize);
     } else if (this.roleName === 'Manager') {
       apiCall = this.invoiceService.getPIByAM(this.status, this.filterValue, this.currentPage, this.pageSize);

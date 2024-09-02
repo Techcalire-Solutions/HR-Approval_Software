@@ -96,7 +96,7 @@ Add Wireslip
         </a> -->
         <a (click)="onTabClick('bookmark')" *ngIf="!admin">
           <span (click)="onStepSelectionChange('pending')" class="material-symbols-outlined"
-            [ngClass]="{'selected': selectedTab === 'bookmark'}"> PENDING
+            [ngClass]="{'selected': selectedTab === 'bookmark'}"> REJECTED
           </span>
         </a>
         <a (click)="onTabClick('factCheck')" *ngIf="!admin">
