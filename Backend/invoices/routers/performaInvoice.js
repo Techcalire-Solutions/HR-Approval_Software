@@ -2,29 +2,53 @@ const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const PerformaInvoice = require('../models/performaInvoice');
+const TeamMember = require('../../users/models/teamMember');
+const Team = require('../../users/models/team');
 const PerformaInvoiceStatus = require('../models/invoiceStatus');
 const User = require('../../users/models/user');
 const { Op, fn, col, where } = require('sequelize');
 const sequelize = require('../../utils/db');
 
-router.post('/save', authenticateToken, async(req, res) => {
-    const { piNo, url, kamId} = req.body;
+router.post('/save', authenticateToken, async (req, res) => {
+    const { piNo, url, kamId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
     const userId = req.user.id;
+
     try {
-        const newPi = new PerformaInvoice({ piNo, url, status: 'GENERATED', salesPersonId: userId, kamId });
+        // Save the new PI
+        const newPi = new PerformaInvoice({
+            piNo, url, status: 'GENERATED', salesPersonId: userId, kamId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue
+        });
         await newPi.save();
 
+        // Save the PI status
         const piId = newPi.id;
-        
         const piStatus = new PerformaInvoiceStatus({
             performaInvoiceId: piId, status: 'GENERATED', date: new Date()
-        })
+        });
         await piStatus.save();
-        res.json({ p: newPi, status: piStatus})
+
+        // Find the SalesPerson's team
+        const teamMember = await TeamMember.findOne({ where: { userId } });
+        if (!teamMember) {
+            throw new Error('SalesPerson not found in any team');
+        }
+
+        const teamId = teamMember.teamId;
+
+        // Get all team members for the team
+        const teamMembers = await TeamMember.findAll({ where: { teamId } });
+
+        // Extract userIds of team members
+        const teamMemberIds = teamMembers.map(member => member.userId);
+
+        // Respond with the PI data and notify all team members
+        res.json({ p: newPi, status: piStatus, teamMembers: teamMemberIds });
+
     } catch (error) {
-        res.send(error.message)
+        res.send(error.message);
     }
 });
+
 
 router.get('/find', authenticateToken, async(req, res) => {
     let status = req.query.status;
@@ -66,18 +90,19 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
     }
 })
 
-router.get('/findbysp', authenticateToken, async(req, res) => {
-    let status = req.query.status;
-    let user = req.user.id;
+router.get('/findbysp', authenticateToken, async (req, res) => {
+    const status = req.query.status;
+    const userId = req.user.id;
     
-    let where = { salesPersonId: user };
+    // Initialize the where clause
+    let where = { salesPersonId: userId };
 
     if (status !== '' && status !== 'undefined' && status !== 'REJECTED') {
         where.status = status;
     } else if (status === 'REJECTED') {
         where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
     }
-    
+
     if (req.query.search !== '' && req.query.search !== 'undefined') {
         const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
         where[Op.or] = [
@@ -89,46 +114,133 @@ router.get('/findbysp', authenticateToken, async(req, res) => {
                 }
             )
         ];
-    }  
+    }
 
     let limit; 
     let offset; 
-    if (req.query.pageSize && req.query.page ) {
-        limit = req.query.pageSize;
-        offset = (req.query.page - 1) * req.query.pageSize;
-      }
+    if (req.query.pageSize && req.query.page) {
+        limit = parseInt(req.query.pageSize, 10);
+        offset = (parseInt(req.query.page, 10) - 1) * limit;
+    }
+
     try {
+        // Fetch the SalesPerson's team
+        const teamMember = await TeamMember.findOne({ where: { userId } });
+
+        // If no team is found, respond with an empty list or appropriate message
+        if (!teamMember) {
+            return res.json({ count: 0, items: [] });
+        }
+
+        const teamId = teamMember.teamId;
+
+        // Get the team lead's userId
+        const team = await Team.findOne({ where: { id: teamId } });
+        const teamLeadId = team.userId;
+
+        // Get all user IDs in the team
+        const teamMembers = await TeamMember.findAll({ where: { teamId } });
+        const teamUserIds = teamMembers.map(member => member.userId);
+
+        // Include the team lead's userId in the list of allowed user IDs
+        teamUserIds.push(teamLeadId);
+
+        // Update where clause to include all team user IDs
+        where.salesPersonId = teamUserIds;
+
         const pi = await PerformaInvoice.findAll({
             where: where, limit, offset,
             order: [['id', 'DESC']],
             include: [
-                {model: PerformaInvoiceStatus},
-                {model: User, as: 'salesPerson', attributes: ['name']},
-                {model: User, as: 'kam', attributes: ['name']},
-                {model: User, as: 'am', attributes: ['name']},
-                {model: User, as: 'accountant', attributes: ['name']},
-
+                { model: PerformaInvoiceStatus },
+                { model: User, as: 'salesPerson', attributes: ['name'] },
+                { model: User, as: 'kam', attributes: ['name'] },
+                { model: User, as: 'am', attributes: ['name'] },
+                { model: User, as: 'accountant', attributes: ['name'] }
             ]
-        })
-
-        let totalCount;
-        totalCount = await PerformaInvoice.count({
-          where: where
         });
-        
-        if (req.query.page && req.query.pageSize != 'undefined') {
+
+        const totalCount = await PerformaInvoice.count({ where: where });
+
+        if (req.query.page && req.query.pageSize !== 'undefined') {
             const response = {
-              count: totalCount,
-              items: pi,
+                count: totalCount,
+                items: pi,
             };
             res.json(response);
-          } else {
+        } else {
             res.send(pi);
-          }
+        }
     } catch (error) {
-        res.send(error.message)
+        res.status(500).send(error.message);
     }
-})
+});
+
+
+
+// router.get('/findbysp', authenticateToken, async(req, res) => {
+//     let status = req.query.status;
+//     let user = req.user.id;
+    
+//     let where = { salesPersonId: user };
+
+//     if (status !== '' && status !== 'undefined' && status !== 'REJECTED') {
+//         where.status = status;
+//     } else if (status === 'REJECTED') {
+//         where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
+//     }
+    
+//     if (req.query.search !== '' && req.query.search !== 'undefined') {
+//         const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+//         where[Op.or] = [
+//             ...(where[Op.or] || []),
+//             sequelize.where(
+//                 sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('piNo'), ' ', '')),
+//                 {
+//                     [Op.like]: `%${searchTerm}%`
+//                 }
+//             )
+//         ];
+//     }  
+
+//     let limit; 
+//     let offset; 
+//     if (req.query.pageSize && req.query.page ) {
+//         limit = req.query.pageSize;
+//         offset = (req.query.page - 1) * req.query.pageSize;
+//       }
+//     try {
+//         const pi = await PerformaInvoice.findAll({
+//             where: where, limit, offset,
+//             order: [['id', 'DESC']],
+//             include: [
+//                 {model: PerformaInvoiceStatus},
+//                 {model: User, as: 'salesPerson', attributes: ['name']},
+//                 {model: User, as: 'kam', attributes: ['name']},
+//                 {model: User, as: 'am', attributes: ['name']},
+//                 {model: User, as: 'accountant', attributes: ['name']},
+
+//             ]
+//         })
+
+//         let totalCount;
+//         totalCount = await PerformaInvoice.count({
+//           where: where
+//         });
+        
+//         if (req.query.page && req.query.pageSize != 'undefined') {
+//             const response = {
+//               count: totalCount,
+//               items: pi,
+//             };
+//             res.json(response);
+//           } else {
+//             res.send(pi);
+//           }
+//     } catch (error) {
+//         res.send(error.message)
+//     }
+// })
 
 router.get('/findbkam', authenticateToken, async(req, res) => {
     let status = req.query.status;
@@ -417,7 +529,7 @@ router.patch('/bankslip/:id', authenticateToken, async(req, res) => {
 });
 
 router.patch('/update/:id', authenticateToken, async(req, res) => {
-    const { piNo, url, kamId} = req.body;
+    const { piNo, url, kamId,supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue} = req.body;
     const userId = req.user.id;
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
@@ -426,6 +538,13 @@ router.patch('/update/:id', authenticateToken, async(req, res) => {
         let count = pi.count + 1;
         pi.count = count;
         pi.status = `GENERATED`;
+        pi.supplierName=supplierName;
+        pi.supplierPoNo=supplierPoNo;
+        pi.supplierPrice=supplierPrice;
+        pi.purpose=purpose;
+        pi.customerName=customerName;
+        pi.customerPoNo=customerPoNo;
+        pi.poValue=poValue;
 
         await pi.save();
 

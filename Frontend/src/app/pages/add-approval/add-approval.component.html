@@ -18,18 +18,28 @@
         <mat-form-field appearance="outline">
           <mat-label>InvoiceNo</mat-label>
           <input matInput placeholder="" formControlName="piNo">
-        </mat-form-field> <br>
-
-        <mat-form-field appearance="outline" *ngIf="editStatus">
-          <mat-label>Status</mat-label>
-          <input matInput placeholder="" formControlName="status">
+        </mat-form-field> <mat-form-field appearance="outline">
+          <mat-label>Supplier Name</mat-label>
+          <input matInput placeholder="Enter Supplier Name" formControlName="supplierName">
         </mat-form-field>
 
-        <mat-form-field appearance="outline" *ngIf="editStatus">
-          <mat-label>Remarks</mat-label>
-          <input matInput placeholder="" formControlName="remarks">
+        <mat-form-field appearance="outline">
+          <mat-label>Supplier PO#</mat-label>
+          <input matInput placeholder="Enter Supplier PO#" formControlName="supplierPoNo">
         </mat-form-field>
 
+        <mat-form-field appearance="outline">
+          <mat-label>Supplier Price $</mat-label>
+          <input matInput placeholder="Enter Supplier Cost" formControlName="supplierPrice">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Purpose</mat-label>
+          <mat-select placeholder="Select Purpose" formControlName="purpose">
+            <mat-option value="Stock">Stock</mat-option>
+            <mat-option value="Customer">Customer</mat-option>
+          </mat-select>
+        </mat-form-field>
         <mat-form-field class="full-width" appearance="outline">
           <mat-label>Key Account Manager</mat-label>
           <mat-select placeholder="" formControlName="kamId">
@@ -46,7 +56,36 @@
             </mat-option> -->
           </mat-select>
         </mat-form-field>
-      </form>
+
+        <!-- Conditional Fields -->
+        <ng-container *ngIf="piForm.get('purpose')?.value === 'Customer'">
+          <mat-form-field appearance="outline">
+            <mat-label>Customer Name</mat-label>
+            <input matInput placeholder="Enter Customer Name" formControlName="customerName">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Customer PO#</mat-label>
+            <input matInput placeholder="Enter Customer PO#" formControlName="customerPoNo">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>CustomerPO Value $</mat-label>
+            <input matInput placeholder="Enter PO Value" formControlName="poValue">
+          </mat-form-field>
+
+        <mat-form-field appearance="outline" *ngIf="editStatus">
+          <mat-label>Status</mat-label>
+          <input matInput placeholder="" formControlName="status">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" *ngIf="editStatus">
+          <mat-label>Remarks</mat-label>
+          <input matInput placeholder="" formControlName="remarks">
+        </mat-form-field>
+
+
+
       <mat-icon *ngIf="imageUrl" style="font-size: 25px;" (click)="clearFileInput()">delete</mat-icon>
 
       <!-- <form #form class="form">
@@ -61,7 +100,8 @@
           <p (click)="fileInput.click()">Browse file to upload</p>
         </ng-template>
       </form> -->
-
+</ng-container>
+</form>
       <form #form class="form">
         <ng-container *ngIf="imageUrl && fileType != 'pdf'; else fileTemplate">
           <!-- Image Preview -->

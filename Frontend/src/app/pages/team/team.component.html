@@ -48,6 +48,12 @@
       <mat-cell *matCellDef="let element"> {{element.teamName}} </mat-cell>
     </ng-container>
 
+    <ng-container matColumnDef="teamLead">
+      <mat-header-cell *matHeaderCellDef> Team lead </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{element.leader.name}} </mat-cell>
+    </ng-container>
+
+
     <!-- Team Members Column -->
     <ng-container matColumnDef="teamMembers">
       <mat-header-cell *matHeaderCellDef> Team Members </mat-header-cell>

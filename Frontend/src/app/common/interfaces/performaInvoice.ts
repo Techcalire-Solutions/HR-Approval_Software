@@ -18,4 +18,12 @@ export interface PerformaInvoice {
   kam: User;
   am: User;
   accountant: User;
+
+  supplierName: string;
+  supplierPoNo: string;
+  supplierPrice: string;
+  purpose:string;
+  customerName: string;
+  customerPoNo: string;
+  poValue: string;
 }
