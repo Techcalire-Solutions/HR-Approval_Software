@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -9,7 +9,7 @@ import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { PerformaInvoice } from '../../../common/interfaces/performaInvoice';
-
+import { SafePipe } from '../view-invoices/safe.pipe';
 
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -35,7 +35,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     MatSelectModule,
     MatInputModule,
     MatProgressBarModule,
-    MatProgressSpinnerModule,],
+    MatProgressSpinnerModule,
+    SafePipe],
   templateUrl: './update-pi.component.html',
   styleUrl: './update-pi.component.scss'
 })
@@ -45,21 +46,46 @@ export class UpdatePIComponent {
   constructor(private invoiceService: InvoiceService, private fb: FormBuilder, private snackBar: MatSnackBar, private router: Router,
     private route: ActivatedRoute, private loginServie: LoginService, private sanitizer: DomSanitizer
   ){}
-
+  getPiById(id: number){
+    this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
+      // this.pi = pi;
+      // this.piNo = pi.piNo;
+      this.url = environment.apiUrl + pi.url;
+      // if(pi.bankSlip != null) this.bankSlip = environment.apiUrl + pi.bankSlip;
+      // this.getPiStatusByPiId(id)
+    });
+  }
   ngOnDestroy(): void {
     this.invSub?.unsubscribe();
     this.uploadSub?.unsubscribe();
     this.submit?.unsubscribe();
   }
-
+  piForm: FormGroup;
   id!: number;
   ngOnInit(): void {
+    this.piForm = this.fb.group({
+      piNo: [''],
+      url: [],
+      remarks: [''],
+      status: [''],
+      kamId: <any>[],
+      supplierName: [''],
+      supplierPoNo: [''],
+      supplierPrice: [''],
+      purpose: [''],
+      customerName: [''],
+      customerPoNo: [''],
+      poValue: ['']
+
+    });
     this.generateInvoiceNumber()
     this.id = this.route.snapshot.params['id'];
     if(this.id){
       this.patchdata(this.id);
     }
     this.getKAM();
+
+
   }
 
   kamSub!: Subscription;
@@ -70,13 +96,7 @@ export class UpdatePIComponent {
     });
   }
 
-  piForm = this.fb.group({
-    piNo: ['', Validators.required],
-    url: ['', Validators.required],
-    remarks: [''],
-    status: [''],
-    kamId: <any>[, Validators.required]
-  });
+
 
   @ViewChild('form') form!: ElementRef<HTMLFormElement>;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
@@ -195,6 +215,9 @@ export class UpdatePIComponent {
 
   onUpdate(){
     this.submit = this.invoiceService.updatePI(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
+      console.log('update data',this.piForm.getRawValue());
+      console.log('submit data',this.submit);
+
       console.log(invoice);
 
       this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
@@ -205,19 +228,40 @@ export class UpdatePIComponent {
   piSub!: Subscription;
   editStatus: boolean = false;
   fileName!: string;
-  patchdata(id: number){
+  patchdata(id: number) {
     this.editStatus = true;
     this.piSub = this.invoiceService.getPIById(id).subscribe(inv => {
-      this.fileName = inv.url
-      console.log(this.fileName);
+      this.fileName = inv.url;
+      console.log('File Name:', this.fileName);
 
       let remarks = inv.performaInvoiceStatuses.find(s => s.status === inv.status)?.remarks;
-      this.piForm.patchValue({piNo: inv.piNo, status: inv.status, remarks: remarks, kamId: inv.kamId})
-      if(inv.url != '') this.imageUrl = this.url + inv.url;
-      console.log(this.imageUrl);
 
+      // Patch the form values without `url`
+      this.piForm.patchValue({
+        piNo: inv.piNo,
+        status: inv.status,
+        remarks: remarks,
+        kamId: inv.kamId,
+        supplierName: inv.supplierName,
+        supplierPoNo: inv.supplierPoNo,
+        supplierPrice: inv.supplierPrice,
+        purpose: inv.purpose,
+        customerName: inv.customerName,
+        customerPoNo: inv.customerPoNo,
+        poValue: inv.poValue
+      });
+
+      // Update imageUrl based on `inv.url`
+      if (inv.url) {
+        this.imageUrl = this.url + inv.url;
+      } else {
+        this.imageUrl = ''; // Clear imageUrl if inv.url is empty
+      }
+
+      console.log('Image URL:', this.imageUrl);
     });
   }
+
 
   clearFileInput() {
     let file = this.fileName

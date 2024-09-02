@@ -88,7 +88,8 @@ users:User;
       role === 'Sales Executive' ||
       role === 'Key Account Manager' ||
       role === 'Manager' ||
-      role === 'Accountant'
+      role === 'Accountant'||
+       role === 'Team Lead'
     ) {
       this.filteredMenuItems = this.menuService.getVerticalMenuItems().filter(item =>
         item.title === 'Dashboard' ||
@@ -108,13 +109,14 @@ users:User;
 
 
   logout() {
-    console.log('logout clicked');
+    // console.log();
 
     // Clear authentication tokens or session data here
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('JWT_TOKEN');
     localStorage.removeItem('REFRESH_TOKEN');
+    localStorage.removeItem('token');
     sessionStorage.clear(); // Clear all session storage if needed
     this.router.navigate(['/']);
   }

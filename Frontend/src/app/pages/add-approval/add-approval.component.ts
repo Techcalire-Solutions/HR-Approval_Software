@@ -43,7 +43,9 @@ export class AddApprovalComponent {
 
   constructor(private invoiceService: InvoiceService, private fb: FormBuilder, private snackBar: MatSnackBar, private router: Router,
     private route: ActivatedRoute, private loginServie: LoginService, private sanitizer: DomSanitizer
-  ){}
+  ){
+
+  }
 
   ngOnDestroy(): void {
     this.invSub?.unsubscribe();
@@ -74,7 +76,14 @@ export class AddApprovalComponent {
     url: ['', Validators.required],
     remarks: [''],
     status: [''],
-    kamId: <any>[, Validators.required]
+    kamId: <any>[, Validators.required],
+    supplierName: ['', Validators.required],
+  supplierPoNo: ['', Validators.required],
+  supplierPrice: ['', Validators.required],
+  purpose: ['', Validators.required],
+  customerName: [''],
+  customerPoNo: [''],
+  poValue: ['']
   });
 
   @ViewChild('form') form!: ElementRef<HTMLFormElement>;
@@ -196,7 +205,12 @@ export class AddApprovalComponent {
       console.log(this.fileName);
 
       let remarks = inv.performaInvoiceStatuses.find(s => s.status === inv.status)?.remarks;
-      this.piForm.patchValue({piNo: inv.piNo, status: inv.status, remarks: remarks, kamId: inv.kamId})
+      this.piForm.patchValue({piNo: inv.piNo, status: inv.status, remarks: remarks, kamId: inv.kamId,  supplierName:inv.supplierName,supplierPoNo: inv.supplierPoNo,
+        supplierPrice:inv.supplierPrice ,
+        purpose:inv.purpose,
+        customerName:inv.customerName ,
+        customerPoNo: inv.customerPoNo,
+        poValue:inv.poValue})
       if(inv.url != '') this.imageUrl = this.url + inv.url;
       console.log(this.imageUrl);
 

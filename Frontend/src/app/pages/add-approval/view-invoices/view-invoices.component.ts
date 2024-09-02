@@ -15,11 +15,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { SafePipe } from './safe.pipe';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PerformaInvoiceStatus } from '../../../common/interfaces/performa-invoice-status';
+import { MatTableModule } from '@angular/material/table';
+
 @Component({
   selector: 'app-view-invoices',
   standalone: true,
   imports: [
     RouterModule,
+    MatTableModule,
     MatCardModule,
     CommonModule,
     MatIconModule,
@@ -32,6 +35,8 @@ import { PerformaInvoiceStatus } from '../../../common/interfaces/performa-invoi
   styleUrl: './view-invoices.component.scss'
 })
 export class ViewInvoicesComponent {
+  displayedColumns: string[] = ['supplierName', 'supplierPoNo', 'supplierPrice', 'purpose', 'customerName', 'customerPoNo', 'poValue'];
+  // dataSource = new MatTableDataSource(ELEMENT_DATA);
   ngOnDestroy(): void {
 
   }

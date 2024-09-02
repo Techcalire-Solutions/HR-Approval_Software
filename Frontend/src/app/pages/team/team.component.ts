@@ -54,7 +54,7 @@ import { CommonModule } from '@angular/common';
   providers: [UsersService]
 })
 export class TeamComponent {
-  displayedColumns: string[] = ['position', 'name', 'teamMembers'];
+  displayedColumns: string[] = ['position', 'name','teamLead', 'teamMembers'];
 
   public users: User[] | null;
   public searchText: string;
