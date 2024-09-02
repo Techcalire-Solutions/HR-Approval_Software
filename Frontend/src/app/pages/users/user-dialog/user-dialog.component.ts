@@ -62,7 +62,7 @@ export class UserDialogComponent implements OnInit {
   ngOnInit() {
     this.form = this.fb.group({
 
-      url: ['', Validators.required],
+      url: [''],
       name: [
         null,
         Validators.compose([Validators.required, Validators.minLength(5)])

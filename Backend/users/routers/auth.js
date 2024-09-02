@@ -7,19 +7,24 @@ const User = require('../models/user');
 router.post('/', async (req, res) => {
     try {
         const { email, password } = req.body;
+        console.log(`Attempting login for email: ${email}`);
+
         const user = await User.findOne({ where: { email: email } });
-        
         if (!user) {
+            console.log('User not found');
             return res.status(404).json({ message: 'User not found' });
         }
-        
+
         const validPassword = await bcrypt.compare(password, user.password);
-        
+        console.log(`Password valid: ${validPassword}`);
+
         if (!validPassword) {
+            console.log('Incorrect password');
             return res.status(401).json({ message: 'Incorrect password' });
         }
-        
-        let token = jwtTokens(user);
+
+        const token = jwtTokens(user);
+        console.log(`Generated tokens for user: ${user.id}`);
 
         res.cookie('refreshtoken', token.refreshToken, { httpOnly: true });
 
@@ -35,6 +40,7 @@ router.post('/', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 
 router.get('/findbyuser/:id', async (req, res) => {

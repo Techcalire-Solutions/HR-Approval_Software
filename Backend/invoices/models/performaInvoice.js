@@ -12,7 +12,15 @@ const PerformaInvoice = sequelize.define('performaInvoice',{
     kamId : {type : DataTypes.INTEGER},
     amId: {type : DataTypes.INTEGER},
     accountantId : {type : DataTypes.INTEGER},
-    count: {type : DataTypes.INTEGER, defaultValue: 1}
+    count: {type : DataTypes.INTEGER, defaultValue: 1},
+
+    supplierName:  {type : DataTypes.STRING},
+    supplierPoNo:  {type : DataTypes.STRING},
+    supplierPrice: {type : DataTypes.STRING },
+    purpose: {type : DataTypes.STRING},
+    customerName:  {type : DataTypes.STRING},
+    customerPoNo: {type : DataTypes.STRING},
+    poValue:{type : DataTypes.STRING },
 },
 {
     freezeTableName: true,

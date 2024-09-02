@@ -43,14 +43,24 @@ export class LoginComponent {
 
   onSignIn(): void {
     if (this.loginForm.invalid) {
-      this.errorMessage = 'Please fill in all fields correctly.Incorrect Username/password';
+      this.errorMessage = 'Please fill in all fields correctly. Incorrect Username/password';
       return;
     }
 
     this.loginService.loginUser(this.loginForm.value).subscribe({
-      next: (res) => {
-        this.setCurrentUser(res);
-        this.router.navigate(['/login']); // Redirect after successful login
+      next: (res: boolean) => { // Adjust type according to the actual response
+        console.log('loginform', this.loginForm.value);
+        console.log('login res', res);
+
+        if (res) { // Check if the response indicates success
+          this.setCurrentUser(res); // Assuming `res` contains user information
+          this.router.navigate(['/login']); // Redirect after successful login
+        } else {
+          this.errorMessage = 'Incorrect username or password';
+          this.snackBar.open('Incorrect username or password', 'Close', {
+            duration: 3000,
+          });
+        }
       },
       error: (err) => {
         this.errorMessage = 'Invalid username or password';
@@ -60,6 +70,8 @@ export class LoginComponent {
       }
     });
   }
+
+
 
   onSignUp(): void {
     if (this.signUpForm.invalid) {

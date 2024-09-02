@@ -8,9 +8,8 @@
       <div class="col">
         <h1>UPLOAD</h1>
       </div>
-      <div class="col" style="margin-left: auto; margin-right: 5px;" onClick="history.back()">
-        <span class="material-icons">exit_to_app</span>
-      </div>
+      <button mat-raised-button color="primary" onClick="history.back()" >BACK  </button>
+
     </div>
   </mat-toolbar>
 
@@ -19,37 +18,81 @@
       <form [formGroup]="piForm">
         <mat-form-field appearance="outline">
           <mat-label>InvoiceNo</mat-label>
-          <input matInput placeholder="" formControlName="piNo">
+          <input matInput placeholder="" formControlName="piNo" readonly>
         </mat-form-field>
 
         <mat-form-field appearance="outline" *ngIf="editStatus">
           <mat-label>Status</mat-label>
-          <input matInput placeholder="" formControlName="status">
+          <input matInput placeholder="" formControlName="status" readonly>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" *ngIf="editStatus">
-          <mat-label>Remarks</mat-label>
-          <input matInput placeholder="" formControlName="remarks">
+
+
+
+
+      <mat-form-field appearance="outline">
+        <mat-label>Supplier Name</mat-label>
+        <input matInput placeholder="" formControlName="supplierName">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Supplier PO#</mat-label>
+        <input matInput placeholder="Enter Supplier PO#" formControlName="supplierPoNo">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Supplier Price $</mat-label>
+        <input matInput placeholder="Enter Supplier Cost" formControlName="supplierPrice">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Purpose</mat-label>
+        <mat-select placeholder="Select Purpose" formControlName="purpose">
+          <mat-option value="Stock">Stock</mat-option>
+          <mat-option value="Customer">Customer</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-label>Key Account Manager</mat-label>
+        <mat-select placeholder="" formControlName="kamId">
+          <!-- <mat-form-field class="full-width">
+            <div class="row">
+              <input matInput (input)="filterRole($event)" placeholder="Search">
+            </div>
+          </mat-form-field> -->
+          <mat-option *ngFor="let item of kam" [value]="item.id">
+            {{item.name}}
+          </mat-option>
+          <!-- <mat-option *ngIf="kam.length === 0" [value]="'add'">
+            <span class="material-icons" style="font-size: 25px; color: rgb(0, 128, 55);" (click)="addRole()">playlist_add</span>
+          </mat-option> -->
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" *ngIf="piForm.get('remarks')?.value">
+        <mat-label>Remarks</mat-label>
+        <input matInput placeholder="" formControlName="remarks">
+      </mat-form-field>
+
+
+      <!-- Conditional Fields -->
+      <ng-container *ngIf="piForm.get('purpose')?.value === 'Customer'">
+        <mat-form-field appearance="outline">
+          <mat-label>Customer Name</mat-label>
+          <input matInput placeholder="Enter Customer Name" formControlName="customerName">
         </mat-form-field>
 
-        <mat-form-field class="full-width" appearance="outline">
-          <mat-label>KeyAccountManager</mat-label>
-          <mat-select placeholder="" formControlName="kamId">
-            <!-- <mat-form-field class="full-width">
-              <div class="row">
-                <input matInput (input)="filterRole($event)" placeholder="Search">
-              </div>
-            </mat-form-field> -->
-            <mat-option *ngFor="let item of kam" [value]="item.id">
-              {{item.name}}
-            </mat-option>
-            <!-- <mat-option *ngIf="kam.length === 0" [value]="'add'">
-              <span class="material-icons" style="font-size: 25px; color: rgb(0, 128, 55);" (click)="addRole()">playlist_add</span>
-            </mat-option> -->
-          </mat-select>
+        <mat-form-field appearance="outline">
+          <mat-label>Customer PO#</mat-label>
+          <input matInput placeholder="Enter Customer PO#" formControlName="customerPoNo">
         </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>CustomerPO Value $</mat-label>
+          <input matInput placeholder="Enter PO Value" formControlName="poValue">
+        </mat-form-field>
+        </ng-container>
       </form>
-      <span class="material-icons" *ngIf="imageUrl" style="font-size: 25px;" (click)="clearFileInput()">delete</span>
+      <!-- <span class="material-icons" *ngIf="imageUrl" style="font-size: 25px;" (click)="clearFileInput()">delete</span> -->
 
       <!-- <form #form class="form">
         <ng-container *ngIf="imageUrl && imageUrl != ''; else noImageTemplate">
@@ -64,35 +107,18 @@
         </ng-template>
       </form> -->
 
-      <form #form class="form">
-        <ng-container *ngIf="imageUrl && fileType != 'pdf'; else fileTemplate">
-          <!-- Image Preview -->
-          <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
-          <img [src]="imageUrl" alt="Image" title="Image" height="300" width="300" (click)="fileInput.click()" />
-        </ng-container>
 
-        <ng-template #fileTemplate>
-          <ng-container *ngIf="safeUrl && fileType === 'pdf'; else noFileTemplate">
-            <!-- PDF Preview -->
-            <object [data]="safeUrl" type="application/pdf" width="300" height="300">
-              <p style="margin-left: 20px;">Your browser does not support PDFs. <a [href]="safeUrl" target="_blank">Download the PDF</a></p>
-            </object>
-          </ng-container>
-        </ng-template>
+        <!-- Upload Button -->
+        <button type="button" class="upload-button" (click)="fileInput.click()">Re-Upload File</button>
+        <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
 
-        <ng-template #noFileTemplate>
-          <!-- No File Selected -->
-          <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
-          <span class="material-icons" (click)="fileInput.click()">cloud_upload</span>
-          <p (click)="fileInput.click()">Browse file to upload</p>
-        </ng-template>
-      </form>
+
 
 
 
       <section class="progress-area" *ngIf="file">
         <li class="row">
-          <span class="material-icons">file_copy</span>
+          <!-- <span class="material-icons">file_copy</span> -->
           <div class="content">
             <div class="details">
               <span class="name">{{ file.name }} - {{ uploadComplete ? 'Uploaded' : 'Uploading' }}</span>
@@ -103,12 +129,31 @@
       </section>
 
 
+      <div class="row">
+        <div class="col">
+          <mat-card-content>
+            <div class="row">
+              <div class="col">
+                <mat-card-content>
+                  <div class="pdf-container">
+                    <iframe [src]="imageUrl | safe" width="100%" height="600px"></iframe>
+                  </div>
+                </mat-card-content>
+              </div>
 
-      <button mat-raised-button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid" *ngIf="!editStatus">
-        <span class="material-icons" style="font-size: 25px;">save</span>
+            </div>
+          </mat-card-content>
+        </div>
+      </div>
+      <div *ngIf="imageUrl">
+        <a [href]="imageUrl" target="_blank">{{ imageUrl }}</a>
+      </div>
+
+      <button mat-raised-button color="primary" type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid" *ngIf="!editStatus">
+      save
       </button>
-      <button mat-raised-button type="button" class="btn btn-success" (click)="onUpdate()" [disabled]="!piForm.valid" *ngIf="editStatus">
-        <span class="material-icons" style="font-size: 25px;">save</span>
+      <button mat-raised-button color="primary" type="button" (click)="onUpdate()" [disabled]="!piForm.valid" *ngIf="editStatus">
+        UPDATE
       </button>
     </div>
   </mat-card-content>
