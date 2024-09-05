@@ -21,6 +21,7 @@ import { DatePipe } from '@angular/common';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { SafePipe } from '../add-approval/view-invoices/safe.pipe';
+import { environment } from '../../../environments/environment';
 
 
 @Component({
@@ -51,6 +52,7 @@ import { SafePipe } from '../add-approval/view-invoices/safe.pipe';
   providers: [UsersService]
 })
 export class UsersComponent implements OnInit {
+  apiUrl = environment.apiUrl;
   public users: User[] | null;
   public searchText: string;
   public page:any;
