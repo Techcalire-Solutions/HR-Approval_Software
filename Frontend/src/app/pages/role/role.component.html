@@ -1,51 +1,67 @@
 <div fxLayout="row" fxLayoutAlign="space-between center" class="px-2 py-1">
-    <div fxLayout="row">
-        <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-            <mat-button-toggle value="add" (click)="openUserDialog(null)">
-                <mat-icon>person_add</mat-icon>
-            </mat-button-toggle>
-            <mat-button-toggle value="search">
-                <mat-icon>search</mat-icon>
-            </mat-button-toggle>
-        </mat-button-toggle-group>
-    </div>
-    <form class="user-search" [class.show]="controls.value == 'search'">
-        <mat-form-field class="user-search-input">
-            <input matInput placeholder="Search role by name..." [(ngModel)]="searchText" name="search">
-        </mat-form-field>
-    </form>
-    <div fxLayout="row" fxLayoutAlign="space-between center">
-        <mat-button-toggle-group #viewType="matButtonToggleGroup" appearance="legacy" value="grid" hideSingleSelectionIndicator="true">
-            <mat-button-toggle value="grid">
-                <mat-icon>view_module</mat-icon>
-            </mat-button-toggle>
-            <mat-button-toggle value="list">
-                <mat-icon>view_list</mat-icon>
-            </mat-button-toggle>
-        </mat-button-toggle-group>
-    </div>
+  <div fxLayout="row">
+      <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
+          <mat-button-toggle value="add" (click)="openUserDialog(null)">
+              <mat-icon>person_add</mat-icon>
+          </mat-button-toggle>
+          <mat-button-toggle value="search">
+              <mat-icon>search</mat-icon>
+          </mat-button-toggle>
+      </mat-button-toggle-group>
+  </div>
+  <form class="user-search" [class.show]="controls.value == 'search'">
+      <mat-form-field class="user-search-input">
+          <input matInput placeholder="Search role by name..." [(ngModel)]="searchText" name="search">
+      </mat-form-field>
+  </form>
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+      <mat-button-toggle-group #viewType="matButtonToggleGroup" appearance="legacy" value="grid" hideSingleSelectionIndicator="true">
+          <mat-button-toggle value="grid">
+              <mat-icon>view_module</mat-icon>
+          </mat-button-toggle>
+          <mat-button-toggle value="list">
+              <mat-icon>view_list</mat-icon>
+          </mat-button-toggle>
+      </mat-button-toggle-group>
+  </div>
 </div>
 
-<div class="p-2"> 
-    <div class="mat-elevation-z8 p-1">           
-        <!-- <mat-form-field class="w-100">
-            <input matInput (keyup)="applyFilter($any($event.target).value)" placeholder="Type to filter all columns">
-        </mat-form-field>  -->
-    </div>
-    <mat-table #table [dataSource]="dataSource" class="mat-elevation-z8">       
-        <ng-container matColumnDef="position">
-            <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
-            <mat-cell *matCellDef="let element"> {{element.id}} </mat-cell>
-        </ng-container>         
-        <ng-container matColumnDef="name">
-            <mat-header-cell *matHeaderCellDef>Role Name </mat-header-cell>
-            <mat-cell *matCellDef="let element"> {{element.roleName}} </mat-cell>
-        </ng-container>     
-        <ng-container matColumnDef="abbreviation">
-            <mat-header-cell *matHeaderCellDef>Abbreviation</mat-header-cell>
-            <mat-cell *matCellDef="let element"> {{element.abbreviation}} </mat-cell>
-        </ng-container>  
-        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-    </mat-table>        
+<div class="p-2">
+  <div class="mat-elevation-z8 p-1">
+      <!-- <mat-form-field class="w-100">
+          <input matInput (keyup)="applyFilter($any($event.target).value)" placeholder="Type to filter all columns">
+      </mat-form-field>  -->
+  </div>
+  <mat-table #table [dataSource]="dataSource" class="mat-elevation-z8">
+      <ng-container matColumnDef="position">
+          <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
+          <mat-cell *matCellDef="let element"> {{element.id}} </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef>Role Name </mat-header-cell>
+          <mat-cell *matCellDef="let element"> {{element.roleName}} </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="abbreviation">
+          <mat-header-cell *matHeaderCellDef>Abbreviation</mat-header-cell>
+          <mat-cell *matCellDef="let element"> {{element.abbreviation}} </mat-cell>
+      </ng-container>
+
+      <!-- New Edit and Delete columns -->
+      <ng-container matColumnDef="actions">
+          <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
+          <mat-cell *matCellDef="let element">
+              <!-- Disable buttons for predefined roles -->
+              <button mat-icon-button color="primary" (click)="editRole(element)" [disabled]="isPredefinedRole(element)">
+                  <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteRole(element)" [disabled]="isPredefinedRole(element)">
+                  <mat-icon>delete</mat-icon>
+              </button>
+          </mat-cell>
+      </ng-container>
+
+      <!-- Table rows and columns -->
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
 </div>
