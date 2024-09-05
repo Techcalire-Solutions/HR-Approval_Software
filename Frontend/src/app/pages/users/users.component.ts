@@ -21,6 +21,8 @@ import { DatePipe } from '@angular/common';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { SafePipe } from '../add-approval/view-invoices/safe.pipe';
+import { DeleteConfirmDialogComponent } from '../add-approval/delete-confirm-dialog/delete-confirm-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../environments/environment';
 
 
@@ -57,7 +59,7 @@ export class UsersComponent implements OnInit {
   public searchText: string;
   public page:any;
   public settings: Settings;
-  constructor(private sanitizer: DomSanitizer,
+  constructor(private _snackbar: MatSnackBar,private sanitizer: DomSanitizer,
     public settingsService: SettingsService,
               public dialog: MatDialog,
               public usersService: UsersService){
@@ -112,6 +114,29 @@ export class UsersComponent implements OnInit {
       // if(user){
       //     (user.id) ? this.updateUser(user) : this.addUser(user);
       // }
+    });
+  }
+
+
+
+  deleteFunction(id: number){
+    console.log(id);  // Check the value of id here
+    const dialogRef = this.dialog.open(DeleteConfirmDialogComponent, {
+      width: '450px',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === true) {
+        this.usersService.deleteUser(id).subscribe((res) => {
+          console.log(res);
+          this._snackbar.open("User deleted successfully...", "", { duration: 3000 });
+          this.getUsers();
+        }, (error) => {
+          console.log(error);
+          this._snackbar.open(error.error.message, "", { duration: 3000 });
+        });
+      }
     });
   }
 

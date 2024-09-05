@@ -1,7 +1,6 @@
-import { Component, Inject, Injectable, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { User, UserContacts, UserProfile, UserSettings, UserSocial, UserWork } from '../../../common/models/user.model';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -65,7 +64,7 @@ export class UserDialogComponent implements OnInit {
       url: [''],
       name: [
         null,
-        Validators.compose([Validators.required, Validators.minLength(5)])
+        Validators.compose([Validators.required, Validators.minLength(3)])
       ],
       email: [
         null,
