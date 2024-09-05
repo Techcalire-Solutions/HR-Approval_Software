@@ -43,21 +43,22 @@
                 <td [attr.data-label]="'Status'">{{invoice.status}}_{{invoice.count}}</td>
                 <td (click)="$event.stopPropagation()">
                   <div class="action-icons">
-                    <button class="update-button" [routerLink]="['/login/updatePI', invoice.id]" *ngIf="sp">Update</button>
-                    <button class="delete-button" [routerLink]="['invoice/update', invoice.id]" *ngIf="sp">Delete</button>
+                    <button class="update-button" [routerLink]="['/login/updatePI', invoice.id]" *ngIf="sp && invoice.status=='GENERATED'&& invoice.userStatus">Update</button>
+                    <button class="delete-button" (click)="deleteFunction(invoice.id)"  *ngIf="sp && invoice.status=='GENERATED'&& invoice.userStatus">Delete</button>
+
 
 
                    <!-- Approve Button -->
 <button mat-raised-button class="approve-button"
 (click)="verified('approved', invoice.piNo, invoice.salesPerson.name, invoice.id)"
-*ngIf="!sp && pageStatus && !admin">
+*ngIf="!sp && pageStatus && !admin && !teamLead">
 APPROVE
 </button>
 
 <!-- Reject Button -->
 <button mat-raised-button class="reject-button"
 (click)="verified('rejected', invoice.piNo, invoice.salesPerson.name, invoice.id)"
-*ngIf="!sp && pageStatus && !admin">
+*ngIf="!sp && pageStatus && !admin && !teamLead">
 REJECT
 </button>
 
@@ -96,7 +97,7 @@ Add Wireslip
         </a> -->
         <a (click)="onTabClick('bookmark')" *ngIf="!admin">
           <span (click)="onStepSelectionChange('pending')" class="material-symbols-outlined"
-            [ngClass]="{'selected': selectedTab === 'bookmark'}"> REJECTED
+            [ngClass]="{'selected': selectedTab === 'bookmark'}"> PENDING
           </span>
         </a>
         <a (click)="onTabClick('factCheck')" *ngIf="!admin">

@@ -27,28 +27,62 @@ router.post('/save', authenticateToken, async (req, res) => {
         });
         await piStatus.save();
 
-        // Find the SalesPerson's team
-        const teamMember = await TeamMember.findOne({ where: { userId } });
-        if (!teamMember) {
-            throw new Error('SalesPerson not found in any team');
-        }
-
-        const teamId = teamMember.teamId;
-
-        // Get all team members for the team
-        const teamMembers = await TeamMember.findAll({ where: { teamId } });
-
-        // Extract userIds of team members
-        const teamMemberIds = teamMembers.map(member => member.userId);
-
-        // Respond with the PI data and notify all team members
-        res.json({ p: newPi, status: piStatus, teamMembers: teamMemberIds });
+     
+        res.json({ p: newPi, status: piStatus});
 
     } catch (error) {
         res.send(error.message);
     }
 });
 
+router.post('/saveByKAM', authenticateToken, async (req, res) => {
+    const { piNo, url, kamId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
+    const userId = req.user.id;
+
+    try {
+        // Save the new PI
+        const newPi = new PerformaInvoice({
+            piNo, url, status: 'KAM VERIFIED', kamId: userId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue
+        });
+        await newPi.save();
+
+        // Save the PI status
+        const piId = newPi.id;
+        const piStatus = new PerformaInvoiceStatus({
+            performaInvoiceId: piId, status: 'KAM VERIFIED', date: new Date()
+        });
+        await piStatus.save();
+
+        res.json({ p: newPi, status: piStatus });
+
+    } catch (error) {
+        res.send(error.message);
+    }
+});
+router.post('/saveByAM', authenticateToken, async (req, res) => {
+    const { piNo, url, kamId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
+    const userId = req.user.id;
+
+    try {
+        // Save the new PI
+        const newPi = new PerformaInvoice({
+            piNo, url, status: 'AM VERIFIED', kamId: userId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue
+        });
+        await newPi.save();
+
+        // Save the PI status
+        const piId = newPi.id;
+        const piStatus = new PerformaInvoiceStatus({
+            performaInvoiceId: piId, status: 'AM VERIFIED', date: new Date()
+        });
+        await piStatus.save();
+
+        res.json({ p: newPi, status: piStatus });
+
+    } catch (error) {
+        res.send(error.message);
+    }
+});
 
 router.get('/find', authenticateToken, async(req, res) => {
     let status = req.query.status;
@@ -559,4 +593,27 @@ router.patch('/update/:id', authenticateToken, async(req, res) => {
         res.send(error.message)
     }
 });
+
+router.delete('/:id', async(req,res)=>{
+    try {
+
+        const result = await PerformaInvoice.destroy({
+            where: { id: req.params.id },
+            force: true,
+        });
+
+        if (result === 0) {
+            return res.status(404).json({
+              status: "fail",
+              message: "PerformaInvoice with that ID not found",
+            });
+          }
+      
+          res.status(204).json();
+        }  catch (error) {
+        res.send({error: error.message})
+    }
+    
+})
+
 module.exports = router;

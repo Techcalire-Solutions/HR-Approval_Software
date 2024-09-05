@@ -35,7 +35,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
   {position: 2, name: 'Key Account Manger', weight: 4.0026, symbol: 'He'},
   {position: 3, name: 'Authorizer Manger', weight: 6.941, symbol: 'Li'},
   {position: 4, name: 'Finance Executive', weight: 9.0122, symbol: 'Be'},
- 
+
 ];
 @Component({
   selector: 'app-role',
@@ -57,7 +57,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
     NgxPaginationModule,
     PipesModule,
     DatePipe,
-    UserDialogComponent  
+    UserDialogComponent
   ],
   templateUrl: './role.component.html',
   encapsulation: ViewEncapsulation.None,
@@ -72,8 +72,28 @@ export class RoleComponent {
   public searchText: string;
   public page:any;
   public settings: Settings;
-  displayedColumns: string[] = ['position', 'name','abbreviation'];
-  
+  predefinedRoles = ['Sales Executive', 'Key Account Manager', 'Manager', 'Accountant', 'Team Lead', 'Administrator'];
+
+  // Displayed columns in the table
+  displayedColumns: string[] = ['position', 'name', 'abbreviation', 'actions'];
+
+  // Function to check if a role is predefined
+  isPredefinedRole(element: any): boolean {
+    return this.predefinedRoles.includes(element.roleName);
+  }
+
+  // Edit role function
+  editRole(role: any) {
+    // Logic to edit the role
+    console.log('Editing role:', role);
+  }
+
+  // Delete role function
+  deleteRole(role: any) {
+    // Logic to delete the role
+    console.log('Deleting role:', role);
+  }
+
 
   constructor(private tablesService: TablesService,private roleService:RoleService,public settingsService: SettingsService,
     public dialog: MatDialog,
@@ -130,13 +150,13 @@ this.settings = this.settingsService.settings;
       data: user
     });
     dialogRef.afterClosed().subscribe(user => {
-      this.getRoles() 
+      this.getRoles()
     });
   }
 
 
 
-  applyFilter(filterValue: string) { 
+  applyFilter(filterValue: string) {
     // this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 }

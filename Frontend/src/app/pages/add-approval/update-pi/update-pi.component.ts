@@ -214,6 +214,7 @@ export class UpdatePIComponent {
   }
 
   onUpdate(){
+    console.log('get raw data',this.piForm.getRawValue());
     this.submit = this.invoiceService.updatePI(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
       console.log('update data',this.piForm.getRawValue());
       console.log('submit data',this.submit);
@@ -248,8 +249,10 @@ export class UpdatePIComponent {
         purpose: inv.purpose,
         customerName: inv.customerName,
         customerPoNo: inv.customerPoNo,
-        poValue: inv.poValue
+        poValue: inv.poValue,
+        url: inv.url
       });
+      console.log('image inv', inv.url);
 
       // Update imageUrl based on `inv.url`
       if (inv.url) {
@@ -266,10 +269,10 @@ export class UpdatePIComponent {
   clearFileInput() {
     let file = this.fileName
     let id = this.id
-    this.invoiceService.deleteInvoice(id, file).subscribe(inv => {
-      console.log(inv);
-      this.imageUrl = '';
-      this.file = '';
-    });
+    // this.invoiceService.deleteInvoice(id, file).subscribe(inv => {
+    //   console.log(inv);
+    //   this.imageUrl = '';
+    //   this.file = '';
+    // });
   }
 }

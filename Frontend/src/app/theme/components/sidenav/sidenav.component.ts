@@ -79,7 +79,7 @@ users:User;
       this.getUser()
       this.invoiceService.getRoleById(user.role).subscribe((res) => {
         this.role = res.roleName;
-        this.filterMenuItemsByRole(this.role.trim());
+        this.filterMenuItemsByRole(res.roleName);
       });
     }
   }
@@ -94,28 +94,39 @@ users:User;
 
   filterMenuItemsByRole(role: string) {
     console.log("Filtering menus for role:", role);
+
+    const allMenuItems = this.menuService.getVerticalMenuItems();
+
     if (role === 'Administrator') {
-      this.menuItems = this.menuService.getVerticalMenuItems();
+      this.filteredMenuItems = allMenuItems.filter(item =>
+        item.title === 'Dashboard' ||
+        item.title === 'Role' ||
+        item.title === 'User' ||
+        item.title === 'Team' ||
+        (item.title === 'Approval Uploads' && !item.parentId) ||
+        (item.title === 'View' && item.parentId === 5)
+      );
     } else if (
       role === 'Sales Executive' ||
       role === 'Key Account Manager' ||
       role === 'Manager' ||
-      role === 'Accountant'||
-       role === 'Team Lead'
+      role === 'Team Lead' ||
+      role === 'Accountant'
     ) {
-      this.filteredMenuItems = this.menuService.getVerticalMenuItems().filter(item =>
+      this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        item.title === 'Approval Uploads' ||
-        (item.title === 'Add' && item.parentId === 5) || // Ensure "Add" is under "Approval Uploads"
-        (item.title === 'View' && item.parentId === 5)  // Ensure "View" is under "Approval Uploads"
+        (item.title === 'Approval Uploads' && !item.parentId) ||
+        (item.title === 'Add' && item.parentId === 5) ||
+        (item.title === 'View' && item.parentId === 5)
       );
     } else {
-      console.log("Role not recognized:", role);
-      this.menuItems = [];
       this.filteredMenuItems = [];
     }
+
     console.log("Filtered menu items:", this.filteredMenuItems);
   }
+
+
 
 
 

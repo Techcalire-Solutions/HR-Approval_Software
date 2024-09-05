@@ -18,6 +18,8 @@ import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
 import { BankReceiptDialogueComponent } from './bank-receipt-dialogue/bank-receipt-dialogue.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { DeleteConfirmDialogComponent } from '../delete-confirm-dialog/delete-confirm-dialog.component';
 @Component({
   selector: 'app-view-approval',
   standalone: true,
@@ -29,7 +31,8 @@ import { BankReceiptDialogueComponent } from './bank-receipt-dialogue/bank-recei
     MatDividerModule,
     RouterModule,
     MatCardModule,
-    CommonModule
+    CommonModule,
+    MatDialogModule
   ],
   templateUrl: './view-approval.component.html',
   styleUrl: './view-approval.component.scss'
@@ -57,7 +60,7 @@ export class ViewApprovalComponent {
     this.selectedTab = tabName;
   }
 
-  constructor(private invoiceService: InvoiceService, private loginService: LoginService, private dialog: MatDialog, private router: Router,
+  constructor(  private _snackbar: MatSnackBar,private invoiceService: InvoiceService, private loginService: LoginService, private dialog: MatDialog, private router: Router,
     private snackBar: MatSnackBar
   ) { }
 
@@ -69,14 +72,19 @@ export class ViewApprovalComponent {
     this.invoiceSubscriptions?.unsubscribe();
   }
 
-
+user: number;
   ngOnInit() {
     this.getInvoices()
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
+    console.log('user',user);
+    this.user = user.id;
 
     let roleId = user.role
     this.getRoleById(roleId)
+
+    console.log('status on load',this.status);
+
   }
 
   roleSub!: Subscription;
@@ -86,6 +94,7 @@ export class ViewApprovalComponent {
   am: boolean = false;
   ma: boolean = false;
   admin: boolean = false;
+  teamLead: boolean = false;
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;
@@ -95,6 +104,7 @@ export class ViewApprovalComponent {
       if(this.roleName === 'Manager') { this.status = 'KAM VERIFIED'; this.am = true }
       if(this.roleName === 'Accountant') { this.status = 'AM VERIFIED'; this.ma = true }
       if(this.roleName === 'Administrator') { this.admin = true }
+      if(this.roleName === 'Team Lead') { this.teamLead = true }
       this.getInvoices();
       console.log(this.status);
 
@@ -170,6 +180,21 @@ export class ViewApprovalComponent {
           });
           console.log(invoice);
           this.invoices = invoice;
+          for(let i=0;i<=this.invoices.length;i++)
+          {
+            let invoiceSP= this.invoices[i].salesPersonId
+            let invoiceKAM= this.invoices[i].kamId
+            let invoiceAM= this.invoices[i].amId
+            let invoiceMA= this.invoices[i].accountantId
+            if (this.user === invoiceSP || this.user === invoiceKAM || this.user === invoiceAM || this.user === invoiceMA) {
+              this.invoices[i] = {
+                ...this.invoices[i],
+                userStatus: true
+              };
+            }
+
+
+          }
         }
 
         this.submittingForm = false;
@@ -367,6 +392,43 @@ export class ViewApprovalComponent {
       }
     });
   }
+
+  // openDeleteDialog(invoiceId: number): void {
+  //   const dialogRef = this.dialog.open(DeleteConfirmDialogComponent, {
+  //     width: '300px', // Set the desired width here
+  //     panelClass: 'custom-dialog' // Optional: Apply custom styles
+  //   });
+
+  //   dialogRef.afterClosed().subscribe(result => {
+  //     if (result) {
+  //       this.deleteInvoice(invoiceId);
+  //     }
+  //   });
+  // }
+
+
+  deleteFunction(id: number){
+    const dialogRef = this.dialog.open(DeleteConfirmDialogComponent, {
+      width: '450px',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === true) {
+
+        this.invoiceService.deleteInvoice(id).subscribe((res)=>{
+          console.log(res)
+          this._snackbar.open("PI deleted successfully...","" ,{duration:3000})
+          this.getInvoices()
+        },(error=>{
+          console.log(error)
+          this._snackbar.open(error.error.message,"" ,{duration:3000})
+        }))
+      }
+    });
+
+
+    }
 
   handleApprove(invoice: any) {
     // Handle approval logic here

@@ -81,15 +81,16 @@
   class="sidenav-menu-outer"
   [class.user-block-show]="settings.sidenavUserBlock"
 >
-  <div id="vertical-menu">
-    <!-- Show full menu for Administrator -->
-    <ng-container *ngIf="role === 'Administrator'">
-      <app-vertical-menu [menuItems]="menuService.getVerticalMenuItems()" [menuParentId]="0"></app-vertical-menu>
-    </ng-container>
+<div id="vertical-menu">
+  <!-- Show full menu for Administrator -->
+  <ng-container *ngIf="role === 'Administrator'">
+    <app-vertical-menu [menuItems]="filteredMenuItems" [menuParentId]="0"></app-vertical-menu>
+  </ng-container>
 
-    <!-- Show filtered menu for other roles -->
-    <ng-container *ngIf="role === 'Sales Executive' || role === 'Key Account Manager' || role === 'Manager' ||role==='Team Lead'|| role === 'Accountant'">
-      <app-vertical-menu [menuItems]="filteredMenuItems" [menuParentId]="0"></app-vertical-menu>
-    </ng-container>
-  </div>
+  <!-- Show filtered menu for other roles -->
+  <ng-container *ngIf="role === 'Sales Executive' || role === 'Key Account Manager' || role === 'Manager' ||role==='Team Lead'|| role === 'Accountant'">
+    <app-vertical-menu [menuItems]="filteredMenuItems" [menuParentId]="0"></app-vertical-menu>
+  </ng-container>
+</div>
+
 </ng-scrollbar>
