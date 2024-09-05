@@ -20,6 +20,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { DeleteConfirmDialogComponent } from './delete-confirm-dialog/delete-confirm-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 @Component({
   selector: 'app-add-approval',
   standalone: true,
@@ -41,7 +43,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 export class AddApprovalComponent {
   url = environment.apiUrl;
 
-  constructor(private invoiceService: InvoiceService, private fb: FormBuilder, private snackBar: MatSnackBar, private router: Router,
+  constructor(private dialog: MatDialog,private invoiceService: InvoiceService, private fb: FormBuilder, private snackBar: MatSnackBar, private router: Router,
     private route: ActivatedRoute, private loginServie: LoginService, private sanitizer: DomSanitizer
   ){
 
@@ -61,6 +63,29 @@ export class AddApprovalComponent {
       this.patchdata(this.id);
     }
     this.getKAM();
+    this.getAM();
+
+    const token: any = localStorage.getItem('token')
+    let user = JSON.parse(token)
+
+    let roleId = user.role
+    this.getRoleById(roleId)
+  }
+  roleSub!: Subscription;
+  roleName!: string;
+  sp: boolean = false;
+  kamb: boolean = false;
+  am: boolean = false;
+  ma: boolean = false;
+  getRoleById(id: number){
+    this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
+      this.roleName = role.roleName;
+      if(this.roleName === 'Sales Executive') this.sp = true;
+      if(this.roleName === 'Key Account Manager') this.kamb = true;
+      if(this.roleName === 'Manager') this.am = true;
+      if(this.roleName === 'Accountant') this.ma = true;
+      if(this.roleName === 'Team Lead') this.sp = true;
+    })
   }
 
   kamSub!: Subscription;
@@ -70,6 +95,14 @@ export class AddApprovalComponent {
       this.kam = user;
     });
   }
+  amSub!: Subscription;
+  AMList: User[] = [];
+  getAM(){
+    this.amSub = this.loginServie.getUserByRole(3).subscribe(user =>{
+      this.AMList = user;
+    });
+  }
+
 
   piForm = this.fb.group({
     piNo: ['', Validators.required],
@@ -178,12 +211,30 @@ export class AddApprovalComponent {
 
   submit!: Subscription;
   onSubmit(){
-    this.submit = this.invoiceService.addPI(this.piForm.getRawValue()).subscribe((invoice: any) =>{
-      console.log(invoice);
+    if(this.roleName=='Sales Executive'){
+      this.submit = this.invoiceService.addPI(this.piForm.getRawValue()).subscribe((invoice: any) =>{
+        console.log(invoice);
 
-      this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-      this.router.navigateByUrl('/home')
-    });
+        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
+        this.router.navigateByUrl('/')
+      });
+    } else if(this.roleName=='Key Account Manager'){
+      this.submit = this.invoiceService.addPIByKAM(this.piForm.getRawValue()).subscribe((invoice: any) =>{
+        console.log('kam add PI',invoice);
+
+        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
+        this.router.navigateByUrl('/')
+      });
+    }
+    else if(this.roleName=='Manager'){
+      this.submit = this.invoiceService.addPIByAM(this.piForm.getRawValue()).subscribe((invoice: any) =>{
+        console.log('kam add PI',invoice);
+
+        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
+        this.router.navigateByUrl('/')
+      });
+    }
+
   }
 
   onUpdate(){
@@ -220,10 +271,10 @@ export class AddApprovalComponent {
   clearFileInput() {
     let file = this.fileName
     let id = this.id
-    this.invoiceService.deleteInvoice(id, file).subscribe(inv => {
-      console.log(inv);
-      this.imageUrl = '';
-      this.file = '';
-    });
+    // this.invoiceService.deleteInvoice(id, file).subscribe(inv => {
+    //   console.log(inv);
+    //   this.imageUrl = '';
+    //   this.file = '';
+    // });
   }
 }
