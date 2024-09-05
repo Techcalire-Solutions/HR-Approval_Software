@@ -42,8 +42,11 @@ export class UsersService {
       return this.http.put(this.apiUrl, user);
   }
 
+  // deleteUser(id: number) {
+  //     return this.http.delete(this.apiUrl + "/" + id);
+  // }
   deleteUser(id: number) {
-      return this.http.delete(this.apiUrl + "/" + id);
+    return this.http.delete(`${this.apiUrl}/user/${id}`);
   }
 
   getUserByRoleId(id:number):Observable<User>{
