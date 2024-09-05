@@ -23,7 +23,7 @@ export class LoginService {
 
   private doLoginUser(userName: String, tokens: any){
     this.loggedUser = userName
-    console.log(this.loggedUser) 
+    console.log(this.loggedUser)
     this.storeTokens(tokens)
   }
 
@@ -88,5 +88,9 @@ export class LoginService {
   //---------------------------User-------------------------------------
   registerUser(data : any){
     return this._http.post(this.url + '/user/add', data)
+  }
+
+  getUserById(id: number): Observable<User>{
+    return this._http.get<User>(this.url + '/user/findone/'+id);
   }
 }

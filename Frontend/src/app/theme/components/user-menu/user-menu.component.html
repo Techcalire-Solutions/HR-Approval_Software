@@ -5,8 +5,12 @@
   <!--<span (mouseleave)="userMenuTrigger.closeMenu()">-->
   <mat-toolbar color="primary">
       <div fxLayout="row" fxLayoutAlign="space-around center" class="user-info">
-      <img [src]="userImage" alt="user-image" width="80" class="rounded mat-elevation-z6"> 
-       
+        @if (user && user.url){
+          <img [src]="url + user.url" class="transition-2" width="80" class="rounded mat-elevation-z6">
+      } @else {
+          <img [src]="userImage" class="transition-2" width="80" class="rounded mat-elevation-z6">
+      }
+
 
           <ng-container *ngIf="user">
               <p>{{ user.name }}<br> <small>{{role}}</small></p>
