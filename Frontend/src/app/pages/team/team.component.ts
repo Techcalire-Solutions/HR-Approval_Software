@@ -25,6 +25,7 @@ import { TeamService } from '@services/team.service';
 import { Team } from '../../common/interfaces/team';
 import { MatDividerModule } from '@angular/material/divider';
 import { CommonModule } from '@angular/common';
+import { TeamDialogueComponent } from './team-dialogue/team-dialogue.component';
 @Component({
   selector: 'app-team',
   standalone: true,
@@ -110,7 +111,7 @@ export class TeamComponent {
   }
 
   public openUserDialog(user: any){
-    let dialogRef = this.dialog.open(UserDialogComponent, {
+    let dialogRef = this.dialog.open(TeamDialogueComponent, {
       data: user
     });
     dialogRef.afterClosed().subscribe(user => {
