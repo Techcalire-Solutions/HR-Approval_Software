@@ -64,7 +64,7 @@ export class UserDialogComponent implements OnInit {
       url: [''],
       name: [
         null,
-        Validators.compose([Validators.required, Validators.minLength(5)])
+        Validators.compose([Validators.required, Validators.minLength(3)])
       ],
       email: [
         null,
