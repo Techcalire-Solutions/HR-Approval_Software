@@ -23,6 +23,7 @@ import { CommonModule } from '@angular/common';
 import { SafePipe } from '../add-approval/view-invoices/safe.pipe';
 import { DeleteConfirmDialogComponent } from '../add-approval/delete-confirm-dialog/delete-confirm-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { environment } from '../../../environments/environment';
 
 
 @Component({
@@ -53,6 +54,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   providers: [UsersService]
 })
 export class UsersComponent implements OnInit {
+  apiUrl = environment.apiUrl;
   public users: User[] | null;
   public searchText: string;
   public page:any;

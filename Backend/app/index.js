@@ -31,6 +31,7 @@ app.use('/performaInvoice', pi);
 app.use('/invoiceStatus', piStatus);
 
 app.use('/invoices/uploads', express.static(path.join(__dirname, '../invoices/uploads')));
+app.use('/users/userImages', express.static(path.join(__dirname, '../users/userImages')));
 
 const port = process.env.PORT || 8000;
 
