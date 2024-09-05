@@ -1,4 +1,4 @@
-import { Component, OnInit, PipeTransform, ViewEncapsulation } from '@angular/core';
+import { Component, inject, OnInit, PipeTransform, ViewEncapsulation } from '@angular/core';
 import { Settings, SettingsService } from '../../../services/settings.service';
 import { MenuService } from '../../../services/menu.service';
 import { VerticalMenuComponent } from '../menu/vertical-menu/vertical-menu.component';
@@ -15,6 +15,8 @@ import { UsersService } from '../../../services/users.service';
 import { InvoiceService } from '@services/invoice.service';
 import { Router } from '@angular/router';
 import { Menu } from '../../../common/models/menu.model';
+import { environment } from '../../../../environments/environment';
+import { LoginService } from '@services/login.service';
 
 @Component({
   selector: 'app-sidenav',
@@ -33,6 +35,7 @@ import { Menu } from '../../../common/models/menu.model';
   encapsulation: ViewEncapsulation.None
 })
 export class SidenavComponent implements OnInit , PipeTransform{
+  url = environment.apiUrl;
   transform(value: User[] | null, args?: any): any {
     let searchText = new RegExp(args, 'ig');
     if (value) {
@@ -52,6 +55,7 @@ export class SidenavComponent implements OnInit , PipeTransform{
   public userImage = 'img/users/user-copy.jpg';
   public menuItems: Array<any>;
   public settings: Settings;
+  loginService = inject(LoginService);
   constructor(private cdr: ChangeDetectorRef, private router: Router, public settingsService: SettingsService,public invoiceService:InvoiceService, public menuService: MenuService,
     private userService:UsersService
   ){
@@ -69,15 +73,23 @@ users:User;
   ngOnInit() {
     const token = localStorage.getItem('token');
     if (token) {
-      this.user = JSON.parse(token);
-      this.roleId = this.user.role;
-      this.userId = this.user.id;
-
-      this.invoiceService.getRoleById(this.user.role).subscribe((res) => {
+      let user = JSON.parse(token);
+      this.roleId = user.role;
+      this.userId = user.id;
+      this.getUser()
+      this.invoiceService.getRoleById(user.role).subscribe((res) => {
         this.role = res.roleName;
         this.filterMenuItemsByRole(this.role.trim());
       });
     }
+  }
+
+  getUser(){
+    this.loginService.getUserById(this.userId).subscribe((res)=>{
+      this.user = res;
+      console.log(this.user);
+
+    })
   }
 
   filterMenuItemsByRole(role: string) {
