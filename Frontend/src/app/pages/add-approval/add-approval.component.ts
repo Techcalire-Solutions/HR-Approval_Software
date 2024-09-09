@@ -111,13 +111,12 @@ export class AddApprovalComponent {
     status: [''],
     kamId: <any>[, Validators.required],
     supplierName: ['', Validators.required],
-  supplierPoNo: ['', Validators.required],
-  supplierPrice: ['', Validators.required],
-  purpose: ['', Validators.required],
-  customerName: [''],
-  customerPoNo: [''],
-  poValue: [''],
-  filename:['']
+    supplierPoNo: ['', Validators.required],
+    supplierPrice: ['', Validators.required],
+    purpose: ['', Validators.required],
+    customerName: [''],
+    customerPoNo: [''],
+    poValue: ['']
   });
 
   @ViewChild('form') form!: ElementRef<HTMLFormElement>;
@@ -164,7 +163,6 @@ export class AddApprovalComponent {
             this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.imageUrl);
           }
           this.piForm.get('url')?.setValue(invoice.fileUrl);
-          this.piForm.get('filename')?.setValue(invoice.file.originalname)
           this.uploadComplete = true; // Set to true when upload is complete
         },
         error: (error) => {
