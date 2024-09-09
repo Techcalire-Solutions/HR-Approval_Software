@@ -122,21 +122,23 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
             // {model: User, as: 'am', attributes: ['name']},
             // {model: User, as: 'accountant', attributes: ['name']},
         ]})
-        console.log('gggggggggg',pi.filename);
+        const fileUrl = pi.url;
+        const key = fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
         
         const params = {
             Bucket: process.env.AWS_BUCKET_NAME,
-            Key:`invoices/${pi.filename}` , // File path with a unique name
-            // Body: req.file.buffer,
-            // ContentType: req.file.mimetype,
-            // ACL: 'public-read' // Optional: make file publicly accessible
-            Expires: 60 // URL expires in 60 seconds
+            Key: key, // Ensure pi.url has the correct value
+            Expires: 60, // URL expires in 60 seconds
           };
-        const signedUrl = s3.getSignedUrl('getObject', params);
-        console.log('pipipi', pi);
-        console.log('signedUrlsignedUrlsignedUrl', signedUrl);
-        
-        res.json({pi:pi, signedUrl:signedUrl})
+      
+          // Check if the Key is correctly formatted
+          console.log('S3 Key:', params.Key);
+      
+          const signedUrl = s3.getSignedUrl('getObject', params);
+      
+          console.log('Generated Signed URL:', signedUrl);
+      
+          res.json({ pi: pi, signedUrl: signedUrl });
     } catch (error) {
         res.send(error.message)
     }
