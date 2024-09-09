@@ -47,6 +47,8 @@ export class ViewInvoicesComponent {
 
   ngOnInit(): void {
     let id = this.route.snapshot.params['id'];
+    console.log('idddd',id);
+
     this.getPiById(id)
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
@@ -76,12 +78,18 @@ export class ViewInvoicesComponent {
   piNo!: string;
   pi!: PerformaInvoice;
   bankSlip!: string;
+  signedUrl:string;
   getPiById(id: number){
+    console.log('hihihh');
+
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
-      this.pi = pi;
-      this.piNo = pi.piNo;
-      this.url = environment.apiUrl + pi.url;
-      if(pi.bankSlip != null) this.bankSlip = environment.apiUrl + pi.bankSlip;
+      console.log('pi',pi);
+
+      this.pi = pi.pi;
+      this.piNo = pi.pi.piNo;
+      this.signedUrl= pi.signedUrl
+      // this.url = environment.apiUrl + pi.url;
+      if(pi.pi.bankSlip != null) this.bankSlip = environment.apiUrl + pi.pi.bankSlip;
       this.getPiStatusByPiId(id)
     });
   }

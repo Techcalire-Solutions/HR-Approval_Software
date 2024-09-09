@@ -55,9 +55,10 @@ import { User } from '../../common/interfaces/user';
   providers: [UsersService]
 })
 export class TeamComponent {
-  displayedColumns: string[] = ['position', 'name','teamLead', 'teamMembers'];
+  displayedColumns: string[] = ['position', 'name', 'teamLead', 'teamMembers', 'action'];
 
-  public users: User[] | null;
+
+  public teams: Team[] | null;
   public searchText: string;
   public page:any;
   public settings: Settings;
@@ -78,11 +79,11 @@ export class TeamComponent {
   }
 
   public getTeams(): void {
-    this.users = null; //for show spinner each time
-    this.teamService.getTeam().subscribe((users: any) =>{
-      console.log(users);
+    this.teams = null; //for show spinner each time
+    this.teamService.getTeam().subscribe((teams: any) =>{
+      console.log(teams);
 
-      this.users = users
+      this.teams = teams
     });
   }
   applyFilter(filterValue: string) {
@@ -97,7 +98,14 @@ export class TeamComponent {
   // public deleteUser(user:User){
   //   this.usersService.deleteUser(user.id).subscribe(user => this.getUsers());
   // }
-
+  public openRoleDialog(user: any){
+    let dialogRef = this.dialog.open(TeamDialogueComponent, {
+      data: user
+    });
+    dialogRef.afterClosed().subscribe(user => {
+      this.getTeams()
+    });
+  }
 
   public onPageChanged(event: any){
     this.page = event;

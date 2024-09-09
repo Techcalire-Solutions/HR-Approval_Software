@@ -182,10 +182,10 @@ user: number;
           this.invoices = invoice;
           for(let i=0;i<=this.invoices.length;i++)
           {
-            let invoiceSP= this.invoices[i].salesPersonId
-            let invoiceKAM= this.invoices[i].kamId
-            let invoiceAM= this.invoices[i].amId
-            let invoiceMA= this.invoices[i].accountantId
+            let invoiceSP= this.invoices[i]?.salesPersonId
+            let invoiceKAM= this.invoices[i]?.kamId
+            let invoiceAM= this.invoices[i]?.amId
+            let invoiceMA= this.invoices[i]?.accountantId
             if (this.user === invoiceSP || this.user === invoiceKAM || this.user === invoiceAM || this.user === invoiceMA) {
               this.invoices[i] = {
                 ...this.invoices[i],
