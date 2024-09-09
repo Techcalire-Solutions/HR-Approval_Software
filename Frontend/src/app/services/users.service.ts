@@ -38,24 +38,18 @@ export class UsersService {
   // deleteInvoice(id: number, fileName: string){
   //   return this._http.delete(this.url + `/invoice/filedelete/?id=${id}&fileName=${fileName}`);
   // }
-  updateUser(user:User){
-      return this.http.put(this.apiUrl, user);
+  updateUser(id: number, data: any){
+      return this.http.patch(this.apiUrl + '/user/update/' + id, data);
   }
 
-  // deleteUser(id: number) {
-  //     return this.http.delete(this.apiUrl + "/" + id);
-  // }
   deleteUser(id: number) {
-    return this.http.delete(`${this.apiUrl}/user/${id}`);
+    return this.http.delete(`${this.apiUrl}/user/delete/${id}`);
   }
 
   getUserByRoleId(id:number):Observable<User>{
     return this.http.get<User>('http://localhost:8000/user/findbyrole/'+id)
 
   }
-  // getRoleById(id: number): Observable<Role> {
-  //   return this._http.get<Role>(this.url + "/role/" + id);
-  // }
 
   getUserById(id:number):Observable<User>{
     return this.http.get<User>('http://localhost:8000/auth/findbyuser/'+id)

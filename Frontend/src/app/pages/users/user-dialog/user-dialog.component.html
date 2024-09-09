@@ -1,33 +1,27 @@
-<mat-toolbar style="background-color: #283593; color: white;">
-    <p class="text-lg">ADD USER</p>
-  </mat-toolbar>
+<h1 mat-dialog-title>
+  @if (data) {
+      <span>Edit</span>
+  } @else {
+      <span>Add</span>
+  }
+   User
+</h1>
 <div mat-dialog-content>
     <form [formGroup]="form" class="user-form" >
-      <mat-tab-group class="vertical-tabs">
-        <mat-tab label="New">
+      <!-- <mat-tab-group class="vertical-tabs"> -->
+        <!-- <mat-tab label="New"> -->
           <div fxLayout="column" class="form-field-outer">
             <!-- Name Field -->
             <!-- <form #form class="form"> -->
-              <ng-container *ngIf="imageUrl && fileType != 'pdf'; else fileTemplate">
-                <!-- Image Preview -->
-                <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
-                <img [src]="imageUrl" alt="Image" title="Image" height="300" width="300" (click)="fileInput.click()" />
+              <ng-container *ngIf="imageUrl; else noFileTemplate">
+                <input type="file" class="file-input" hidden #fileInput>
+                <img [src]="imageUrl" alt="Image" title="Image" height="50" width="25" (click)="fileInput.click()" />
+                <!-- <span class="material-icons" (click)="clearFileInput()">delete</span> -->
               </ng-container>
 
-              <ng-template #fileTemplate>
-                <ng-container *ngIf="safeUrl && fileType === 'pdf'; else noFileTemplate">
-                  <!-- PDF Preview -->
-                  <object [data]="safeUrl" type="application/pdf" width="300" height="300">
-                    <p style="margin-left: 20px;">Your browser does not support PDFs. <a [href]="safeUrl" target="_blank">Download the PDF</a></p>
-                  </object>
-                </ng-container>
-              </ng-template>
-
               <ng-template #noFileTemplate>
-                <!-- No File Selected -->
                 <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
                 <span class="material-icons" (click)="fileInput.click()">cloud_upload</span>
-                <p (click)="fileInput.click()">Browse photo to upload</p>
               </ng-template>
             <!-- </form> -->
             <!-- <mat-icon *ngIf="imageUrl" style="font-size: 25px;" (click)="clearFileInput()">delete</mat-icon> -->
@@ -109,13 +103,18 @@
             </mat-form-field>
 
           </div>
-        </mat-tab>
-      </mat-tab-group>
+        <!-- </mat-tab>
+      </mat-tab-group> -->
     </form>
   </div>
 
 <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
-
- <button mat-raised-button color="primary" [mat-dialog-close]="form.value" [disabled]="!form.valid" type="button" (click)="onSubmit()" >SAVE  </button>
-    <button mat-raised-button color="warn" (click)="close()">Cancel</button>
+  <button mat-raised-button color="primary" [mat-dialog-close]="form.value" [disabled]="!form.valid" (click)="onSubmit()">
+    @if (data) {
+        Update
+    } @else {
+        Save
+    }
+  </button>
+  <button mat-raised-button color="warn" (click)="close()">Cancel</button>
 </div>

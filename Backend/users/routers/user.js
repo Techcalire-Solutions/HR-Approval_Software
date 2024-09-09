@@ -98,7 +98,7 @@ router.get('/find/', async (req, res) => {
     const users = await User.findAll({
       where: whereClause,
       include: [
-        {model: Role, as: 'role', attributes: ['roleName']}
+        {model: Role, as: 'role', attributes: ['id', 'roleName']}
       ],
       order: ["id"],
       limit, 
@@ -169,7 +169,7 @@ router.get('/findone/:id', async (req, res) => {
     const user = await User.findByPk(id, {
       include: {
         model: Role,
-        attributes: ['roleName']
+        attributes: ['id', 'roleName']
       }
     });
     res.send(user);
@@ -180,7 +180,7 @@ router.get('/findone/:id', async (req, res) => {
 
 
 router.patch('/update/:id', async(req,res)=>{
-  const { name, email, phoneNumber, password, roleId, status} = req.body;
+  const { name, email, phoneNumber, password, roleId} = req.body;
   const pass = await bcrypt.hash(password, 10);
   try {
     let result = await User.findByPk(req.params.id);
@@ -189,7 +189,6 @@ router.patch('/update/:id', async(req,res)=>{
     result.phoneNumber = phoneNumber;
     result.password = pass;
     result.roleId = roleId;
-    result.status = status;
 
     await result.save();
     res.send(result);

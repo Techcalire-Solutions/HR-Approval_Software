@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,6 +20,8 @@ import { UsersService } from '../../../services/users.service';
 import { Subscription } from 'rxjs';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { environment } from '../../../../environments/environment';
+import { User } from '../../../common/interfaces/user';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 
 @Component({
@@ -47,16 +49,11 @@ import { environment } from '../../../../environments/environment';
 })
 export class UserDialogComponent implements OnInit {
   url = environment.apiUrl;
+  snackBar = inject(MatSnackBar);
   public form: FormGroup;
   public passwordHide:boolean = true;
-  constructor(private sanitizer: DomSanitizer,public dialogRef: MatDialogRef<UserDialogComponent>,
-
-              public fb: FormBuilder,private roleService:RoleService,private userService:UsersService) {
-
-
-
-
-  }
+  constructor(private sanitizer: DomSanitizer,public dialogRef: MatDialogRef<UserDialogComponent>, public fb: FormBuilder,
+    private roleService:RoleService, private userService:UsersService,  @Inject(MAT_DIALOG_DATA) public data: User,) { }
 
   ngOnInit() {
     this.form = this.fb.group({
@@ -83,11 +80,28 @@ export class UserDialogComponent implements OnInit {
         Validators.compose([Validators.required])
       ]
     })
+    if(this.data){
+      this.patchUser(this.data)
+    }
     this.getRoles()
-    this.getUsers()
-
-
   }
+
+  patchUser(user: User){
+    console.log(user);
+
+    this.form.patchValue({
+      name: user.name,
+      roleId: user.role.id,
+      phoneNumber: user.phoneNumber,
+      email: user.email,
+      status: user.status,
+      joiningDate: user.createdAt
+    })
+    if(user.url != null) this.imageUrl = this.url + user.url
+  }
+
+
+
   uploadProgress: number | null = null;
   uploadComplete: boolean = false;
   file!: any;
@@ -125,37 +139,37 @@ export class UserDialogComponent implements OnInit {
     }
   }
 
-
-
   hidePassword: boolean = true;
   togglePasswordVisibility() {
     this.hidePassword = !this.hidePassword;
   }
-  roles:Role[]=[]
+
+  roles:Role[]=[];
+  roleSub!: Subscription;
   getRoles(){
     this.roleService.getRole().subscribe((res)=>{
       this.roles = res;
     })
-
-  }
-  getUsers(){
-   this.userService.getUser().subscribe((res)=>{
-    console.log(res)
-   })
   }
 
   close(): void {
     this.dialogRef.close();
   }
+
   onSubmit(){
-
-    console.log(this.form.getRawValue());
-    this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
-      console.log(res)
-      this.getUsers();
-      this.dialogRef.close();
-
-    })
+    if(this.data){
+      this.userService.updateUser(this.data.id, this.form.getRawValue()).subscribe((res)=>{
+        console.log(res);
+        this.dialogRef.close();
+        this.snackBar.open("User updated succesfully...","" ,{duration:3000})
+      })
+    }else{
+      this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
+        console.log(res)
+        this.dialogRef.close();
+        this.snackBar.open("User added succesfully...","" ,{duration:3000})
+      })
+    }
   }
 
 
