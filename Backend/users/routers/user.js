@@ -163,15 +163,21 @@ router.patch('/statusupdate/:id', async(req,res)=>{
     }
 })
 
-router.get('/findone/:id', async(req,res)=>{
+router.get('/findone/:id', async (req, res) => {
   let id = req.params.id;
   try {
-    const user = await User.findByPk(id);
+    const user = await User.findByPk(id, {
+      include: {
+        model: Role,
+        attributes: ['roleName']
+      }
+    });
     res.send(user);
   } catch (error) {
-    res.send(error.message);
+    res.status(500).send(error.message);
   }
 });
+
 
 router.patch('/update/:id', async(req,res)=>{
   const { name, email, phoneNumber, password, roleId, status} = req.body;
