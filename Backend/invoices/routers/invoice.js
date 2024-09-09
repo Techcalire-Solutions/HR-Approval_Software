@@ -62,6 +62,7 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
     res.status(500).send({ message: error.message });
   }
 });
+
 router.delete('/filedelete', authenticateToken, async (req, res) => {
   try {
     console.log(req.query);
