@@ -235,7 +235,7 @@ export class UpdatePIComponent {
       this.fileName = inv.url;
       console.log('File Name:', this.fileName);
 
-      let remarks = inv.performaInvoiceStatuses.find(s => s.status === inv.status)?.remarks;
+      let remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
 
       // Patch the form values without `url`
       this.piForm.patchValue({

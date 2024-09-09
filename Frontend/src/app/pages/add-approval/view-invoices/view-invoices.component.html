@@ -44,9 +44,13 @@
         <div class="row">
           <div class="col">
             <mat-card-content>
+              <!-- <div class="pdf-container">
+                <iframe [src]="'https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/invoices/1725888135283_INVOICE%20I10518_V2%20AEROSPACE.pdf' | safe" width="100%" height="600px"></iframe>
+              </div> -->
               <div class="pdf-container">
-                <iframe [src]="url | safe" width="100%" height="600px"></iframe>
+                <iframe [src]="signedUrl | safe" width="100%" height="600px"></iframe>
               </div>
+
             </mat-card-content>
           </div>
           <div class="col" *ngIf="bankSlip">

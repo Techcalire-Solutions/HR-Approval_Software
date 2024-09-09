@@ -1,33 +1,67 @@
 const express = require('express');
 const router = express.Router();
 const {Op, fn, col, where} = require('sequelize');
-const multer = require('../../utils/multer'); // Import the configured multer instance
+const upload = require('../../utils/multer'); // Import the configured multer instance
 const path = require('path');
 const fs = require('fs');
 const PerformaInvoice = require('../models/performaInvoice');
 const authenticateToken = require('../../middleware/authorization');
 const PerformaInvoiceStatus = require('../models/invoiceStatus');
+const s3 = require('../../utils/s3bucket')
+// const upload = multer({ storage: multer.memoryStorage() }); 
 
-router.post('/fileupload', multer.single('file'), authenticateToken, (req, res) => {
+// router.post('/fileupload', multer.single('file'), authenticateToken, (req, res) => {
+//   try {
+//     if (!req.file) {
+//       return res.status(400).send({ message: 'No file uploaded' });
+//     }
+
+//     // Construct the URL path
+//     const fileUrl = `/invoices/uploads/${req.file.filename}`;
+
+//     res.status(200).send({
+//       message: 'File uploaded successfully',
+//       file: req.file,
+//       fileUrl: fileUrl
+//     });
+//   } catch (error) {
+//     console.error('Error uploading file:', error);
+//     res.status(500).send({ message: error.message });
+//   }
+// });
+
+
+router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).send({ message: 'No file uploaded' });
     }
 
-    // Construct the URL path
-    const fileUrl = `/invoices/uploads/${req.file.filename}`;
+    // Create S3 upload parameters
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key:`invoices/${Date.now()}_${req.file.originalname}` , // File path with a unique name
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+      ACL: 'public-read' // Optional: make file publicly accessible
+    };
+
+    // Upload the file to S3
+    const data = await s3.upload(params).promise();
+
+    // The uploaded file URL
+    const fileUrl = data.Location;
 
     res.status(200).send({
       message: 'File uploaded successfully',
       file: req.file,
-      fileUrl: fileUrl
+      fileUrl: fileUrl // S3 URL of the uploaded file
     });
   } catch (error) {
-    console.error('Error uploading file:', error);
+    console.error('Error uploading file to S3:', error);
     res.status(500).send({ message: error.message });
   }
 });
-
 router.delete('/filedelete', authenticateToken, async (req, res) => {
   try {
     console.log(req.query);

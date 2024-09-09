@@ -116,7 +116,8 @@ export class AddApprovalComponent {
   purpose: ['', Validators.required],
   customerName: [''],
   customerPoNo: [''],
-  poValue: ['']
+  poValue: [''],
+  filename:['']
   });
 
   @ViewChild('form') form!: ElementRef<HTMLFormElement>;
@@ -156,11 +157,14 @@ export class AddApprovalComponent {
 
       this.uploadSub = this.invoiceService.uploadInvoice(this.file).subscribe({
         next: (invoice) => {
+          console.log('invo', invoice);
+
           this.imageUrl = this.url + invoice.fileUrl;
           if (this.imageUrl) {
             this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.imageUrl);
           }
           this.piForm.get('url')?.setValue(invoice.fileUrl);
+          this.piForm.get('filename')?.setValue(invoice.file.originalname)
           this.uploadComplete = true; // Set to true when upload is complete
         },
         error: (error) => {
@@ -255,7 +259,7 @@ export class AddApprovalComponent {
       this.fileName = inv.url
       console.log(this.fileName);
 
-      let remarks = inv.performaInvoiceStatuses.find(s => s.status === inv.status)?.remarks;
+      let remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
       this.piForm.patchValue({piNo: inv.piNo, status: inv.status, remarks: remarks, kamId: inv.kamId,  supplierName:inv.supplierName,supplierPoNo: inv.supplierPoNo,
         supplierPrice:inv.supplierPrice ,
         purpose:inv.purpose,

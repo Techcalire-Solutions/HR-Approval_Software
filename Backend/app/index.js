@@ -5,6 +5,7 @@ const cors = require('cors')
 const sequelize = require('../utils/db');
 const path = require('path');
 
+
 dotenv.config();
 app.use(cors({ origin: '*' }));
 app.use(express.json());
