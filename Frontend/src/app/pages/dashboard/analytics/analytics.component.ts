@@ -1,8 +1,8 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { analytics } from '@data/dashboard-data';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { analytics } from '../../../common/dashboard-data';
 
 @Component({
   selector: 'app-analytics',
@@ -26,23 +26,23 @@ export class AnalyticsComponent implements OnInit {
   public yAxisLabel = 'Profit';
   public colorScheme: any = {
     domain: ['#283593', '#039BE5', '#FF5252']
-  }; 
+  };
   public autoScale = true;
   public roundDomains = true;
   @ViewChild('resizedDiv') resizedDiv: ElementRef;
-  public previousWidthOfResizedDiv:number = 0; 
+  public previousWidthOfResizedDiv:number = 0;
 
   constructor() { }
 
   ngOnInit() {
-    this.analytics = analytics; 
+    this.analytics = analytics;
   }
 
   onSelect(event: any) {
     console.log(event);
   }
 
-  ngAfterViewChecked() {    
+  ngAfterViewChecked() {
     if(this.previousWidthOfResizedDiv != this.resizedDiv.nativeElement.clientWidth){
       this.analytics = [...analytics];
     }

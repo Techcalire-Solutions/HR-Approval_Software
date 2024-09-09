@@ -3,7 +3,6 @@ import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angula
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
 import { UserDialogComponent } from '../../users/user-dialog/user-dialog.component';
-import { User } from '../../../common/models/user.model';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -17,6 +16,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { RoleService } from '@services/role.service';
 import {MatToolbarModule} from '@angular/material/toolbar';
+import { User } from '../../../common/interfaces/user';
 
 @Component({
   selector: 'app-add-role-dialog',
@@ -47,7 +47,7 @@ export class AddRoleDialogComponent {
               @Inject(MAT_DIALOG_DATA) public user: User,
               public fb: FormBuilder,private roleService:RoleService) {
     this.form = this.fb.group({
- 
+
       roleName: [null, Validators.compose([Validators.required, Validators.minLength(2)])],
       abbreviation: [null, Validators.compose([Validators.required, Validators.minLength(2)])],
 
@@ -62,12 +62,12 @@ export class AddRoleDialogComponent {
     this.dialogRef.close();
   }
   onSubmit(){
-   
+
     console.log(this.form.getRawValue());
     this.roleService.addRole(this.form.getRawValue()).subscribe((res)=>{
       this.dialogRef.close();
     })
-   
+
   }
   SubmitForm(){
 
