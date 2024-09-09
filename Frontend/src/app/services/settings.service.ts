@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 export class Settings {
-  constructor(public name: string, 
+  constructor(public name: string,
               public loadingSpinner: boolean,
               public fixedHeader:boolean,
               public sidenavIsOpened: boolean,
@@ -20,12 +20,12 @@ export class Settings {
 export class SettingsService {
 
   public settings = new Settings(
-    'Gradus',       //theme name
+    'WAC',       //theme name
     true,           //loadingSpinner
     true,           //fixedHeader
     true,           //sidenavIsOpened
-    true,           //sidenavIsPinned  
-    true,           //sidenavUserBlock 
+    true,           //sidenavIsPinned
+    true,           //sidenavUserBlock
     'vertical',     //horizontal , vertical
     'default',      //default, compact, mini
     'indigo-light', //indigo-light, teal-light, red-light, blue-dark, green-dark, pink-dark
