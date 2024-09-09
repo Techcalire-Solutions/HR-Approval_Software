@@ -1,74 +1,61 @@
-<div fxLayout="row" fxLayoutAlign="space-between center" class="px-2 py-1">
-    <div fxLayout="row">
+
+<!DOCTYPE html>
+<html lang="en">
+<body>
+  <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
+    <div fxLayout="row" class="col">
         <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-            <mat-button-toggle value="add" (click)="openUserDialog(null)">
-                <mat-icon>person_add</mat-icon>
+            <mat-button-toggle value="add" (click)="openRoleDialog(null)"><mat-icon>person_add</mat-icon>
             </mat-button-toggle>
-            <mat-button-toggle value="search">
+            <!-- <mat-button-toggle value="search">
                 <mat-icon>search</mat-icon>
-            </mat-button-toggle>
+            </mat-button-toggle> -->
         </mat-button-toggle-group>
     </div>
-    <form class="user-search" [class.show]="controls.value == 'search'">
-        <mat-form-field class="user-search-input">
-            <input matInput placeholder="Search team by name..." [(ngModel)]="searchText" name="search">
-        </mat-form-field>
-    </form>
-    <div fxLayout="row" fxLayoutAlign="space-between center">
-        <mat-button-toggle-group #viewType="matButtonToggleGroup" appearance="legacy" value="grid" hideSingleSelectionIndicator="true">
-            <mat-button-toggle value="grid">
-                <mat-icon>view_module</mat-icon>
-            </mat-button-toggle>
-            <mat-button-toggle value="list">
-                <mat-icon>view_list</mat-icon>
-            </mat-button-toggle>
-        </mat-button-toggle-group>
+    <div fxLayout="row" class="col">
+      <form class="user-search" [class.show]="controls.value == 'search'">
+        <!-- <mat-form-field class="user-search-input">
+            <input matInput placeholder="Search role by role name..." name="search" (keyup)="search($event)">
+        </mat-form-field> -->
+      </form>
     </div>
-</div>
-
-
-
-<div class="p-2">
-  <div class="mat-elevation-z8 p-1">
-      <!-- <mat-form-field class="w-100">
-          <input matInput (keyup)="applyFilter($any($event.target).value)" placeholder="Type to filter all columns">
-      </mat-form-field> -->
   </div>
-  <mat-table #table [dataSource]="dataSource" class="mat-elevation-z8">
 
-    <!-- Position Column -->
-    <ng-container matColumnDef="position">
-      <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.id}} </mat-cell>
-    </ng-container>
+    <main class="table" id="customers_table">
+        <!-- <section class="table__header">
+            <h1>ROLES</h1>
+        </section> -->
+        <section class="table__body">
+            <table>
+                <thead>
+                    <tr>
+                        <th> Team Name </th>
+                        <th> Leader </th>
+                        <th> Members </th>
+                        <th> Manage </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let team of teams">
+                        <td> {{team.teamName}} </td>
+                        <td>
+                          <button mat-menu-item (click)="openRoleDialog(team)">
+                            <mat-icon>mode_edit</mat-icon>
+                          </button>
+                          <!-- <button mat-menu-item (click)="deleteRole(role.id);">
+                            <mat-icon>delete</mat-icon>
+                          </button> -->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
 
-    <!-- Name Column -->
-    <ng-container matColumnDef="name">
-      <mat-header-cell *matHeaderCellDef> Team Name </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.teamName}} </mat-cell>
-    </ng-container>
+    <!-- <div class="tabs">
+     <a routerLink="role">ROLE</a>
+     <a>USER</a>
+ </div> -->
+</body>
 
-    <ng-container matColumnDef="teamLead">
-      <mat-header-cell *matHeaderCellDef> Team lead </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.leader.name}} </mat-cell>
-    </ng-container>
-
-
-    <!-- Team Members Column -->
-    <ng-container matColumnDef="teamMembers">
-      <mat-header-cell *matHeaderCellDef> Team Members </mat-header-cell>
-      <mat-cell *matCellDef="let element">
-        <div *ngFor="let data of element.teamMembers" class="team-member">
-          &nbsp; &nbsp;&nbsp;&nbsp;{{data.register.name}}
-          <mat-divider></mat-divider>
-        </div>
-      </mat-cell>
-    </ng-container>
-
-    <!-- Header and Row Declarations -->
-    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-  </mat-table>
-
-
-</div>
+</html>

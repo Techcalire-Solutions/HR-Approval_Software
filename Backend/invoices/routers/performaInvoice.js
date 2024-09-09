@@ -8,6 +8,7 @@ const PerformaInvoiceStatus = require('../models/invoiceStatus');
 const User = require('../../users/models/user');
 const { Op, fn, col, where } = require('sequelize');
 const sequelize = require('../../utils/db');
+const s3 = require('../../utils/s3bucket');
 
 router.post('/save', authenticateToken, async (req, res) => {
     const { piNo, url, kamId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
@@ -85,6 +86,7 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
 });
 
 router.get('/find', authenticateToken, async(req, res) => {
+
     let status = req.query.status;
     
     let where = {};
@@ -111,6 +113,8 @@ router.get('/find', authenticateToken, async(req, res) => {
 
 router.get('/findbyid/:id', authenticateToken, async(req, res) => {
     try {
+        // Create S3 upload parameters
+    
         const pi = await PerformaInvoice.findByPk(req.params.id, {include: [
             PerformaInvoiceStatus,
             {model: User, as: 'salesPerson', attributes: ['name']},
@@ -118,7 +122,21 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
             // {model: User, as: 'am', attributes: ['name']},
             // {model: User, as: 'accountant', attributes: ['name']},
         ]})
-        res.send(pi)
+        console.log('gggggggggg',pi.filename);
+        
+        const params = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key:`invoices/${pi.filename}` , // File path with a unique name
+            // Body: req.file.buffer,
+            // ContentType: req.file.mimetype,
+            // ACL: 'public-read' // Optional: make file publicly accessible
+            Expires: 60 // URL expires in 60 seconds
+          };
+        const signedUrl = s3.getSignedUrl('getObject', params);
+        console.log('pipipi', pi);
+        console.log('signedUrlsignedUrlsignedUrl', signedUrl);
+        
+        res.json({pi:pi, signedUrl:signedUrl})
     } catch (error) {
         res.send(error.message)
     }
