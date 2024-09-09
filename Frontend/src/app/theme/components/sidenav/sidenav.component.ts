@@ -52,7 +52,7 @@ export class SidenavComponent implements OnInit , PipeTransform{
     }
   }
 
-  public userImage = 'img/users/user-copy.jpg';
+  public userImage = 'img/users/default-user.jpg';
   public menuItems: Array<any>;
   public settings: Settings;
   loginService = inject(LoginService);
