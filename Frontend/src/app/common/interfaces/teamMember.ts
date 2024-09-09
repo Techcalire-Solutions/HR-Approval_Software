@@ -1,6 +1,6 @@
 
-import { User } from "../models/user.model";
 import { Team } from "./team";
+import { User } from "./user";
 
 export interface TeamMember {
     name: any;

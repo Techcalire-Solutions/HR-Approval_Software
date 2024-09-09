@@ -9,7 +9,6 @@ import { NgScrollbarModule } from 'ngx-scrollbar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { User } from '../../../common/models/user.model';
 import { CommonModule } from '@angular/common';
 import { UsersService } from '../../../services/users.service';
 import { InvoiceService } from '@services/invoice.service';
@@ -17,6 +16,7 @@ import { Router } from '@angular/router';
 import { Menu } from '../../../common/models/menu.model';
 import { environment } from '../../../../environments/environment';
 import { LoginService } from '@services/login.service';
+import { User } from '../../../common/interfaces/user';
 
 @Component({
   selector: 'app-sidenav',
@@ -172,6 +172,12 @@ users:User;
         }
       }
     }
+  }
+
+  openProfile(){
+    console.log("jjjjjjjjjjjjjjjjjjjjjjjjjj");
+
+    this.router.navigateByUrl('login/profile')
   }
 
 }

@@ -53,12 +53,12 @@
                 "input": "public"
               }
             ],
-            "styles": [ 
+            "styles": [
               "src/styles.scss"
             ],
             "scripts": [],
-            "allowedCommonJsDependencies": [ 
-              "leaflet-map", 
+            "allowedCommonJsDependencies": [
+              "leaflet-map",
               "dragula",
               "clone-deep",
               "quill",

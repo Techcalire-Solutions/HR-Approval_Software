@@ -6,7 +6,6 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { User } from '../../common/models/user.model';
 import { InvoiceService } from '@services/invoice.service';
 import { PerformaInvoice } from '../../common/interfaces/performaInvoice';
 import { CommonModule } from '@angular/common';
@@ -22,6 +21,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { DeleteConfirmDialogComponent } from './delete-confirm-dialog/delete-confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { User } from '../../common/interfaces/user';
 @Component({
   selector: 'app-add-approval',
   standalone: true,
