@@ -174,4 +174,10 @@ users:User;
     }
   }
 
+  openProfile(){
+    console.log("jjjjjjjjjjjjjjjjjjjjjjjjjj");
+
+    this.router.navigateByUrl('login/profile')
+  }
+
 }

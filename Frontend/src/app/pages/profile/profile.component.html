@@ -1,36 +1,43 @@
-<div fxLayout="row wrap">
-    <div fxFlex="100" fxFlex.sm="35" fxFlex.md="30" fxFlex.gt-md="25" class="p-2">
+@if (user){
+  <div fxLayout="row wrap">
+    <div fxFlex="100">
       <mat-card>
-        <img mat-card-image src="img/users/user-orig.jpg" alt="Photo 1">
+        <div class="user-img">
+          @if (user.url){
+            <img [src]="apiUrl + user.url" class="transition-2">
+        } @else {
+            <img [src]="userImage" class="transition-2">
+        }
+        </div>
         <mat-card-content class="py-3">
-            <h2 class="text-center">Emilio Verdines</h2>
-            <h3 class="text-center primary-color">Sales Executive</h3>
-            <h4 class="muted-text py-1">About:</h4>
+            <h2 class="text-center">{{user.name}}</h2>
+            <h3 class="text-center primary-color">{{user.role.roleName}}</h3>
+            <!-- <h4 class="muted-text py-1">About:</h4>
             <p class="text-justify">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
             <div fxLayoutAlign="end center">
                 <a routerLink="user-info" mat-stroked-button color="primary">
                     More <mat-icon>arrow_right_alt</mat-icon>
                 </a>
-            </div>
+            </div> -->
         </mat-card-content>
         <mat-divider></mat-divider>
         <div class="p-3">
           <div fxLayoutAlign="space-between center">
-            <div>Followers:</div>
-            <strong class="d-inline-block">675</strong>
+            <div>Phonenumber:</div>
+            <strong class="d-inline-block">{{user.phoneNumber}}</strong>
           </div>
           <div fxLayoutAlign="space-between center" class="mt-2">
-            <div>Following:</div>
-            <strong class="d-inline-block">428</strong>
+            <div>Email:</div>
+            <strong class="d-inline-block">{{user.email}}</strong>
           </div>
           <div fxLayoutAlign="space-between center" class="mt-2">
-            <div>Projects:</div>
-            <strong class="d-inline-block">27</strong>
+            <div>Created At:</div>
+            <strong class="d-inline-block">{{user.createdAt | date: 'dd/MM/yyyy'}}</strong>
           </div>
         </div>
         <mat-divider></mat-divider>
 
-        <mat-card-actions  class="text-center py-2">
+        <!-- <mat-card-actions  class="text-center py-2">
             <button mat-mini-fab color="primary" class="m-1">
               <svg class="mat-icon" viewBox="0 0 24 24">
                   <path d="M17,2V2H17V6H15C14.31,6 14,6.81 14,7.5V10H14L17,10V14H14V22H10V14H7V10H10V6A4,4 0 0,1 14,2H17Z" />
@@ -51,10 +58,12 @@
                   <path d="M23,11H21V9H19V11H17V13H19V15H21V13H23M8,11V13.4H12C11.8,14.4 10.8,16.4 8,16.4C5.6,16.4 3.7,14.4 3.7,12C3.7,9.6 5.6,7.6 8,7.6C9.4,7.6 10.3,8.2 10.8,8.7L12.7,6.9C11.5,5.7 9.9,5 8,5C4.1,5 1,8.1 1,12C1,15.9 4.1,19 8,19C12,19 14.7,16.2 14.7,12.2C14.7,11.7 14.7,11.4 14.6,11H8Z" />
               </svg>
             </button>
-        </mat-card-actions>
+        </mat-card-actions> -->
       </mat-card>
     </div>
     <div fxFlex="100" fxFlex.sm="65" fxFlex.md="70" fxFlex.gt-md="75" class="p-2">
         <router-outlet></router-outlet>
     </div>
-</div>
+  </div>
+}
+
