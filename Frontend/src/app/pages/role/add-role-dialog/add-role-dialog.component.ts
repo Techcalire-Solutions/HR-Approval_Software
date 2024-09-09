@@ -17,6 +17,7 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { RoleService } from '@services/role.service';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import { User } from '../../../common/interfaces/user';
+import { Role } from '../../../common/interfaces/role';
 
 @Component({
   selector: 'app-add-role-dialog',
@@ -43,8 +44,8 @@ import { User } from '../../../common/interfaces/user';
 export class AddRoleDialogComponent {
   public form: FormGroup;
   public passwordHide:boolean = true;
-  constructor(public dialogRef: MatDialogRef<UserDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) public user: User,
+  constructor(public dialogRef: MatDialogRef<AddRoleDialogComponent>,
+              @Inject(MAT_DIALOG_DATA) public role: Role,
               public fb: FormBuilder,private roleService:RoleService) {
     this.form = this.fb.group({
 
@@ -55,19 +56,32 @@ export class AddRoleDialogComponent {
   }
 
   ngOnInit() {
-
+    if (this.role) {
+      this.patchRole(this.role);
+    }
   }
+
+  patchRole(role: any){
+    this.form.patchValue({
+      roleName: role.roleName,
+      abbreviation: role.abbreviation
+    })
+  }
+
 
   close(): void {
     this.dialogRef.close();
   }
   onSubmit(){
-
-    console.log(this.form.getRawValue());
-    this.roleService.addRole(this.form.getRawValue()).subscribe((res)=>{
-      this.dialogRef.close();
-    })
-
+    if(this.role){
+      this.roleService.updateRole(this.role.id, this.form.getRawValue()).subscribe(data => {
+        this.dialogRef.close()
+      });
+    }else{
+      this.roleService.addRole(this.form.getRawValue()).subscribe((res)=>{
+        this.dialogRef.close();
+      })
+    }
   }
   SubmitForm(){
 
