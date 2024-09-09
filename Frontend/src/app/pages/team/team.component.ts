@@ -18,7 +18,6 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { PipesModule } from '../../theme/pipes/pipes.module';
-import { User } from '../../common/models/user.model';
 import { UsersService } from '../../services/users.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { TeamService } from '@services/team.service';
@@ -26,6 +25,7 @@ import { Team } from '../../common/interfaces/team';
 import { MatDividerModule } from '@angular/material/divider';
 import { CommonModule } from '@angular/common';
 import { TeamDialogueComponent } from './team-dialogue/team-dialogue.component';
+import { User } from '../../common/interfaces/user';
 @Component({
   selector: 'app-team',
   standalone: true,

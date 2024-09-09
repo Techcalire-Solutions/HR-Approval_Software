@@ -2,9 +2,7 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { RoleService } from '@services/role.service';
-import { TablesService, Element } from '@services/tables.service';
 import { Role } from '../../common/interfaces/role';
-import { User } from '../../common/models/user.model';
 import { MatDialog } from '@angular/material/dialog';
 import { Settings, SettingsService } from '@services/settings.service';
 import { UsersService } from '@services/users.service';
@@ -23,6 +21,7 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { PipesModule } from '../../theme/pipes/pipes.module';
 import { AddRoleDialogComponent } from './add-role-dialog/add-role-dialog.component';
+import { User } from '../../common/interfaces/user';
 export interface PeriodicElement {
   name: string;
   position: number;
@@ -30,13 +29,6 @@ export interface PeriodicElement {
   symbol: string;
 }
 
-const ELEMENT_DATA: PeriodicElement[] = [
-  {position: 1, name: 'Sales Executive', weight: 1.0079, symbol: 'H'},
-  {position: 2, name: 'Key Account Manger', weight: 4.0026, symbol: 'He'},
-  {position: 3, name: 'Authorizer Manger', weight: 6.941, symbol: 'Li'},
-  {position: 4, name: 'Finance Executive', weight: 9.0122, symbol: 'Be'},
-
-];
 @Component({
   selector: 'app-role',
   standalone: true,
@@ -62,8 +54,6 @@ const ELEMENT_DATA: PeriodicElement[] = [
   templateUrl: './role.component.html',
   encapsulation: ViewEncapsulation.None,
   providers: [
-
-    TablesService,
     UsersService
   ]
 })
@@ -95,7 +85,7 @@ export class RoleComponent {
   }
 
 
-  constructor(private tablesService: TablesService,private roleService:RoleService,public settingsService: SettingsService,
+  constructor(private roleService:RoleService,public settingsService: SettingsService,
     public dialog: MatDialog,
     public usersService: UsersService){
 this.settings = this.settingsService.settings;
