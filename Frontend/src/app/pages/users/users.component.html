@@ -9,11 +9,13 @@
             </mat-button-toggle>
         </mat-button-toggle-group>
     </div>
+
     <form class="user-search" [class.show]="controls.value == 'search'">
         <mat-form-field class="user-search-input">
-            <input matInput placeholder="Search user by name..." [(ngModel)]="searchText" name="search">
+            <input matInput placeholder="Search user by name..." (keyup)="search($event)" >
         </mat-form-field>
     </form>
+
     <div fxLayout="row" fxLayoutAlign="space-between center">
         <mat-button-toggle-group #viewType="matButtonToggleGroup" appearance="legacy" value="grid" hideSingleSelectionIndicator="true">
             <mat-button-toggle value="grid">
@@ -28,7 +30,7 @@
 
 @if (viewType.value == 'grid') {
     <div fxLayout="row wrap">
-        @for (user of users | UserSearchPipe : searchText | paginate: { itemsPerPage: 6, currentPage: page }; track user.id) {
+        @for (user of users; track user.id) {
             <div fxFlex="100" fxFlex.gt-md="33.3" fxFlex.md="50" class="p-2">
                 <mat-card class="p-0">
                     <div class="bg-primary" fxLayout="row" fxLayoutAlign="space-between center">
@@ -49,7 +51,7 @@
                                 <mat-icon>mode_edit</mat-icon>
                                 <span>Edit</span>
                             </button>
-                            <button mat-menu-item (click)="deleteFunction(user);">
+                            <button mat-menu-item (click)="deleteFunction(user.id);">
                                 <mat-icon>delete</mat-icon>
                                 <span>Delete</span>
                             </button>
@@ -95,12 +97,19 @@
                 </mat-card>
             </div>
         }
+        <mat-paginator
+          [length]="totalItems"
+          [pageSize]="pageSize"
+          [pageIndex]="currentPage - 1"
+          (page)="onPageChanged($event)"
+          [pageSizeOptions]="[10, 20, 30, 40, 50, 100]">
+        </mat-paginator>
     </div>
 }
 
-@if (viewType.value == 'list') {
+<!-- @if (viewType.value == 'list') {
     <div fxLayout="row wrap">
-        @for (user of users | UserSearchPipe : searchText | paginate: { itemsPerPage: 6, currentPage: page }; track user.id) {
+        @for (user of users | paginate: { itemsPerPage: 6, currentPage: page }; track user.id) {
             <div fxFlex="100" class="p-2">
                 <mat-card class="p-0">
                     <div class="bg-primary" fxLayout="row" fxLayoutAlign="space-between center">
@@ -198,7 +207,7 @@
             </div>
         }
     </div>
-}
+} -->
 
 @if (users) {
     <div fxLayout="row wrap">
