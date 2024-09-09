@@ -1,5 +1,6 @@
-import { User } from "../models/user.model";
+
 import { PerformaInvoiceStatus } from "./performa-invoice-status";
+import { User } from "./user";
 
 
 

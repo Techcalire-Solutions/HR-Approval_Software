@@ -13,7 +13,6 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 import { SidenavComponent } from '../theme/components/sidenav/sidenav.component';
 import { FullScreenComponent } from '../theme/components/fullscreen/fullscreen.component';
-import { FlagsMenuComponent } from '../theme/components/flags-menu/flags-menu.component';
 import { ApplicationsComponent } from '../theme/components/applications/applications.component';
 import { MessagesComponent } from '../theme/components/messages/messages.component';
 import { UserMenuComponent } from '../theme/components/user-menu/user-menu.component';
@@ -37,7 +36,6 @@ import { ReactiveFormsModule } from '@angular/forms';
     NgScrollbarModule,
     SidenavComponent,
     FullScreenComponent,
-    FlagsMenuComponent,
     ApplicationsComponent,
     MessagesComponent,
     UserMenuComponent,

@@ -1,6 +1,6 @@
 import { OperatorFunction } from "rxjs";
 import { TeamMember } from "./teamMember";
-import { User } from "../models/user.model";
+import { User } from "./user";
 
 export interface Team {
     filiter(arg0: OperatorFunction<any, any>): any;

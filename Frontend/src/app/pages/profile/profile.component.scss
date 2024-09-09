@@ -1,0 +1,11 @@
+.user-img {
+  display: flex;          /* Use Flexbox for centering */
+  justify-content: center; /* Center horizontally */
+  align-items: center;     /* Center vertically */
+  height: 100%;            /* Ensure it takes the full height of the parent */
+}
+
+.user-img img {
+  max-width: 100%;         /* Adjust the image size appropriately */
+  max-height: 100%;        /* Prevent overflow */
+}

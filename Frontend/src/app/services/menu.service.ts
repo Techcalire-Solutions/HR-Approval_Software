@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Location } from '@angular/common';
-import { verticalMenuItems, horizontalMenuItems } from '../common/data/menu';
+import { Location } from '@angular/common';;
 import { Menu } from '../common/models/menu.model';
+import { verticalMenuItems, horizontalMenuItems } from '../common/menu';
 
 @Injectable({
   providedIn: 'root'

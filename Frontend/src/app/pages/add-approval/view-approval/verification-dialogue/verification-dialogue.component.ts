@@ -1,7 +1,6 @@
 import { Component, Inject, Optional } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { User } from '@data/user';
 import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -10,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
+import { User } from '../../../../common/interfaces/user';
 @Component({
   selector: 'app-verification-dialogue',
   standalone: true,

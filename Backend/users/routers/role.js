@@ -31,72 +31,72 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 
-// router.get('/find', async (req, res) => {
-//   try {
-//     let whereClause = {}
-//     let limit;
-//     let offset;
+router.get('/find', async (req, res) => {
+  try {
+    let whereClause = {}
+    let limit;
+    let offset;
     
-//     if (req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
-//       limit = req.query.pageSize;
-//       offset = (req.query.page - 1) * req.query.pageSize;
-//       if (req.query.search != 'undefined') {
-//         const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
-//         whereClause = {
-//           [Op.or]: [
-//             sequelize.where(
-//               sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('roleName'), ' ', '')),
-//               {
-//                 [Op.like]: `%${searchTerm}%`
-//               }
-//             )
-//           ]
-//         };
-//       }
-//     } else {
-//       if (req.query.search != 'undefined') {
-//         const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
-//         whereClause = {
-//           [Op.or]: [
-//             sequelize.where(
-//               sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('roleName'), ' ', '')),
-//               {
-//                 [Op.like]: `%${searchTerm}%`
-//               }
-//             )
-//           ], 
-//           status: true
-//         };
-//       } else {
-//         whereClause = {
-//           status: true
-//         };
-//       }
-//     }
+    if (req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
+      limit = req.query.pageSize;
+      offset = (req.query.page - 1) * req.query.pageSize;
+      if (req.query.search != 'undefined') {
+        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+        whereClause = {
+          [Op.or]: [
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('roleName'), ' ', '')),
+              {
+                [Op.like]: `%${searchTerm}%`
+              }
+            )
+          ]
+        };
+      }
+    } else {
+      if (req.query.search != 'undefined') {
+        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+        whereClause = {
+          [Op.or]: [
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('roleName'), ' ', '')),
+              {
+                [Op.like]: `%${searchTerm}%`
+              }
+            )
+          ], 
+          status: true
+        };
+      } else {
+        whereClause = {
+          status: true
+        };
+      }
+    }
 
-//     const role = await Role.findAll({
-//       order:['id'], limit, offset, where: whereClause
-//     })
+    const role = await Role.findAll({
+      order:['id'], limit, offset, where: whereClause
+    })
 
-//     let totalCount;
-//     totalCount = await Role.count({where: whereClause});
+    let totalCount;
+    totalCount = await Role.count({where: whereClause});
     
-//     if (req.query.page != 'undefined' && req.query.pageSize != 'undefined') {
-//       const response = {
-//         count: totalCount,
-//         items: role,
-//       };
+    if (req.query.page != 'undefined' && req.query.pageSize != 'undefined') {
+      const response = {
+        count: totalCount,
+        items: role,
+      };
 
-//       res.json(response);
-//     } else {
-//       res.json(role);
-//     }
-//   } catch (error) {
-//     res.send(error.message);
-//   }
+      res.json(response);
+    } else {
+      res.json(role);
+    }
+  } catch (error) {
+    res.send(error.message);
+  }
 
 
-// })
+})
 
 router.get('/:id', authenticateToken,  async (req, res) => {
   try {
@@ -145,24 +145,35 @@ router.delete('/:id', authenticateToken, async(req,res)=>{
 })
 
 router.patch('/:id', authenticateToken, async(req,res)=>{
-    try {
-        Role.update(req.body, {
-            where: { id: req.params.id }
-          })
-            .then(num => {
-              if (num == 1) {
-                res.send({
-                  message: "Role was updated successfully."
-                });
-              } else {
-                res.send({
-                  message: `Cannot update Role with id=${id}. Maybe Role was not found or req.body is empty!`
-                });
-              }
-            })
-      } catch (error) {
+  try {
+    const roleId = parseInt(req.params.id, 10);
+
+    if ([1, 2, 3, 4, 5].includes(roleId)) {
+        return res.send("Role cannot be updated");
+    }
+    Role.update(req.body, {
+        where: { id: roleId }
+    })
+    .then(num => {
+        if (num == 1) {
+            res.send({
+                message: "Role was updated successfully."
+            });
+        } else {
+            res.send({
+                message: `Cannot update Role with id=${roleId}. Maybe Role was not found or req.body is empty!`
+            });
+        }
+    })
+    .catch(error => {
+        // Handle any errors that occur during the update process
         res.send(error.message);
-      }
+    });
+} catch (error) {
+    // Handle any unexpected errors
+    res.send(error.message);
+}
+
 })
 
 router.patch('/statusupdate/:id', authenticateToken, async(req,res)=>{

@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router, ActivatedRoute } from '@angular/router';
-import { User } from '@data/user';
 import { InvoiceService } from '@services/invoice.service';
 import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
@@ -22,6 +21,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { User } from '../../../common/interfaces/user';
 @Component({
   selector: 'app-update-pi',
   standalone: true,

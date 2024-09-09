@@ -1,7 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { Team } from '../../../common/interfaces/team';
 import { TeamService } from '@services/team.service';
-import { User } from '../../../common/models/user.model';
 import { UsersService } from '@services/users.service';
 
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -29,6 +28,7 @@ import { MatCardModule } from '@angular/material/card';
 
  // Needed for mat-form-field
 import { MatSelectModule } from '@angular/material/select';
+import { User } from '../../../common/interfaces/user';
 
 @Component({
   selector: 'app-team-dialogue',

@@ -7,7 +7,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 
 import { CommonModule } from '@angular/common';
-import { User } from '../../../common/models/user.model';
 import { InvoiceService } from '@services/invoice.service';
 import { environment } from '../../../../environments/environment';
 import { LoginService } from '@services/login.service';

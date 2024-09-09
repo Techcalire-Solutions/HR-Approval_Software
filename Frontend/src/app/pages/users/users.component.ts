@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { UsersService } from '../../services/users.service';
-import { User } from '../../common/models/user.model';
 import { Settings, SettingsService } from '../../services/settings.service';
 import { MatDialog } from '@angular/material/dialog';
 import { UserDialogComponent } from './user-dialog/user-dialog.component';
@@ -24,6 +23,7 @@ import { SafePipe } from '../add-approval/view-invoices/safe.pipe';
 import { DeleteConfirmDialogComponent } from '../add-approval/delete-confirm-dialog/delete-confirm-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../environments/environment';
+import { User } from '../../common/interfaces/user';
 
 
 @Component({
