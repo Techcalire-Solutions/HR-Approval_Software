@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
@@ -18,6 +18,7 @@ import { RoleService } from '@services/role.service';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import { User } from '../../../common/interfaces/user';
 import { Role } from '../../../common/interfaces/role';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-add-role-dialog',
@@ -44,6 +45,8 @@ import { Role } from '../../../common/interfaces/role';
 export class AddRoleDialogComponent {
   public form: FormGroup;
   public passwordHide:boolean = true;
+  snackBar = inject(MatSnackBar);
+  
   constructor(public dialogRef: MatDialogRef<AddRoleDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public role: Role,
               public fb: FormBuilder,private roleService:RoleService) {
@@ -76,10 +79,12 @@ export class AddRoleDialogComponent {
     if(this.role){
       this.roleService.updateRole(this.role.id, this.form.getRawValue()).subscribe(data => {
         this.dialogRef.close()
+        this.snackBar.open("Role updated succesfully...","" ,{duration:3000})
       });
     }else{
       this.roleService.addRole(this.form.getRawValue()).subscribe((res)=>{
         this.dialogRef.close();
+        this.snackBar.open("Role added succesfully...","" ,{duration:3000})
       })
     }
   }

@@ -1,3 +1,4 @@
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { UsersService } from '../../services/users.service';
 import { Settings, SettingsService } from '../../services/settings.service';
@@ -24,6 +25,8 @@ import { DeleteConfirmDialogComponent } from '../add-approval/delete-confirm-dia
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../environments/environment';
 import { User } from '../../common/interfaces/user';
+import { count, Subscription } from 'rxjs';
+import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 
 
 @Component({
@@ -42,11 +45,11 @@ import { User } from '../../common/interfaces/user';
     MatSlideToggleModule,
     MatCardModule,
     NgxPaginationModule,
-    PipesModule,
     DatePipe,
     UserDialogComponent,
     CommonModule,
-    SafePipe
+    SafePipe,
+    MatPaginatorModule
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
@@ -55,8 +58,7 @@ import { User } from '../../common/interfaces/user';
 })
 export class UsersComponent implements OnInit {
   apiUrl = environment.apiUrl;
-  public users: User[] | null;
-  public searchText: string;
+  public users: User[];
   public page:any;
   public settings: Settings;
   constructor(private _snackbar: MatSnackBar,private sanitizer: DomSanitizer,
@@ -67,42 +69,32 @@ export class UsersComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getUsers();
-
-
+    this.getUsers()
   }
-  getSanitizedUrl(url: string): SafeUrl {
-    return this.sanitizer.bypassSecurityTrustUrl(url);
-  }
-  public getUsers(): void {
-    this.users = null; //for show spinner each time
-    this.usersService.getUser().subscribe((users: any) =>{
-      console.log(users);
 
-      this.users = users
+  userSub!: Subscription;
+  getUsers(): void {
+    this.userSub = this.usersService.getUser(this.searchText, this.currentPage, this.pageSize).subscribe((users: any) =>{
+      this.users = users.items;
+      this.totalItems = users.count
     });
   }
-  public addUser(user:User){
-    this.usersService.addUser(user).subscribe(user => this.getUsers());
-  }
-  public updateUser(user:User){
-    this.usersService.updateUser(user).subscribe(user => this.getUsers());
-  }
-  public deleteUser(user:User){
-    this.usersService.deleteUser(user.id).subscribe(user => this.getUsers());
-  }
 
-
+  pageSize = 6;
+  currentPage = 1;
+  totalItems = 0;
   public onPageChanged(event: any){
-    this.page = event;
-    this.getUsers();
-    if(this.settings.fixedHeader){
-        document.getElementById('main-content')!.scrollTop = 0;
-    }
-    else{
-        document.getElementsByClassName('mat-drawer-content')[0].scrollTop = 0;
-    }
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.getUsers()
   }
+  
+  public searchText!: string;
+  search(event: Event){
+    this.searchText = (event.target as HTMLInputElement).value.trim()
+    this.getUsers()
+  }
+
   public userImage = 'img/users/avatar.png';
 
   public openUserDialog(user: any){
@@ -111,17 +103,12 @@ export class UsersComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(user => {
       this.getUsers()
-      // if(user){
-      //     (user.id) ? this.updateUser(user) : this.addUser(user);
-      // }
     });
   }
 
-
-
   deleteFunction(id: number){
     console.log(id);  // Check the value of id here
-    const dialogRef = this.dialog.open(DeleteConfirmDialogComponent, {
+    const dialogRef = this.dialog.open(DeleteDialogueComponent, {
       width: '450px',
       data: {}
     });
@@ -139,5 +126,4 @@ export class UsersComponent implements OnInit {
       }
     });
   }
-
 }
