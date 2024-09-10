@@ -131,14 +131,20 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
             Expires: 60, // URL expires in 60 seconds
           };
       
-          // Check if the Key is correctly formatted
-          console.log('S3 Key:', params.Key);
-      
           const signedUrl = s3.getSignedUrl('getObject', params);
+
+          const bankSlip = pi.bankSlip;
+          const bankKey = fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+          
+          const bankParams = {
+              Bucket: process.env.AWS_BUCKET_NAME,
+              Key: bankKey, // Ensure pi.url has the correct value
+              Expires: 60, // URL expires in 60 seconds
+            };
+        
+            const bankSlipUrl = s3.getSignedUrl('getObject', bankParams);
       
-          console.log('Generated Signed URL:', signedUrl);
-      
-          res.json({ pi: pi, signedUrl: signedUrl });
+          res.json({ pi: pi, signedUrl: signedUrl, bankSlip: bankSlipUrl });
     } catch (error) {
         res.send(error.message)
     }
