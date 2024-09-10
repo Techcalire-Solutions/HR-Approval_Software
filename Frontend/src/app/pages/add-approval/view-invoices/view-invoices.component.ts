@@ -80,8 +80,6 @@ export class ViewInvoicesComponent {
   bankSlip!: string;
   signedUrl:string;
   getPiById(id: number){
-    console.log('hihihh');
-
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
       console.log('pi',pi);
 
