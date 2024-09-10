@@ -26,29 +26,44 @@
             <h1>ROLES</h1>
         </section> -->
         <section class="table__body">
-            <table>
-                <thead>
-                    <tr>
-                        <th> Team Name </th>
-                        <th> Leader </th>
-                        <th> Members </th>
-                        <th> Manage </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let team of teams">
-                        <td> {{team.teamName}} </td>
-                        <td>
-                          <button mat-menu-item (click)="openRoleDialog(team)">
-                            <mat-icon>mode_edit</mat-icon>
-                          </button>
-                          <!-- <button mat-menu-item (click)="deleteRole(role.id);">
-                            <mat-icon>delete</mat-icon>
-                          </button> -->
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+          <table>
+            <thead>
+              <tr>
+                <th> Team Name </th>
+                <th> Leader </th>
+                <th> Members </th>
+                <th> Manage </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let team of teams">
+                <td> {{ team.teamName }} </td>
+
+                <!-- Team Leader Column -->
+                <td> {{ team.leader.name }} </td>
+
+                <!-- Team Members Column -->
+                <td>
+                  <div *ngFor="let member of team.teamMembers" class="team-member">
+                    {{ member.register.name }}
+                    <mat-divider></mat-divider>
+                  </div>
+                </td>
+
+                <!-- Manage Column -->
+                <td>
+                  <button mat-menu-item (click)="openRoleDialog(team)">
+                    <mat-icon>mode_edit</mat-icon>
+                  </button> &nbsp;
+                  <!-- Uncomment if delete is needed -->
+                  <button mat-menu-item (click)="deleteTeam(team.id);">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
         </section>
     </main>
 
