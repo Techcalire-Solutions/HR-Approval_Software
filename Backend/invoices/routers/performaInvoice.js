@@ -60,6 +60,7 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
         res.send(error.message);
     }
 });
+
 router.post('/saveByAM', authenticateToken, async (req, res) => {
     const { piNo, url, kamId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
     const userId = req.user.id;
@@ -122,29 +123,35 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
             // {model: User, as: 'am', attributes: ['name']},
             // {model: User, as: 'accountant', attributes: ['name']},
         ]})
-        const fileUrl = pi.url;
-        const key = fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-        
-        const params = {
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: key, 
-            Expires: 60,
-          };
-      
-          const signedUrl = s3.getSignedUrl('getObject', params);
 
-          const bankSlip = pi.bankSlip;
-          const bankKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+        let signedUrl = '';
+        if (pi.url) {
+            const fileUrl = pi.url;
+            const key = fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+            
+            const params = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: key, 
+                Expires: 60,
+              };
           
-          const bankParams = {
-              Bucket: process.env.AWS_BUCKET_NAME,
-              Key: bankKey, // Ensure pi.url has the correct value
-              Expires: 60, // URL expires in 60 seconds
-            };
-        
-            const bankSlipUrl = s3.getSignedUrl('getObject', bankParams);
+              signedUrl = s3.getSignedUrl('getObject', params);
+        }
+        let bankSlipUrl = '';
+        if(pi.bankSlip){
+            const bankSlip = pi.bankSlip;
+            const bankKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+            
+            const bankParams = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: bankKey, // Ensure pi.url has the correct value
+                Expires: 60, // URL expires in 60 seconds
+              };
+          
+              bankSlipUrl = s3.getSignedUrl('getObject', bankParams);
+        }
       
-          res.json({ pi: pi, signedUrl: signedUrl, bankSlip: bankSlipUrl });
+        res.json({ pi: pi, signedUrl: signedUrl, bankSlip: bankSlipUrl });
     } catch (error) {
         res.send(error.message)
     }
