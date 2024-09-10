@@ -51,6 +51,38 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
 
     // The uploaded file URL
     const fileUrl = data.Location;
+    const key = fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+    res.status(200).send({
+      message: 'File uploaded successfully',
+      file: req.file,
+      fileUrl: key // S3 URL of the uploaded file
+    });
+  } catch (error) {
+    console.error('Error uploading file to S3:', error);
+    res.status(500).send({ message: error.message });
+  }
+});
+
+router.post('/bankslipupload', upload.single('file'), authenticateToken, async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send({ message: 'No file uploaded' });
+    }
+
+    // Create S3 upload parameters
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key:`bankslips/${Date.now()}_${req.file.originalname}` , // File path with a unique name
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+      ACL: 'public-read' // Optional: make file publicly accessible
+    };
+
+    // Upload the file to S3
+    const data = await s3.upload(params).promise();
+
+    // The uploaded file URL
+    const fileUrl = data.Location;
 
     res.status(200).send({
       message: 'File uploaded successfully',
