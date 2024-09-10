@@ -26,6 +26,9 @@ import { MatDividerModule } from '@angular/material/divider';
 import { CommonModule } from '@angular/common';
 import { TeamDialogueComponent } from './team-dialogue/team-dialogue.component';
 import { User } from '../../common/interfaces/user';
+import { Subscription } from 'rxjs';
+import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-team',
   standalone: true,
@@ -62,7 +65,7 @@ export class TeamComponent {
   public searchText: string;
   public page:any;
   public settings: Settings;
-  constructor(public settingsService: SettingsService,
+  constructor( private _snackbar: MatSnackBar,public settingsService: SettingsService,
               public dialog: MatDialog,
               public teamService: TeamService){
     this.settings = this.settingsService.settings;
@@ -126,6 +129,19 @@ export class TeamComponent {
       // if(user){
       //     (user.id) ? this.updateUser(user) : this.addUser(user);
       // }
+    });
+  }
+
+  delete!: Subscription;
+  deleteTeam(id: number){
+    let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+    dialogRef.afterClosed().subscribe(res => {
+      if(res){
+        this.delete = this.teamService.deleteTeam(id).subscribe(res => {
+          this._snackbar.open("Team deleted successfully...","" ,{duration:3000})
+          this.getTeams()
+        });
+      }
     });
   }
 

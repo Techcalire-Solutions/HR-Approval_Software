@@ -29,6 +29,7 @@ import { MatCardModule } from '@angular/material/card';
  // Needed for mat-form-field
 import { MatSelectModule } from '@angular/material/select';
 import { User } from '../../../common/interfaces/user';
+import { Role } from '../../../common/interfaces/role';
 
 @Component({
   selector: 'app-team-dialogue',
@@ -57,19 +58,62 @@ import { User } from '../../../common/interfaces/user';
 })
 export class TeamDialogueComponent {
   constructor(public dialog: MatDialog, private _snackbar: MatSnackBar, private teamService: TeamService, private fb: FormBuilder, public dialogRef: MatDialogRef<TeamComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any, private userService: UsersService) { }
+    @Inject(MAT_DIALOG_DATA) public data: any, @Inject(MAT_DIALOG_DATA) public team: Team, private userService: UsersService) { }
   teamForm = this.fb.group({
     teamName: ['', Validators.required],
     userId: ['', Validators.required],
-   //  teamMembers: ['', Validators.required]
-   teamMembers: [[]] // Initialize as an empty array
+
+   teamMembers: [[]]
   });
 
 
   ngOnInit(): void {
     this.getTeams()
     this.getUsers()
+    if (this.team) {
+      this.patchTeam(this.team);
+    }
   }
+  patchTeam(team: any) {
+    this.teamForm.patchValue({
+      teamName: team.teamName,
+      userId: team.userId
+    });
+
+    const teamMembersArray = team.teamMembers.map((member: any) => member.userId);
+    this.teamForm.patchValue({
+      teamMembers: teamMembersArray
+    });
+  }
+
+  edit(id: any) {
+    this.isEdit = true;
+    const teamMem: any = this.teamForm.getRawValue();
+
+    let teamM = [];
+    for (let i = 0; i < teamMem.teamMembers.length; i++) {
+      teamM[i] = {
+        userId: teamMem.teamMembers[i]
+      };
+    }
+
+    const updatedTeamData = {
+      teamName: teamMem.teamName,
+      userId: teamMem.userId,
+      teamMembers: teamM
+    };
+    this.teamId = id;
+   console.log('teamId',this.teamId);
+    this.teamService.updateTeam(this.teamId, updatedTeamData).subscribe((res) => {
+      this._snackbar.open("Team updated successfully...", "", { duration: 3000 });
+      this.clearControls();
+    }, (error) => {
+      console.log(error);
+      alert(error);
+    });
+  }
+
+
   teams: Team[] = []
   getTeams() {
     this.teamService.getTeam().subscribe((res) => {
@@ -86,10 +130,7 @@ export class TeamDialogueComponent {
          userId : teamMem.teamMembers[i]
        }
      }
-       // / Add teamMem.userId as a member
-   // teamM.push({
-   //   userId: teamMem.userId
-   // });
+
      let  data = {
        teamName: teamMem.teamName,
        userId: teamMem.userId,
@@ -123,55 +164,9 @@ export class TeamDialogueComponent {
 
   isEdit = false;
   teamId: any | undefined;
-//   editFunction(id: any) {
-//    this.isEdit = true;
-//    this.teamId = id;
-//    console.log(this.teamId);
-//    this.teamService.getTeamById(this.teamId).subscribe((res) => {
-//      let app$ = res;
-//      console.log(app$);
-//      console.log(app$.teamMembers)
-//      let members : any = app$.teamMembers
-
-//      let teamName = app$.teamName;
-//      let lead: any = app$.userId;
-//      let teamMembers : any = members.map((x:any)=>x.userId)
 
 
 
-//      this.teamForm.patchValue({
-//        teamName: teamName,
-//        userId: lead,
-//        teamMembers : teamMembers
-
-//      });
-//    });
-//  }
-
-
-
-  edit() {
-
-
-
-    // this.isEdit = true
-    // let data = {
-    //   teamName: this.teamForm.get('teamName')?.value,
-
-
-    // }
-    // console.log(data)
-    // console.log(this.teamId)
-    // this.companyService.updateTeam(this.teamId, data).subscribe((res) => {
-    //   this._snackbar.open("Team updated successfully...", "", { duration: 3000 })
-    //   this.clearControls()
-
-    //   console.log(res)
-    // })
-
-
-
-  }
   // deleteFunction(id: number) {
   //   const dialogRef = this.dialog.open(DeleteComponent, {
   //     width: '450px',
