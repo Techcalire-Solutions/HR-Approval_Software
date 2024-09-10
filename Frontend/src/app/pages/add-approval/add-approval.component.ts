@@ -22,6 +22,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { DeleteConfirmDialogComponent } from './delete-confirm-dialog/delete-confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { User } from '../../common/interfaces/user';
+import { SafePipe } from "./view-invoices/safe.pipe";
 @Component({
   selector: 'app-add-approval',
   standalone: true,
@@ -35,8 +36,7 @@ import { User } from '../../common/interfaces/user';
     MatSelectModule,
     MatInputModule,
     MatProgressBarModule,
-    MatProgressSpinnerModule,
-  ],
+    MatProgressSpinnerModule, SafePipe],
   templateUrl: './add-approval.component.html',
   styleUrl: './add-approval.component.scss'
 })
@@ -158,10 +158,9 @@ export class AddApprovalComponent {
         next: (invoice) => {
           console.log('invo', invoice);
 
-          this.imageUrl = this.url + invoice.fileUrl;
-          if (this.imageUrl) {
-            this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.imageUrl);
-          }
+          this.imageUrl = invoice.fileUrl;
+          console.log(this.imageUrl);
+
           this.piForm.get('url')?.setValue(invoice.fileUrl);
           this.uploadComplete = true; // Set to true when upload is complete
         },

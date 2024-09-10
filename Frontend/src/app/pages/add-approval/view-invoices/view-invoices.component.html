@@ -48,7 +48,7 @@
                 <iframe [src]="'https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/invoices/1725888135283_INVOICE%20I10518_V2%20AEROSPACE.pdf' | safe" width="100%" height="600px"></iframe>
               </div> -->
               <div class="pdf-container">
-                <iframe [src]="signedUrl | safe" width="100%" height="600px"></iframe>
+                <iframe [src]="'signedUrl' | safe" width="100%" height="600px"></iframe>
               </div>
 
             </mat-card-content>
@@ -56,7 +56,7 @@
           <div class="col" *ngIf="bankSlip">
             <mat-card-content>
               <div class="pdf-container">
-                <iframe [src]="bankSlip | safe" width="100%" height="600px"></iframe>
+                https://drive.google.com/file/d/1maOoKYCqj65JP3rmdmoNWhpLDCnphVcE/view?usp=sharing
               </div>
             </mat-card-content>
           </div>
