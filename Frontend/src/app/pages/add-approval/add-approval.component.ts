@@ -218,14 +218,14 @@ export class AddApprovalComponent {
         console.log(invoice);
 
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('/')
+        this.router.navigateByUrl('/login')
       });
     } else if(this.roleName=='Key Account Manager'){
       this.submit = this.invoiceService.addPIByKAM(this.piForm.getRawValue()).subscribe((invoice: any) =>{
         console.log('kam add PI',invoice);
 
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('/')
+        this.router.navigateByUrl('/login')
       });
     }
     else if(this.roleName=='Manager'){
@@ -233,7 +233,7 @@ export class AddApprovalComponent {
         console.log('kam add PI',invoice);
 
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('/')
+        this.router.navigateByUrl('/login')
       });
     }
 
