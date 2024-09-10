@@ -89,7 +89,7 @@ export class ViewInvoicesComponent {
       this.piNo = pi.pi.piNo;
       this.signedUrl= pi.signedUrl
       // this.url = environment.apiUrl + pi.url;
-      if(pi.pi.bankSlip != null) this.bankSlip = environment.apiUrl + pi.pi.bankSlip;
+      if(pi.pi.bankSlip != null) this.bankSlip = pi.bankSlip;
       this.getPiStatusByPiId(id)
     });
   }
