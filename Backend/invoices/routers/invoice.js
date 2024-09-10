@@ -51,11 +51,11 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
 
     // The uploaded file URL
     const fileUrl = data.Location;
-
+    const key = fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
     res.status(200).send({
       message: 'File uploaded successfully',
       file: req.file,
-      fileUrl: fileUrl // S3 URL of the uploaded file
+      fileUrl: key // S3 URL of the uploaded file
     });
   } catch (error) {
     console.error('Error uploading file to S3:', error);
