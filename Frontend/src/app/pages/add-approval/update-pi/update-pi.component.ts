@@ -209,7 +209,7 @@ export class UpdatePIComponent {
       console.log(invoice);
 
       this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-      this.router.navigateByUrl('/home')
+      this.router.navigateByUrl('login/viewApproval')
     });
   }
 
@@ -222,7 +222,7 @@ export class UpdatePIComponent {
       console.log(invoice);
 
       this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-      this.router.navigateByUrl('/home')
+      this.router.navigateByUrl('login/viewApproval')
     });
   }
 
@@ -231,9 +231,11 @@ export class UpdatePIComponent {
   fileName!: string;
   patchdata(id: number) {
     this.editStatus = true;
-    this.piSub = this.invoiceService.getPIById(id).subscribe(inv => {
-      this.fileName = inv.url;
-      console.log('File Name:', this.fileName);
+    this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
+      console.log(pi);
+
+      let inv = pi.pi;
+      console.log(inv);
 
       let remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
 
@@ -256,7 +258,7 @@ export class UpdatePIComponent {
 
       // Update imageUrl based on `inv.url`
       if (inv.url) {
-        this.imageUrl = this.url + inv.url;
+        this.imageUrl = pi.signedUrl;
       } else {
         this.imageUrl = ''; // Clear imageUrl if inv.url is empty
       }

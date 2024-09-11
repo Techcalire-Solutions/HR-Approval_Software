@@ -6,6 +6,7 @@ import { AnalyticsComponent } from './analytics/analytics.component';
 import { DiskSpaceComponent } from './disk-space/disk-space.component';
 import { InfoCardsComponent } from './info-cards/info-cards.component';
 import { TodoComponent } from './todo/todo.component';
+import { MatrixTableComponent } from "./matrix-table/matrix-table.component";
 
 @Component({
   selector: 'app-dashboard',
@@ -17,8 +18,9 @@ import { TodoComponent } from './todo/todo.component';
     AnalyticsComponent,
     DiskSpaceComponent,
     InfoCardsComponent,
-    TodoComponent
-  ],
+    TodoComponent,
+    MatrixTableComponent
+],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
