@@ -10,10 +10,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
 import { User } from '../../../../common/interfaces/user';
+import { MatCardModule } from '@angular/material/card';
 @Component({
   selector: 'app-verification-dialogue',
   standalone: true,
-  imports: [CommonModule,
+  imports: [CommonModule, MatCardModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -41,7 +42,7 @@ export class VerificationDialogueComponent {
   ngOnInit(): void {
     this.invoiceNo = this.dialogData.invoiceNo;
     this.status = this.dialogData.status;
-    console.log(this.dialogData);
+    console.log(this.isSelectionMade);
 
     this.form.get('spId')?.setValue(this.dialogData.sp)
     if(this.status == 'KAM VERIFIED') this.getAm()
@@ -51,6 +52,11 @@ export class VerificationDialogueComponent {
 
   }
 
+  isSelectionMade: any = false;
+  onSelectionChange() {
+    // Update the flag to enable/disable the save button
+    this.isSelectionMade = this.form.get('amId')?.valid || this.form.get('accountantId')?.valid;
+  }
 
   onCancelClick(): void {
     this.dialogRef.close();

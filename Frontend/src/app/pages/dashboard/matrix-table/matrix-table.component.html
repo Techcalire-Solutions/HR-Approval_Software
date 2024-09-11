@@ -1,0 +1,49 @@
+
+<body>
+    <div class="table-container">
+        <table class="matrix-table">
+            <thead>
+                <tr>
+                    <th>PI#</th>
+                    <th>Count</th>
+                    <th>Upload</th>
+                    <th>KAM</th>
+                    <th>AM</th>
+                    <th>BankSlip</th>
+                </tr>
+            </thead>
+            <tbody>
+              @for (item of invoices; track item) {
+                <tr>
+                  <td class="project">{{ item.piNo }}</td>
+                  <td class="project">{{ item.count }}</td>
+
+                  <td class="check">
+                    <span *ngIf="item.status === 'GENERATED' || item.status === 'KAM VERIFIED' || item.status === 'AM VERIFIED' || item.status === 'BANK SLIP ISSUED'">&#10003;</span>
+                  </td>
+
+                  <td class="check">
+                    <span *ngIf="item.status === 'KAM VERIFIED' || item.status === 'AM VERIFIED' || item.status === 'BANK SLIP ISSUED'">&#10003;</span>
+                    <span *ngIf="item.status === 'GENERATED' || item.status === 'KAM REJECTED' || item.status === 'AM REJECTED'">&#10007;</span>
+                  </td>
+
+                  <td class="check">
+                    <span *ngIf="item.status === 'AM VERIFIED' || item.status === 'BANK SLIP ISSUED'">&#10003;</span>
+                    <span *ngIf="item.status === 'GENERATED' || item.status === 'KAM VERIFIED' || item.status === 'KAM REJECTED' || item.status === 'AM REJECTED'">&#10007;</span>
+                  </td>
+
+                  <td class="check">
+                    <span *ngIf="item.status === 'BANK SLIP ISSUED'">&#10003;</span>
+                    <span *ngIf="item.status !== 'BANK SLIP ISSUED'">&#10007;</span>
+                  </td>
+                </tr>
+
+                <!-- Additional row for rejected status if needed
+                <tr *ngIf="item.status === 'KAM REJECTED' || item.status === 'AM REJECTED'">
+                  <td colspan="5" class="cross">This item is rejected and starts over from "Generated".</td>
+                </tr> -->
+              }
+            </tbody>
+        </table>
+    </div>
+</body>
