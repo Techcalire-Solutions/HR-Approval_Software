@@ -21,7 +21,6 @@ import { DatePipe } from '@angular/common';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { SafePipe } from '../add-approval/view-invoices/safe.pipe';
-import { DeleteConfirmDialogComponent } from '../add-approval/delete-confirm-dialog/delete-confirm-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../environments/environment';
 import { User } from '../../common/interfaces/user';
@@ -88,7 +87,7 @@ export class UsersComponent implements OnInit {
     this.pageSize = event.pageSize;
     this.getUsers()
   }
-  
+
   public searchText!: string;
   search(event: Event){
     this.searchText = (event.target as HTMLInputElement).value.trim()

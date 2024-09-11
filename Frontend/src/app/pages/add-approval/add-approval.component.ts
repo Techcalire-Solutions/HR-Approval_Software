@@ -19,7 +19,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import { DeleteConfirmDialogComponent } from './delete-confirm-dialog/delete-confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { User } from '../../common/interfaces/user';
 import { SafePipe } from "./view-invoices/safe.pipe";
@@ -217,14 +216,14 @@ export class AddApprovalComponent {
         console.log(invoice);
 
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('/login')
+        this.router.navigateByUrl('login/viewApproval')
       });
     } else if(this.roleName=='Key Account Manager'){
       this.submit = this.invoiceService.addPIByKAM(this.piForm.getRawValue()).subscribe((invoice: any) =>{
         console.log('kam add PI',invoice);
 
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('/login')
+        this.router.navigateByUrl('login/viewApproval')
       });
     }
     else if(this.roleName=='Manager'){
@@ -232,7 +231,7 @@ export class AddApprovalComponent {
         console.log('kam add PI',invoice);
 
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('/login')
+        this.router.navigateByUrl('login/viewApproval')
       });
     }
 
@@ -243,7 +242,7 @@ export class AddApprovalComponent {
       console.log(invoice);
 
       this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-      this.router.navigateByUrl('/home')
+      this.router.navigateByUrl('login/viewApproval')
     });
   }
 
@@ -252,10 +251,9 @@ export class AddApprovalComponent {
   fileName!: string;
   patchdata(id: number){
     this.editStatus = true;
-    this.piSub = this.invoiceService.getPIById(id).subscribe(inv => {
+    this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
+      let inv = pi.pi;
       this.fileName = inv.url
-      console.log(this.fileName);
-
       let remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
       this.piForm.patchValue({piNo: inv.piNo, status: inv.status, remarks: remarks, kamId: inv.kamId,  supplierName:inv.supplierName,supplierPoNo: inv.supplierPoNo,
         supplierPrice:inv.supplierPrice ,
@@ -263,8 +261,7 @@ export class AddApprovalComponent {
         customerName:inv.customerName ,
         customerPoNo: inv.customerPoNo,
         poValue:inv.poValue})
-      if(inv.url != '') this.imageUrl = this.url + inv.url;
-      console.log(this.imageUrl);
+      if(inv.url != '') this.imageUrl = pi.signedUrl;
 
     });
   }

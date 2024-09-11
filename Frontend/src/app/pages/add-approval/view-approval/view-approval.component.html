@@ -43,17 +43,15 @@
                 <td [attr.data-label]="'Status'">{{invoice.status}}_{{invoice.count}}</td>
                 <td (click)="$event.stopPropagation()">
                   <div class="action-icons">
-                    <button class="update-button" [routerLink]="['/login/updatePI', invoice.id]" *ngIf="sp && invoice.status=='GENERATED'&& invoice.userStatus">Update</button>
-                    <button class="delete-button" (click)="deleteFunction(invoice.id)"  *ngIf="sp && invoice.status=='GENERATED'&& invoice.userStatus">Delete</button>
-
-
-
-                   <!-- Approve Button -->
-<button mat-raised-button class="approve-button"
-(click)="verified('approved', invoice.piNo, invoice.salesPerson.name, invoice.id)"
-*ngIf="!sp && pageStatus && !admin && !teamLead">
-APPROVE
-</button>
+                    <button class="update-button" [routerLink]="['/login/updatePI', invoice.id]"
+                      *ngIf="sp && (invoice.status=='GENERATED' || invoice.status=='KAM REJECTED')&& invoice.userStatus">Update
+                    </button>
+                    <button class="delete-button" (click)="deleteFunction(invoice.id)"
+                      *ngIf="sp && (invoice.status=='GENERATED' || invoice.status=='KAM REJECTED')&& invoice.userStatus">Delete
+                    </button>
+                    <button mat-raised-button class="approve-button" (click)="verified('approved', invoice.piNo, invoice.salesPerson.name, invoice.id)"
+                      *ngIf="!sp && pageStatus && !admin && !teamLead"> APPROVE
+                    </button>
 
 <!-- Reject Button -->
 <button mat-raised-button class="reject-button"
