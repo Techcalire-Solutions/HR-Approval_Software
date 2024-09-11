@@ -19,7 +19,7 @@ import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
 import { BankReceiptDialogueComponent } from './bank-receipt-dialogue/bank-receipt-dialogue.component';
 import { MatDialogModule } from '@angular/material/dialog';
-import { DeleteConfirmDialogComponent } from '../delete-confirm-dialog/delete-confirm-dialog.component';
+import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
 @Component({
   selector: 'app-view-approval',
   standalone: true,
@@ -408,7 +408,7 @@ user: number;
 
 
   deleteFunction(id: number){
-    const dialogRef = this.dialog.open(DeleteConfirmDialogComponent, {
+    const dialogRef = this.dialog.open(DeleteDialogueComponent, {
       width: '450px',
       data: {}
     });

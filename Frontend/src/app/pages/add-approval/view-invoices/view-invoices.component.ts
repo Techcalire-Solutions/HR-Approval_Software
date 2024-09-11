@@ -135,7 +135,7 @@ export class ViewInvoicesComponent {
           console.log(result);
 
           this.submittingForm = false;
-          this.router.navigateByUrl('/home/invoice/view')
+          this.router.navigateByUrl('/home/viewApproval')
           this.snackBar.open(`Invoice ${this.piNo} updated to ${status}...`,"" ,{duration:3000})
         });
       }
