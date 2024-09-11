@@ -252,10 +252,9 @@ export class AddApprovalComponent {
   fileName!: string;
   patchdata(id: number){
     this.editStatus = true;
-    this.piSub = this.invoiceService.getPIById(id).subscribe(inv => {
+    this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
+      let inv = pi.pi;
       this.fileName = inv.url
-      console.log(this.fileName);
-
       let remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
       this.piForm.patchValue({piNo: inv.piNo, status: inv.status, remarks: remarks, kamId: inv.kamId,  supplierName:inv.supplierName,supplierPoNo: inv.supplierPoNo,
         supplierPrice:inv.supplierPrice ,
@@ -263,8 +262,7 @@ export class AddApprovalComponent {
         customerName:inv.customerName ,
         customerPoNo: inv.customerPoNo,
         poValue:inv.poValue})
-      if(inv.url != '') this.imageUrl = this.url + inv.url;
-      console.log(this.imageUrl);
+      if(inv.url != '') this.imageUrl = pi.signedUrl;
 
     });
   }
