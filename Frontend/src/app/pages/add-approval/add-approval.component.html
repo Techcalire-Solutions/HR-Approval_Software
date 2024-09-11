@@ -125,6 +125,8 @@
           <img [src]="imageUrl" alt="Image" title="Image" height="300" width="300" (click)="fileInput.click()" />
         </ng-container>
 
+
+          <--- PDF Preview -->
         <ng-template #fileTemplate>
           <ng-container *ngIf="safeUrl && fileType === 'pdf'; else noFileTemplate">
             <object [data]="safeUrl" type="application/pdf" width="300" height="300">
@@ -133,7 +135,7 @@
           </ng-container>
         </ng-template>
 
-        <ng-template #noFileTemplate> </ng-template> -->
+        <ng-template #noFileTemplate> </ng-template> 
 
         <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
         <span class="material-icons" (click)="fileInput.click()">cloud_upload</span>

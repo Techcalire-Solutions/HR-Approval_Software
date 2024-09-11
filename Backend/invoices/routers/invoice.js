@@ -37,10 +37,13 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
       return res.status(400).send({ message: 'No file uploaded' });
     }
 
+    // Sanitize the original file name by removing special characters and spaces
+    const sanitizedFileName = req.file.originalname.replace(/[^a-zA-Z0-9]/g, '_');
+
     // Create S3 upload parameters
     const params = {
       Bucket: process.env.AWS_BUCKET_NAME,
-      Key:`invoices/${Date.now()}_${req.file.originalname}` , // File path with a unique name
+      Key: `invoices/${Date.now()}_${sanitizedFileName}`, // File path with sanitized name
       Body: req.file.buffer,
       ContentType: req.file.mimetype,
       ACL: 'public-read' // Optional: make file publicly accessible
@@ -49,9 +52,12 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
     // Upload the file to S3
     const data = await s3.upload(params).promise();
 
-    // The uploaded file URL
-    const fileUrl = data.Location;
-    const key = fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+    // Check if data.Location (fileUrl) exists
+    const fileUrl = data.Location ? data.Location : '';
+
+    // Replace only if fileUrl is valid
+    const key = fileUrl ? fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+
     res.status(200).send({
       message: 'File uploaded successfully',
       file: req.file,
@@ -62,6 +68,9 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
     res.status(500).send({ message: error.message });
   }
 });
+
+
+
 
 router.post('/bankslipupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
