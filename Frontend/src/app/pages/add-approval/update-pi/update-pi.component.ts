@@ -209,7 +209,7 @@ export class UpdatePIComponent {
       console.log(invoice);
 
       this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-      this.router.navigateByUrl('/home')
+      this.router.navigateByUrl('login/viewApproval')
     });
   }
 
@@ -222,7 +222,7 @@ export class UpdatePIComponent {
       console.log(invoice);
 
       this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-      this.router.navigateByUrl('/home')
+      this.router.navigateByUrl('login/viewApproval')
     });
   }
 

@@ -19,7 +19,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import { DeleteConfirmDialogComponent } from './delete-confirm-dialog/delete-confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { User } from '../../common/interfaces/user';
 import { SafePipe } from "./view-invoices/safe.pipe";
@@ -217,14 +216,14 @@ export class AddApprovalComponent {
         console.log(invoice);
 
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('/')
+        this.router.navigateByUrl('login/viewApproval')
       });
     } else if(this.roleName=='Key Account Manager'){
       this.submit = this.invoiceService.addPIByKAM(this.piForm.getRawValue()).subscribe((invoice: any) =>{
         console.log('kam add PI',invoice);
 
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('/')
+        this.router.navigateByUrl('login/viewApproval')
       });
     }
     else if(this.roleName=='Manager'){
@@ -232,7 +231,7 @@ export class AddApprovalComponent {
         console.log('kam add PI',invoice);
 
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('/')
+        this.router.navigateByUrl('login/viewApproval')
       });
     }
 
@@ -243,7 +242,7 @@ export class AddApprovalComponent {
       console.log(invoice);
 
       this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-      this.router.navigateByUrl('/home')
+      this.router.navigateByUrl('login/viewApproval')
     });
   }
 
