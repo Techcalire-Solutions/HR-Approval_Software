@@ -5,7 +5,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { InvoiceService } from '@services/invoice.service';
 import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
-import { environment } from '../../../../environments/environment';
 import { PerformaInvoice } from '../../../common/interfaces/performaInvoice';
 import { VerificationDialogueComponent } from '../view-approval/verification-dialogue/verification-dialogue.component';
 import { RouterModule } from '@angular/router';
@@ -28,8 +27,6 @@ import { MatTableModule } from '@angular/material/table';
     MatIconModule,
     SafePipe,
     MatProgressSpinnerModule
-
-
   ],
   templateUrl: './view-invoices.component.html',
   styleUrl: './view-invoices.component.scss'
@@ -47,7 +44,6 @@ export class ViewInvoicesComponent {
 
   ngOnInit(): void {
     let id = this.route.snapshot.params['id'];
-    console.log('idddd',id);
 
     this.getPiById(id)
     const token: any = localStorage.getItem('token')

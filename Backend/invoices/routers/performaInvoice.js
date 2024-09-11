@@ -97,13 +97,12 @@ router.get('/find', authenticateToken, async(req, res) => {
     try {
         const pi = await PerformaInvoice.findAll({
             where: where,
-            order: ['id'],
+            order: [['id', 'DESC']],
             include: [
                 {model: PerformaInvoiceStatus},
                 {model: User, as: 'salesPerson', attributes: ['name']},
                 {model: User, as: 'kam', attributes: ['name']},
-                {model: User, as: 'am', attributes: ['name']},
-                // {model: User, as: 'accountant', attributes: ['name']},
+                {model: User, as: 'am', attributes: ['name']}
             ]
         })
         res.send(pi)
