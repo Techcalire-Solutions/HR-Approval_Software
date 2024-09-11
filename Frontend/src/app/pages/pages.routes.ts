@@ -17,6 +17,16 @@ export const routes: Routes = [
         data: { breadcrumb: 'Role' }
       },
       {
+        path: 'applyLeave',
+        loadComponent: () => import('./leave/apply-leave/apply-leave.component').then(c => c.ApplyLeaveComponent),
+        data: { breadcrumb: 'ApplyLeave' }
+      },
+      {
+        path: 'leaveRequest',
+        loadComponent: () => import('./leave/leave-request/leave-request.component').then(c => c.LeaveRequestComponent),
+        data: { breadcrumb: 'LeaveRequest' }
+      },
+      {
         path: 'users',
         loadComponent: () => import('./users/users.component').then(c => c.UsersComponent),
         data: { breadcrumb: 'Users' }
