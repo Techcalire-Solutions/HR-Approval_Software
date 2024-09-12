@@ -4,33 +4,21 @@ const router = express.Router();
 const authenticateToken = require('../../middleware/authorization')
 const sequelize = require('../../utils/db')
 const { Op, fn, col, where } = require('sequelize');
-const Leave = require('../models/leave')
+const LeaveType = require('../models/leaveType')
 
 
 router.post('/', authenticateToken,async(req,res)=>{
     try {
         const {
-            userId,
-            leaveTypeId,
-            startDate,
-            endDate,
-            noOfDays,
-            notes,
-            status
+            leaveTypeName
         } = req.body;
 
-        const leave = new Leave({
-            userId,
-            leaveTypeId,
-            startDate,
-            endDate,
-            noOfDays,
-            notes,
-            status
+        const leaveType = new LeaveType({
+            leaveTypeName
 
         });
-        await leave.save();
-        res.send(leave)
+        await leaveType.save();
+        res.send(leaveType)
 
         
     } catch (error) {
@@ -42,8 +30,8 @@ router.post('/', authenticateToken,async(req,res)=>{
 
 router.get('/',authenticateToken, async(req,res)=>{
     try {
-        const leave = await Leave.findAll({})
-        res.send(leave)
+        const leaveType = await LeaveType.findAll({})
+        res.send(leaveType)
         
     } catch (error) {
         res.send(error.message)
