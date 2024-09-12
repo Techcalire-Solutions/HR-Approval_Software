@@ -2,7 +2,7 @@ const {DataTypes} =  require('sequelize')
 const sequelize = require('../../utils/db')
 
  const LeaveType = sequelize.define('leaveType',{
-   leaveTypeName : {type : DataTypes.STRING, allowNull : false},
+   leaveTypeName : {type : DataTypes.STRING, allowNull : true},
 
  },{
     freezeTableName :true,
