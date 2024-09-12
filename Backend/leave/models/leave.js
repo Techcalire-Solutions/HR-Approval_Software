@@ -2,13 +2,22 @@ const {DataTypes} =  require('sequelize')
 const sequelize = require('../../utils/db')
 
 const Leave = sequelize.define('leave',{
-    userId: {type : DataTypes.INTEGER}
+    userId: {type : DataTypes.INTEGER},
+    leaveTypeId : {type : DataTypes.INTEGER},
+    startDate : {type : DataTypes.DATE, allowNull : true},
+    endDate : {type : DataTypes.DATE, allowNull : true},
+    noOfDays : {type : DataTypes.INTEGER},
+    notes : { type : DataTypes.STRING, allowNull : true },
+    status : { type : DataTypes.BOOLEAN,default:true}
+    
 },
 {
     freezeTableName :true,
-    timestamps : false
+    timestamps : true 
 })
 
 Leave.sync({alter:true})
 .then(()=>console.log)
+
+module.exports = Leave
 
