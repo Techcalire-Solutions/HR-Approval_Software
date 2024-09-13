@@ -40,7 +40,7 @@
   </div>
 
   <div class="row">
-    <div class="col">
+    <div class="col image">
       <mat-card-content>
         <div class="pdf-container">
           <iframe [src]="signedUrl | safe" width="100%"></iframe>
@@ -48,7 +48,7 @@
       </mat-card-content>
     </div>
 
-    <div class="col" *ngIf="bankSlip">
+    <div class="col image" *ngIf="bankSlip">
       <mat-card-content>
         <div class="pdf-container">
           <iframe [src]="bankSlip | safe" width="100%"></iframe>
