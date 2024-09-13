@@ -46,8 +46,8 @@ export class InvoiceService {
   }
 
 
-  getPI(status?: string): Observable<PerformaInvoice[]>{
-    return this._http.get<PerformaInvoice[]>(this.url + `/performaInvoice/find/?status=${status}`);
+  getPI(status?: string, currentPage?: number, pageSize?: number): Observable<any[]>{
+    return this._http.get<any[]>(this.url + `/performaInvoice/find/?status=${status}&page=${currentPage}&pageSize=${pageSize}`);
   }
 
   getPIBySP(status?: string, search?: string, currentPage?: number, pageSize?: number): Observable<PerformaInvoice[]>{
