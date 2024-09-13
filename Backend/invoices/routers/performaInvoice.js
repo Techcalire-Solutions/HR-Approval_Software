@@ -89,14 +89,23 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
 router.get('/find', authenticateToken, async(req, res) => {
 
     let status = req.query.status;
+    console.log(req.query, "_______________________");
     
     let where = {};
     if(status != '' && status != 'undefined'){
         where = { status: status}
     }
+
+    let limit; 
+    let offset; 
+    if (req.query.pageSize && req.query.page && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
+        limit = parseInt(req.query.pageSize, 10);
+        offset = (parseInt(req.query.page, 10) - 1) * limit;
+    }
+
     try {
         const pi = await PerformaInvoice.findAll({
-            where: where,
+            where: where, limit, offset,
             order: [['id', 'DESC']],
             include: [
                 {model: PerformaInvoiceStatus},
@@ -105,7 +114,17 @@ router.get('/find', authenticateToken, async(req, res) => {
                 {model: User, as: 'am', attributes: ['name']}
             ]
         })
-        res.send(pi)
+        const totalCount = await PerformaInvoice.count({ where: where });
+
+        if (req.query.pageSize && req.query.page && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
+            const response = {
+                count: totalCount,
+                items: pi,
+            };
+            res.json(response);
+        } else {
+            res.send(pi);
+        }
     } catch (error) {
         res.send(error.message)
     }
