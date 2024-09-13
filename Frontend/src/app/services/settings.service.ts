@@ -20,7 +20,7 @@ export class Settings {
 export class SettingsService {
 
   public settings = new Settings(
-    'LeedsHR Pro',       //theme name
+    'LeedsHR',       //theme name
     true,           //loadingSpinner
     true,           //fixedHeader
     true,           //sidenavIsOpened
