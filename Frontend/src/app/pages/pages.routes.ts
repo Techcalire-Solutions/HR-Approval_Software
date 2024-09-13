@@ -63,6 +63,11 @@ export const routes: Routes = [
         loadComponent: () => import('./team/team.component').then(c => c.TeamComponent),
         data: { breadcrumb: 'Team' }
       },
+      {
+        path: 'leaveType',
+        loadComponent: () => import('./leave/leave-types/leave-types.component').then(c => c.LeaveTypesComponent),
+        data: { breadcrumb: 'Leave Type' }
+      },
     ]
   }
 ];

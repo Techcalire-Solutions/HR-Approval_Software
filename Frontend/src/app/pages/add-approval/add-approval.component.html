@@ -135,7 +135,7 @@
           </ng-container>
         </ng-template>
 
-        <ng-template #noFileTemplate> </ng-template> 
+        <ng-template #noFileTemplate> </ng-template>
 
         <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
         <span class="material-icons" (click)="fileInput.click()">cloud_upload</span>
@@ -146,7 +146,7 @@
 
       <section class="progress-area" *ngIf="file">
         <li class="row">
-          <span class="material-icons">file_copy</span>
+          <!-- <span class="material-icons">file_copy</span> -->
           <div class="content">
             <div class="details">
               <span class="name">{{ file.name }} - {{ uploadComplete ? 'Uploaded' : 'Uploading' }}</span>
