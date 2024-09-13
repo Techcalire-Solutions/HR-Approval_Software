@@ -5,7 +5,7 @@
             <thead>
                 <tr>
                     <th>PI#</th>
-                    <th>Count</th>
+                    <th>Attempt</th>
                     <th>Upload</th>
                     <th>KAM</th>
                     <th>AM</th>
@@ -16,25 +16,34 @@
               @for (item of invoices; track item) {
                 <tr>
                   <td class="project">{{ item.piNo }}</td>
-                  <td class="project">{{ item.count }}</td>
+                  <td class="project" style="background-color: white; color: rgb(6, 49, 105);">{{ item.count }}</td>
 
                   <td class="check">
                     <span *ngIf="item.status === 'GENERATED' || item.status === 'KAM VERIFIED' || item.status === 'AM VERIFIED' || item.status === 'BANK SLIP ISSUED'">&#10003;</span>
                   </td>
 
-                  <td class="check">
-                    <span *ngIf="item.status === 'KAM VERIFIED' || item.status === 'AM VERIFIED' || item.status === 'BANK SLIP ISSUED'">&#10003;</span>
-                    <span *ngIf="item.status === 'GENERATED' || item.status === 'KAM REJECTED' || item.status === 'AM REJECTED'">&#10007;</span>
+                  <td class="check" *ngIf="item.status === 'KAM VERIFIED' || item.status === 'AM VERIFIED' || item.status === 'BANK SLIP ISSUED'">
+                    <span>&#10003;</span>
                   </td>
 
-                  <td class="check">
-                    <span *ngIf="item.status === 'AM VERIFIED' || item.status === 'BANK SLIP ISSUED'">&#10003;</span>
-                    <span *ngIf="item.status === 'GENERATED' || item.status === 'KAM VERIFIED' || item.status === 'KAM REJECTED' || item.status === 'AM REJECTED'">&#10007;</span>
+                  <td class="cross" *ngIf="item.status === 'GENERATED' || item.status === 'KAM REJECTED' || item.status === 'AM REJECTED'">
+                    <span >&#10007;</span>
                   </td>
 
-                  <td class="check">
-                    <span *ngIf="item.status === 'BANK SLIP ISSUED'">&#10003;</span>
-                    <span *ngIf="item.status !== 'BANK SLIP ISSUED'">&#10007;</span>
+                  <td *ngIf="item.status === 'AM VERIFIED' || item.status === 'BANK SLIP ISSUED'" class="check">
+                    <span>&#10003;</span>
+                  </td>
+
+                  <td *ngIf="item.status === 'GENERATED' || item.status === 'KAM VERIFIED' || item.status === 'KAM REJECTED' || item.status === 'AM REJECTED'" class="cross">
+                    <span>&#10007;</span>
+                  </td>
+
+                  <td *ngIf="item.status === 'BANK SLIP ISSUED'" class="check">
+                    <span>&#10003;</span>
+                  </td>
+
+                  <td *ngIf="item.status !== 'BANK SLIP ISSUED'" class="cross">
+                    <span>&#10007;</span>
                   </td>
                 </tr>
 

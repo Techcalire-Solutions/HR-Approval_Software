@@ -16,7 +16,6 @@
     "backend": "file:",
     "bcrypt": "^5.1.1",
     "cloudinary": "^1.40.0",
-    "convert-excel-to-json": "^1.7.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
@@ -25,7 +24,6 @@
     "nodemon": "^2.0.22",
     "pg": "^8.12.0",
     "pg-hstore": "^2.3.4",
-    "puppeteer": "^20.9.0",
     "sequelize": "^6.28.0",
     "sqlite3": "^5.1.4"
   },
