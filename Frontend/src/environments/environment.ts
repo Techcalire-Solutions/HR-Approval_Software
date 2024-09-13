@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8000',
+   apiUrl: 'http://localhost:8000',
+  // apiUrl :'https://api-approval.techclaire.com',
   zLevel1: 100,
   zLevel2: 90,
   zLevel3: 80
