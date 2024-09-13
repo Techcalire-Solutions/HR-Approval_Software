@@ -72,21 +72,17 @@ mat-card-title {
   margin-right: 0;
 }
 
-/* Adjust the column layout on smaller screens */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .row {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
   }
 
-  .pdf-container iframe {
-    width: 100%;
-    height: 400px; /* Adjust the height if necessary */
+  .col {
+    flex: 0 0 100%; /* Make each column take 100% width */
+    max-width: 100%;
+    margin-bottom: 16px; /* Optional: Add spacing between rows */
   }
-
-  // .col {
-  //   margin-bottom: 20px; /* Add some spacing between the columns */
-  // }
 }
 
 /* Ensure iframe is responsive */
@@ -200,16 +196,16 @@ th:nth-child(4), td:nth-child(4) { width: 15%; }
 th:nth-child(5), td:nth-child(5) { width: 10%; }
 th:nth-child(6), td:nth-child(6) { width: 10%; }
 
-.row {
-  display: flex;
-  flex-direction: row;
-}
+// .row {
+//   display: flex;
+//   flex-direction: row;
+// }
 
-.col {
-  flex: 1;
-  margin-right: 20px;
-  width: 100%;
-}
+// .col {
+//   flex: 1;
+//   margin-right: 20px;
+//   width: 100%;
+// }
 
 .icon:hover{
   color: red;
