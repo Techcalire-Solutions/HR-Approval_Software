@@ -30,10 +30,10 @@
             </thead>
             <tbody>
               <tr *ngFor="let invoice of invoices; let i = index"
-              [routerLink]="['/login/viewInvoices/', invoice.id]"
-              (mousedown)="onMouseDown($event, invoice)"
-              (mouseup)="onMouseUp($event)"
-              (mouseleave)="onMouseLeave($event)">
+                [routerLink]="['/login/viewInvoices/', invoice.id]"
+                (mousedown)="onMouseDown($event, invoice)"
+                (mouseup)="onMouseUp($event)"
+                (mouseleave)="onMouseLeave($event)">
 
                 <td [attr.data-label]="'InvoiceNo'">{{invoice.piNo}}</td>
                 <td [attr.data-label]="'SP'">{{invoice.salesPerson?.name}}</td>
@@ -52,20 +52,12 @@
                     <button mat-raised-button class="approve-button" (click)="verified('approved', invoice.piNo, invoice.salesPerson.name, invoice.id)"
                       *ngIf="!sp && pageStatus && !admin && !teamLead"> APPROVE
                     </button>
-
-<!-- Reject Button -->
-<button mat-raised-button class="reject-button"
-(click)="verified('rejected', invoice.piNo, invoice.salesPerson.name, invoice.id)"
-*ngIf="!sp && pageStatus && !admin && !teamLead">
-REJECT
-</button>
-
-<button mat-raised-button class="add-bank-slip-button"
-(click)="addBankSlip(invoice.piNo, invoice.id)"
-*ngIf="!sp && ma">
-Add Wireslip
-</button>
-
+                    <button mat-raised-button class="reject-button" (click)="verified('rejected', invoice.piNo, invoice.salesPerson.name, invoice.id)"
+                      *ngIf="!sp && pageStatus && !admin && !teamLead">  REJECT
+                    </button>
+                    <button mat-raised-button class="add-bank-slip-button" (click)="addBankSlip(invoice.piNo, invoice.id)"
+                      *ngIf="!sp && ma "> Wireslip
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -76,7 +68,7 @@ Add Wireslip
           </table>
 
           <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
-          (page)="onPageChange($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
+            (page)="onPageChange($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
           </mat-paginator>
         </div>
       </div>
@@ -110,7 +102,7 @@ Add Wireslip
         </a>
         <a (click)="onTabClick('invoice')" *ngIf="admin">
           <span (click)="onStepSelectionChange('all')" class="material-symbols-outlined"
-            [ngClass]="{'selected': selectedTab === 'invoice'}"> ALL INVOICES
+            [ngClass]="{'selected': selectedTab === 'invoice'}"> ALL
           </span>
         </a>
       </section>
