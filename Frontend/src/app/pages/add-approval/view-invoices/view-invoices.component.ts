@@ -15,6 +15,7 @@ import { SafePipe } from './safe.pipe';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PerformaInvoiceStatus } from '../../../common/interfaces/performa-invoice-status';
 import { MatTableModule } from '@angular/material/table';
+import { BankReceiptDialogueComponent } from '../view-approval/bank-receipt-dialogue/bank-receipt-dialogue.component';
 
 @Component({
   selector: 'app-view-invoices',
@@ -59,6 +60,8 @@ export class ViewInvoicesComponent {
   kam: boolean = false;
   am: boolean = false;
   ma: boolean = false;
+  admin: boolean = false;
+  teamLead: boolean = false;
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;
@@ -66,9 +69,29 @@ export class ViewInvoicesComponent {
       if(this.roleName === 'Key Account Manager') this.kam = true;
       if(this.roleName === 'Manager') this.am = true;
       if(this.roleName === 'Accountant') this.ma = true;
+      if(this.roleName === 'Administrator') { this.admin = true }
+     if(this.roleName === 'Team Lead') { this.teamLead = true }
     })
   }
 
+
+  // admin: boolean = false;
+  // teamLead: boolean = false;
+  // getRoleById(id: number){
+  //   this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
+  //     this.roleName = role.roleName;
+
+  //     if(this.roleName === 'Sales Executive') { this.status = 'REJECTED'; this.sp = true }
+  //     if(this.roleName === 'Key Account Manager') { this.status = 'GENERATED'; this.kam = true }
+  //     if(this.roleName === 'Manager') { this.status = 'KAM VERIFIED'; this.am = true }
+  //     if(this.roleName === 'Accountant') { this.status = 'AM VERIFIED'; this.ma = true }
+  //     if(this.roleName === 'Administrator') { this.admin = true }
+  //     if(this.roleName === 'Team Lead') { this.teamLead = true }
+  //     this.getInvoices();
+  //     console.log(this.status);
+
+  //   })
+  // }
   piSub!: Subscription;
   url!: string;
   piNo!: string;
@@ -103,7 +126,7 @@ export class ViewInvoicesComponent {
   }
   submittingForm: boolean = false;
   verified(value: string){
-    this.submittingForm = true;
+
     let status = this.pi.status;
     console.log(this.pi);
 
@@ -133,8 +156,6 @@ export class ViewInvoicesComponent {
 
         this.invoiceService.updatePIStatus(data).subscribe(result => {
           console.log(result);
-
-          this.submittingForm = false;
           this.router.navigateByUrl('/home/viewApproval')
           this.snackBar.open(`Invoice ${this.piNo} updated to ${status}...`,"" ,{duration:3000})
         });
@@ -149,23 +170,21 @@ export class ViewInvoicesComponent {
   //     this.status = status;
   //   });
   // }
-  addBankSlip(piNo: string){
-    // let id = this.pi.id;
-    // let sp = this.pi.salesPerson.name;
 
-    // const dialogRef = this.dialog.open(AttachBankSlipComponent, {
-    //   data: { invoiceNo: piNo, id: id }
-    // });
+  addBankSlip(piNo: string, id: number){
+    const dialogRef = this.dialog.open(BankReceiptDialogueComponent, {
+      data: { invoiceNo: piNo, id: id }
+    });
 
-    // dialogRef.afterClosed().subscribe(result => {
-    //   if(result){
-    //     this.getPiById(id)
-    //     this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
-    //     // this.invoiceService.updatePIStatusWithBankSlip(data).subscribe(result => {
-    //     //   console.log(result);
-    //     // });
-    //   }
-    // })
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        // this.getInvoices()
+        this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
+        // this.invoiceService.updatePIStatusWithBankSlip(data).subscribe(result => {
+        //   console.log(result);
+        // });
+      }
+    })
   }
 }
 
