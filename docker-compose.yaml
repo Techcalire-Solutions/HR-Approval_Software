@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: compose-postgres-db
+    restart: always
+    environment:
+      POSTGRES_USER: app_user 
+      POSTGRES_PASSWORD: JenxdlGE55nhH9 
+      POSTGRES_DB: approval_management_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./DB:/var/lib/postgresql/data
+
+  nodeapp:
+    build:
+      context: ./Backend/
+    restart: always
+    ports: 
+      - "8000:8000"
