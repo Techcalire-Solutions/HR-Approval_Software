@@ -48,7 +48,7 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
     this.piSub?.unsubscribe()
   }
 
-  pageSize = 1;
+  pageSize = 5;
   currentPage = 1;
   totalItems = 0;
   public onPageChanged(event: any){
