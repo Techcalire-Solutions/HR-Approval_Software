@@ -8,7 +8,10 @@ const Leave = sequelize.define('leave',{
     endDate : {type : DataTypes.DATE, allowNull : true},
     noOfDays : {type : DataTypes.INTEGER},
     notes : { type : DataTypes.STRING, allowNull : true },
-    status : { type : DataTypes.BOOLEAN,default:true}
+    status : { type : DataTypes.STRING, allowNull : true },
+
+    halfDay: { type : DataTypes.BOOLEAN,default:false},
+    halfDayTime: { type : DataTypes.STRING, allowNull : true },
     
 },
 {
