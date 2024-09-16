@@ -15,7 +15,8 @@
             <tbody>
               @for (item of invoices; track item) {
                 <tr>
-                  <td class="project">{{ item.piNo }}</td>
+                  <td class="project" (click)="openInvoice(item.id)" style="cursor: pointer; text-decoration: underline; color: #007bff;
+                    transition: color 0.3s;" (mouseenter)="onMouseEnter($event)" (mouseleave)="onMouseLeave($event)">{{ item.piNo }}</td>
                   <td class="project" style="background-color: white; color: rgb(6, 49, 105);">{{ item.count }}</td>
 
                   <td class="check">
@@ -54,5 +55,8 @@
               }
             </tbody>
         </table>
+        <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
+        (page)="onPageChanged($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
+        </mat-paginator>
     </div>
 </body>
