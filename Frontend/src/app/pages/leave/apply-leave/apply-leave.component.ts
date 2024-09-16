@@ -23,6 +23,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { DatePipe } from '@angular/common';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { LeaveType } from '../../../common/interfaces/leaveType';
 @Component({
   selector: 'app-apply-leave',
   standalone: true,
@@ -58,11 +59,23 @@ export class ApplyLeaveComponent {
 
     // this.userRole = user.role;
   }
+  ngOnInit(){
+    this.getLeaveType()
+  }
+  public leaveTypes: LeaveType[] | null;
+  public getLeaveType(): void {
+
+    this.leaveService.getLeaveType().subscribe((leaveTypes: any) =>{
+      console.log(leaveTypes);
+
+      this.leaveTypes = leaveTypes
+    });
+  }
   leaveRequestForm = this.formBuilder.group({
-    leaveType: ['', Validators.required], // Add Validators.required here
-    reason: ['', Validators.required], // Add Validators.required here
-    fromDate: ['', Validators.required],
-    toDate: ['', Validators.required],
+    leaveTypeId: ['', Validators.required],
+    notes: ['', Validators.required],
+    startDate: ['', Validators.required],
+    endDate: ['', Validators.required],
     userId: [],
     status: [''],
     halfDay: [false],
@@ -79,15 +92,26 @@ export class ApplyLeaveComponent {
     let data = {
       leaveType: this.leaveRequestForm.get('leaveType')?.value,
       reason: this.leaveRequestForm.get('reason')?.value,
-      fromDate: this.datePipe.transform(this.leaveRequestForm.get('fromDate')?.value, 'yyyy-MM-dd'),
-      toDate: this.datePipe.transform(this.leaveRequestForm.get('toDate')?.value, 'yyyy-MM-dd'),
-      compensation: this.leaveRequestForm.get('compensation')?.value,
+      startDate: this.datePipe.transform(this.leaveRequestForm.get('startDate')?.value, 'yyyy-MM-dd'),
+      endDate: this.datePipe.transform(this.leaveRequestForm.get('endDate')?.value, 'yyyy-MM-dd'),
+      // compensation: this.leaveRequestForm.get('compensation')?.value,
       //therapistId: this.therapistId,
       status: 'Requested',
     };
+    console.log('leave data', data);
+
     this.leaveService.addLeave(data).subscribe((res) => {
+      console.log('leave request response', res);
+
+        console.log(res)
+        // this._snackbar.open("Team added successfully...", "", { duration: 3000 })
+        // this.clearControls()
+      }, (error => {
+        console.log(error)
+        alert(error)
+      }))
       // this.clearControls()
-    });
+
   }
   cancelForm(){
 
