@@ -12,9 +12,10 @@ const sequelize = require('../../utils/db')
 const leaveTypeData = [
   { leaveTypeName: 'Casual Leave' },
   { leaveTypeName: 'Sick Leave' },
+  { leaveTypeName: 'LOP' },
   { leaveTypeName: 'Emergency Leave' },
-  { leaveTypeName: 'Maternity Leave' },
-  { leaveTypeName: 'Paternity Leave' },
+  // { leaveTypeName: 'Maternity Leave' },
+  // { leaveTypeName: 'Paternity Leave' },
 ];
 
 // Initialize leave types if none exist
