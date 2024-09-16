@@ -15,7 +15,7 @@ form.form {
   flex-direction: column;
   align-items: center;
   padding: 20px;
-  background-color: #f9f9f9;
+  background-color: #f3f4f6;
   border: 1px solid #ddd;
   border-radius: 8px;
   max-width: 400px;
@@ -30,37 +30,39 @@ img {
   cursor: pointer;
   border-radius: 8px;
   border: 2px solid #ccc;
+  margin-bottom: 10px;
 }
 
-.material-icons {
-  font-size: 48px;
-  color: #1976d2;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
+// .button-style{
+//   font-size: 36px;
+//   color: #007bff;
+//   cursor: pointer;
+//   transition: color 0.3s;
+// }
 
 .material-icons:hover {
-  color: #004ba0;
+  color: #0056b3;
 }
 
 p {
-  font-size: 16px;
-  color: #1976d2;
+  font-size: 14px;
+  color: #007bff;
   cursor: pointer;
-  transition: color 0.3s ease;
+  margin-top: 5px;
+  transition: color 0.3s;
 }
 
 p:hover {
-  color: #004ba0;
+  color: #0056b3;
 }
 
 .progress-area {
   width: 100%;
   margin-top: 20px;
   padding: 15px;
-  border: 1px solid #1976d2;
+  border: 1px solid #007bff;
   border-radius: 8px;
-  background-color: #e3f2fd;
+  background-color: #f0f8ff;
 }
 
 .progress-area .row {
@@ -80,7 +82,7 @@ p:hover {
 
 .progress-area .name {
   font-weight: bold;
-  color: #1976d2;
+  color: #007bff;
 }
 
 mat-progress-bar {
