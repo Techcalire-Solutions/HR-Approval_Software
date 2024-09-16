@@ -6,9 +6,9 @@ const UserLeave = require('../models/userLeave');
 
 // Route to create a leave request
 router.post('/', authenticateToken, async (req, res) => {
-  const { userId, leaveTypeId, startDate, endDate, notes } = req.body;
-
-  if (!userId || !leaveTypeId || !startDate || !endDate) {
+  const { leaveTypeId, startDate, endDate, notes } = req.body;
+  const userId = req.user.id; // added by Amina 
+  if (!leaveTypeId || !startDate || !endDate) {
     return res.send('Missing required fields');
   }
 
