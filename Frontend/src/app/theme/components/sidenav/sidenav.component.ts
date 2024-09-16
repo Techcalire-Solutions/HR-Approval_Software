@@ -105,36 +105,36 @@ users:User;
         item.title === 'Team' ||
 
         (item.title === 'Approval Uploads' && !item.parentId) ||
-        (item.title === 'View' && item.parentId === 5) ||
-        (item.title === 'Leave' && !item.parentId) ||
-        (item.title === 'Leave Request' && item.parentId === 8) ||
-        (item.title === 'Emergency Leave' && item.parentId === 8) ||
-        (item.title === 'Payroll' && !item.parentId) ||
-        (item.title === 'Process Payroll' && item.parentId === 13) ||
-        (item.title === 'Salary Statement' && item.parentId === 13) || 
-        (item.title === 'YTD Reports' && item.parentId === 13)
+        (item.title === 'View' && item.parentId === 5)
+        // (item.title === 'Leave' && !item.parentId) ||
+        // (item.title === 'Leave Request' && item.parentId === 8) ||
+        // (item.title === 'Emergency Leave' && item.parentId === 8) ||
+        // (item.title === 'Payroll' && !item.parentId) ||
+        // (item.title === 'Process Payroll' && item.parentId === 13) ||
+        // (item.title === 'Salary Statement' && item.parentId === 13) ||
+        // (item.title === 'YTD Reports' && item.parentId === 13)
 
-      
+
       );
     } else if (
       role === 'Sales Executive' ||
       role === 'Key Account Manager' ||
       role === 'Manager' ||
       role === 'Team Lead' ||
-      role === 'Accountant' 
+      role === 'Accountant'
     ) {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
         (item.title === 'Approval Uploads' && !item.parentId) ||
         (item.title === 'Add' && item.parentId === 5) ||
-        (item.title === 'View' && item.parentId === 5) ||
-        (item.title === 'Leave' && !item.parentId) ||
-        (item.title === 'Apply leave' && item.parentId === 8) ||
-        (item.title === 'Leave Balance' && item.parentId === 8) || 
-        (item.title === 'Payroll' && !item.parentId) ||
-        (item.title === 'Payslip' && item.parentId === 13) ||
-        (item.title === 'Pay Details' && item.parentId === 13) 
-        
+        (item.title === 'View' && item.parentId === 5)
+        // (item.title === 'Leave' && !item.parentId) ||
+        // (item.title === 'Apply leave' && item.parentId === 8) ||
+        // (item.title === 'Leave Balance' && item.parentId === 8) ||
+        // (item.title === 'Payroll' && !item.parentId) ||
+        // (item.title === 'Payslip' && item.parentId === 13) ||
+        // (item.title === 'Pay Details' && item.parentId === 13)
+
       );
     } else {
       this.filteredMenuItems = [];
