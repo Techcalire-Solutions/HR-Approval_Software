@@ -71,6 +71,22 @@ export class RoleComponent implements OnInit, OnDestroy {
       this.roles = res;
     })
   }
+ 
+
+  // Function to check if the role is restricted
+  isRestrictedRole(roleName: string): boolean {
+    const restrictedRoles = [
+      'Sales Executive',
+      'Key Account Manager',
+      'Manager',
+      'Accountant',
+      'Team Lead',
+      'Administrator'
+    ];
+    return restrictedRoles.includes(roleName);
+  }
+
+  // Other functions like openRoleDialog, deleteRole...
 
   public searchText!: string;
   search(event: Event){

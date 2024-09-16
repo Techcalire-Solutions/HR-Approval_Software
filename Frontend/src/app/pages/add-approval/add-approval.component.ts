@@ -108,7 +108,7 @@ export class AddApprovalComponent {
     url: ['', Validators.required],
     remarks: [''],
     status: [''],
-    kamId: <any>[, Validators.required],
+    kamId: <any>[],
     supplierName: ['', Validators.required],
     supplierPoNo: ['', Validators.required],
     supplierPrice: ['', Validators.required],

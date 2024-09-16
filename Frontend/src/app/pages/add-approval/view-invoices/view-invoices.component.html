@@ -57,9 +57,22 @@
     </div>
   </div>
 
-  <mat-card-actions *ngIf="ma" >
-    <button mat-raised-button type="button" class="btn btn-success" (click)="addBankSlip(piNo)">
-      <span class="material-icons" style="font-size: 25px;">task_alt</span>
+  <mat-card-actions *ngIf="kam || am">
+    <button mat-raised-button class="approve-button" (click)="verified('approved')"
+    *ngIf="!sp && !admin && !teamLead"> APPROVE
+  </button>
+
+<!-- Reject Button -->
+<button mat-raised-button class="reject-button"
+(click)="verified('rejected')"
+*ngIf="!sp && !admin && !teamLead">
+REJECT
+</button>
+  </mat-card-actions>
+
+  <mat-card-actions *ngIf="ma || admin" >
+    <button mat-raised-button type="button" class="btn btn-success" (click)="addBankSlip(piNo, pi.id)">
+      <span class="material-icons" style="font-size: 25px;">task_alt</span>ADD WIRESLIP
     </button>
   </mat-card-actions>
   <mat-card>
@@ -69,7 +82,7 @@
 
     </head>
     <body>
-        <mat-spinner *ngIf="submittingForm" class="spinner-overlay"></mat-spinner>
+
         <main class="table" id="customers_table">
             <section class="table__header">
                 <div class="row">
