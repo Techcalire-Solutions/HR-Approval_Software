@@ -9,7 +9,6 @@ import { environment } from '../../environments/environment';
 })
 export class RoleService {
 
-
   private apiUrl = 'http://localhost:8000';
 
   constructor(private http: HttpClient) { }

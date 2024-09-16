@@ -12,7 +12,7 @@ router.post('/', async (req, res) => {
         const user = await User.findOne({ where: { email: email } });
         if (!user) {
             console.log('User not found');
-            return res.status(404).json({ message: 'User not found' });
+            return res.json({ message: 'User not found' });
         }
 
         const validPassword = await bcrypt.compare(password, user.password);
@@ -20,7 +20,7 @@ router.post('/', async (req, res) => {
 
         if (!validPassword) {
             console.log('Incorrect password');
-            return res.status(401).json({ message: 'Incorrect password' });
+            return res.json({ message: 'Incorrect password' });
         }
 
         const token = jwtTokens(user);
