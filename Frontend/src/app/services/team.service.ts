@@ -2,13 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Team } from '../common/interfaces/team';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TeamService {
 
-  private apiUrl = 'http://localhost:8000';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
@@ -17,7 +18,7 @@ export class TeamService {
   }
 
   public addTeam(data: any): Observable<any> {
-    return this.http.post( 'http://localhost:8000/team', data);
+    return this.http.post( this.apiUrl + '/team', data);
   }
   updateTeam(id: number, data: any): Observable<Team> {
     return this.http.patch<Team>(`${this.apiUrl}/team/` + id, data);
