@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <body>
@@ -7,9 +6,6 @@
         <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
             <mat-button-toggle value="add" (click)="openRoleDialog(null)"><mat-icon>person_add</mat-icon>
             </mat-button-toggle>
-            <!-- <mat-button-toggle value="search">
-                <mat-icon>search</mat-icon>
-            </mat-button-toggle> -->
         </mat-button-toggle-group>
     </div>
     <div fxLayout="row" class="col">
@@ -21,39 +17,38 @@
     </div>
   </div>
 
-    <main class="table" id="customers_table">
-        <!-- <section class="table__header">
-            <h1>ROLES</h1>
-        </section> -->
-        <section class="table__body">
-            <table>
-                <thead>
-                    <tr>
-                        <th> Designation </th>
-                        <th> Manage </th>
-                    </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let role of roles">
-                    <td>{{ role.roleName }}</td>
-                    <td>
-                      <button mat-icon-button (click)="openRoleDialog(role)">
-                        <mat-icon>mode_edit</mat-icon>
-                      </button>
-                      <button mat-icon-button (click)="deleteRole(role.id)">
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-            </table>
-        </section>
-    </main>
+  <main class="table" id="customers_table">
+    <section class="table__body">
+      <table>
+        <thead>
+          <tr>
+            <th> Designation </th>
+            <th> Manage </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let role of roles">
+            <td>{{ role.roleName }}</td>
+            <td>
+              <!-- Disable edit and delete buttons for specific roles -->
+              <button
+                mat-icon-button
+                (click)="openRoleDialog(role)"
+                [disabled]="isRestrictedRole(role.roleName)">
+                <mat-icon>mode_edit</mat-icon>
+              </button>
 
-    <!-- <div class="tabs">
-     <a routerLink="role">ROLE</a>
-     <a>USER</a>
- </div> -->
+              <button
+                mat-icon-button
+                (click)="deleteRole(role.id)"
+                [disabled]="isRestrictedRole(role.roleName)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
 </body>
-
 </html>

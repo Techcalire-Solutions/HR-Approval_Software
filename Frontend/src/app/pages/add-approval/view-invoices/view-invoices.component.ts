@@ -130,7 +130,7 @@ export class ViewInvoicesComponent {
     let status = this.pi.status;
     console.log(this.pi);
 
-    let sp = this.pi.salesPerson.name
+    let sp = this.pi?.salesPerson?.name
 
     if(status === 'GENERATED' && value === 'approved') status = 'KAM VERIFIED';
     else if(status === 'GENERATED' && value === 'rejected') status = 'KAM REJECTED';

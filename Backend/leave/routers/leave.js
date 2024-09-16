@@ -10,7 +10,7 @@ const Leave = require('../models/leave')
 router.post('/', authenticateToken,async(req,res)=>{
     try {
         const {
-            userId,
+          
             leaveTypeId,
             startDate,
             endDate,
@@ -18,7 +18,7 @@ router.post('/', authenticateToken,async(req,res)=>{
             notes,
             status
         } = req.body;
-
+        const userId = req.user.id; // added by Amina 
         const leave = new Leave({
             userId,
             leaveTypeId,

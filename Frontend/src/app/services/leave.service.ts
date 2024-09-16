@@ -2,20 +2,24 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { LeaveType } from '../common/interfaces/leaveType';
 import { Observable } from 'rxjs/internal/Observable';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LeaveService {
 
-  private apiUrl = 'http://localhost:8000';
+  private apiUrl = environment.apiUrl;
   constructor(private http: HttpClient) { }
 
   addLeave(data:any){
-    return this.http.post(this.apiUrl+'/leave/', data)
+    return this.http.post(this.apiUrl+'/leave', data)
   }
   addLeaveType(data:any){
     return this.http.post(this.apiUrl+'/leaveType/', data)
+  }
+  getLeaveType(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/leaveType`);
   }
   updateLeaveType(id: number, data: any): Observable<LeaveType> {
     return this.http.patch<LeaveType>(this.apiUrl + "/leaveType/" + id, data);

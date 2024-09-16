@@ -18,7 +18,7 @@ export class RoleService {
   }
 
   public addRole(data: any): Observable<any> {
-    return this.http.post( this.apiUrl, data);
+    return this.http.post(this.apiUrl+"/role", data);
   }
 
   updateRole(id: number, data: any): Observable<Role> {
