@@ -27,6 +27,11 @@ export const routes: Routes = [
         data: { breadcrumb: 'LeaveRequest' }
       },
       {
+        path: 'userLeave',
+        loadComponent: () => import('./leave/user-leave/user-leave.component').then(c => c.UserLeaveComponent),
+        data: { breadcrumb: 'LeaveRequest' }
+      },
+      {
         path: 'users',
         loadComponent: () => import('./users/users.component').then(c => c.UsersComponent),
         data: { breadcrumb: 'Users' }
