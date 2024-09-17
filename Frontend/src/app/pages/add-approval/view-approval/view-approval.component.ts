@@ -301,34 +301,38 @@ user: number;
 
   // submittingForm: boolean = false;
   verified(value: string, piNo: string, sp: string, id: number){
+    let status = this.status;
     this.submittingForm = true;
     console.log(this.status);
 
-    if(this.status === 'GENERATED' && value === 'approved') this.status = 'KAM VERIFIED';
-    else if(this.status === 'GENERATED' && value === 'rejected') this.status = 'KAM REJECTED';
-    else if(this.status === 'KAM VERIFIED' && value === 'approved') this.status = 'AM VERIFIED';
-    else if(this.status === 'KAM VERIFIED' && value === 'rejected') this.status = 'AM REJECTED';
+
+
+    if(status === 'GENERATED' && value === 'approved') status = 'KAM VERIFIED';
+    else if(status === 'GENERATED' && value === 'rejected') status = 'KAM REJECTED';
+    else if(status === 'KAM VERIFIED' && value === 'approved') status = 'AM VERIFIED';
+    else if(status === 'KAM VERIFIED' && value === 'rejected') status = 'AM REJECTED';
     // else if(status === 'AM VERIFIED' ) return this.addBankSlip(this.pi.id, this.piNo)
 
     const dialogRef = this.dialog.open(VerificationDialogueComponent, {
-      data: { invoiceNo: piNo, status: this.status, sp: sp }
+      data: { invoiceNo: piNo, status: status, sp: sp }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if(result){
         this.submittingForm = true;
         let data = {
-          status: this.status,
+          status: status,
           performaInvoiceId: id,
           remarks: result.remarks,
           amId: result.amId,
           accountantId: result.accountantId
         }
+console.log('data',data);
 
         this.invoiceService.updatePIStatus(data).subscribe(result => {
           this.submittingForm = false;
           this.getInvoices()
-          this.snackBar.open(`Invoice ${piNo} updated to ${this.status}...`,"" ,{duration:3000})
+          this.snackBar.open(`Invoice ${piNo} updated to ${status}...`,"" ,{duration:3000})
         });
       }
     })
