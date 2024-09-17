@@ -85,7 +85,11 @@ export class UpdatePIComponent {
     }
     this.getKAM();
 
+    const token: any = localStorage.getItem('token')
+    let user = JSON.parse(token)
 
+    let roleId = user.role
+    this.getRoleById(roleId)
   }
 
   kamSub!: Subscription;
@@ -212,18 +216,47 @@ export class UpdatePIComponent {
       this.router.navigateByUrl('login/viewApproval')
     });
   }
-
+  roleName!: string;
+  roleSub!: Subscription;
+  sp: boolean = false;
+  kamb: boolean = false;
+  am: boolean = false;
+  ma: boolean = false;
+  getRoleById(id: number){
+    this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
+      this.roleName = role.roleName;
+      if(this.roleName === 'Sales Executive') this.sp = true;
+      if(this.roleName === 'Key Account Manager') this.kamb = true;
+      if(this.roleName === 'Manager') this.am = true;
+      if(this.roleName === 'Accountant') this.ma = true;
+      if(this.roleName === 'Team Lead') this.sp = true;
+    })
+  }
   onUpdate(){
-    console.log('get raw data',this.piForm.getRawValue());
-    this.submit = this.invoiceService.updatePI(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-      console.log('update data',this.piForm.getRawValue());
-      console.log('submit data',this.submit);
-
+    if(this.roleName=='Sales Executive'){
+    this.submit = this.invoiceService.updatePIBySE(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
       console.log(invoice);
 
       this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
       this.router.navigateByUrl('login/viewApproval')
     });
+  }else if(this.roleName=='Key Account Manager'){
+    this.submit = this.invoiceService.updatePIByKAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
+      console.log(invoice);
+
+      this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
+      this.router.navigateByUrl('login/viewApproval')
+    });
+  }
+
+  else if(this.roleName=='Manager'){
+    this.submit = this.invoiceService.updatePIByAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
+      console.log(invoice);
+
+      this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
+      this.router.navigateByUrl('login/viewApproval')
+    });
+  }
   }
 
   piSub!: Subscription;
