@@ -90,8 +90,8 @@ export class ApplyLeaveComponent {
   }
   onSubmit() {
     let data = {
-      leaveType: this.leaveRequestForm.get('leaveType')?.value,
-      reason: this.leaveRequestForm.get('reason')?.value,
+      leaveTypeId: this.leaveRequestForm.get('leaveTypeId')?.value,
+      notes: this.leaveRequestForm.get('notes')?.value,
       startDate: this.datePipe.transform(this.leaveRequestForm.get('startDate')?.value, 'yyyy-MM-dd'),
       endDate: this.datePipe.transform(this.leaveRequestForm.get('endDate')?.value, 'yyyy-MM-dd'),
       // compensation: this.leaveRequestForm.get('compensation')?.value,

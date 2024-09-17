@@ -129,14 +129,18 @@ export class ViewInvoicesComponent {
 
     let status = this.pi.status;
     console.log(this.pi);
+    let sp;
+    if(this.pi.salesPersonId!=null)  sp = this.pi.salesPerson?.name;
+    else sp=this.pi.kam?.name;
 
-    let sp = this.pi?.salesPerson?.name
+console.log('status & value', status, value);
 
     if(status === 'GENERATED' && value === 'approved') status = 'KAM VERIFIED';
     else if(status === 'GENERATED' && value === 'rejected') status = 'KAM REJECTED';
     else if(status === 'KAM VERIFIED' && value === 'approved') status = 'AM VERIFIED';
     else if(status === 'KAM VERIFIED' && value === 'rejected') status = 'AM REJECTED';
     // else if(status === 'AM VERIFIED' ) return this.addBankSlip(this.pi.id, this.piNo)
+console.log('statushii', status);
 
     const dialogRef = this.dialog.open(VerificationDialogueComponent, {
       data: { invoiceNo: this.piNo, status: status, sp: sp }
