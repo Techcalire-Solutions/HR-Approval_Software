@@ -78,9 +78,7 @@ export class ApplyLeaveComponent {
   public getLeaveType(): void {
 
     this.leaveService.getLeaveType().subscribe((leaveTypes: any) =>{
-      console.log(leaveTypes);
-
-      this.leaveTypes = leaveTypes
+    this.leaveTypes = leaveTypes
     });
   }
 
@@ -91,28 +89,10 @@ export class ApplyLeaveComponent {
     }
   }
   onSubmit() {
-    // let data = {
-    //   leaveTypeId: this.leaveRequestForm.get('leaveTypeId')?.value,
-    //   notes: this.leaveRequestForm.get('notes')?.value,
-    //   startDate: this.datePipe.transform(this.leaveRequestForm.get('startDate')?.value, 'yyyy-MM-dd'),
-    //   endDate: this.datePipe.transform(this.leaveRequestForm.get('endDate')?.value, 'yyyy-MM-dd'),
-    //   // compensation: this.leaveRequestForm.get('compensation')?.value,
-    //   //therapistId: this.therapistId,
-    //   status: 'Requested',
-    // };
-    console.log('leave data', this.leaveRequestForm.getRawValue());
-
     this.leaveService.addLeave(this.leaveRequestForm.getRawValue()).subscribe((res) => {
-      console.log('leave request response', res);
-
-        console.log(res)
-        // this._snackbar.open("Team added successfully...", "", { duration: 3000 })
-        // this.clearControls()
       }, (error => {
-        console.log(error)
         alert(error)
       }))
-      // this.clearControls()
 
   }
   cancelForm(){

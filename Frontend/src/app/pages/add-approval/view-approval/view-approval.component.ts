@@ -77,13 +77,13 @@ user: number;
     this.getInvoices()
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
-    console.log('user',user);
+
     this.user = user.id;
 
     let roleId = user.role
     this.getRoleById(roleId)
 
-    console.log('status on load',this.status);
+
 
   }
 
@@ -95,18 +95,29 @@ user: number;
   ma: boolean = false;
   admin: boolean = false;
   teamLead: boolean = false;
+  pendingHeader : string = '';
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;
 
-      if(this.roleName === 'Sales Executive') { this.status = 'REJECTED'; this.sp = true }
-      if(this.roleName === 'Key Account Manager') { this.status = 'GENERATED'; this.kam = true }
-      if(this.roleName === 'Manager') { this.status = 'KAM VERIFIED'; this.am = true }
-      if(this.roleName === 'Accountant') { this.status = 'AM VERIFIED'; this.ma = true }
+      if(this.roleName === 'Sales Executive') { this.status = 'REJECTED'; this.sp = true
+            this.header = 'GENERATED' 
+           this.pendingHeader='REJECTED'
+       }
+      if(this.roleName === 'Key Account Manager') { this.status = 'GENERATED'; this.kam = true;  
+           this.header = 'AM REJECTED' 
+           this.pendingHeader='GENERATED'} 
+      if(this.roleName === 'Manager') { this.status = 'KAM VERIFIED'; this.am = true
+          this.header = 'REJECTED' 
+           this.pendingHeader='KAM VERIFIED'
+       }
+      if(this.roleName === 'Accountant') { this.status = 'AM VERIFIED'; this.ma = true 
+         this.pendingHeader='AM VERIFIED'
+      }
       if(this.roleName === 'Administrator') { this.admin = true }
       if(this.roleName === 'Team Lead') { this.teamLead = true }
       this.getInvoices();
-      console.log(this.status);
+
 
     })
   }
@@ -143,8 +154,6 @@ user: number;
     let invoice!: PerformaInvoice[];
 
     let apiCall;
-    console.log(this.status);
-
     if (this.roleName === 'Sales Executive') {
       apiCall = this.invoiceService.getPIBySP(this.status, this.filterValue, this.currentPage, this.pageSize);
     }else if (this.roleName === 'Team Lead') {
@@ -161,10 +170,10 @@ user: number;
     }
 
     if (apiCall) {
-      console.log(apiCall);
+
 
       this.invoiceSubscriptions = apiCall.subscribe((res: any) => {
-        console.log(res);
+    
 
         invoice = res.items;
         this.totalItems = res.count;
@@ -178,7 +187,7 @@ user: number;
               mainObj.remarks = matchingStatus.remarks;
             }
           });
-          console.log(invoice);
+   
           this.invoices = invoice;
           for(let i=0;i<=this.invoices.length;i++)
           {
@@ -225,22 +234,20 @@ user: number;
 
   pageStatus: boolean = true;
   onStepSelectionChange(status: string) {
-    console.log(status);
+
     if(this.roleName === 'Sales Executive'){
       if(status === 'assigned'){
-        this.status = '';
+        this.status = 'GENERATED';
         this.getInvoices();
-        this.header = 'Assigned Invoices';
       }else if(status === 'pending'){
-        this.header = 'Pending Invoices';
         this.status = 'REJECTED';
         this.getInvoices()
       }else if(status === 'completed'){
-        this.header = 'Completed Invoices';
         this.status = 'BANK SLIP ISSUED';
         this.getInvoices()
       }else if(status === 'all'){
-        this.header = 'All Invoices'
+        this.status = '';
+        this.getInvoices()
       }
     }else if(this.roleName === 'Key Account Manager') {
       if(status === 'pending'){
@@ -248,8 +255,9 @@ user: number;
         this.status = 'GENERATED'
         this.getInvoices()
       }else if(status === 'assigned'){
+    
         this.pageStatus = false;
-        this.status = ''
+        this.status = 'AM REJECTED'
         this.getInvoices()
       }else if(status === 'completed'){
         this.pageStatus = false;
@@ -257,6 +265,8 @@ user: number;
         this.getInvoices()
       }else if(status === 'all'){
         this.pageStatus = false;
+        this.status = '';
+        this.getInvoices()
 
       }
 
@@ -267,7 +277,7 @@ user: number;
         this.getInvoices()
       }else if(status === 'assigned'){
         this.pageStatus = false;
-        this.status = ''
+        this.status = 'REJECTED'
         this.getInvoices()
       }else if(status === 'completed'){
         this.pageStatus = false;
@@ -275,6 +285,8 @@ user: number;
         this.getInvoices()
       }else if(status === 'all'){
         this.pageStatus = false;
+         this.status = ''
+        this.getInvoices()
 
       }
 
@@ -283,16 +295,14 @@ user: number;
         this.pageStatus = false;
         this.status = 'AM VERIFIED'
         this.getInvoices()
-      }else if(status === 'assigned'){
-        this.pageStatus = false;
-        this.status = ''
-        this.getInvoices()
       }else if(status === 'completed'){
         this.pageStatus = false;
         this.status = 'BANK SLIP ISSUED'
         this.getInvoices()
       }else if(status === 'all'){
         this.pageStatus = false;
+        this.status = ''
+        this.getInvoices()
 
       }
 
@@ -303,10 +313,6 @@ user: number;
   verified(value: string, piNo: string, sp: string, id: number){
     let status = this.status;
     this.submittingForm = true;
-    console.log(this.status);
-
-
-
     if(status === 'GENERATED' && value === 'approved') status = 'KAM VERIFIED';
     else if(status === 'GENERATED' && value === 'rejected') status = 'KAM REJECTED';
     else if(status === 'KAM VERIFIED' && value === 'approved') status = 'AM VERIFIED';
@@ -327,7 +333,6 @@ user: number;
           amId: result.amId,
           accountantId: result.accountantId
         }
-console.log('data',data);
 
         this.invoiceService.updatePIStatus(data).subscribe(result => {
           this.submittingForm = false;
@@ -348,7 +353,6 @@ console.log('data',data);
         this.getInvoices()
         this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
         // this.invoiceService.updatePIStatusWithBankSlip(data).subscribe(result => {
-        //   console.log(result);
         // });
       }
     })
@@ -421,11 +425,10 @@ console.log('data',data);
       if (result === true) {
 
         this.invoiceService.deleteInvoice(id).subscribe((res)=>{
-          console.log(res)
           this._snackbar.open("PI deleted successfully...","" ,{duration:3000})
           this.getInvoices()
         },(error=>{
-          console.log(error)
+
           this._snackbar.open(error.error.message,"" ,{duration:3000})
         }))
       }
@@ -435,13 +438,9 @@ console.log('data',data);
     }
 
   handleApprove(invoice: any) {
-    // Handle approval logic here
-    console.log('Invoice approved:', invoice);
   }
 
   handleReject(invoice: any) {
-    // Handle rejection logic here
-    console.log('Invoice rejected:', invoice);
   }
 
 }
