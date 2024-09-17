@@ -49,8 +49,6 @@ export class LoginComponent {
 
     this.loginService.loginUser(this.loginForm.value).subscribe({
       next: (res: boolean) => { // Adjust type according to the actual response
-        console.log('loginform', this.loginForm.value);
-        console.log('login res', res);
 
         if (res) { // Check if the response indicates success
           this.setCurrentUser(res); // Assuming `res` contains user information

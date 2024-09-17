@@ -103,12 +103,10 @@ export class TeamDialogueComponent {
       teamMembers: teamM
     };
     this.teamId = id;
-   console.log('teamId',this.teamId);
     this.teamService.updateTeam(this.teamId, updatedTeamData).subscribe((res) => {
       this._snackbar.open("Team updated successfully...", "", { duration: 3000 });
       this.clearControls();
     }, (error) => {
-      console.log(error);
       alert(error);
     });
   }
@@ -122,8 +120,6 @@ export class TeamDialogueComponent {
   }
   onSubmit() {
     let teamMem: any = this.teamForm.getRawValue();
-    console.log(teamMem);
-
     let teamM = [];
     for(let i = 0; i< teamMem.teamMembers.length; i++) {
      teamM[i] = {
@@ -136,14 +132,10 @@ export class TeamDialogueComponent {
        userId: teamMem.userId,
        teamMembers: teamM
      }
-
-    console.log(data)
     this.teamService.addTeam(data).subscribe((res) => {
-      console.log(res)
       this._snackbar.open("Team added successfully...", "", { duration: 3000 })
       this.clearControls()
     }, (error => {
-      console.log(error)
       alert(error)
     }))
   }
@@ -165,38 +157,8 @@ export class TeamDialogueComponent {
   isEdit = false;
   teamId: any | undefined;
 
-
-
-  // deleteFunction(id: number) {
-  //   const dialogRef = this.dialog.open(DeleteComponent, {
-  //     width: '450px',
-  //     data: {}
-  //   });
-
-  //   dialogRef.afterClosed().subscribe((result) => {
-  //     if (result === true) {
-
-  //       this.companyService.deleteTeam(id).subscribe((res) => {
-  //         this._snackbar.open("Team deleted successfully...", "", { duration: 3000 })
-  //         this.getTeams()
-  //       }, (error => {
-  //         console.log(error)
-  //         this._snackbar.open(error.error.message, "", { duration: 3000 })
-  //       }))
-  //     }
-  //   });
-
-
-  // }
-
   manageUser() {
-  //  const dialogRef = this.dialog.open(UserManagementComponent, {
-  //    height: "800px",
-  //    width: "1200px",
-  //  });
-  //  dialogRef.afterClosed().subscribe((result) => {
 
-  //  });
  }
   users: User[] = [];
  getUsers() {
