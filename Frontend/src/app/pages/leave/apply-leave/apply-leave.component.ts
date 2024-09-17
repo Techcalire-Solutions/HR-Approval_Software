@@ -1,6 +1,6 @@
 
 import { Component } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { LeaveService } from '@services/leave.service';
@@ -61,7 +61,19 @@ export class ApplyLeaveComponent {
   }
   ngOnInit(){
     this.getLeaveType()
+    this.leaveRequestForm = this.formBuilder.group({
+      leaveTypeId: ['', Validators.required],
+      notes: ['', Validators.required],
+      startDate: ['', Validators.required],
+      endDate: ['', Validators.required],
+      userId: 1,
+      status: [''],
+      halfDay: [false],
+      halfDayTime: ['']
+    });
   }
+  leaveRequestForm: FormGroup;
+
   public leaveTypes: LeaveType[] | null;
   public getLeaveType(): void {
 
@@ -71,16 +83,6 @@ export class ApplyLeaveComponent {
       this.leaveTypes = leaveTypes
     });
   }
-  leaveRequestForm = this.formBuilder.group({
-    leaveTypeId: ['', Validators.required],
-    notes: ['', Validators.required],
-    startDate: ['', Validators.required],
-    endDate: ['', Validators.required],
-    userId: [],
-    status: [''],
-    halfDay: [false],
-    halfDayTime: ['']
-  });
 
 
   onHalfDayChange(event: MatCheckboxChange) {
@@ -89,18 +91,18 @@ export class ApplyLeaveComponent {
     }
   }
   onSubmit() {
-    let data = {
-      leaveTypeId: this.leaveRequestForm.get('leaveTypeId')?.value,
-      notes: this.leaveRequestForm.get('notes')?.value,
-      startDate: this.datePipe.transform(this.leaveRequestForm.get('startDate')?.value, 'yyyy-MM-dd'),
-      endDate: this.datePipe.transform(this.leaveRequestForm.get('endDate')?.value, 'yyyy-MM-dd'),
-      // compensation: this.leaveRequestForm.get('compensation')?.value,
-      //therapistId: this.therapistId,
-      status: 'Requested',
-    };
-    console.log('leave data', data);
+    // let data = {
+    //   leaveTypeId: this.leaveRequestForm.get('leaveTypeId')?.value,
+    //   notes: this.leaveRequestForm.get('notes')?.value,
+    //   startDate: this.datePipe.transform(this.leaveRequestForm.get('startDate')?.value, 'yyyy-MM-dd'),
+    //   endDate: this.datePipe.transform(this.leaveRequestForm.get('endDate')?.value, 'yyyy-MM-dd'),
+    //   // compensation: this.leaveRequestForm.get('compensation')?.value,
+    //   //therapistId: this.therapistId,
+    //   status: 'Requested',
+    // };
+    console.log('leave data', this.leaveRequestForm.getRawValue());
 
-    this.leaveService.addLeave(data).subscribe((res) => {
+    this.leaveService.addLeave(this.leaveRequestForm.getRawValue()).subscribe((res) => {
       console.log('leave request response', res);
 
         console.log(res)

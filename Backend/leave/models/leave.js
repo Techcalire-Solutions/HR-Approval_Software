@@ -2,7 +2,7 @@ const {DataTypes} =  require('sequelize')
 const sequelize = require('../../utils/db')
 
 const Leave = sequelize.define('leave',{
-    userId: {type : DataTypes.INTEGER},
+    userId: {type : DataTypes.INTEGER, allowNull : true},
     leaveTypeId : {type : DataTypes.INTEGER},
     startDate : {type : DataTypes.DATE, allowNull : true},
     endDate : {type : DataTypes.DATE, allowNull : true},

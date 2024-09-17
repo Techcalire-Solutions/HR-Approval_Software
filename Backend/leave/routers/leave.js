@@ -6,10 +6,10 @@ const UserLeave = require('../models/userLeave');
 
 
 router.post('/', authenticateToken, async (req, res) => {
-  const { leaveTypeId, startDate, endDate, notes } = req.body;
-  const userId = req.user.id; 
+  const { userId, leaveTypeId, startDate, endDate, notes } = req.body;
+ 
 
-  if (!leaveTypeId || !startDate || !endDate) {
+  if ( !leaveTypeId || !startDate || !endDate) {
     return res.status(400).send('Missing required fields');
   }
 
