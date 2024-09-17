@@ -37,13 +37,13 @@ router.post('/save', authenticateToken, async (req, res) => {
 });
 
 router.post('/saveByKAM', authenticateToken, async (req, res) => {
-    const { piNo, url, kamId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
+    const { piNo, url, amId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
     const userId = req.user.id;
 
     try {
         // Save the new PI
         const newPi = new PerformaInvoice({
-            piNo, url, status: 'KAM VERIFIED', kamId: userId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue
+            piNo, url,amId, status: 'KAM VERIFIED', kamId: userId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue
         });
         await newPi.save();
 
@@ -62,13 +62,13 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
 });
 
 router.post('/saveByAM', authenticateToken, async (req, res) => {
-    const { piNo, url, kamId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
+    const { piNo, url, accountantId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
     const userId = req.user.id;
 
     try {
         // Save the new PI
         const newPi = new PerformaInvoice({
-            piNo, url, status: 'AM VERIFIED', kamId: userId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue
+            piNo, url,accountantId, status: 'AM VERIFIED', amId: userId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue
         });
         await newPi.save();
 
