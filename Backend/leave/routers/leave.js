@@ -4,17 +4,13 @@ const authenticateToken = require('../../middleware/authorization');
 const Leave = require('../models/leave');
 const UserLeave = require('../models/userLeave');
 
-// const { Op, fn, col, where } = require('sequelize');
 
-
-
-
-// Route to create a leave request
 router.post('/', authenticateToken, async (req, res) => {
   const { leaveTypeId, startDate, endDate, notes } = req.body;
-  const userId = req.user.id; // added by Amina 
+  const userId = req.user.id; 
+
   if (!leaveTypeId || !startDate || !endDate) {
-    return res.send('Missing required fields');
+    return res.status(400).send('Missing required fields');
   }
 
   try {
@@ -22,30 +18,42 @@ router.post('/', authenticateToken, async (req, res) => {
     const end = new Date(endDate);
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      return res.send('Invalid date format');
+      return res.status(400).send('Invalid date format');
     }
 
     const noOfDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+    const userLeave = await UserLeave.findOne({
+      where: { userId, leaveTypeId }
+    });
 
-    const userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId } });
-    if (!userLeave) return res.send('User leave mapping not found');
-    if (userLeave.leaveBalance < noOfDays) return res.send('Not enough leave balance');
+    if (!userLeave) {
+      return res.status(404).send('User leave mapping not found');
+    }
 
-    const leave = await Leave.create({ userId, leaveTypeId, startDate, endDate, noOfDays, notes, status: 'requested' });
+    if (userLeave.leaveBalance < noOfDays) {
+      return res.status(400).send('Not enough leave balance');
+    }
+    const leave = await Leave.create({
+      userId,
+      leaveTypeId,
+      startDate,
+      endDate,
+      noOfDays,
+      notes,
+      status: 'requested'
+    });
 
     userLeave.takenLeaves += noOfDays;
     userLeave.leaveBalance -= noOfDays;
     await userLeave.save();
+    res.json({userLeave:userLeave,leave:leave})
 
-    res.send(leave);
   } catch (error) {
-    res.send('Internal Server Error');
+    res.status(500).send('Internal Server Error');
   }
 });
 
 
-
-// Route to get all leave requests
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const leaves = await Leave.findAll({});
@@ -55,7 +63,7 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-// Route to approve/reject leave request
+
 router.put('/:leaveId/status', authenticateToken, async (req, res) => {
   try {
     const { leaveId } = req.params;
@@ -78,50 +86,6 @@ router.put('/:leaveId/status', authenticateToken, async (req, res) => {
 
 
 
-router.post('/', authenticateToken,async(req,res)=>{
-    try {
-        const {
-          
-            leaveTypeId,
-            startDate,
-            endDate,
-            noOfDays,
-            notes,
-            status
-        } = req.body;
-        const userId = req.user.id; // added by Amina 
-        const leave = new Leave({
-            userId,
-            leaveTypeId,
-            startDate,
-            endDate,
-            noOfDays,
-            notes,
-            status
-
-        });
-        await leave.save();
-        res.send(leave)
-
-        
-    } catch (error) {
-        res.send(error.message)
-        
-    }
-})
-
-
-router.get('/',authenticateToken, async(req,res)=>{
-    try {
-        const leave = await Leave.findAll({})
-        res.send(leave)
-        
-    } catch (error) {
-        res.send(error.message)
-        
-    }
-
-})
 
 
 
