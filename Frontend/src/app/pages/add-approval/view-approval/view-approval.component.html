@@ -12,7 +12,7 @@
           </a> -->
           <a (click)="onTabClick('bookmark')" *ngIf="!admin">
             <span (click)="onStepSelectionChange('pending')" class="material-symbols-outlined"
-              [ngClass]="{'selected': selectedTab === 'bookmark'}"> PENDING
+              [ngClass]="{'selected': selectedTab === 'bookmark'}"> {{status}}
             </span>
           </a>
           <a (click)="onTabClick('factCheck')" *ngIf="!admin">
@@ -64,10 +64,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let invoice of invoices; let i = index"
-                [routerLink]="['/login/viewInvoices/', invoice.id]"
-                (mousedown)="onMouseDown($event, invoice)"
-                (mouseup)="onMouseUp($event)"
+              <tr *ngFor="let invoice of invoices; let i = index" [routerLink]="['/login/viewInvoices/', invoice.id]"
+                (mousedown)="onMouseDown($event, invoice)" (mouseup)="onMouseUp($event)"
                 (mouseleave)="onMouseLeave($event)">
 
                 <td [attr.data-label]="'InvoiceNo'">{{invoice.piNo}}</td>
@@ -84,14 +82,18 @@
                     <button class="delete-button" (click)="deleteFunction(invoice.id)"
                       *ngIf="admin || (sp && (invoice.status=='GENERATED' || invoice.status=='KAM REJECTED'))|| (kam && (invoice.status=='KAM VERIFIED' || invoice.status=='AM REJECTED'))&& invoice.userStatus">Delete
                     </button>
-                    <button mat-raised-button class="approve-button" (click)="verified('approved', invoice.piNo, invoice.salesPerson?.name, invoice.id)"
+                    <button mat-raised-button class="approve-button"
+                      (click)="verified('approved', invoice.piNo, invoice.salesPerson?.name, invoice.id)"
                       *ngIf="!sp && pageStatus && !admin && !teamLead "> APPROVE
                     </button>
-                    <button mat-raised-button class="reject-button" (click)="verified('rejected', invoice.piNo, invoice.salesPerson?.name, invoice.id)"
-                      *ngIf="!sp && pageStatus && !admin && !teamLead">  REJECT
+                    <button mat-raised-button class="reject-button"
+                      (click)="verified('rejected', invoice.piNo, invoice.salesPerson ? invoice.salesPerson.name : invoice.kam?.name, invoice.id)"
+                      *ngIf="!sp && pageStatus && !admin && !teamLead">
+                      REJECT
                     </button>
-                    <button mat-raised-button class="add-bank-slip-button" (click)="addBankSlip(invoice.piNo, invoice.id)"
-                      *ngIf="!sp && ma "> Wireslip
+
+                    <button mat-raised-button class="add-bank-slip-button"
+                      (click)="addBankSlip(invoice.piNo, invoice.id)" *ngIf="!sp && ma "> Wireslip
                     </button>
                   </div>
                 </td>
@@ -112,7 +114,7 @@
 
   <mat-divider></mat-divider>
 
-    <!-- <footer class="text-center text-white" style="background-color: #f1f1f1;">
+  <!-- <footer class="text-center text-white" style="background-color: #f1f1f1;">
       <div class="container pt-4">
         <section class="icon-container mb-4">
           <a *ngIf="roleName !=='Initiator Sales Person'"><span class="material-icons" (click)="onStepSelectionChange('pending')" style="color: green;">pending_actions</span></a>
