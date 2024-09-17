@@ -90,7 +90,7 @@
   </ng-container>
 
   <!-- Show filtered menu for other roles -->
-  <ng-container *ngIf="role === 'Sales Executive' || role === 'Key Account Manager' || role === 'Manager' ||role==='Team Lead'|| role === 'Accountant'">
+  <ng-container *ngIf="role === 'Sales Executive' || role === 'Key Account Manager' ||role === 'HR' || role === 'Manager' ||role==='Team Lead'|| role === 'Accountant'">
     <app-vertical-menu [menuItems]="filteredMenuItems" [menuParentId]="0"></app-vertical-menu>
   </ng-container>
 </div>
