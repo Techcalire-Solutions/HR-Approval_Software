@@ -40,11 +40,10 @@ export class UserMenuComponent implements OnInit {
   ngOnInit() {
     if(localStorage.getItem('token')){
       const token: any = localStorage.getItem('token')
-      console.log(token);
+
 
       if (token) {
         let user = JSON.parse(token);
-        console.log(user);
 
         this.getUser(user.id)
         this.getRole(user.role)
@@ -55,7 +54,7 @@ export class UserMenuComponent implements OnInit {
   getUser(id: number){
     this.loginService.getUserById(id).subscribe((res)=>{
       this.user = res;
-      console.log(this.user);
+
 
     })
   }

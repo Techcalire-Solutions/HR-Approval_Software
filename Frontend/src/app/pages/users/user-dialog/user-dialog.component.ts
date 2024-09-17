@@ -87,7 +87,7 @@ export class UserDialogComponent implements OnInit {
   }
 
   patchUser(user: User){
-    console.log(user);
+
 
     this.form.patchValue({
       name: user.name,
@@ -159,13 +159,11 @@ export class UserDialogComponent implements OnInit {
   onSubmit(){
     if(this.data){
       this.userService.updateUser(this.data.id, this.form.getRawValue()).subscribe((res)=>{
-        console.log(res);
         this.dialogRef.close();
         this.snackBar.open("User updated succesfully...","" ,{duration:3000})
       })
     }else{
       this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
-        console.log(res)
         this.dialogRef.close();
         this.snackBar.open("User added succesfully...","" ,{duration:3000})
       })

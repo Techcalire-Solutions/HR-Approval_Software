@@ -162,20 +162,15 @@ export class AddApprovalComponent {
         const splitName = fileName.split('.');
         fileName = splitName[0].substring(0, 12) + "... ." + splitName[1];
       }
-
       this.uploadSub = this.invoiceService.uploadInvoice(this.file).subscribe({
         next: (invoice) => {
-          console.log('invo', invoice);
-
           this.imageUrl = invoice.fileUrl;
-          console.log(this.imageUrl);
-
           this.piForm.get('url')?.setValue(invoice.fileUrl);
-          this.uploadComplete = true; // Set to true when upload is complete
+          this.uploadComplete = true; 
         },
         error: (error) => {
           console.error('Upload failed:', error);
-          this.uploadComplete = true; // Set to true to remove the progress bar even on error
+          this.uploadComplete = true; 
         }
       });
     }
@@ -204,7 +199,6 @@ export class AddApprovalComponent {
       }
 
       this.piForm.get('piNo')?.setValue(this.ivNum);
-      console.log('Generated Invoice Number:', this.ivNum);
     });
   }
 
@@ -223,27 +217,17 @@ export class AddApprovalComponent {
   onSubmit(){
     if(this.roleName=='Sales Executive'){
       this.submit = this.invoiceService.addPI(this.piForm.getRawValue()).subscribe((invoice: any) =>{
-        console.log(invoice);
-
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
         this.router.navigateByUrl('login/viewApproval')
       });
     } else if(this.roleName=='Key Account Manager'){
-      console.log('piform', this.piForm.getRawValue());
-      // console.log('piform', this.piForm.getRawValue());
-
       this.submit = this.invoiceService.addPIByKAM(this.piForm.getRawValue()).subscribe((invoice: any) =>{
-        console.log('kam add PI',invoice);
-
-
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
         this.router.navigateByUrl('login/viewApproval')
       });
     }
     else if(this.roleName=='Manager'){
       this.submit = this.invoiceService.addPIByAM(this.piForm.getRawValue()).subscribe((invoice: any) =>{
-        console.log('kam add PI',invoice);
-
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
         this.router.navigateByUrl('login/viewApproval')
       });
@@ -254,14 +238,12 @@ export class AddApprovalComponent {
   onUpdate(){
     if(this.roleName=='Sales Executive'){
     this.submit = this.invoiceService.updatePIBySE(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-      console.log(invoice);
 
       this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
       this.router.navigateByUrl('login/viewApproval')
     });
   }else if(this.roleName=='Key Account Manager'){
     this.submit = this.invoiceService.updatePIByKAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-      console.log(invoice);
 
       this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
       this.router.navigateByUrl('login/viewApproval')
@@ -270,7 +252,6 @@ export class AddApprovalComponent {
 
   else if(this.roleName=='Manager'){
     this.submit = this.invoiceService.updatePIByAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-      console.log(invoice);
 
       this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
       this.router.navigateByUrl('login/viewApproval')
@@ -301,10 +282,6 @@ export class AddApprovalComponent {
   clearFileInput() {
     let file = this.fileName
     let id = this.id
-    // this.invoiceService.deleteInvoice(id, file).subscribe(inv => {
-    //   console.log(inv);
-    //   this.imageUrl = '';
-    //   this.file = '';
-    // });
+
   }
 }

@@ -73,10 +73,8 @@ export class TeamComponent {
   dataSource : Team[]=[]
   ngOnInit() {
     this.getTeams();
-    console.log("usersssssssssssssssssssssssssssss")
     this.teamService.getTeam().subscribe((res)=>{
       this.dataSource = res;
-      console.log('team res: ' , res);
 
  })
   }
@@ -84,8 +82,6 @@ export class TeamComponent {
   public getTeams(): void {
     this.teams = null; //for show spinner each time
     this.teamService.getTeam().subscribe((teams: any) =>{
-      console.log(teams);
-
       this.teams = teams
     });
   }
