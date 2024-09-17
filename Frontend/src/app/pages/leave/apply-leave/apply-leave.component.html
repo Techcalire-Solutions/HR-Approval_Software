@@ -16,11 +16,12 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Leave Type</mat-label>
           <mat-select formControlName="leaveTypeId" placeholder="Select leave type">
-            <mat-option value="1">Annual Leave</mat-option>
-            <mat-option value="2">Sick Leave</mat-option>
-            <mat-option value="3">Personal Leave</mat-option>
+            <mat-option *ngFor="let leaveType of leaveTypes" [value]="leaveType.id">
+              {{ leaveType.leaveTypeName }}
+            </mat-option>
           </mat-select>
         </mat-form-field>
+
 
         &nbsp;
 
