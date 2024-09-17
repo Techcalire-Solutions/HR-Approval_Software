@@ -57,7 +57,7 @@
     </div>
   </div>
 
-  <mat-card-actions *ngIf="kam || am">
+  <mat-card-actions *ngIf="(kam && (pi.status!=='KAM VERIFIED'))|| (am && (pi.status!=='AM VERIFIED'))">
     <button mat-raised-button class="approve-button" (click)="verified('approved')"
     *ngIf="!sp && !admin && !teamLead"> APPROVE
   </button>
