@@ -63,6 +63,7 @@ export class AddApprovalComponent {
     }
     this.getKAM();
     this.getAM();
+    this.getAccountants();
 
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
@@ -102,6 +103,13 @@ export class AddApprovalComponent {
     });
   }
 
+  accountantSub!: Subscription;
+  AccountantList: User[] = [];
+  getAccountants(){
+    this.accountantSub = this.loginServie.getUserByRole(4).subscribe(user =>{
+      this.AccountantList = user;
+    });
+  }
 
   piForm = this.fb.group({
     piNo: ['', Validators.required],
@@ -109,6 +117,8 @@ export class AddApprovalComponent {
     remarks: [''],
     status: [''],
     kamId: <any>[],
+    amId:  <any>[],
+    accountantId:  <any>[],
     supplierName: ['', Validators.required],
     supplierPoNo: ['', Validators.required],
     supplierPrice: ['', Validators.required],
@@ -219,8 +229,12 @@ export class AddApprovalComponent {
         this.router.navigateByUrl('login/viewApproval')
       });
     } else if(this.roleName=='Key Account Manager'){
+      console.log('piform', this.piForm.getRawValue());
+      // console.log('piform', this.piForm.getRawValue());
+
       this.submit = this.invoiceService.addPIByKAM(this.piForm.getRawValue()).subscribe((invoice: any) =>{
         console.log('kam add PI',invoice);
+
 
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
         this.router.navigateByUrl('login/viewApproval')

@@ -4,6 +4,11 @@ const authenticateToken = require('../../middleware/authorization');
 const Leave = require('../models/leave');
 const UserLeave = require('../models/userLeave');
 
+// const { Op, fn, col, where } = require('sequelize');
+
+
+
+
 // Route to create a leave request
 router.post('/', authenticateToken, async (req, res) => {
   const { leaveTypeId, startDate, endDate, notes } = req.body;
@@ -70,10 +75,7 @@ router.put('/:leaveId/status', authenticateToken, async (req, res) => {
     res.status(500).send(error.message);
   }
 });
-const authenticateToken = require('../../middleware/authorization')
-const sequelize = require('../../utils/db')
-const { Op, fn, col, where } = require('sequelize');
-const Leave = require('../models/leave')
+
 
 
 router.post('/', authenticateToken,async(req,res)=>{

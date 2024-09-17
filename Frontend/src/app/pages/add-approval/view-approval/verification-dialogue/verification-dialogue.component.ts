@@ -43,18 +43,21 @@ export class VerificationDialogueComponent {
     this.invoiceNo = this.dialogData.invoiceNo;
     this.status = this.dialogData.status;
     console.log(this.isSelectionMade);
+    console.log('dialogue Data', this.dialogData);
 
     this.form.get('spId')?.setValue(this.dialogData.sp)
     if(this.status == 'KAM VERIFIED') this.getAm()
     if(this.status == 'AM VERIFIED') this.getMa()
 
       console.log('current status: ' , this.status);
-
+  if(this.status === 'AM REJECTED' || this.status === 'KAM REJECTED') this.isSelectionMade=true;
   }
 
   isSelectionMade: any = false;
   onSelectionChange() {
     // Update the flag to enable/disable the save button
+    console.log('59',this.form.get('amId')?.valid, this.form.get('accountantId')?.valid);
+
     this.isSelectionMade = this.form.get('amId')?.valid || this.form.get('accountantId')?.valid;
   }
 

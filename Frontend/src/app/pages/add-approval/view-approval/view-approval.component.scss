@@ -207,7 +207,7 @@ margin-bottom: 10px;
 .icon-container a {
   flex: 1;
   text-align: center;
-  margin: 0 5px; /* Adds space between icons */
+  // margin: 0 5px; /* Adds space between icons */
 }
 
 
@@ -215,12 +215,13 @@ margin-bottom: 10px;
 .bottom-bar {
   position: sticky;
   background: linear-gradient(0deg,#203f7a, #b0c8c5);
-  bottom: 0;
+  top: 0;
+  margin-top: 0;
   width: 100%;
-  height: 51px; /* Set a fixed height for the bottom bar */
-  padding: 10px 0; /* Adjust the padding as needed */
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.25); /* Set your desired background color */
-  text-align: center; /* Center-align the content */
+  height: 41px;
+  padding: 5px;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.25);
+  text-align: center;
   align-items: center;
 }
 
