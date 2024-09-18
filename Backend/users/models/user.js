@@ -3,26 +3,28 @@ const sequelize = require('../../utils/db');
 const Role = require('./role');
 
 const User = sequelize.define('user', {
-  name: {type: DataTypes.STRING, allowNull: false},
-  email:{type: DataTypes.STRING, allowNull: false},
-  phoneNumber: {type: DataTypes.STRING},
-  password: {type: DataTypes.STRING, allowNull: false},
-  roleId: {type: DataTypes.INTEGER, allowNull: false},
-  status: {type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true},
-  userImage : {type : DataTypes.STRING},
-  url : {type : DataTypes.STRING},
+  name: { type: DataTypes.STRING, allowNull: false },
+  email: { type: DataTypes.STRING, allowNull: false },
+  phoneNumber: { type: DataTypes.STRING },
+  password: { type: DataTypes.STRING, allowNull: false },
+  roleId: { type: DataTypes.INTEGER, allowNull: false },
+
+  status: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
+
+  userImage: { type: DataTypes.STRING },
+  url: { type: DataTypes.STRING },
 },
 {
   freezeTableName: true,
-  timestamps : true
+  timestamps: true
 });
 
-Role.hasMany(User,{foreignKey : 'roleId', onUpdate : 'CASCADE'})
-User.belongsTo(Role)
+Role.hasMany(User, { foreignKey: 'roleId', onUpdate: 'CASCADE' });
+User.belongsTo(Role);
 
+// Synchronizing the model with the database
 User.sync({ alter: true })
-  .then(() => console.log("Packing table Sync"))
-  .catch((err) => console.log("Error syncing table PackingChild:", err));
+  .then(() => console.log("User table synced successfully"))
+  .catch((err) => console.log("Error syncing User table:", err));
 
-
-module.exports = User
+module.exports = User;

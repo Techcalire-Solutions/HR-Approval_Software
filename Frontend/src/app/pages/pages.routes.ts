@@ -33,7 +33,7 @@ export const routes: Routes = [
       },
       {
         path: 'users',
-        loadComponent: () => import('./users/users.component').then(c => c.UsersComponent),
+        loadChildren: () => import('./users/user.routes').then(c => c.routes),
         data: { breadcrumb: 'Users' }
       },
       {

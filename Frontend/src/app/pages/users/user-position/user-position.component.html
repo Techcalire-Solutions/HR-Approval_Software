@@ -1,0 +1,73 @@
+<form [formGroup]="form">
+  <div fxLayout="column" class="form-field-outer" style="margin-top: 20px;">
+    <div class="row box">
+      <div class="col">
+        <mat-form-field class="w-100">
+          <mat-label>Division</mat-label>
+          <input matInput formControlName="division" required>
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <mat-form-field class="w-100">
+          <mat-label>Cost Centre</mat-label>
+          <input matInput formControlName="costCentre" required>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="row box">
+      <div class="col">
+        <mat-form-field class="w-100">
+          <mat-label>Grade</mat-label>
+          <input matInput formControlName="grade" required>
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <mat-form-field class="w-100">
+          <mat-label>Designation</mat-label>
+          <input matInput formControlName="designation" required>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="row box">
+      <div class="col">
+        <mat-form-field class="w-100">
+          <mat-label>Location</mat-label>
+          <input matInput formControlName="location" required>
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <mat-form-field class="w-100">
+          <mat-label>Department</mat-label>
+          <input matInput formControlName="department" required>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="row box">
+      <div class="col">
+        <mat-form-field class="w-100">
+          <mat-label>Office</mat-label>
+          <input matInput formControlName="office" required>
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <mat-form-field class="w-100">
+          <mat-label>Salary</mat-label>
+          <input matInput formControlName="salary" required>
+        </mat-form-field>
+      </div>
+    </div>
+  </div>
+
+  <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
+    <button mat-raised-button color="primary" (click)="onSubmit()">
+        <!-- @if (user.id) {
+            Update
+        } @else { -->
+            Save
+        <!-- } -->
+    </button>
+  </div>
+</form>
