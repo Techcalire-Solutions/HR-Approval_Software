@@ -1,0 +1,40 @@
+.user-form {
+  .form-field-outer {
+      width: 500px;
+  }
+  .mat-mdc-radio-button{
+      margin-right: 12px;
+  }
+}
+
+.user-img {
+display: flex;          /* Use Flexbox for centering */
+justify-content: center; /* Center horizontally */
+align-items: center;     /* Center vertically */
+height: 100%;            /* Ensure it takes the full height of the parent */
+}
+
+.user-img img {
+max-width: 100%;         /* Adjust the image size appropriately */
+max-height: 100%;        /* Prevent overflow */
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.col {
+  flex: 1;
+  margin-right: 20px;
+}
+
+@media(max-width:576px)
+{
+    .box{
+        padding: 0px;
+        margin: 0px;
+        display: flex;
+        flex-direction: column;
+    }
+}

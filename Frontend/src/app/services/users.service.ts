@@ -4,6 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { Role } from '../common/interfaces/role';
 import { User } from '../common/interfaces/user';
 import { environment } from '../../environments/environment';
+import { UserPersonal } from '../common/interfaces/user-personal';
 
 
 @Injectable({
@@ -53,7 +54,35 @@ export class UsersService {
   }
 
   getUserById(id:number):Observable<User>{
-    return this.http.get<User>(this.apiUrl + '/auth/findbyuser/'+id)
+    return this.http.get<User>('http://localhost:8000/auth/findbyuser/'+id)
 
+  }
+
+  addUserPersonalDetails(data: any): Observable<any> {
+    return this.http.post( this.apiUrl + '/personal/add', data);
+  }
+
+  addStautoryInfo(data: any): Observable<any> {
+    return this.http.post( this.apiUrl + '/statutoryinfo/add', data);
+  }
+
+  addUserAccountDetails(data: any): Observable<any> {
+    return this.http.post( this.apiUrl + '/account/add', data);
+  }
+
+  addUserPositionDetails(data: any): Observable<any> {
+    return this.http.post( this.apiUrl + '/position/add', data);
+  }
+
+  getUserPersonalDetails(): Observable<UserPersonal[]> {
+    return this.http.get<UserPersonal[]>( this.apiUrl + '/personal/find');
+  }
+
+  uploadUserDoc(formData: any): Observable<any> {
+    return this.http.post(this.apiUrl + '/document/fileupload', formData);
+  }
+
+  addUserDocumentDetails(data: any): Observable<any> {
+    return this.http.post( this.apiUrl + '/document/add', data);
   }
 }
