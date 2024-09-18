@@ -120,8 +120,7 @@ users:User;
       role === 'Sales Executive' ||
       role === 'Key Account Manager' ||
       role === 'Manager' ||
-      role === 'Team Lead' ||
-      role === 'Accountant'
+      role === 'Team Lead'
     ) {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
@@ -136,7 +135,23 @@ users:User;
         // (item.title === 'Pay Details' && item.parentId === 13)
 
       );
-    } else if (role === 'HR') {
+    } 
+    else if (
+      role === 'Accountant'
+    ) {
+      this.filteredMenuItems = allMenuItems.filter(item =>
+        item.title === 'Dashboard' ||
+        (item.title === 'Approval Uploads' && !item.parentId) ||
+        (item.title === 'View' && item.parentId === 5)
+        // (item.title === 'Leave' && !item.parentId) ||
+        // (item.title === 'Apply leave' && item.parentId === 8) ||
+        // (item.title === 'Leave Balance' && item.parentId === 8) ||
+        // (item.title === 'Payroll' && !item.parentId) ||
+        // (item.title === 'Payslip' && item.parentId === 13) ||
+        // (item.title === 'Pay Details' && item.parentId === 13)
+
+      );
+    }else if (role === 'HR') {
       
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
