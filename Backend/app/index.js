@@ -47,6 +47,17 @@ app.use('/invoiceStatus', piStatus);
 
 app.use('/invoices/uploads', express.static(path.join(__dirname, '../invoices/uploads')));
 app.use('/users/userImages', express.static(path.join(__dirname, '../users/userImages')));
+
+
+const leave = require('../leave/routers/leave');
+const leaveType = require('../leave/routers/leaveType');
+const userLeave = require('../leave/routers/userLeave');
+
+app.use('/leave', leave);
+app.use('/leaveType', leaveType);
+app.use('/userLeave', userLeave);
+
+
 console.log(process.env.DB_NAME, process.env.USER_NAME, process.env.DB_PASSWORD, process.env.DB_HOST, "________________________________________________")
 const port = process.env.PORT || 8000;
 

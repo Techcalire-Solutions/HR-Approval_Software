@@ -42,20 +42,18 @@ export class VerificationDialogueComponent {
   ngOnInit(): void {
     this.invoiceNo = this.dialogData.invoiceNo;
     this.status = this.dialogData.status;
-    console.log(this.isSelectionMade);
+
 
     this.form.get('spId')?.setValue(this.dialogData.sp)
     if(this.status == 'KAM VERIFIED') this.getAm()
     if(this.status == 'AM VERIFIED') this.getMa()
 
-      console.log('current status: ' , this.status);
-
+  if(this.status === 'AM REJECTED' || this.status === 'KAM REJECTED') this.isSelectionMade=true;
   }
 
   isSelectionMade: any = false;
   onSelectionChange() {
-    // Update the flag to enable/disable the save button
-    this.isSelectionMade = this.form.get('amId')?.valid || this.form.get('accountantId')?.valid;
+ this.isSelectionMade = this.form.get('amId')?.valid || this.form.get('accountantId')?.valid;
   }
 
   onCancelClick(): void {
@@ -76,8 +74,7 @@ export class VerificationDialogueComponent {
   am: User[] = [];
   getAm() {
     this.userSub = this.loginService.getUserByRole(3).subscribe(data => {
-      console.log('data', data);
-
+  
       this.am = data;
       });
 

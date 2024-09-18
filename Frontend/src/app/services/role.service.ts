@@ -9,8 +9,7 @@ import { environment } from '../../environments/environment';
 })
 export class RoleService {
 
-
-  private apiUrl = 'http://localhost:8000';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
@@ -19,7 +18,7 @@ export class RoleService {
   }
 
   public addRole(data: any): Observable<any> {
-    return this.http.post( 'http://localhost:8000/role', data);
+    return this.http.post(this.apiUrl+"/role", data);
   }
 
   updateRole(id: number, data: any): Observable<Role> {

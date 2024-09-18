@@ -85,7 +85,11 @@ export class UpdatePIComponent {
     }
     this.getKAM();
 
+    const token: any = localStorage.getItem('token')
+    let user = JSON.parse(token)
 
+    let roleId = user.role
+    this.getRoleById(roleId)
   }
 
   kamSub!: Subscription;
@@ -172,7 +176,7 @@ export class UpdatePIComponent {
           }
         }, 0);
         // Increment the maxId by 1 to get the next ID
-          console.log(maxId);
+      
 
           let nextId = maxId + 1;
           const paddedId = `${this.prefix}${nextId.toString().padStart(3, "0")}`;
@@ -206,24 +210,53 @@ export class UpdatePIComponent {
   submit!: Subscription;
   onSubmit(){
     this.submit = this.invoiceService.addPI(this.piForm.getRawValue()).subscribe((invoice: any) =>{
-      console.log(invoice);
+    
+
+      this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
+      this.router.navigateByUrl('login/viewApproval')
+    });
+  }
+  roleName!: string;
+  roleSub!: Subscription;
+  sp: boolean = false;
+  kamb: boolean = false;
+  am: boolean = false;
+  ma: boolean = false;
+  getRoleById(id: number){
+    this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
+      this.roleName = role.roleName;
+      if(this.roleName === 'Sales Executive') this.sp = true;
+      if(this.roleName === 'Key Account Manager') this.kamb = true;
+      if(this.roleName === 'Manager') this.am = true;
+      if(this.roleName === 'Accountant') this.ma = true;
+      if(this.roleName === 'Team Lead') this.sp = true;
+    })
+  }
+  onUpdate(){
+    if(this.roleName=='Sales Executive'){
+    this.submit = this.invoiceService.updatePIBySE(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
+   
+
+      this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
+      this.router.navigateByUrl('login/viewApproval')
+    });
+  }else if(this.roleName=='Key Account Manager'){
+    this.submit = this.invoiceService.updatePIByKAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
+ 
 
       this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
       this.router.navigateByUrl('login/viewApproval')
     });
   }
 
-  onUpdate(){
-    console.log('get raw data',this.piForm.getRawValue());
-    this.submit = this.invoiceService.updatePI(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-      console.log('update data',this.piForm.getRawValue());
-      console.log('submit data',this.submit);
+  else if(this.roleName=='Manager'){
+    this.submit = this.invoiceService.updatePIByAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
 
-      console.log(invoice);
 
       this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
       this.router.navigateByUrl('login/viewApproval')
     });
+  }
   }
 
   piSub!: Subscription;
@@ -232,10 +265,10 @@ export class UpdatePIComponent {
   patchdata(id: number) {
     this.editStatus = true;
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
-      console.log(pi);
+
 
       let inv = pi.pi;
-      console.log(inv);
+   
 
       let remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
 
@@ -254,7 +287,7 @@ export class UpdatePIComponent {
         poValue: inv.poValue,
         url: inv.url
       });
-      console.log('image inv', inv.url);
+
 
       // Update imageUrl based on `inv.url`
       if (inv.url) {
@@ -262,8 +295,6 @@ export class UpdatePIComponent {
       } else {
         this.imageUrl = ''; // Clear imageUrl if inv.url is empty
       }
-
-      console.log('Image URL:', this.imageUrl);
     });
   }
 
@@ -271,10 +302,6 @@ export class UpdatePIComponent {
   clearFileInput() {
     let file = this.fileName
     let id = this.id
-    // this.invoiceService.deleteInvoice(id, file).subscribe(inv => {
-    //   console.log(inv);
-    //   this.imageUrl = '';
-    //   this.file = '';
-    // });
+
   }
 }

@@ -39,7 +39,7 @@ export class SidenavComponent implements OnInit , PipeTransform{
   transform(value: User[] | null, args?: any): any {
     let searchText = new RegExp(args, 'ig');
     if (value) {
-      console.log(value);
+
 
       return value.filter(user => {
         if (user.name) {
@@ -87,13 +87,12 @@ users:User;
   getUser(){
     this.loginService.getUserById(this.userId).subscribe((res)=>{
       this.user = res;
-      console.log(this.user);
+   
 
     })
   }
 
   filterMenuItemsByRole(role: string) {
-    console.log("Filtering menus for role:", role);
 
     const allMenuItems = this.menuService.getVerticalMenuItems();
 
@@ -108,73 +107,78 @@ users:User;
         (item.title === 'View' && item.parentId === 5) 
         // (item.title === 'Leave' && !item.parentId) ||
         // (item.title === 'Leave Request' && item.parentId === 8) ||
+        // (item.title === 'User Leave' && item.parentId === 8) ||
         // (item.title === 'Emergency Leave' && item.parentId === 8) ||
         // (item.title === 'Payroll' && !item.parentId) ||
         // (item.title === 'Process Payroll' && item.parentId === 13) ||
-        // (item.title === 'Salary Statement' && item.parentId === 13) || 
+        // (item.title === 'Salary Statement' && item.parentId === 13) ||
         // (item.title === 'YTD Reports' && item.parentId === 13)
 
-      
+
       );
     } else if (
       role === 'Sales Executive' ||
       role === 'Key Account Manager' ||
       role === 'Manager' ||
-      role === 'Team Lead' ||
-      role === 'Accountant' 
+      role === 'Team Lead'
     ) {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
         (item.title === 'Approval Uploads' && !item.parentId) ||
         (item.title === 'Add' && item.parentId === 5) ||
-        (item.title === 'View' && item.parentId === 5) 
+        (item.title === 'View' && item.parentId === 5)
         // (item.title === 'Leave' && !item.parentId) ||
         // (item.title === 'Apply leave' && item.parentId === 8) ||
-        // (item.title === 'Leave Balance' && item.parentId === 8) || 
+        // (item.title === 'Leave Balance' && item.parentId === 8) ||
         // (item.title === 'Payroll' && !item.parentId) ||
         // (item.title === 'Payslip' && item.parentId === 13) ||
-        // (item.title === 'Pay Details' && item.parentId === 13) 
-        
+        // (item.title === 'Pay Details' && item.parentId === 13)
+
       );
+    } 
+    else if (
+      role === 'Accountant'
+    ) {
+      this.filteredMenuItems = allMenuItems.filter(item =>
+        item.title === 'Dashboard' ||
+        (item.title === 'Approval Uploads' && !item.parentId) ||
+        (item.title === 'View' && item.parentId === 5)
+        // (item.title === 'Leave' && !item.parentId) ||
+        // (item.title === 'Apply leave' && item.parentId === 8) ||
+        // (item.title === 'Leave Balance' && item.parentId === 8) ||
+        // (item.title === 'Payroll' && !item.parentId) ||
+        // (item.title === 'Payslip' && item.parentId === 13) ||
+        // (item.title === 'Pay Details' && item.parentId === 13)
+
+      );
+    }else if (role === 'HR') {
+      
+      this.filteredMenuItems = allMenuItems.filter(item =>
+        item.title === 'Dashboard' ||
+        (item.title === 'Leave' && !item.parentId) ||
+        (item.title === 'Apply leave' && item.parentId === 8) ||
+        (item.title === 'Leave Balance' && item.parentId === 8) ||
+        (item.title === 'User leave' && item.parentId === 8) ||
+        (item.title === 'Payroll' && !item.parentId) ||
+        (item.title === 'Payslip' && item.parentId === 13) ||
+        (item.title === 'Pay Details' && item.parentId === 13)
+      );
+
     } else {
       this.filteredMenuItems = [];
     }
 
-    console.log("Filtered menu items:", this.filteredMenuItems);
   }
 
-
-
-
-
-
   logout() {
-    // console.log();
-
-    // Clear authentication tokens or session data here
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('JWT_TOKEN');
     localStorage.removeItem('REFRESH_TOKEN');
     localStorage.removeItem('token');
-    sessionStorage.clear(); // Clear all session storage if needed
+    sessionStorage.clear(); 
     this.router.navigate(['/']);
   }
-  // logout(){
-  //   const dialogRef = this.dialog.open(LogoutComponent, {
-  //     width: '440px',
-  //     data: {
-  //       id: this.userId,
-  //       role: this.userRole
-  //     }
-  //   });
-
-  //   dialogRef.afterClosed().subscribe(result => {
-  //     if (result === true) {
-  //       this.router.navigateByUrl('');
-  //     }
-  //   });
-  // }
 
   public closeSubMenus(){
     let menu = document.getElementById("vertical-menu");
@@ -192,8 +196,6 @@ users:User;
   }
 
   openProfile(){
-    console.log("jjjjjjjjjjjjjjjjjjjjjjjjjj");
-
     this.router.navigateByUrl('login/profile')
   }
 

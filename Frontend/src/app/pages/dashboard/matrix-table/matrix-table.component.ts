@@ -32,7 +32,7 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
   piSub!: Subscription;
   getPi(){
     this.piSub = this.invoiceServices.getPI(this.searchText, this.currentPage, this.pageSize).subscribe((invoice: any) => {
-      console.log(invoice);
+
       this.invoices = invoice.items
       this.totalItems = invoice.count;
     });
@@ -40,7 +40,7 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
 
   public searchText!: string;
   search(){
-    console.log(this.searchText);
+ 
     this.getPi()
   }
 
@@ -48,7 +48,7 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
     this.piSub?.unsubscribe()
   }
 
-  pageSize = 1;
+  pageSize = 5;
   currentPage = 1;
   totalItems = 0;
   public onPageChanged(event: any){

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { Role } from '../common/interfaces/role';
 import { User } from '../common/interfaces/user';
+import { environment } from '../../environments/environment';
 import { UserPersonal } from '../common/interfaces/user-personal';
 
 
@@ -10,7 +11,7 @@ import { UserPersonal } from '../common/interfaces/user-personal';
   providedIn: 'root'
 })
 export class UsersService {
-  private apiUrl = 'http://localhost:8000';
+  private apiUrl = environment.apiUrl;
 
   constructor(public http: HttpClient) { }
 
@@ -22,7 +23,7 @@ export class UsersService {
   //     return this.http.post(this.apiUrl, user);
   // }
   public addUser(data: any): Observable<any> {
-    return this.http.post( 'http://localhost:8000/user/add', data);
+    return this.http.post( this.apiUrl+'/user/add', data);
   }
 
   uploadImage(file: any): Observable<any> {
@@ -48,7 +49,7 @@ export class UsersService {
   }
 
   getUserByRoleId(id:number):Observable<User>{
-    return this.http.get<User>('http://localhost:8000/user/findbyrole/'+id)
+    return this.http.get<User>(this.apiUrl + '/user/findbyrole/'+id)
 
   }
 

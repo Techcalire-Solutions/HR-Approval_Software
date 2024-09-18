@@ -17,6 +17,21 @@ export const routes: Routes = [
         data: { breadcrumb: 'Role' }
       },
       {
+        path: 'applyLeave',
+        loadComponent: () => import('./leave/apply-leave/apply-leave.component').then(c => c.ApplyLeaveComponent),
+        data: { breadcrumb: 'ApplyLeave' }
+      },
+      {
+        path: 'leaveRequest',
+        loadComponent: () => import('./leave/leave-request/leave-request.component').then(c => c.LeaveRequestComponent),
+        data: { breadcrumb: 'LeaveRequest' }
+      },
+      {
+        path: 'userLeave',
+        loadComponent: () => import('./leave/user-leave/user-leave.component').then(c => c.UserLeaveComponent),
+        data: { breadcrumb: 'LeaveRequest' }
+      },
+      {
         path: 'users',
         loadChildren: () => import('./users/user.routes').then(c => c.routes),
         data: { breadcrumb: 'Users' }
@@ -52,6 +67,11 @@ export const routes: Routes = [
         path: 'team',
         loadComponent: () => import('./team/team.component').then(c => c.TeamComponent),
         data: { breadcrumb: 'Team' }
+      },
+      {
+        path: 'leaveType',
+        loadComponent: () => import('./leave/leave-types/leave-types.component').then(c => c.LeaveTypesComponent),
+        data: { breadcrumb: 'Leave Type' }
       },
     ]
   }

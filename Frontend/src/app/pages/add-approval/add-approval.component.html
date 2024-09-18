@@ -59,13 +59,30 @@
 
         <mat-form-field *ngIf="kamb" class="full-width" appearance="outline">
           <mat-label>Manager</mat-label>
-          <mat-select placeholder="" formControlName="kamId">
+          <mat-select placeholder="" formControlName="amId">
             <!-- <mat-form-field class="full-width">
               <div class="row">
                 <input matInput (input)="filterRole($event)" placeholder="Search">
               </div>
             </mat-form-field> -->
             <mat-option *ngFor="let item of AMList" [value]="item.id">
+              {{item.name}}
+            </mat-option>
+            <!-- <mat-option *ngIf="kam.length === 0" [value]="'add'">
+              <span class="material-icons" style="font-size: 25px; color: rgb(0, 128, 55);" (click)="addRole()">playlist_add</span>
+            </mat-option> -->
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field *ngIf="am" class="full-width" appearance="outline">
+          <mat-label>Accountant</mat-label>
+          <mat-select placeholder="" formControlName="accountantId">
+            <!-- <mat-form-field class="full-width">
+              <div class="row">
+                <input matInput (input)="filterRole($event)" placeholder="Search">
+              </div>
+            </mat-form-field> -->
+            <mat-option *ngFor="let item of AccountantList" [value]="item.id">
               {{item.name}}
             </mat-option>
             <!-- <mat-option *ngIf="kam.length === 0" [value]="'add'">
@@ -135,7 +152,7 @@
           </ng-container>
         </ng-template>
 
-        <ng-template #noFileTemplate> </ng-template> 
+        <ng-template #noFileTemplate> </ng-template>
 
         <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
         <span class="material-icons" (click)="fileInput.click()">cloud_upload</span>
@@ -146,7 +163,7 @@
 
       <section class="progress-area" *ngIf="file">
         <li class="row">
-          <span class="material-icons">file_copy</span>
+          <!-- <span class="material-icons">file_copy</span> -->
           <div class="content">
             <div class="details">
               <span class="name">{{ file.name }} - {{ uploadComplete ? 'Uploaded' : 'Uploading' }}</span>
@@ -159,7 +176,7 @@
 
 
       <button mat-raised-button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid" *ngIf="!editStatus">
-        <span class="material-icons" style="font-size: 25px;">save</span>
+        <span class="material-icons button-style" style="font-size: 25px;">save</span>
       </button>
       <button mat-raised-button type="button" class="btn btn-success" (click)="onUpdate()" [disabled]="!piForm.valid" *ngIf="editStatus">
         <span class="material-icons" style="font-size: 25px;">save</span>

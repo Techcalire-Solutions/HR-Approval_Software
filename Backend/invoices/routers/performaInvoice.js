@@ -37,13 +37,13 @@ router.post('/save', authenticateToken, async (req, res) => {
 });
 
 router.post('/saveByKAM', authenticateToken, async (req, res) => {
-    const { piNo, url, kamId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
+    const { piNo, url, amId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
     const userId = req.user.id;
 
     try {
         // Save the new PI
         const newPi = new PerformaInvoice({
-            piNo, url, status: 'KAM VERIFIED', kamId: userId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue
+            piNo, url,amId, status: 'KAM VERIFIED', kamId: userId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue
         });
         await newPi.save();
 
@@ -62,13 +62,13 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
 });
 
 router.post('/saveByAM', authenticateToken, async (req, res) => {
-    const { piNo, url, kamId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
+    const { piNo, url, accountantId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
     const userId = req.user.id;
 
     try {
         // Save the new PI
         const newPi = new PerformaInvoice({
-            piNo, url, status: 'AM VERIFIED', kamId: userId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue
+            piNo, url,accountantId, status: 'AM VERIFIED', amId: userId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue
         });
         await newPi.save();
 
@@ -613,7 +613,7 @@ router.patch('/bankslip/:id', authenticateToken, async(req, res) => {
     }
 });
 
-router.patch('/update/:id', authenticateToken, async(req, res) => {
+router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
     const { piNo, url, kamId,supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue} = req.body;
     const userId = req.user.id;
     try {
@@ -637,6 +637,70 @@ router.patch('/update/:id', authenticateToken, async(req, res) => {
         
         const piStatus = new PerformaInvoiceStatus({
             performaInvoiceId: piId, status: 'GENERATED', date: new Date(), count: count
+        })
+        await piStatus.save();
+        res.json({ p: pi, status: piStatus})
+    } catch (error) {
+        res.send(error.message)
+    }
+});
+
+router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
+    const { piNo, url, kamId,supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue} = req.body;
+    const userId = req.user.id;
+    try {
+        const pi = await PerformaInvoice.findByPk(req.params.id);
+        pi.url = url;
+        pi.kamId = kamId;
+        let count = pi.count + 1;
+        pi.count = count;
+        pi.status = `KAM VERIFIED`;
+        pi.supplierName=supplierName;
+        pi.supplierPoNo=supplierPoNo;
+        pi.supplierPrice=supplierPrice;
+        pi.purpose=purpose;
+        pi.customerName=customerName;
+        pi.customerPoNo=customerPoNo;
+        pi.poValue=poValue;
+
+        await pi.save();
+
+        const piId = pi.id;
+        
+        const piStatus = new PerformaInvoiceStatus({
+            performaInvoiceId: piId, status: 'KAM VERIFIED', date: new Date(), count: count
+        })
+        await piStatus.save();
+        res.json({ p: pi, status: piStatus})
+    } catch (error) {
+        res.send(error.message)
+    }
+});
+
+router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
+    const { piNo, url, kamId,supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue} = req.body;
+    const userId = req.user.id;
+    try {
+        const pi = await PerformaInvoice.findByPk(req.params.id);
+        pi.url = url;
+        pi.kamId = kamId;
+        let count = pi.count + 1;
+        pi.count = count;
+        pi.status = `AM VERIFIED`;
+        pi.supplierName=supplierName;
+        pi.supplierPoNo=supplierPoNo;
+        pi.supplierPrice=supplierPrice;
+        pi.purpose=purpose;
+        pi.customerName=customerName;
+        pi.customerPoNo=customerPoNo;
+        pi.poValue=poValue;
+
+        await pi.save();
+
+        const piId = pi.id;
+        
+        const piStatus = new PerformaInvoiceStatus({
+            performaInvoiceId: piId, status: 'AM VERIFIED', date: new Date(), count: count
         })
         await piStatus.save();
         res.json({ p: pi, status: piStatus})

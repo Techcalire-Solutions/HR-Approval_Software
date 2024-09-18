@@ -1,0 +1,91 @@
+.material-icons:hover {
+  cursor: pointer;
+  color: red; /* example styling */
+}
+
+
+.material-icons {
+margin-right: 25px;
+}
+
+
+///-----------------------------
+form.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #f3f4f6;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.file-input {
+  display: none;
+}
+
+img {
+  cursor: pointer;
+  border-radius: 8px;
+  border: 2px solid #ccc;
+  margin-bottom: 10px;
+}
+
+// .button-style{
+//   font-size: 36px;
+//   color: #007bff;
+//   cursor: pointer;
+//   transition: color 0.3s;
+// }
+
+.material-icons:hover {
+  color: #0056b3;
+}
+
+p {
+  font-size: 14px;
+  color: #007bff;
+  cursor: pointer;
+  margin-top: 5px;
+  transition: color 0.3s;
+}
+
+p:hover {
+  color: #0056b3;
+}
+
+.progress-area {
+  width: 100%;
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #007bff;
+  border-radius: 8px;
+  background-color: #f0f8ff;
+}
+
+.progress-area .row {
+  display: flex;
+  align-items: center;
+}
+
+.progress-area .content {
+  flex: 1;
+  margin-left: 10px;
+}
+
+.progress-area .details {
+  display: flex;
+  flex-direction: column;
+}
+
+.progress-area .name {
+  font-weight: bold;
+  color: #007bff;
+}
+
+mat-progress-bar {
+  width: 100%;
+  margin-top: 10px;
+}

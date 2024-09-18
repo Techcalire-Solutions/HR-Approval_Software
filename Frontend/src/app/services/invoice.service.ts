@@ -84,9 +84,19 @@ export class InvoiceService {
 
 
 
-  updatePI(data: any, id: number){
-    return this._http.patch(this.url + '/performaInvoice/update/'+ id, data);
+  updatePIBySE(data: any, id: number){
+    return this._http.patch(this.url + '/performaInvoice/updateBySE/'+ id, data);
   }
+
+  updatePIByKAM(data: any, id: number){
+    return this._http.patch(this.url + '/performaInvoice/updateByKAM/'+ id, data);
+  }
+
+  updatePIByAM(data: any, id: number){
+    return this._http.patch(this.url + '/performaInvoice/updateByAM/'+ id, data);
+  }
+
+
 
   getPIById(id: number): Observable<any>{
     return this._http.get<any>(this.url + '/performaInvoice/findbyid/'+id);

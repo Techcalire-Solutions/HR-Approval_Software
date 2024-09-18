@@ -45,8 +45,6 @@ export class ProfileComponent {
   getUser(id: number){
     this.userSub = this.loginService.getUserById(id).subscribe(user => {
       this.user = user
-      console.log(user);
-
     });
   }
 }
