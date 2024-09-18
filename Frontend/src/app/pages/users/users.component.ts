@@ -107,7 +107,6 @@ export class UsersComponent implements OnInit {
   }
 
   deleteFunction(id: number){
-    console.log(id);  // Check the value of id here
     const dialogRef = this.dialog.open(DeleteDialogueComponent, {
       width: '450px',
       data: {}
@@ -116,12 +115,10 @@ export class UsersComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
         this.usersService.deleteUser(id).subscribe((res) => {
-          console.log(res);
-          this.snackbar.open("User deleted successfully...", "", { duration: 3000 });
+          this._snackbar.open("User deleted successfully...", "", { duration: 3000 });
           this.getUsers();
         }, (error) => {
-          console.log(error);
-          this.snackbar.open(error.error.message, "", { duration: 3000 });
+          this._snackbar.open(error.error.message, "", { duration: 3000 });
         });
       }
     });

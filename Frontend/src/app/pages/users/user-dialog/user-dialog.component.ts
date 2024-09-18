@@ -99,7 +99,8 @@ export class UserDialogComponent implements OnInit {
   }
 
   patchUser(user: User){
-    console.log(user);
+
+
     this.form.patchValue({
       name: user.name,
       roleId: user.role.id,
