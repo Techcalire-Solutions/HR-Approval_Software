@@ -67,9 +67,6 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
   }
 });
 
-
-
-
 router.post('/bankslipupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
     if (!req.file) {

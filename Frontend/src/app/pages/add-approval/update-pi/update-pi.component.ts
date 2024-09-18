@@ -48,6 +48,8 @@ export class UpdatePIComponent {
   ){}
   getPiById(id: number){
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
+      console.log(pi);
+
       // this.pi = pi;
       // this.piNo = pi.piNo;
       this.url = environment.apiUrl + pi.url;
@@ -58,7 +60,7 @@ export class UpdatePIComponent {
   ngOnDestroy(): void {
     this.invSub?.unsubscribe();
     this.uploadSub?.unsubscribe();
-    this.submit?.unsubscribe();
+    // this.submit?.unsubscribe();
   }
   piForm: FormGroup;
   id!: number;
@@ -78,7 +80,8 @@ export class UpdatePIComponent {
       poValue: ['']
 
     });
-    this.generateInvoiceNumber()
+
+    // this.generateInvoiceNumber()
     this.id = this.route.snapshot.params['id'];
     if(this.id){
       this.patchdata(this.id);
@@ -139,7 +142,7 @@ export class UpdatePIComponent {
 
       this.uploadSub = this.invoiceService.uploadInvoice(this.file).subscribe({
         next: (invoice) => {
-          this.imageUrl = this.url + invoice.fileUrl;
+          this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ invoice.fileUrl}`;
           if (this.imageUrl) {
             this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.imageUrl);
           }
@@ -176,7 +179,7 @@ export class UpdatePIComponent {
           }
         }, 0);
         // Increment the maxId by 1 to get the next ID
-      
+
 
           let nextId = maxId + 1;
           const paddedId = `${this.prefix}${nextId.toString().padStart(3, "0")}`;
@@ -207,15 +210,13 @@ export class UpdatePIComponent {
     return result;
   }
 
-  submit!: Subscription;
-  onSubmit(){
-    this.submit = this.invoiceService.addPI(this.piForm.getRawValue()).subscribe((invoice: any) =>{
-    
-
-      this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-      this.router.navigateByUrl('login/viewApproval')
-    });
-  }
+  // submit!: Subscription;
+  // onSubmit(){
+  //   this.submit = this.invoiceService.addPI(this.piForm.getRawValue()).subscribe((invoice: any) =>{
+  //     this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
+  //     this.router.navigateByUrl('login/viewApproval')
+  //   });
+  // }
   roleName!: string;
   roleSub!: Subscription;
   sp: boolean = false;
@@ -232,31 +233,29 @@ export class UpdatePIComponent {
       if(this.roleName === 'Team Lead') this.sp = true;
     })
   }
+
+  submit!: Subscription;
   onUpdate(){
+    console.log(this.roleName);
+
     if(this.roleName=='Sales Executive'){
-    this.submit = this.invoiceService.updatePIBySE(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-   
+      this.submit = this.invoiceService.updatePIBySE(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
+        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
+        this.router.navigateByUrl('login/viewApproval')
+      });
+    }else if(this.roleName=='Key Account Manager'){
+      this.submit = this.invoiceService.updatePIByKAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
+        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
+        this.router.navigateByUrl('login/viewApproval')
+      });
+    }
 
-      this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-      this.router.navigateByUrl('login/viewApproval')
-    });
-  }else if(this.roleName=='Key Account Manager'){
-    this.submit = this.invoiceService.updatePIByKAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
- 
-
-      this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-      this.router.navigateByUrl('login/viewApproval')
-    });
-  }
-
-  else if(this.roleName=='Manager'){
-    this.submit = this.invoiceService.updatePIByAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-
-
-      this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-      this.router.navigateByUrl('login/viewApproval')
-    });
-  }
+    else if(this.roleName=='Manager'){
+      this.submit = this.invoiceService.updatePIByAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
+        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
+        this.router.navigateByUrl('login/viewApproval')
+      });
+    }
   }
 
   piSub!: Subscription;
@@ -265,11 +264,7 @@ export class UpdatePIComponent {
   patchdata(id: number) {
     this.editStatus = true;
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
-
-
       let inv = pi.pi;
-   
-
       let remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
 
       // Patch the form values without `url`
@@ -287,8 +282,6 @@ export class UpdatePIComponent {
         poValue: inv.poValue,
         url: inv.url
       });
-
-
       // Update imageUrl based on `inv.url`
       if (inv.url) {
         this.imageUrl = pi.signedUrl;

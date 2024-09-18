@@ -115,10 +115,10 @@ export class UsersComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
         this.usersService.deleteUser(id).subscribe((res) => {
-          this._snackbar.open("User deleted successfully...", "", { duration: 3000 });
+          this.snackbar.open("User deleted successfully...", "", { duration: 3000 });
           this.getUsers();
         }, (error) => {
-          this._snackbar.open(error.error.message, "", { duration: 3000 });
+          this.snackbar.open(error.error.message, "", { duration: 3000 });
         });
       }
     });
