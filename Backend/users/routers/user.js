@@ -40,7 +40,7 @@ router.get('/find/', async (req, res) => {
     let whereClause = {}
     let limit;
     let offset;
-    if (req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
+    if (req.query.pageSize && req.query.page  && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
       limit = req.query.pageSize;
       offset = (req.query.page - 1) * req.query.pageSize;
       if (req.query.search != 'undefined') {
@@ -220,9 +220,6 @@ router.delete('/delete/:id', authenticateToken, async(req, res)=>{
 
 router.post('/fileupload', multer.single('file'), authenticateToken, (req, res) => {
   try {
-    console.log(req.body);
-    
-    console.log('File uploaded:', req.file);
 
     if (!req.file) {
       return res.status(400).send({ message: 'No file uploaded' });

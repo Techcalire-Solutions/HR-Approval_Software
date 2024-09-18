@@ -1,5 +1,5 @@
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { UsersService } from '../../services/users.service';
 import { Settings, SettingsService } from '../../services/settings.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -26,6 +26,7 @@ import { environment } from '../../../environments/environment';
 import { User } from '../../common/interfaces/user';
 import { count, Subscription } from 'rxjs';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -60,10 +61,11 @@ export class UsersComponent implements OnInit {
   public users: User[];
   public page:any;
   public settings: Settings;
-  constructor(private _snackbar: MatSnackBar,private sanitizer: DomSanitizer,
-    public settingsService: SettingsService,
-              public dialog: MatDialog,
-              public usersService: UsersService){
+
+  router = inject(Router);
+  snackbar = inject(MatSnackBar);
+
+  constructor(private sanitizer: DomSanitizer, public settingsService: SettingsService,  public dialog: MatDialog, public usersService: UsersService){
     this.settings = this.settingsService.settings;
   }
 
@@ -97,12 +99,11 @@ export class UsersComponent implements OnInit {
   public userImage = 'img/users/avatar.png';
 
   public openUserDialog(user: any){
-    let dialogRef = this.dialog.open(UserDialogComponent, {
-      data: user
-    });
-    dialogRef.afterClosed().subscribe(user => {
-      this.getUsers()
-    });
+    if (user) {
+      this.router.navigate(['users', user.id]);
+    } else {
+      this.router.navigate(['/login/users/new']);
+    }
   }
 
   deleteFunction(id: number){
@@ -116,11 +117,11 @@ export class UsersComponent implements OnInit {
       if (result === true) {
         this.usersService.deleteUser(id).subscribe((res) => {
           console.log(res);
-          this._snackbar.open("User deleted successfully...", "", { duration: 3000 });
+          this.snackbar.open("User deleted successfully...", "", { duration: 3000 });
           this.getUsers();
         }, (error) => {
           console.log(error);
-          this._snackbar.open(error.error.message, "", { duration: 3000 });
+          this.snackbar.open(error.error.message, "", { duration: 3000 });
         });
       }
     });
