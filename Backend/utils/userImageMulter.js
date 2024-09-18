@@ -13,21 +13,8 @@ const formatDateTime = () => {
   return `${year}${month}${day}_${hours}${minutes}${seconds}`;
 };
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../users/userImages'));
-  },
-  filename: (req, file, cb) => {
-    const dateTime = formatDateTime();
-    const uniqueSuffix = uuidv4(); // Generate a UUID for uniqueness
-    const fileExtension = path.extname(file.originalname);
-    const newFilename = `${dateTime}_${uniqueSuffix}${fileExtension}`;
-    cb(null, newFilename);
-  }
-});
-
 const fileFilter = (req, file, cb) => {
-  const fileTypes = /jpeg|jpg|png/;
+  const fileTypes = /jpeg|jpg|png|pdf|doc|docx/;
   const mimetype = fileTypes.test(file.mimetype);
   const extname = fileTypes.test(path.extname(file.originalname));
 
@@ -38,7 +25,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 const upload = multer({
-  storage: storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 10000000 }, // 10 MB in bytes
   fileFilter: fileFilter
 });

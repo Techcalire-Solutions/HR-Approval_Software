@@ -1,12 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const {Op, fn, col, where} = require('sequelize');
 const upload = require('../../utils/multer'); // Import the configured multer instance
 const path = require('path');
 const fs = require('fs');
 const PerformaInvoice = require('../models/performaInvoice');
 const authenticateToken = require('../../middleware/authorization');
-const PerformaInvoiceStatus = require('../models/invoiceStatus');
 const s3 = require('../../utils/s3bucket')
 // const upload = multer({ storage: multer.memoryStorage() }); 
 
@@ -151,16 +149,6 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
 });
 
 
-const deleteFile = (filePath) => {
-  return new Promise((resolve, reject) => {
-    fs.unlink(filePath, (err) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve();
-    });
-  });
-};
 
 router.delete('/filedelete/:id', async (req, res) => {
   let id = req.params.id;
