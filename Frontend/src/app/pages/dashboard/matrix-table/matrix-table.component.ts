@@ -31,8 +31,7 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
   invoices: PerformaInvoice[] = [];
   piSub!: Subscription;
   getPi(){
-    this.piSub = this.invoiceServices.getPI(this.searchText, this.currentPage, this.pageSize).subscribe((invoice: any) => {
-
+    this.piSub = this.invoiceServices.getDashboardPI(this.searchText, this.currentPage, this.pageSize).subscribe((invoice: any) => {
       this.invoices = invoice.items
       this.totalItems = invoice.count;
     });
@@ -40,7 +39,6 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
 
   public searchText!: string;
   search(){
- 
     this.getPi()
   }
 
