@@ -101,17 +101,17 @@ user: number;
       this.roleName = role.roleName;
 
       if(this.roleName === 'Sales Executive') { this.status = 'REJECTED'; this.sp = true
-            this.header = 'GENERATED' 
+            this.header = 'GENERATED'
            this.pendingHeader='REJECTED'
        }
-      if(this.roleName === 'Key Account Manager') { this.status = 'GENERATED'; this.kam = true;  
-           this.header = 'AM REJECTED' 
-           this.pendingHeader='GENERATED'} 
+      if(this.roleName === 'Key Account Manager') { this.status = 'GENERATED'; this.kam = true;
+           this.header = 'AM REJECTED'
+           this.pendingHeader='GENERATED'}
       if(this.roleName === 'Manager') { this.status = 'KAM VERIFIED'; this.am = true
-          this.header = 'REJECTED' 
+          this.header = 'REJECTED'
            this.pendingHeader='KAM VERIFIED'
        }
-      if(this.roleName === 'Accountant') { this.status = 'AM VERIFIED'; this.ma = true 
+      if(this.roleName === 'Accountant') { this.status = 'AM VERIFIED'; this.ma = true
          this.pendingHeader='AM VERIFIED'
       }
       if(this.roleName === 'Administrator') { this.admin = true }
@@ -170,11 +170,8 @@ user: number;
     }
 
     if (apiCall) {
-
-
       this.invoiceSubscriptions = apiCall.subscribe((res: any) => {
-    
-
+        console.log(res);
         invoice = res.items;
         this.totalItems = res.count;
 
@@ -187,7 +184,7 @@ user: number;
               mainObj.remarks = matchingStatus.remarks;
             }
           });
-   
+
           this.invoices = invoice;
           for(let i=0;i<=this.invoices.length;i++)
           {
@@ -255,7 +252,7 @@ user: number;
         this.status = 'GENERATED'
         this.getInvoices()
       }else if(status === 'assigned'){
-    
+
         this.pageStatus = false;
         this.status = 'AM REJECTED'
         this.getInvoices()
@@ -401,18 +398,6 @@ user: number;
     });
   }
 
-  // openDeleteDialog(invoiceId: number): void {
-  //   const dialogRef = this.dialog.open(DeleteConfirmDialogComponent, {
-  //     width: '300px', // Set the desired width here
-  //     panelClass: 'custom-dialog' // Optional: Apply custom styles
-  //   });
-
-  //   dialogRef.afterClosed().subscribe(result => {
-  //     if (result) {
-  //       this.deleteInvoice(invoiceId);
-  //     }
-  //   });
-  // }
 
 
   deleteFunction(id: number){
