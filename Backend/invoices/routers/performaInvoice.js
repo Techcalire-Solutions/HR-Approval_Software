@@ -87,9 +87,7 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
 });
 
 router.get('/find', authenticateToken, async(req, res) => {
-
     let status = req.query.status;
-    console.log(req.query, "_______________________");
     
     let where = {};
     if(status != '' && status != 'undefined'){
@@ -138,8 +136,8 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
             PerformaInvoiceStatus,
             {model: User, as: 'salesPerson', attributes: ['name']},
             {model: User, as: 'kam', attributes: ['name']},
-            // {model: User, as: 'am', attributes: ['name']},
-            // {model: User, as: 'accountant', attributes: ['name']},
+            {model: User, as: 'am', attributes: ['name']},
+            {model: User, as: 'accountant', attributes: ['name']},
         ]})
 
         let signedUrl = '';
@@ -523,7 +521,6 @@ router.get('/findbyma', authenticateToken, async(req, res) => {
     }
 })
 
-
 router.get('/findbyadmin', authenticateToken, async (req, res) => {
     let status = req.query.status;
     let user = req.user.id;
@@ -730,5 +727,67 @@ router.delete('/:id', async(req,res)=>{
     }
     
 })
+
+router.get('/dashboard', authenticateToken, async (req, res) => {
+    let status = req.query.status;
+
+    // Initialize where condition
+    let where = {};
+
+    // Add status filter if provided
+    if (status != '' && status != 'undefined') {
+        where.status = status;
+    }
+
+    // Add user restriction
+    const userId = req.user.id;
+    console.log(us);
+    
+    where[Op.or] = [
+        { salesPersonId: userId },
+        { kamId: userId },
+        { amId: userId },
+        { accountantId: userId }
+    ];
+
+    // Handle pagination
+    let limit, offset;
+    if (req.query.pageSize && req.query.page && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
+        limit = parseInt(req.query.pageSize, 10);
+        offset = (parseInt(req.query.page, 10) - 1) * limit;
+    }
+
+    try {
+        // Query PerformaInvoice with associated users and status
+        const pi = await PerformaInvoice.findAll({
+            where: where,
+            limit,
+            offset,
+            order: [['id', 'DESC']],
+            include: [
+                { model: PerformaInvoiceStatus },
+                { model: User, as: 'salesPerson', attributes: ['name'] },
+                { model: User, as: 'kam', attributes: ['name'] },
+                { model: User, as: 'am', attributes: ['name'] }
+            ]
+        });
+
+        // Get the total count of records
+        const totalCount = await PerformaInvoice.count({ where: where });
+
+        // If pagination is applied, return paginated results
+        if (req.query.pageSize && req.query.page && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
+            const response = {
+                count: totalCount,
+                items: pi
+            };
+            res.json(response);
+        } else {
+            res.send(pi);
+        }
+    } catch (error) {
+        res.send(error.message);
+    }
+});
 
 module.exports = router;
