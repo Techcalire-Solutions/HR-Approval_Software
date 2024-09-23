@@ -401,18 +401,6 @@ user: number;
     });
   }
 
-  // openDeleteDialog(invoiceId: number): void {
-  //   const dialogRef = this.dialog.open(DeleteConfirmDialogComponent, {
-  //     width: '300px', // Set the desired width here
-  //     panelClass: 'custom-dialog' // Optional: Apply custom styles
-  //   });
-
-  //   dialogRef.afterClosed().subscribe(result => {
-  //     if (result) {
-  //       this.deleteInvoice(invoiceId);
-  //     }
-  //   });
-  // }
 
 
   deleteFunction(id: number){
