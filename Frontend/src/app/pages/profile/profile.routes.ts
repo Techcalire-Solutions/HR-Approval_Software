@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { ProfileComponent } from './profile.component';
 import { ProjectsComponent } from './projects/projects.component';
 import { UserInfoComponent } from './user-info/user-info.component';
+import { AuthGuard } from '../../common/guards/auth.guard';
 
 export const routes: Routes = [
     {
@@ -9,8 +10,8 @@ export const routes: Routes = [
         component: ProfileComponent,
         children: [
             // { path: '', redirectTo: 'projects', pathMatch: 'full' },
-            { path: 'projects', component: ProjectsComponent, data: { breadcrumb: 'Projects' } },
-            { path: 'user-info', component: UserInfoComponent, data: { breadcrumb: 'User Information' } }
+            { path: 'projects', component: ProjectsComponent, data: { breadcrumb: 'Projects' }, canActivate: [AuthGuard] },
+            { path: 'user-info', component: UserInfoComponent, data: { breadcrumb: 'User Information' }, canActivate: [AuthGuard] }
         ]
     }
 ];

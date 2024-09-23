@@ -20,8 +20,6 @@ async function syncModel() {
 
       User.hasMany(TeamMember, { foreignKey: "userId", as: "register"});
       TeamMember.belongsTo(User, { foreignKey: "userId", as: "register"});
-      
-   
     
 
     const roleData = [
@@ -65,33 +63,33 @@ async function syncModel() {
         }
     }
 
-    const team = await Team.findAll({});
+    // const team = await Team.findAll({});
 
-    if (team.length === 0) {
-        try {
-            await Team.bulkCreate([
-                { teamName: "EMEA", userId: 4 },
-                // { teamName: "Team B", userId: 2 }
-            ]);
+    // if (team.length === 0) {
+    //     try {
+    //         await Team.bulkCreate([
+    //             { teamName: "EMEA", userId: 4 },
+    //             // { teamName: "Team B", userId: 2 }
+    //         ]);
     
-            const teams = await Team.findAll();
-            const teamMembers = [
-                { teamId: 1, userId: 1 },
-                { teamId: 1, userId: 2 },
-                { teamId: 1, userId: 3 },
-                { teamId: 1, userId: 4 },
-            ];
+    //         const teams = await Team.findAll();
+    //         const teamMembers = [
+    //             { teamId: 1, userId: 1 },
+    //             { teamId: 1, userId: 2 },
+    //             { teamId: 1, userId: 3 },
+    //             { teamId: 1, userId: 4 },
+    //         ];
     
-            for (const team of teams) {
-                await TeamMember.bulkCreate(teamMembers.map(member => ({
-                    ...member,
-                    teamId: team.id,
-                })));
-            }
-        } catch (error) {
-            console.error("Error creating team and team members:", error.message);
-        }
-    }
+    //         for (const team of teams) {
+    //             await TeamMember.bulkCreate(teamMembers.map(member => ({
+    //                 ...member,
+    //                 teamId: team.id,
+    //             })));
+    //         }
+    //     } catch (error) {
+    //         console.error("Error creating team and team members:", error.message);
+    //     }
+    // }
 }
 
 module.exports = syncModel;

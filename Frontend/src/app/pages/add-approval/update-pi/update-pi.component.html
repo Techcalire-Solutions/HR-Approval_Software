@@ -149,9 +149,9 @@
         <a [href]="imageUrl" target="_blank">{{ imageUrl }}</a>
       </div>
 
-      <button mat-raised-button color="primary" type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid" *ngIf="!editStatus">
+      <!-- <button mat-raised-button color="primary" type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid" *ngIf="!editStatus">
       save
-      </button>
+      </button> -->
       <button mat-raised-button color="primary" type="button" (click)="onUpdate()" [disabled]="!piForm.valid" *ngIf="editStatus">
         UPDATE
       </button>
