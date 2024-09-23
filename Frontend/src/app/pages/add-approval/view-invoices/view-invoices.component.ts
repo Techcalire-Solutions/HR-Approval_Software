@@ -73,25 +73,6 @@ export class ViewInvoicesComponent {
      if(this.roleName === 'Team Lead') { this.teamLead = true }
     })
   }
-
-
-  // admin: boolean = false;
-  // teamLead: boolean = false;
-  // getRoleById(id: number){
-  //   this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
-  //     this.roleName = role.roleName;
-
-  //     if(this.roleName === 'Sales Executive') { this.status = 'REJECTED'; this.sp = true }
-  //     if(this.roleName === 'Key Account Manager') { this.status = 'GENERATED'; this.kam = true }
-  //     if(this.roleName === 'Manager') { this.status = 'KAM VERIFIED'; this.am = true }
-  //     if(this.roleName === 'Accountant') { this.status = 'AM VERIFIED'; this.ma = true }
-  //     if(this.roleName === 'Administrator') { this.admin = true }
-  //     if(this.roleName === 'Team Lead') { this.teamLead = true }
-  //     this.getInvoices();
-  //     console.log(this.status);
-
-  //   })
-  // }
   piSub!: Subscription;
   url!: string;
   piNo!: string;
@@ -100,8 +81,6 @@ export class ViewInvoicesComponent {
   signedUrl:string;
   getPiById(id: number){
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
-      console.log('pi',pi);
-
       this.pi = pi.pi;
       this.piNo = pi.pi.piNo;
       this.signedUrl= pi.signedUrl
@@ -115,7 +94,6 @@ export class ViewInvoicesComponent {
   status: PerformaInvoiceStatus[] = [];
   getPiStatusByPiId(id: number){
     this.statusSub = this.invoiceService.getPIStatusByPIId(id, this.filterValue).subscribe(status => {
-      console.log(status);
       this.status = status;
     });
   }
@@ -128,19 +106,17 @@ export class ViewInvoicesComponent {
   verified(value: string){
 
     let status = this.pi.status;
-    console.log(this.pi);
     let sp;
     if(this.pi.salesPersonId!=null)  sp = this.pi.salesPerson?.name;
     else sp=this.pi.kam?.name;
 
-console.log('status & value', status, value);
 
     if(status === 'GENERATED' && value === 'approved') status = 'KAM VERIFIED';
     else if(status === 'GENERATED' && value === 'rejected') status = 'KAM REJECTED';
     else if(status === 'KAM VERIFIED' && value === 'approved') status = 'AM VERIFIED';
     else if(status === 'KAM VERIFIED' && value === 'rejected') status = 'AM REJECTED';
     // else if(status === 'AM VERIFIED' ) return this.addBankSlip(this.pi.id, this.piNo)
-console.log('statushii', status);
+
 
     const dialogRef = this.dialog.open(VerificationDialogueComponent, {
       data: { invoiceNo: this.piNo, status: status, sp: sp }
@@ -156,24 +132,16 @@ console.log('statushii', status);
           amId: result.amId,
           accountantId: result.accountantId
         }
-        console.log(data);
+       
 
         this.invoiceService.updatePIStatus(data).subscribe(result => {
-          console.log(result);
+    
           this.router.navigateByUrl('/home/viewApproval')
           this.snackBar.open(`Invoice ${this.piNo} updated to ${status}...`,"" ,{duration:3000})
         });
       }
     })
   }
-  // statusSub!: Subscription;
-  // status: PerformaInvoiceStatus[] = [];
-  // getPiStatusByPiId(id: number){
-  //   this.statusSub = this.invoiceService.getPIStatusByPIId(id, this.filterValue).subscribe(status => {
-  //     console.log(status);
-  //     this.status = status;
-  //   });
-  // }
 
   addBankSlip(piNo: string, id: number){
     const dialogRef = this.dialog.open(BankReceiptDialogueComponent, {
@@ -184,9 +152,6 @@ console.log('statushii', status);
       if(result){
         // this.getInvoices()
         this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
-        // this.invoiceService.updatePIStatusWithBankSlip(data).subscribe(result => {
-        //   console.log(result);
-        // });
       }
     })
   }

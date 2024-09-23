@@ -39,7 +39,7 @@ export class SidenavComponent implements OnInit , PipeTransform{
   transform(value: User[] | null, args?: any): any {
     let searchText = new RegExp(args, 'ig');
     if (value) {
-      console.log(value);
+
 
       return value.filter(user => {
         if (user.name) {
@@ -87,13 +87,13 @@ users:User;
   getUser(){
     this.loginService.getUserById(this.userId).subscribe((res)=>{
       this.user = res;
-      console.log(this.user);
+
 
     })
   }
 
   filterMenuItemsByRole(role: string) {
-    console.log("Filtering menus for role:", role);
+
 
     const allMenuItems = this.menuService.getVerticalMenuItems();
 
@@ -140,7 +140,6 @@ users:User;
       this.filteredMenuItems = [];
     }
 
-    console.log("Filtered menu items:", this.filteredMenuItems);
   }
 
 
@@ -149,9 +148,7 @@ users:User;
 
 
   logout() {
-    // console.log();
 
-    // Clear authentication tokens or session data here
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('JWT_TOKEN');
@@ -160,21 +157,7 @@ users:User;
     sessionStorage.clear(); // Clear all session storage if needed
     this.router.navigate(['/']);
   }
-  // logout(){
-  //   const dialogRef = this.dialog.open(LogoutComponent, {
-  //     width: '440px',
-  //     data: {
-  //       id: this.userId,
-  //       role: this.userRole
-  //     }
-  //   });
 
-  //   dialogRef.afterClosed().subscribe(result => {
-  //     if (result === true) {
-  //       this.router.navigateByUrl('');
-  //     }
-  //   });
-  // }
 
   public closeSubMenus(){
     let menu = document.getElementById("vertical-menu");
@@ -192,9 +175,7 @@ users:User;
   }
 
   openProfile(){
-    console.log("jjjjjjjjjjjjjjjjjjjjjjjjjj");
-
-    this.router.navigateByUrl('login/profile')
+  this.router.navigateByUrl('login/profile')
   }
 
 }

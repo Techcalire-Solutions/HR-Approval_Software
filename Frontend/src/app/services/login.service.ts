@@ -23,29 +23,26 @@ export class LoginService {
 
   private doLoginUser(userName: String, tokens: any){
     this.loggedUser = userName
-    console.log(this.loggedUser)
     this.storeTokens(tokens)
   }
 
   loginUser(data: any)
   {
-   console.log(data)
 
    return this._http.post(this.url + '/auth', data).pipe(
      tap((tokens) => this.doLoginUser(data.email, tokens)),
      mapTo(true),
 
      catchError((error: any) => {
-       console.log(error)
+
        return of(false)
      })
    )
   }
   private storeTokens(tokens: any){
-    console.log(tokens)
+
     localStorage.setItem(this.JWT_TOKEN, tokens.token.accessToken)
     localStorage.setItem(this.REFRESH_TOKEN, tokens.token.refreshToken)
-    console.log(localStorage.getItem(this.JWT_TOKEN) as string)
     localStorage.setItem('token', JSON.stringify(tokens))
   }
   getUserByRole(id: number):Observable<User[]>{

@@ -43,7 +43,7 @@ export class InfoCardsComponent implements OnInit {
   }
 
   public onSelect(event: any) {
-    console.log(event);
+
   }
 
   public addRandomValue(param: any) {

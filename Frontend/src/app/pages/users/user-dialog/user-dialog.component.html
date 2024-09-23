@@ -1,80 +1,70 @@
-<h1 mat-dialog-title>
-  @if (data) {
-      <span>Edit</span>
-  } @else {
-      <span>Add</span>
-  }
-   User
-</h1>
-<div mat-dialog-content>
-    <form [formGroup]="form" class="user-form" >
-      <!-- <mat-tab-group class="vertical-tabs"> -->
-        <!-- <mat-tab label="New"> -->
-          <div fxLayout="column" class="form-field-outer">
-            <!-- Name Field -->
-            <!-- <form #form class="form"> -->
-              <ng-container *ngIf="imageUrl; else noFileTemplate">
-                <input type="file" class="file-input" hidden #fileInput>
-                <img [src]="imageUrl" alt="Image" title="Image" height="50" width="25" (click)="fileInput.click()" />
-                <!-- <span class="material-icons" (click)="clearFileInput()">delete</span> -->
-              </ng-container>
 
-              <ng-template #noFileTemplate>
-                <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
-                <span class="material-icons" (click)="fileInput.click()">cloud_upload</span>
-              </ng-template>
-            <!-- </form> -->
-            <!-- <mat-icon *ngIf="imageUrl" style="font-size: 25px;" (click)="clearFileInput()">delete</mat-icon> -->
-            <mat-form-field class="w-100">
-              <mat-label><mat-icon>person</mat-icon> Name</mat-label>
-              <input matInput formControlName="name" required>
-              <mat-error *ngIf="form.controls['name'].hasError('required')">
-                Name is required
-              </mat-error>
-              <!-- <mat-error *ngIf="form.controls.name.hasError('minlength')">
-                Name isn't long enough, minimum of 5 characters
-              </mat-error> -->
-            </mat-form-field>
 
-            <!-- Email Field -->
-            <mat-form-field class="w-100">
-              <mat-label><mat-icon>email</mat-icon> Email</mat-label>
-              <input matInput formControlName="email" required>
-              <mat-error *ngIf="form.controls.email.hasError('required')">
-                Email is required
-              </mat-error>
-              <mat-error *ngIf="form.controls.email.hasError('minlength')">
-                Email isn't long enough, minimum of 5 characters
-              </mat-error>
-            </mat-form-field>
+<h1 *ngIf="invNo">{{ invNo }}</h1>
+<mat-tab-group class="horizontal-tabs" [backgroundColor]="'primary'" [selectedIndex]="selectedTabIndex">
+  <mat-tab >
+    <mat-card style="margin-top: 20px;">
+      <ng-template mat-tab-label>
+        <mat-icon>info</mat-icon>
+      </ng-template>
 
-            <!-- Phone Number Field -->
-            <mat-form-field class="w-100">
-              <mat-label><mat-icon>phone</mat-icon> Phone Number</mat-label>
-              <input matInput formControlName="phoneNumber" required>
-              <mat-error *ngIf="form.controls.phoneNumber.hasError('required')">
-                Phone number is required
-              </mat-error>
-              <mat-error *ngIf="form.controls.phoneNumber.hasError('minlength')">
-                Phone number isn't long enough, minimum of 5 characters
-              </mat-error>
-            </mat-form-field>
+      <form [formGroup]="form" class="user-form" fxLayout="column" fxLayoutGap="16px">
+        <div fxLayout="column" class="form-field-outer">
+          <ng-template #noFileTemplate>
+            <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
+            <span class="material-icons clickable-icon" (click)="fileInput.click()">cloud_upload</span>
+          </ng-template>
 
-            <!-- Password Field -->
-            <mat-form-field>
+          <div class="row box">
+            <div class="col">
+              <mat-form-field class="w-100">
+                <mat-label><mat-icon>person</mat-icon> Name</mat-label>
+                <input matInput formControlName="name" required>
+                <mat-error *ngIf="form.controls['name'].hasError('required')">
+                  Name is required
+                </mat-error>
+                <mat-error *ngIf="form.controls.name.hasError('minlength')">
+                  Name isn't long enough, minimum of 5 characters
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="col">
+              <mat-form-field class="w-100">
+                <mat-label><mat-icon>email</mat-icon> Email</mat-label>
+                <input matInput formControlName="email" required>
+                <mat-error *ngIf="form.controls.email.hasError('required')">
+                  Email is required
+                </mat-error>
+                <mat-error *ngIf="form.controls.email.hasError('minlength')">
+                  Email isn't long enough, minimum of 5 characters
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+
+          <div class="row box">
+            <div class="col">
+              <mat-form-field class="w-100">
+                <mat-label><mat-icon>phone</mat-icon> Phone Number</mat-label>
+                <input matInput formControlName="phoneNumber" required>
+                <mat-error *ngIf="form.controls.phoneNumber.hasError('required')">
+                  Phone number is required
+                </mat-error>
+                <mat-error *ngIf="form.controls.phoneNumber.hasError('minlength')">
+                  Phone number isn't long enough, minimum of 5 characters
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="col">
+              <mat-form-field class="w-100">
                 <mat-label>Enter your password</mat-label>
-                <input
-                  matInput
-                  [type]="hidePassword ? 'password' : 'text'"
-                  formControlName="password"
-                />
-                <button
-                  mat-icon-button
-                  matSuffix
-                  (click)="togglePasswordVisibility()"
+                <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" required />
+                <button mat-icon-button matSuffix (click)="togglePasswordVisibility()"
                   [attr.aria-label]="hidePassword ? 'Show password' : 'Hide password'"
-                  [attr.aria-pressed]="!hidePassword"
-                >
+                  [attr.aria-pressed]="!hidePassword">
                   <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
                 </button>
                 <mat-error *ngIf="form.controls.password.hasError('required')">
@@ -84,37 +74,76 @@
                   Password isn't long enough, minimum of 5 characters
                 </mat-error>
               </mat-form-field>
+            </div>
 
-
-            <!-- Role Field -->
-            <mat-form-field class="w-100">
-              <mat-label><mat-icon>person</mat-icon> Role</mat-label>
-              <mat-select formControlName="roleId" required>
-                <mat-option *ngFor="let role of roles" [value]="role.id">
-                  {{ role.roleName }}
-                </mat-option>
-              </mat-select>
-              <mat-error *ngIf="form.controls.roleId.hasError('required')">
-                Role is required
-              </mat-error>
-              <mat-error *ngIf="form.controls.roleId.hasError('minlength')">
-                Role isn't long enough, minimum of 5 characters
-              </mat-error>
-            </mat-form-field>
-
+            <div class="col">
+              <mat-form-field class="w-100">
+                <mat-label>Role</mat-label>
+                <mat-select formControlName="roleId" required>
+                  <mat-option *ngFor="let role of roles" [value]="role.id">
+                    {{ role.roleName }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="form.controls.roleId.hasError('required')">
+                  Role is required
+                </mat-error>
+                <mat-error *ngIf="form.controls.roleId.hasError('minlength')">
+                  Role isn't long enough, minimum of 5 characters
+                </mat-error>
+              </mat-form-field>
+            </div>
           </div>
-        <!-- </mat-tab>
-      </mat-tab-group> -->
-    </form>
-  </div>
 
-<div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
-  <button mat-raised-button color="primary" [mat-dialog-close]="form.value" [disabled]="!form.valid" (click)="onSubmit()">
-    @if (data) {
-        Update
-    } @else {
-        Save
-    }
-  </button>
-  <button mat-raised-button color="warn" (click)="close()">Cancel</button>
-</div>
+        </div>
+        <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
+          <ng-container *ngIf="imageUrl; else noFileTemplate">
+            <input type="file" class="file-input" hidden #fileInput>
+            <img [src]="imageUrl" alt="Image" title="Image" height="50" width="25" (click)="fileInput.click()" class="clickable-image" />
+          </ng-container>
+
+          <button mat-raised-button color="primary" [disabled]="!form.valid" (click)="onSubmit()">
+              <!-- @if (user.id) {
+                  Update
+              } @else { -->
+                  Save
+              <!-- } -->
+          </button>
+        </div>
+      </form>
+    </mat-card>
+  </mat-tab>
+  <mat-tab [disabled]="!isFormSubmitted">
+    <ng-template mat-tab-label>
+      <mat-icon>person</mat-icon>
+    </ng-template>
+    <app-personal-details [data]="dataToPass" (dataSubmitted)="personalSubmit($event)"></app-personal-details>
+  </mat-tab>
+
+  <mat-tab [disabled]="!isWorkFormSubmitted">
+    <ng-template mat-tab-label>
+      <mat-icon>work</mat-icon>
+    </ng-template>
+    <app-user-position [positionData]="dataToPass" (dataSubmitted)="workSubmit($event)"></app-user-position>
+  </mat-tab>
+
+  <mat-tab [disabled]="!isContactsFormSubmitted">
+    <ng-template mat-tab-label>
+      <mat-icon>contacts</mat-icon>
+    </ng-template>
+    <app-statuatory-info [statuatoryData]="dataToPass" (dataSubmitted)="contactSubmit($event)"></app-statuatory-info>
+  </mat-tab>
+
+  <mat-tab [disabled]="!isSocialFormSubmitted">
+    <ng-template mat-tab-label>
+      <mat-icon>savings</mat-icon>
+    </ng-template>
+    <app-user-account [accountData]="dataToPass" (dataSubmitted)="accountSubmit($event)"></app-user-account>
+  </mat-tab>
+
+  <mat-tab [disabled]="!isAccountFormSubmitted">
+    <ng-template mat-tab-label>
+      <mat-icon>upload_file</mat-icon>
+    </ng-template>
+    <app-user-documents [data]="dataToPass"></app-user-documents>
+  </mat-tab>
+</mat-tab-group>
