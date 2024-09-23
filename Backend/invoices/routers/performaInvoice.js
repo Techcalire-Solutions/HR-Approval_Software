@@ -176,6 +176,9 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
 router.get('/findbysp', authenticateToken, async (req, res) => {
     const status = req.query.status;
     const userId = req.user.id;
+    console.log(status);
+    console.log(userId);
+    
     
     // Initialize the where clause
     let where = { salesPersonId: userId };
@@ -208,28 +211,28 @@ router.get('/findbysp', authenticateToken, async (req, res) => {
 
     try {
         // Fetch the SalesPerson's team
-        const teamMember = await TeamMember.findOne({ where: { userId } });
+        // const teamMember = await TeamMember.findOne({ where: { userId } });
 
         // If no team is found, respond with an empty list or appropriate message
-        if (!teamMember) {
-            return res.json({ count: 0, items: [] });
-        }
+        // if (!teamMember) {
+        //     return res.json({ count: 0, items: [] });
+        // }
 
-        const teamId = teamMember.teamId;
+        // const teamId = teamMember.teamId;
 
         // Get the team lead's userId
-        const team = await Team.findOne({ where: { id: teamId } });
-        const teamLeadId = team.userId;
+        // const team = await Team.findOne({ where: { id: teamId } });
+        // const teamLeadId = team.userId;
 
         // Get all user IDs in the team
-        const teamMembers = await TeamMember.findAll({ where: { teamId } });
-        const teamUserIds = teamMembers.map(member => member.userId);
+        // const teamMembers = await TeamMember.findAll({ where: { teamId } });
+        // const teamUserIds = teamMembers.map(member => member.userId);
 
         // Include the team lead's userId in the list of allowed user IDs
-        teamUserIds.push(teamLeadId);
+        // teamUserIds.push(teamLeadId);
 
         // Update where clause to include all team user IDs
-        where.salesPersonId = teamUserIds;
+        // where.salesPersonId = teamUserIds;
 
         const pi = await PerformaInvoice.findAll({
             where: where, limit, offset,
@@ -255,7 +258,7 @@ router.get('/findbysp', authenticateToken, async (req, res) => {
             res.send(pi);
         }
     } catch (error) {
-        res.status(500).send(error.message);
+        res.send(error.message);
     }
 });
 
