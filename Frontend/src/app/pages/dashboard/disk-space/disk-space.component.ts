@@ -36,7 +36,7 @@ export class DiskSpaceComponent implements OnInit {
   }
 
   public onSelect(event: any) {
-    console.log(event);
+
   }
 
   ngAfterViewChecked() {
