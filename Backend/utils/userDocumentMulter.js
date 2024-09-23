@@ -13,8 +13,21 @@ const formatDateTime = () => {
   return `${year}${month}${day}_${hours}${minutes}${seconds}`;
 };
 
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, path.join(__dirname, '../users/userDocuments'));
+//   },
+//   filename: (req, file, cb) => {
+//     const dateTime = formatDateTime();
+//     const uniqueSuffix = uuidv4(); // Generate a UUID for uniqueness
+//     const fileExtension = path.extname(file.originalname);
+//     const newFilename = `${dateTime}_${uniqueSuffix}${fileExtension}`;
+//     cb(null, newFilename);
+//   }
+// });
+
 const fileFilter = (req, file, cb) => {
-  const fileTypes = /jpeg|jpg|png|pdf|doc|docx/;
+  const fileTypes = /jpeg|jpg|png/;
   const mimetype = fileTypes.test(file.mimetype);
   const extname = fileTypes.test(path.extname(file.originalname));
 

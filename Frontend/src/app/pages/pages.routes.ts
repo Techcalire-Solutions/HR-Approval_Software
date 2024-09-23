@@ -1,77 +1,78 @@
 import { Routes } from '@angular/router';
 import { PagesComponent } from './pages.component';
+import { AuthGuard } from '../common/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: PagesComponent,
     children: [
       {path: '', loadComponent: () => import('./dashboard/dashboard.component').then(c => c.DashboardComponent),
-        data: { breadcrumb: 'Dashboard' }
+        data: { breadcrumb: 'Dashboard' }, canActivate: [AuthGuard]
       },
       {path: 'dashboard', loadComponent: () => import('./dashboard/dashboard.component').then(c => c.DashboardComponent),
-        data: { breadcrumb: 'Dashboard' }
+        data: { breadcrumb: 'Dashboard' }, canActivate: [AuthGuard]
       },
 
       {
         path: 'role',
         loadComponent: () => import('./role/role.component').then(c => c.RoleComponent),
-        data: { breadcrumb: 'Role' }
+        data: { breadcrumb: 'Role' }, canActivate: [AuthGuard]
       },
       {
         path: 'applyLeave',
         loadComponent: () => import('./leave/apply-leave/apply-leave.component').then(c => c.ApplyLeaveComponent),
-        data: { breadcrumb: 'ApplyLeave' }
+        data: { breadcrumb: 'ApplyLeave' }, canActivate: [AuthGuard]
       },
       {
         path: 'leaveRequest',
         loadComponent: () => import('./leave/leave-request/leave-request.component').then(c => c.LeaveRequestComponent),
-        data: { breadcrumb: 'LeaveRequest' }
+        data: { breadcrumb: 'LeaveRequest' }, canActivate: [AuthGuard]
       },
       {
         path: 'userLeave',
         loadComponent: () => import('./leave/user-leave/user-leave.component').then(c => c.UserLeaveComponent),
-        data: { breadcrumb: 'LeaveRequest' }
+        data: { breadcrumb: 'LeaveRequest' }, canActivate: [AuthGuard]
       },
       {
         path: 'users',
-        loadComponent: () => import('./users/users.component').then(c => c.UsersComponent),
-        data: { breadcrumb: 'Users' }
+        loadChildren: () => import('./users/user.routes').then(c => c.routes),
+        data: { breadcrumb: 'Users' }, canActivate: [AuthGuard]
       },
       {
         path: 'addApproval',
         loadComponent: () => import('./add-approval/add-approval.component').then(c => c.AddApprovalComponent),
-        data: { breadcrumb: 'Add Approval' }
+        data: { breadcrumb: 'Add Approval' }, canActivate: [AuthGuard]
       },
       {
         path: 'viewApproval',
         loadComponent: () => import('./add-approval/view-approval/view-approval.component').then(c => c.ViewApprovalComponent),
-        data: { breadcrumb: 'Add Approval' }
+        data: { breadcrumb: 'Add Approval' }, canActivate: [AuthGuard]
       },
       {
         path: 'viewInvoices/:id',
         loadComponent: () => import('./add-approval/view-invoices/view-invoices.component').then(c => c.ViewInvoicesComponent),
-        data: { breadcrumb: 'View Invoices' }
+        data: { breadcrumb: 'View Invoices' }, canActivate: [AuthGuard]
       },
       {
         path: 'updatePI/:id',
         loadComponent: () => import('./add-approval/update-pi/update-pi.component').then(c => c.UpdatePIComponent),
-        data: { breadcrumb: 'Update PI' }
+        data: { breadcrumb: 'Update PI' }, canActivate: [AuthGuard]
       },
 
 
       {
         path: 'profile',
         loadChildren: () => import('./profile/profile.routes').then(p => p.routes),
-        data: { breadcrumb: 'Profile' }
+        data: { breadcrumb: 'Profile' }, canActivate: [AuthGuard]
       },
       {
         path: 'team',
         loadComponent: () => import('./team/team.component').then(c => c.TeamComponent),
-        data: { breadcrumb: 'Team' }
+        data: { breadcrumb: 'Team' }, canActivate: [AuthGuard]
       },
       {
         path: 'leaveType',
         loadComponent: () => import('./leave/leave-types/leave-types.component').then(c => c.LeaveTypesComponent),
-        data: { breadcrumb: 'Leave Type' }
+        data: { breadcrumb: 'Leave Type' }, canActivate: [AuthGuard]
       },
     ]
   }
