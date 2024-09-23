@@ -42,15 +42,15 @@ async function syncModel() {
 
     const userData = [
        
-        { name: "Ashbin", email: "ashbin@gmail.com", phoneNumber:"9846335577", password: "password", roleId: 1, status: true },
-        { name: "Sameer", email: "sameer@gmail.com", phoneNumber:"9846335570", password: "password", roleId: 1, status: true },
-        { name: "Vishnu", email: "vishnu@gmail.com", phoneNumber:"9846335123", password: "password", roleId: 1, status: true },
-        { name: "Abu", email: "abu@gmail.com", phoneNumber:"9846335345", password: "password", roleId: 5, status: true },
-        { name: "Sijin", email: "sijin@gmail.com", phoneNumber:"9846442233", password: "password", roleId: 2, status: true },
-        { name: "Shibin", email: "shibin@gmail.com", phoneNumber:"9847391646", password: "password", roleId: 3, status: true },
-        { name: "Fawas", email: "fawas@gmail.com", phoneNumber:"98667799551", password: "password", roleId: 4, status: true },
-        { name: "Admin", email: "admin@gmail.com", phoneNumber:"1234567890", password: "password", roleId: 6, status: true },
-        { name: "Dhanalakshmi", email: "dhanalakshmi@gmail.com", phoneNumber:"1234567890", password: "password", roleId: 7, status: true },
+        { name: "Ashbin", email: "ashbin@gmail.com", phoneNumber:"9846335577", password: "ashbin@123", roleId: 1, status: true },
+        { name: "Sameer", email: "sameer@gmail.com", phoneNumber:"9846335570", password: "sameer@123", roleId: 1, status: true },
+        { name: "Vishnu", email: "vishnu@gmail.com", phoneNumber:"9846335123", password: "vishnu@123", roleId: 1, status: true },
+        { name: "Abu", email: "abu@gmail.com", phoneNumber:"9846335345", password: "abu@123", roleId: 5, status: true },
+        { name: "Sijin", email: "sijin@gmail.com", phoneNumber:"9846442233", password: "sijin@123", roleId: 2, status: true },
+        { name: "Shibin", email: "shibin@gmail.com", phoneNumber:"9847391646", password: "shibin@123", roleId: 3, status: true },
+        { name: "Fawas", email: "fawas@gmail.com", phoneNumber:"98667799551", password: "fawas@123", roleId: 4, status: true },
+        { name: "Admin", email: "admin@gmail.com", phoneNumber:"1234567890", password: "admin@123", roleId: 6, status: true },
+        { name: "Dhanalakshmi", email: "dhanalakshmi@gmail.com", phoneNumber:"1234567890", password: "dhanalakshmi@123", roleId: 7, status: true },
     ];
     const user = await User.findAll({});
     const salt = await bcrypt.genSalt(10);
