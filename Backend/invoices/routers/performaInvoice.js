@@ -734,26 +734,22 @@ router.delete('/:id', async(req,res)=>{
 router.get('/dashboard', authenticateToken, async (req, res) => {
     let status = req.query.status;
 
-    // Initialize where condition
     let where = {};
 
-    // Add status filter if provided
     if (status != '' && status != 'undefined') {
         where.status = status;
     }
 
-    // Add user restriction
-    const userId = req.user.id;
-    console.log(us);
-    
-    where[Op.or] = [
-        { salesPersonId: userId },
-        { kamId: userId },
-        { amId: userId },
-        { accountantId: userId }
-    ];
+    if (req.user.roleId !== 6) {
+        const userId = req.user.id;
+        where[Op.or] = [
+            { salesPersonId: userId },
+            { kamId: userId },
+            { amId: userId },
+            { accountantId: userId }
+        ];
+    }
 
-    // Handle pagination
     let limit, offset;
     if (req.query.pageSize && req.query.page && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
         limit = parseInt(req.query.pageSize, 10);
@@ -761,7 +757,6 @@ router.get('/dashboard', authenticateToken, async (req, res) => {
     }
 
     try {
-        // Query PerformaInvoice with associated users and status
         const pi = await PerformaInvoice.findAll({
             where: where,
             limit,
@@ -774,11 +769,8 @@ router.get('/dashboard', authenticateToken, async (req, res) => {
                 { model: User, as: 'am', attributes: ['name'] }
             ]
         });
-
-        // Get the total count of records
         const totalCount = await PerformaInvoice.count({ where: where });
 
-        // If pagination is applied, return paginated results
         if (req.query.pageSize && req.query.page && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
             const response = {
                 count: totalCount,
@@ -792,5 +784,6 @@ router.get('/dashboard', authenticateToken, async (req, res) => {
         res.send(error.message);
     }
 });
+
 
 module.exports = router;
