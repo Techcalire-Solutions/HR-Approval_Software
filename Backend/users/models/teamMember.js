@@ -10,4 +10,8 @@ const TeamMember = sequelize.define('teamMember', {
         freezeTableName: true
     })
 
+
+TeamMember.sync({alter:true})
+.then(()=>console.log)
+
 module.exports = TeamMember;
