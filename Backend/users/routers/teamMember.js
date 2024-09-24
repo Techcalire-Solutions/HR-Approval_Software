@@ -46,9 +46,9 @@ router.get('/user/:userId', async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const teamMember = await TeamMember.findAll({
-            include: [{
-                model: {Team, include: 'leader'},  
-            }, 'register'],
+            // include: [{
+            //     model: {Team, include: 'leader'},  
+            // }, 'register'],
         });
         res.send(teamMember)
 

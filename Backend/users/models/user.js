@@ -8,7 +8,8 @@ const User = sequelize.define('user', {
   phoneNumber: { type: DataTypes.STRING },
   password: { type: DataTypes.STRING, allowNull: false },
   roleId: { type: DataTypes.INTEGER, allowNull: false },
-
+  teamId : { type: DataTypes.INTEGER, allowNull: true },
+  teamMemberId : { type: DataTypes.INTEGER, allowNull: true },
   status: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
 
   userImage: { type: DataTypes.STRING },
@@ -22,9 +23,9 @@ const User = sequelize.define('user', {
 Role.hasMany(User, { foreignKey: 'roleId', onUpdate: 'CASCADE' });
 User.belongsTo(Role);
 
-// Synchronizing the model with the database
-User.sync({ alter: true })
-  .then(() => console.log("User table synced successfully"))
-  .catch((err) => console.log("Error syncing User table:", err));
+
+// User.sync({ alter: true })
+//   .then(() => console.log("User table synced successfully"))
+//   .catch((err) => console.log("Error syncing User table:", err));
 
 module.exports = User;
