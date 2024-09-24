@@ -7,33 +7,111 @@ const Role = require('../models/role')
 const {Op, fn, col, where} = require('sequelize');
 const sequelize = require('../../utils/db'); 
 const multer = require('../../utils/userImageMulter'); // Import the configured multer instance
+const Team = require('../models/team')
+const TeamMember = require('../models/teamMember')
+
+
+// router.post('/add', async (req, res) => {
+//   console.log(req.body);
+//   const { name, email, phoneNumber, password, roleId, status, userImage, url,teamId,teamMemberId} = req.body;
+//   try {
+//     try {
+//       const userExist = await User.findOne({
+//         where: { email: email}
+//       });
+//       if (userExist) {
+//         return res.send('User already exists' )  
+//       }
+//       console.log(userExist);
+//     } catch (error) {
+//       res.send(error.message)
+//     } 
+//     const pass = await bcrypt.hash(password, 10);
+    
+//     const user = new User({name, email, phoneNumber, password: pass, roleId, status, userImage, url,teamId,teamMemberId});
+//     await user.save();
+//     console.log(user);
+
+//     const team = await Team.findOne({
+//       where: { id: teamId }
+//     });
+
+//     if (!team) {
+//       return res.send('Team not found');
+//     }
+
+//     const teamMember = await TeamMember.create({
+//       teamId: team.id,
+//       teamMemberId: user.id 
+//     });
+
+//     console.log('TeamMember created:', teamMember);
+
+   
+//     res.send({ user, teamMember });
+//   } catch (error) {
+//     res.send(error.message);
+//   }
+// })
 
 router.post('/add', async (req, res) => {
   console.log(req.body);
-  const { name, email, phoneNumber, password, roleId, status, userImage, url} = req.body;
+  const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId } = req.body;
+  
   try {
-    try {
-      const userExist = await User.findOne({
-        where: { email: email}
-      });
-      if (userExist) {
-        return res.send('User already exists' )  
-      }
-      console.log(userExist);
-    } catch (error) {
-      res.send(error.message)
-    } 
-    const pass = await bcrypt.hash(password, 10);
+    // Check if the user already exists
+    const userExist = await User.findOne({
+      where: { email: email }
+    });
+    if (userExist) {
+      return res.status(400).send('User already exists');
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
     
-    const user = new User({name, email, phoneNumber, password: pass, roleId, status, userImage, url});
-    await user.save();
-    console.log(user);
+    // Create a new user
+    const user = await User.create({
+      name,
+      email,
+      phoneNumber,
+      password: hashedPassword,
+      roleId,
+      status,
+      userImage,
+      url,
+      teamId
+    });
+
+    console.log('User created:', user);
+
+    // Find the team by teamId
+    const team = await Team.findOne({
+      where: { id: teamId }
+    });
+
+    if (!team) {
+      return res.status(404).send('Team not found');
+    }
+
+    // Create a new TeamMember entry with userId
+    const teamMember = await TeamMember.create({
+      teamId: team.id,
+      userId: user.id // Correctly assigning user.id to userId in the TeamMember table
+    });
+
+    console.log('TeamMember created:', teamMember);
+
+    // Send the created user and team member as a response
+    res.status(201).send({ user, teamMember });
     
-    res.send(user);
   } catch (error) {
-    res.send(error.message);
+    console.error('Error:', error.message);
+    res.status(500).send('Server error');
   }
-})
+});
+
+
 
 router.get('/find/', async (req, res) => {
   try {

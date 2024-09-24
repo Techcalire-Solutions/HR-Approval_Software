@@ -193,7 +193,7 @@ export class AddApprovalComponent {
         this.ivNum = paddedId;
       } else {
         let nextId = 1;
-        let prefix = "PI-";
+        let prefix = "E-";
         const paddedId = `${prefix}${nextId.toString().padStart(3, "0")}`;
         this.ivNum = paddedId;
       }
