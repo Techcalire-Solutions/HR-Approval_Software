@@ -41,12 +41,15 @@
           <mat-form-field appearance="fill" class="full-width" appearance="outline">
             <mat-label>Members</mat-label>
             <mat-select formControlName="teamMembers" multiple>
-              <mat-option *ngFor="let item of unallocatedUsers" [value]="item.id">
+              <!-- <mat-option (click)="addNewApplication()" class="custom-option">Add New</mat-option> -->
+              <mat-option *ngFor="let item of users" [value]="item.id">
                 {{ item.name }}
               </mat-option>
             </mat-select>
+            <!-- <mat-error *ngIf="partForm.controls['applications'].hasError('required')">
+              Application is <strong>required</strong>
+            </mat-error> -->
           </mat-form-field>
-
         </div>
       </div>
     </mat-card-content>
