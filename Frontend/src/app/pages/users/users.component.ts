@@ -98,13 +98,14 @@ export class UsersComponent implements OnInit {
 
   public userImage = 'img/users/avatar.png';
 
-  public openUserDialog(user: any){
+  public openUserDialog(user: any) {
     if (user) {
-      this.router.navigate(['users', user.id]);
+      this.router.navigate(['/login/users/edit/' + user.id]);
     } else {
       this.router.navigate(['/login/users/new']);
     }
   }
+
 
   deleteFunction(id: number){
     const dialogRef = this.dialog.open(DeleteDialogueComponent, {
