@@ -6,3 +6,33 @@
       margin-right: 12px;
   }
 }
+
+.row {
+  display: flex;
+  flex-wrap: wrap; /* This will help with responsiveness */
+  margin-bottom: 20px; /* Add some space between rows */
+}
+
+.col {
+  flex: 1;
+  margin-right: 20px;
+  min-width: 200px; /* Ensure columns don't shrink too much */
+}
+
+.box {
+  width: 100%; /* Ensure the box takes full width */
+  padding: 15px; /* Add padding to the box */
+}
+
+@media (max-width: 576px) {
+  .box {
+    padding: 0;
+    margin: 0;
+    flex-direction: column;
+  }
+  .col {
+    margin-right: 0; /* Remove margin for smaller screens */
+    margin-bottom: 20px; /* Add some space between columns */
+  }
+}
+
