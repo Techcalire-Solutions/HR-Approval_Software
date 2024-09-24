@@ -1,11 +1,4 @@
-<h1 mat-dialog-title>
-  @if (team) {
-      <span>Edit</span>
-  } @else {
-      <span>Add</span>
-  }
-   Role
-</h1>
+
 
 <mat-toolbar class="bg-blue-900">
   <p style="color:rgb(11, 70, 118)"> ADD TEAM</p>
@@ -16,20 +9,21 @@
 </mat-toolbar>
 
 <form [formGroup]="teamForm" (ngSubmit)="onSubmit()">
+
   <mat-card class="background">
     <mat-card-content >
-
-      <div class="row">
+      <div class="row box">
         <div class="col">
-          <mat-form-field class="full-width">
+          <mat-form-field class="full-width" appearance="outline">
             <input matInput placeholder="Team name" formControlName="teamName">
             <mat-error *ngIf="teamForm.controls['teamName'].hasError('required')">
               Name <strong>required</strong>
             </mat-error>
           </mat-form-field>
         </div>
+
         <div class="col">
-          <mat-form-field class="full-width">
+          <mat-form-field class="full-width" appearance="outline">
           <mat-label>Team lead</mat-label>
             <mat-select placeholder="Team lead" formControlName="userId">
               &nbsp;&nbsp; &nbsp;&nbsp;<span class="material-icons" style="font-size: 30px; color: rgb(30,58,138);" (click)="manageUser()" >playlist_add</span>
@@ -42,8 +36,9 @@
             </mat-error> -->
           </mat-form-field>
         </div>
+
         <div class="col">
-          <mat-form-field appearance="fill" class="full-width">
+          <mat-form-field appearance="fill" class="full-width" appearance="outline">
             <mat-label>Members</mat-label>
             <mat-select formControlName="teamMembers" multiple>
               <!-- <mat-option (click)="addNewApplication()" class="custom-option">Add New</mat-option> -->
