@@ -42,11 +42,18 @@ router.post('/add', authenticateToken, async (req, res) => {
 
 router.get('/find', authenticateToken, async (req, res) => {
   try {
-    console.log("jjjjjjjjj");
-    
     const user = await UserPersonal.findAll({})
-    console.log(user);
-    
+
+    res.send(user)
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
+router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
+  try {
+    const user = await UserPersonal.findOne({where: {userId: req.params.id}})
+
     res.send(user)
   } catch (error) {
     res.send(error.message);
