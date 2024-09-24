@@ -28,6 +28,8 @@ import { UserPositionComponent } from '../user-position/user-position.component'
 import { StatuatoryInfoComponent } from '../statuatory-info/statuatory-info.component';
 import { UserAccountComponent } from "../user-account/user-account.component";
 import { ActivatedRoute, Router } from '@angular/router';
+import { Team } from '../../../common/interfaces/team';
+import { TeamService } from '@services/team.service';
 
 
 @Component({
@@ -66,6 +68,7 @@ export class UserDialogComponent implements OnInit {
   userService = inject(UsersService);
   router = inject(Router);
   route = inject(ActivatedRoute);
+  teamService = inject(TeamService)
 
   public form: FormGroup;
   public passwordHide: boolean = true;
@@ -82,15 +85,39 @@ export class UserDialogComponent implements OnInit {
 
     this.form = this.fb.group({
       url: [''],
-      name: [ null, Validators.compose([Validators.required, Validators.minLength(3)]) ],
-      email: [ null, Validators.compose([Validators.required, Validators.email]) ],
-      phoneNumber: [ null, Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)]) ],
-      password: [ null, Validators.compose([Validators.required, Validators.minLength(4)]) ],
-      roleId: [ null, Validators.compose([Validators.required])]
+      name: [
+        null,
+        Validators.compose([Validators.required, Validators.minLength(3)])
+      ],
+      email: [
+        null,
+        Validators.compose([Validators.required, Validators.email])
+      ],
+      phoneNumber: [
+        null,
+        Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)])
+      ],
+      password: [
+        null,
+        Validators.compose([Validators.required, Validators.minLength(4)])
+      ],
+      roleId: [
+        null,
+        Validators.compose([Validators.required])
+      ],
+      teamId: [
+        null,
+        Validators.compose([Validators.required])
+      ]
     })
 
     this.getRoles()
     this.generateEmployeeNumber()
+    this.getTeam()
+  }
+
+  ngOnDestroy(): void {
+   this.teamSub?.unsubscribe();
   }
 
   userSub!: Subscription;
@@ -162,6 +189,16 @@ export class UserDialogComponent implements OnInit {
       this.roles = res;
     })
   }
+
+  team : Team[]=[]
+  teamSub!:Subscription;
+  getTeam(){
+    this.teamService.getTeam().subscribe((res)=>{
+      this.team=res;
+    })
+  
+  }
+
 
   close(): void {
     // this.dialogRef.close();
