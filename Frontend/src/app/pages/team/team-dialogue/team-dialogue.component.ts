@@ -156,7 +156,7 @@ export class TeamDialogueComponent {
 
   isEdit = false;
   teamId: any | undefined;
-  unallocatedUsers: User[] = [];  // This will hold users not allocated to any team
+
   manageUser() {
 
  }
@@ -164,8 +164,6 @@ export class TeamDialogueComponent {
  getUsers() {
    this.userService.getUser().subscribe((result) => {
      this.users = result;
-       // Filter users who are not allocated to any team
-    this.unallocatedUsers = this.users.filter(user => !user.teamId);
    })
  }
 
