@@ -18,8 +18,8 @@ async function syncModel() {
       Team.hasMany(TeamMember, { foreignKey: "teamId" });
       TeamMember.belongsTo(Team);
 
-      User.hasMany(TeamMember, { foreignKey: "userId", as: "register"});
-      TeamMember.belongsTo(User, { foreignKey: "userId", as: "register"});
+      User.hasMany(TeamMember, { foreignKey: "userId"});
+      TeamMember.belongsTo(User, { foreignKey: "userId"});
     
 
     const roleData = [

@@ -50,12 +50,10 @@ export class UsersService {
 
   getUserByRoleId(id:number):Observable<User>{
     return this.http.get<User>(this.apiUrl + '/user/findbyrole/'+id)
-
   }
 
   getUserById(id:number):Observable<User>{
-    return this.http.get<User>('http://localhost:8000/auth/findbyuser/'+id)
-
+    return this.http.get<User>(this.apiUrl + '/user/findone/'+id)
   }
 
   addUserPersonalDetails(data: any): Observable<any> {
@@ -77,6 +75,11 @@ export class UsersService {
   getUserPersonalDetails(): Observable<UserPersonal[]> {
     return this.http.get<UserPersonal[]>( this.apiUrl + '/personal/find');
   }
+
+  getUserPersonalDetailsByUser(id: number): Observable<UserPersonal> {
+    return this.http.get<UserPersonal>( this.apiUrl + '/personal/findbyuser/' + id);
+  }
+
 
   uploadUserDoc(formData: any): Observable<any> {
     return this.http.post(this.apiUrl + '/document/fileupload', formData);

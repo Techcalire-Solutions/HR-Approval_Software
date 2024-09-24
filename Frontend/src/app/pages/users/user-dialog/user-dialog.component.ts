@@ -1,5 +1,5 @@
 import { UserDocumentsComponent } from './../user-documents/user-documents.component';
-import { Component, inject, Inject, OnInit } from '@angular/core';
+import { Component, inject, Inject, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -27,6 +27,7 @@ import { PersonalDetailsComponent } from "../personal-details/personal-details.c
 import { UserPositionComponent } from '../user-position/user-position.component';
 import { StatuatoryInfoComponent } from '../statuatory-info/statuatory-info.component';
 import { UserAccountComponent } from "../user-account/user-account.component";
+import { ActivatedRoute, Router } from '@angular/router';
 
 
 @Component({
@@ -63,56 +64,54 @@ export class UserDialogComponent implements OnInit {
   fb = inject(FormBuilder)
   roleService = inject(RoleService);
   userService = inject(UsersService);
+  router = inject(Router);
+  route = inject(ActivatedRoute);
 
   public form: FormGroup;
   public passwordHide: boolean = true;
-
+  editStatus: boolean = false;
+  id: number;
   ngOnInit() {
+    this.route.params.subscribe(params => {
+      this.id = params['id'];
+      if (this.id) {
+        this.editStatus = true;
+        this.getUser(this.id) // Call a function if 'id' exists
+      }
+    });
+
     this.form = this.fb.group({
       url: [''],
-      name: [
-        null,
-        Validators.compose([Validators.required, Validators.minLength(3)])
-      ],
-      email: [
-        null,
-        Validators.compose([Validators.required, Validators.email])
-      ],
-      phoneNumber: [
-        null,
-        Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)])
-      ],
-      password: [
-        null,
-        Validators.compose([Validators.required, Validators.minLength(4)])
-      ],
-      roleId: [
-        null,
-        Validators.compose([Validators.required])
-      ]
+      name: [ null, Validators.compose([Validators.required, Validators.minLength(3)]) ],
+      email: [ null, Validators.compose([Validators.required, Validators.email]) ],
+      phoneNumber: [ null, Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)]) ],
+      password: [ null, Validators.compose([Validators.required, Validators.minLength(4)]) ],
+      roleId: [ null, Validators.compose([Validators.required])]
     })
-    // if(this.data){
-    //   this.patchUser(this.data)
-    // }
+
     this.getRoles()
     this.generateEmployeeNumber()
   }
 
+  userSub!: Subscription;
+  getUser(id: number){
+    this.userSub = this.userService.getUserById(id).subscribe(user=>{
+      this.patchUser(user)
+    });
+  }
+
   patchUser(user: User){
-
-
     this.form.patchValue({
       name: user.name,
-      roleId: user.role.id,
+      roleId: user.roleId,
       phoneNumber: user.phoneNumber,
       email: user.email,
       status: user.status,
-      joiningDate: user.createdAt
+      joiningDate: user.createdAt,
+      password: user.password
     })
     if(user.url != null) this.imageUrl = this.url + user.url
   }
-
-
 
   uploadProgress: number | null = null;
   uploadComplete: boolean = false;
@@ -183,7 +182,7 @@ export class UserDialogComponent implements OnInit {
     //   })
     // }else{
       this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
-        this.dataToPass = { id: res.id, empNo: this.invNo, name: res.name };
+        this.dataToPass = { id: res.id, empNo: this.invNo, name: res.name, updateStatus: this.editStatus };
         console.log(this.dataToPass);
 
         this.selectedTabIndex = 1;
@@ -219,9 +218,10 @@ export class UserDialogComponent implements OnInit {
   invNo: string;
   generateEmployeeNumber() {
     let prefix: any;
+    const currentYear = new Date().getFullYear();
+
     this.userService.getUserPersonalDetails().subscribe((res) => {
       let users = res;
-      console.log(users);
 
       if (users.length > 0) {
         const maxId = users.reduce((prevMax, inv) => {
@@ -245,7 +245,7 @@ export class UserDialogComponent implements OnInit {
       } else {
         // If there are no employees in the array, set the employeeId to 'EMP001'
         let nextId = 0o1;
-        prefix = "INV-PRS-";
+        prefix =  `OAC-${currentYear}-`;
 
         const paddedId = `${prefix}${nextId.toString().padStart(3, "0")}`;
 
@@ -267,6 +267,18 @@ export class UserDialogComponent implements OnInit {
     var result = extractedChars ? extractedChars.join('') : '';
 
     return result;
+  }
+
+  @ViewChild(PersonalDetailsComponent) personalDetailsComponent!: PersonalDetailsComponent;
+  goToNextTab() {
+    if (this.selectedTabIndex < 4) {
+      this.dataToPass = { updateStatus: this.editStatus, id: this.id }
+      this.selectedTabIndex++;
+
+      if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
+        this.personalDetailsComponent.ngOnInit(this.dataToPass);
+      }
+    }
   }
 
 }
