@@ -11,66 +11,21 @@ const Team = require('../models/team')
 const TeamMember = require('../models/teamMember')
 
 
-// router.post('/add', async (req, res) => {
-//   console.log(req.body);
-//   const { name, email, phoneNumber, password, roleId, status, userImage, url,teamId,teamMemberId} = req.body;
-//   try {
-//     try {
-//       const userExist = await User.findOne({
-//         where: { email: email}
-//       });
-//       if (userExist) {
-//         return res.send('User already exists' )  
-//       }
-//       console.log(userExist);
-//     } catch (error) {
-//       res.send(error.message)
-//     } 
-//     const pass = await bcrypt.hash(password, 10);
-    
-//     const user = new User({name, email, phoneNumber, password: pass, roleId, status, userImage, url,teamId,teamMemberId});
-//     await user.save();
-//     console.log(user);
 
-//     const team = await Team.findOne({
-//       where: { id: teamId }
-//     });
-
-//     if (!team) {
-//       return res.send('Team not found');
-//     }
-
-//     const teamMember = await TeamMember.create({
-//       teamId: team.id,
-//       teamMemberId: user.id 
-//     });
-
-//     console.log('TeamMember created:', teamMember);
-
-   
-//     res.send({ user, teamMember });
-//   } catch (error) {
-//     res.send(error.message);
-//   }
-// })
 
 router.post('/add', async (req, res) => {
   console.log(req.body);
   const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId } = req.body;
   
   try {
-    // Check if the user already exists
     const userExist = await User.findOne({
       where: { email: email }
     });
     if (userExist) {
       return res.status(400).send('User already exists');
     }
-
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Create a new user
     const user = await User.create({
       name,
       email,
@@ -83,9 +38,6 @@ router.post('/add', async (req, res) => {
       teamId
     });
 
-    console.log('User created:', user);
-
-    // Find the team by teamId
     const team = await Team.findOne({
       where: { id: teamId }
     });
@@ -93,16 +45,10 @@ router.post('/add', async (req, res) => {
     if (!team) {
       return res.status(404).send('Team not found');
     }
-
-    // Create a new TeamMember entry with userId
     const teamMember = await TeamMember.create({
       teamId: team.id,
-      userId: user.id // Correctly assigning user.id to userId in the TeamMember table
+      userId: user.id 
     });
-
-    console.log('TeamMember created:', teamMember);
-
-    // Send the created user and team member as a response
     res.status(201).send({ user, teamMember });
     
   } catch (error) {
