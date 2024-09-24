@@ -27,6 +27,8 @@ import { PersonalDetailsComponent } from "../personal-details/personal-details.c
 import { UserPositionComponent } from '../user-position/user-position.component';
 import { StatuatoryInfoComponent } from '../statuatory-info/statuatory-info.component';
 import { UserAccountComponent } from "../user-account/user-account.component";
+import { Team } from '../../../common/interfaces/team';
+import { TeamService } from '@services/team.service';
 
 
 @Component({
@@ -63,6 +65,7 @@ export class UserDialogComponent implements OnInit {
   fb = inject(FormBuilder)
   roleService = inject(RoleService);
   userService = inject(UsersService);
+  teamService = inject(TeamService)
 
   public form: FormGroup;
   public passwordHide: boolean = true;
@@ -89,14 +92,24 @@ export class UserDialogComponent implements OnInit {
       roleId: [
         null,
         Validators.compose([Validators.required])
-      ]
+      ],
+      teamId: [
+        null,
+        Validators.compose([Validators.required])
+      ],
     })
     // if(this.data){
     //   this.patchUser(this.data)
     // }
     this.getRoles()
     this.generateEmployeeNumber()
+    this.getTeam()
   }
+
+  ngOnDestroy(): void {
+   this.teamSub?.unsubscribe();
+  }
+
 
   patchUser(user: User){
 
@@ -164,6 +177,16 @@ export class UserDialogComponent implements OnInit {
       this.roles = res;
     })
   }
+
+  team : Team[]=[]
+  teamSub!:Subscription;
+  getTeam(){
+    this.teamService.getTeam().subscribe((res)=>{
+      this.team=res;
+    })
+  
+  }
+
 
   close(): void {
     // this.dialogRef.close();
