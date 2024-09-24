@@ -18,8 +18,8 @@ async function syncModel() {
       Team.hasMany(TeamMember, { foreignKey: "teamId" });
       TeamMember.belongsTo(Team);
 
-      User.hasMany(TeamMember, { foreignKey: "userId", as: "register"});
-      TeamMember.belongsTo(User, { foreignKey: "userId", as: "register"});
+      User.hasMany(TeamMember, { foreignKey: "userId"});
+      TeamMember.belongsTo(User, { foreignKey: "userId"});
     
 
     const roleData = [
@@ -40,15 +40,14 @@ async function syncModel() {
 
     const userData = [
        
-        { name: "Ashbin", email: "ashbin@gmail.com", phoneNumber:"9846335577", password: "ashbin@123", roleId: 1, status: true },
-        { name: "Sameer", email: "sameer@gmail.com", phoneNumber:"9846335570", password: "sameer@123", roleId: 1, status: true },
-        { name: "Vishnu", email: "vishnu@gmail.com", phoneNumber:"9846335123", password: "vishnu@123", roleId: 1, status: true },
-        { name: "Abu", email: "abu@gmail.com", phoneNumber:"9846335345", password: "abu@123", roleId: 5, status: true },
-        { name: "Sijin", email: "sijin@gmail.com", phoneNumber:"9846442233", password: "sijin@123", roleId: 2, status: true },
-        { name: "Shibin", email: "shibin@gmail.com", phoneNumber:"9847391646", password: "shibin@123", roleId: 3, status: true },
-        { name: "Fawas", email: "fawas@gmail.com", phoneNumber:"98667799551", password: "fawas@123", roleId: 4, status: true },
-        { name: "Admin", email: "admin@gmail.com", phoneNumber:"1234567890", password: "admin@123", roleId: 6, status: true },
-        { name: "Dhanalakshmi", email: "dhanalakshmi@gmail.com", phoneNumber:"1234567890", password: "dhanalakshmi@123", roleId: 7, status: true },
+        { name: "Ashbin", email: "ashbin@gmail.com", phoneNumber:"9846335577", password: "ashbin@123", roleId: 1, teamId:1,status: true },
+        { name: "Sameer", email: "sameer@gmail.com", phoneNumber:"9846335570", password: "sameer@123", roleId: 1,teamId:1, status: true },
+        { name: "Vishnu", email: "vishnu@gmail.com", phoneNumber:"9846335123", password: "vishnu@123", roleId: 1, teamId:1, status: true },
+        { name: "Sijin", email: "sijin@gmail.com", phoneNumber:"9846442233", password: "sijin@123", roleId: 2, teamId:1, status: true },
+        { name: "Shibin", email: "shibin@gmail.com", phoneNumber:"9847391646", password: "shibin@123", roleId: 3, teamId:1, status: true },
+        { name: "Fawas", email: "fawas@gmail.com", phoneNumber:"98667799551", password: "fawas@123", roleId: 4, teamId:1, status: true },
+        { name: "Admin", email: "admin@gmail.com", phoneNumber:"1234567890", password: "admin@123", roleId: 6, teamId:1, status: true },
+        { name: "Dhanalakshmi", email: "dhanalakshmi@gmail.com", phoneNumber:"1234567890", password: "dhanalakshmi@123", roleId: 7, teamId:1, status: true },
     ];
     const user = await User.findAll({});
     const salt = await bcrypt.genSalt(10);
@@ -63,33 +62,29 @@ async function syncModel() {
         }
     }
 
-    // const team = await Team.findAll({});
+    const team = await Team.findAll({});
 
-    // if (team.length === 0) {
-    //     try {
-    //         await Team.bulkCreate([
-    //             { teamName: "EMEA", userId: 4 },
-    //             // { teamName: "Team B", userId: 2 }
-    //         ]);
+    if (team.length === 0) {
+        try {
+            await Team.bulkCreate([
+                { teamName: "EMEA", userId: 1 },
+            ]);
     
-    //         const teams = await Team.findAll();
-    //         const teamMembers = [
-    //             { teamId: 1, userId: 1 },
-    //             { teamId: 1, userId: 2 },
-    //             { teamId: 1, userId: 3 },
-    //             { teamId: 1, userId: 4 },
-    //         ];
+            const teams = await Team.findAll();
+            const teamMembers = [
+                { teamId: 1, userId: 1 },
+            ];
     
-    //         for (const team of teams) {
-    //             await TeamMember.bulkCreate(teamMembers.map(member => ({
-    //                 ...member,
-    //                 teamId: team.id,
-    //             })));
-    //         }
-    //     } catch (error) {
-    //         console.error("Error creating team and team members:", error.message);
-    //     }
-    // }
+            for (const team of teams) {
+                await TeamMember.bulkCreate(teamMembers.map(member => ({
+                    ...member,
+                    teamId: team.id,
+                })));
+            }
+        } catch (error) {
+            console.error("Error creating team and team members:", error.message);
+        }
+    }
 }
 
 module.exports = syncModel;
