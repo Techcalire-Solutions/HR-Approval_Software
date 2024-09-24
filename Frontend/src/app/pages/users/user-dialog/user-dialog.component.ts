@@ -136,7 +136,6 @@ export class UserDialogComponent implements OnInit {
       password: user.password,
       status: user.status,
       joiningDate: user.createdAt,
-      password: user.password
     })
     if(user.url != null) this.imageUrl = this.url + user.url
   }
@@ -197,7 +196,7 @@ export class UserDialogComponent implements OnInit {
     this.teamService.getTeam().subscribe((res)=>{
       this.team=res;
     })
-  
+
   }
 
 
