@@ -81,6 +81,9 @@ export class InvoiceService {
     return this._http.post(this.url + '/performaInvoice/saveByAM', data);
   }
 
+  getDashboardPI(status?: string, currentPage?: number, pageSize?: number): Observable<any[]>{
+    return this._http.get<any[]>(this.url + `/performaInvoice/dashboard/?status=${status}&page=${currentPage}&pageSize=${pageSize}`);
+  }
 
 
 
