@@ -28,7 +28,34 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
   @Input() data: any;
   @Output() dataSubmitted = new EventEmitter<any>();
 
-  ngOnInit(): void {
+  ngOnInit(data?: any): void {
+    if(data){
+      if(data.updateStatus){
+        this.getPersonalDetailsByUser(data.id)
+      }
+
+      // this.getEntryId(entryId)
+      // if(data.trans){
+      //   this.finalForm.get('trans')?.setValue(data.trans)
+      //   this.openTrans();
+      // }else if(!data.trans && data.com){
+      //   this.finalForm.get('com')?.setValue(data.com)
+      //   this.openComm();
+      // }else if(!data.trans && !data.com && data.unload){
+      //   this.finalForm.get('unload')?.setValue(this.data.unload)
+      //   this.openUnload()
+      // }
+    }
+  }
+
+  pUSub!: Subscription;
+  getPersonalDetailsByUser(id: number){
+    console.log(id);
+    this.pUSub = this.userService.getUserPersonalDetailsByUser(id).subscribe(data=>{
+      this.form.patchValue({
+
+      })
+    })
   }
 
   form = this.fb.group({
@@ -49,8 +76,6 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
 
   submitSub!: Subscription;
   onSubmit(){
-    console.log(this.data);
-
     let submit = {
       ...this.form.getRawValue()
     }

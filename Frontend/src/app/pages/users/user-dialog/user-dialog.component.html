@@ -2,7 +2,7 @@
 
 <h1 *ngIf="invNo">{{ invNo }}</h1>
 <mat-tab-group class="horizontal-tabs" [backgroundColor]="'primary'" [selectedIndex]="selectedTabIndex">
-  <mat-tab >
+  <mat-tab>
     <mat-card style="margin-top: 20px;">
       <ng-template mat-tab-label>
         <mat-icon>info</mat-icon>
@@ -62,7 +62,8 @@
             <div class="col">
               <mat-form-field class="w-100">
                 <mat-label>Enter your password</mat-label>
-                <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" required />
+                <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" [readonly]="editStatus"
+                required />
                 <button mat-icon-button matSuffix (click)="togglePasswordVisibility()"
                   [attr.aria-label]="hidePassword ? 'Show password' : 'Hide password'"
                   [attr.aria-pressed]="!hidePassword">
@@ -118,14 +119,18 @@
             <img [src]="imageUrl" alt="Image" title="Image" height="50" width="25" (click)="fileInput.click()" class="clickable-image" />
           </ng-container>
 
-          <button mat-raised-button color="primary" [disabled]="!form.valid" (click)="onSubmit()">
-              <!-- @if (user.id) {
-                  Update
-              } @else { -->
-                  Save
-              <!-- } -->
-          </button>
+          <!-- Wrap the buttons in a div with fxLayout="row" to keep them side by side -->
+          <div fxLayout="row" fxLayoutGap="16px">
+            <button mat-raised-button color="primary" [disabled]="!form.valid" (click)="onSubmit()">
+              {{ editStatus ? 'Update' : 'Save' }}
+            </button>
+
+            <button *ngIf="editStatus" mat-raised-button color="primary" (click)="goToNextTab()">
+              Next
+            </button>
+          </div>
         </div>
+
       </form>
     </mat-card>
   </mat-tab>
