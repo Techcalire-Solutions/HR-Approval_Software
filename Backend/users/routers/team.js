@@ -33,7 +33,7 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const team = await Team.findAll({
-            include: [{ model: User}, {model: TeamMember, include:[
+            include: [{ model: User, as: 'leader'}, {model: TeamMember, include:[
                 { model: User}
             ]}]
         });
