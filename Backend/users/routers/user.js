@@ -10,9 +10,6 @@ const multer = require('../../utils/userImageMulter'); // Import the configured 
 const Team = require('../models/team')
 const TeamMember = require('../models/teamMember')
 
-
-
-
 router.post('/add', async (req, res) => {
   console.log(req.body);
   const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId } = req.body;
@@ -56,8 +53,6 @@ router.post('/add', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
-
-
 
 router.get('/find/', async (req, res) => {
   try {
@@ -201,7 +196,6 @@ router.get('/findone/:id', async (req, res) => {
     res.status(500).send(error.message);
   }
 });
-
 
 router.patch('/update/:id', async(req,res)=>{
   const { name, email, phoneNumber, roleId} = req.body;
