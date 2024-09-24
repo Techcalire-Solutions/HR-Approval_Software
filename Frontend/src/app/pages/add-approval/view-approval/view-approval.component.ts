@@ -220,7 +220,7 @@ user: number;
   }
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  pageSize = 5;
+  pageSize = 10;
   currentPage = 1;
   totalItems = 0;
   onPageChange(event: PageEvent): void {
@@ -231,7 +231,6 @@ user: number;
 
   pageStatus: boolean = true;
   onStepSelectionChange(status: string) {
-
     if(this.roleName === 'Sales Executive'){
       if(status === 'assigned'){
         this.status = 'GENERATED';
