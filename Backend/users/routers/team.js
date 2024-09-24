@@ -5,6 +5,7 @@ const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const { Op, fn, col, where } = require('sequelize');
 const sequelize = require('../../utils/db');
+const User = require('../models/user');
 
 
 router.post('/', async (req, res) => {
@@ -32,12 +33,9 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const team = await Team.findAll({
-            include: ['leader',
-                {
-                    model: TeamMember,
-                    include: 'register'
-                },
-            ],
+            include: [{ model: User}, {model: TeamMember, include:[
+                { model: User}
+            ]}]
         });
 
         res.send(team);
