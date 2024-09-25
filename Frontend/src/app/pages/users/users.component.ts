@@ -57,7 +57,7 @@ import { Router } from '@angular/router';
   providers: [UsersService]
 })
 export class UsersComponent implements OnInit {
-  apiUrl = environment.apiUrl;
+  apiUrl ='https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/';
   public users: User[];
   public page:any;
   public settings: Settings;
@@ -78,6 +78,8 @@ export class UsersComponent implements OnInit {
     this.userSub = this.usersService.getUser(this.searchText, this.currentPage, this.pageSize).subscribe((users: any) =>{
       this.users = users.items;
       this.totalItems = users.count
+      console.log(users);
+      
     });
   }
 
@@ -117,6 +119,24 @@ export class UsersComponent implements OnInit {
       if (result === true) {
         this.usersService.deleteUser(id).subscribe((res) => {
           this.snackbar.open("User deleted successfully...", "", { duration: 3000 });
+          this.getUsers();
+        }, (error) => {
+          this.snackbar.open(error.error.message, "", { duration: 3000 });
+        });
+      }
+    });
+  }
+
+  deleteImage(id: number){
+    const dialogRef = this.dialog.open(DeleteDialogueComponent, {
+      width: '450px',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === true) {
+        this.usersService.deleteUserImage(id).subscribe((res) => {
+          this.snackbar.open("User image deleted successfully...", "", { duration: 3000 });
           this.getUsers();
         }, (error) => {
           this.snackbar.open(error.error.message, "", { duration: 3000 });

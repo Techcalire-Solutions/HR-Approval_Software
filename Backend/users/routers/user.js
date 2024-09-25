@@ -264,33 +264,33 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
 //   }
 // });
 
-router.delete('/filedelete/:id', async (req, res) => {
-  let id = req.params.id;
-  try {
-    const pi = await PerformaInvoice.findByPk(id);
-    let filename = pi.url
-    const directoryPath = path.join(__dirname, '../userImages'); // Replace 'uploads' with your folder name
-    const filePath = path.join(directoryPath, filename);
+// router.delete('/filedelete/:id', async (req, res) => {
+//   let id = req.params.id;
+//   try {
+//     const pi = await PerformaInvoice.findByPk(id);
+//     let filename = pi.url
+//     const directoryPath = path.join(__dirname, '../userImages'); // Replace 'uploads' with your folder name
+//     const filePath = path.join(directoryPath, filename);
 
-    fs.access(filePath, fs.constants.F_OK, (err) => {
-      if (err) {
-        return res.status(404).json({ message: 'File not found' });
-      }
+//     fs.access(filePath, fs.constants.F_OK, (err) => {
+//       if (err) {
+//         return res.status(404).json({ message: 'File not found' });
+//       }
 
-      // Delete the file
-      fs.unlink(filePath, (err) => {
-        if (err) {
-          return res.status(500).json({ message: 'Error deleting file' });
-        }
+//       // Delete the file
+//       fs.unlink(filePath, (err) => {
+//         if (err) {
+//           return res.status(500).json({ message: 'Error deleting file' });
+//         }
 
-        return res.status(200).json({ message: 'File deleted successfully' });
-      });
-    })
-  } catch (error) {
-    console.error('Error deleting file:', error);
-    res.status(500).send({ message: error.message });
-  }
-});
+//         return res.status(200).json({ message: 'File deleted successfully' });
+//       });
+//     })
+//   } catch (error) {
+//     console.error('Error deleting file:', error);
+//     res.status(500).send({ message: error.message });
+//   }
+// });
 
 router.get('/findbyrole/:id', async (req, res) => {
   try {
@@ -349,6 +349,40 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
   } catch (error) {
     console.error('Error uploading file to S3:', error);
     res.send({ message: error.message });
+  }
+});
+
+router.delete('/filedelete/:id', authenticateToken, async (req, res) => {
+  let id = req.params.id;
+  try {
+    try {
+        let user = await User.findByPk(id);
+        fileKey = user.url
+        user.url = '';
+
+        await user.save();
+    } catch (error) {
+      res.send(error.message)
+    }
+    console.log(fileKey);
+    
+    if (!fileKey) {
+      return res.status(400).send({ message: 'No file key provided' });
+    }
+
+    // Set S3 delete parameters
+    const deleteParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileKey // The key (path) of the file to delete
+    };
+
+    // Delete the file from S3
+    await s3.deleteObject(deleteParams).promise();
+
+    res.status(200).send({ message: 'File deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting file from S3:', error);
+    res.status(500).send({ message: error.message });
   }
 });
 module.exports = router;
