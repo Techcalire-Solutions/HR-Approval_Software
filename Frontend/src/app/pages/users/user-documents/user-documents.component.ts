@@ -33,7 +33,6 @@ export class UserDocumentsComponent {
 
   index!: number;
   addDoc(data?:any){
-    console.log("data");
 
     if(this.index === undefined) this.index = 0;
     else this.index += 1
@@ -82,8 +81,6 @@ export class UserDocumentsComponent {
 
     this.uploadSub = this.userSevice.uploadUserDoc(formData).subscribe({
       next: (invoice) => {
-        console.log('invo', invoice);
-
         this.doc().at(i).get('docUrl')?.setValue(invoice.fileUrl);
       }
       });
@@ -93,7 +90,6 @@ export class UserDocumentsComponent {
   submit!: Subscription;
   onSubmit(i: number): void {
     let form = this.doc().at(i) as FormGroup
-    console.log(form.value);
     this.submit = this.userSevice.addUserDocumentDetails(form.value).subscribe(res => {
       this.snackBar.open(`${res.docName} is added to employee data`,"" ,{duration:3000})
     });
