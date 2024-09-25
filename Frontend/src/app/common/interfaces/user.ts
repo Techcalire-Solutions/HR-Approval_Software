@@ -13,6 +13,8 @@ export interface User {
   url: string
   userImage: string
   createdAt: Date
+  teamId: number
+  team: Team
 
   teamId: number
   team: Team
@@ -23,7 +25,7 @@ export interface User {
   confirmationDate: Date
   isTemporary: boolean
 
-  martialStatus: string
+  maritalStatus: string
   dateOfBirth: Date
   gender: string
   parentName: string
