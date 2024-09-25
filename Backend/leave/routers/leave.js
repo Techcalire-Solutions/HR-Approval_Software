@@ -76,8 +76,6 @@ router.post('/test', authenticateToken, async (req, res) => {
         console.error('Error sending email:', error);
         return res.status(500).send('Failed to send notification email');
       }
-
-      console.log('Email sent to admin:', info.response);
       // Send the response after the email is successfully sent
       res.json({ userLeave: userLeave, leave: leave });
     });

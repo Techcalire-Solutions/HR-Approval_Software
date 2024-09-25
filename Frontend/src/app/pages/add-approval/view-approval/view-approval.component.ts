@@ -167,7 +167,6 @@ export class ViewApprovalComponent {
 
     if (apiCall) {
       this.invoiceSubscriptions = apiCall.subscribe((res: any) => {
-        console.log(res);
         invoice = res.items;
         this.totalItems = res.count;
 

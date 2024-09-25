@@ -78,8 +78,6 @@ export class UsersComponent implements OnInit {
     this.userSub = this.usersService.getUser(this.searchText, this.currentPage, this.pageSize).subscribe((users: any) =>{
       this.users = users.items;
       this.totalItems = users.count
-      console.log(users);
-      
     });
   }
 
