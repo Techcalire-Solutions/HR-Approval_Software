@@ -40,4 +40,30 @@ router.post('/add', authenticateToken, async (req, res) => {
   }
 })
 
+router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
+  try {
+    const user = await StatutoryInfo.findOne({where: {userId: req.params.id}})
+
+    res.send(user)
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
+router.patch('/update/:id', async(req,res)=>{
+  const { adharNo, panNumber, esiNumber, uanNumber } = req.body
+  try {
+    let result = await StatutoryInfo.findByPk(req.params.id);
+    result.adharNo = adharNo;
+    result.panNumber = panNumber;
+    result.esiNumber = esiNumber;
+    result.uanNumber = uanNumber;
+
+    await result.save();
+    res.send(result);
+  } catch (error) {
+    res.send(error.message);
+  }
+})
+
 module.exports = router;
