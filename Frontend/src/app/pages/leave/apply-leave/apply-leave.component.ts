@@ -89,12 +89,21 @@ export class ApplyLeaveComponent {
     }
   }
   onSubmit() {
-    this.leaveService.addLeave(this.leaveRequestForm.getRawValue()).subscribe((res) => {
-      }, (error => {
-        alert(error)
-      }))
 
-  }
+      this.leaveService.addLeave(this.leaveRequestForm.getRawValue()).subscribe(
+        (response: any) => {
+          console.log(response);
+        },
+        (error: any) => {
+          alert(error);
+        }
+      );
+    }
+
+
+
+
+
   cancelForm(){
 
   }
