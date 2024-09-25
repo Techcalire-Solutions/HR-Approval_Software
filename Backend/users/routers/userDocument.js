@@ -7,13 +7,11 @@ const UserDocument = require('../models/userDocuments');
 
 
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
-  console.log("______________________________________________________________");
   
   try {
     if (!req.file) {
       return res.send({ message: 'No file uploaded' });
     }
-    console.log(req.body,"_______________________________________");
     
     const customFileName = req.body.name || req.file.originalname;  // Use docName from request body
     console.log(customFileName);

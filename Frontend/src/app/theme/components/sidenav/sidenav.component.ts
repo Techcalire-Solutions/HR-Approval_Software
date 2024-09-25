@@ -35,7 +35,7 @@ import { User } from '../../../common/interfaces/user';
   encapsulation: ViewEncapsulation.None
 })
 export class SidenavComponent implements OnInit , PipeTransform{
-  url = environment.apiUrl;
+  url = 'https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/';
   transform(value: User[] | null, args?: any): any {
     let searchText = new RegExp(args, 'ig');
     if (value) {

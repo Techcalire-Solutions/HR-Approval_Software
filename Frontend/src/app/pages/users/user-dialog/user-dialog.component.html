@@ -115,7 +115,7 @@
             <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
               <ng-container *ngIf="imageUrl; else noFileTemplate">
                 <input type="file" class="file-input" hidden #fileInput>
-                <img [src]="imageUrl" alt="Image" title="Image" height="50" width="25" (click)="fileInput.click()" class="clickable-image" />
+                <img [src]="imageUrl" alt="Image" title="Image" height="100" width="100" (click)="fileInput.click()" class="clickable-image" />
               </ng-container>
     
               <!-- Wrap the buttons in a div with fxLayout="row" to keep them side by side -->
