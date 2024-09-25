@@ -161,10 +161,13 @@ export class UserDialogComponent implements OnInit {
         const splitName = fileName.split('.');
         fileName = splitName[0].substring(0, 12) + "... ." + splitName[1];
       }
-
+      console.log(this.file);
+      
       this.uploadSub = this.userService.uploadImage(this.file).subscribe({
         next: (invoice) => {
-          this.imageUrl = this.url + invoice.fileUrl;
+          console.log(invoice);
+          
+          this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ invoice.fileUrl}`;
           if (this.imageUrl) {
             this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.imageUrl);
           }
