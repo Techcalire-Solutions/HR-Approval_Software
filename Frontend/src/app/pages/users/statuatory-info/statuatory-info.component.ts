@@ -1,7 +1,7 @@
 import { MatButtonModule } from '@angular/material/button';
 import { UsersService } from './../../../services/users.service';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, Output, inject } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Subscription } from 'rxjs';
@@ -15,7 +15,12 @@ import { MatCardModule } from '@angular/material/card';
   templateUrl: './statuatory-info.component.html',
   styleUrl: './statuatory-info.component.scss'
 })
-export class StatuatoryInfoComponent {
+export class StatuatoryInfoComponent implements OnDestroy {
+  ngOnDestroy(): void {
+    this.pUSub.unsubscribe();
+    this.submitSub?.unsubscribe();
+  }
+  
   @Input() statuatoryData: any;
 
   fb = inject(FormBuilder);

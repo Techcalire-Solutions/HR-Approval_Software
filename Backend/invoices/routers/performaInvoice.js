@@ -175,11 +175,8 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
 
 router.get('/findbysp', authenticateToken, async (req, res) => {
     const status = req.query.status;
-    console.log(status);
     
     const userId = req.user.id;
-    console.log(userId);
-    
     // Initialize the where clause
     let where = { salesPersonId: userId };
 
@@ -242,7 +239,6 @@ router.get('/findbysp', authenticateToken, async (req, res) => {
 router.get('/findbkam', authenticateToken, async(req, res) => {
     let status = req.query.status;
     let user = req.user.id;
-    console.log(req.query);
     
     let where = { kamId: user };
 
@@ -284,7 +280,6 @@ router.get('/findbkam', authenticateToken, async(req, res) => {
 
             ]
         })
-        console.log(pi);
         
         let totalCount;
         totalCount = await PerformaInvoice.count({
@@ -454,7 +449,6 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
 
 
     // }   
-    console.log(req.query.search);
     
     if (req.query.search !== '' && req.query.search !== 'undefined') {
         const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
@@ -477,8 +471,6 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
     }
 
     try {
-        console.log(where);
-        
         const pi = await PerformaInvoice.findAll({
             where: where,
             limit,

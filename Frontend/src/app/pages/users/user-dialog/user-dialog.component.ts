@@ -1,5 +1,5 @@
 import { UserDocumentsComponent } from './../user-documents/user-documents.component';
-import { Component, inject, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -59,7 +59,7 @@ import { TeamService } from '@services/team.service';
   templateUrl: './user-dialog.component.html',
   styleUrl: './user-dialog.component.scss'
 })
-export class UserDialogComponent implements OnInit {
+export class UserDialogComponent implements OnInit, OnDestroy {
   url = environment.apiUrl;
   snackBar = inject(MatSnackBar);
   sanitizer = inject(DomSanitizer);
@@ -118,6 +118,10 @@ export class UserDialogComponent implements OnInit {
 
   ngOnDestroy(): void {
    this.teamSub?.unsubscribe();
+   this.roleSub?.unsubscribe();
+   this.userSub?.unsubscribe();
+   this.usersSub?.unsubscribe();
+   this.uploadSub?.unsubscribe();
   }
 
   userSub!: Subscription;
@@ -161,11 +165,8 @@ export class UserDialogComponent implements OnInit {
         const splitName = fileName.split('.');
         fileName = splitName[0].substring(0, 12) + "... ." + splitName[1];
       }
-      console.log(this.file);
-      
       this.uploadSub = this.userService.uploadImage(this.file).subscribe({
         next: (invoice) => {
-          console.log(invoice);
           
           this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ invoice.fileUrl}`;
           if (this.imageUrl) {
@@ -190,7 +191,7 @@ export class UserDialogComponent implements OnInit {
   roles:Role[]=[];
   roleSub!: Subscription;
   getRoles(){
-    this.roleService.getRole().subscribe((res)=>{
+    this.roleSub = this.roleService.getRole().subscribe((res)=>{
       this.roles = res;
     })
   }
@@ -198,7 +199,7 @@ export class UserDialogComponent implements OnInit {
   team : Team[]=[]
   teamSub!:Subscription;
   getTeam(){
-    this.teamService.getTeam().subscribe((res)=>{
+    this.teamSub = this.teamService.getTeam().subscribe((res)=>{
       this.team=res;
     })
 
@@ -257,6 +258,7 @@ export class UserDialogComponent implements OnInit {
   statuatoryData: any;
   accountData: any;
   invNo: string;
+  usersSub!: Subscription;
   generateEmployeeNumber() {
     let prefix: any;
     const currentYear = new Date().getFullYear();
@@ -288,10 +290,7 @@ export class UserDialogComponent implements OnInit {
         
         let ivNum = paddedId;
         this.invNo = ivNum;
-        console.log(this.invNo);
-        
         this.form.get('empNo')?.setValue(ivNum);
-        console.log(this.form.getRawValue());
         
       } else {
         // If there are no employees in the array, set the employeeId to 'EMP001'

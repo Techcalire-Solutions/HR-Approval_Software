@@ -93,7 +93,6 @@ router.post('/set', authenticateToken, async (req, res) => {
         console.error('Error sending email:', error);
         return res.status(500).json({ message: 'Failed to send notification email' });
       }
-
       console.log('Email sent:', info.response);
       
       // Send the response back with user and leave type details
