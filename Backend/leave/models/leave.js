@@ -6,12 +6,12 @@ const Leave = sequelize.define('leave',{
     leaveTypeId : {type : DataTypes.INTEGER},
     startDate : {type : DataTypes.DATE, allowNull : true},
     endDate : {type : DataTypes.DATE, allowNull : true},
-    noOfDays : {type : DataTypes.INTEGER},
+    noOfDays : {type : DataTypes.FLOAT},
     notes : { type : DataTypes.STRING, allowNull : true },
     status : { type : DataTypes.STRING, allowNull : true },
-    halfDay: { type : DataTypes.BOOLEAN,default:false},
-    halfDayTime: { type : DataTypes.STRING, allowNull : true },
-    
+    session1: { type: DataTypes.BOOLEAN, default: false }, // Morning session
+    session2: { type: DataTypes.BOOLEAN, default: false }, // Afternoon session
+    leaveDates: { type: DataTypes.JSON, allowNull: true }, 
 },
 {
     freezeTableName :true,
