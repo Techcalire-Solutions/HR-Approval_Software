@@ -108,6 +108,8 @@ export class AddApprovalComponent {
   getAccountants(){
     this.accountantSub = this.loginServie.getUserByRole(4).subscribe(user =>{
       this.AccountantList = user;
+      console.log('account list',this.AccountantList);
+
     });
   }
 
@@ -166,11 +168,11 @@ export class AddApprovalComponent {
         next: (invoice) => {
           this.imageUrl = invoice.fileUrl;
           this.piForm.get('url')?.setValue(invoice.fileUrl);
-          this.uploadComplete = true; 
+          this.uploadComplete = true;
         },
         error: (error) => {
           console.error('Upload failed:', error);
-          this.uploadComplete = true; 
+          this.uploadComplete = true;
         }
       });
     }
