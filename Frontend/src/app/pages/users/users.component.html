@@ -55,6 +55,12 @@
                                 <mat-icon>delete</mat-icon>
                                 <span>Delete</span>
                             </button>
+                            @if(user.url){
+                                <button mat-menu-item (click)="deleteImage(user.id);">
+                                    <mat-icon>image_not_supported</mat-icon>
+                                    <span>Delete Image</span>
+                                </button>
+                            }
                         </span>
                     </mat-menu>
                     <div class="user-content" fxLayout="row" fxLayoutAlign="space-around center">

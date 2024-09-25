@@ -28,7 +28,7 @@ import { DatePipe } from '@angular/common';
 })
 export class ProfileComponent {
   public userImage = 'img/users/avatar.png';
-  apiUrl = environment.apiUrl;
+  apiUrl = 'https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/';
   private loginService = inject(LoginService)
 
   ngOnInit(){
