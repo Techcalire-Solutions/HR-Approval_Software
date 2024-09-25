@@ -14,49 +14,47 @@ router.post('/add', async (req, res) => {
   const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId, empNo } = req.body;
 
   try {
-    try {
-      const userExist = await User.findOne({
-        where: { email: email }
-      });
-      if (userExist) {
-        return res.status(400).send(`User already exists with the email ${email}`);
+    // Check if user exists by email/role or empNo/role
+    const userExist = await User.findOne({
+      where: {
+        [Op.or]: [
+          { email: email, roleId: roleId },
+          { empNo: empNo, roleId: roleId }
+        ]
       }
-    } catch (error) {
-      res.send(error.message);
-    }
-    try {
-      const userExistEMp = await User.findOne({
-        where: { empNo: empNo }
-      });
-      if (userExistEMp) {
-        return res.status(400).send(`User already exists with the employee number ${empNo}`);
-      }
-    } catch (error) {
-      res.send(error.message);
+    });
+
+    if (userExist) {
+      return res.status(400).send(`User already exists with the email or employee number and Role`);
     }
 
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create the new user
     const user = await User.create({
       name, empNo, email, phoneNumber, password: hashedPassword, roleId, status, userImage, url, teamId
     });
 
-    const team = await Team.findOne({
-      where: { id: teamId }
-    });
+    // Verify the team exists
+    const team = await Team.findOne({ where: { id: teamId } });
 
     if (!team) {
       return res.status(404).send('Team not found');
     }
+
+    // Add the user to the team
     const teamMember = await TeamMember.create({
       teamId: team.id,
       userId: user.id
     });
+
+    // Send success response
     res.status(201).send({ user, teamMember });
 
   } catch (error) {
     console.error('Error:', error.message);
-    res.status(500).send('Server error');
+    res.status(500).send({ error: 'Server error' });
   }
 });
 
