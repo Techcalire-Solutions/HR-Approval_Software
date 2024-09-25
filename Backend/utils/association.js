@@ -10,7 +10,6 @@ const User = require('../users/models/user');
 async function syncModel() {
     await sequelize.sync({alter: true})
     
-
     const roleData = [
         {roleName: 'Sales Executive',abbreviation:'SE'},
         {roleName: 'Key Account Manager',abbreviation:'KAM'},
@@ -27,17 +26,17 @@ async function syncModel() {
         }
     }
 
-    const userData = [
-       
-        { name: "Ashbin", email: "ashbin@gmail.com", phoneNumber:"9846335577", password: "ashbin@123", roleId: 1, teamId:1,status: true },
-        { name: "Sameer", email: "sameer@gmail.com", phoneNumber:"9846335570", password: "sameer@123", roleId: 1,teamId:1, status: true },
-        { name: "Vishnu", email: "vishnu@gmail.com", phoneNumber:"9846335123", password: "vishnu@123", roleId: 1, teamId:1, status: true },
-        { name: "Sijin", email: "sijin@gmail.com", phoneNumber:"9846442233", password: "sijin@123", roleId: 2, teamId:1, status: true },
-        { name: "Shibin", email: "shibin@gmail.com", phoneNumber:"9847391646", password: "shibin@123", roleId: 3, teamId:1, status: true },
-        { name: "Fawas", email: "fawas@gmail.com", phoneNumber:"98667799551", password: "fawas@123", roleId: 4, teamId:1, status: true },
-        { name: "Admin", email: "admin@gmail.com", phoneNumber:"1234567890", password: "admin@123", roleId: 6, teamId:1, status: true },
-        { name: "Dhanalakshmi", email: "dhanalakshmi@gmail.com", phoneNumber:"1234567890", password: "dhanalakshmi@123", roleId: 7, teamId:1, status: true },
+    const userData = [    
+        { name: "Ashbin", email: "ashbin@gmail.com", phoneNumber:"9846335577", password: "ashbin@123", roleId: 1, teamId:1,status: true, empNo: 'OAC-2024-001' },
+        { name: "Sameer", email: "sameer@gmail.com", phoneNumber:"9846335570", password: "sameer@123", roleId: 1,teamId:1, status: true, empNo: 'OAC-2024-002' },
+        { name: "Vishnu", email: "vishnu@gmail.com", phoneNumber:"9846335123", password: "vishnu@123", roleId: 1, teamId:1, status: true, empNo: 'OAC-2024-003' },
+        { name: "Sijin", email: "sijin@gmail.com", phoneNumber:"9846442233", password: "sijin@123", roleId: 2, teamId:1, status: true, empNo: 'OAC-2024-004', reportingManager: true },
+        { name: "Shibin", email: "shibin@gmail.com", phoneNumber:"9847391646", password: "shibin@123", roleId: 3, teamId:1, status: true, empNo: 'OAC-2024-005' },
+        { name: "Fawas", email: "fawas@gmail.com", phoneNumber:"98667799551", password: "fawas@123", roleId: 4, teamId:1, status: true, empNo: 'OAC-2024-006' },
+        { name: "Admin", email: "admin@gmail.com", phoneNumber:"1234567890", password: "admin@123", roleId: 6, teamId:1, status: true, empNo: 'OAC-2024-007' },
+        { name: "Dhanalakshmi", email: "dhanalakshmi@gmail.com", phoneNumber:"1234567890", password: "dhanalakshmi@123", roleId: 7, teamId:1, status: true, empNo: 'OAC-2024-008' },
     ];
+
     const user = await User.findAll({});
     const salt = await bcrypt.genSalt(10);
     if(user.length === 0){
