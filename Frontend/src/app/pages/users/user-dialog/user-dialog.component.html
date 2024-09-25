@@ -29,7 +29,7 @@
                   </mat-error>
                 </mat-form-field>
               </div>
-  
+
               <div class="col">
                 <mat-form-field class="w-100" appearance="outline">
                   <mat-label><mat-icon>email</mat-icon> Email</mat-label>
@@ -55,8 +55,8 @@
                 </mat-form-field>
               </div>
             </div>
-  
-  
+
+
             <div class="row box">
               <div class="col">
                 <mat-form-field class="w-100" appearance="outline">
@@ -76,7 +76,7 @@
                   </mat-error>
                 </mat-form-field>
               </div>
-  
+
               <div class="col">
                 <mat-form-field class="w-100" appearance="outline">
                   <mat-label>Role</mat-label>
@@ -93,7 +93,7 @@
                   </mat-error>
                 </mat-form-field>
               </div>
-  
+
               <div class="col">
                 <mat-form-field class="w-100" appearance="outline">
                   <mat-label>Team</mat-label>
@@ -102,9 +102,9 @@
                       {{ item.teamName}}
                     </mat-option>
                   </mat-select>
-                  <mat-error *ngIf="form.controls.teamId.hasError('required')">
+                  <!-- <mat-error *ngIf="form.controls.teamId.hasError('required')">
                     Team is required
-                  </mat-error>
+                  </mat-error> -->
                   <!-- <mat-error *ngIf="form.controls.roleId.hasError('minlength')">
                     Team isn't long enough, minimum of 5 characters
                   </mat-error> -->
@@ -117,17 +117,17 @@
                 <input type="file" class="file-input" hidden #fileInput>
                 <img [src]="imageUrl" alt="Image" title="Image" height="100" width="100" (click)="fileInput.click()" class="clickable-image" />
               </ng-container>
-    
+
               <!-- Wrap the buttons in a div with fxLayout="row" to keep them side by side -->
               <div fxLayout="row" fxLayoutGap="16px">
                 <button mat-raised-button color="primary" [disabled]="!form.valid" (click)="onSubmit()">
                   {{ editStatus ? 'Update' : 'Save' }}
                 </button>
-    
+
                 <button *ngIf="!editStatus" mat-raised-button color="primary"  onClick="history.back()">
                   Close
                 </button>
-    
+
                 <button *ngIf="editStatus" mat-raised-button color="primary" (click)="goToNextTab()">
                   Next
                 </button>
