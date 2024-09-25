@@ -37,6 +37,9 @@ router.post('/add', async (req, res) => {
     });
 
     // Verify the team exists
+    if (teamId!=null){
+      
+    
     const team = await Team.findOne({ where: { id: teamId } });
 
     if (!team) {
@@ -51,6 +54,7 @@ router.post('/add', async (req, res) => {
 
     // Send success response
     res.status(201).send({ user, teamMember });
+  }
 
   } catch (error) {
     console.error('Error:', error.message);

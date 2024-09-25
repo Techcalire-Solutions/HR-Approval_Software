@@ -8,7 +8,7 @@ const User = require('../users/models/user');
 
 
 async function syncModel() {
-    await sequelize.sync({alter: true})
+    await sequelize.sync({force: true})
     
     const roleData = [
         {roleName: 'Sales Executive',abbreviation:'SE'}, //1
