@@ -16,9 +16,6 @@ export interface User {
   teamId: number
   team: Team
 
-  teamId: number
-  team: Team
-
   empNo: string
   dateOfJoining: Date
   probationPeriod: string
