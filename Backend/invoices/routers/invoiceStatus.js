@@ -45,7 +45,6 @@ router.post('/updatestatustobankslip', authenticateToken, async (req, res) => {
 
 router.get('/findbypi', authenticateToken, async (req, res) => {
     try {
-        console.log(req.query.search);
         
         let whereClause = { performaInvoiceId: req.query.id };
         if (req.query.search && req.query.search != 'undefined') {

@@ -38,8 +38,6 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
   triggerNew(data?: any): void {
     this.getReportingManager()
     if(data){
-      console.log(data);
-      
       if(data.updateStatus){
         this.getPersonalDetailsByUser(data.id)
       }
@@ -103,12 +101,8 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     submit.dateOfJoining = this.formatDateOnly(submit.dateOfJoining);
     submit.confirmationDate = this.formatDateOnly(submit.confirmationDate);
     submit.dateOfBirth = this.formatDateOnly(submit.dateOfBirth);
-    console.log(submit);
-    
     if(this.editStatus){
       this.submitSub = this.userService.updateUserPersonal(this.id, submit).subscribe(data => {
-        console.log(data);
-        
         this.snackBar.open("Personal Details updated succesfully...","" ,{duration:3000})
         this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
@@ -122,6 +116,9 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.submitSub?.unsubscribe();
+    this.pUSub?.unsubscribe();
+    this.rmSub?.unsubscribe();
   }
 
   formatDateOnly(date: any): string | null {

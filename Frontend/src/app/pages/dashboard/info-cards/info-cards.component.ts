@@ -69,8 +69,6 @@ export class InfoCardsComponent implements OnInit, OnDestroy {
   invoiceSubscriptions: Subscription;
   paCount: number;
   getPendingApprovals(){
-    console.log("pending");
-    
     let apiCall;
     if (this.roleName === 'Sales Executive') {
       apiCall = this.invoiceService.getPIBySP('GENERATED');

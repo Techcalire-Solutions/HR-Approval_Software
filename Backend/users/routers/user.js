@@ -364,8 +364,6 @@ router.delete('/filedelete/:id', authenticateToken, async (req, res) => {
     } catch (error) {
       res.send(error.message)
     }
-    console.log(fileKey);
-    
     if (!fileKey) {
       return res.status(400).send({ message: 'No file key provided' });
     }
