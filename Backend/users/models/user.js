@@ -4,6 +4,7 @@ const Role = require('./role');
 
 const User = sequelize.define('user', {
   name: { type: DataTypes.STRING, allowNull: false },
+  empNo: { type: DataTypes.STRING, allowNull: false },
   email: { type: DataTypes.STRING, allowNull: false },
   phoneNumber: { type: DataTypes.STRING },
   password: { type: DataTypes.STRING, allowNull: false },
@@ -14,6 +15,8 @@ const User = sequelize.define('user', {
 
   userImage: { type: DataTypes.STRING },
   url: { type: DataTypes.STRING },
+
+  reportingManager: { type: DataTypes.BOOLEAN, defaultValue: false }
 },
 {
   freezeTableName: true,

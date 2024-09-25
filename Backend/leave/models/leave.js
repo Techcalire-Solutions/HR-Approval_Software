@@ -18,7 +18,7 @@ const Leave = sequelize.define('leave',{
     timestamps : true 
 })
 
-Leave.sync({alter:true})
+Leave.sync({alter: true})
 .then(()=>console.log)
 
 module.exports = Leave

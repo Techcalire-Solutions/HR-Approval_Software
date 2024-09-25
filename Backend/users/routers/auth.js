@@ -6,12 +6,10 @@ const User = require('../models/user');
 
 router.post('/', async (req, res) => {
     try {
-        const { email, password } = req.body;
-        console.log(`Attempting login for email: ${email}`);
+        const { empNo, password } = req.body;
 
-        const user = await User.findOne({ where: { email: email } });
+        const user = await User.findOne({ where: { empNo: empNo } });
         if (!user) {
-            console.log('User not found');
             return res.json({ message: 'User not found' });
         }
 
@@ -40,8 +38,6 @@ router.post('/', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
-
-
 
 router.get('/findbyuser/:id', async (req, res) => {
     try {
