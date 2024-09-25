@@ -10,5 +10,5 @@ export interface TeamMember {
     userId: number;
 
     team: Team
-    register: User
+    user: User
 }

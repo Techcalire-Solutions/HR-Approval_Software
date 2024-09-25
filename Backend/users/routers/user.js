@@ -203,15 +203,15 @@ router.get('/findone/:id', async (req, res) => {
   }
 });
 
-router.patch('/update/:id', async (req, res) => {
-  const { name, email, phoneNumber, password, roleId } = req.body;
-  const pass = await bcrypt.hash(password, 10);
+router.patch('/update/:id', async(req,res)=>{
+  const { name, email, phoneNumber, roleId} = req.body;
+  // const pass = await bcrypt.hash(password, 10);
   try {
     let result = await User.findByPk(req.params.id);
     result.name = name;
     result.email = email;
     result.phoneNumber = phoneNumber;
-    result.password = pass;
+    // result.password = pass;
     result.roleId = roleId;
 
     await result.save();
