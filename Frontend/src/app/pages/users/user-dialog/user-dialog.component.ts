@@ -139,6 +139,7 @@ export class UserDialogComponent implements OnInit {
       roleId: user.roleId,
       phoneNumber: user.phoneNumber,
       email: user.email,
+      password: user.password,
       status: user.status,
       joiningDate: user.createdAt,
       password: user.password,
@@ -203,16 +204,16 @@ export class UserDialogComponent implements OnInit {
     this.teamService.getTeam().subscribe((res)=>{
       this.team=res;
     })
-  
+
   }
 
 
   selectedTabIndex: number = 0;
-  isFormSubmitted: boolean = false;
-  isWorkFormSubmitted: boolean = false;
-  isContactsFormSubmitted: boolean = false;
-  isSocialFormSubmitted: boolean = false;
-  isAccountFormSubmitted: boolean = false;
+  isFormSubmitted: boolean = true;
+  isWorkFormSubmitted: boolean = true;
+  isContactsFormSubmitted: boolean = true;
+  isSocialFormSubmitted: boolean = true;
+  isAccountFormSubmitted: boolean = true;
   onSubmit(){
     // if(this.data){
     //   this.userService.updateUser(this.data.id, this.form.getRawValue()).subscribe((res)=>{

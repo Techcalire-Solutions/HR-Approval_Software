@@ -37,6 +37,7 @@ input {
   display: grid;
   grid-template-columns: 1fr;
   z-index: 5;
+  overflow-y: auto;
 }
 
 form {
@@ -130,6 +131,18 @@ form.sign-in-form {
 .social-icon:hover {
   color: rgb(30 58 138);
   border-color: rgb(30 58 138)
+}
+.btn1 {
+  width: 150px; /* Adjust size to make it square */
+  height: 50px; /* Same value as width to make it square */
+  background-color: #dde6e9; /* Change to the color you want */
+  border: none; /* Remove border */
+  color: rgb(15, 87, 158); /* Text color */
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0; /* Remove rounded corners */
 }
 
 .btn {
@@ -276,10 +289,9 @@ form.sign-in-form {
     height: 100vh;
   }
   .signin-signup {
-    width: 100%;
-    top: 95%;
-    transform: translate(-50%, -100%);
-    transition: 1s 0.8s ease-in-out;
+    top: 40%; /* Adjust to make sure form fits */
+    transform: translate(-50%, 0);
+    width: 90%; /* Reduce width to fit the screen */
   }
 
   .signin-signup,
@@ -398,3 +410,4 @@ form.sign-in-form {
     left: 50%;
   }
 }
+
