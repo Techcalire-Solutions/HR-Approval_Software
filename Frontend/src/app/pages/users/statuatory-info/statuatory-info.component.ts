@@ -6,11 +6,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-statuatory-info',
   standalone: true,
-  imports: [ MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule ],
+  imports: [ MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule, MatCardModule ],
   templateUrl: './statuatory-info.component.html',
   styleUrl: './statuatory-info.component.scss'
 })
@@ -32,22 +33,19 @@ export class StatuatoryInfoComponent {
   editStatus: boolean = false;
   triggerNew(data?: any): void {
     if(data){
-      console.log(data);
-      
       if(data.updateStatus){
-        this.editStatus = true;
-        console.log(this.editStatus);
-        
         this.getStatutoryDetailsByUser(data.id)
       }
     }
   }
 
   pUSub!: Subscription;
+  id: number;
   getStatutoryDetailsByUser(id: number){
-    console.log(id);
     this.pUSub = this.userService.getUserStatutoryuDetailsByUser(id).subscribe(data=>{
       if(data){
+        this.id = data.id;
+        this.editStatus = true;
         this.form.patchValue({
           adharNo : data.adharNo,
           panNumber : data.panNumber,
@@ -64,12 +62,19 @@ export class StatuatoryInfoComponent {
     let submit = {
       ...this.form.getRawValue()
     }
-    submit.userId = this.statuatoryData.id;
-    console.log(submit);
-    this.submitSub = this.userService.addStautoryInfo(submit).subscribe(data => {
-      this.snackBar.open("Statutory Details added succesfully...","" ,{duration:3000})
-      this.dataSubmitted.emit( {isFormSubmitted: true} );
-    })
+    submit.userId = submit.userId ? submit.userId : this.statuatoryData.id;
+    if(this.editStatus){
+      this.submitSub = this.userService.updateUserStatutory(this.id, submit).subscribe(data => {
+        this.snackBar.open("Statutory Details updated succesfully...","" ,{duration:3000})
+        this.dataSubmitted.emit( {isFormSubmitted: true} );
+      })
+    }
+    else{
+      this.submitSub = this.userService.addStautoryInfo(submit).subscribe(data => {
+        this.snackBar.open("Statutory Details added succesfully...","" ,{duration:3000})
+        this.dataSubmitted.emit( {isFormSubmitted: true} );
+      })
+    }
   }
 
   @Output() nextTab = new EventEmitter<void>(); 
