@@ -29,6 +29,35 @@ export class StatuatoryInfoComponent {
     uanNumber : ['']
   });
 
+  editStatus: boolean = false;
+  triggerNew(data?: any): void {
+    if(data){
+      console.log(data);
+      
+      if(data.updateStatus){
+        this.editStatus = true;
+        console.log(this.editStatus);
+        
+        this.getStatutoryDetailsByUser(data.id)
+      }
+    }
+  }
+
+  pUSub!: Subscription;
+  getStatutoryDetailsByUser(id: number){
+    console.log(id);
+    this.pUSub = this.userService.getUserStatutoryuDetailsByUser(id).subscribe(data=>{
+      if(data){
+        this.form.patchValue({
+          adharNo : data.adharNo,
+          panNumber : data.panNumber,
+          esiNumber : data.esiNumber,
+          uanNumber : data.uanNumber
+        })
+      }
+    })
+  }
+
   @Output() dataSubmitted = new EventEmitter<any>();
   submitSub!: Subscription;
   onSubmit(){
@@ -41,5 +70,10 @@ export class StatuatoryInfoComponent {
       this.snackBar.open("Statutory Details added succesfully...","" ,{duration:3000})
       this.dataSubmitted.emit( {isFormSubmitted: true} );
     })
+  }
+
+  @Output() nextTab = new EventEmitter<void>(); 
+  triggerNextTab() {
+    this.nextTab.emit();
   }
 }

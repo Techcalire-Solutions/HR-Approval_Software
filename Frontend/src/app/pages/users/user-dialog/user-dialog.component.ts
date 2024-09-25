@@ -81,10 +81,13 @@ export class UserDialogComponent implements OnInit {
       if (this.id) {
         this.editStatus = true;
         this.getUser(this.id) // Call a function if 'id' exists
+      }else{
+        this.generateEmployeeNumber()
       }
     });
 
     this.form = this.fb.group({
+      empNo: [''],
       url: [''],
       name: [
         null,
@@ -113,7 +116,6 @@ export class UserDialogComponent implements OnInit {
     })
 
     this.getRoles()
-    this.generateEmployeeNumber()
     this.getTeam()
   }
 
@@ -129,6 +131,9 @@ export class UserDialogComponent implements OnInit {
   }
 
   patchUser(user: User){
+    console.log(user);
+    
+    this.invNo = user.empNo
     this.form.patchValue({
       name: user.name,
       roleId: user.roleId,
@@ -137,6 +142,7 @@ export class UserDialogComponent implements OnInit {
       password: user.password,
       status: user.status,
       joiningDate: user.createdAt,
+      teamId: user.teamId
     })
     if(user.url != null) this.imageUrl = this.url + user.url
   }
@@ -201,10 +207,6 @@ export class UserDialogComponent implements OnInit {
   }
 
 
-  close(): void {
-    // this.dialogRef.close();
-  }
-
   selectedTabIndex: number = 0;
   isFormSubmitted: boolean = true;
   isWorkFormSubmitted: boolean = true;
@@ -220,7 +222,9 @@ export class UserDialogComponent implements OnInit {
     //   })
     // }else{
       this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
-        this.dataToPass = { id: res.id, empNo: this.invNo, name: res.name, updateStatus: this.editStatus };
+        console.log(res);
+        
+        this.dataToPass = { id: res.user.id, empNo: this.invNo, name: res.user.name, updateStatus: this.editStatus };
         console.log(this.dataToPass);
 
         this.selectedTabIndex = 1;
@@ -258,28 +262,38 @@ export class UserDialogComponent implements OnInit {
     let prefix: any;
     const currentYear = new Date().getFullYear();
 
-    this.userService.getUserPersonalDetails().subscribe((res) => {
+    this.userService.getUser().subscribe((res) => {
       let users = res;
-
+      
       if (users.length > 0) {
         const maxId = users.reduce((prevMax, inv) => {
-          const idNumber = parseInt(inv.empNo.replace(/\D/g, ''), 10);
-
-          prefix = this.extractLetters(inv.empNo);
-
+          const empNoParts = inv.empNo.split('-'); // Split by '-'
+  
+          // Extract the numeric portion that represents the ID, assuming it's the last part
+          const idNumber = parseInt(empNoParts[empNoParts.length - 1], 10);
+        
+          prefix = this.extractLetters(inv.empNo); // Get the prefix
+          
           if (!isNaN(idNumber)) {
+            // Compare and return the maximum ID
             return idNumber > prevMax ? idNumber : prevMax;
           } else {
             return prevMax;
           }
         }, 0);
+        
         // Increment the maxId by 1 to get the next ID
         let nextId = maxId + 1;
-        const paddedId = `${prefix}${nextId.toString().padStart(3, "0")}`;
-
+        
+        const paddedId = `${prefix}-${currentYear}-${nextId.toString().padStart(3, "0")}`;
+        
         let ivNum = paddedId;
         this.invNo = ivNum;
-        this.form.get('envNo')?.setValue(ivNum);
+        console.log(this.invNo);
+        
+        this.form.get('empNo')?.setValue(ivNum);
+        console.log(this.form.getRawValue());
+        
       } else {
         // If there are no employees in the array, set the employeeId to 'EMP001'
         let nextId = 0o1;
@@ -298,23 +312,44 @@ export class UserDialogComponent implements OnInit {
   }
 
   extractLetters(input: string): string {
-    // return input.replace(/[^a-zA-Z]/g, "");
-    var extractedChars = input.match(/[A-Za-z-]/g);
-
-    // Combine the matched characters into a string
-    var result = extractedChars ? extractedChars.join('') : '';
-
-    return result;
+    const match = input.match(/^[A-Za-z]+/); 
+  
+    return match ? match[0] : '';
   }
+  
+  
 
   @ViewChild(PersonalDetailsComponent) personalDetailsComponent!: PersonalDetailsComponent;
+  @ViewChild(UserPositionComponent) userPositionComponent!: UserPositionComponent;
+  @ViewChild(StatuatoryInfoComponent) statuatoryInfoComponent!: StatuatoryInfoComponent;
+  @ViewChild(UserAccountComponent) userAccountComponent!: UserAccountComponent;
+  // @ViewChild(StatuatoryInfoComponent) statuatoryInfoComponent!: StatuatoryInfoComponent;
+  // @ViewChild(StatuatoryInfoComponent) statuatoryInfoComponent!: StatuatoryInfoComponent;
   goToNextTab() {
     if (this.selectedTabIndex < 4) {
       this.dataToPass = { updateStatus: this.editStatus, id: this.id }
       this.selectedTabIndex++;
 
       if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
-        this.personalDetailsComponent.ngOnInit(this.dataToPass);
+        this.personalDetailsComponent.triggerNew(this.dataToPass);
+      }
+      else if (this.userPositionComponent && this.selectedTabIndex === 2) {
+        this.userPositionComponent.triggerNew(this.dataToPass);
+      }
+      else if (this.statuatoryInfoComponent && this.selectedTabIndex === 3) {
+        this.statuatoryInfoComponent.triggerNew(this.dataToPass);
+      }
+
+      else if (this.userAccountComponent && this.selectedTabIndex === 4) {
+        this.userAccountComponent.triggerNew(this.dataToPass);
+      }
+
+      else if (this.statuatoryInfoComponent && this.selectedTabIndex === 3) {
+        this.statuatoryInfoComponent.triggerNew(this.dataToPass);
+      }
+
+      else if (this.statuatoryInfoComponent && this.selectedTabIndex === 3) {
+        this.statuatoryInfoComponent.triggerNew(this.dataToPass);
       }
     }
   }
