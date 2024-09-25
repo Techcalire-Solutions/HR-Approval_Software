@@ -14,6 +14,9 @@ export interface User {
   userImage: string
   createdAt: Date
 
+  teamId:number
+  team: Team
+
   empNo: string
   dateOfJoining: Date
   probationPeriod: string
