@@ -33,6 +33,22 @@
       <div class="row box">
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
+            <mat-label>BloodGroup</mat-label>
+            <mat-select required formControlName="bloodGroup">
+              <mat-option value="A+">A+</mat-option>
+              <mat-option value="A-">A-</mat-option>
+              <mat-option value="B+">B+</mat-option>
+              <mat-option value="B-">B-</mat-option>
+              <mat-option value="AB+">AB+</mat-option>
+              <mat-option value="AB-">AB-</mat-option>
+              <mat-option value="O+">O+</mat-option>
+              <mat-option value="O-">O-</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
             <mat-label>Marital Status</mat-label>
             <mat-select required formControlName="maritalStatus">
               <mat-option value="married">Married</mat-option>
@@ -64,6 +80,29 @@
           </mat-form-field>
         </div>
       </div>
+
+      <div class="row box">
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Emergency Contact No</mat-label>
+            <input matInput formControlName="emergencyContactNo" required>
+          </mat-form-field>
+        </div>
+  
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Emergency Contact Name</mat-label>
+            <input matInput formControlName="emergencyContactName">
+          </mat-form-field>
+        </div>
+
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Emergency Contact Relation</mat-label>
+            <input matInput formControlName="emergencyContactRelation">
+          </mat-form-field>
+        </div>
+      </div>
   
       <div class="row box">
         <div class="col">
@@ -75,16 +114,23 @@
   
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
-            <mat-label>Reporting Manager</mat-label>
-            <input matInput formControlName="reportingManger" required>
+            <mat-label>Reporting Manger</mat-label>
+            <mat-select formControlName="reportingManger" required>
+              @for (item of rm; track item) {
+                <mat-option [value]="item.id">
+                  {{ item.name }}_{{ item.empNo }}
+                </mat-option>
+              }
+            </mat-select>
+            <mat-error>  Role is required </mat-error>
           </mat-form-field>
         </div>
       </div>
 
       <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center" class="row">
-        <div class="col">
+        <!-- <div class="col">
           <mat-slide-toggle formControlName="isTemporary">Is Temporary</mat-slide-toggle>
-        </div>
+        </div> -->
         <div class="col" style="text-align: right;">
           <button mat-raised-button color="primary" (click)="onSubmit()">
             @if (editStatus) {

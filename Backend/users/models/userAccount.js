@@ -6,7 +6,8 @@ const UserAccount = sequelize.define('useraccount',{
     accountNo : {type : DataTypes.STRING, allowNull : false},
     ifseCode : {type : DataTypes.STRING, allowNull : false},
     paymentFrequency : {type : DataTypes.STRING, allowNull : false},
-    modeOfPayment : {type : DataTypes.STRING, allowNull : false}
+    modeOfPayment : {type : DataTypes.STRING, allowNull : false},
+    branchName : {type : DataTypes.STRING}
 },
 {
     freezeTableName: true,
