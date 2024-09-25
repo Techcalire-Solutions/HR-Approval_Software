@@ -7,16 +7,16 @@ router.post('/add', authenticateToken, async (req, res) => {
   const { userId, empNo, dateOfJoining, probationPeriod, confirmationDate, isTemporary, maritalStatus, dateOfBirth, gender, 
     parentName, spouseName, referredBy, reportingManger} = req.body;
   try {
-    try {
-      const userExist = await UserPersonal.findOne({
-        where: { empNo: empNo}
-      });
-      if (userExist) {
-        return res.status(400).send('Employee with the given employee number already exists.');
-      }
-    } catch (error) {
-      res.send(error.message)
-    }
+    // try {
+    //   const userExist = await UserPersonal.findOne({
+    //     where: { empNo: empNo}
+    //   });
+    //   if (userExist) {
+    //     return res.status(400).send('Employee with the given employee number already exists.');
+    //   }
+    // } catch (error) {
+    //   res.send(error.message)
+    // }
     
     try {
       const us = await UserPersonal.findOne({

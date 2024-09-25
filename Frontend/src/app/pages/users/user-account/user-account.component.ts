@@ -33,6 +33,35 @@ export class UserAccountComponent {
     modeOfPayment : ['']
   });
 
+  editStatus: boolean = false;
+  triggerNew(data?: any): void {
+    if(data){
+      console.log(data);
+      
+      if(data.updateStatus){
+        this.editStatus = true;
+        console.log(this.editStatus);
+        
+        this.getPositionDetailsByUser(data.id)
+      }
+    }
+  }
+
+  pUSub!: Subscription;
+  getPositionDetailsByUser(id: number){
+    console.log(id);
+    this.pUSub = this.userService.getUserAcoountDetailsByUser(id).subscribe(data=>{
+      if(data){
+        this.form.patchValue({
+          accountNo : data.accountNo,
+          ifseCode : data.ifseCode,
+          paymentFrequency : data.paymentFrequency,
+          modeOfPayment : data.modeOfPayment
+        })
+      }
+    })
+  }
+
   @Output() dataSubmitted = new EventEmitter<any>();
   submitSub!: Subscription;
   onSubmit(){
@@ -46,5 +75,10 @@ export class UserAccountComponent {
       this.snackBar.open("Account Details added succesfully...","" ,{duration:3000})
       this.dataSubmitted.emit( {isFormSubmitted: true} );
     })
+  }
+
+  @Output() nextTab = new EventEmitter<void>(); 
+  triggerNextTab() {
+    this.nextTab.emit();
   }
 }
