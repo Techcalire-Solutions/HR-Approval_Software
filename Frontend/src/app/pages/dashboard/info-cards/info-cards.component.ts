@@ -38,30 +38,30 @@ export class InfoCardsComponent implements OnInit {
   }
 
   ngOnInit(){
-    this.orders = this.addRandomValue('orders');
-    this.customers = this.addRandomValue('customers');
+    // this.orders = this.addRandomValue('orders');
+    // this.customers = this.addRandomValue('customers');
   }
 
   public onSelect(event: any) {
 
   }
 
-  public addRandomValue(param: any) {
-    switch(param) {
-      case 'orders':
-        for (let i = 1; i < 30; i++) {
-          this.orders[0].series.push({"name": 1980+i, "value": Math.ceil(Math.random() * 1000000)});
-        }
-        return this.orders;
-      case 'customers':
-        for (let i = 1; i < 15; i++) {
-          this.customers[0].series.push({"name": 2000+i, "value": Math.ceil(Math.random() * 1000000)});
-        }
-        return this.customers;
-      default:
-        return this.orders;
-    }
-  }
+  // public addRandomValue(param: any) {
+  //   switch(param) {
+  //     case 'orders':
+  //       for (let i = 1; i < 30; i++) {
+  //         this.orders[0].series.push({"name": 1980+i, "value": Math.ceil(Math.random() * 1000000)});
+  //       }
+  //       return this.orders;
+  //     case 'customers':
+  //       for (let i = 1; i < 15; i++) {
+  //         this.customers[0].series.push({"name": 2000+i, "value": Math.ceil(Math.random() * 1000000)});
+  //       }
+  //       return this.customers;
+  //     default:
+  //       return this.orders;
+  //   }
+  // }
 
   ngOnDestroy(){
     this.orders[0].series.length = 0;

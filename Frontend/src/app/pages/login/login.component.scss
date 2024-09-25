@@ -132,6 +132,18 @@ form.sign-in-form {
   color: rgb(30 58 138);
   border-color: rgb(30 58 138)
 }
+.btn1 {
+  width: 150px; /* Adjust size to make it square */
+  height: 50px; /* Same value as width to make it square */
+  background-color: #dde6e9; /* Change to the color you want */
+  border: none; /* Remove border */
+  color: rgb(15, 87, 158); /* Text color */
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0; /* Remove rounded corners */
+}
 
 .btn {
   width: 150px;
