@@ -5,8 +5,8 @@ const sequelize = require('../../utils/db')
    userId : {type : DataTypes.INTEGER, allowNull : true},
    leaveTypeId : { type: DataTypes.INTEGER, allowNull:true},
    noOfDays : {type: DataTypes.INTEGER,allowNull:true},
-   takenLeaves : {type :DataTypes.INTEGER,allowNull :true},
-   leaveBalance : { type:DataTypes.INTEGER, allowNull:true}
+   takenLeaves : {type :DataTypes.FLOAT,allowNull :true},
+   leaveBalance : { type:DataTypes.FLOAT, allowNull:true}
 
 
  },{
