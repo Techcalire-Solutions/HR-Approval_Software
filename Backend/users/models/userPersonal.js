@@ -5,7 +5,6 @@ const User = require('./user');
 
 const UserPersonal = sequelize.define('userPersonal', {
   userId: { type: DataTypes.INTEGER, allowNull: false },
-  empNo: { type: DataTypes.STRING, allowNull: false },
   dateOfJoining: { type: DataTypes.DATEONLY },
   probationPeriod: { type: DataTypes.STRING, allowNull: false },
   confirmationDate: { type: DataTypes.DATEONLY },
