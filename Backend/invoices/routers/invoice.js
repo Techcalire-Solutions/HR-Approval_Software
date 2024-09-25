@@ -101,10 +101,8 @@ router.post('/bankslipupload', upload.single('file'), authenticateToken, async (
 
 router.delete('/filedelete', authenticateToken, async (req, res) => {
   try {
-    console.log(req.query);
     const fileName = path.basename(req.query.fileName);
 
-    console.log(fileName);
     const filePath = path.join(__dirname, '../uploads', fileName);
 
     // Check if the file exists

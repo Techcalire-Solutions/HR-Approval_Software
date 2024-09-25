@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, input, Output, inject, OnDestroy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -15,7 +15,12 @@ import { Subscription } from 'rxjs';
   templateUrl: './user-position.component.html',
   styleUrl: './user-position.component.scss'
 })
-export class UserPositionComponent {
+export class UserPositionComponent implements OnDestroy {
+  ngOnDestroy(): void {
+    this.pUSub?.unsubscribe();
+    this.submitSub?.unsubscribe();
+  }
+  
   @Input() positionData: any;
 
   fb = inject(FormBuilder);

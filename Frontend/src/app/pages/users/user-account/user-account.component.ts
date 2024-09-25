@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -18,7 +18,11 @@ import { Subscription } from 'rxjs';
   templateUrl: './user-account.component.html',
   styleUrl: './user-account.component.scss'
 })
-export class UserAccountComponent implements OnInit {
+export class UserAccountComponent implements OnInit, OnDestroy {
+  ngOnDestroy(): void {
+    this.pUSub?.unsubscribe();
+    this.submitSub?.unsubscribe();
+  }
   ngOnInit(): void {
     this.form.get('paymentFrequency')?.setValue('Monthly');
     this.form.get('modeOfPayment')?.setValue('BankTransfer')

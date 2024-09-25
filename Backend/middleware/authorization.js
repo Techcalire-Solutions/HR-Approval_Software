@@ -9,10 +9,6 @@ function authenticateToken(req, res, next) {
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (error, user) => {
         if (error) return res.status(403).json({error: error.message});
-
-        // Optional: Log the decoded user info for debugging
-        console.log(`Authenticated User: ${JSON.stringify(user)}`);
-
         req.user = user;
         next();
     });

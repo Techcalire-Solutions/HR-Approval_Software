@@ -48,8 +48,6 @@ export class UpdatePIComponent {
   ){}
   getPiById(id: number){
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
-      console.log(pi);
-
       // this.pi = pi;
       // this.piNo = pi.piNo;
       this.url = environment.apiUrl + pi.url;
@@ -236,7 +234,6 @@ export class UpdatePIComponent {
 
   submit!: Subscription;
   onUpdate(){
-    console.log(this.roleName);
 
     if(this.roleName=='Sales Executive'){
       this.submit = this.invoiceService.updatePIBySE(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
