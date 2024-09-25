@@ -48,6 +48,11 @@ export class UsersService {
     return this.http.delete(`${this.apiUrl}/user/delete/${id}`);
   }
 
+  deleteUserImage(id: number) {
+    return this.http.delete(`${this.apiUrl}/user/filedelete/${id}`);
+  }
+
+
   getUserByRoleId(id:number):Observable<User>{
     return this.http.get<User>(this.apiUrl + '/user/findbyrole/'+id)
   }
