@@ -33,6 +33,39 @@ export class UserPositionComponent {
     salary : ['']
   });
 
+  editStatus: boolean = false;
+  triggerNew(data?: any): void {
+    if(data){
+      console.log(data);
+      
+      if(data.updateStatus){
+        this.editStatus = true;
+        console.log(this.editStatus);
+        
+        this.getPositionDetailsByUser(data.id)
+      }
+    }
+  }
+
+  pUSub!: Subscription;
+  getPositionDetailsByUser(id: number){
+    console.log(id);
+    this.pUSub = this.userService.getUserPositionDetailsByUser(id).subscribe(data=>{
+      if(data){
+        this.form.patchValue({
+          division : data.division,
+          costCentre : data.costCentre,
+          grade : data.grade,
+          designation : data.designation,
+          location : data.location,
+          department : data.department,
+          office  : data.office,
+          salary : data.salary
+        })
+      }
+    })
+  }
+
   @Output() dataSubmitted = new EventEmitter<any>();
   submitSub!: Subscription;
   onSubmit(){
@@ -45,5 +78,10 @@ export class UserPositionComponent {
       this.snackBar.open("Postion Details added succesfully...","" ,{duration:3000})
       this.dataSubmitted.emit( {isFormSubmitted: true} );
     })
+  }
+  
+  @Output() nextTab = new EventEmitter<void>(); 
+  triggerNextTab() {
+    this.nextTab.emit();
   }
 }

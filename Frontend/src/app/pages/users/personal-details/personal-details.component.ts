@@ -1,6 +1,7 @@
-import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatOptionModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,7 +17,7 @@ import { Subscription } from 'rxjs';
   selector: 'app-personal-details',
   standalone: true,
   imports: [ MatFormFieldModule, MatDatepickerModule, MatRadioModule, ReactiveFormsModule, MatOptionModule, MatSelectModule,
-    MatInputModule, MatSlideToggleModule, MatButtonModule],
+    MatInputModule, MatSlideToggleModule, MatButtonModule, MatCardModule],
   templateUrl: './personal-details.component.html',
   styleUrl: './personal-details.component.scss'
 })
@@ -28,23 +29,19 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
   @Input() data: any;
   @Output() dataSubmitted = new EventEmitter<any>();
 
-  ngOnInit(data?: any): void {
+  ngOnInit(): void { }
+  
+  editStatus: boolean = false;
+  triggerNew(data?: any): void {
     if(data){
+      console.log(data);
+      
       if(data.updateStatus){
+        this.editStatus = true;
+        console.log(this.editStatus);
+        
         this.getPersonalDetailsByUser(data.id)
       }
-
-      // this.getEntryId(entryId)
-      // if(data.trans){
-      //   this.finalForm.get('trans')?.setValue(data.trans)
-      //   this.openTrans();
-      // }else if(!data.trans && data.com){
-      //   this.finalForm.get('com')?.setValue(data.com)
-      //   this.openComm();
-      // }else if(!data.trans && !data.com && data.unload){
-      //   this.finalForm.get('unload')?.setValue(this.data.unload)
-      //   this.openUnload()
-      // }
     }
   }
 
@@ -52,26 +49,39 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
   getPersonalDetailsByUser(id: number){
     console.log(id);
     this.pUSub = this.userService.getUserPersonalDetailsByUser(id).subscribe(data=>{
-      this.form.patchValue({
-
-      })
+      console.log(data);
+      if(data){
+        this.form.patchValue({
+          dateOfJoining: data.dateOfJoining,
+          probationPeriod: data.probationPeriod,
+          confirmationDate: data.confirmationDate,
+          maritalStatus: data.maritalStatus,
+          dateOfBirth: data.dateOfBirth,
+          gender: data.gender,
+          isTemporary: data.isTemporary,
+          parentName: data.parentName,
+          spouseName: data.spouseName,
+          referredBy: data.referredBy,
+          reportingManger: data.reportingManger
+        })
+      }
     })
   }
 
   form = this.fb.group({
     empNo: [],
     userId: [],
-    dateOfJoining: [''],
+    dateOfJoining: <any>[],
     probationPeriod: [''],
-    confirmationDate: [''],
+    confirmationDate: <any>[],
     maritalStatus: ['', Validators.required],
-    dateOfBirth: [''],
+    dateOfBirth: <any>[],
     gender: [''],
-    isTemporary: [],
+    isTemporary: [true],
     parentName: [''],
     spouseName: [''],
     referredBy: [''],
-    reportingManger: ['']
+    reportingManger: <any>[]
   });
 
   submitSub!: Subscription;
@@ -102,4 +112,12 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     return validDate.toISOString().split('T')[0]; // Return 'YYYY-MM-DD' format
   }
 
+  @Output() nextTab = new EventEmitter<void>();
+  triggerNextTab() {
+    this.nextTab.emit();
+  }
+
+  getReportingManager(){
+    
+  }
 }
