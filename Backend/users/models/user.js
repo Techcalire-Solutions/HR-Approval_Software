@@ -15,6 +15,8 @@ const User = sequelize.define('user', {
 
   userImage: { type: DataTypes.STRING },
   url: { type: DataTypes.STRING },
+
+  reportingManager: { type: DataTypes.BOOLEAN, defaultValue: false }
 },
 {
   freezeTableName: true,

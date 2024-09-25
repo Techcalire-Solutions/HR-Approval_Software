@@ -27,4 +27,14 @@ router.post('/add', authenticateToken, async (req, res) => {
   }
 })
 
+router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
+  try {
+    const user = await UserPosition.findOne({where: {userId: req.params.id}})
+
+    res.send(user)
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
 module.exports = router;
