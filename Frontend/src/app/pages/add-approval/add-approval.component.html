@@ -161,10 +161,10 @@
 
 
 
-      <section class="progress-area" *ngIf="file">
+      <section class="progress-area" *ngIf="file" style="width:90%">
         <li class="row">
           <!-- <span class="material-icons">file_copy</span> -->
-          <div class="content">
+          <div class="content" >
             <div class="details">
               <span class="name">{{ file.name }} - {{ uploadComplete ? 'Uploaded' : 'Uploading' }}</span>
               <mat-progress-bar *ngIf="!uploadComplete" mode="indeterminate"></mat-progress-bar>
