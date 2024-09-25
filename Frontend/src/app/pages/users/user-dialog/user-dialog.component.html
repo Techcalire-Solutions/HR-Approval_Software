@@ -97,7 +97,7 @@
               <div class="col">
                 <mat-form-field class="w-100" appearance="outline">
                   <mat-label>Team</mat-label>
-                  <mat-select formControlName="teamId" required>
+                  <mat-select formControlName="teamId">
                     <mat-option *ngFor="let item of team" [value]="item.id">
                       {{ item.teamName}}
                     </mat-option>
