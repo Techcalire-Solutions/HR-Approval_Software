@@ -71,7 +71,7 @@ export class RoleComponent implements OnInit, OnDestroy {
       this.roles = res;
     })
   }
- 
+
 
   // Function to check if the role is restricted
   isRestrictedRole(roleName: string): boolean {
@@ -81,7 +81,11 @@ export class RoleComponent implements OnInit, OnDestroy {
       'Manager',
       'Accountant',
       'Team Lead',
-      'Administrator'
+      'Administrator',
+      'Approval Administrator',
+      'HR Administrator',
+      'Super Administrator',
+      'HR'
     ];
     return restrictedRoles.includes(roleName);
   }
