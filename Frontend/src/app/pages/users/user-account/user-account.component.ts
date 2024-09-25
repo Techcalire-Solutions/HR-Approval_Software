@@ -1,6 +1,7 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatOptionModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -13,11 +14,16 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-user-account',
   standalone: true,
-  imports: [MatFormFieldModule, ReactiveFormsModule, MatOptionModule, MatSelectModule, MatInputModule, MatButtonModule],
+  imports: [MatFormFieldModule, ReactiveFormsModule, MatOptionModule, MatSelectModule, MatInputModule, MatButtonModule, MatCardModule],
   templateUrl: './user-account.component.html',
   styleUrl: './user-account.component.scss'
 })
-export class UserAccountComponent {
+export class UserAccountComponent implements OnInit {
+  ngOnInit(): void {
+    this.form.get('paymentFrequency')?.setValue('Monthly');
+    this.form.get('modeOfPayment')?.setValue('BankTransfer')
+  }
+
   @Input() accountData: any;
 
   fb = inject(FormBuilder);
@@ -30,33 +36,32 @@ export class UserAccountComponent {
     accountNo : [''],
     ifseCode : [''],
     paymentFrequency : [''],
-    modeOfPayment : ['']
+    modeOfPayment : [''],
+    branchName : ['']
   });
 
   editStatus: boolean = false;
   triggerNew(data?: any): void {
     if(data){
-      console.log(data);
-      
       if(data.updateStatus){
-        this.editStatus = true;
-        console.log(this.editStatus);
-        
         this.getPositionDetailsByUser(data.id)
       }
     }
   }
 
   pUSub!: Subscription;
+  id: number;
   getPositionDetailsByUser(id: number){
-    console.log(id);
     this.pUSub = this.userService.getUserAcoountDetailsByUser(id).subscribe(data=>{
       if(data){
+        this.id = data.id;
+        this.editStatus = true;
         this.form.patchValue({
           accountNo : data.accountNo,
           ifseCode : data.ifseCode,
           paymentFrequency : data.paymentFrequency,
-          modeOfPayment : data.modeOfPayment
+          modeOfPayment : data.modeOfPayment,
+          branchName : data.branchName
         })
       }
     })
@@ -68,13 +73,17 @@ export class UserAccountComponent {
     let submit = {
       ...this.form.getRawValue()
     }
-    submit.userId = this.accountData.id;
-    console.log(submit);
-
-    this.submitSub = this.userService.addUserAccountDetails(submit).subscribe(data => {
-      this.snackBar.open("Account Details added succesfully...","" ,{duration:3000})
-      this.dataSubmitted.emit( {isFormSubmitted: true} );
-    })
+    submit.userId = submit.userId ? submit.userId : this.accountData.id;
+    if(this.editStatus){
+      this.submitSub = this.userService.updateUserAccount(this.id, submit).subscribe(data => {
+        this.snackBar.open("Account Details updated succesfully...","" ,{duration:3000})
+        this.dataSubmitted.emit( {isFormSubmitted: true} );
+      })}
+    else{
+      this.submitSub = this.userService.addUserAccountDetails(submit).subscribe(data => {
+        this.snackBar.open("Account Details added succesfully...","" ,{duration:3000})
+        this.dataSubmitted.emit( {isFormSubmitted: true} );
+      })}
   }
 
   @Output() nextTab = new EventEmitter<void>(); 

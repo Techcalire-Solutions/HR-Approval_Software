@@ -43,9 +43,6 @@ export class UsersService {
   // deleteInvoice(id: number, fileName: string){
   //   return this._http.delete(this.url + `/invoice/filedelete/?id=${id}&fileName=${fileName}`);
   // }
-  updateUser(id: number, data: any){
-      return this.http.patch(this.apiUrl + '/user/update/' + id, data);
-  }
 
   deleteUser(id: number) {
     return this.http.delete(`${this.apiUrl}/user/delete/${id}`);
@@ -105,5 +102,25 @@ export class UsersService {
 
   addUserDocumentDetails(data: any): Observable<any> {
     return this.http.post( this.apiUrl + '/document/add', data);
+  }
+
+  updateUser(id: number, data: any){
+    return this.http.patch(this.apiUrl + '/user/update/' + id, data);
+  }
+
+  updateUserPersonal(id: number, data: any){
+    return this.http.patch(this.apiUrl + '/personal/update/' + id, data);
+  }
+
+  updateUserAccount(id: number, data: any){
+    return this.http.patch(this.apiUrl + '/account/update/' + id, data);
+  }
+
+  updateUserStatutory(id: number, data: any){
+    return this.http.patch(this.apiUrl + '/statutoryinfo/update/' + id, data);
+  }
+
+  updateUserPosition(id: number, data: any){
+    return this.http.patch(this.apiUrl + '/position/update/' + id, data);
   }
 }
