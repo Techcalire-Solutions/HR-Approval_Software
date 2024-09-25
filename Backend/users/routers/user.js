@@ -9,6 +9,8 @@ const sequelize = require('../../utils/db');
 const multer = require('../../utils/userImageMulter'); // Import the configured multer instance
 const Team = require('../models/team')
 const TeamMember = require('../models/teamMember');
+const upload = require('../../utils/userImageMulter'); 
+const s3 = require('../../utils/s3bucket')
 
 router.post('/add', async (req, res) => {
   const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId, empNo } = req.body;
@@ -242,26 +244,28 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
   }
 })
 
-router.post('/fileupload', multer.single('file'), authenticateToken, (req, res) => {
-  try {
+// router.post('/fileupload', multer.single('file'), authenticateToken, (req, res) => {
+//   try {
 
-    if (!req.file) {
-      return res.status(400).send({ message: 'No file uploaded' });
-    }
+//     if (!req.file) {
+//       return res.status(400).send({ message: 'No file uploaded' });
+//     }
+//     console.log(req.file);
+    
+//     // Construct the URL path
+//     const fileUrl = `/users/userImages/${req.file.originalname}`;
 
-    // Construct the URL path
-    const fileUrl = `/users/userImages/${req.file.filename}`;
+//     res.status(200).send({
+//       message: 'File uploaded successfully',
+//       file: req.file,
+//       fileUrl: fileUrl
+//     });
+//   } catch (error) {
+//     console.error('Error uploading file:', error);
+//     res.status(500).send({ message: error.message });
+//   }
+// });
 
-    res.status(200).send({
-      message: 'File uploaded successfully',
-      file: req.file,
-      fileUrl: fileUrl
-    });
-  } catch (error) {
-    console.error('Error uploading file:', error);
-    res.status(500).send({ message: error.message });
-  }
-});
 router.delete('/filedelete/:id', async (req, res) => {
   let id = req.params.id;
   try {
@@ -311,4 +315,42 @@ router.get('/getreportingmanager', async (req, res) => {
     res.send(error.message)
   }
 })
+
+router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send({ message: 'No file uploaded' });
+    }
+
+    // Sanitize the original file name by removing special characters and spaces
+    const sanitizedFileName = req.file.originalname.replace(/[^a-zA-Z0-9]/g, '_');
+
+    // Create S3 upload parameters
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `Users/Images/${Date.now()}_${sanitizedFileName}`, // File path with sanitized name
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+      ACL: 'public-read' // Optional: make file publicly accessible
+    };
+
+    // Upload the file to S3
+    const data = await s3.upload(params).promise();
+
+    // Check if data.Location (fileUrl) exists
+    const fileUrl = data.Location ? data.Location : '';
+
+    // Replace only if fileUrl is valid
+    const key = fileUrl ? fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+
+    res.status(200).send({
+      message: 'File uploaded successfully',
+      file: req.file,
+      fileUrl: key // S3 URL of the uploaded file
+    });
+  } catch (error) {
+    console.error('Error uploading file to S3:', error);
+    res.send({ message: error.message });
+  }
+});
 module.exports = router;
