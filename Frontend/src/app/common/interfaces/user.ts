@@ -13,8 +13,6 @@ export interface User {
   url: string
   userImage: string
   createdAt: Date
-  teamId: number
-  team: Team
 
   teamId: number
   team: Team
