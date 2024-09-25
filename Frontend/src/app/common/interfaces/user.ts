@@ -1,4 +1,5 @@
 import { Role } from "./role"
+import { Team } from "./team"
 
 export interface User {
   id: number,
@@ -12,6 +13,8 @@ export interface User {
   url: string
   userImage: string
   createdAt: Date
+  teamId: number
+  team: Team
 
   empNo: string
   dateOfJoining: Date
@@ -19,7 +22,7 @@ export interface User {
   confirmationDate: Date
   isTemporary: boolean
 
-  martialStatus: string
+  maritalStatus: string
   dateOfBirth: Date
   gender: string
   parentName: string

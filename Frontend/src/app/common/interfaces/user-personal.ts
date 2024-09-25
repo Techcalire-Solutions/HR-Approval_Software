@@ -6,7 +6,7 @@ export interface UserPersonal {
   confirmationDate: Date
   isTemporary: boolean
 
-  martialStatus: string
+  maritalStatus: string
   dateOfBirth: Date
   gender: string
   parentName: string
