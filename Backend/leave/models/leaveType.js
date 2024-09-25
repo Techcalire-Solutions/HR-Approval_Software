@@ -17,18 +17,18 @@ const leaveTypeData = [
 ];
 
 
-const initializeLeaveTypes = async () => {
-  try {
-    const leaveTypes = await LeaveType.findAll();
-    if (!leaveTypes.length) await LeaveType.bulkCreate(leaveTypeData);
-  } catch (error) {
+// const initializeLeaveTypes = async () => {
+//   try {
+//     const leaveTypes = await LeaveType.findAll();
+//     if (!leaveTypes.length) await LeaveType.bulkCreate(leaveTypeData);
+//   } catch (error) {
   
-  }
-};
+//   }
+// };
 
-LeaveType.sync({ alter: true })
-  .then(initializeLeaveTypes)
-  .catch(error => console.error('Error syncing LeaveType model:', error));
+// LeaveType.sync({ alter: true })
+//   .then(initializeLeaveTypes)
+//   .catch(error => console.error('Error syncing LeaveType model:', error));
 
 
 module.exports = LeaveType
