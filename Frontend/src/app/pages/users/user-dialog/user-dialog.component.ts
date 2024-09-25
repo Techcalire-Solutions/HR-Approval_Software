@@ -109,10 +109,7 @@ export class UserDialogComponent implements OnInit {
         null,
         Validators.compose([Validators.required])
       ],
-      teamId: [
-        null,
-        Validators.compose([Validators.required])
-      ]
+      teamId: [ null ]
     })
 
     this.getRoles()
@@ -131,8 +128,6 @@ export class UserDialogComponent implements OnInit {
   }
 
   patchUser(user: User){
-    console.log(user);
-    
     this.invNo = user.empNo
     this.form.patchValue({
       name: user.name,
@@ -208,29 +203,27 @@ export class UserDialogComponent implements OnInit {
 
 
   selectedTabIndex: number = 0;
-  isFormSubmitted: boolean = true;
-  isWorkFormSubmitted: boolean = true;
-  isContactsFormSubmitted: boolean = true;
-  isSocialFormSubmitted: boolean = true;
-  isAccountFormSubmitted: boolean = true;
+  isFormSubmitted: boolean = false;
+  isWorkFormSubmitted: boolean = false;
+  isContactsFormSubmitted: boolean = false;
+  isSocialFormSubmitted: boolean = false;
+  isAccountFormSubmitted: boolean = false;
   onSubmit(){
-    // if(this.data){
-    //   this.userService.updateUser(this.data.id, this.form.getRawValue()).subscribe((res)=>{
-    //     console.log(res);
-    //     this.dialogRef.close();
-    //     this.snackBar.open("User updated succesfully...","" ,{duration:3000})
-    //   })
-    // }else{
-      this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
-        console.log(res);
-        
+    if(this.editStatus){
+      this.userService.updateUser(this.id, this.form.getRawValue()).subscribe((res)=>{
+        this.snackBar.open("User updated succesfully...","" ,{duration:3000})
+      })
+    }else{
+      this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{    
         this.dataToPass = { id: res.user.id, empNo: this.invNo, name: res.user.name, updateStatus: this.editStatus };
-        console.log(this.dataToPass);
-
         this.selectedTabIndex = 1;
+        if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
+          this.personalDetailsComponent.ngOnInit();
+        }
         this.isFormSubmitted = true;
         this.snackBar.open("User added succesfully...","" ,{duration:3000})
       })
+    }
   }
 
   personalSubmit(event: any){
@@ -246,6 +239,9 @@ export class UserDialogComponent implements OnInit {
   contactSubmit(event: any){
     this.isSocialFormSubmitted = event.isFormSubmitted
     this.selectedTabIndex = 4
+    if (this.userAccountComponent && this.selectedTabIndex === 4) {
+      this.userAccountComponent.ngOnInit();
+    }
   }
 
   accountSubmit(event: any){

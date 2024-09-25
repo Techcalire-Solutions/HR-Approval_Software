@@ -12,6 +12,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
+import { User } from '../../../common/interfaces/user';
 
 @Component({
   selector: 'app-personal-details',
@@ -29,29 +30,31 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
   @Input() data: any;
   @Output() dataSubmitted = new EventEmitter<any>();
 
-  ngOnInit(): void { }
+  ngOnInit(): void { 
+    this.getReportingManager()
+  }
   
   editStatus: boolean = false;
   triggerNew(data?: any): void {
+    this.getReportingManager()
     if(data){
       console.log(data);
       
       if(data.updateStatus){
-        this.editStatus = true;
-        console.log(this.editStatus);
-        
         this.getPersonalDetailsByUser(data.id)
       }
     }
   }
 
   pUSub!: Subscription;
+  id: number;
   getPersonalDetailsByUser(id: number){
-    console.log(id);
     this.pUSub = this.userService.getUserPersonalDetailsByUser(id).subscribe(data=>{
-      console.log(data);
       if(data){
+        this.id = data.id;
+        this.editStatus = true;
         this.form.patchValue({
+          userId: data.userId,
           dateOfJoining: data.dateOfJoining,
           probationPeriod: data.probationPeriod,
           confirmationDate: data.confirmationDate,
@@ -62,15 +65,18 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
           parentName: data.parentName,
           spouseName: data.spouseName,
           referredBy: data.referredBy,
-          reportingManger: data.reportingManger
+          reportingManger: data.reportingManger,
+          emergencyContactNo: data.emergencyContactNo,
+          emergencyContactName: data.emergencyContactName,
+          emergencyContactRelation: data.emergencyContactRelation, 
+          bloodGroup: data.bloodGroup
         })
       }
     })
   }
 
   form = this.fb.group({
-    empNo: [],
-    userId: [],
+    userId: <any>[],
     dateOfJoining: <any>[],
     probationPeriod: [''],
     confirmationDate: <any>[],
@@ -81,7 +87,11 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     parentName: [''],
     spouseName: [''],
     referredBy: [''],
-    reportingManger: <any>[]
+    reportingManger: <any>[],
+    emergencyContactNo: ['', Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)])],
+    emergencyContactName: [''],
+    emergencyContactRelation: [''], 
+    bloodGroup: ['']
   });
 
   submitSub!: Subscription;
@@ -89,16 +99,26 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     let submit = {
       ...this.form.getRawValue()
     }
-    submit.userId = this.data.id;
-    submit.empNo = this.data.empNo;
+    submit.userId = submit.userId ? submit.userId : this.data.id;
     submit.dateOfJoining = this.formatDateOnly(submit.dateOfJoining);
     submit.confirmationDate = this.formatDateOnly(submit.confirmationDate);
     submit.dateOfBirth = this.formatDateOnly(submit.dateOfBirth);
     console.log(submit);
-    this.submitSub = this.userService.addUserPersonalDetails(submit).subscribe(data => {
-      this.snackBar.open("Personal Details added succesfully...","" ,{duration:3000})
-      this.dataSubmitted.emit( {isFormSubmitted: true} );
-    })
+    
+    if(this.editStatus){
+      this.submitSub = this.userService.updateUserPersonal(this.id, submit).subscribe(data => {
+        console.log(data);
+        
+        this.snackBar.open("Personal Details updated succesfully...","" ,{duration:3000})
+        this.dataSubmitted.emit( {isFormSubmitted: true} );
+      })
+    }
+    else{
+      this.submitSub = this.userService.addUserPersonalDetails(submit).subscribe(data => {
+        this.snackBar.open("Personal Details added succesfully...","" ,{duration:3000})
+        this.dataSubmitted.emit( {isFormSubmitted: true} );
+      })
+    }
   }
 
   ngOnDestroy(): void {
@@ -117,7 +137,11 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     this.nextTab.emit();
   }
 
+  rmSub!: Subscription;
+  rm: User[] = [];
   getReportingManager(){
-    
+    this.rmSub = this.userService.getReportingManagers().subscribe(res=>{
+      this.rm = res;
+    })
   }
 }
