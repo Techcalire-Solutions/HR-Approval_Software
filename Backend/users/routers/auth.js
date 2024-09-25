@@ -14,16 +14,11 @@ router.post('/', async (req, res) => {
         }
 
         const validPassword = await bcrypt.compare(password, user.password);
-        console.log(`Password valid: ${validPassword}`);
-
         if (!validPassword) {
-            console.log('Incorrect password');
             return res.json({ message: 'Incorrect password' });
         }
 
         const token = jwtTokens(user);
-        console.log(`Generated tokens for user: ${user.id}`);
-
         res.cookie('refreshtoken', token.refreshToken, { httpOnly: true });
 
         return res.status(200).json({

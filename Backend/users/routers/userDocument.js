@@ -13,9 +13,7 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
       return res.send({ message: 'No file uploaded' });
     }
     
-    const customFileName = req.body.name || req.file.originalname;  // Use docName from request body
-    console.log(customFileName);
-    
+    const customFileName = req.body.name || req.file.originalname;  
     const sanitizedFileName = customFileName.replace(/[^a-zA-Z0-9]/g, '_');
 
     const params = {

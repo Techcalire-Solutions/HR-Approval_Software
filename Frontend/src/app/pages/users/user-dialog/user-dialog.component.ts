@@ -161,11 +161,8 @@ export class UserDialogComponent implements OnInit {
         const splitName = fileName.split('.');
         fileName = splitName[0].substring(0, 12) + "... ." + splitName[1];
       }
-      console.log(this.file);
-      
       this.uploadSub = this.userService.uploadImage(this.file).subscribe({
         next: (invoice) => {
-          console.log(invoice);
           
           this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ invoice.fileUrl}`;
           if (this.imageUrl) {
@@ -288,10 +285,7 @@ export class UserDialogComponent implements OnInit {
         
         let ivNum = paddedId;
         this.invNo = ivNum;
-        console.log(this.invNo);
-        
         this.form.get('empNo')?.setValue(ivNum);
-        console.log(this.form.getRawValue());
         
       } else {
         // If there are no employees in the array, set the employeeId to 'EMP001'
