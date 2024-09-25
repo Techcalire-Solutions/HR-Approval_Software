@@ -72,7 +72,7 @@ export class ViewApprovalComponent {
     this.invoiceSubscriptions?.unsubscribe();
   }
 
-user: number;
+  user: number;
   ngOnInit() {
     this.getInvoices()
     const token: any = localStorage.getItem('token')
@@ -82,9 +82,6 @@ user: number;
 
     let roleId = user.role
     this.getRoleById(roleId)
-
-
-
   }
 
   roleSub!: Subscription;
@@ -150,7 +147,6 @@ user: number;
   submittingForm: boolean = false;
 
   getInvoices() {
-    this.submittingForm = true;
     let invoice!: PerformaInvoice[];
 
     let apiCall;
@@ -208,9 +204,7 @@ user: number;
         // Handle error here if needed
         this.submittingForm = false;
       });
-    } else {
-      this.submittingForm = false;
-    }
+    } 
   }
 
   filterValue!: string;
