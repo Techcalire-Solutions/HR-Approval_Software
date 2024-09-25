@@ -5,6 +5,9 @@ import { Role } from '../common/interfaces/role';
 import { User } from '../common/interfaces/user';
 import { environment } from '../../environments/environment';
 import { UserPersonal } from '../common/interfaces/user-personal';
+import { UserPosition } from '../common/interfaces/user-position';
+import { StatutoryInfo } from '../common/interfaces/statutory-info';
+import { UserAccount } from '../common/interfaces/user-account';
 
 
 @Injectable({
@@ -80,6 +83,21 @@ export class UsersService {
     return this.http.get<UserPersonal>( this.apiUrl + '/personal/findbyuser/' + id);
   }
 
+  getUserPositionDetailsByUser(id: number): Observable<UserPosition> {
+    return this.http.get<UserPosition>( this.apiUrl + '/position/findbyuser/' + id);
+  }
+
+  getUserStatutoryuDetailsByUser(id: number): Observable<StatutoryInfo> {
+    return this.http.get<StatutoryInfo>( this.apiUrl + '/statutoryinfo/findbyuser/' + id);
+  }
+  
+  getUserAcoountDetailsByUser(id: number): Observable<UserAccount> {
+    return this.http.get<UserAccount>( this.apiUrl + '/account/findbyuser/' + id);
+  }
+
+  getReportingManagers(): Observable<User[]>{
+    return this.http.get<User[]>(this.apiUrl + '/user/getreportingmanager')
+  }
 
   uploadUserDoc(formData: any): Observable<any> {
     return this.http.post(this.apiUrl + '/document/fileupload', formData);

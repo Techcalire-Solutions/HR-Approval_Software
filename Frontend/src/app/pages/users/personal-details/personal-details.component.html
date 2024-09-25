@@ -1,104 +1,106 @@
 <form [formGroup]="form">
   <div fxLayout="column" class="form-field-outer" style="margin-top: 20px;">
-    <div class="row box">
-      <div class="col">
-        <mat-form-field class="w-100">
-          <input matInput [matDatepicker]="picker1" placeholder="Joining Date" formControlName="dateOfJoining">
-          <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
-          <mat-datepicker #picker1></mat-datepicker>
-        </mat-form-field>
+    <mat-card>
+      <mat-card-header><mat-card-title>Personal Details</mat-card-title></mat-card-header>
+      <div class="row box" style="margin-top: 20px;">
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Joining Date</mat-label>
+            <input matInput [matDatepicker]="picker1" placeholder="Joining Date" formControlName="dateOfJoining">
+            <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+            <mat-datepicker #picker1></mat-datepicker>
+          </mat-form-field>
+        </div>
+  
+        <!-- <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <input matInput [matDatepicker]="picker2" placeholder="ConfirmationDate" formControlName="confirmationDate">
+            <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+            <mat-datepicker #picker2></mat-datepicker>
+          </mat-form-field>
+        </div> -->
+  
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Birthday</mat-label>
+            <input matInput [matDatepicker]="birthday" formControlName="dateOfBirth">
+            <mat-datepicker-toggle matSuffix [for]="birthday"></mat-datepicker-toggle>
+            <mat-datepicker #birthday></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </div>
+  
+      <div class="row box">
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Marital Status</mat-label>
+            <mat-select required formControlName="maritalStatus">
+              <mat-option value="married">Married</mat-option>
+              <mat-option value="unmarried">Unmarried</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+  
+        <div class="col">
+          <mat-radio-group formControlName="gender">
+            <mat-radio-button value="male" labelPosition="before">Male</mat-radio-button>
+            <mat-radio-button value="female" labelPosition="before">Female</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </div>
+  
+      <div class="row box">
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label> Parent Name</mat-label>
+            <input matInput formControlName="parentName" required>
+          </mat-form-field>
+        </div>
+  
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Spouse Name</mat-label>
+            <input matInput formControlName="spouseName">
+          </mat-form-field>
+        </div>
+      </div>
+  
+      <div class="row box">
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Referred By</mat-label>
+            <input matInput formControlName="referredBy">
+          </mat-form-field>
+        </div>
+  
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Reporting Manager</mat-label>
+            <input matInput formControlName="reportingManger" required>
+          </mat-form-field>
+        </div>
       </div>
 
-      <div class="col">
-        <mat-form-field class="w-100">
-          <input matInput [matDatepicker]="picker2" placeholder="ConfirmationDate" formControlName="confirmationDate">
-          <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
-          <mat-datepicker #picker2></mat-datepicker>
-        </mat-form-field>
+      <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center" class="row">
+        <div class="col">
+          <mat-slide-toggle formControlName="isTemporary">Is Temporary</mat-slide-toggle>
+        </div>
+        <div class="col" style="text-align: right;">
+          <button mat-raised-button color="primary" (click)="onSubmit()">
+            @if (editStatus) {
+                Update
+            } @else {
+                Save
+            }
+        </button>
+        @if(editStatus){
+          <button mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;">
+            Next
+          </button>
+        }
+    
+        </div>
       </div>
-
-      <div class="col">
-        <mat-form-field class="w-100">
-          <mat-label>Birthday</mat-label>
-          <input matInput [matDatepicker]="birthday" formControlName="dateOfBirth">
-          <mat-datepicker-toggle matSuffix [for]="birthday"></mat-datepicker-toggle>
-          <mat-datepicker #birthday></mat-datepicker>
-        </mat-form-field>
-      </div>
-    </div>
-
-    <div class="row box">
-      <div class="col">
-        <mat-form-field class="w-100">
-          <mat-label>Marital Status</mat-label>
-          <mat-select required formControlName="maritalStatus">
-            <mat-option value="married">Married</mat-option>
-            <mat-option value="unmarried">Unmarried</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <div class="col">
-        <mat-radio-group formControlName="gender">
-          <mat-radio-button value="male" labelPosition="before">Male</mat-radio-button>
-          <mat-radio-button value="female" labelPosition="before">Female</mat-radio-button>
-        </mat-radio-group>
-      </div>
-    </div>
-
-    <div class="row box">
-      <div class="col">
-        <mat-form-field class="w-100">
-          <mat-label> Parent Name</mat-label>
-          <input matInput formControlName="parentName" required>
-        </mat-form-field>
-      </div>
-
-      <div class="col">
-        <mat-form-field class="w-100">
-          <mat-label>Spouse Name</mat-label>
-          <input matInput formControlName="spouseName" required>
-        </mat-form-field>
-      </div>
-    </div>
-
-    <div class="row box">
-      <div class="col">
-        <mat-form-field class="w-100">
-          <mat-label>Referred By</mat-label>
-          <input matInput formControlName="referredBy" required>
-        </mat-form-field>
-      </div>
-
-      <div class="col">
-        <mat-form-field class="w-100">
-          <mat-label>Reporting Manager</mat-label>
-          <input matInput formControlName="reportingManger" required>
-        </mat-form-field>
-      </div>
-    </div>
-
-
-
-
-
-
-
-
-
-  </div>
-  <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center" class="row">
-    <div class="col">
-      <mat-slide-toggle formControlName="isTemporary">Is Temporary</mat-slide-toggle>
-    </div>
-    <div class="col" style="text-align: right;">
-      <button mat-raised-button color="primary" (click)="onSubmit()">
-        <!-- @if (user.id) {
-            Update
-        } @else { -->
-            Save
-        <!-- } -->
-    </button>
-    </div>
+    </mat-card>
   </div>
 </form>

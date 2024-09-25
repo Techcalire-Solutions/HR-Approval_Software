@@ -2,14 +2,14 @@
   <div fxLayout="column" class="form-field-outer" style="margin-top: 20px;">
     <div class="row box">
       <div class="col">
-        <mat-form-field class="w-100">
+        <mat-form-field class="w-100" appearance="outline">
           <mat-label>AdharNo</mat-label>
           <input matInput formControlName="adharNo" required>
         </mat-form-field>
       </div>
 
       <div class="col">
-        <mat-form-field class="w-100">
+        <mat-form-field class="w-100" appearance="outline">
           <mat-label>Pan Number</mat-label>
           <input matInput formControlName="panNumber" required>
         </mat-form-field>
@@ -18,13 +18,13 @@
 
     <div class="row box">
       <div class="col">
-        <mat-form-field class="w-100">
+        <mat-form-field class="w-100" appearance="outline">
           <mat-label>ESI Number</mat-label>
           <input matInput formControlName="esiNumber" required>
         </mat-form-field>
       </div>
       <div class="col">
-        <mat-form-field class="w-100">
+        <mat-form-field class="w-100" appearance="outline">
           <mat-label>UAN Number</mat-label>
           <input matInput formControlName="uanNumber" required>
         </mat-form-field>
@@ -32,13 +32,18 @@
     </div>
   </div>
 
-  <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
+  <div class="col" style="text-align: right;">
     <button mat-raised-button color="primary" (click)="onSubmit()">
-        <!-- @if (user.id) {
-            Update
-        } @else { -->
-            Save
-        <!-- } -->
+      @if (editStatus) {
+          Update
+      } @else {
+          Save
+      }
     </button>
+    @if(editStatus){
+      <button mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;">
+        Next
+      </button>
+    }
   </div>
 </form>
