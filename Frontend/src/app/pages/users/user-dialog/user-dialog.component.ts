@@ -142,7 +142,6 @@ export class UserDialogComponent implements OnInit {
       password: user.password,
       status: user.status,
       joiningDate: user.createdAt,
-      password: user.password,
       teamId: user.teamId
     })
     if(user.url != null) this.imageUrl = this.url + user.url
