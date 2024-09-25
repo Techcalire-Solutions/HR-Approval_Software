@@ -4,35 +4,41 @@ const User = require('../models/user');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const Role = require('../models/role')
-const {Op, fn, col, where} = require('sequelize');
-const sequelize = require('../../utils/db'); 
+const { Op, fn, col, where } = require('sequelize');
+const sequelize = require('../../utils/db');
 const multer = require('../../utils/userImageMulter'); // Import the configured multer instance
 const Team = require('../models/team')
-const TeamMember = require('../models/teamMember')
+const TeamMember = require('../models/teamMember');
 
 router.post('/add', async (req, res) => {
-  console.log(req.body);
-  const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId } = req.body;
-  
+  const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId, empNo } = req.body;
+
   try {
-    const userExist = await User.findOne({
-      where: { email: email }
-    });
-    if (userExist) {
-      return res.status(400).send('User already exists');
+    try {
+      const userExist = await User.findOne({
+        where: { email: email }
+      });
+      if (userExist) {
+        return res.status(400).send(`User already exists with the email ${email}`);
+      }
+    } catch (error) {
+      res.send(error.message);
     }
+    try {
+      const userExistEMp = await User.findOne({
+        where: { empNo: empNo }
+      });
+      if (userExistEMp) {
+        return res.status(400).send(`User already exists with the employee number ${empNo}`);
+      }
+    } catch (error) {
+      res.send(error.message);
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     const user = await User.create({
-      name,
-      email,
-      phoneNumber,
-      password: hashedPassword,
-      roleId,
-      status,
-      userImage,
-      url,
-      teamId
+      name, empNo, email, phoneNumber, password: hashedPassword, roleId, status, userImage, url, teamId
     });
 
     const team = await Team.findOne({
@@ -44,10 +50,10 @@ router.post('/add', async (req, res) => {
     }
     const teamMember = await TeamMember.create({
       teamId: team.id,
-      userId: user.id 
+      userId: user.id
     });
     res.status(201).send({ user, teamMember });
-    
+
   } catch (error) {
     console.error('Error:', error.message);
     res.status(500).send('Server error');
@@ -59,7 +65,7 @@ router.get('/find/', async (req, res) => {
     let whereClause = {}
     let limit;
     let offset;
-    if (req.query.pageSize && req.query.page  && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
+    if (req.query.pageSize && req.query.page && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
       limit = req.query.pageSize;
       offset = (req.query.page - 1) * req.query.pageSize;
       if (req.query.search != 'undefined') {
@@ -104,7 +110,7 @@ router.get('/find/', async (req, res) => {
                 [Op.like]: `%${searchTerm}%`
               }
             )
-          ], 
+          ],
           status: true
         };
       } else {
@@ -117,10 +123,10 @@ router.get('/find/', async (req, res) => {
     const users = await User.findAll({
       where: whereClause,
       include: [
-        {model: Role, as: 'role', attributes: ['id', 'roleName']}
+        { model: Role, as: 'role', attributes: ['id', 'roleName'] }
       ],
       order: ["id"],
-      limit, 
+      limit,
       offset
     });
 
@@ -170,16 +176,16 @@ router.get('/search/name', async (req, res) => {
   }
 });
 
-router.patch('/statusupdate/:id', async(req,res)=>{
+router.patch('/statusupdate/:id', async (req, res) => {
   try {
     let status = req.body.status;
     let result = await User.findByPk(req.params.id);
     result.status = status
     await result.save();
     res.send(result);
-    } catch (error) {
-      res.send(error.message);
-    }
+  } catch (error) {
+    res.send(error.message);
+  }
 })
 
 router.get('/findone/:id', async (req, res) => {
@@ -210,20 +216,20 @@ router.patch('/update/:id', async(req,res)=>{
 
     await result.save();
     res.send(result);
-    } catch (error) {
-      res.send(error.message);
-    }
+  } catch (error) {
+    res.send(error.message);
+  }
 })
 
-router.delete('/delete/:id', authenticateToken, async(req, res)=>{
+router.delete('/delete/:id', authenticateToken, async (req, res) => {
   const id = req.params.id
   try {
-      const user = await User.findByPk(id)
+    const user = await User.findByPk(id)
 
-      const result = await user.destroy({
-        force: true
-      });
-      if (result === 0) {
+    const result = await user.destroy({
+      force: true
+    });
+    if (result === 0) {
       return res.status(404).json({
         status: "fail",
         message: "Brand with that ID not found",
@@ -231,9 +237,9 @@ router.delete('/delete/:id', authenticateToken, async(req, res)=>{
     }
 
     res.status(204).json();
-    } catch (error) {
-        res.send(error.message)
-    }
+  } catch (error) {
+    res.send(error.message)
+  }
 })
 
 router.post('/fileupload', multer.single('file'), authenticateToken, (req, res) => {
@@ -265,18 +271,18 @@ router.delete('/filedelete/:id', async (req, res) => {
     const filePath = path.join(directoryPath, filename);
 
     fs.access(filePath, fs.constants.F_OK, (err) => {
+      if (err) {
+        return res.status(404).json({ message: 'File not found' });
+      }
+
+      // Delete the file
+      fs.unlink(filePath, (err) => {
         if (err) {
-            return res.status(404).json({ message: 'File not found' });
+          return res.status(500).json({ message: 'Error deleting file' });
         }
 
-        // Delete the file
-        fs.unlink(filePath, (err) => {
-            if (err) {
-                return res.status(500).json({ message: 'Error deleting file' });
-            }
-
-            return res.status(200).json({ message: 'File deleted successfully' });
-        });
+        return res.status(200).json({ message: 'File deleted successfully' });
+      });
     })
   } catch (error) {
     console.error('Error deleting file:', error);
@@ -287,7 +293,7 @@ router.delete('/filedelete/:id', async (req, res) => {
 router.get('/findbyrole/:id', async (req, res) => {
   try {
     const user = await User.findAll({
-      where: {roleId: req.params.id}
+      where: { roleId: req.params.id }
     })
     res.send(user);
   } catch (error) {
@@ -295,4 +301,3 @@ router.get('/findbyrole/:id', async (req, res) => {
   }
 })
 module.exports = router;
- 
