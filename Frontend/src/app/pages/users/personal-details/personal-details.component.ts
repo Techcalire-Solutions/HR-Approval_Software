@@ -116,6 +116,9 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.submitSub?.unsubscribe();
+    this.pUSub?.unsubscribe();
+    this.rmSub?.unsubscribe();
   }
 
   formatDateOnly(date: any): string | null {
