@@ -1,4 +1,5 @@
 export interface StatutoryInfo {
+  id: number;
   userId : number
   adharNo : string
   panNumber : string

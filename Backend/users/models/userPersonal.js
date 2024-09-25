@@ -9,7 +9,10 @@ const UserPersonal = sequelize.define('userPersonal', {
   probationPeriod: { type: DataTypes.STRING, allowNull: false },
   confirmationDate: { type: DataTypes.DATEONLY },
   isTemporary: { type: DataTypes.BOOLEAN, defaultValue: false, allowNull: false },
-
+  bloodGroup: { type: DataTypes.STRING},
+  emergencyContactNo: { type: DataTypes.STRING },
+  emergencyContactName: { type: DataTypes.STRING },
+  emergencyContactRelation: { type: DataTypes.STRING },
   maritalStatus: { type: DataTypes.STRING, allowNull: false },
   dateOfBirth: { type: DataTypes.DATEONLY },
   gender: { type: DataTypes.STRING, allowNull: false },
@@ -17,6 +20,7 @@ const UserPersonal = sequelize.define('userPersonal', {
   spouseName: { type: DataTypes.STRING },
   referredBy: { type: DataTypes.STRING },
   reportingManger: { type: DataTypes.INTEGER }
+
 },
 {
   freezeTableName: true,
