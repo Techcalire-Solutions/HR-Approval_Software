@@ -6,19 +6,19 @@
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>Account No</mat-label>
-            <input matInput formControlName="accountNo" required>
+            <input matInput formControlName="accountNo" >
           </mat-form-field>
         </div>
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>IFSC Code</mat-label>
-            <input matInput formControlName="ifseCode" required>
+            <input matInput formControlName="ifseCode" >
           </mat-form-field>
         </div>
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>Branch Name</mat-label>
-            <input matInput formControlName="branchName" required>
+            <input matInput formControlName="branchName" >
           </mat-form-field>
         </div>
       </div>
@@ -27,7 +27,7 @@
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>Payment Frequency</mat-label>
-            <mat-select required formControlName="paymentFrequency">
+            <mat-select  formControlName="paymentFrequency">
               <mat-option value="Monthly">Monthly</mat-option>
               <mat-option value="Weekly">Weekly</mat-option>
             </mat-select>
@@ -36,7 +36,7 @@
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>Mode of Payment</mat-label>
-            <mat-select required formControlName="modeOfPayment">
+            <mat-select  formControlName="modeOfPayment">
               <mat-option value="BankTransfer">BankTransfer</mat-option>
               <mat-option value="Cheque">Cheque</mat-option>
             </mat-select>
