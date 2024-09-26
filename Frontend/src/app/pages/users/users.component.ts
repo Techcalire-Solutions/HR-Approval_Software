@@ -1,5 +1,5 @@
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { Component, inject, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { UsersService } from '../../services/users.service';
 import { Settings, SettingsService } from '../../services/settings.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -56,7 +56,7 @@ import { Router } from '@angular/router';
   encapsulation: ViewEncapsulation.None,
   providers: [UsersService]
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, OnDestroy {
   apiUrl ='https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/';
   public users: User[];
   public page:any;
@@ -67,6 +67,8 @@ export class UsersComponent implements OnInit {
 
   constructor(private sanitizer: DomSanitizer, public settingsService: SettingsService,  public dialog: MatDialog, public usersService: UsersService){
     this.settings = this.settingsService.settings;
+  }
+  ngOnDestroy(): void {
   }
 
   ngOnInit() {

@@ -17,7 +17,7 @@ import { MatCardModule } from '@angular/material/card';
 })
 export class StatuatoryInfoComponent implements OnDestroy {
   ngOnDestroy(): void {
-    this.pUSub.unsubscribe();
+    this.pUSub?.unsubscribe();
     this.submitSub?.unsubscribe();
   }
   
