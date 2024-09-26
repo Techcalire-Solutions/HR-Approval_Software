@@ -113,10 +113,16 @@
             </div>
 
             <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
-              <ng-container *ngIf="imageUrl; else noFileTemplate">
+              <ng-container *ngIf="imageUrl && imageUrl != 'undefined'; else noFileTemplate">
                 <input type="file" class="file-input" hidden #fileInput>
-                <img [src]="imageUrl" alt="Image" title="Image" height="100" width="100" (click)="fileInput.click()" class="clickable-image" />
+                <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+                  <img [src]="imageUrl" alt="Image" title="Image" height="100" width="100" (click)="fileInput.click()" class="clickable-image" />
+                  <!-- <button mat-icon-button color="warn" (click)="deleteImage()" *ngIf="imageUrl">
+                    <mat-icon>delete</mat-icon>
+                  </button> -->
+                </div>
               </ng-container>
+              
 
               <!-- Wrap the buttons in a div with fxLayout="row" to keep them side by side -->
               <div fxLayout="row" fxLayoutGap="16px">

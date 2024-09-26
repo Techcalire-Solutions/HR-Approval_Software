@@ -60,7 +60,7 @@ import { TeamService } from '@services/team.service';
   styleUrl: './user-dialog.component.scss'
 })
 export class UserDialogComponent implements OnInit, OnDestroy {
-  url = environment.apiUrl;
+  url = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`;
   snackBar = inject(MatSnackBar);
   sanitizer = inject(DomSanitizer);
   fb = inject(FormBuilder)
@@ -126,6 +126,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
   userSub!: Subscription;
   getUser(id: number){
+    console.log(this.imageUrl);
     this.userSub = this.userService.getUserById(id).subscribe(user=>{
       this.patchUser(user)
     });
@@ -219,6 +220,8 @@ export class UserDialogComponent implements OnInit, OnDestroy {
       })
     }else{
       this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
+        console.log(res);
+        
         this.dataToPass = { id: res.user.id, empNo: this.invNo, name: res.user.name, updateStatus: this.editStatus };
         this.selectedTabIndex = 1;
         if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
@@ -303,8 +306,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
         this.form.get('envNo')?.setValue(ivNum);
         this.invNo = ivNum;
       }
-
-
     });
   }
 
@@ -351,6 +352,12 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     }
   }
 
+  deleteImage() {
+    this.userService.deleteUserImage(this.id).subscribe(data=>{
+      this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
+      this.getUser(this.id)
+    });
+  }
 }
 
 
