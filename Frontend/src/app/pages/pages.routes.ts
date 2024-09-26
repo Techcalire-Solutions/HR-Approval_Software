@@ -45,7 +45,7 @@ export const routes: Routes = [
       {
         path: 'viewApproval',
         loadComponent: () => import('./add-approval/view-approval/view-approval.component').then(c => c.ViewApprovalComponent),
-        data: { breadcrumb: 'Add Approval' }, canActivate: [AuthGuard]
+        data: { breadcrumb: 'View Approval' }, canActivate: [AuthGuard]
       },
       {
         path: 'viewInvoices/:id',

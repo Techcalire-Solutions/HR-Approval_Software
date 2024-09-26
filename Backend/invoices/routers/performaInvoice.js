@@ -2,13 +2,12 @@ const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const PerformaInvoice = require('../models/performaInvoice');
-const TeamMember = require('../../users/models/teamMember');
-const Team = require('../../users/models/team');
 const PerformaInvoiceStatus = require('../models/invoiceStatus');
 const User = require('../../users/models/user');
-const { Op, fn, col, where } = require('sequelize');
+const { Op } = require('sequelize');
 const sequelize = require('../../utils/db');
 const s3 = require('../../utils/s3bucket');
+const Role = require('../../users/models/role');
 
 router.post('/save', authenticateToken, async (req, res) => {
     const { piNo, url, kamId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
@@ -17,7 +16,8 @@ router.post('/save', authenticateToken, async (req, res) => {
     try {
         // Save the new PI
         const newPi = new PerformaInvoice({
-            piNo, url, status: 'GENERATED', salesPersonId: userId, kamId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue
+            piNo, url, status: 'GENERATED', salesPersonId: userId, kamId, supplierName, supplierPoNo, 
+            supplierPrice, purpose, customerName, customerPoNo, poValue, addedById: userId
         });
         await newPi.save();
 
@@ -43,7 +43,8 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
     try {
         // Save the new PI
         const newPi = new PerformaInvoice({
-            piNo, url,amId, status: 'KAM VERIFIED', kamId: userId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue
+            piNo, url,amId, status: 'KAM VERIFIED', kamId: userId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, 
+            customerPoNo, poValue, addedById: userId
         });
         await newPi.save();
 
@@ -68,7 +69,8 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
     try {
         // Save the new PI
         const newPi = new PerformaInvoice({
-            piNo, url,accountantId, status: 'AM VERIFIED', amId: userId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue
+            piNo, url,accountantId, status: 'AM VERIFIED', amId: userId, supplierName, supplierPoNo, 
+            supplierPrice, purpose, customerName, customerPoNo, poValue, addedById: userId
         });
         await newPi.save();
 
@@ -109,7 +111,8 @@ router.get('/find', authenticateToken, async(req, res) => {
                 {model: PerformaInvoiceStatus},
                 {model: User, as: 'salesPerson', attributes: ['name']},
                 {model: User, as: 'kam', attributes: ['name']},
-                {model: User, as: 'am', attributes: ['name']}
+                {model: User, as: 'am', attributes: ['name']},
+                {model: User, as: 'addedBy', attributes: ['name', 'roleId']}
             ]
         })
         const totalCount = await PerformaInvoice.count({ where: where });
@@ -216,7 +219,12 @@ router.get('/findbysp', authenticateToken, async (req, res) => {
                 { model: User, as: 'salesPerson', attributes: ['name'] },
                 { model: User, as: 'kam', attributes: ['name'] },
                 { model: User, as: 'am', attributes: ['name'] },
-                { model: User, as: 'accountant', attributes: ['name'] }
+                { model: User, as: 'accountant', attributes: ['name'] },
+                { model: User, as: 'addedBy', attributes: ['name','roleId'],
+                    include: [
+                        { model: Role, attributes: ['roleName']}
+                    ]
+                }
             ]
         });
 
@@ -277,7 +285,11 @@ router.get('/findbkam', authenticateToken, async(req, res) => {
                 {model: User, as: 'kam', attributes: ['name']},
                 {model: User, as: 'am', attributes: ['name']},
                 {model: User, as: 'accountant', attributes: ['name']},
-
+                { model: User, as: 'addedBy', attributes: ['name','roleId'],
+                    include: [
+                        { model: Role, attributes: ['roleName']}
+                    ]
+                }
             ]
         })
         
@@ -341,7 +353,11 @@ router.get('/findbyam', authenticateToken, async(req, res) => {
                 {model: User, as: 'kam', attributes: ['name']},
                 {model: User, as: 'am', attributes: ['name']},
                 {model: User, as: 'accountant', attributes: ['name']},
-
+                { model: User, as: 'addedBy', attributes: ['name','roleId'],
+                    include: [
+                        { model: Role, attributes: ['roleName']}
+                    ]
+                }
             ]
         })
 
@@ -432,8 +448,6 @@ router.get('/findbyma', authenticateToken, async(req, res) => {
 
 router.get('/findbyadmin', authenticateToken, async (req, res) => {
     let status = req.query.status;
-    let user = req.user.id;
-    let userRole = req.user.role;
     
     // Default where condition
     let where = {};
@@ -521,8 +535,7 @@ router.patch('/bankslip/:id', authenticateToken, async(req, res) => {
 });
 
 router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
-    const { piNo, url, kamId,supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue} = req.body;
-    const userId = req.user.id;
+    const { url, kamId,supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue} = req.body;
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
         pi.url = url;
@@ -553,8 +566,7 @@ router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
 });
 
 router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
-    const { piNo, url, kamId,supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue} = req.body;
-    const userId = req.user.id;
+    const { url, kamId,supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue} = req.body;
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
         pi.url = url;
@@ -585,8 +597,7 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
 });
 
 router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
-    const { piNo, url, kamId,supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue} = req.body;
-    const userId = req.user.id;
+    const { url, kamId,supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue} = req.body;
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
         pi.url = url;
