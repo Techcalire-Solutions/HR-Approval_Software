@@ -1,73 +1,97 @@
 <form [formGroup]="form">
-  <div fxLayout="column" class="form-field-outer" style="margin-top: 20px;">
-    <div class="row box">
-      <div class="col">
-        <mat-form-field class="w-100">
-          <mat-label>Division</mat-label>
-          <input matInput formControlName="division" required>
-        </mat-form-field>
+  <mat-card>
+    <mat-card-header><mat-card-title>Employment Details</mat-card-title></mat-card-header>
+
+    <div fxLayout="column" class="form-field-outer" style="margin-top: 20px;">
+      <div class="row box">
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Division</mat-label>
+            <input matInput formControlName="division" >
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Cost Centre</mat-label>
+            <input matInput formControlName="costCentre" >
+          </mat-form-field>
+        </div>
       </div>
-      <div class="col">
-        <mat-form-field class="w-100">
-          <mat-label>Cost Centre</mat-label>
-          <input matInput formControlName="costCentre" required>
-        </mat-form-field>
+  
+      <div class="row box">
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Grade</mat-label>
+            <input matInput formControlName="grade" >
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Designation</mat-label>
+            <input matInput formControlName="designation" >
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Official Mail</mat-label>
+            <input matInput formControlName="officialMailId" >
+          </mat-form-field>
+        </div>
+      </div>
+  
+      <div class="row box">
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Location</mat-label>
+            <input matInput formControlName="location" >
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Department</mat-label>
+            <input matInput formControlName="department" >
+          </mat-form-field>
+        </div>
+      </div>
+  
+      <div class="row box">
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Office</mat-label>
+            <input matInput formControlName="office" >
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Salary</mat-label>
+            <input matInput formControlName="salary"  type="number">
+          </mat-form-field>
+        </div>
+
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Probation Period</mat-label>
+            <input matInput formControlName="probationPeriod"  type="number">
+          </mat-form-field>
+        </div>
       </div>
     </div>
-
-    <div class="row box">
-      <div class="col">
-        <mat-form-field class="w-100">
-          <mat-label>Grade</mat-label>
-          <input matInput formControlName="grade" required>
-        </mat-form-field>
-      </div>
-      <div class="col">
-        <mat-form-field class="w-100">
-          <mat-label>Designation</mat-label>
-          <input matInput formControlName="designation" required>
-        </mat-form-field>
-      </div>
-    </div>
-
-    <div class="row box">
-      <div class="col">
-        <mat-form-field class="w-100">
-          <mat-label>Location</mat-label>
-          <input matInput formControlName="location" required>
-        </mat-form-field>
-      </div>
-      <div class="col">
-        <mat-form-field class="w-100">
-          <mat-label>Department</mat-label>
-          <input matInput formControlName="department" required>
-        </mat-form-field>
+  
+    <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
+      <div class="col" style="text-align: right;">
+        <button mat-raised-button color="primary" (click)="onSubmit()">
+          @if (editStatus) {
+              Update
+          } @else {
+              Save
+          }
+        </button>
+        @if(editStatus){
+          <button mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;">
+            Next
+          </button>
+        }
       </div>
     </div>
-
-    <div class="row box">
-      <div class="col">
-        <mat-form-field class="w-100">
-          <mat-label>Office</mat-label>
-          <input matInput formControlName="office" required>
-        </mat-form-field>
-      </div>
-      <div class="col">
-        <mat-form-field class="w-100">
-          <mat-label>Salary</mat-label>
-          <input matInput formControlName="salary" required>
-        </mat-form-field>
-      </div>
-    </div>
-  </div>
-
-  <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
-    <button mat-raised-button color="primary" (click)="onSubmit()">
-        <!-- @if (user.id) {
-            Update
-        } @else { -->
-            Save
-        <!-- } -->
-    </button>
-  </div>
+  </mat-card>
 </form>

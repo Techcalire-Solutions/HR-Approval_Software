@@ -5,7 +5,6 @@ const cors = require('cors')
 const sequelize = require('../utils/db');
 const path = require('path');
 
-
 dotenv.config();
 app.use(cors({ origin: '*' }));
 app.use(express.json());
@@ -58,7 +57,6 @@ app.use('/leaveType', leaveType);
 app.use('/userLeave', userLeave);
 
 
-console.log(process.env.DB_NAME, process.env.USER_NAME, process.env.DB_PASSWORD, process.env.DB_HOST, "________________________________________________")
 const port = process.env.PORT || 8000;
 
 app.listen(port, () => {

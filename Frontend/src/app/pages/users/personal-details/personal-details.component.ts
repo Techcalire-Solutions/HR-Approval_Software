@@ -1,6 +1,7 @@
-import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatOptionModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,12 +12,13 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
+import { User } from '../../../common/interfaces/user';
 
 @Component({
   selector: 'app-personal-details',
   standalone: true,
   imports: [ MatFormFieldModule, MatDatepickerModule, MatRadioModule, ReactiveFormsModule, MatOptionModule, MatSelectModule,
-    MatInputModule, MatSlideToggleModule, MatButtonModule],
+    MatInputModule, MatSlideToggleModule, MatButtonModule, MatCardModule],
   templateUrl: './personal-details.component.html',
   styleUrl: './personal-details.component.scss'
 })
@@ -28,50 +30,66 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
   @Input() data: any;
   @Output() dataSubmitted = new EventEmitter<any>();
 
-  ngOnInit(data?: any): void {
+  ngOnInit(): void { 
+    this.getReportingManager()
+  }
+  
+  editStatus: boolean = false;
+  triggerNew(data?: any): void {
+    this.getReportingManager()
     if(data){
       if(data.updateStatus){
         this.getPersonalDetailsByUser(data.id)
       }
-
-      // this.getEntryId(entryId)
-      // if(data.trans){
-      //   this.finalForm.get('trans')?.setValue(data.trans)
-      //   this.openTrans();
-      // }else if(!data.trans && data.com){
-      //   this.finalForm.get('com')?.setValue(data.com)
-      //   this.openComm();
-      // }else if(!data.trans && !data.com && data.unload){
-      //   this.finalForm.get('unload')?.setValue(this.data.unload)
-      //   this.openUnload()
-      // }
     }
   }
 
   pUSub!: Subscription;
+  id: number;
   getPersonalDetailsByUser(id: number){
-    console.log(id);
     this.pUSub = this.userService.getUserPersonalDetailsByUser(id).subscribe(data=>{
-      this.form.patchValue({
-
-      })
+      if(data){
+        this.id = data.id;
+        this.editStatus = true;
+        this.form.patchValue({
+          userId: data.userId,
+          dateOfJoining: data.dateOfJoining,
+          probationPeriod: data.probationPeriod,
+          confirmationDate: data.confirmationDate,
+          maritalStatus: data.maritalStatus,
+          dateOfBirth: data.dateOfBirth,
+          gender: data.gender,
+          isTemporary: data.isTemporary,
+          parentName: data.parentName,
+          spouseName: data.spouseName,
+          referredBy: data.referredBy,
+          reportingManger: data.reportingManger,
+          emergencyContactNo: data.emergencyContactNo,
+          emergencyContactName: data.emergencyContactName,
+          emergencyContactRelation: data.emergencyContactRelation, 
+          bloodGroup: data.bloodGroup
+        })
+      }
     })
   }
 
   form = this.fb.group({
-    empNo: [],
-    userId: [],
-    dateOfJoining: [''],
+    userId: <any>[],
+    dateOfJoining: <any>[],
     probationPeriod: [''],
-    confirmationDate: [''],
+    confirmationDate: <any>[],
     maritalStatus: ['', Validators.required],
-    dateOfBirth: [''],
+    dateOfBirth: <any>[],
     gender: [''],
-    isTemporary: [],
+    isTemporary: [true],
     parentName: [''],
     spouseName: [''],
     referredBy: [''],
-    reportingManger: ['']
+    reportingManger: <any>[],
+    emergencyContactNo: ['', Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)])],
+    emergencyContactName: [''],
+    emergencyContactRelation: [''], 
+    bloodGroup: ['']
   });
 
   submitSub!: Subscription;
@@ -79,19 +97,28 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     let submit = {
       ...this.form.getRawValue()
     }
-    submit.userId = this.data.id;
-    submit.empNo = this.data.empNo;
+    submit.userId = submit.userId ? submit.userId : this.data.id;
     submit.dateOfJoining = this.formatDateOnly(submit.dateOfJoining);
     submit.confirmationDate = this.formatDateOnly(submit.confirmationDate);
     submit.dateOfBirth = this.formatDateOnly(submit.dateOfBirth);
-    console.log(submit);
-    this.submitSub = this.userService.addUserPersonalDetails(submit).subscribe(data => {
-      this.snackBar.open("Personal Details added succesfully...","" ,{duration:3000})
-      this.dataSubmitted.emit( {isFormSubmitted: true} );
-    })
+    if(this.editStatus){
+      this.submitSub = this.userService.updateUserPersonal(this.id, submit).subscribe(data => {
+        this.snackBar.open("Personal Details updated succesfully...","" ,{duration:3000})
+        this.dataSubmitted.emit( {isFormSubmitted: true} );
+      })
+    }
+    else{
+      this.submitSub = this.userService.addUserPersonalDetails(submit).subscribe(data => {
+        this.snackBar.open("Personal Details added succesfully...","" ,{duration:3000})
+        this.dataSubmitted.emit( {isFormSubmitted: true} );
+      })
+    }
   }
 
   ngOnDestroy(): void {
+    this.submitSub?.unsubscribe();
+    this.pUSub?.unsubscribe();
+    this.rmSub?.unsubscribe();
   }
 
   formatDateOnly(date: any): string | null {
@@ -102,4 +129,16 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     return validDate.toISOString().split('T')[0]; // Return 'YYYY-MM-DD' format
   }
 
+  @Output() nextTab = new EventEmitter<void>();
+  triggerNextTab() {
+    this.nextTab.emit();
+  }
+
+  rmSub!: Subscription;
+  rm: User[] = [];
+  getReportingManager(){
+    this.rmSub = this.userService.getReportingManagers().subscribe(res=>{
+      this.rm = res;
+    })
+  }
 }

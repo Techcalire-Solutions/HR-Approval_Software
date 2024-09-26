@@ -1,6 +1,7 @@
 
 <body>
     <div class="table-container">
+      <div class="scrollable-table">
         <table class="matrix-table">
             <thead>
                 <tr>
@@ -58,5 +59,6 @@
         <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
         (page)="onPageChanged($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
         </mat-paginator>
+      </div>
     </div>
 </body>

@@ -175,11 +175,8 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
 
 router.get('/findbysp', authenticateToken, async (req, res) => {
     const status = req.query.status;
+    
     const userId = req.user.id;
-    console.log(status);
-    console.log(userId);
-    
-    
     // Initialize the where clause
     let where = { salesPersonId: userId };
 
@@ -188,7 +185,7 @@ router.get('/findbysp', authenticateToken, async (req, res) => {
     } else if (status === 'REJECTED') {
         where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
     }
-
+    
     if (req.query.search !== '' && req.query.search !== 'undefined') {
         const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
         where[Op.or] = [
@@ -204,35 +201,12 @@ router.get('/findbysp', authenticateToken, async (req, res) => {
 
     let limit; 
     let offset; 
-    if (req.query.pageSize && req.query.page) {
+    if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
         limit = parseInt(req.query.pageSize, 10);
         offset = (parseInt(req.query.page, 10) - 1) * limit;
     }
 
     try {
-        // Fetch the SalesPerson's team
-        // const teamMember = await TeamMember.findOne({ where: { userId } });
-
-        // If no team is found, respond with an empty list or appropriate message
-        // if (!teamMember) {
-        //     return res.json({ count: 0, items: [] });
-        // }
-
-        // const teamId = teamMember.teamId;
-
-        // Get the team lead's userId
-        // const team = await Team.findOne({ where: { id: teamId } });
-        // const teamLeadId = team.userId;
-
-        // Get all user IDs in the team
-        // const teamMembers = await TeamMember.findAll({ where: { teamId } });
-        // const teamUserIds = teamMembers.map(member => member.userId);
-
-        // Include the team lead's userId in the list of allowed user IDs
-        // teamUserIds.push(teamLeadId);
-
-        // Update where clause to include all team user IDs
-        // where.salesPersonId = teamUserIds;
 
         const pi = await PerformaInvoice.findAll({
             where: where, limit, offset,
@@ -248,7 +222,7 @@ router.get('/findbysp', authenticateToken, async (req, res) => {
 
         const totalCount = await PerformaInvoice.count({ where: where });
 
-        if (req.query.page && req.query.pageSize !== 'undefined') {
+        if (req.query.page && req.query.pageSize && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
             const response = {
                 count: totalCount,
                 items: pi,
@@ -262,76 +236,9 @@ router.get('/findbysp', authenticateToken, async (req, res) => {
     }
 });
 
-
-
-// router.get('/findbysp', authenticateToken, async(req, res) => {
-//     let status = req.query.status;
-//     let user = req.user.id;
-    
-//     let where = { salesPersonId: user };
-
-//     if (status !== '' && status !== 'undefined' && status !== 'REJECTED') {
-//         where.status = status;
-//     } else if (status === 'REJECTED') {
-//         where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
-//     }
-    
-//     if (req.query.search !== '' && req.query.search !== 'undefined') {
-//         const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
-//         where[Op.or] = [
-//             ...(where[Op.or] || []),
-//             sequelize.where(
-//                 sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('piNo'), ' ', '')),
-//                 {
-//                     [Op.like]: `%${searchTerm}%`
-//                 }
-//             )
-//         ];
-//     }  
-
-//     let limit; 
-//     let offset; 
-//     if (req.query.pageSize && req.query.page ) {
-//         limit = req.query.pageSize;
-//         offset = (req.query.page - 1) * req.query.pageSize;
-//       }
-//     try {
-//         const pi = await PerformaInvoice.findAll({
-//             where: where, limit, offset,
-//             order: [['id', 'DESC']],
-//             include: [
-//                 {model: PerformaInvoiceStatus},
-//                 {model: User, as: 'salesPerson', attributes: ['name']},
-//                 {model: User, as: 'kam', attributes: ['name']},
-//                 {model: User, as: 'am', attributes: ['name']},
-//                 {model: User, as: 'accountant', attributes: ['name']},
-
-//             ]
-//         })
-
-//         let totalCount;
-//         totalCount = await PerformaInvoice.count({
-//           where: where
-//         });
-        
-//         if (req.query.page && req.query.pageSize != 'undefined') {
-//             const response = {
-//               count: totalCount,
-//               items: pi,
-//             };
-//             res.json(response);
-//           } else {
-//             res.send(pi);
-//           }
-//     } catch (error) {
-//         res.send(error.message)
-//     }
-// })
-
 router.get('/findbkam', authenticateToken, async(req, res) => {
     let status = req.query.status;
     let user = req.user.id;
-    console.log(req.query);
     
     let where = { kamId: user };
 
@@ -373,14 +280,13 @@ router.get('/findbkam', authenticateToken, async(req, res) => {
 
             ]
         })
-        console.log(pi);
         
         let totalCount;
         totalCount = await PerformaInvoice.count({
           where: where
         });
         
-        if (req.query.page && req.query.pageSize != 'undefined') {
+        if (req.query.page && req.query.pageSize && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
             const response = {
               count: totalCount,
               items: pi,
@@ -421,7 +327,7 @@ router.get('/findbyam', authenticateToken, async(req, res) => {
 
     let limit; 
     let offset; 
-    if (req.query.pageSize && req.query.page ) {
+    if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
         limit = req.query.pageSize;
         offset = (req.query.page - 1) * req.query.pageSize;
       }
@@ -444,7 +350,7 @@ router.get('/findbyam', authenticateToken, async(req, res) => {
           where: where
         });
         
-        if (req.query.page && req.query.pageSize != 'undefined') {
+        if (req.query.page && req.query.pageSize && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
             const response = {
               count: totalCount,
               items: pi,
@@ -486,7 +392,7 @@ router.get('/findbyma', authenticateToken, async(req, res) => {
 
     let limit; 
     let offset; 
-    if (req.query.pageSize && req.query.page ) {
+    if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
         limit = req.query.pageSize;
         offset = (req.query.page - 1) * req.query.pageSize;
     }
@@ -510,7 +416,7 @@ router.get('/findbyma', authenticateToken, async(req, res) => {
           where: where
         });
         
-        if (req.query.page && req.query.pageSize != 'undefined') {
+        if (req.query.page && req.query.pageSize && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
             const response = {
               count: totalCount,
               items: pi,
@@ -527,22 +433,23 @@ router.get('/findbyma', authenticateToken, async(req, res) => {
 router.get('/findbyadmin', authenticateToken, async (req, res) => {
     let status = req.query.status;
     let user = req.user.id;
-    let userRole = req.user.role; // Assuming role is part of the user object
-
+    let userRole = req.user.role;
+    
     // Default where condition
     let where = {};
-
-    // If the user is not an Administrator, apply the accountantId filter
-    if (userRole == 'Administrator') {
-        where.accountantId = user;
-
-        if (status !== '' && status !== 'undefined' && status !== 'REJECTED') {
-            where.status = status;
-        } else if (status === 'REJECTED') {
-            where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
-        }
+    if (status !== '' && status !== 'undefined' && status !== 'REJECTED') {
+        
+        where.status = status;
+    } else if (status === 'REJECTED') {
+        where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
     }
+    // If the user is not an Administrator, apply the accountantId filter
+    // if (userRole == 'Administrator') {
+    //     // where.accountantId = user;
 
+
+    // }   
+    
     if (req.query.search !== '' && req.query.search !== 'undefined') {
         const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
         where[Op.or] = [
@@ -558,7 +465,7 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
 
     let limit; 
     let offset; 
-    if (req.query.pageSize && req.query.page) {
+    if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
         limit = req.query.pageSize;
         offset = (req.query.page - 1) * req.query.pageSize;
     }
