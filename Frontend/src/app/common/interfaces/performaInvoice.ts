@@ -27,5 +27,7 @@ export interface PerformaInvoice {
   customerName: string;
   customerPoNo: string;
   poValue: string;
-  count: number
+  count: number;
+  addedById: number;
+  addedBy: User
 }
