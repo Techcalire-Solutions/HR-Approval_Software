@@ -17,7 +17,7 @@ import { MatCardModule } from '@angular/material/card';
 })
 export class StatuatoryInfoComponent implements OnDestroy {
   ngOnDestroy(): void {
-    this.pUSub.unsubscribe();
+    this.pUSub?.unsubscribe();
     this.submitSub?.unsubscribe();
   }
   
@@ -64,6 +64,8 @@ export class StatuatoryInfoComponent implements OnDestroy {
   @Output() dataSubmitted = new EventEmitter<any>();
   submitSub!: Subscription;
   onSubmit(){
+    console.log(this.editStatus);
+    
     let submit = {
       ...this.form.getRawValue()
     }

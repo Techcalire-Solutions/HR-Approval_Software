@@ -60,7 +60,7 @@ router.post('/add', async (req, res) => {
 
   } catch (error) {
     console.error('Error:', error.message);
-    res.status(500).send({ error: 'Server error' });
+    res.send('Server error');
   }
 });
 

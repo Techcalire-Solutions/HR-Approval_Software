@@ -122,7 +122,6 @@
                 </mat-option>
               }
             </mat-select>
-            <mat-error>  Role is required </mat-error>
           </mat-form-field>
         </div>
       </div>
@@ -132,19 +131,21 @@
           <mat-slide-toggle formControlName="isTemporary">Is Temporary</mat-slide-toggle>
         </div> -->
         <div class="col" style="text-align: right;">
-          <button mat-raised-button color="primary" (click)="onSubmit()">
+          <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.pristine || form.invalid">
             @if (editStatus) {
                 Update
             } @else {
                 Save
             }
-        </button>
-        @if(editStatus){
-          <button mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;">
-            Next
           </button>
-        }
-    
+          <button mat-raised-button color="primary" onclick="history.back()" [disabled]="!form.pristine && !form.invalid" style="margin-left: 10px;">
+            exit
+          </button>
+          @if(editStatus){
+            <button mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;">
+              Next
+            </button>
+          }
         </div>
       </div>
     </mat-card>
