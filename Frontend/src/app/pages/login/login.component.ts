@@ -20,7 +20,7 @@ export class LoginComponent {
   errorMessage: string | null = null;
 
   loginForm = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
+    empNo: ['', Validators.required],
     password: ['', Validators.required]
   });
 

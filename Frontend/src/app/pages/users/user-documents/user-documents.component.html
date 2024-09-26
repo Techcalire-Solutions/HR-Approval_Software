@@ -4,7 +4,7 @@
       <div *ngFor="let uploadForm of doc().controls; let i = index;" [formGroupName]="i" class="form-instance">
         <div class="row">
           <div class="col">
-            <mat-form-field>
+            <mat-form-field class="w-100" appearance="outline">
               <mat-label>Document Type</mat-label>
               <input matInput formControlName="docName" placeholder="Enter employee ID" required>
             </mat-form-field>

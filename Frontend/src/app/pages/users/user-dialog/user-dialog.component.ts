@@ -1,5 +1,5 @@
 import { UserDocumentsComponent } from './../user-documents/user-documents.component';
-import { Component, inject, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -28,6 +28,8 @@ import { UserPositionComponent } from '../user-position/user-position.component'
 import { StatuatoryInfoComponent } from '../statuatory-info/statuatory-info.component';
 import { UserAccountComponent } from "../user-account/user-account.component";
 import { ActivatedRoute, Router } from '@angular/router';
+import { Team } from '../../../common/interfaces/team';
+import { TeamService } from '@services/team.service';
 
 
 @Component({
@@ -57,7 +59,7 @@ import { ActivatedRoute, Router } from '@angular/router';
   templateUrl: './user-dialog.component.html',
   styleUrl: './user-dialog.component.scss'
 })
-export class UserDialogComponent implements OnInit {
+export class UserDialogComponent implements OnInit, OnDestroy {
   url = environment.apiUrl;
   snackBar = inject(MatSnackBar);
   sanitizer = inject(DomSanitizer);
@@ -66,6 +68,7 @@ export class UserDialogComponent implements OnInit {
   userService = inject(UsersService);
   router = inject(Router);
   route = inject(ActivatedRoute);
+  teamService = inject(TeamService)
 
   public form: FormGroup;
   public passwordHide: boolean = true;
@@ -74,23 +77,51 @@ export class UserDialogComponent implements OnInit {
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.id = params['id'];
+
       if (this.id) {
         this.editStatus = true;
         this.getUser(this.id) // Call a function if 'id' exists
+      }else{
+        this.generateEmployeeNumber()
       }
     });
 
     this.form = this.fb.group({
+      empNo: [''],
       url: [''],
-      name: [ null, Validators.compose([Validators.required, Validators.minLength(3)]) ],
-      email: [ null, Validators.compose([Validators.required, Validators.email]) ],
-      phoneNumber: [ null, Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)]) ],
-      password: [ null, Validators.compose([Validators.required, Validators.minLength(4)]) ],
-      roleId: [ null, Validators.compose([Validators.required])]
+      name: [
+        null,
+        Validators.compose([Validators.required, Validators.minLength(3)])
+      ],
+      email: [
+        null,
+        Validators.compose([Validators.required, Validators.email])
+      ],
+      phoneNumber: [
+        null,
+        Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)])
+      ],
+      password: [
+        null,
+        Validators.compose([Validators.required, Validators.minLength(4)])
+      ],
+      roleId: [
+        null,
+        Validators.compose([Validators.required])
+      ],
+      teamId: [ null ]
     })
 
     this.getRoles()
-    this.generateEmployeeNumber()
+    this.getTeam()
+  }
+
+  ngOnDestroy(): void {
+   this.teamSub?.unsubscribe();
+   this.roleSub?.unsubscribe();
+   this.userSub?.unsubscribe();
+   this.usersSub?.unsubscribe();
+   this.uploadSub?.unsubscribe();
   }
 
   userSub!: Subscription;
@@ -101,14 +132,16 @@ export class UserDialogComponent implements OnInit {
   }
 
   patchUser(user: User){
+    this.invNo = user.empNo
     this.form.patchValue({
       name: user.name,
       roleId: user.roleId,
       phoneNumber: user.phoneNumber,
       email: user.email,
+      password: user.password,
       status: user.status,
       joiningDate: user.createdAt,
-      password: user.password
+      teamId: user.teamId
     })
     if(user.url != null) this.imageUrl = this.url + user.url
   }
@@ -132,10 +165,10 @@ export class UserDialogComponent implements OnInit {
         const splitName = fileName.split('.');
         fileName = splitName[0].substring(0, 12) + "... ." + splitName[1];
       }
-
       this.uploadSub = this.userService.uploadImage(this.file).subscribe({
         next: (invoice) => {
-          this.imageUrl = this.url + invoice.fileUrl;
+          
+          this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ invoice.fileUrl}`;
           if (this.imageUrl) {
             this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.imageUrl);
           }
@@ -158,14 +191,20 @@ export class UserDialogComponent implements OnInit {
   roles:Role[]=[];
   roleSub!: Subscription;
   getRoles(){
-    this.roleService.getRole().subscribe((res)=>{
+    this.roleSub = this.roleService.getRole().subscribe((res)=>{
       this.roles = res;
     })
   }
 
-  close(): void {
-    // this.dialogRef.close();
+  team : Team[]=[]
+  teamSub!:Subscription;
+  getTeam(){
+    this.teamSub = this.teamService.getTeam().subscribe((res)=>{
+      this.team=res;
+    })
+
   }
+
 
   selectedTabIndex: number = 0;
   isFormSubmitted: boolean = false;
@@ -174,21 +213,21 @@ export class UserDialogComponent implements OnInit {
   isSocialFormSubmitted: boolean = false;
   isAccountFormSubmitted: boolean = false;
   onSubmit(){
-    // if(this.data){
-    //   this.userService.updateUser(this.data.id, this.form.getRawValue()).subscribe((res)=>{
-    //     console.log(res);
-    //     this.dialogRef.close();
-    //     this.snackBar.open("User updated succesfully...","" ,{duration:3000})
-    //   })
-    // }else{
+    if(this.editStatus){
+      this.userService.updateUser(this.id, this.form.getRawValue()).subscribe((res)=>{
+        this.snackBar.open("User updated succesfully...","" ,{duration:3000})
+      })
+    }else{
       this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
-        this.dataToPass = { id: res.id, empNo: this.invNo, name: res.name, updateStatus: this.editStatus };
-        console.log(this.dataToPass);
-
+        this.dataToPass = { id: res.user.id, empNo: this.invNo, name: res.user.name, updateStatus: this.editStatus };
         this.selectedTabIndex = 1;
+        if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
+          this.personalDetailsComponent.ngOnInit();
+        }
         this.isFormSubmitted = true;
         this.snackBar.open("User added succesfully...","" ,{duration:3000})
       })
+    }
   }
 
   personalSubmit(event: any){
@@ -204,6 +243,9 @@ export class UserDialogComponent implements OnInit {
   contactSubmit(event: any){
     this.isSocialFormSubmitted = event.isFormSubmitted
     this.selectedTabIndex = 4
+    if (this.userAccountComponent && this.selectedTabIndex === 4) {
+      this.userAccountComponent.ngOnInit();
+    }
   }
 
   accountSubmit(event: any){
@@ -216,32 +258,39 @@ export class UserDialogComponent implements OnInit {
   statuatoryData: any;
   accountData: any;
   invNo: string;
+  usersSub!: Subscription;
   generateEmployeeNumber() {
     let prefix: any;
     const currentYear = new Date().getFullYear();
 
-    this.userService.getUserPersonalDetails().subscribe((res) => {
+    this.userService.getUser().subscribe((res) => {
       let users = res;
 
       if (users.length > 0) {
         const maxId = users.reduce((prevMax, inv) => {
-          const idNumber = parseInt(inv.empNo.replace(/\D/g, ''), 10);
+          const empNoParts = inv.empNo.split('-'); // Split by '-'
 
-          prefix = this.extractLetters(inv.empNo);
+          // Extract the numeric portion that represents the ID, assuming it's the last part
+          const idNumber = parseInt(empNoParts[empNoParts.length - 1], 10);
+
+          prefix = this.extractLetters(inv.empNo); // Get the prefix
 
           if (!isNaN(idNumber)) {
+            // Compare and return the maximum ID
             return idNumber > prevMax ? idNumber : prevMax;
           } else {
             return prevMax;
           }
         }, 0);
+
         // Increment the maxId by 1 to get the next ID
         let nextId = maxId + 1;
-        const paddedId = `${prefix}${nextId.toString().padStart(3, "0")}`;
+
+        const paddedId = `${prefix}-${currentYear}-${nextId.toString().padStart(3, "0")}`;
 
         let ivNum = paddedId;
         this.invNo = ivNum;
-        this.form.get('envNo')?.setValue(ivNum);
+        this.form.get('empNo')?.setValue(ivNum);
       } else {
         // If there are no employees in the array, set the employeeId to 'EMP001'
         let nextId = 0o1;
@@ -260,23 +309,44 @@ export class UserDialogComponent implements OnInit {
   }
 
   extractLetters(input: string): string {
-    // return input.replace(/[^a-zA-Z]/g, "");
-    var extractedChars = input.match(/[A-Za-z-]/g);
+    const match = input.match(/^[A-Za-z]+/);
 
-    // Combine the matched characters into a string
-    var result = extractedChars ? extractedChars.join('') : '';
-
-    return result;
+    return match ? match[0] : '';
   }
 
+
+
   @ViewChild(PersonalDetailsComponent) personalDetailsComponent!: PersonalDetailsComponent;
+  @ViewChild(UserPositionComponent) userPositionComponent!: UserPositionComponent;
+  @ViewChild(StatuatoryInfoComponent) statuatoryInfoComponent!: StatuatoryInfoComponent;
+  @ViewChild(UserAccountComponent) userAccountComponent!: UserAccountComponent;
+  // @ViewChild(StatuatoryInfoComponent) statuatoryInfoComponent!: StatuatoryInfoComponent;
+  // @ViewChild(StatuatoryInfoComponent) statuatoryInfoComponent!: StatuatoryInfoComponent;
   goToNextTab() {
     if (this.selectedTabIndex < 4) {
       this.dataToPass = { updateStatus: this.editStatus, id: this.id }
       this.selectedTabIndex++;
 
       if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
-        this.personalDetailsComponent.ngOnInit(this.dataToPass);
+        this.personalDetailsComponent.triggerNew(this.dataToPass);
+      }
+      else if (this.userPositionComponent && this.selectedTabIndex === 2) {
+        this.userPositionComponent.triggerNew(this.dataToPass);
+      }
+      else if (this.statuatoryInfoComponent && this.selectedTabIndex === 3) {
+        this.statuatoryInfoComponent.triggerNew(this.dataToPass);
+      }
+
+      else if (this.userAccountComponent && this.selectedTabIndex === 4) {
+        this.userAccountComponent.triggerNew(this.dataToPass);
+      }
+
+      else if (this.statuatoryInfoComponent && this.selectedTabIndex === 3) {
+        this.statuatoryInfoComponent.triggerNew(this.dataToPass);
+      }
+
+      else if (this.statuatoryInfoComponent && this.selectedTabIndex === 3) {
+        this.statuatoryInfoComponent.triggerNew(this.dataToPass);
       }
     }
   }
