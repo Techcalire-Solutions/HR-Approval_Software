@@ -276,13 +276,7 @@ router.post('/set', authenticateToken, async (req, res) => {
 
 
 
-// const transporter = nodemailer.createTransport({
-//   service: 'Gmail',
-//   auth: {
-//       user: process.env.EMAIL_USER,
-//       pass: process.env.EMAIL_PASS,
-//   },
-// });
+
 
 // POST route to submit leave request
 router.post('/', authenticateToken, async (req, res) => {
