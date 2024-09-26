@@ -127,6 +127,10 @@ export class UsersComponent implements OnInit, OnDestroy {
     });
   }
 
+  viewEmployee(id: number){
+    this.router.navigate(['/login/users/view/' + id]);
+  }
+
   deleteImage(id: number){
     const dialogRef = this.dialog.open(DeleteDialogueComponent, {
       width: '450px',
