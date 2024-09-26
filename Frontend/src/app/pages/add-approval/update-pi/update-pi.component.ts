@@ -69,6 +69,8 @@ export class UpdatePIComponent {
       remarks: [''],
       status: [''],
       kamId: <any>[],
+      amId:<any>[],
+      accountantId:<any>[],
       supplierName: [''],
       supplierPoNo: [''],
       supplierPrice: [''],
@@ -231,7 +233,23 @@ export class UpdatePIComponent {
       if(this.roleName === 'Team Lead') this.sp = true;
     })
   }
+  amSub!: Subscription;
+  AMList: User[] = [];
+  getAM(){
+    this.amSub = this.loginServie.getUserByRole(3).subscribe(user =>{
+      this.AMList = user;
+    });
+  }
 
+  accountantSub!: Subscription;
+  AccountantList: User[] = [];
+  getAccountants(){
+    this.accountantSub = this.loginServie.getUserByRole(4).subscribe(user =>{
+      this.AccountantList = user;
+      console.log('account list',this.AccountantList);
+
+    });
+  }
   submit!: Subscription;
   onUpdate(){
 
