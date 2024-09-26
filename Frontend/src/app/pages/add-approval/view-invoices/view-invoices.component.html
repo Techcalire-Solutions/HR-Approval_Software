@@ -57,10 +57,15 @@
     </div>
   </div>
 
-  <mat-card-actions *ngIf="(kam && (pi.status!=='KAM VERIFIED'))|| (am && (pi.status!=='AM VERIFIED'))">
-    <button mat-raised-button class="approve-button" (click)="verified('approved')"
-    *ngIf="!sp && !admin && !teamLead"> APPROVE
-  </button>
+
+
+  <mat-card-actions *ngIf="(kam && (pi.status !== 'KAM VERIFIED')) ||
+  (am && (pi.status !== 'AM VERIFIED') && (pi.status !== 'BANK SLIP ISSUED'))">
+<button mat-raised-button class="approve-button"
+(click)="verified('approved')"
+*ngIf="!sp && !admin && !teamLead">
+APPROVE
+</button>
 
 <!-- Reject Button -->
 <button mat-raised-button class="reject-button"
@@ -92,7 +97,7 @@ REJECT
 
                     <div class="col" style="margin-top: 0;">
                         <div class="input-group">
-                            <input type="search" placeholder="Search Data..." (keyup)="applyFilter($event)">
+                            <input type="search" placeholder="Search Data by status..." (keyup)="applyFilter($event)">
                         </div>
                     </div>
                 </div>
