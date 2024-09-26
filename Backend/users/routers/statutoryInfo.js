@@ -10,7 +10,12 @@ router.post('/add', authenticateToken, async (req, res) => {
     try {
       const userExist = await StatutoryInfo.findOne({
         where: {
-            [Op.or]: [ { adharNo: adharNo }, { panNumber: panNumber }, { esiNumber: esiNumber }, { uanNumber: uanNumber } ]
+            [Op.or]: [
+              { adharNo: { [Op.ne]: null, [Op.eq]: adharNo } },
+              { panNumber: { [Op.ne]: null, [Op.eq]: panNumber } },
+              { esiNumber: { [Op.ne]: null, [Op.eq]: esiNumber } },
+              { uanNumber: { [Op.ne]: null, [Op.eq]: uanNumber } }
+            ]
           }
       });
       if (userExist) {

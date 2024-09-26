@@ -51,7 +51,7 @@ export class UserDocumentsComponent {
 
   newDoc(initialValue?: any): FormGroup {
     return this.fb.group({
-      // userId: [this.data.id],
+      userId: [this.data.id],
       docName: [''],
       docUrl: ['']
     });
@@ -63,6 +63,7 @@ export class UserDocumentsComponent {
 
   fileType: string;
   uploadSub!: Subscription;
+  imageUrl: any[] = [];
   onFileSelected(event: Event, i: number): void {
     const input = event.target as HTMLInputElement;
     let file: any = input.files?.[0];
@@ -80,9 +81,10 @@ export class UserDocumentsComponent {
     formData.append('name', name);
 
     this.uploadSub = this.userSevice.uploadUserDoc(formData).subscribe({
-      next: (invoice) => {
-        this.doc().at(i).get('docUrl')?.setValue(invoice.fileUrl);
-      }
+        next: (invoice) => {
+          this.doc().at(i).get('docUrl')?.setValue(invoice.fileUrl);
+          this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ invoice.fileUrl}`;
+        }
       });
     }
   }
