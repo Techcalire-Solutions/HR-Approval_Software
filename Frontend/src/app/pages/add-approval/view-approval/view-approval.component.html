@@ -44,7 +44,7 @@
             </div>
             <div class="col" style="text-align: right;">
               <div class="input-group">
-                <input type="search" placeholder="Search Data..." (keyup)="applyFilter($event)">
+                <input type="search" placeholder="Search Data by Invoice No..." (keyup)="applyFilter($event)">
               </div>
             </div>
           </div>
@@ -77,10 +77,10 @@
                 <td (click)="$event.stopPropagation()">
                   <div class="action-icons">
                     <button class="update-button" [routerLink]="['/login/updatePI', invoice.id]"
-                      *ngIf="admin || (sp && (invoice.status=='GENERATED' || invoice.status=='KAM REJECTED'|| invoice.status=='AM REJECTED'))|| (kam && (invoice.status=='KAM VERIFIED' || invoice.status=='AM REJECTED'))&& invoice.userStatus">Update
+                      *ngIf="admin ||(am && (invoice.status=='AM VERIFIED'))|| (sp && (invoice.status=='GENERATED' || invoice.status=='KAM REJECTED'|| invoice.status=='AM REJECTED'))|| (kam && (invoice.status=='KAM VERIFIED' || invoice.status=='AM REJECTED'))&& invoice.userStatus">Update
                     </button>
                     <button class="delete-button" (click)="deleteFunction(invoice.id)"
-                      *ngIf="admin || (sp && (invoice.status=='GENERATED' || invoice.status=='KAM REJECTED'))|| (kam && (invoice.status=='KAM VERIFIED' || invoice.status=='AM REJECTED'))&& invoice.userStatus">Delete
+                      *ngIf="admin ||(am && (invoice.status=='AM VERIFIED'))|| (sp && (invoice.status=='GENERATED' || invoice.status=='KAM REJECTED'))|| (kam && (invoice.status=='KAM VERIFIED' || invoice.status=='AM REJECTED'))&& invoice.userStatus">Delete
                     </button>
                     <button mat-raised-button class="approve-button"
                       (click)="verified('approved', invoice.piNo, invoice.salesPerson?.name, invoice.id)"
@@ -93,8 +93,11 @@
                     </button>
 
                     <button mat-raised-button class="add-bank-slip-button"
-                      (click)="addBankSlip(invoice.piNo, invoice.id)" *ngIf="!sp && ma "> Wireslip
-                    </button>
+                    (click)="addBankSlip(invoice.piNo, invoice.id)"
+                    *ngIf="!sp && ma">
+              {{ invoice.status === 'BANK SLIP ISSUED' ? 'Edit Wireslip' : 'Wireslip' }}
+            </button>
+
                   </div>
                 </td>
               </tr>

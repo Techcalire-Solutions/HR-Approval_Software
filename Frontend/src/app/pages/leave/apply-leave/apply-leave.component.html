@@ -50,8 +50,9 @@
         &nbsp;
 
         <!-- Checkbox for Half Day -->
-        <mat-checkbox formControlName="halfDay" (change)="onHalfDayChange($event)">Half Day</mat-checkbox>
-
+        <!-- <mat-checkbox formControlName="Session 1" (change)="onHalfDayChange($event)">Session 1</mat-checkbox> -->
+        <mat-checkbox formControlName="session1" >Session 1</mat-checkbox>
+        <mat-checkbox formControlName="session2">Session 2</mat-checkbox>
 
         <!-- Conditionally display the time input based on Half Day checkbox -->
         <div *ngIf="leaveRequestForm.get('halfDay')?.value">

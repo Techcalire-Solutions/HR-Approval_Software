@@ -77,7 +77,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.id = params['id'];
-      
+
       if (this.id) {
         this.editStatus = true;
         this.getUser(this.id) // Call a function if 'id' exists
@@ -218,7 +218,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
         this.snackBar.open("User updated succesfully...","" ,{duration:3000})
       })
     }else{
-      this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{    
+      this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
         this.dataToPass = { id: res.user.id, empNo: this.invNo, name: res.user.name, updateStatus: this.editStatus };
         this.selectedTabIndex = 1;
         if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
@@ -265,16 +265,16 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
     this.userService.getUser().subscribe((res) => {
       let users = res;
-      
+
       if (users.length > 0) {
         const maxId = users.reduce((prevMax, inv) => {
           const empNoParts = inv.empNo.split('-'); // Split by '-'
-  
+
           // Extract the numeric portion that represents the ID, assuming it's the last part
           const idNumber = parseInt(empNoParts[empNoParts.length - 1], 10);
-        
+
           prefix = this.extractLetters(inv.empNo); // Get the prefix
-          
+
           if (!isNaN(idNumber)) {
             // Compare and return the maximum ID
             return idNumber > prevMax ? idNumber : prevMax;
@@ -282,16 +282,15 @@ export class UserDialogComponent implements OnInit, OnDestroy {
             return prevMax;
           }
         }, 0);
-        
+
         // Increment the maxId by 1 to get the next ID
         let nextId = maxId + 1;
-        
+
         const paddedId = `${prefix}-${currentYear}-${nextId.toString().padStart(3, "0")}`;
-        
+
         let ivNum = paddedId;
         this.invNo = ivNum;
         this.form.get('empNo')?.setValue(ivNum);
-        
       } else {
         // If there are no employees in the array, set the employeeId to 'EMP001'
         let nextId = 0o1;
@@ -310,12 +309,12 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   }
 
   extractLetters(input: string): string {
-    const match = input.match(/^[A-Za-z]+/); 
-  
+    const match = input.match(/^[A-Za-z]+/);
+
     return match ? match[0] : '';
   }
-  
-  
+
+
 
   @ViewChild(PersonalDetailsComponent) personalDetailsComponent!: PersonalDetailsComponent;
   @ViewChild(UserPositionComponent) userPositionComponent!: UserPositionComponent;
