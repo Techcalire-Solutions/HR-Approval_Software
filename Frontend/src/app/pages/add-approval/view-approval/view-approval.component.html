@@ -65,9 +65,10 @@
             </thead>
             <tbody>
               <tr *ngFor="let invoice of invoices; let i = index" [routerLink]="['/login/viewInvoices/', invoice.id]"
-                (mousedown)="onMouseDown($event, invoice)" (mouseup)="onMouseUp($event)"
-                (mouseleave)="onMouseLeave($event)">
 
+                >
+<!--                 (mousedown)="onMouseDown($event, invoice)" (mouseup)="onMouseUp($event)"
+                (mouseleave)="onMouseLeave($event)" -->
                 <td [attr.data-label]="'InvoiceNo'">{{invoice.piNo}}</td>
                 <td [attr.data-label]="'SP'">{{invoice.salesPerson?.name}}</td>
                 <td [attr.data-label]="'KAM'">{{invoice.kam?.name}}</td>
@@ -76,12 +77,16 @@
                 <td [attr.data-label]="'Status'">{{invoice.status}}_{{invoice.count}}</td>
                 <td (click)="$event.stopPropagation()">
                   <div class="action-icons">
+                    <!-- ||(am && (invoice.status=='AM VERIFIED'))|| (sp && (invoice.status=='GENERATED' || invoice.status=='KAM REJECTED'|| invoice.status=='AM REJECTED'))|| (kam && (invoice.status=='KAM VERIFIED' || invoice.status=='AM REJECTED'))&& invoice.userStatus -->
                     <button class="update-button" [routerLink]="['/login/updatePI', invoice.id]"
-                      *ngIf="admin ||(am && (invoice.status=='AM VERIFIED'))|| (sp && (invoice.status=='GENERATED' || invoice.status=='KAM REJECTED'|| invoice.status=='AM REJECTED'))|| (kam && (invoice.status=='KAM VERIFIED' || invoice.status=='AM REJECTED'))&& invoice.userStatus">Update
+                      *ngIf="admin || invoice.editButtonStatus">Update
                     </button>
-                    <button class="delete-button" (click)="deleteFunction(invoice.id)"
+                    <!-- <button class="delete-button" (click)="deleteFunction(invoice.id)"
                       *ngIf="admin ||(am && (invoice.status=='AM VERIFIED'))|| (sp && (invoice.status=='GENERATED' || invoice.status=='KAM REJECTED'))|| (kam && (invoice.status=='KAM VERIFIED' || invoice.status=='AM REJECTED'))&& invoice.userStatus">Delete
-                    </button>
+                    </button> -->
+                    <button class="delete-button" (click)="deleteFunction(invoice.id)"
+                    *ngIf="admin|| invoice.editButtonStatus">Delete
+                  </button>
                     <button mat-raised-button class="approve-button"
                       (click)="verified('approved', invoice.piNo, invoice.salesPerson?.name, invoice.id)"
                       *ngIf="!sp && pageStatus && !admin && !teamLead "> APPROVE

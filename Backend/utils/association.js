@@ -8,18 +8,18 @@ const User = require('../users/models/user');
 
 
 async function syncModel() {
-    await sequelize.sync({alter: true})
+    await sequelize.sync({force: true})
 
     // Team.belongsTo(User, {
     //     foreignKey: "userId",
     //     as: "leader",
     //   });
     
-      Team.hasMany(TeamMember, { foreignKey: "teamId" });
-      TeamMember.belongsTo(Team);
+    //   Team.hasMany(TeamMember, { foreignKey: "teamId" });
+    //   TeamMember.belongsTo(Team);
 
-      User.hasMany(TeamMember, { foreignKey: "userId"});
-      TeamMember.belongsTo(User, { foreignKey: "userId"});
+    //   User.hasMany(TeamMember, { foreignKey: "userId"});
+    //   TeamMember.belongsTo(User, { foreignKey: "userId"});
     
 
     const roleData = [
