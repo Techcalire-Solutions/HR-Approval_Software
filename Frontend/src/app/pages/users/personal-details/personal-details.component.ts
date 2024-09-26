@@ -78,7 +78,7 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     dateOfJoining: <any>[],
     probationPeriod: [''],
     confirmationDate: <any>[],
-    maritalStatus: ['', Validators.required],
+    maritalStatus: [''],
     dateOfBirth: <any>[],
     gender: [''],
     isTemporary: [true],
@@ -86,7 +86,7 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     spouseName: [''],
     referredBy: [''],
     reportingManger: <any>[],
-    emergencyContactNo: ['', Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)])],
+    emergencyContactNo: ['', Validators.compose([Validators.pattern(/^\d{10}$/)])],
     emergencyContactName: [''],
     emergencyContactRelation: [''], 
     bloodGroup: ['']

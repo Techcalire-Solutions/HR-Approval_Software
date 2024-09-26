@@ -9,6 +9,6 @@ export interface UserPosition {
   department : string
   office  : string
   salary : string
-  probationPeriod : string
+  probationPeriod : number
   officialMailId: string
 }

@@ -47,12 +47,15 @@
 
     <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
       <div class="col" style="text-align: right;">
-        <button mat-raised-button color="primary" (click)="onSubmit()">
+        <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.pristine || form.invalid">
           @if (editStatus) {
               Update
           } @else {
               Save
           }
+        </button>
+        <button mat-raised-button color="primary" onclick="history.back()" [disabled]="!form.pristine && !form.invalid" style="margin-left: 10px;">
+          exit
         </button>
         @if(editStatus){
           <button mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;">

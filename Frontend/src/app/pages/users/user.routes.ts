@@ -10,5 +10,8 @@ export const routes: Routes = [
   },
   { path: 'edit/:id',  loadComponent: () => import('./user-dialog/user-dialog.component').then(c => c.UserDialogComponent),
      data: { breadcrumb: 'Edit' }, canActivate: [AuthGuard]
-  }
+  },
+  { path: 'view/:id',  loadComponent: () => import('./view-user/view-user.component').then(c => c.ViewUserComponent),
+    data: { breadcrumb: 'Open' }, canActivate: [AuthGuard]
+ }
 ];
