@@ -9,7 +9,19 @@ const User = require('../users/models/user');
 
 async function syncModel() {
     await sequelize.sync({force: true})
+
+    Team.belongsTo(User, {
+        foreignKey: "userId",
+        as: "leader",
+      });
     
+      Team.hasMany(TeamMember, { foreignKey: "teamId" });
+      TeamMember.belongsTo(Team);
+
+      User.hasMany(TeamMember, { foreignKey: "userId"});
+      TeamMember.belongsTo(User, { foreignKey: "userId"});
+    
+
     const roleData = [
         {roleName: 'Sales Executive',abbreviation:'SE'}, //1
         {roleName: 'Key Account Manager',abbreviation:'KAM'}, //2
