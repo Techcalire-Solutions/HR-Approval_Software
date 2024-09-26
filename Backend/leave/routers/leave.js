@@ -5,7 +5,7 @@ const Leave = require('../models/leave');
 const UserLeave = require('../models/userLeave');
 const User = require('../../users/models/user')
 const LeaveType = require('../models/leaveType')
-const nodemailer = require('nodemailer');
+// const nodemailer = require('nodemailer');
 
 
 
@@ -126,13 +126,13 @@ router.post('/set', authenticateToken, async (req, res) => {
 
 
 
-const transporter = nodemailer.createTransport({
-  service: 'Gmail',
-  auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   service: 'Gmail',
+//   auth: {
+//       user: process.env.EMAIL_USER,
+//       pass: process.env.EMAIL_PASS,
+//   },
+// });
 
 // POST route to submit leave request
 router.post('/', authenticateToken, async (req, res) => {
