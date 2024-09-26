@@ -37,7 +37,7 @@ export class UserPositionComponent implements OnDestroy {
     department : [''],
     office  : [''],
     salary : [''],
-    probationPeriod : [''],
+    probationPeriod : <any>[],
     officialMailId: ['', Validators.email]
   });
 
