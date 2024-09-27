@@ -1,6 +1,6 @@
 
 
-<h1 *ngIf="invNo">{{ invNo }}</h1>
+@if( invNo ){ <h1>{{ invNo }}</h1> }
 <mat-tab-group class="horizontal-tabs" [backgroundColor]="'primary'" [selectedIndex]="selectedTabIndex">
   <mat-tab>
     <mat-card style="margin-top: 20px;">
@@ -10,10 +10,6 @@
 
       <form [formGroup]="form" class="user-form" fxLayout="column" fxLayoutGap="16px">
         <div fxLayout="column" class="form-field-outer">
-          <ng-template #noFileTemplate>
-            <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
-            <span class="material-icons clickable-icon" (click)="fileInput.click()">cloud_upload</span>
-          </ng-template>
           <mat-card>
             <mat-card-header><mat-card-title>Employee</mat-card-title></mat-card-header>
             <div class="row box" style="margin-top: 20px;">
@@ -21,12 +17,15 @@
                 <mat-form-field class="w-100" appearance="outline">
                   <mat-label><mat-icon>person</mat-icon> Name</mat-label>
                   <input matInput formControlName="name" required>
-                  <mat-error *ngIf="form.controls['name'].hasError('required')">
-                    Name is required
-                  </mat-error>
-                  <mat-error *ngIf="form.controls.name.hasError('minlength')">
-                    Name isn't long enough, minimum of 5 characters
-                  </mat-error>
+                  @if(form.controls['name'].hasError('required')){
+                    <mat-error>
+                      Name is required
+                    </mat-error>
+                  }@else if(form.controls.name.hasError('minlength')){
+                    <mat-error>
+                      Name isn't long enough, minimum of 5 characters
+                    </mat-error>
+                  }
                 </mat-form-field>
               </div>
 
@@ -34,24 +33,22 @@
                 <mat-form-field class="w-100" appearance="outline">
                   <mat-label><mat-icon>email</mat-icon> Email</mat-label>
                   <input matInput formControlName="email" required>
-                  <mat-error *ngIf="form.controls.email.hasError('required')">
-                    Email is required
-                  </mat-error>
-                  <mat-error *ngIf="form.controls.email.hasError('minlength')">
-                    Email isn't long enough, minimum of 5 characters
-                  </mat-error>
+                  @if(form.controls.email.hasError('required')){
+                    <mat-error>
+                      Email is required
+                    </mat-error>
+                  }
                 </mat-form-field>
               </div>
               <div class="col">
                 <mat-form-field class="w-100" appearance="outline">
                   <mat-label><mat-icon>phone</mat-icon> Phone Number</mat-label>
                   <input matInput formControlName="phoneNumber" required>
-                  <mat-error *ngIf="form.controls.phoneNumber.hasError('required')">
-                    Phone number is required
-                  </mat-error>
-                  <mat-error *ngIf="form.controls.phoneNumber.hasError('minlength')">
-                    Phone number isn't long enough, minimum of 5 characters
-                  </mat-error>
+                  @if(form.controls.phoneNumber.hasError('required')){
+                    <mat-error>
+                      Phone number is required
+                    </mat-error>
+                  }
                 </mat-form-field>
               </div>
             </div>
@@ -68,12 +65,15 @@
                     [attr.aria-pressed]="!hidePassword">
                     <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
                   </button>
-                  <mat-error *ngIf="form.controls.password.hasError('required')">
-                    Password is required
-                  </mat-error>
-                  <mat-error *ngIf="form.controls.password.hasError('minlength')">
-                    Password isn't long enough, minimum of 5 characters
-                  </mat-error>
+                  @if(form.controls.password.hasError('required')){
+                    <mat-error>
+                      Password is required
+                    </mat-error>
+                  }@else if(form.controls.password.hasError('minlength')){
+                    <mat-error>
+                      Password isn't long enough, minimum of 5 characters
+                    </mat-error>
+                  }
                 </mat-form-field>
               </div>
 
@@ -81,16 +81,17 @@
                 <mat-form-field class="w-100" appearance="outline">
                   <mat-label>Role</mat-label>
                   <mat-select formControlName="roleId" required>
-                    <mat-option *ngFor="let role of roles" [value]="role.id">
-                      {{ role.roleName }}
-                    </mat-option>
+                    @for(role of roles; track role){
+                      <mat-option [value]="role.id">
+                        {{ role.roleName }}
+                      </mat-option>
+                    }
                   </mat-select>
-                  <mat-error *ngIf="form.controls.roleId.hasError('required')">
-                    Role is required
-                  </mat-error>
-                  <mat-error *ngIf="form.controls.roleId.hasError('minlength')">
-                    Role isn't long enough, minimum of 5 characters
-                  </mat-error>
+                  @if(form.controls.roleId.hasError('required')){
+                    <mat-error>
+                      Role is required
+                    </mat-error>
+                  }
                 </mat-form-field>
               </div>
 
@@ -98,9 +99,11 @@
                 <mat-form-field class="w-100" appearance="outline">
                   <mat-label>Team</mat-label>
                   <mat-select formControlName="teamId">
-                    <mat-option *ngFor="let item of team" [value]="item.id">
-                      {{ item.teamName}}
-                    </mat-option>
+                    @for(team of teams; track team){
+                      <mat-option [value]="team.id">
+                        {{ team.teamName}}
+                      </mat-option>
+                    }
                   </mat-select>
                   <!-- <mat-error *ngIf="form.controls.teamId.hasError('required')">
                     Team is required
@@ -113,7 +116,7 @@
             </div>
 
             <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
-              <ng-container *ngIf="imageUrl && imageUrl != 'undefined'; else noFileTemplate">
+              @if(imageUrl && imageUrl != 'undefined') {
                 <input type="file" class="file-input" hidden #fileInput>
                 <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
                   <img [src]="imageUrl" alt="Image" title="Image" height="100" width="100" (click)="fileInput.click()" class="clickable-image" />
@@ -121,7 +124,12 @@
                     <mat-icon>delete</mat-icon>
                   </button> -->
                 </div>
-              </ng-container>
+              } @else{
+                <ng-template>
+                  <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
+                  <span class="material-icons clickable-icon" (click)="fileInput.click()">cloud_upload</span>
+                </ng-template>
+              }
               
 
               <!-- Wrap the buttons in a div with fxLayout="row" to keep them side by side -->
@@ -130,13 +138,15 @@
                   {{ editStatus ? 'Update' : 'Save' }}
                 </button>
 
-                <button *ngIf="!editStatus" mat-raised-button color="primary"  onClick="history.back()">
-                  Close
-                </button>
-
-                <button *ngIf="editStatus" mat-raised-button color="primary" (click)="goToNextTab()">
-                  Next
-                </button>
+                @if(!editStatus){
+                  <button mat-raised-button color="primary"  onClick="history.back()">
+                    Close
+                  </button>
+                }@else if(editStatus){
+                  <button mat-raised-button color="primary" (click)="goToNextTab()">
+                    Next
+                  </button>
+                }
               </div>
             </div>
           </mat-card>
