@@ -12,7 +12,6 @@ const LeaveType = require('../models/leaveType')
 // <!-----------------------TESTING CODE-------------------------------------->
 
 
-
 // Create a transporter for nodemailer
 const transporter = nodemailer.createTransport({
   service: 'gmail', // Or 'Gmail' depending on the Nodemailer version
@@ -21,35 +20,29 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS, // Your email password or App Password
   },
 });
+
 // Log the email credentials for debugging
 console.log('Email User:', process.env.EMAIL_USER);
 console.log('Email Pass:', process.env.EMAIL_PASS);
 
-
-// Function to calculate leave days and leave dates
-function calculateLeaveDays(start, end, session1, session2) {
-  let leaveDates = [];
+// Function to calculate leave days and leave dates with sessions
+function calculateLeaveDays(leaveDates) {
   let noOfDays = 0;
 
-  for (let dt = new Date(start); dt <= end; dt.setDate(dt.getDate() + 1)) {
-    const currentDate = new Date(dt).toISOString().split('T')[0];
-    let sessionInfo = [];
-    if (session1) sessionInfo.push('Session 1');
-    if (session2) sessionInfo.push('Session 2');
-
-    leaveDates.push({
-      date: currentDate,
-      sessions: sessionInfo,
-    });
-
-    // Calculate leave days based on sessions
-    if (session1 && session2) {
-      noOfDays += 1;
-    } else if (session1 || session2) {
-      noOfDays += 0.5;
+  leaveDates.forEach(({ sessions }) => {
+    if (sessions) {
+      // Calculate leave days based on sessions
+      if (sessions.length === 2) {
+        noOfDays += 1; // Full day
+      } else if (sessions.length === 1) {
+        noOfDays += 0.5; // Half day
+      }
+    } else {
+      console.log('Sessions is undefined for a leave date');
     }
-  }
-  return { leaveDates, noOfDays };
+  });
+
+  return noOfDays;
 }
 
 // Function to send email notifications
@@ -73,10 +66,10 @@ async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDa
 
 // Leave request route
 router.post('/', authenticateToken, async (req, res) => {
-  const { leaveTypeId, startDate, endDate, notes, session1, session2 } = req.body;
+  const { leaveTypeId, startDate, endDate, notes, leaveDates } = req.body; // Accept leaveDates directly from the frontend
   const userId = req.user.id;
 
-  if (!leaveTypeId || !startDate || !endDate) {
+  if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
 
@@ -88,15 +81,14 @@ router.post('/', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Invalid date format' });
     }
 
-    // Calculate leave days and leave dates
-    const { leaveDates, noOfDays } = calculateLeaveDays(start, end, session1, session2);
+    // Calculate leave days based on the leaveDates array
+    const noOfDays = calculateLeaveDays(leaveDates); // Calculate leave days
 
     const user = await User.findByPk(userId);
     const leaveType = await LeaveType.findByPk(leaveTypeId);
     const userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId } });
 
     if (!leaveType) {
-      console.error(`Leave type with ID ${leaveTypeId} not found`);
       return res.status(404).json({ message: 'Leave type not found' });
     }
 
@@ -117,9 +109,7 @@ router.post('/', authenticateToken, async (req, res) => {
       noOfDays,
       notes,
       status: 'requested',
-      session1,
-      session2,
-      leaveDates: JSON.stringify(leaveDates)
+      leaveDates // Directly storing leaveDates as a JSON object
     });
 
     // Update user leave balance
@@ -149,14 +139,12 @@ router.post('/', authenticateToken, async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error:', error); // Log the error details
+    console.error('Error:', error);
     if (!res.headersSent) {
       res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
   }
 });
-
-
 
 
 router.get('/', authenticateToken, async (req, res) => {
