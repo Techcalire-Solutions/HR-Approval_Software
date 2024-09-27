@@ -5,7 +5,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { Settings, SettingsService } from '@services/settings.service';
-import { orders, products, customers, refunds } from '../../../common/dashboard-data';
 import { Subscription } from 'rxjs';
 import { InvoiceService } from '@services/invoice.service';
 import { PerformaInvoice } from '../../../common/interfaces/performaInvoice';

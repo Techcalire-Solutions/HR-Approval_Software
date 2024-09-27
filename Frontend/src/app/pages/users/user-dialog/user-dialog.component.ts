@@ -8,13 +8,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatRadioModule } from '@angular/material/radio';
 import { DatePipe } from '@angular/common';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { RoleService } from '../../../services/role.service';
-import { MaterialModule } from '../../../common/material/material.module';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import { Role } from '../../../common/interfaces/role';
 import { UsersService } from '../../../services/users.service';
@@ -30,31 +29,17 @@ import { UserAccountComponent } from "../user-account/user-account.component";
 import { ActivatedRoute, Router } from '@angular/router';
 import { Team } from '../../../common/interfaces/team';
 import { TeamService } from '@services/team.service';
+import { MatCardModule } from '@angular/material/card';
+import { MatSelectModule } from '@angular/material/select';
 
 
 @Component({
   selector: 'app-user-dialog',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    FlexLayoutModule,
-    MatTabsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatRadioModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    DatePipe,
-    MaterialModule,
-    MatToolbarModule,
-    PersonalDetailsComponent,
-    UserPositionComponent,
-    StatuatoryInfoComponent,
-    UserAccountComponent, UserDocumentsComponent
+  imports: [ ReactiveFormsModule, FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule,  MatDatepickerModule,
+    MatNativeDateModule, MatRadioModule, MatDialogModule,  MatButtonModule, MatCheckboxModule, DatePipe,  MatToolbarModule,
+    PersonalDetailsComponent, UserPositionComponent, StatuatoryInfoComponent, UserAccountComponent, UserDocumentsComponent, MatCardModule,
+    MatOptionModule, MatSelectModule
 ],
   templateUrl: './user-dialog.component.html',
   styleUrl: './user-dialog.component.scss'
@@ -197,13 +182,12 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     })
   }
 
-  team : Team[]=[]
+  teams : Team[]=[]
   teamSub!:Subscription;
   getTeam(){
     this.teamSub = this.teamService.getTeam().subscribe((res)=>{
-      this.team=res;
+      this.teams = res;
     })
-
   }
 
 
@@ -213,15 +197,14 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   isContactsFormSubmitted: boolean = false;
   isSocialFormSubmitted: boolean = false;
   isAccountFormSubmitted: boolean = false;
+  submit!: Subscription;
   onSubmit(){
     if(this.editStatus){
-      this.userService.updateUser(this.id, this.form.getRawValue()).subscribe((res)=>{
+      this.submit = this.userService.updateUser(this.id, this.form.getRawValue()).subscribe((res)=>{
         this.snackBar.open("User updated succesfully...","" ,{duration:3000})
       })
     }else{
-      this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
-        console.log(res);
-        
+      this.submit = this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
         this.dataToPass = { id: res.user.id, empNo: this.invNo, name: res.user.name, updateStatus: this.editStatus };
         this.selectedTabIndex = 1;
         if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
@@ -254,6 +237,9 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   accountSubmit(event: any){
     this.isAccountFormSubmitted = event.isFormSubmitted
     this.selectedTabIndex = 5
+    if (this.userDocumentsComponent && this.selectedTabIndex === 5) {
+      this.userDocumentsComponent.trigger();
+    }
   }
 
   dataToPass: any;
@@ -321,7 +307,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   @ViewChild(UserPositionComponent) userPositionComponent!: UserPositionComponent;
   @ViewChild(StatuatoryInfoComponent) statuatoryInfoComponent!: StatuatoryInfoComponent;
   @ViewChild(UserAccountComponent) userAccountComponent!: UserAccountComponent;
-  // @ViewChild(StatuatoryInfoComponent) statuatoryInfoComponent!: StatuatoryInfoComponent;
+  @ViewChild(UserDocumentsComponent) userDocumentsComponent!: UserDocumentsComponent;
   // @ViewChild(StatuatoryInfoComponent) statuatoryInfoComponent!: StatuatoryInfoComponent;
   goToNextTab() {
     if (this.selectedTabIndex < 4) {
@@ -340,14 +326,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
       else if (this.userAccountComponent && this.selectedTabIndex === 4) {
         this.userAccountComponent.triggerNew(this.dataToPass);
-      }
-
-      else if (this.statuatoryInfoComponent && this.selectedTabIndex === 3) {
-        this.statuatoryInfoComponent.triggerNew(this.dataToPass);
-      }
-
-      else if (this.statuatoryInfoComponent && this.selectedTabIndex === 3) {
-        this.statuatoryInfoComponent.triggerNew(this.dataToPass);
       }
     }
   }
