@@ -4,7 +4,7 @@
       <div class="col">
         <h1>APPLY LEAVE</h1>
       </div>
-      <div class="col" style="margin-left: auto; margin-right: 25px;" onClick="history.back()">
+      <div class="col" style="margin-left: auto; margin-right: 25px;" (click)="goBack()">
         <span class="material-icons">exit_to_app</span>
       </div>
     </div>
@@ -12,65 +12,92 @@
 
   <mat-card-content>
     <div class="wrapper">
-      <form [formGroup]="leaveRequestForm">
+      <form [formGroup]="leaveRequestForm" (ngSubmit)="onSubmit()">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Leave Type</mat-label>
-          <mat-select formControlName="leaveTypeId" placeholder="Select leave type">
+          <mat-select formControlName="leaveTypeId" placeholder="Select leave type" required>
             <mat-option *ngFor="let leaveType of leaveTypes" [value]="leaveType.id">
               {{ leaveType.leaveTypeName }}
             </mat-option>
           </mat-select>
         </mat-form-field>
 
-
-        &nbsp;
-
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Start Date</mat-label>
-          <input matInput [matDatepicker]="startDatePicker" formControlName="startDate" placeholder="Choose start date">
+          <input matInput [matDatepicker]="startDatePicker" formControlName="startDate" placeholder="Choose start date" (dateChange)="onDateChange()" required>
           <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
           <mat-datepicker #startDatePicker></mat-datepicker>
         </mat-form-field>
-        &nbsp;
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>End Date</mat-label>
-          <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" placeholder="Choose end date">
+          <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" placeholder="Choose end date" (dateChange)="onDateChange()" required>
           <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
           <mat-datepicker #endDatePicker></mat-datepicker>
         </mat-form-field>
 
-        &nbsp;
-
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Reason</mat-label>
-          <textarea matInput formControlName="notes" placeholder="Enter reason"></textarea>
+          <textarea matInput formControlName="notes" placeholder="Enter reason" required></textarea>
         </mat-form-field>
 
-        &nbsp;
+        <!-- <div formArrayName="leaveDates">
+          <div *ngFor="let leaveDate of leaveDates.controls; let i = index" [formGroupName]="i">
+            <mat-card>
+              <mat-card-title>{{ leaveDate.get('date')?.value }}</mat-card-title>
+              <mat-checkbox formControlName="session1" (change)="onSessionChange(i, 'session1')">Session 1</mat-checkbox>
+              <mat-checkbox formControlName="session2" (change)="onSessionChange(i, 'session2')">Session 2</mat-checkbox>
+            </mat-card>
+          </div>
+        </div> -->
 
-        <!-- Checkbox for Half Day -->
-        <!-- <mat-checkbox formControlName="Session 1" (change)="onHalfDayChange($event)">Session 1</mat-checkbox> -->
-        <mat-checkbox formControlName="session1" >Session 1</mat-checkbox>
-        <mat-checkbox formControlName="session2">Session 2</mat-checkbox>
 
-        <!-- Conditionally display the time input based on Half Day checkbox -->
-        <div *ngIf="leaveRequestForm.get('halfDay')?.value">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Half Day Timing</mat-label>
-            <input matInput formControlName="halfDayTime" placeholder="Enter timing (e.g., 9 AM to 1 PM)">
-          </mat-form-field>
+        <!-- <mat-card>
+          <mat-card-content>
+            <div formArrayName="leaveDates">
+              <div *ngFor="let leaveDate of leaveDates.controls; let i = index" [formGroupName]="i">
+                <mat-card>
+                  <mat-card-title>{{ leaveDate.get('date')?.value }}</mat-card-title>
+                  <mat-checkbox
+                    formControlName="session1"
+                    (change)="onSessionChange(i, 'session1')">Session 1
+                  </mat-checkbox>
+                  <mat-checkbox
+                    formControlName="session2"
+                    (change)="onSessionChange(i, 'session2')">Session 2
+                  </mat-checkbox>
+                </mat-card>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card> -->
+
+
+        <div formArrayName="leaveDates">
+          <div *ngFor="let leaveDate of leaveDates.controls; let i = index" [formGroupName]="i">
+            <mat-card>
+              <mat-card-title>{{ leaveDate.get('date')?.value }}</mat-card-title>
+              <mat-checkbox
+                [checked]="leaveDate.get('session1')?.value"
+                (change)="onSessionChange(i, 'session1')">
+                Session 1
+              </mat-checkbox>
+              <mat-checkbox
+                [checked]="leaveDate.get('session2')?.value"
+                (change)="onSessionChange(i, 'session2')">
+                Session 2
+              </mat-checkbox>
+            </mat-card>
+          </div>
         </div>
 
-      </form>
 
-      <!-- Buttons for Save or Update -->
-      <button mat-raised-button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="!leaveRequestForm.valid" *ngIf="!editStatus">
-        <span class="material-icons" style="font-size: 25px;">save</span>
-      </button>
-      <button mat-raised-button type="button" class="btn btn-success" (click)="onUpdate()" [disabled]="!leaveRequestForm.valid" *ngIf="editStatus">
-        <span class="material-icons" style="font-size: 25px;">save</span>
-      </button>
+
+
+        <button mat-raised-button type="submit" class="btn btn-success" [disabled]="!leaveRequestForm.valid || isLoading">
+          <span class="material-icons" style="font-size: 25px;">save</span>
+        </button>
+      </form>
     </div>
   </mat-card-content>
 </mat-card>
