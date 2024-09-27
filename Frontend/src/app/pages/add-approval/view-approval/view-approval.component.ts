@@ -147,7 +147,7 @@ export class ViewApprovalComponent {
   invoices: any[] = [];
   invoiceSubscriptions!: Subscription;
   submittingForm: boolean = false;
-
+  editButtonStatus: boolean = false;
   getInvoices() {
     let invoice!: PerformaInvoice[];
 
@@ -183,20 +183,48 @@ export class ViewApprovalComponent {
           });
 
           this.invoices = invoice;
-          for(let i=0;i<=this.invoices.length;i++)
-          {
-            let invoiceSP= this.invoices[i]?.salesPersonId
-            let invoiceKAM= this.invoices[i]?.kamId
-            let invoiceAM= this.invoices[i]?.amId
-            let invoiceMA= this.invoices[i]?.accountantId
+          for (let i = 0; i < this.invoices.length; i++) {
+            let invoiceSP = this.invoices[i]?.salesPersonId;
+            let invoiceKAM = this.invoices[i]?.kamId;
+            let invoiceAM = this.invoices[i]?.amId;
+            let invoiceMA = this.invoices[i]?.accountantId;
+
+            // Check if the current user matches any role in the invoice
             if (this.user === invoiceSP || this.user === invoiceKAM || this.user === invoiceAM || this.user === invoiceMA) {
               this.invoices[i] = {
                 ...this.invoices[i],
                 userStatus: true
               };
             }
+            console.log( invoice[i]);
+            console.log(this.editButtonStatus);
 
-
+            if(invoice[i].addedById === this.user){
+              if(invoice[i].addedBy.role.roleName === 'Sales Executive' &&
+                (invoice[i].status === 'GENERATED' || invoice[i].status === 'KAM REJECTED' || invoice[i].status === 'AM REJECTED') ){
+                  this.invoices[i] = {
+                    ...this.invoices[i],
+                    editButtonStatus: true
+                  };
+              }else if(invoice[i].addedBy.role.roleName === 'Key Account Manager' &&
+                (invoice[i].status === 'KAM VERIFIED' || invoice[i].status === 'AM REJECTED') ){
+                  this.invoices[i] = {
+                    ...this.invoices[i],
+                    editButtonStatus: true
+                  };
+              }else if(invoice[i].addedBy.role.roleName === 'Manager' &&
+                (invoice[i].status === 'AM VERIFIED') ){
+                  this.invoices[i] = {
+                    ...this.invoices[i],
+                    editButtonStatus: true
+                  };
+              }else{
+                this.invoices[i] = {
+                  ...this.invoices[i],
+                  editButtonStatus: false
+                };
+              }
+            }
           }
         }
 
@@ -205,7 +233,7 @@ export class ViewApprovalComponent {
         // Handle error here if needed
         this.submittingForm = false;
       });
-    } 
+    }
   }
 
   filterValue!: string;
@@ -356,41 +384,41 @@ export class ViewApprovalComponent {
     clearTimeout(this.pressTimer);
   }
 
-  @HostListener('document:mouseleave', ['$event'])
-  onMouseLeave(event: MouseEvent) {
-    clearTimeout(this.pressTimer);
-  }
+  // @HostListener('document:mouseleave', ['$event'])
+  // onMouseLeave(event: MouseEvent) {
+  //   clearTimeout(this.pressTimer);
+  // }
 
-  onMouseDown(event: MouseEvent, invoice: any) {
-    this.pressTimer = setTimeout(() => {
-      this.openDialog(invoice);
-    }, this.longPressDuration);
-  }
+  // onMouseDown(event: MouseEvent, invoice: any) {
+  //   this.pressTimer = setTimeout(() => {
+  //     this.openDialog(invoice);
+  //   }, this.longPressDuration);
+  // }
 
-  openDialog(invoice: any) {
-    const snackBarRef = this.snackBar.open('Approve or Reject?', 'Approve', {
-      duration: 5000,
-      horizontalPosition: 'center',
-      verticalPosition: 'bottom',
-    });
+  // openDialog(invoice: any) {
+  //   const snackBarRef = this.snackBar.open('Approve or Reject?', 'Approve', {
+  //     duration: 5000,
+  //     horizontalPosition: 'center',
+  //     verticalPosition: 'bottom',
+  //   });
 
-    snackBarRef.onAction().subscribe(() => {
-      this.handleApprove(invoice);
-    });
+  //   snackBarRef.onAction().subscribe(() => {
+  //     this.handleApprove(invoice);
+  //   });
 
-    snackBarRef.afterDismissed().subscribe(info => {
-      if (!info.dismissedByAction) {
-        // If not dismissed by action, prompt for rejection
-        this.snackBar.open('Do you want to reject?', 'Reject', {
-          duration: 5000,
-          horizontalPosition: 'center',
-          verticalPosition: 'bottom',
-        }).onAction().subscribe(() => {
-          this.handleReject(invoice);
-        });
-      }
-    });
-  }
+  //   snackBarRef.afterDismissed().subscribe(info => {
+  //     if (!info.dismissedByAction) {
+  //       // If not dismissed by action, prompt for rejection
+  //       this.snackBar.open('Do you want to reject?', 'Reject', {
+  //         duration: 5000,
+  //         horizontalPosition: 'center',
+  //         verticalPosition: 'bottom',
+  //       }).onAction().subscribe(() => {
+  //         this.handleReject(invoice);
+  //       });
+  //     }
+  //   });
+  // }
 
 
 
