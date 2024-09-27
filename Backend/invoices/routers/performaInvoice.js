@@ -562,8 +562,7 @@ router.get('/findbyam', authenticateToken, async(req, res) => {
         const pi = await PerformaInvoice.findAll({
             where: where, limit, offset,
             order: [['id', 'DESC']],
-            include: [
-                {model: PerformaInvoiceStatus},
+            include: [  
                 {model: User, as: 'salesPerson', attributes: ['name']},
                 {model: User, as: 'kam', attributes: ['name']},
                 {model: User, as: 'am', attributes: ['name']},
