@@ -1,7 +1,7 @@
-@import "../node_modules/roboto-fontface/css/roboto/roboto-fontface.css"; 
+@import "../node_modules/roboto-fontface/css/roboto/roboto-fontface.css";
 
 // for npm material-icons package (to load local files)
-// $material-icons-font-path: 'material-icons/iconfont/variables.scss'; 
+// $material-icons-font-path: 'material-icons/iconfont/variables.scss';
 // @import '../node_modules/material-icons/iconfont/material-icons.scss';
 
 @import url('https://cdn.quilljs.com/1.2.2/quill.snow.css');
@@ -20,4 +20,7 @@
 @import "app/theme/styles/spaces";
 @import "app/theme/styles/theme";
 @import "app/theme/styles/libs-override";
-@import "app/theme/styles/rtl"; 
+@import "app/theme/styles/rtl";
+
+
+
