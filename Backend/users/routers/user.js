@@ -40,23 +40,19 @@ router.post('/add', async (req, res) => {
 
     // Verify the team exists
     if (teamId!=null){
-      
-    
-    const team = await Team.findOne({ where: { id: teamId } });
+        const team = await Team.findOne({ where: { id: teamId } });
 
-    if (!team) {
-      return res.status(404).send('Team not found');
+        if (!team) {
+          return res.status(404).send('Team not found');
+        }
+        const teamMember = await TeamMember.create({
+          teamId: team.id,
+          userId: user.id
+        });
+        res.send({ user, teamMember })
+    } else {
+      res.json({ user: user });
     }
-
-    // Add the user to the team
-    const teamMember = await TeamMember.create({
-      teamId: team.id,
-      userId: user.id
-    });
-
-    // Send success response
-    res.status(201).send({ user, teamMember });
-  }
 
   } catch (error) {
     console.error('Error:', error.message);

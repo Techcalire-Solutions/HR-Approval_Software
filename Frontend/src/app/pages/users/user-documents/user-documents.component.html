@@ -15,6 +15,11 @@
             <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
           </div>
           <div class="col">
+            <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+              <img [src]="imageUrl[i]" alt="Image" title="Image" height="100" width="100" class="clickable-image" />
+            </div>
+          </div>
+          <div class="col">
             <button mat-raised-button color="primary" type="button" (click)="onSubmit(i)">Upload</button>
 
             <!-- Optional remove button for each form -->
