@@ -8,6 +8,7 @@ import { UserPersonal } from '../common/interfaces/user-personal';
 import { UserPosition } from '../common/interfaces/user-position';
 import { StatutoryInfo } from '../common/interfaces/statutory-info';
 import { UserAccount } from '../common/interfaces/user-account';
+import { UserDocument } from '../common/interfaces/user-document';
 
 
 @Injectable({
@@ -127,5 +128,9 @@ export class UsersService {
 
   updateUserPosition(id: number, data: any){
     return this.http.patch(this.apiUrl + '/position/update/' + id, data);
+  }
+
+  getUserDocumentsByUser(id: number): Observable<UserDocument[]> {
+    return this.http.get<UserDocument[]>( this.apiUrl + '/document/findbyuser/' + id);
   }
 }
