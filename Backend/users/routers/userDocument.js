@@ -7,7 +7,6 @@ const UserDocument = require('../models/userDocuments');
 
 
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
-  
   try {
     if (!req.file) {
       return res.send({ message: 'No file uploaded' });
@@ -53,5 +52,15 @@ router.post('/add', authenticateToken, async (req, res) => {
       res.send(error.message);
   }
 })
+
+router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
+  try {
+    const user = await UserDocument.findAll({where: {userId: req.params.id}})
+
+    res.send(user)
+  } catch (error) {
+    res.send(error.message);
+  }
+});
 
 module.exports = router;

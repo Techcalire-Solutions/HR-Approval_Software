@@ -1,6 +1,6 @@
 import { MatInputModule } from '@angular/material/input';
 import { HttpEventType } from '@angular/common/http';
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,15 +11,28 @@ import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-user-documents',
   standalone: true,
-  imports: [ MatFormFieldModule, ReactiveFormsModule, MatProgressBarModule, MatIconModule, MatInputModule, MatButtonModule, CommonModule],
+  imports: [ MatFormFieldModule, ReactiveFormsModule, MatProgressBarModule, MatIconModule, MatInputModule, MatButtonModule, CommonModule,
+    MatCardModule
+  ],
   templateUrl: './user-documents.component.html',
   styleUrl: './user-documents.component.scss'
 })
-export class UserDocumentsComponent {
+export class UserDocumentsComponent implements OnInit, OnDestroy {
+  ngOnInit(): void {  }
+
+  trigger(){
+    this.addDoc();
+  }
+
+  ngOnDestroy(): void {
+    this.uploadSub?.unsubscribe();
+    this.submit?.unsubscribe();
+  }
   @Input() data: any;
 
   fb = inject(FormBuilder);
@@ -51,7 +64,7 @@ export class UserDocumentsComponent {
 
   newDoc(initialValue?: any): FormGroup {
     return this.fb.group({
-      // userId: [this.data.id],
+      userId: [this.data.id],
       docName: [''],
       docUrl: ['']
     });
@@ -63,6 +76,7 @@ export class UserDocumentsComponent {
 
   fileType: string;
   uploadSub!: Subscription;
+  imageUrl: any[] = [];
   onFileSelected(event: Event, i: number): void {
     const input = event.target as HTMLInputElement;
     let file: any = input.files?.[0];
@@ -80,9 +94,10 @@ export class UserDocumentsComponent {
     formData.append('name', name);
 
     this.uploadSub = this.userSevice.uploadUserDoc(formData).subscribe({
-      next: (invoice) => {
-        this.doc().at(i).get('docUrl')?.setValue(invoice.fileUrl);
-      }
+        next: (invoice) => {
+          this.doc().at(i).get('docUrl')?.setValue(invoice.fileUrl);
+          this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ invoice.fileUrl}`;
+        }
       });
     }
   }
@@ -96,6 +111,7 @@ export class UserDocumentsComponent {
   }
 
   completeForm(){
+    this.snackBar.open(`Upload completed successfully...`,"" ,{duration:3000})
     this.router.navigateByUrl('/login/users')
   }
 }

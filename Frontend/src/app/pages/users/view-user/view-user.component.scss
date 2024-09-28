@@ -1,0 +1,118 @@
+.profile{
+    width: 50%;
+    height: 300px;
+  }
+  
+  .profile-photo{
+    width: 200px;
+    height: 200px;
+    border-radius: 200px;
+    background: url("https://picsum.photos/id/440/60/60");
+    background-position: center;
+    background-size: cover;
+    margin-left: 10px;
+    margin-top: 10px;
+  }
+  
+  .row {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .col:last-child {
+    margin-right: 0;
+  }
+  
+  .card {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    width: 100%;
+    margin: 10px;
+    text-align: center;
+    font-family: arial;
+    flex: 1;
+    margin-right: 20px;
+    align-items: center;
+  }
+  
+  .title {
+    color: grey;
+    font-size: 18px;
+  }
+  
+  button {
+    border: none;
+    outline: 0;
+    display: inline-block;
+    padding: 8px;
+    color: white;
+    background-color: #000;
+    text-align: center;
+    cursor: pointer;
+    width: 100%;
+    font-size: 18px;
+  }
+  
+  a {
+    text-decoration: none;
+    font-size: 22px;
+    color: black;
+  }
+  
+  button:hover, a:hover {
+    opacity: 0.7;
+  }
+  
+  @media(max-width:576px)
+  {
+      .box{
+          padding: 0px;
+          margin: 0px;
+          display: flex;
+          flex-direction: column;
+      }
+  }
+
+  .custom-header {
+    display: flex;
+    align-items: center;
+  }
+  
+  .panel-title {
+    flex-grow: 1;
+  }
+  
+  .spacer {
+    flex-grow: 1;
+  }
+  
+  .flex-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+  }
+
+  .flex-container > div {
+    flex: 1;
+    padding: 5px;
+  }
+
+  @media (max-width: 768px) {
+    .flex-container > div {
+      flex-basis: 100%;
+      text-align: left;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .flex-container > div {
+      flex-basis: 100%;
+      text-align: left;
+    }
+  }
+
+  strong {
+    color: #007bff; 
+    margin-left: 10px;
+  }
