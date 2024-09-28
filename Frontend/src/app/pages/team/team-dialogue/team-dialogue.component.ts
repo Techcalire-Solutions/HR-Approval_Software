@@ -8,7 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TeamComponent } from '../team.component';
 
 
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -21,36 +21,18 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
-import { RoleService } from '../../../services/role.service';
-import { MaterialModule } from '../../../common/material/material.module';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
 
  // Needed for mat-form-field
 import { MatSelectModule } from '@angular/material/select';
 import { User } from '../../../common/interfaces/user';
-import { Role } from '../../../common/interfaces/role';
 
 @Component({
   selector: 'app-team-dialogue',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    FlexLayoutModule,
-    MatTabsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatRadioModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    DatePipe,
-    MaterialModule,
-    MatToolbarModule,
-    MatCardModule,
+  imports: [ ReactiveFormsModule,  FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule, MatDatepickerModule,
+    MatNativeDateModule,  MatRadioModule, MatDialogModule, MatButtonModule, MatCheckboxModule, DatePipe, MatToolbarModule, MatCardModule,
     MatSelectModule
   ],
   templateUrl: './team-dialogue.component.html',
