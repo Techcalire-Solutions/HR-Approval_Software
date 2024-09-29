@@ -134,6 +134,7 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     this.nextTab.emit();
   }
 
+
   rmSub!: Subscription;
   rm: User[] = [];
   getReportingManager(){
