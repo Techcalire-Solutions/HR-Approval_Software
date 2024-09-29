@@ -44,13 +44,11 @@
         }
       </button>
       <button mat-raised-button color="primary" onclick="history.back()" [disabled]="!form.pristine && !form.invalid" style="margin-left: 10px;">
-        exit
+        Exit
       </button>
-      @if(editStatus){
-        <button mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;">
-          Next
-        </button>
-      }
+      <button mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;">
+        Next
+      </button>
     </div>
   </mat-card>
 </form>

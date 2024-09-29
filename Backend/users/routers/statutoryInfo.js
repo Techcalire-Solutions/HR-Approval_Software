@@ -6,44 +6,56 @@ const {Op} = require('sequelize');
 
 router.post('/add', authenticateToken, async (req, res) => {
   const { userId, adharNo, panNumber, esiNumber, uanNumber }  = req.body;
-  try {
-    try {
-      const userExist = await StatutoryInfo.findOne({
-        where: {
-            [Op.or]: [
-              { adharNo: { [Op.ne]: null, [Op.eq]: adharNo } },
-              { panNumber: { [Op.ne]: null, [Op.eq]: panNumber } },
-              { esiNumber: { [Op.ne]: null, [Op.eq]: esiNumber } },
-              { uanNumber: { [Op.ne]: null, [Op.eq]: uanNumber } }
-            ]
-          }
-      });
-      if (userExist) {
-        return res.send( "User with given statutory information already exists" )  
-      }
-    } catch (error) {
-      res.send(error.message)
-    } 
 
-    try {
-        const us = await StatutoryInfo.findOne({
-          where: { userId: userId}
-        });
-        if (us) {
-            return res.send("Statutory information has already been added for this user.");
-        }
-    } catch (error) {
-        res.send(error.message)
-    } 
-    
-    const user = new StatutoryInfo({userId, adharNo, panNumber, esiNumber, uanNumber });
+  try {
+    // Build a dynamic where condition to only include non-null and non-empty values
+    let whereCondition = {
+      [Op.or]: []
+    };
+
+    if (adharNo) {
+      whereCondition[Op.or].push({ adharNo: { [Op.ne]: null, [Op.eq]: adharNo } });
+    }
+    if (panNumber) {
+      whereCondition[Op.or].push({ panNumber: { [Op.ne]: null, [Op.eq]: panNumber } });
+    }
+    if (esiNumber) {
+      whereCondition[Op.or].push({ esiNumber: { [Op.ne]: null, [Op.eq]: esiNumber } });
+    }
+    if (uanNumber) {
+      whereCondition[Op.or].push({ uanNumber: { [Op.ne]: null, [Op.eq]: uanNumber } });
+    }
+
+    // If no conditions were added, skip the userExist check
+    if (whereCondition[Op.or].length > 0) {
+      const userExist = await StatutoryInfo.findOne({
+        where: whereCondition
+      });
+
+      if (userExist) {
+        return res.send("User with given statutory information already exists");
+      }
+    }
+
+    // Check if the statutory information for this userId already exists
+    const us = await StatutoryInfo.findOne({
+      where: { userId: userId }
+    });
+
+    if (us) {
+      return res.send("Statutory information has already been added for this user.");
+    }
+
+    // Create and save the new statutory information
+    const user = new StatutoryInfo({ userId, adharNo, panNumber, esiNumber, uanNumber });
     await user.save();
-    
     res.send(user);
+    
   } catch (error) {
     res.send(error.message);
   }
-})
+});
+
 
 router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
   try {
