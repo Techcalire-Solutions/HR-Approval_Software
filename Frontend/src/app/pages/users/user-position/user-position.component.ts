@@ -76,6 +76,8 @@ export class UserPositionComponent implements OnDestroy {
   @Output() dataSubmitted = new EventEmitter<any>();
   submitSub!: Subscription;
   onSubmit(){
+    console.log(this.positionData);
+    
     let submit = {
       ...this.form.getRawValue()
     }
