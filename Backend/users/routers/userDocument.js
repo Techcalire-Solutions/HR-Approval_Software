@@ -111,5 +111,35 @@ router.delete('/filedelete/:id', authenticateToken, async (req, res) => {
   }
 });
 
+router.delete('/delete/:id', authenticateToken, async (req, res) => {
+  let id = req.params.id;
+  try {
+    try {
+        let userDoc = await UserDocument.findByPk(id);
+        fileKey = userDoc.docUrl
+        await userDoc.destroy();  
+    } catch (error) {
+      res.send(error.message)
+    }
+    if (!fileKey) {
+      return res.send({ message: 'No file key provided' });
+    }
+
+    // Set S3 delete parameters
+    const deleteParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileKey
+    };
+
+    // Delete the file from S3
+    await s3.deleteObject(deleteParams).promise();
+
+    res.send({ message: 'File deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting file from S3:', error);
+    res.status(500).send({ message: error.message });
+  }
+});
+
 
 module.exports = router;
