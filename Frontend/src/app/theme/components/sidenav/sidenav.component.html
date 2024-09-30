@@ -54,7 +54,8 @@
       <p class="name">{{user.name}}</p>
       <p *ngIf="settings.menuType == 'default'" class="position">
         {{role}}<br />
-        <small class="muted-text">Member since May. 2016</small>
+        <small class="muted-text">Member since {{user.createdAt | date:'dd MMM yyyy'}}</small>
+
       </p>
     </div>
   </div>
