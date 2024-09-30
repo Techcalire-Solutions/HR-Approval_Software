@@ -44,7 +44,7 @@
             </div>
             <div class="col" style="text-align: right;">
               <div class="input-group">
-                <input type="search" placeholder="Search Data by Invoice No..." (keyup)="applyFilter($event)">
+                <input type="search" placeholder="Search Data by Entry No..." (keyup)="applyFilter($event)">
               </div>
             </div>
           </div>
@@ -54,7 +54,7 @@
           <table matSort (matSortChange)="sortData($event)">
             <thead>
               <tr>
-                <th mat-sort-header="invoiceNo" scope="col">InvoiceNo</th>
+                <th mat-sort-header="invoiceNo" scope="col">EntryNo</th>
                 <th mat-sort-header="sp" scope="col">Sales Executive</th>
                 <th mat-sort-header="kam" scope="col">KAM</th>
                 <th mat-sort-header="am" scope="col">Manager</th>
@@ -69,12 +69,15 @@
                 >
 <!--                 (mousedown)="onMouseDown($event, invoice)" (mouseup)="onMouseUp($event)"
                 (mouseleave)="onMouseLeave($event)" -->
-                <td [attr.data-label]="'InvoiceNo'">{{invoice.piNo}}</td>
-                <td [attr.data-label]="'SP'">{{invoice.salesPerson?.name}}</td>
-                <td [attr.data-label]="'KAM'">{{invoice.kam?.name}}</td>
-                <td [attr.data-label]="'AM'">{{invoice.am?.name}}</td>
+
+                <td [attr.data-label]="'InvoiceNo'">{{invoice.piNo || '-'}}</td>
+                <td [attr.data-label]="'SP'">{{invoice.salesPerson?.name || '-'}}</td>
+                <td [attr.data-label]="'KAM'">{{invoice.kam?.name || '-'}}</td>
+                <td [attr.data-label]="'AM'">{{invoice.am?.name || '-'}}</td>
                 <td [attr.data-label]="'MA'">{{invoice.accountant?.name}}</td>
                 <td [attr.data-label]="'Status'">{{invoice.status}}_{{invoice.count}}</td>
+
+
                 <td (click)="$event.stopPropagation()">
                   <div class="action-icons">
                     <!-- ||(am && (invoice.status=='AM VERIFIED'))|| (sp && (invoice.status=='GENERATED' || invoice.status=='KAM REJECTED'|| invoice.status=='AM REJECTED'))|| (kam && (invoice.status=='KAM VERIFIED' || invoice.status=='AM REJECTED'))&& invoice.userStatus -->

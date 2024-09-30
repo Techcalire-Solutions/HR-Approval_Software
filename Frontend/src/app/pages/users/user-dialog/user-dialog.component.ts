@@ -8,13 +8,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatRadioModule } from '@angular/material/radio';
 import { DatePipe } from '@angular/common';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { RoleService } from '../../../services/role.service';
-import { MaterialModule } from '../../../common/material/material.module';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import { Role } from '../../../common/interfaces/role';
 import { UsersService } from '../../../services/users.service';
@@ -30,37 +29,23 @@ import { UserAccountComponent } from "../user-account/user-account.component";
 import { ActivatedRoute, Router } from '@angular/router';
 import { Team } from '../../../common/interfaces/team';
 import { TeamService } from '@services/team.service';
+import { MatCardModule } from '@angular/material/card';
+import { MatSelectModule } from '@angular/material/select';
 
 
 @Component({
   selector: 'app-user-dialog',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    FlexLayoutModule,
-    MatTabsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatRadioModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    DatePipe,
-    MaterialModule,
-    MatToolbarModule,
-    PersonalDetailsComponent,
-    UserPositionComponent,
-    StatuatoryInfoComponent,
-    UserAccountComponent, UserDocumentsComponent
+  imports: [ ReactiveFormsModule, FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule,  MatDatepickerModule,
+    MatNativeDateModule, MatRadioModule, MatDialogModule,  MatButtonModule, MatCheckboxModule, DatePipe,  MatToolbarModule,
+    PersonalDetailsComponent, UserPositionComponent, StatuatoryInfoComponent, UserAccountComponent, UserDocumentsComponent, MatCardModule,
+    MatOptionModule, MatSelectModule
 ],
   templateUrl: './user-dialog.component.html',
   styleUrl: './user-dialog.component.scss'
 })
 export class UserDialogComponent implements OnInit, OnDestroy {
-  url = environment.apiUrl;
+  url = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`;
   snackBar = inject(MatSnackBar);
   sanitizer = inject(DomSanitizer);
   fb = inject(FormBuilder)
@@ -125,8 +110,10 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   }
 
   userSub!: Subscription;
+  userName: string;
   getUser(id: number){
     this.userSub = this.userService.getUserById(id).subscribe(user=>{
+      this.userName = user.name;
       this.patchUser(user)
     });
   }
@@ -196,13 +183,12 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     })
   }
 
-  team : Team[]=[]
+  teams : Team[]=[]
   teamSub!:Subscription;
   getTeam(){
     this.teamSub = this.teamService.getTeam().subscribe((res)=>{
-      this.team=res;
+      this.teams = res;
     })
-
   }
 
 
@@ -212,14 +198,17 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   isContactsFormSubmitted: boolean = false;
   isSocialFormSubmitted: boolean = false;
   isAccountFormSubmitted: boolean = false;
+  submit!: Subscription;
   onSubmit(){
     if(this.editStatus){
-      this.userService.updateUser(this.id, this.form.getRawValue()).subscribe((res)=>{
+      this.submit = this.userService.updateUser(this.id, this.form.getRawValue()).subscribe((res)=>{
         this.snackBar.open("User updated succesfully...","" ,{duration:3000})
       })
     }else{
-      this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
+      this.submit = this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
         this.dataToPass = { id: res.user.id, empNo: this.invNo, name: res.user.name, updateStatus: this.editStatus };
+        console.log(this.dataToPass);
+        
         this.selectedTabIndex = 1;
         if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
           this.personalDetailsComponent.ngOnInit();
@@ -251,6 +240,9 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   accountSubmit(event: any){
     this.isAccountFormSubmitted = event.isFormSubmitted
     this.selectedTabIndex = 5
+    if (this.userDocumentsComponent && this.selectedTabIndex === 5) {
+      this.userDocumentsComponent.trigger();
+    }
   }
 
   dataToPass: any;
@@ -303,8 +295,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
         this.form.get('envNo')?.setValue(ivNum);
         this.invNo = ivNum;
       }
-
-
     });
   }
 
@@ -314,43 +304,47 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     return match ? match[0] : '';
   }
 
-
-
   @ViewChild(PersonalDetailsComponent) personalDetailsComponent!: PersonalDetailsComponent;
   @ViewChild(UserPositionComponent) userPositionComponent!: UserPositionComponent;
   @ViewChild(StatuatoryInfoComponent) statuatoryInfoComponent!: StatuatoryInfoComponent;
   @ViewChild(UserAccountComponent) userAccountComponent!: UserAccountComponent;
-  // @ViewChild(StatuatoryInfoComponent) statuatoryInfoComponent!: StatuatoryInfoComponent;
-  // @ViewChild(StatuatoryInfoComponent) statuatoryInfoComponent!: StatuatoryInfoComponent;
+  @ViewChild(UserDocumentsComponent) userDocumentsComponent!: UserDocumentsComponent;
   goToNextTab() {
-    if (this.selectedTabIndex < 4) {
-      this.dataToPass = { updateStatus: this.editStatus, id: this.id }
+    if (this.selectedTabIndex < 5) {
+      if( this.dataToPass === undefined){
+        this.dataToPass = { updateStatus: this.editStatus, id: this.id, name: this.userName }
+      }
       this.selectedTabIndex++;
 
       if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
+        this.isFormSubmitted = true;
         this.personalDetailsComponent.triggerNew(this.dataToPass);
       }
       else if (this.userPositionComponent && this.selectedTabIndex === 2) {
+        this.isWorkFormSubmitted = true;
         this.userPositionComponent.triggerNew(this.dataToPass);
       }
       else if (this.statuatoryInfoComponent && this.selectedTabIndex === 3) {
+        this.isContactsFormSubmitted = true;
         this.statuatoryInfoComponent.triggerNew(this.dataToPass);
       }
-
       else if (this.userAccountComponent && this.selectedTabIndex === 4) {
+        this.isSocialFormSubmitted = true;
         this.userAccountComponent.triggerNew(this.dataToPass);
       }
-
-      else if (this.statuatoryInfoComponent && this.selectedTabIndex === 3) {
-        this.statuatoryInfoComponent.triggerNew(this.dataToPass);
-      }
-
-      else if (this.statuatoryInfoComponent && this.selectedTabIndex === 3) {
-        this.statuatoryInfoComponent.triggerNew(this.dataToPass);
+      else if (this.userDocumentsComponent && this.selectedTabIndex === 5) {
+        this.isAccountFormSubmitted = true;
+        this.userDocumentsComponent.triggerNew(this.dataToPass);
       }
     }
   }
 
+  deleteImage() {
+    this.userService.deleteUserImage(this.id).subscribe(data=>{
+      this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
+      this.getUser(this.id)
+    });
+  }
 }
 
 

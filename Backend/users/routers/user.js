@@ -27,7 +27,7 @@ router.post('/add', async (req, res) => {
     });
 
     if (userExist) {
-      return res.status(400).send(`User already exists with the email or employee number and Role`);
+      return res.send(`User already exists with the email or employee number and Role`);
     }
 
     // Hash the password
@@ -40,27 +40,23 @@ router.post('/add', async (req, res) => {
 
     // Verify the team exists
     if (teamId!=null){
-      
-    
-    const team = await Team.findOne({ where: { id: teamId } });
+        const team = await Team.findOne({ where: { id: teamId } });
 
-    if (!team) {
-      return res.status(404).send('Team not found');
+        if (!team) {
+          return res.status(404).send('Team not found');
+        }
+        const teamMember = await TeamMember.create({
+          teamId: team.id,
+          userId: user.id
+        });
+        res.send({ user, teamMember })
+    } else {
+      res.json({ user: user });
     }
-
-    // Add the user to the team
-    const teamMember = await TeamMember.create({
-      teamId: team.id,
-      userId: user.id
-    });
-
-    // Send success response
-    res.status(201).send({ user, teamMember });
-  }
 
   } catch (error) {
     console.error('Error:', error.message);
-    res.status(500).send({ error: 'Server error' });
+    res.send('Server error');
   }
 });
 
@@ -375,7 +371,7 @@ router.delete('/filedelete/:id', authenticateToken, async (req, res) => {
     // Set S3 delete parameters
     const deleteParams = {
       Bucket: process.env.AWS_BUCKET_NAME,
-      Key: fileKey // The key (path) of the file to delete
+      Key: fileKey
     };
 
     // Delete the file from S3
