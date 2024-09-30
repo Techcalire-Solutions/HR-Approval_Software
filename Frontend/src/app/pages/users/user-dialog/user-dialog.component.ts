@@ -206,6 +206,8 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     }else{
       this.submit = this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
         this.dataToPass = { id: res.user.id, empNo: this.invNo, name: res.user.name, updateStatus: this.editStatus };
+        console.log(this.dataToPass);
+        
         this.selectedTabIndex = 1;
         if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
           this.personalDetailsComponent.ngOnInit();
@@ -301,31 +303,37 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     return match ? match[0] : '';
   }
 
-
-
   @ViewChild(PersonalDetailsComponent) personalDetailsComponent!: PersonalDetailsComponent;
   @ViewChild(UserPositionComponent) userPositionComponent!: UserPositionComponent;
   @ViewChild(StatuatoryInfoComponent) statuatoryInfoComponent!: StatuatoryInfoComponent;
   @ViewChild(UserAccountComponent) userAccountComponent!: UserAccountComponent;
   @ViewChild(UserDocumentsComponent) userDocumentsComponent!: UserDocumentsComponent;
-  // @ViewChild(StatuatoryInfoComponent) statuatoryInfoComponent!: StatuatoryInfoComponent;
   goToNextTab() {
-    if (this.selectedTabIndex < 4) {
-      this.dataToPass = { updateStatus: this.editStatus, id: this.id }
+    if (this.selectedTabIndex < 5) {
+      if( this.dataToPass === undefined){
+        this.dataToPass = { updateStatus: this.editStatus, id: this.id }
+      }
       this.selectedTabIndex++;
 
       if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
+        this.isFormSubmitted = true;
         this.personalDetailsComponent.triggerNew(this.dataToPass);
       }
       else if (this.userPositionComponent && this.selectedTabIndex === 2) {
+        this.isWorkFormSubmitted = true;
         this.userPositionComponent.triggerNew(this.dataToPass);
       }
       else if (this.statuatoryInfoComponent && this.selectedTabIndex === 3) {
+        this.isContactsFormSubmitted = true;
         this.statuatoryInfoComponent.triggerNew(this.dataToPass);
       }
-
       else if (this.userAccountComponent && this.selectedTabIndex === 4) {
+        this.isSocialFormSubmitted = true;
         this.userAccountComponent.triggerNew(this.dataToPass);
+      }
+      else if (this.userDocumentsComponent && this.selectedTabIndex === 5) {
+        this.isAccountFormSubmitted = true;
+        // this.userDocumentsComponent.triggerNew(this.dataToPass);
       }
     }
   }
