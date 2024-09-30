@@ -484,6 +484,7 @@ router.get('/findbyam', authenticateToken, async(req, res) => {
             where: where, limit, offset,
             order: [['id', 'DESC']],
             include: [  
+                {model: PerformaInvoiceStatus},
                 {model: User, as: 'salesPerson', attributes: ['name']},
                 {model: User, as: 'kam', attributes: ['name']},
                 {model: User, as: 'am', attributes: ['name']},
