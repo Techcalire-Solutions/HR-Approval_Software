@@ -69,12 +69,15 @@
                 >
 <!--                 (mousedown)="onMouseDown($event, invoice)" (mouseup)="onMouseUp($event)"
                 (mouseleave)="onMouseLeave($event)" -->
-                <td [attr.data-label]="'InvoiceNo'">{{invoice.piNo}}</td>
-                <td [attr.data-label]="'SP'">{{invoice.salesPerson?.name}}</td>
-                <td [attr.data-label]="'KAM'">{{invoice.kam?.name}}</td>
-                <td [attr.data-label]="'AM'">{{invoice.am?.name}}</td>
+
+                <td [attr.data-label]="'InvoiceNo'">{{invoice.piNo || '-'}}</td>
+                <td [attr.data-label]="'SP'">{{invoice.salesPerson?.name || '-'}}</td>
+                <td [attr.data-label]="'KAM'">{{invoice.kam?.name || '-'}}</td>
+                <td [attr.data-label]="'AM'">{{invoice.am?.name || '-'}}</td>
                 <td [attr.data-label]="'MA'">{{invoice.accountant?.name}}</td>
                 <td [attr.data-label]="'Status'">{{invoice.status}}_{{invoice.count}}</td>
+
+
                 <td (click)="$event.stopPropagation()">
                   <div class="action-icons">
                     <!-- ||(am && (invoice.status=='AM VERIFIED'))|| (sp && (invoice.status=='GENERATED' || invoice.status=='KAM REJECTED'|| invoice.status=='AM REJECTED'))|| (kam && (invoice.status=='KAM VERIFIED' || invoice.status=='AM REJECTED'))&& invoice.userStatus -->

@@ -17,6 +17,7 @@ import { Menu } from '../../../common/models/menu.model';
 import { environment } from '../../../../environments/environment';
 import { LoginService } from '@services/login.service';
 import { User } from '../../../common/interfaces/user';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-sidenav',
@@ -56,9 +57,9 @@ export class SidenavComponent implements OnInit , PipeTransform{
   public menuItems: Array<any>;
   public settings: Settings;
   loginService = inject(LoginService);
-  constructor(private cdr: ChangeDetectorRef, private router: Router, public settingsService: SettingsService,public invoiceService:InvoiceService, public menuService: MenuService,
-    private userService:UsersService
-  ){
+  constructor(private router: Router, public settingsService: SettingsService,public invoiceService:InvoiceService, public menuService: MenuService
+
+   ){
       this.settings = this.settingsService.settings;
   }
 user:any
@@ -69,6 +70,9 @@ userJoinedDate : any;
 users:User;
 // menuItems: Menu[] = [];
   filteredMenuItems: Menu[] = [];
+
+
+
 
   ngOnInit() {
     const token = localStorage.getItem('token');
@@ -84,9 +88,16 @@ users:User;
     }
   }
 
+  ngOnDestroy():void{
+    this.loginUserSub.unsubscribe()
+
+  }
+
+  loginUserSub:Subscription
   getUser(){
-    this.loginService.getUserById(this.userId).subscribe((res)=>{
+   this.loginUserSub= this.loginService.getUserById(this.userId).subscribe((res)=>{
       this.user = res;
+
 
 
     })
