@@ -183,6 +183,7 @@ export class ViewApprovalComponent {
           });
 
           this.invoices = invoice;
+          
           for (let i = 0; i < this.invoices.length; i++) {
             let invoiceSP = this.invoices[i]?.salesPersonId;
             let invoiceKAM = this.invoices[i]?.kamId;

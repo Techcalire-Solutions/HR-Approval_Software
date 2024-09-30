@@ -6,7 +6,7 @@
       <div class="row box">
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
-            <mat-label>Aadhar Number</mat-label>
+            <mat-label>Aadhaar Number</mat-label>
             <input matInput formControlName="adharNo" >
           </mat-form-field>
         </div>
@@ -46,7 +46,7 @@
       <button mat-raised-button color="primary" onclick="history.back()" [disabled]="!form.pristine && !form.invalid" style="margin-left: 10px;">
         Exit
       </button>
-      <button mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;">
+      <button mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;" [disabled]="!form.pristine && !form.invalid">
         Next
       </button>
     </div>
