@@ -6,14 +6,14 @@
       <div class="row box">
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
-            <mat-label>AdharNo</mat-label>
+            <mat-label>Aadhaar Number</mat-label>
             <input matInput formControlName="adharNo" >
           </mat-form-field>
         </div>
 
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
-            <mat-label>Pan Number</mat-label>
+            <mat-label>PAN Number</mat-label>
             <input matInput formControlName="panNumber" >
           </mat-form-field>
         </div>
@@ -36,18 +36,19 @@
     </div>
 
     <div class="col" style="text-align: right;">
-      <button mat-raised-button color="primary" (click)="onSubmit()">
+      <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.pristine || form.invalid">
         @if (editStatus) {
             Update
         } @else {
             Save
         }
       </button>
-      @if(editStatus){
-        <button mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;">
-          Next
-        </button>
-      }
+      <button mat-raised-button color="primary" onclick="history.back()" [disabled]="!form.pristine && !form.invalid" style="margin-left: 10px;">
+        Exit
+      </button>
+      <button mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;" [disabled]="!form.pristine && !form.invalid">
+        Next
+      </button>
     </div>
   </mat-card>
 </form>

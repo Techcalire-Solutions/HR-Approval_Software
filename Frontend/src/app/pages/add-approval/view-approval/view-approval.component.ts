@@ -20,11 +20,13 @@ import { CommonModule } from '@angular/common';
 import { BankReceiptDialogueComponent } from './bank-receipt-dialogue/bank-receipt-dialogue.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { ReactiveFormsModule } from '@angular/forms';
 @Component({
   selector: 'app-view-approval',
   standalone: true,
   imports: [
-    MatToolbarModule,
+    MatToolbarModule, MatFormFieldModule, ReactiveFormsModule,
     MatIconModule,
     MatPaginatorModule,
     MatSortModule,
@@ -181,6 +183,7 @@ export class ViewApprovalComponent {
           });
 
           this.invoices = invoice;
+          
           for (let i = 0; i < this.invoices.length; i++) {
             let invoiceSP = this.invoices[i]?.salesPersonId;
             let invoiceKAM = this.invoices[i]?.kamId;

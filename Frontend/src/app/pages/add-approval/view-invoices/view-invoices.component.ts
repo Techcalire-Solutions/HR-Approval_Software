@@ -16,6 +16,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PerformaInvoiceStatus } from '../../../common/interfaces/performa-invoice-status';
 import { MatTableModule } from '@angular/material/table';
 import { BankReceiptDialogueComponent } from '../view-approval/bank-receipt-dialogue/bank-receipt-dialogue.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-view-invoices',
@@ -27,7 +29,7 @@ import { BankReceiptDialogueComponent } from '../view-approval/bank-receipt-dial
     CommonModule,
     MatIconModule,
     SafePipe,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule, MatFormFieldModule, ReactiveFormsModule, 
   ],
   templateUrl: './view-invoices.component.html',
   styleUrl: './view-invoices.component.scss'

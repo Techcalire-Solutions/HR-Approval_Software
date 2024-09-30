@@ -52,7 +52,7 @@
           <mat-option value="Customer">Customer</mat-option>
         </mat-select>
       </mat-form-field>
-      <mat-form-field class="full-width" appearance="outline">
+      <mat-form-field *ngIf="sp" class="full-width" appearance="outline">
         <mat-label>Key Account Manager</mat-label>
         <mat-select placeholder="" formControlName="kamId">
           <!-- <mat-form-field class="full-width">
@@ -68,9 +68,41 @@
           </mat-option> -->
         </mat-select>
       </mat-form-field>
+      <mat-form-field *ngIf="kamb" class="full-width" appearance="outline">
+        <mat-label>Manager</mat-label>
+        <mat-select placeholder="" formControlName="amId">
+          <!-- <mat-form-field class="full-width">
+            <div class="row">
+              <input matInput (input)="filterRole($event)" placeholder="Search">
+            </div>
+          </mat-form-field> -->
+          <mat-option *ngFor="let item of AMList" [value]="item.id">
+            {{item.name}}
+          </mat-option>
+          <!-- <mat-option *ngIf="kam.length === 0" [value]="'add'">
+            <span class="material-icons" style="font-size: 25px; color: rgb(0, 128, 55);" (click)="addRole()">playlist_add</span>
+          </mat-option> -->
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field *ngIf="am" class="full-width" appearance="outline">
+        <mat-label>Accountant</mat-label>
+        <mat-select placeholder="" formControlName="acoountantId">
+          <!-- <mat-form-field class="full-width">
+            <div class="row">
+              <input matInput (input)="filterRole($event)" placeholder="Search">
+            </div>
+          </mat-form-field> -->
+          <mat-option *ngFor="let item of AMList" [value]="item.id">
+            {{item.name}}
+          </mat-option>
+          <!-- <mat-option *ngIf="kam.length === 0" [value]="'add'">
+            <span class="material-icons" style="font-size: 25px; color: rgb(0, 128, 55);" (click)="addRole()">playlist_add</span>
+          </mat-option> -->
+        </mat-select>
+      </mat-form-field>
       <mat-form-field appearance="outline" *ngIf="piForm.get('remarks')?.value">
         <mat-label>Remarks</mat-label>
-        <input matInput placeholder="" formControlName="remarks">
+        <input matInput placeholder="" formControlName="remarks" readonly>
       </mat-form-field>
 
 

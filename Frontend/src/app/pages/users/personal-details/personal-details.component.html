@@ -11,7 +11,7 @@
             <mat-datepicker #picker1></mat-datepicker>
           </mat-form-field>
         </div>
-  
+
         <!-- <div class="col">
           <mat-form-field class="w-100" appearance="outline">
             <input matInput [matDatepicker]="picker2" placeholder="ConfirmationDate" formControlName="confirmationDate">
@@ -19,7 +19,7 @@
             <mat-datepicker #picker2></mat-datepicker>
           </mat-form-field>
         </div> -->
-  
+
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>Birthday</mat-label>
@@ -29,11 +29,11 @@
           </mat-form-field>
         </div>
       </div>
-  
+
       <div class="row box">
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
-            <mat-label>BloodGroup</mat-label>
+            <mat-label>Blood Group</mat-label>
             <mat-select  formControlName="bloodGroup">
               <mat-option value="A+">A+</mat-option>
               <mat-option value="A-">A-</mat-option>
@@ -46,7 +46,7 @@
             </mat-select>
           </mat-form-field>
         </div>
-        
+
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>Marital Status</mat-label>
@@ -56,7 +56,7 @@
             </mat-select>
           </mat-form-field>
         </div>
-  
+
         <div class="col">
           <mat-radio-group formControlName="gender">
             <mat-radio-button value="male" labelPosition="before">Male</mat-radio-button>
@@ -64,7 +64,7 @@
           </mat-radio-group>
         </div>
       </div>
-  
+
       <div class="row box">
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
@@ -72,7 +72,7 @@
             <input matInput formControlName="parentName" >
           </mat-form-field>
         </div>
-  
+
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>Spouse Name</mat-label>
@@ -88,7 +88,7 @@
             <input matInput formControlName="emergencyContactNo" >
           </mat-form-field>
         </div>
-  
+
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>Emergency Contact Name</mat-label>
@@ -103,7 +103,7 @@
           </mat-form-field>
         </div>
       </div>
-  
+
       <div class="row box">
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
@@ -111,7 +111,7 @@
             <input matInput formControlName="referredBy">
           </mat-form-field>
         </div>
-  
+
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>Reporting Manger</mat-label>
@@ -122,7 +122,6 @@
                 </mat-option>
               }
             </mat-select>
-            <mat-error>  Role is required </mat-error>
           </mat-form-field>
         </div>
       </div>
@@ -132,19 +131,19 @@
           <mat-slide-toggle formControlName="isTemporary">Is Temporary</mat-slide-toggle>
         </div> -->
         <div class="col" style="text-align: right;">
-          <button mat-raised-button color="primary" (click)="onSubmit()">
+          <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.pristine || form.invalid">
             @if (editStatus) {
                 Update
             } @else {
                 Save
             }
-        </button>
-        @if(editStatus){
-          <button mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;">
+          </button>
+          <button mat-raised-button color="primary" onclick="history.back()" [disabled]="!form.pristine && !form.invalid" style="margin-left: 10px;">
+            Exit
+          </button>
+          <button mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;" [disabled]="!form.pristine && !form.invalid">
             Next
           </button>
-        }
-    
         </div>
       </div>
     </mat-card>

@@ -37,7 +37,7 @@ export class UserPositionComponent implements OnDestroy {
     department : [''],
     office  : [''],
     salary : [''],
-    probationPeriod : [''],
+    probationPeriod : <any>[],
     officialMailId: ['', Validators.email]
   });
 
@@ -76,6 +76,8 @@ export class UserPositionComponent implements OnDestroy {
   @Output() dataSubmitted = new EventEmitter<any>();
   submitSub!: Subscription;
   onSubmit(){
+    console.log(this.positionData);
+    
     let submit = {
       ...this.form.getRawValue()
     }
