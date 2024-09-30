@@ -1,61 +1,53 @@
 <div class="upload-container">
   <form [formGroup]="mainForm" enctype="multipart/form-data">
-    <mat-card>
-      <mat-card-header><mat-card-title>Statutory Info</mat-card-title></mat-card-header>
+    <mat-card style="width: 100%;">
+      <mat-card-header><mat-card-title>Documents</mat-card-title></mat-card-header>
   
-      <div fxLayout="column" class="form-field-outer" style="margin-top: 20px;">
-      <div formArrayName="uploadForms">
-        <div *ngFor="let uploadForm of doc().controls; let i = index;" [formGroupName]="i" class="form-instance">
-          <div class="row">
-            <div class="col">
-              <mat-form-field class="w-100" appearance="outline">
-                <mat-label>Document Type</mat-label>
-                <input matInput formControlName="docName" placeholder="Enter employee ID" required>
-              </mat-form-field>
-            </div>
-            <div class="col">
-              <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">
-              <span class="material-icons file-upload-icon" (click)="fileInput.click()">cloud_upload</span>
-              <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
-            </div>
-            <div class="col">
-              <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
-                <img [src]="imageUrl[i]" alt="Image" title="Image" height="100" width="100" class="clickable-image" />
+      <div fxLayout="column" class="form-field-outer" style="margin-top: 20px; overflow-y: auto; max-height: 400px;">
+        <div formArrayName="uploadForms">
+          <div *ngFor="let uploadForm of doc().controls; let i = index;" [formGroupName]="i" class="form-instance">
+            <div class="row" style="margin-top: 20px;">
+              <div class="col">
+                <mat-form-field class="w-100" appearance="outline">
+                  <mat-label>Document Type</mat-label>
+                  <input matInput formControlName="docName" required>
+                </mat-form-field>
+              </div>
+              @if(!imageUrl[i]){
+                <div class="col">
+                  <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">
+                  <span class="material-icons file-upload-icon" (click)="fileInput.click()">cloud_upload</span>
+                  <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
+                </div>
+              }
+              @else{
+                <div class="col">
+                  <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+                    <img [src]="imageUrl[i]" alt="Image" title="Image" height="100" width="100" class="clickable-image" />
+                    <mat-icon style="color: red;" (click)="onDeleteImage(i)">delete</mat-icon>
+                  </div>
+                </div>
+              } 
+              <div class="col">
+                <button mat-raised-button color="primary" type="button" (click)="onSubmit(i)" 
+                [disabled]="clickedForms[i] || !uploadForm.valid">
+                  @if (editStatus[i]) {
+                    Update
+                } @else {
+                    Save
+                }
+                </button>
+                <button mat-icon-button color="warn" (click)="removeData(i)">
+                  <mat-icon>remove_circle</mat-icon>
+                </button>
               </div>
             </div>
-            <div class="col">
-              <button mat-raised-button color="primary" type="button" (click)="onSubmit(i)">Upload</button>
-
-              <!-- Optional remove button for each form -->
-              <button mat-icon-button color="warn" (click)="removeData(i)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-  <!-- 
-            <div class="col">
-              <ng-container *ngIf="uploadProgress[i] > 0">
-                <div class="progress-container">
-                  <mat-progress-bar mode="determinate" [value]="uploadProgress[i]"></mat-progress-bar>
-                </div>
-              </ng-container>
-              <ng-container *ngIf="uploadSuccess[i]">
-                <div class="upload-success">
-                  <mat-icon>check_circle</mat-icon> Document uploaded successfully!
-                </div>
-              </ng-container>
-            </div> -->
           </div>
         </div>
+        <button mat-raised-button color="accent" (click)="addDoc()">New Line</button>
+        <button mat-raised-button color="warn" (click)="completeForm()"
+        [disabled]="!mainForm.get('uploadForms')?.valid || isAnyFormClicked()">Complete</button>
       </div>
-
-      <!-- Button to add new form -->
-      <!-- <button mat-icon-button color="primary" (click)="addDoc()">
-        <mat-icon>add_circle</mat-icon>
-      </button> -->
-      <button mat-raised-button color="accent" (click)="addDoc()">Add</button>
-      <!-- Button to complete the form -->
-      <button mat-raised-button color="accent" (click)="completeForm()">Complete</button>
-    </div>
-  </mat-card>
+    </mat-card>
   </form>
 </div>
