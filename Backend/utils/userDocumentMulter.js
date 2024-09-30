@@ -3,7 +3,7 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
 const fileFilter = (req, file, cb) => {
-  const fileTypes = /jpeg|jpg|png/;
+  const fileTypes = /jpeg|jpg|png|pdf|doc|docx/;
   const mimetype = fileTypes.test(file.mimetype);
   const extname = fileTypes.test(path.extname(file.originalname));
 
