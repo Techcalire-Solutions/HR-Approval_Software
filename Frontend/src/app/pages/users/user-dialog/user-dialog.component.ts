@@ -193,11 +193,11 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
 
   selectedTabIndex: number = 0;
-  isFormSubmitted: boolean = true;
-  isWorkFormSubmitted: boolean = true;
-  isContactsFormSubmitted: boolean = true;
-  isSocialFormSubmitted: boolean = true;
-  isAccountFormSubmitted: boolean = true;
+  isFormSubmitted: boolean = false;
+  isWorkFormSubmitted: boolean = false;
+  isContactsFormSubmitted: boolean = false;
+  isSocialFormSubmitted: boolean = false;
+  isAccountFormSubmitted: boolean = false;
   submit!: Subscription;
   onSubmit(){
     if(this.editStatus){

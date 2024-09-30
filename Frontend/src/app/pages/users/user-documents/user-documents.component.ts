@@ -32,11 +32,11 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
   editStatus: boolean[] = [];
   id: number[] = [];
   triggerNew(data?: any): void {
-    console.log(data);
-    
     if(data){
       if(data.updateStatus){
         this.getDocumentDetailsByUser(data.id)
+      }else{
+        this.addDoc()
       }
     }
   }
@@ -44,15 +44,17 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
   docSub!: Subscription;
   getDocumentDetailsByUser(id: number){
     this.docSub = this.userSevice.getUserDocumentsByUser(id).subscribe(res=>{
-      for(let i = 0; i < res.length; i++){
-        this.id[i] = res[i].id
-        this.editStatus[i] = true;
-        this.addDoc(res[i])
-        if(res[i].docUrl){
-          this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ res[i].docUrl }`;
+      if(res.length > 0){
+        for(let i = 0; i < res.length; i++){
+          this.id[i] = res[i].id
+          this.editStatus[i] = true;
+          this.addDoc(res[i])
+          if(res[i].docUrl){
+            this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ res[i].docUrl }`;
+          }
+          console.log(this.imageUrl[i]);
+          
         }
-        console.log(this.imageUrl[i]);
-        
       }
     })
   }
@@ -79,9 +81,31 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
     this.clickedForms.push(false);
   }
 
-  removeData(i: number){
-    this.doc().removeAt(i);
+  removeData(index: number) {
+    console.log(index);
+    
+    const formGroup = this.doc().at(index).value;
+    console.log(formGroup);
+    
+    // Check if form group is dirty (any changes made)
+    if (formGroup.docName != '' || formGroup.docUrl != '') {
+      // Call the API to handle the update before removing
+      this.userSevice.deleteUserDocComplete(this.id[index]).subscribe({
+        next: (response) => {
+          console.log('Update successful:', response);
+          // Remove the row only after successful API call
+          formGroup.removeAt(index);
+        },
+        error: (error) => {
+          console.error('Error during update:', error);
+        }
+      });
+    } else {
+      // Remove the row directly if no changes
+      formGroup.removeAt(index);
+    }
   }
+  
 
   doc(): FormArray {
     return this.mainForm.get("uploadForms") as FormArray;
@@ -128,6 +152,8 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
   }
 
   isAnyFormClicked(): boolean {
+    console.log(this.clickedForms);
+    
     for(let i = 0; i < this.clickedForms.length; i++) {
       if (!this.clickedForms[i]) {
         return false; // Return false if any value is false

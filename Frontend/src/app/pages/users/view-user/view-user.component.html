@@ -58,6 +58,7 @@
                 <div class="flex-container">
                   <div>Blood Group  :<strong>{{userPersonal.bloodGroup}}</strong></div>
                   <div>Date of Birth  :<strong>{{userPersonal.dateOfBirth | date:'dd/MM/yyyy'}}</strong></div>
+                  <div>Gender  :<strong>{{userPersonal.gender }}</strong></div>
                 </div>
               
                 <div class="flex-container">
@@ -67,12 +68,8 @@
                 </div>
               
                 <div class="flex-container">
-                  <div>Gender  :<strong>{{userPersonal.gender }}</strong></div>
-                  <div>Marital Status  :<strong>{{userPersonal.maritalStatus }}</strong></div>
-                </div>
-              
-                <div class="flex-container">
                   <div>Parent Name  :<strong>{{userPersonal.parentName }}</strong></div>
+                  <div>Marital Status  :<strong>{{userPersonal.maritalStatus }}</strong></div>
                   <div>Spouse Name  :<strong>{{userPersonal.spouseName }}</strong></div>
                 </div>
               
@@ -183,7 +180,7 @@
                 @for(data of documents; track data){
                   <div class="flex-container">
                     <div> <strong>{{ data.docName}}</strong>  :</div>
-                    <div> <img [src]="apiUrl + data.docUrl" alt="Photo 1" width="200" height="200"></div>
+                    <div> <img [src]="apiUrl + data.docUrl" alt="Photo 1" width="400" height="400"></div>
                   </div>
                 }
               </div>

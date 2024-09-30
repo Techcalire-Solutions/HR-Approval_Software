@@ -44,9 +44,9 @@
             </div>
           </div>
         </div>
-        <button mat-raised-button color="accent" (click)="addDoc()">New Line</button>
+        <button mat-raised-button color="primary" (click)="addDoc()">New Line</button>
         <button mat-raised-button color="warn" (click)="completeForm()"
-        [disabled]="!mainForm.get('uploadForms')?.valid || isAnyFormClicked()">Complete</button>
+        [disabled]="!mainForm.get('uploadForms')?.valid || !isAnyFormClicked()">Complete</button>
       </div>
     </mat-card>
   </form>
