@@ -4,7 +4,7 @@ const sequelize = require('../../utils/db');
 const UserDocument = sequelize.define('userdocument',{
     userId : {type : DataTypes.INTEGER, allowNull : false},
     docName:{type : DataTypes.STRING, allowNull : false},
-    docUrl : {type : DataTypes.STRING, defaultValue : true}
+    docUrl : {type : DataTypes.STRING}
 },
 {
     freezeTableName: true,
