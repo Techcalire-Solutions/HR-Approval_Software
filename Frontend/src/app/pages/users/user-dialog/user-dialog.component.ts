@@ -110,9 +110,10 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   }
 
   userSub!: Subscription;
+  userName: string;
   getUser(id: number){
-    console.log(this.imageUrl);
     this.userSub = this.userService.getUserById(id).subscribe(user=>{
+      this.userName = user.name;
       this.patchUser(user)
     });
   }
@@ -192,11 +193,11 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
 
   selectedTabIndex: number = 0;
-  isFormSubmitted: boolean = false;
-  isWorkFormSubmitted: boolean = false;
-  isContactsFormSubmitted: boolean = false;
-  isSocialFormSubmitted: boolean = false;
-  isAccountFormSubmitted: boolean = false;
+  isFormSubmitted: boolean = true;
+  isWorkFormSubmitted: boolean = true;
+  isContactsFormSubmitted: boolean = true;
+  isSocialFormSubmitted: boolean = true;
+  isAccountFormSubmitted: boolean = true;
   submit!: Subscription;
   onSubmit(){
     if(this.editStatus){
@@ -311,7 +312,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   goToNextTab() {
     if (this.selectedTabIndex < 5) {
       if( this.dataToPass === undefined){
-        this.dataToPass = { updateStatus: this.editStatus, id: this.id }
+        this.dataToPass = { updateStatus: this.editStatus, id: this.id, name: this.userName }
       }
       this.selectedTabIndex++;
 
@@ -333,7 +334,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
       }
       else if (this.userDocumentsComponent && this.selectedTabIndex === 5) {
         this.isAccountFormSubmitted = true;
-        // this.userDocumentsComponent.triggerNew(this.dataToPass);
+        this.userDocumentsComponent.triggerNew(this.dataToPass);
       }
     }
   }
