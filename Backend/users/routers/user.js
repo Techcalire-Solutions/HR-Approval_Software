@@ -27,7 +27,7 @@ router.post('/add', async (req, res) => {
     });
 
     if (userExist) {
-      return res.status(400).send(`User already exists with the email or employee number and Role`);
+      return res.send(`User already exists with the email or employee number and Role`);
     }
 
     // Hash the password
@@ -371,7 +371,7 @@ router.delete('/filedelete/:id', authenticateToken, async (req, res) => {
     // Set S3 delete parameters
     const deleteParams = {
       Bucket: process.env.AWS_BUCKET_NAME,
-      Key: fileKey // The key (path) of the file to delete
+      Key: fileKey
     };
 
     // Delete the file from S3
