@@ -352,25 +352,29 @@ router.get('/findbysp', authenticateToken, async (req, res) => {
             const teamMember = await TeamMember.findOne({ where: { userId } });
     
             // If no team is found, respond with an empty list or appropriate message
-            if (!teamMember) {
-                return res.json({ count: 0, items: [] });
+            // if (!teamMember) {
+            //     return res.json({ count: 0, items: [] });
+            // }
+
+            if(teamMember){
+                const teamId = teamMember.teamId;
+    
+                // Get the team lead's userId
+                const team = await Team.findOne({ where: { id: teamId } });
+                const teamLeadId = team.userId;
+        
+                // Get all user IDs in the team
+                const teamMembers = await TeamMember.findAll({ where: { teamId } });
+                const teamUserIds = teamMembers.map(member => member.userId);
+        
+                // Include the team lead's userId in the list of allowed user IDs
+                teamUserIds.push(teamLeadId);
+        
+                // Update where clause to include all team user IDs
+                where.salesPersonId = teamUserIds;
             }
     
-            const teamId = teamMember.teamId;
-    
-            // Get the team lead's userId
-            const team = await Team.findOne({ where: { id: teamId } });
-            const teamLeadId = team.userId;
-    
-            // Get all user IDs in the team
-            const teamMembers = await TeamMember.findAll({ where: { teamId } });
-            const teamUserIds = teamMembers.map(member => member.userId);
-    
-            // Include the team lead's userId in the list of allowed user IDs
-            teamUserIds.push(teamLeadId);
-    
-            // Update where clause to include all team user IDs
-            where.salesPersonId = teamUserIds;
+            
 
 
 
