@@ -125,10 +125,10 @@
                   </button> -->
                 </div>
               } @else{
-                <!-- <ng-template> -->
-                  <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
-                  <span class="material-icons clickable-icon" (click)="fileInput.click()">cloud_upload</span>
-                <!-- </ng-template> -->
+                <div class="upload-container" style="display: flex; align-items: center;">
+                  Upload Image: <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
+                  <span class="material-icons clickable-icon" (click)="fileInput.click()" style="margin-left: 10px;">cloud_upload</span>
+                </div>
               }
               
 
