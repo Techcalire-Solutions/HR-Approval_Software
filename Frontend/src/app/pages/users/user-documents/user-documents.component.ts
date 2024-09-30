@@ -79,9 +79,31 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
     this.clickedForms.push(false);
   }
 
-  removeData(i: number){
-    this.doc().removeAt(i);
+  removeData(index: number) {
+    console.log(index);
+    
+    const formGroup = this.doc().at(index).value;
+    console.log(formGroup);
+    
+    // Check if form group is dirty (any changes made)
+    if (formGroup.docName != '' || formGroup.docUrl != '') {
+      // Call the API to handle the update before removing
+      this.userSevice.deleteUserDocComplete(this.id[index]).subscribe({
+        next: (response) => {
+          console.log('Update successful:', response);
+          // Remove the row only after successful API call
+          formGroup.removeAt(index);
+        },
+        error: (error) => {
+          console.error('Error during update:', error);
+        }
+      });
+    } else {
+      // Remove the row directly if no changes
+      formGroup.removeAt(index);
+    }
   }
+  
 
   doc(): FormArray {
     return this.mainForm.get("uploadForms") as FormArray;

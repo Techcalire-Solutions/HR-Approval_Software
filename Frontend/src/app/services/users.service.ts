@@ -138,6 +138,10 @@ export class UsersService {
     return this.http.delete(`${this.apiUrl}/document/filedelete/${id}/?key=${key}/`);
   }
 
+  deleteUserDocComplete(id: number) {
+    return this.http.delete(`${this.apiUrl}/document/delete/${id}`);
+  }
+
   updateUserDocumentDetails(id: number, data: any): Observable<any> {
     return this.http.patch( this.apiUrl + '/document/update/' + id, data);
   }
