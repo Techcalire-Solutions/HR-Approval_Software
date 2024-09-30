@@ -1,5 +1,4 @@
 import { MatInputModule } from '@angular/material/input';
-import { HttpEventType } from '@angular/common/http';
 import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
+import { UserDocument } from '../../../common/interfaces/user-document';
 
 @Component({
   selector: 'app-user-documents',
@@ -27,6 +27,34 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
 
   trigger(){
     this.addDoc();
+  }
+
+  editStatus: boolean[] = [];
+  id: number[] = [];
+  triggerNew(data?: any): void {
+    console.log(data);
+    
+    if(data){
+      if(data.updateStatus){
+        this.getDocumentDetailsByUser(data.id)
+      }
+    }
+  }
+
+  docSub!: Subscription;
+  getDocumentDetailsByUser(id: number){
+    this.docSub = this.userSevice.getUserDocumentsByUser(id).subscribe(res=>{
+      for(let i = 0; i < res.length; i++){
+        this.id[i] = res[i].id
+        this.editStatus[i] = true;
+        this.addDoc(res[i])
+        if(res[i].docUrl){
+          this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ res[i].docUrl }`;
+        }
+        console.log(this.imageUrl[i]);
+        
+      }
+    })
   }
 
   ngOnDestroy(): void {
@@ -45,13 +73,10 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
   });
 
   index!: number;
+  clickedForms: boolean[] = [];
   addDoc(data?:any){
-
-    if(this.index === undefined) this.index = 0;
-    else this.index += 1
-    // this.getProduct()
-    // this.getUnit()
     this.doc().push(this.newDoc(data));
+    this.clickedForms.push(false);
   }
 
   removeData(i: number){
@@ -62,11 +87,11 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
     return this.mainForm.get("uploadForms") as FormArray;
   }
 
-  newDoc(initialValue?: any): FormGroup {
+  newDoc(initialValue?: UserDocument): FormGroup {
     return this.fb.group({
-      userId: [this.data.id],
-      docName: [''],
-      docUrl: ['']
+      userId: [initialValue?initialValue.userId : this.data.id],
+      docName: [initialValue?initialValue.docName : '', Validators.required],
+      docUrl: [initialValue?initialValue.docUrl : '', Validators.required]
     });
   }
 
@@ -102,16 +127,40 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
     }
   }
 
+  isAnyFormClicked(): boolean {
+    for(let i = 0; i < this.clickedForms.length; i++) {
+      if (!this.clickedForms[i]) {
+        return false; // Return false if any value is false
+      }
+    }
+    return true
+  }
+
   submit!: Subscription;
   onSubmit(i: number): void {
     let form = this.doc().at(i) as FormGroup
-    this.submit = this.userSevice.addUserDocumentDetails(form.value).subscribe(res => {
-      this.snackBar.open(`${res.docName} is added to employee data`,"" ,{duration:3000})
-    });
+    this.clickedForms[i] = true;
+    if(this.editStatus[i]){
+      this.submit = this.userSevice.updateUserDocumentDetails(this.id[i], form.value).subscribe(res => {
+        this.snackBar.open(`${res.docName} is added to employee data`,"" ,{duration:3000})
+      });
+    }else{
+      this.submit = this.userSevice.addUserDocumentDetails(form.value).subscribe(res => {
+        this.snackBar.open(`${res.docName} is added to employee data`,"" ,{duration:3000})
+      });
+    }
   }
 
   completeForm(){
     this.snackBar.open(`Upload completed successfully...`,"" ,{duration:3000})
     this.router.navigateByUrl('/login/users')
+  }
+
+  onDeleteImage(i: number){
+    this.userSevice.deleteUserDoc(this.imageUrl[i], this.id[i]).subscribe(x => {
+      this.imageUrl[i] = '';
+      this.doc().at(i).get('docUrl')?.setValue('');
+      this.snackBar.open(`${this.doc().at(i).get('docUrl')?.value} is deleted from employee data`,"" ,{duration:3000})
+    })
   }
 }

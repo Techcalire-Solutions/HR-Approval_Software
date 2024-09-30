@@ -133,4 +133,12 @@ export class UsersService {
   getUserDocumentsByUser(id: number): Observable<UserDocument[]> {
     return this.http.get<UserDocument[]>( this.apiUrl + '/document/findbyuser/' + id);
   }
+
+  deleteUserDoc(key: string, id: number) {
+    return this.http.delete(`${this.apiUrl}/document/filedelete/${id}/?key=${key}/`);
+  }
+
+  updateUserDocumentDetails(id: number, data: any): Observable<any> {
+    return this.http.patch( this.apiUrl + '/document/update/' + id, data);
+  }
 }
