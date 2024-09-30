@@ -9,7 +9,8 @@ const sequelize = require('../../utils/db');
 const s3 = require('../../utils/s3bucket');
 const Role = require('../../users/models/role');
 const nodemailer = require('nodemailer');
-
+const TeamMember = require('../../users/models/teamMember');
+const Team = require('../../users/models/team');
 
 
   const transporter = nodemailer.createTransport({
@@ -346,6 +347,32 @@ router.get('/findbysp', authenticateToken, async (req, res) => {
     }
 
     try {
+        
+            // Fetch the SalesPerson's team
+            const teamMember = await TeamMember.findOne({ where: { userId } });
+    
+            // If no team is found, respond with an empty list or appropriate message
+            if (!teamMember) {
+                return res.json({ count: 0, items: [] });
+            }
+    
+            const teamId = teamMember.teamId;
+    
+            // Get the team lead's userId
+            const team = await Team.findOne({ where: { id: teamId } });
+            const teamLeadId = team.userId;
+    
+            // Get all user IDs in the team
+            const teamMembers = await TeamMember.findAll({ where: { teamId } });
+            const teamUserIds = teamMembers.map(member => member.userId);
+    
+            // Include the team lead's userId in the list of allowed user IDs
+            teamUserIds.push(teamLeadId);
+    
+            // Update where clause to include all team user IDs
+            where.salesPersonId = teamUserIds;
+
+
 
         const pi = await PerformaInvoice.findAll({
             where: where, limit, offset,
