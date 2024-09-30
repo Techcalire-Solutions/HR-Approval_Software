@@ -450,7 +450,11 @@ router.get('/findbkam', authenticateToken, async(req, res) => {
 
 router.get('/findbyam', authenticateToken, async(req, res) => {
     let status = req.query.status;
+    console.log(status);
+    
     let user = req.user.id;
+    console.log(user);
+    
     
     let where = { amId: user };
 
@@ -459,6 +463,7 @@ router.get('/findbyam', authenticateToken, async(req, res) => {
     } else if (status === 'REJECTED') {
         where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
     }
+    console.log(req.query.search);
     
     if (req.query.search !== '' && req.query.search !== 'undefined') {
         const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
@@ -484,6 +489,7 @@ router.get('/findbyam', authenticateToken, async(req, res) => {
             where: where, limit, offset,
             order: [['id', 'DESC']],
             include: [  
+                {model: PerformaInvoiceStatus},
                 {model: User, as: 'salesPerson', attributes: ['name']},
                 {model: User, as: 'kam', attributes: ['name']},
                 {model: User, as: 'am', attributes: ['name']},
@@ -506,6 +512,8 @@ router.get('/findbyam', authenticateToken, async(req, res) => {
               count: totalCount,
               items: pi,
             };
+            console.log(response);
+            
             res.json(response);
           } else {
             res.send(pi);
