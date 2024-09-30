@@ -44,7 +44,7 @@
             </div>
             <div class="col" style="text-align: right;">
               <div class="input-group">
-                <input type="search" placeholder="Search Data by Invoice No..." (keyup)="applyFilter($event)">
+                <input type="search" placeholder="Search Data by Entry No..." (keyup)="applyFilter($event)">
               </div>
             </div>
           </div>
@@ -54,7 +54,7 @@
           <table matSort (matSortChange)="sortData($event)">
             <thead>
               <tr>
-                <th mat-sort-header="invoiceNo" scope="col">InvoiceNo</th>
+                <th mat-sort-header="invoiceNo" scope="col">EntryNo</th>
                 <th mat-sort-header="sp" scope="col">Sales Executive</th>
                 <th mat-sort-header="kam" scope="col">KAM</th>
                 <th mat-sort-header="am" scope="col">Manager</th>
