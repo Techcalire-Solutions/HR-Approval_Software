@@ -23,7 +23,7 @@ import { MatInputModule } from '@angular/material/input';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
-
+import { CommonModule } from '@angular/common';
  // Needed for mat-form-field
 import { MatSelectModule } from '@angular/material/select';
 import { User } from '../../../common/interfaces/user';
@@ -33,7 +33,7 @@ import { User } from '../../../common/interfaces/user';
   standalone: true,
   imports: [ ReactiveFormsModule,  FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule, MatDatepickerModule,
     MatNativeDateModule,  MatRadioModule, MatDialogModule, MatButtonModule, MatCheckboxModule, DatePipe, MatToolbarModule, MatCardModule,
-    MatSelectModule
+    MatSelectModule, CommonModule
   ],
   templateUrl: './team-dialogue.component.html',
   styleUrl: './team-dialogue.component.scss'
