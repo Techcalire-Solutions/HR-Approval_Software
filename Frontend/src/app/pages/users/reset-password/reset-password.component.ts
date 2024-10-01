@@ -42,8 +42,17 @@ export class ResetPasswordComponent {
     const password = this.form.get('password')?.value;
     const confirmPassword = this.form.get('confirmPassword')?.value;
     this.passwordMismatch = password !== confirmPassword;
-    console.log(this.passwordMismatch);
-    
+  }
+
+  showPassword = false;
+  showConfirmPassword = false;
+
+  togglePasswordView() {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordView() {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   generateRandomPassword() {
