@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { RoleService } from '@services/role.service';
@@ -25,6 +25,7 @@ import { User } from '../../common/interfaces/user';
 import { Subscription } from 'rxjs';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 @Component({
   selector: 'app-role',
   styleUrl: './role.component.scss',
@@ -47,7 +48,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     PipesModule,
     DatePipe,
     UserDialogComponent,
-    CommonModule
+    CommonModule,
+    MatPaginatorModule
   ],
   templateUrl: './role.component.html',
   encapsulation: ViewEncapsulation.None,
@@ -67,8 +69,10 @@ export class RoleComponent implements OnInit, OnDestroy {
   roles: Role[] = [];
   roleSub!: Subscription;
   getRoles(){
-    this.roleSub = this.roleService.getRole(this.searchText).subscribe((res)=>{
-      this.roles = res;
+    this.roleSub = this.roleService.getRole(this.searchText, this.currentPage, this.pageSize).subscribe((res: any)=>{
+      this.roles = res.items;
+      this.totalItems = res.count;
+      console.log(this.roles);
     })
   }
 
@@ -119,6 +123,16 @@ export class RoleComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(user => {
       this.getRoles()
     });
+  }
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  pageSize = 5;
+  currentPage = 1;
+  totalItems = 0;
+  onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.getRoles();
   }
 
   ngOnDestroy(): void {
