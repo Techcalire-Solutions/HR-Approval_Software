@@ -24,12 +24,8 @@ router.post('/', authenticateToken, async (req, res) => {
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const roles = await Role.findAll({});
-    const filteredRoles = roles.filter(role => 
-      !role.roleName === 'Administrator' && !role.roleName === 'Super Administrator' && role.roleName === 'HR Administrator'
-    );
-    console.log(filteredRoles);
-    
-    res.send(filteredRoles);
+
+    res.send(roles);
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
