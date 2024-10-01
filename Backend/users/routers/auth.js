@@ -7,13 +7,18 @@ const User = require('../models/user');
 router.post('/', async (req, res) => {
     try {
         const { empNo, password } = req.body;
-
+        console.log(req.body);
+        
         const user = await User.findOne({ where: { empNo: empNo } });
+        console.log(user);
+        
         if (!user) {
             return res.json({ message: 'User not found' });
         }
 
         const validPassword = await bcrypt.compare(password, user.password);
+        console.log(validPassword);
+        
         if (!validPassword) {
             return res.json({ message: 'Incorrect password' });
         }
@@ -25,7 +30,9 @@ router.post('/', async (req, res) => {
             token: token,
             role: user.roleId,
             name: user.name,
-            id: user.id
+            id: user.id,
+            paswordReset: user.paswordReset,
+            empNo: user.empNo
         });
 
     } catch (error) {

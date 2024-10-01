@@ -152,8 +152,6 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
   }
 
   isAnyFormClicked(): boolean {
-    console.log(this.clickedForms);
-    
     for(let i = 0; i < this.clickedForms.length; i++) {
       if (!this.clickedForms[i]) {
         return false; // Return false if any value is false

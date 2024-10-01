@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoginService } from '@services/login.service';
+import { ResetPasswordComponent } from '../users/reset-password/reset-password.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   standalone: true,
@@ -48,11 +50,17 @@ export class LoginComponent {
     }
 
     this.loginService.loginUser(this.loginForm.value).subscribe({
-      next: (res: boolean) => { // Adjust type according to the actual response
-
-        if (res) { // Check if the response indicates success
-          this.setCurrentUser(res); // Assuming `res` contains user information
-          this.router.navigate(['/login']); // Redirect after successful login
+      next: (res: boolean) => { 
+        if (res) {
+          console.log(res);
+          const token: any = localStorage.getItem('token')
+          let user = JSON.parse(token)
+          console.log(user);
+          if(!user.paswordReset){
+            this.resetPassword(user.id, user.empNo)
+          }else{
+            this.router.navigate(['/login']); 
+          }
         } else {
           this.errorMessage = 'Incorrect username or password';
           this.snackBar.open('Incorrect username or password', 'Close', {
@@ -67,6 +75,18 @@ export class LoginComponent {
         });
       }
     });
+  }
+
+  dialog = inject(MatDialog)
+  resetPassword(id: number, empNo: string){
+    console.log(id, empNo);
+    
+    const dialogRef = this.dialog.open(ResetPasswordComponent, {
+      width: '450px',
+      data: {id: id, empNo: empNo, paswordReset: true}
+    });dialogRef.afterClosed().subscribe((result) => {
+
+    })
   }
 
 
@@ -86,9 +106,12 @@ export class LoginComponent {
   }
 
   setCurrentUser(user: any): void {
+    console.log(user);
+    
     if (user && user.token) {
+      console.log(user);
+      
       localStorage.setItem('token', JSON.stringify(user.token));
-      // Handle additional user data if needed
     }
   }
 }

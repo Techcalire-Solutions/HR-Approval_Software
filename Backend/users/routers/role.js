@@ -24,6 +24,7 @@ router.post('/', authenticateToken, async (req, res) => {
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const roles = await Role.findAll({});
+
     res.send(roles);
   } catch (error) {
     res.status(500).send({ error: error.message });
@@ -89,7 +90,10 @@ router.get('/find', async (req, res) => {
 
       res.json(response);
     } else {
-      res.json(role);
+      const filteredRoles = role.filter(role => 
+        role.roleName !== 'Administrator' && role.roleName !== 'Super Administrator' && role.roleName !== 'HR Administrator'
+      );
+      res.json(filteredRoles);
     }
   } catch (error) {
     res.send(error.message);
