@@ -4,8 +4,8 @@ import { Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoginService } from '@services/login.service';
-import { ResetPasswordComponent } from '../users/reset-password/reset-password.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ResetPasswordComponent } from '../users/reset-password/reset-password.component';
 
 @Component({
   standalone: true,
@@ -113,5 +113,11 @@ export class LoginComponent {
       
       localStorage.setItem('token', JSON.stringify(user.token));
     }
+  }
+
+  showPassword: boolean = false;
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 }
