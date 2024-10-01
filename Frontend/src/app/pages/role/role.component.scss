@@ -8,7 +8,7 @@ body {
   width: 100%;
   border-collapse: separate; /* Use separate to allow corner rounding */
   border-spacing: 0;
-  overflow: hidden;
+  // overflow: hidden;
   border-radius: 10px; /* Rounded corners for the table */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for a subtle 3D effect */
 }
@@ -25,8 +25,8 @@ body {
 
 .table__body {
   max-height: 400px;
-  overflow-x: auto;
-  overflow-y: auto;
+  // overflow-x: auto;
+  // overflow-y: auto;
   border: 1px solid #0000000b;
   border-bottom-left-radius: 10px; /* Rounded bottom left corner */
   border-bottom-right-radius: 10px; /* Rounded bottom right corner */

@@ -125,8 +125,6 @@ users:User;
         // (item.title === 'Process Payroll' && item.parentId === 13) ||
         // (item.title === 'Salary Statement' && item.parentId === 13) ||
         // (item.title === 'YTD Reports' && item.parentId === 13)
-
-
       );
     } else if (
       role === 'Sales Executive' ||
@@ -184,15 +182,15 @@ users:User;
         item.title === 'Dashboard' ||
         item.title === 'Role' ||
         item.title === 'Employee' ||
-        item.title === 'Team'||
-        (item.title === 'Leave' && !item.parentId) ||
-        (item.title === 'Leave Request' && item.parentId === 8) ||
-        (item.title === 'User Leave' && item.parentId === 8) ||
-        (item.title === 'Emergency Leave' && item.parentId === 8) ||
-        (item.title === 'Payroll' && !item.parentId) ||
-        (item.title === 'Process Payroll' && item.parentId === 13) ||
-        (item.title === 'Salary Statement' && item.parentId === 13) ||
-        (item.title === 'YTD Reports' && item.parentId === 13)
+        item.title === 'Team'
+        // (item.title === 'Leave' && !item.parentId) ||
+        // (item.title === 'Leave Request' && item.parentId === 8) ||
+        // (item.title === 'User Leave' && item.parentId === 8) ||
+        // (item.title === 'Emergency Leave' && item.parentId === 8) ||
+        // (item.title === 'Payroll' && !item.parentId) ||
+        // (item.title === 'Process Payroll' && item.parentId === 13) ||
+        // (item.title === 'Salary Statement' && item.parentId === 13) ||
+        // (item.title === 'YTD Reports' && item.parentId === 13)
       );
     }
     else if (role === 'Super Administrator') {

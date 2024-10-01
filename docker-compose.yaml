@@ -16,5 +16,5 @@ services:
     build:
       context: ./Backend/
     restart: always
-    ports: 
-      - "8000:8000"
+    ports:
+      - "8000:8000"
