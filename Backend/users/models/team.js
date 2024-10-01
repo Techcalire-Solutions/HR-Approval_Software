@@ -15,16 +15,16 @@ Team.sync({alter:true})
 .then(()=>console.log)
 
 
-Team.belongsTo(User, {
-    foreignKey: "userId",
-    as: "leader",
-  });
+// Team.belongsTo(User, {
+//     foreignKey: "userId",
+//     as: "leader",
+//   });
 
 
-  Team.hasMany(TeamMember, { foreignKey: "teamId" });
-  TeamMember.belongsTo(Team);
+//   Team.hasMany(TeamMember, { foreignKey: "teamId" });
+//   TeamMember.belongsTo(Team);
 
-  User.hasMany(TeamMember, { foreignKey: "userId"});
-  TeamMember.belongsTo(User, { foreignKey: "userId"});
+//   User.hasMany(TeamMember, { foreignKey: "userId"});
+//   TeamMember.belongsTo(User, { foreignKey: "userId"});
 
 module.exports = Team;
