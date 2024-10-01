@@ -41,10 +41,10 @@ async function syncModel() {
     }
 
     const userData = [    
-        { name: "Ashbin", email: "ashbin@gmail.com", phoneNumber:"9846335577", password: "ashbin@123", roleId: 1, teamId:1,status: true, empNo: 'OAC-2024-001' },
-        { name: "Sameer", email: "sameer@gmail.com", phoneNumber:"9846335570", password: "sameer@123", roleId: 1,teamId:1, status: true, empNo: 'OAC-2024-002' },
-        { name: "Vishnu", email: "vishnu@gmail.com", phoneNumber:"9846335123", password: "vishnu@123", roleId: 1, teamId:1, status: true, empNo: 'OAC-2024-003' },
-        { name: "Sijin", email: "aminahabeebofficial@gmail.com", phoneNumber:"9846442233", password: "sijin@123", roleId: 2, status: true, empNo: 'OAC-2024-004', reportingManager: true },
+        { name: "Ashbin", email: "ashbin@gmail.com", phoneNumber:"9846335577", password: "ashbin@123", roleId: 1, status: true, empNo: 'OAC-2024-001' },
+        { name: "Sameer", email: "sameer@gmail.com", phoneNumber:"9846335570", password: "sameer@123", roleId: 1, status: true, empNo: 'OAC-2024-002' },
+        { name: "Vishnu", email: "vishnu@gmail.com", phoneNumber:"9846335123", password: "vishnu@123", roleId: 1, status: true, empNo: 'OAC-2024-003' },
+        { name: "Sijin", email: "amina@onboardaero.com", phoneNumber:"9846442233", password: "sijin@123", roleId: 2, status: true, empNo: 'OAC-2024-004', reportingManager: true },
         { name: "Shibin", email: "shibin@gmail.com", phoneNumber:"9847391646", password: "shibin@123", roleId: 3, status: true, empNo: 'OAC-2024-005' },
         { name: "Fawas", email: "fawas@gmail.com", phoneNumber:"98667799551", password: "fawas@123", roleId: 4, status: true, empNo: 'OAC-2024-006' },
         { name: "Approval Admin", email: "admin@gmail.com", phoneNumber:"1234567890", password: "admin@123", roleId: 6, status: true, empNo: 'OAC-2024-007' },
@@ -67,31 +67,31 @@ async function syncModel() {
         }
     }
 
-    const team = await Team.findAll({});
+    // const team = await Team.findAll({});
 
-    if (team.length === 0) {
-        try {
-            await Team.bulkCreate([
-                { teamName: "EMEA", userId: 1 },
-            ]);
+    // if (team.length === 0) {
+    //     try {
+    //         await Team.bulkCreate([
+    //             { teamName: "EMEA", userId: 1 },
+    //         ]);
     
-            const teams = await Team.findAll();
-            const teamMembers = [
-                { teamId: 1, userId: 1 },
-                { teamId: 1, userId: 2 },
-                { teamId: 1, userId: 3 },
-            ];
+    //         const teams = await Team.findAll();
+    //         const teamMembers = [
+    //             { teamId: 1, userId: 1 },
+    //             { teamId: 1, userId: 2 },
+    //             { teamId: 1, userId: 3 },
+    //         ];
     
-            for (const team of teams) {
-                await TeamMember.bulkCreate(teamMembers.map(member => ({
-                    ...member,
-                    teamId: team.id,
-                })));
-            }
-        } catch (error) {
-            console.error("Error creating team and team members:", error.message);
-        }
-    }
+    //         for (const team of teams) {
+    //             await TeamMember.bulkCreate(teamMembers.map(member => ({
+    //                 ...member,
+    //                 teamId: team.id,
+    //             })));
+    //         }
+    //     } catch (error) {
+    //         console.error("Error creating team and team members:", error.message);
+    //     }
+    // }
 }
 
 module.exports = syncModel;
