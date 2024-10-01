@@ -87,6 +87,8 @@ export class UpdatePIComponent {
       this.patchdata(this.id);
     }
     this.getKAM();
+    this.getAM();
+    this.getAccountants();
 
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
@@ -238,6 +240,8 @@ export class UpdatePIComponent {
   getAM(){
     this.amSub = this.loginServie.getUserByRole(3).subscribe(user =>{
       this.AMList = user;
+      console.log('amlist', this.AMList);
+
     });
   }
 
@@ -281,6 +285,7 @@ export class UpdatePIComponent {
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
       let inv = pi.pi;
       let remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
+      console.log('accountantId',inv.accountantId);
 
       // Patch the form values without `url`
       this.piForm.patchValue({
@@ -288,6 +293,8 @@ export class UpdatePIComponent {
         status: inv.status,
         remarks: remarks,
         kamId: inv.kamId,
+        amId: inv.amId,
+        accountantId: inv.accountantId,
         supplierName: inv.supplierName,
         supplierPoNo: inv.supplierPoNo,
         supplierPrice: inv.supplierPrice,
