@@ -180,6 +180,8 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   getRoles(){
     this.roleSub = this.roleService.getRole().subscribe((res)=>{
       this.roles = res;
+      console.log(res);
+      
     })
   }
 
