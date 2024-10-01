@@ -13,14 +13,28 @@ const TeamMember = require('../../users/models/teamMember');
 const Team = require('../../users/models/team');
 
 
-  const transporter = nodemailer.createTransport({
-    service: 'gmail', // Or 'Gmail' depending on the Nodemailer version
+//   const transporter = nodemailer.createTransport({
+//     service: 'gmail',
+//     auth: {
+//       user: process.env.EMAIL_USER,
+//       pass: process.env.EMAIL_PASS, 
+//     },
+//   });
+
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
     auth: {
-      user: process.env.EMAIL_USER, // Your email address
-      pass: process.env.EMAIL_PASS, // Your email password or App Password
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+    secure: false, // Set to true if using port 465
+    tls: {
+      rejectUnauthorized: false,
     },
   });
 
+  
   router.post('/save', authenticateToken, async (req, res) => {
     const {
       piNo,
