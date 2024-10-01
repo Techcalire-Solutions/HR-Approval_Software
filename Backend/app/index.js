@@ -26,6 +26,13 @@ const team = require('../users/routers/team');
 const teamMember = require('../users/routers/teamMember');
 app.use('/role', role);
 
+// Enable CORS for your front-end domain
+app.use(cors({
+    origin: 'https://approval.techclaire.com', // Allow this specific domain
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed methods
+    credentials: true, // If you need to send cookies
+  }));
+
 app.use('/user', user);
 app.use('/personal', userPersonal)
 app.use('/statutoryinfo', statutoryInfo)
