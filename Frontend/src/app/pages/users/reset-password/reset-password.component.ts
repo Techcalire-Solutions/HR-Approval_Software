@@ -44,16 +44,6 @@ export class ResetPasswordComponent {
     this.passwordMismatch = password !== confirmPassword;
   }
 
-  showPassword = false;
-  showConfirmPassword = false;
-
-  togglePasswordView() {
-    this.showPassword = !this.showPassword;
-  }
-
-  toggleConfirmPasswordView() {
-    this.showConfirmPassword = !this.showConfirmPassword;
-  }
 
   generateRandomPassword() {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
@@ -98,5 +88,17 @@ export class ResetPasswordComponent {
 
   onCancelClick(){
     this.dialogRef.close();
+  }
+
+  showPassword: boolean = false;
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  showConfirmedPassword: boolean = false;
+
+  toggleConfirmedPasswordVisibility() {
+    this.showConfirmedPassword = !this.showConfirmedPassword;
   }
 }
