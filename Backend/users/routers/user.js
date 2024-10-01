@@ -30,10 +30,8 @@ router.post('/add', async (req, res) => {
       return res.send(`User already exists with the email or employee number and Role`);
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create the new user
     const user = await User.create({
       name, empNo, email, phoneNumber, password: hashedPassword, roleId, status, userImage, url, teamId
     });
@@ -242,56 +240,6 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
   }
 })
 
-// router.post('/fileupload', multer.single('file'), authenticateToken, (req, res) => {
-//   try {
-
-//     if (!req.file) {
-//       return res.status(400).send({ message: 'No file uploaded' });
-//     }
-//     console.log(req.file);
-    
-//     // Construct the URL path
-//     const fileUrl = `/users/userImages/${req.file.originalname}`;
-
-//     res.status(200).send({
-//       message: 'File uploaded successfully',
-//       file: req.file,
-//       fileUrl: fileUrl
-//     });
-//   } catch (error) {
-//     console.error('Error uploading file:', error);
-//     res.status(500).send({ message: error.message });
-//   }
-// });
-
-// router.delete('/filedelete/:id', async (req, res) => {
-//   let id = req.params.id;
-//   try {
-//     const pi = await PerformaInvoice.findByPk(id);
-//     let filename = pi.url
-//     const directoryPath = path.join(__dirname, '../userImages'); // Replace 'uploads' with your folder name
-//     const filePath = path.join(directoryPath, filename);
-
-//     fs.access(filePath, fs.constants.F_OK, (err) => {
-//       if (err) {
-//         return res.status(404).json({ message: 'File not found' });
-//       }
-
-//       // Delete the file
-//       fs.unlink(filePath, (err) => {
-//         if (err) {
-//           return res.status(500).json({ message: 'Error deleting file' });
-//         }
-
-//         return res.status(200).json({ message: 'File deleted successfully' });
-//       });
-//     })
-//   } catch (error) {
-//     console.error('Error deleting file:', error);
-//     res.status(500).send({ message: error.message });
-//   }
-// });
-
 router.get('/findbyrole/:id', async (req, res) => {
   try {
     const user = await User.findAll({
@@ -383,4 +331,29 @@ router.delete('/filedelete/:id', authenticateToken, async (req, res) => {
     res.status(500).send({ message: error.message });
   }
 });
+
+router.patch('/resetpassword/:id', async (req, res) => {
+  const { password, paswordReset } = req.body;
+
+  try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      let user = await User.findByPk(req.params.id);
+
+      if (!user) {
+          return res.status(404).send('User not found');
+      }
+
+      user.password = hashedPassword;
+      user.paswordReset = paswordReset;
+
+      await user.save();
+      console.log('Updated user:', user);
+      
+      res.send(user);
+  } catch (error) {
+      console.error('Error resetting password:', error);
+      res.status(500).send(error.message);
+  }
+});
+
 module.exports = router;
