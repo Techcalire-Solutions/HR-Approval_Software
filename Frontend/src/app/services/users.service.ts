@@ -145,4 +145,8 @@ export class UsersService {
   updateUserDocumentDetails(id: number, data: any): Observable<any> {
     return this.http.patch( this.apiUrl + '/document/update/' + id, data);
   }
+
+  resetPassword(id: number, data: any){
+    return this.http.patch(this.apiUrl + '/user/resetpassword/' + id, data);
+  }
 }

@@ -27,6 +27,7 @@ import { User } from '../../common/interfaces/user';
 import { count, Subscription } from 'rxjs';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 import { Router } from '@angular/router';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 
 @Component({
@@ -147,5 +148,14 @@ export class UsersComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  resetPassword(id: number, empNo: string){
+    const dialogRef = this.dialog.open(ResetPasswordComponent, {
+      width: '450px',
+      data: {id: id, empNo: empNo, paswordReset: false}
+    });dialogRef.afterClosed().subscribe((result) => {
+
+    })
   }
 }
