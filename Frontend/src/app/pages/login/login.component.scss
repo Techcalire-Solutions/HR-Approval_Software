@@ -1,4 +1,23 @@
 // @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap");
+.input-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-field input {
+  width: 100%;
+  padding-right: 40px; /* To leave space for the eye icon inside the input */
+}
+
+.eye-icon {
+  position: absolute;
+  right: 10px; /* Position the icon inside the input field */
+  cursor: pointer;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999; /* Optional: to give a subtle color to the icon */
+}
 
 * {
   margin: 0;
