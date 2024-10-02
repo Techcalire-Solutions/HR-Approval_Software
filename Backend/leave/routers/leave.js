@@ -151,6 +151,31 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
+router.get('/:id', async (req, res) => {
+  const id = req.body.id;
+
+  // Validate id
+  if (!id || isNaN(id)) {
+    return res.status(400).json({ message: 'Invalid leave ID' });
+  }
+
+  try {
+    const leaveRecord = await Leave.findOne({
+      where: { id: id }
+    });
+
+    if (!leaveRecord) {
+      return res.status(404).json({ message: 'Leave record not found' });
+    }
+
+    return res.status(200).json(leaveRecord);
+  } catch (error) {
+    console.error('Error fetching leave record:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 
 router.put('/:leaveId/status', authenticateToken, async (req, res) => {
   try {

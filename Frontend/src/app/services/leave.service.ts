@@ -15,6 +15,16 @@ export class LeaveService {
   addLeave(data:any){
     return this.http.post(this.apiUrl+'/leave', data)
   }
+   getLeaves():Observable<any>{
+    return this.http.get(`${this.apiUrl}/leave`);
+   }
+
+   getLeaveByUser(id: number) {
+    return this.http.get(`${this.apiUrl}/leave/${id}`);
+  }
+
+
+
   addLeaveType(data:any){
     return this.http.post(this.apiUrl+'/leaveType/', data)
   }
