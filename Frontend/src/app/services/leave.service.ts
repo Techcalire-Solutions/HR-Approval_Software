@@ -19,10 +19,9 @@ export class LeaveService {
     return this.http.get(`${this.apiUrl}/leave`);
    }
 
-   getLeaveByUser(id: number) {
-    return this.http.get(`${this.apiUrl}/leave/${id}`);
+   getLeavesByUser(userId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/leave/user/${userId}`);
   }
-
 
 
   addLeaveType(data:any){

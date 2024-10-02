@@ -4,14 +4,17 @@
   <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
     <div fxLayout="row" class="col">
         <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-            <mat-button-toggle value="add" (click)="openApplyLeave()"><mat-icon>person_add</mat-icon>
-            </mat-button-toggle>
+          <mat-button-toggle value="add" (click)="openApplyLeave()">
+            <mat-icon style="color: green;">event</mat-icon> <!-- Custom green color -->
+          </mat-button-toggle>
+
+
         </mat-button-toggle-group>
     </div>
     <div fxLayout="row" class="col">
       <form class="user-search" [class.show]="controls.value == 'search'">
         <mat-form-field class="user-search-input">
-            <input matInput placeholder="Search role by role name..." name="search" (keyup)="search($event)">
+            <input matInput placeholder="Search leave by leave type..." name="search" (keyup)="search($event)">
         </mat-form-field>
       </form>
     </div>
@@ -22,36 +25,47 @@
       <table>
         <thead>
           <tr>
-            <th> Leave dates </th>
-            <th> Manage </th>
+            <th>Leave Type</th>
+            <th>Leave Date</th>
+            <th>Status</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let role of roles">
-            <td>{{ role.roleName }}</td>
+          <!-- Loop through each leave -->
+          <tr *ngFor="let item of leaves">
+            <!-- Leave Type (From associated LeaveType model) -->
+            <td>{{ item.leaveType?.leaveTypeName }}</td>
+
+            <!-- Leave Dates and Sessions -->
             <td>
-              <!-- Disable edit and delete buttons for specific roles -->
-              <button
-                mat-icon-button
-                (click)="openRoleDialog()"
-                [disabled]="isRestrictedRole(role.roleName)">
+              <ng-container *ngFor="let date of item.leaveDates">
+                {{ date.date }}
+                <span *ngIf="date.session1">Session 1</span>
+                <span *ngIf="date.session2">Session 2</span>
+                <br>
+              </ng-container>
+            </td>
+
+            <!-- Status -->
+            <td>{{ item.status }}</td>
+
+            <!-- Actions -->
+            <td>
+              <button mat-icon-button (click)="editLeave(item.id)">
                 <mat-icon>mode_edit</mat-icon>
               </button>
-
-              <button
-                mat-icon-button
-                (click)="deleteRole(role.id)"
-                [disabled]="isRestrictedRole(role.roleName)">
+              <button mat-icon-button (click)="deleteLeave(item.id)">
                 <mat-icon>delete</mat-icon>
               </button>
             </td>
           </tr>
         </tbody>
       </table>
-      <!-- <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
-       (page)="onPageChange($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
-      </mat-paginator> -->
     </section>
   </main>
+
+
+
 </body>
 </html>

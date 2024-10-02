@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../utils/db');
+const LeaveType = require('../models/leaveType')
 
 const Leave = sequelize.define('Leave', {
   userId: {
@@ -46,6 +47,11 @@ const Leave = sequelize.define('Leave', {
   freezeTableName: true,
   timestamps: true, // This will add `createdAt` and `updatedAt` timestamps automatically
 });
+
+// Define associations
+Leave.belongsTo(LeaveType, { foreignKey: 'leaveTypeId' }); // Leave belongs to LeaveType
+LeaveType.hasMany(Leave, { foreignKey: 'leaveTypeId' });  // Each LeaveType can have many Leaves
+
 
 // Sync the model with the database
 Leave.sync({ alter: true })
