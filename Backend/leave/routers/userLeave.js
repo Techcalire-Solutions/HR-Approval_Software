@@ -36,28 +36,6 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-// Get user leave by ID
-router.get('/:id',authenticateToken, async (req, res) => {
-  const { id } = user.id; // Get the ID from the request parameters
-
-  console.log("USERID",id)
-
-  try {
-    // Find the UserLeave by primary key (id)
-    const userLeave = await UserLeave.findByPk(id);
-
-    if (!userLeave) {
-      return res.status(404).json({ message: 'UserLeave record not found' });
-    }
-
-    // Return the found record
-    res.json(userLeave);
-  } catch (error) {
-    console.error('Error fetching UserLeave:', error);
-    res.status(500).json({ message: 'Internal Server Error', error: error.message });
-  }
-});
-
 router.get('/byuserandtype/:userid/:typeid', authenticateToken, async (req, res) => {
   try {
     const userLeaves = await UserLeave.findOne({
