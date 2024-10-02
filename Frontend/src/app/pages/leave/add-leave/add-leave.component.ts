@@ -1,5 +1,5 @@
 import { CommonModule, formatDate } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormArray, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -19,7 +19,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { LeaveService } from '@services/leave.service';
 
 import { SafePipe } from '../../add-approval/view-invoices/safe.pipe';
-
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-add-leave',
   standalone: true,
@@ -39,7 +41,8 @@ import { SafePipe } from '../../add-approval/view-invoices/safe.pipe';
     MatCheckboxModule,
     SafePipe,
     MatDatepickerModule,
-    MatTableModule
+    MatTableModule,
+    MatSnackBarModule
   ],
   templateUrl: './add-leave.component.html',
   styleUrl: './add-leave.component.scss',
@@ -63,6 +66,8 @@ export class AddLeaveComponent {
       leaveDates: this.fb.array([]),
     });
   }
+  snackBar = inject(MatSnackBar);
+router = inject(Router)
 
   ngOnInit() {
     this.getLeaveType();
@@ -117,17 +122,15 @@ export class AddLeaveComponent {
       leaveDates: this.leaveRequestForm.get('leaveDates')!.value
     };
 
-    // Log the leave request to see if it includes session values
-    console.log('Leave Request:', leaveRequest);
-
     this.leaveService.addLeave(leaveRequest).subscribe(
-      (response: any) => {
-        console.log(response);
+      () => {
         this.isLoading = false;
+        this.snackBar.open('Leave request submitted successfully!', 'Close', { duration: 3000 });
+        this.router.navigate(['/login/applyLeave'])
       },
-      (error: any) => {
-        console.error(error);
+      () => {
         this.isLoading = false;
+        this.snackBar.open('Failed to submit leave request. Please try again.', 'Close', { duration: 3000 });
       }
     );
   }
