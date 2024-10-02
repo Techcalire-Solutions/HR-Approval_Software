@@ -1,98 +1,119 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate; /* Use separate to allow corner rounding */
+  border-spacing: 0;
+  // overflow: hidden;
+  border-radius: 10px; /* Rounded corners for the table */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for a subtle 3D effect */
+}
+
+.table__header {
+  padding: 10px;
+  background-color: #0000000b;
+  color: black;
+  border-top-left-radius: 10px; /* Rounded top left corner */
+  border-top-right-radius: 10px; /* Rounded top right corner */
+  height: 15px;
+  align-content: center;
+}
+
+.table__body {
+  max-height: 400px;
+  // overflow-x: auto;
+  // overflow-y: auto;
+  border: 1px solid #0000000b;
+  border-bottom-left-radius: 10px; /* Rounded bottom left corner */
+  border-bottom-right-radius: 10px; /* Rounded bottom right corner */
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+tr{
+  top: 0;
+  z-index: 2;
+}
+
+tr td{
+  padding: 4px 8px;
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  transition: transform 0.2s ease-in-out
+}
+
+th {
+  background-color: rgb(145, 195, 243);
+  color: black;
+  top: 0;
+  z-index: 2;
+}
+
+td {
+  background-color: #fff;
+  position: relative;
+
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
 
 
-//   //------------------------------latest----------------------------------
-//   mat-form-field {
-//     width: 800%;
-//     margin-bottom: 20px;
-//   }
+thead th:first-child, tbody td:first-child {
+  left: 0;
+  z-index: 3;
+}
 
-//   button {
-//     margin-top: 20px;
-//   }
+.status {
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}
 
-// //------------------------------normal\
-// .row {
-//     display: flex;
-//     flex-direction: row;
-//   }
+.input-group {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+  margin-top: 15px;
+}
 
-//   .col {
-//     flex: 1;
-//     margin-right: 20px;
-//   }
-
-//   .col:last-child {
-//     margin-right: 0;
-//   }
-
-//   .full-width {
-//     width: 60%;
-//   }
+.input-group input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 200px;
+}
 
 
-//   // ----------------------------------------------------------------
-//   .container {
-//     display: flex;
-//     justify-content: center;
-//     align-items: center;
-//     height: 100vh;
-//   }
+.row {
+  display: flex;
+  flex-direction: row;
+}
 
-//   .stylish-card {
-//     width: 400px;
-//     max-width: 90%;
-//     padding: 20px;
-//   }
+.col {
+  flex: 1;
+  margin-right: 20px;
+  width: 100%;
+}
 
-//   form {
-//     display: flex;
-//     flex-direction: column;
-//   }
+.icon:hover{
+  color: red;
+  cursor: pointer;
+  transform: scale(1.5);
+}
 
-//   mat-form-field {
-//     width: 100%;
-//     margin-bottom: 20px;
-//   }
-
-//   button {
-//     align-self: flex-end;
-//   }
-// //
-// i:hover{
-//   cursor: pointer;
-//   transform: scale(1.2);
-// }
-
-
-// //
-// /* Style for the entire table */
-// .mat-table {
-//   width: 100%; /* Adjust the width as needed */
-//   border-collapse: collapse;
-//   margin-bottom: 20px; /* Add margin at the bottom */
-// }
-
-// /* Style for table headers */
-// .mat-header-cell {
-//   background-color: #f5f5f5; /* Header background color */
-//   font-weight: bold;
-//   padding: 10px;
-//   border-bottom: 2px solid #ddd; /* Header bottom border */
-// }
-
-// /* Style for table cells */
-// .mat-cell {
-//   padding: 10px;
-//   border-bottom: 1px solid #ddd; /* Cell bottom border */
-// }
-
-// /* Style for the row when hovered */
-// .mat-row:hover {
-//   background-color: #e0e0e0; /* Hover background color */
-// }
-
-// /* Style for the action icons */
-// .fa {
-//   cursor: pointer; /* Add pointer cursor to icons */
-//   margin-right: 5px; /* Add some spacing between icons */
-// }
