@@ -53,6 +53,8 @@ const transporter = nodemailer.createTransport({
     
     try {
         const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
+        console.log(pi);
+        
             if (pi) {
                 return res.send('Invoice is already saved');
             }
@@ -106,6 +108,7 @@ const transporter = nodemailer.createTransport({
       };
   
       await transporter.sendMail(mailOptions);
+      res.json({p: newPi, status: piStatus})
     }catch (error) {
         res.send(error.message)
     }
@@ -862,7 +865,8 @@ router.delete('/:id', async(req,res)=>{
 
 router.get('/dashboard', authenticateToken, async (req, res) => {
     let status = req.query.status;
-
+    console.log(status,"dssssssssssssssssssssssssssssss");
+    
     let where = {};
 
     if (status != '' && status != 'undefined') {
@@ -898,6 +902,8 @@ router.get('/dashboard', authenticateToken, async (req, res) => {
                 { model: User, as: 'am', attributes: ['name'] }
             ]
         });
+        console.log(pi,"_____________________________");
+        
         const totalCount = await PerformaInvoice.count({ where: where });
 
         if (req.query.pageSize && req.query.page && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {

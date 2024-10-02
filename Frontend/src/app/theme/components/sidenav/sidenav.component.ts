@@ -75,11 +75,13 @@ users:User;
 
 
   ngOnInit() {
+    console.log('hiii', this.role);
     const token = localStorage.getItem('token');
     if (token) {
       let user = JSON.parse(token);
       this.roleId = user.role;
       this.userId = user.id;
+      console.log('hiii', this.role);
       this.getUser()
       this.invoiceService.getRoleById(user.role).subscribe((res) => {
         this.role = res.roleName;
@@ -175,6 +177,10 @@ users:User;
     }
 
     else if (role === 'HR Administrator') {
+      console.log('hiii', this.role);
+
+
+
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
         item.title === 'Role' ||
@@ -185,12 +191,13 @@ users:User;
         // (item.title === 'Leave' && !item.parentId) ||
         // (item.title === 'Leave Request' && item.parentId === 8) ||
         // (item.title === 'User Leave' && item.parentId === 8) ||
-        // (item.title === 'Emergency Leave' && item.parentId === 8) ||
+        // (item.title === 'Emergency Leave' && item.parentId === 8)
         // (item.title === 'Payroll' && !item.parentId) ||
         // (item.title === 'Process Payroll' && item.parentId === 13) ||
         // (item.title === 'Salary Statement' && item.parentId === 13) ||
         // (item.title === 'YTD Reports' && item.parentId === 13)
       );
+      console.log('filteredMenuItems',this.filteredMenuItems);
     }
     else if (role === 'Super Administrator') {
 
