@@ -1,0 +1,70 @@
+.horizontal-tabs {
+    width: 100%;
+  }
+  
+  .horizontal-tabs .mat-tab-label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+  }
+  
+  .horizontal-tabs .mat-tab-label .mat-icon {
+    font-size: 24px; /* Adjust the icon size as needed */
+  }
+  
+  .horizontal-tabs .mat-tab-labels {
+    display: flex;
+    justify-content: space-evenly;
+    overflow-x: auto;
+    scrollbar-width: none; /* Hide scrollbar in Firefox */
+  }
+  
+  .horizontal-tabs .mat-tab-labels::-webkit-scrollbar {
+    display: none; /* Hide scrollbar in Chrome, Safari, and Opera */
+  }
+  
+  .horizontal-tabs .mat-tab-label-active .mat-icon {
+    color: var(--mat-primary); /* Change color for the active icon */
+  }
+  
+  .horizontal-tabs .mat-ink-bar {
+    background-color: var(--mat-primary); /* Customize the underline color */
+  }
+  
+  @media (max-width: 768px) {
+    .horizontal-tabs .mat-tab-label {
+      padding: 8px;
+    }
+  
+    .horizontal-tabs .mat-tab-label .mat-icon {
+      font-size: 20px; /* Reduce icon size on smaller screens */
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .horizontal-tabs .mat-tab-labels {
+      justify-content: space-around;
+    }
+  }
+  
+  .row {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .col {
+    flex: 1;
+    margin-right: 20px;
+  }
+  
+  @media(max-width:576px)
+  {
+      .box{
+          padding: 0px;
+          margin: 0px;
+          display: flex;
+          flex-direction: column;
+      }
+  }
+  

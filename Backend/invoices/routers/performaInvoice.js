@@ -4,14 +4,13 @@ const authenticateToken = require('../../middleware/authorization');
 const PerformaInvoice = require('../models/performaInvoice');
 const PerformaInvoiceStatus = require('../models/invoiceStatus');
 const User = require('../../users/models/user');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const sequelize = require('../../utils/db');
 const s3 = require('../../utils/s3bucket');
 const Role = require('../../users/models/role');
 const nodemailer = require('nodemailer');
 const TeamMember = require('../../users/models/teamMember');
 const Team = require('../../users/models/team');
-
 
 //   const transporter = nodemailer.createTransport({
 //     service: 'gmail',
@@ -51,12 +50,17 @@ const transporter = nodemailer.createTransport({
       poValue,
     } = req.body;
     const userId = req.user.id;
+    
+    try {
+        const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
+            if (pi) {
+                return res.send('Invoice is already saved');
+            }
+    } catch (error) {
+        res.send(error.message)
+    }
   
     try {
-
-        console.log("FROM MAIL---------------",process.env.EMAIL_USER)
-
-        
       // Save the new PI
       const newPi = new PerformaInvoice({
         piNo,
@@ -83,13 +87,10 @@ const transporter = nodemailer.createTransport({
         date: new Date(),
       });
       await piStatus.save();
-  
-      console.log("FROM MAIL---------------",process.env.EMAIL_USER)
 
       // Send email notification
       const kam = await User.findOne({ where: { id: kamId } });
       const kamEmail = kam.email;
-      console.log("KAM EMAIL:.............", kamEmail);
   
       const mailOptions = {
         from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
@@ -105,18 +106,22 @@ const transporter = nodemailer.createTransport({
       };
   
       await transporter.sendMail(mailOptions);
-  
-      res.json({ p: newPi, status: piStatus });
-    } catch (error) {
-      console.error('Error saving PI or sending email:', error);
-      res.status(500).send(error.message);
+    }catch (error) {
+        res.send(error.message)
     }
-  });
+})
 
 router.post('/saveByKAM', authenticateToken, async (req, res) => {
     const { piNo, url, amId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
     const userId = req.user.id;
-  
+    try {
+        const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
+            if (pi) {
+                return res.send('Invoice is already saved');
+            }
+    } catch (error) {
+        res.send(error.message)
+    }
     try {
       // Save the new PI
       const newPi = new PerformaInvoice({
@@ -178,7 +183,14 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
 router.post('/saveByAM', authenticateToken, async (req, res) => {
     const { piNo, url, accountantId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
     const userId = req.user.id;
-  
+    try {
+        const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
+            if (pi) {
+                return res.send('Invoice is already saved');
+            }
+    } catch (error) {
+        res.send(error.message)
+    }
     try {
       // Save the new PI
       const newPi = new PerformaInvoice({
@@ -857,7 +869,7 @@ router.get('/dashboard', authenticateToken, async (req, res) => {
         where.status = status;
     }
 
-    if (req.user.roleId !== 6) {
+    if (req.user.roleId !== 101) {
         const userId = req.user.id;
         where[Op.or] = [
             { salesPersonId: userId },

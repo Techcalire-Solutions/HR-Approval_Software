@@ -23,12 +23,16 @@
       <thead>
           <tr>
               <th>Permanent</th>
+              <th>Leave</th>
           </tr>
       </thead>
       <tbody>
         @for(emp of permanentEmp; track emp){
           <tr>
             <td>{{emp.name}}</td>
+            <td class="narrow-cell" style="width: 30px;" (click)="updateUserLeave(emp.id)">
+              <mat-icon>edit_note</mat-icon>
+            </td>
           </tr>
         }
 
