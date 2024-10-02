@@ -18,30 +18,14 @@ export const routes: Routes = [
         data: { breadcrumb: 'Role' }, canActivate: [AuthGuard]
       },
       {
-        path: 'applyLeave',
-        loadComponent: () => import('./leave/apply-leave/apply-leave.component').then(c => c.ApplyLeaveComponent),
-        data: { breadcrumb: 'ApplyLeave' }, canActivate: [AuthGuard]
-      },
-      {
-        path: 'addLeave',
-        loadComponent: () => import('./leave/add-leave/add-leave.component').then(c => c.AddLeaveComponent),
-        data: { breadcrumb: 'AddLeave' }, canActivate: [AuthGuard]
-      },
-
-      {
-        path: 'leaveRequest',
-        loadComponent: () => import('./leave/leave-request/leave-request.component').then(c => c.LeaveRequestComponent),
-        data: { breadcrumb: 'LeaveRequest' }, canActivate: [AuthGuard]
-      },
-      {
-        path: 'userLeave',
-        loadComponent: () => import('./leave/user-leave/user-leave.component').then(c => c.UserLeaveComponent),
-        data: { breadcrumb: 'LeaveRequest' }, canActivate: [AuthGuard]
-      },
-      {
         path: 'users',
         loadChildren: () => import('./users/user.routes').then(c => c.routes),
         data: { breadcrumb: 'Employees' }, canActivate: [AuthGuard]
+      },
+      {
+        path: 'leave',
+        loadChildren: () => import('./leave/leave.routes').then(c => c.routes),
+        data: { breadcrumb: 'Leave' }, canActivate: [AuthGuard]
       },
       {
         path: 'addApproval',
@@ -83,3 +67,4 @@ export const routes: Routes = [
     ]
   }
 ];
+

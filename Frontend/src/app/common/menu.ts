@@ -12,15 +12,16 @@ export const verticalMenuItems = [
   new Menu(4, 'Team', '/login/team', null, 'groups', null, false, 0),
 
   new Menu(5, 'Approval Uploads', '', null, 'upload_file', null, true, 0),
-  new Menu(6, 'Add', '/login/addApproval', null, 'add_circle', null, false, 5), 
+  new Menu(6, 'Add', '/login/addApproval', null, 'add_circle', null, false, 5),
   new Menu(7, 'View', '/login/viewApproval', null, 'visibility', null, false, 5),
 
   new Menu(8, 'Leave', '', null, 'upload_file', null, true, 0),
-  new Menu(9, 'Leave Request', '/login/leaveRequest', null, 'add_circle', null, false, 8),
-  new Menu(10, 'Emergency Leave', '/login/viewApproval', null, 'visibility', null, false, 8),
-  new Menu(11, 'Apply leave', '/login/applyLeave', null, 'visibility', null, false, 8),
-  new Menu(12, 'Leave Balance', '/login/viewApproval', null, 'visibility', null, false, 8),
-  
+  new Menu(9, 'Leave Request', '/login/leave/leaverequest', null, 'add_circle', null, false, 8),
+  new Menu(10, 'Emergency Leave', '/login/leave/leaverequest', null, 'visibility', null, false, 8),
+  new Menu(11, 'Apply Leave', '/login/leave', null, 'visibility', null, false, 8),
+  new Menu(12, 'Leave Balance', '/login/leave/leaverequest', null, 'visibility', null, false, 8),
+
+
   new Menu(13, 'Payroll', '', null, 'upload_file', null, true, 0),
   new Menu(14, 'Process Payroll', '/login/addApproval', null, 'add_circle', null, false, 13),
   new Menu(15, 'Salary Statement', '/login/viewApproval', null, 'visibility', null, false, 13),
