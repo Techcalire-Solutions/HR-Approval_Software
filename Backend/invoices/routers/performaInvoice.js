@@ -52,19 +52,15 @@ const transporter = nodemailer.createTransport({
     const userId = req.user.id;
     
     try {
-    const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
-      if (pi) {
-          return res.send('Invoice is already saved');
-      }
+        const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
+            if (pi) {
+                return res.send('Invoice is already saved');
+            }
     } catch (error) {
         res.send(error.message)
     }
   
     try {
-
-        console.log("FROM MAIL---------------",process.env.EMAIL_USER)
-
-        
       // Save the new PI
       const newPi = new PerformaInvoice({
         piNo,
@@ -91,13 +87,10 @@ const transporter = nodemailer.createTransport({
         date: new Date(),
       });
       await piStatus.save();
-  
-      console.log("FROM MAIL---------------",process.env.EMAIL_USER)
 
       // Send email notification
       const kam = await User.findOne({ where: { id: kamId } });
       const kamEmail = kam.email;
-      console.log("KAM EMAIL:.............", kamEmail);
   
       const mailOptions = {
         from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
@@ -113,11 +106,22 @@ const transporter = nodemailer.createTransport({
       };
   
       await transporter.sendMail(mailOptions);
+    }catch (error) {
+        res.send(error.message)
+    }
+})
 
 router.post('/saveByKAM', authenticateToken, async (req, res) => {
     const { piNo, url, amId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
     const userId = req.user.id;
-  
+    try {
+        const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
+            if (pi) {
+                return res.send('Invoice is already saved');
+            }
+    } catch (error) {
+        res.send(error.message)
+    }
     try {
       // Save the new PI
       const newPi = new PerformaInvoice({
@@ -179,7 +183,14 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
 router.post('/saveByAM', authenticateToken, async (req, res) => {
     const { piNo, url, accountantId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
     const userId = req.user.id;
-  
+    try {
+        const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
+            if (pi) {
+                return res.send('Invoice is already saved');
+            }
+    } catch (error) {
+        res.send(error.message)
+    }
     try {
       // Save the new PI
       const newPi = new PerformaInvoice({
