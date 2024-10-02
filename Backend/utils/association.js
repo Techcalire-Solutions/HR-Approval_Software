@@ -23,15 +23,16 @@ async function syncModel() {
     
 
     const roleData = [
-        {roleName: 'Sales Executive',abbreviation:'SE'}, //1
-        {roleName: 'Key Account Manager',abbreviation:'KAM'}, //2
-        {roleName: 'Manager',abbreviation:'Manager'}, //3
-        {roleName: 'Accountant',abbreviation:'Accountant'}, //4
-        {roleName: 'Team Lead',abbreviation:'Team Lead'}, //5
-        {roleName: 'HR',abbreviation:'HR'}, //7
-        {id:101, roleName: 'Administrator',abbreviation:'Approval Admin'}, //6
-        {id:102, roleName: 'HR Administrator',abbreviation:'HR Admin'}, //9
-        {id:103, roleName: 'Super Administrator',abbreviation:'Super Admin'}, //8
+        {id: 1, roleName: 'Sales Executive',abbreviation:'SE'}, 
+        {id: 2, roleName: 'Key Account Manager',abbreviation:'KAM'}, 
+        {id: 3, roleName: 'Manager',abbreviation:'Manager'},
+        {id: 4, roleName: 'Accountant',abbreviation:'Accountant'}, 
+        {id: 5, roleName: 'Team Lead',abbreviation:'Team Lead'}, 
+        {id: 6, roleName: 'HR',abbreviation:'HR'}, 
+
+        {id:101, roleName: 'Administrator',abbreviation:'Approval Admin'}, 
+        {id:102, roleName: 'HR Administrator',abbreviation:'HR Admin'}, 
+        {id:103, roleName: 'Super Administrator',abbreviation:'Super Admin'}, 
     ]
     const role = await Role.findAll({});
     if(role.length === 0){
