@@ -22,6 +22,13 @@ import { SafePipe } from '../../add-approval/view-invoices/safe.pipe';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+// Custom validator to check if at least one session is selected
+function sessionSelectionValidator(group: FormGroup) {
+  const session1 = group.get('session1')?.value;
+  const session2 = group.get('session2')?.value;
+
+  return (session1 || session2) ? null : { sessionRequired: true };
+}
 @Component({
   selector: 'app-add-leave',
   standalone: true,
@@ -52,6 +59,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
   ],
 })
 export class AddLeaveComponent {
+  today: Date = new Date();
 
   leaveRequestForm: FormGroup;
   leaveTypes: any[] = [];
@@ -101,11 +109,13 @@ router = inject(Router)
       const leaveDateGroup = this.fb.group({
         date: [formatDate(dt, 'yyyy-MM-dd', 'en-US')],
         session1: [false],
-        session2: [false],
-      });
+        session2: [false]
+      }, { validators: sessionSelectionValidator }); // Apply validator correctly here
+
       leaveDatesArray.push(leaveDateGroup);
     }
   }
+
 
   onSessionChange(index: number, session: string) {
     const leaveDateGroup = this.leaveDates.at(index) as FormGroup;
@@ -155,6 +165,11 @@ router = inject(Router)
           console.log(res)
          })
          }
+
+
+  isDateBeforeToday(date: Date): boolean {
+    return new Date(date).getTime() < this.today.getTime();
+  }
   }
 
 
