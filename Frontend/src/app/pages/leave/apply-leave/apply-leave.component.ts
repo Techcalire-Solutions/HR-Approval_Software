@@ -73,97 +73,42 @@ export class ApplyLeaveComponent implements OnInit {
   leaveService = inject(LeaveService)
 userId:number
   ngOnInit(){
-    this.getRoles()
     this.getLeaveByUser()
-
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
-    console.log(user)
     this.userId = user.id;
-   console.log(this.userId)
-    // Check if userId is defined before calling getLeaveByUser
-    if (this.userId) {
-      this.getLeaveByUser(); // Call only if userId is valid
-  } else {
-      console.error('User ID is undefined');
-      // Handle case where userId is undefined (e.g., show a message or redirect)
-  }
+   this.getLeaveByUser();
   }
 
-  roles: Role[] = [];
-  roleSub!: Subscription;
-  getRoles(){
-    this.roleSub = this.roleService.getRole(this.searchText, this.currentPage, this.pageSize).subscribe((res: any)=>{
-      this.roles = res.items;
-      this.totalItems = res.count;
-      console.log(this.roles);
-    })
+  ngOnDestroy(): void {
+      this.leaveSub.unsubscribe();
   }
+
+
+
 leaves:any[]=[]
   leaveSub :Subscription
   private getLeaveByUser() {
-    if (!this.userId) return; // If userId is not available, don't proceed
+    if (!this.userId) return;
 
     this.leaveSub = this.leaveService.getLeavesByUser(this.userId).subscribe(
       (res) => {
-        console.log('Fetched leaves for user', this.userId, res);
-        this.leaves = res; // Store the leave data in the component
+        this.leaves = res;
       },
       (error) => {
-        console.error('Error fetching leaves:', error);
         this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
       }
     );
   }
 
-
-  // Function to check if the role is restricted
-  isRestrictedRole(roleName: string): boolean {
-    const restrictedRoles = [
-      'Sales Executive',
-      'Key Account Manager',
-      'Manager',
-      'Accountant',
-      'Team Lead',
-      'Administrator',
-      'Approval Administrator',
-      'HR Administrator',
-      'Super Administrator',
-      'HR'
-    ];
-    return restrictedRoles.includes(roleName);
-  }
-
-  // Other functions like openRoleDialog, deleteRole...
-
   public searchText!: string;
   search(event: Event){
     this.searchText = (event.target as HTMLInputElement).value.trim()
-    this.getRoles()
-  }
-
-
-  delete!: Subscription;
-  deleteRole(id: number){
-    let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
-    dialogRef.afterClosed().subscribe(res => {
-      if(res){
-        this.delete = this.roleService.deleteRole(id).subscribe(res => {
-          this.snackBar.open("Role deleted successfully...","" ,{duration:3000})
-          this.getRoles()
-        });
-      }
-    });
-  }
-
-openRoleDialog(){
-    console.log("clkickeddddddddddddd")
-    this.router.navigate(['/addLeave'])
+    this.getLeaveByUser()
   }
 
   openApplyLeave(){
-    console.log("clkickeddddddddddddd")
-    this.router.navigate(['/login/addLeave'])
+    this.router.navigate(['/login/leave/add'])
 
   }
 
@@ -174,21 +119,15 @@ openRoleDialog(){
   onPageChange(event: PageEvent): void {
     this.currentPage = event.pageIndex + 1;
     this.pageSize = event.pageSize;
-    this.getRoles();
+    this.getLeaveByUser()
   }
 
-  ngOnDestroy(): void {
-    this.roleSub?.unsubscribe();
-    this.delete?.unsubscribe();
 
-      this.leaveSub.unsubscribe();
-
-  }
 
   editLeave(id:number){
 
   }
   deleteLeave(id:number){
-    
+
   }
 }
