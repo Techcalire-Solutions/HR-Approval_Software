@@ -3,7 +3,7 @@ const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const UserLeave = require('../models/userLeave');
 const User = require('../../users/models/user');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const cron = require('node-cron');
 const moment = require('moment');
 
@@ -36,25 +36,14 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-// Get user leave by ID
-router.get('/:id',authenticateToken, async (req, res) => {
-  const { id } = user.id; // Get the ID from the request parameters
-
-  console.log("USERID",id)
-
+router.get('/byuserandtype/:userid/:typeid', authenticateToken, async (req, res) => {
   try {
-    // Find the UserLeave by primary key (id)
-    const userLeave = await UserLeave.findByPk(id);
-
-    if (!userLeave) {
-      return res.status(404).json({ message: 'UserLeave record not found' });
-    }
-
-    // Return the found record
-    res.json(userLeave);
+    const userLeaves = await UserLeave.findOne({
+      where: { userId : req.params.userid, leaveTypeId: req.params.typeid}
+    });
+    res.send(userLeaves);
   } catch (error) {
-    console.error('Error fetching UserLeave:', error);
-    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    res.status(500).send({ error: error.message });
   }
 });
 

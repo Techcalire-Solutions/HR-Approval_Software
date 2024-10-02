@@ -1,1 +1,46 @@
-<p>user-leave works!</p>
+<div class="reset-password-container">
+    <mat-toolbar class="bg-blue-900">
+      <p style="color:rgb(11, 70, 118)"> Update Leave Count </p>
+      <!-- <button mat-mini-fab color="primary" type="button" style="margin-left: auto;"
+        aria-label="Example icon button with a home icon" class="d-block mr-0 ml-auto" (click)="onCancelClick()"> -->
+        <mat-icon (click)="onCancelClick()" style="margin-left: auto;">close</mat-icon>
+      <!-- </button> -->
+    </mat-toolbar>
+    <form [formGroup]="mainForm" (ngSubmit)="onSubmit()">
+        <mat-card style="width: 100%;">         
+            <div fxLayout="column" class="form-field-outer" style="margin-top: 20px; overflow-y: auto; max-height: 400px;">
+              <div formArrayName="forms">
+                @for(uploadForm of newData().controls; let i = $index; track i){
+                  <div [formGroupName]="i" class="form-instance">
+                      <div class="row" style="margin-top: 20px;">
+                        <div class="col">
+                          <mat-form-field class="w-100" appearance="outline">
+                              <mat-label>Leave Type</mat-label>
+                              <input matInput formControlName="typeName" required>
+                            </mat-form-field>
+                        </div>
+  
+                        <div class="col">
+                          <!-- <button mat-raised-button color="primary" type="button" (click)="onSubmit(i)" 
+                          [disabled]="clickedForms[i] || !uploadForm.valid">
+                            @if (editStatus[i]) {
+                              Update
+                          } @else {
+                              Save
+                          }
+                          </button> -->
+                          <button mat-icon-button color="warn" (click)="removeData(i)">
+                            <mat-icon>remove_circle</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                }
+              </div>
+              <button mat-raised-button color="primary" (click)="addNew()">New Line</button>
+              <!-- <button mat-raised-button color="warn" (click)="completeForm()"
+              [disabled]="!mainForm.get('uploadForms')?.valid || !isAnyFormClicked()">Complete</button> -->
+            </div>
+          </mat-card>
+    </form>
+  </div>

@@ -43,8 +43,7 @@ export class ResetPasswordComponent {
     const confirmPassword = this.form.get('confirmPassword')?.value;
     this.passwordMismatch = password !== confirmPassword;
   }
-
-
+  
   generateRandomPassword() {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
     let password = '';
