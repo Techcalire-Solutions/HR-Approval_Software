@@ -136,7 +136,7 @@ router.post('/', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error:', error);
     if (!res.headersSent) {
-      res.status(500).json({ message: 'Internal Server Error', error: error.message });
+      res.send(error.message)
     }
   }
 });
@@ -151,29 +151,32 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-router.get('/:id', async (req, res) => {
-  const id = req.body.id;
 
-  // Validate id
-  if (!id || isNaN(id)) {
-    return res.status(400).json({ message: 'Invalid leave ID' });
-  }
 
-  try {
-    const leaveRecord = await Leave.findOne({
-      where: { id: id }
+// Get leaves for a specific user by userId
+router.get('/user/:userId', (req, res) => {
+  const userId = req.params.userId;
+
+  // Use Sequelize to fetch leaves for the user
+  Leave.findAll({ where: { userId },
+    include:[
+      {
+        model :LeaveType,
+        attributes:['id','leaveTypeName']
+      }
+    ]
+   })
+    .then((leaves) => {
+      // Send the response back with the found leaves
+      res.json(leaves);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ message: 'Error fetching leaves' });
     });
-
-    if (!leaveRecord) {
-      return res.status(404).json({ message: 'Leave record not found' });
-    }
-
-    return res.status(200).json(leaveRecord);
-  } catch (error) {
-    console.error('Error fetching leave record:', error);
-    return res.status(500).json({ message: 'Server error' });
-  }
 });
+
+
 
 
 

@@ -1,49 +1,47 @@
 <mat-card class="leave-card">
-  <mat-toolbar class="table-header">
-    <div class="row toolbar-row">
-      <div class="col">
-        <h1 class="header-title">APPLY LEAVE</h1>
-      </div>
-      <div class="col exit-icon" (click)="goBack()">
-        <span class="material-icons">exit_to_app</span>
-      </div>
-    </div>
-  </mat-toolbar>
-
   <mat-card-content class="form-wrapper">
     <form [formGroup]="leaveRequestForm" (ngSubmit)="onSubmit()">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Leave Type</mat-label>
-        <mat-select formControlName="leaveTypeId" placeholder="Select leave type" required>
-          <mat-option *ngFor="let leaveType of leaveTypes" [value]="leaveType.id">
-            {{ leaveType.leaveTypeName }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+      <div class="form-row">
+        <!-- Leave Type -->
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Leave Type</mat-label>
+          <mat-select formControlName="leaveTypeId" placeholder="Select leave type" required>
+            <mat-option *ngFor="let leaveType of leaveTypes" [value]="leaveType.id">
+              {{ leaveType.leaveTypeName }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Start Date</mat-label>
-        <input matInput [matDatepicker]="startDatePicker" formControlName="startDate" placeholder="Choose start date" (dateChange)="onDateChange()" required>
-        <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
-        <mat-datepicker #startDatePicker></mat-datepicker>
-      </mat-form-field>
+        <!-- Start Date -->
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Start Date</mat-label>
+          <input matInput [matDatepicker]="startDatePicker" formControlName="startDate" placeholder="Choose start date" (dateChange)="onDateChange()" required  [min]="today">
+          <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #startDatePicker></mat-datepicker>
+        </mat-form-field>
+      </div>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>End Date</mat-label>
-        <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" placeholder="Choose end date" (dateChange)="onDateChange()" required>
-        <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
-        <mat-datepicker #endDatePicker></mat-datepicker>
-      </mat-form-field>
+      <div class="form-row">
+        <!-- End Date -->
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>End Date</mat-label>
+          <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" placeholder="Choose end date" (dateChange)="onDateChange()" required  [min]="today">
+          <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #endDatePicker></mat-datepicker>
+        </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Reason</mat-label>
-        <textarea matInput formControlName="notes" placeholder="Enter reason" required></textarea>
-      </mat-form-field>
+        <!-- Reason -->
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Reason</mat-label>
+          <textarea matInput formControlName="notes" placeholder="Enter reason" required></textarea>
+        </mat-form-field>
+      </div>
 
       <div formArrayName="leaveDates">
         <div *ngFor="let leaveDate of leaveDates.controls; let i = index" [formGroupName]="i" class="leave-session-card">
           <mat-card>
-            <mat-card-title>{{ leaveDate.get('date')?.value }}</mat-card-title>
+            <mat-card-title>{{ leaveDate.get('date')?.value | date:'dd-MM-yyyy' }}</mat-card-title>
+
             <mat-checkbox [checked]="leaveDate.get('session1')?.value" (change)="onSessionChange(i, 'session1')">
               Session 1
             </mat-checkbox>
@@ -51,11 +49,15 @@
               Session 2
             </mat-checkbox>
           </mat-card>
+            <!-- Display error if no session is selected -->
+      <!-- <div *ngIf="leaveDate.errors?.sessionRequired" class="error-text">
+        At least one session must be selected.
+      </div> -->
         </div>
       </div>
-
-      <button mat-raised-button type="submit" class="submit-btn" [disabled]="!leaveRequestForm.valid || isLoading">
-        <span class="material-icons">save</span> Save
+<br>
+      <button mat-raised-button type="submit" color="primary" class="submit-btn" [disabled]="!leaveRequestForm.valid || isLoading">
+       SAVE
       </button>
     </form>
   </mat-card-content>
