@@ -35,7 +35,7 @@ export const routes: Routes = [
       {
         path: 'users',
         loadChildren: () => import('./users/user.routes').then(c => c.routes),
-        data: { breadcrumb: 'Users' }, canActivate: [AuthGuard]
+        data: { breadcrumb: 'Employees' }, canActivate: [AuthGuard]
       },
       {
         path: 'addApproval',
