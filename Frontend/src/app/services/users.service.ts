@@ -149,4 +149,21 @@ export class UsersService {
   resetPassword(id: number, data: any){
     return this.http.patch(this.apiUrl + '/user/resetpassword/' + id, data);
   }
+
+  updateUserStatus(data: any, id: number): Observable<any> {
+    return this.http.patch( this.apiUrl+'/user/statusupdate/' + id, data);
+  }
+
+  getProbationEmployees(): Observable<User[]>{
+    return this.http.get<User[]>(this.apiUrl + '/user/underprobation')
+  }
+
+  getConfirmedEmployees(): Observable<User[]>{
+    return this.http.get<User[]>(this.apiUrl + '/user/confirmed')
+  }
+
+  confirmEmployee(id: number): Observable<any> {
+    return this.http.get( this.apiUrl+'/user/confirmemployee/' + id);
+  }
+
 }
