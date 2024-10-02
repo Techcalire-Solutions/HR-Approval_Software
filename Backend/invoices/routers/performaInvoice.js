@@ -34,6 +34,8 @@ const transporter = nodemailer.createTransport({
     },
   });
 
+
+
   
   router.post('/save', authenticateToken, async (req, res) => {
     const {
@@ -51,6 +53,10 @@ const transporter = nodemailer.createTransport({
     const userId = req.user.id;
   
     try {
+
+        console.log("FROM MAIL---------------",process.env.EMAIL_USER)
+
+        
       // Save the new PI
       const newPi = new PerformaInvoice({
         piNo,
@@ -78,6 +84,8 @@ const transporter = nodemailer.createTransport({
       });
       await piStatus.save();
   
+      console.log("FROM MAIL---------------",process.env.EMAIL_USER)
+
       // Send email notification
       const kam = await User.findOne({ where: { id: kamId } });
       const kamEmail = kam.email;
