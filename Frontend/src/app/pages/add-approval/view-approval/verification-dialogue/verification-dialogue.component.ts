@@ -73,7 +73,7 @@ export class VerificationDialogueComponent {
   userSub!: Subscription;
   am: User[] = [];
   getAm() {
-    this.userSub = this.loginService.getUserByRole(4).subscribe(data => {
+    this.userSub = this.loginService.getUserByRole(3).subscribe(data => {
 
       this.am = data;
       });
@@ -82,7 +82,7 @@ export class VerificationDialogueComponent {
 
 
   getMa(){
-    this.userSub = this.loginService.getUserByRole(3).subscribe(data => {
+    this.userSub = this.loginService.getUserByRole(4).subscribe(data => {
       this.am = data;
     });
   }
