@@ -56,10 +56,10 @@ try {
 
 
     res.json({ p: newPi, status: piStatus });
-} catch (error) {
-    console.error('Error saving PI or sending email:', error);
-    res.status(500).send(error.message);
-}
+    } catch (error) {
+        console.error('Error saving PI or sending email:', error);
+        res.status(500).send(error.message);
+    }
 });
 
 router.post('/saveByKAM', authenticateToken, async (req, res) => {
