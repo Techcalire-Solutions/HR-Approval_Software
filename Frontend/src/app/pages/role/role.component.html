@@ -22,15 +22,16 @@
       <table>
         <thead>
           <tr>
+            <th></th>
             <th> Designation </th>
             <th> Manage </th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let role of roles">
+            <td>{{ role.id }}</td>
             <td>{{ role.roleName }}</td>
             <td>
-              <!-- Disable edit and delete buttons for specific roles -->
               <button
                 mat-icon-button
                 (click)="openRoleDialog(role)"
