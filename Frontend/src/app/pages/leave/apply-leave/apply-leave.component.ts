@@ -79,7 +79,15 @@ userId:number
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
     console.log(user)
-   this.userId = user.id
+    this.userId = user.id;
+   console.log(this.userId)
+    // Check if userId is defined before calling getLeaveByUser
+    if (this.userId) {
+      this.getLeaveByUser(); // Call only if userId is valid
+  } else {
+      console.error('User ID is undefined');
+      // Handle case where userId is undefined (e.g., show a message or redirect)
+  }
   }
 
   roles: Role[] = [];
@@ -91,14 +99,21 @@ userId:number
       console.log(this.roles);
     })
   }
+leaves:any[]=[]
+  leaveSub :Subscription
+  private getLeaveByUser() {
+    if (!this.userId) return; // If userId is not available, don't proceed
 
-  leaves :Subscription
-  getLeaveByUser(){
-    this.leaves = this.leaveService.getLeaveByUser(this.userId).subscribe((res)=>{
-      console.log(res)
-
-    })
-
+    this.leaveSub = this.leaveService.getLeavesByUser(this.userId).subscribe(
+      (res) => {
+        console.log('Fetched leaves for user', this.userId, res);
+        this.leaves = res; // Store the leave data in the component
+      },
+      (error) => {
+        console.error('Error fetching leaves:', error);
+        this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
+      }
+    );
   }
 
 
@@ -165,5 +180,15 @@ openRoleDialog(){
   ngOnDestroy(): void {
     this.roleSub?.unsubscribe();
     this.delete?.unsubscribe();
+
+      this.leaveSub.unsubscribe();
+
+  }
+
+  editLeave(id:number){
+
+  }
+  deleteLeave(id:number){
+    
   }
 }
