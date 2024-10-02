@@ -136,9 +136,9 @@ users:User;
         item.title === 'Dashboard' ||
         (item.title === 'Approval Uploads' && !item.parentId) ||
         (item.title === 'Add' && item.parentId === 5) ||
-        (item.title === 'View' && item.parentId === 5)
+        (item.title === 'View' && item.parentId === 5) 
         // (item.title === 'Leave' && !item.parentId)||
-        // (item.title === 'Apply leave' && item.parentId === 8)||
+        // (item.title === 'Apply leave' && item.parentId === 8)
         // (item.title === 'Leave Balance' && item.parentId === 8)
         // (item.title === 'Payroll' && !item.parentId) ||
         // (item.title === 'Payslip' && item.parentId === 13) ||

@@ -37,8 +37,8 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // Get user leave by ID
-router.get('/:id', async (req, res) => {
-  const { id } = req.params; // Get the ID from the request parameters
+router.get('/:id',authenticateToken, async (req, res) => {
+  const { id } = user.id; // Get the ID from the request parameters
 
   console.log("USERID",id)
 

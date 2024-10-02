@@ -23,6 +23,12 @@ export const routes: Routes = [
         data: { breadcrumb: 'ApplyLeave' }, canActivate: [AuthGuard]
       },
       {
+        path: 'addLeave',
+        loadComponent: () => import('./leave/add-leave/add-leave.component').then(c => c.AddLeaveComponent),
+        data: { breadcrumb: 'AddLeave' }, canActivate: [AuthGuard]
+      },
+
+      {
         path: 'leaveRequest',
         loadComponent: () => import('./leave/leave-request/leave-request.component').then(c => c.LeaveRequestComponent),
         data: { breadcrumb: 'LeaveRequest' }, canActivate: [AuthGuard]
