@@ -126,7 +126,7 @@ export class RoleComponent implements OnInit, OnDestroy {
   }
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  pageSize = 5;
+  pageSize = 10;
   currentPage = 1;
   totalItems = 0;
   onPageChange(event: PageEvent): void {
