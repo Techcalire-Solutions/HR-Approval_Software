@@ -41,9 +41,9 @@ async function syncModel() {
     }
 
     const userData = [    
-        { name: "HR Admin", email: "hradmin@gmail.com", phoneNumber:"1234567890", password: "hradmin@123", roleId: 102, status: true, empNo: 'OAC-2024-3' },
-        { name: "Approval Admin", email: "admin@gmail.com", phoneNumber:"1234567890", password: "admin@123", roleId: 101, status: true, empNo: 'OAC-2024-2' },
-        { name: "Super Admin", email: "superadmin@gmail.com", phoneNumber:"1234567890", password: "superadmin@123", roleId: 103, status: true, empNo: 'OAC-2024-1' },
+        { name: "HR Admin", email: "hradmin@gmail.com", phoneNumber:"1234567890", password: "hradmin@123", roleId: 102, status: true, empNo: 'OAC-2024-3', isTemporary: false },
+        { name: "Approval Admin", email: "admin@gmail.com", phoneNumber:"1234567890", password: "admin@123", roleId: 101, status: true, empNo: 'OAC-2024-2' , isTemporary: false},
+        { name: "Super Admin", email: "superadmin@gmail.com", phoneNumber:"1234567890", password: "superadmin@123", roleId: 103, status: true, empNo: 'OAC-2024-1' , isTemporary: false},
 
 
         { name: "Ashbin", email: "ashbin@gmail.com", phoneNumber:"9846335577", password: "ashbin@123", roleId: 1, teamId:1,status: true, empNo: 'OAC-2024-001' },
