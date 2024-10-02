@@ -5,6 +5,8 @@ import { User } from '../../../common/interfaces/user';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { UserLeaveComponent } from '../../leave/user-leave/user-leave.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-confirmation',
@@ -47,6 +49,16 @@ export class ConfirmationComponent implements OnInit{
       this.snackBar.open(`${name} is confirmed`,"" ,{duration:3000})
       this.getProbationEmployees();
       this.getPermanentEmployees();
+    })
+  }
+
+  dialog = inject(MatDialog);
+  updateUserLeave(id: number){
+    const dialogRef = this.dialog.open(UserLeaveComponent, {
+      width: '450px',
+      data: {id: id}
+    });dialogRef.afterClosed().subscribe((result) => {
+
     })
   }
 }
