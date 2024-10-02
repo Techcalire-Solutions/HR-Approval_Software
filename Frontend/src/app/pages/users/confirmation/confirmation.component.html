@@ -1,0 +1,37 @@
+<div class="table-container">
+  <table class="styled-table">
+    <thead>
+        <tr>
+            <th class="wide-header">Probation</th>
+            <th class="narrow-header"></th>
+        </tr>
+    </thead>
+    <tbody>
+      @for (temp of probEmp; track temp) {
+        <tr>
+          <td class="wide-cell">{{ temp.name }}</td>
+          <td class="narrow-cell" style="width: 30px;" (click)="confirmEmployee(temp.id, temp.empNo)">
+            <mat-icon>arrow_forward</mat-icon>
+          </td>
+      </tr>
+      }
+
+    </tbody>
+</table>
+  
+  <table class="styled-table">
+      <thead>
+          <tr>
+              <th>Permanent</th>
+          </tr>
+      </thead>
+      <tbody>
+        @for(emp of permanentEmp; track emp){
+          <tr>
+            <td>{{emp.name}}</td>
+          </tr>
+        }
+
+      </tbody>
+  </table>
+</div>

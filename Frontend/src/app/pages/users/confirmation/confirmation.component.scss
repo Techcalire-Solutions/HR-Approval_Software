@@ -1,0 +1,37 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+.table-container {
+  display: flex;
+  justify-content: center; /* Centers the table in the container */
+  margin: 20px; /* Adds space around the table */
+}
+
+.styled-table {
+  border-collapse: collapse;
+  width: 80%;
+}
+
+.styled-table th, .styled-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.styled-table th {
+  background-color: #f2f2f2;
+  color: #333;
+}
+
+.styled-table tr:hover {
+  background-color: #f1f1f1; /* Highlight row on hover */
+}
+
+.wide-header, .wide-cell {
+  width: auto; /* Increased width for the first column */
+}
+
+.narrow-header, .narrow-cell {
+  width: 30px; /* Decreased width for the second column */
+}

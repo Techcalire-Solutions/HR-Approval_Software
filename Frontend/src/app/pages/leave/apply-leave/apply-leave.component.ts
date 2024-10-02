@@ -1,146 +1,169 @@
-import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { LeaveService } from '../../../services/leave.service';
-import { CommonModule, formatDate } from '@angular/common';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { SafePipe } from '../../add-approval/view-invoices/safe.pipe';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { NativeDateAdapter } from '@angular/material/core';
 import { MAT_NATIVE_DATE_FORMATS } from '@angular/material/core';
+import {MatTableModule} from '@angular/material/table';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { RoleService } from '@services/role.service';
+import { SettingsService } from '@services/settings.service';
+import { UsersService } from '@services/users.service';
+import { Subscription } from 'rxjs';
+import { Role } from '../../../common/interfaces/role';
+import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { FlexLayoutModule } from '@ngbracket/ngx-layout';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { PipesModule } from '../../../theme/pipes/pipes.module';
+import { UserDialogComponent } from '../../users/user-dialog/user-dialog.component';
+import { Router } from '@angular/router';
+import { LeaveService } from '@services/leave.service';
 
 @Component({
   selector: 'app-apply-leave',
   standalone: true,
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
+    MatTableModule,
+    MatInputModule ,
     FormsModule,
-    MatFormFieldModule,
-    MatCardModule,
-    MatToolbarModule,
-    MatIconModule,
+    FlexLayoutModule,
     MatButtonModule,
-    MatSelectModule,
+    MatButtonToggleModule,
+    MatIconModule,
+    MatFormFieldModule,
     MatInputModule,
-    MatProgressBarModule,
     MatProgressSpinnerModule,
-    MatCheckboxModule,
-    SafePipe,
-    MatDatepickerModule
+    MatMenuModule,
+    MatSlideToggleModule,
+    MatCardModule,
+    NgxPaginationModule,
+    PipesModule,
+    DatePipe,
+    UserDialogComponent,
+    CommonModule,
+    MatPaginatorModule
   ],
   providers: [
     { provide: DateAdapter, useClass: NativeDateAdapter },
-    { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
+    { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS },
+    UsersService
   ],
   templateUrl: './apply-leave.component.html',
   styleUrls: ['./apply-leave.component.scss']
 })
 export class ApplyLeaveComponent implements OnInit {
-  leaveRequestForm: FormGroup;
-  leaveTypes: any[] = [];
-  isLoading = false;
+  public page:any;
+  snackBar = inject(MatSnackBar);
+  roleService = inject(RoleService);
+  settingsService = inject(SettingsService);
+  dialog = inject(MatDialog);
+  usersService = inject(UsersService);
+  router = inject(Router)
+  leaveService = inject(LeaveService)
+userId:number
+  ngOnInit(){
+    this.getRoles()
+    this.getLeaveByUser()
 
-  constructor(private fb: FormBuilder, private leaveService: LeaveService) {
-    this.leaveRequestForm = this.fb.group({
-      leaveTypeId: ['', Validators.required],
-      startDate: ['', Validators.required],
-      endDate: ['', Validators.required],
-      notes: ['', Validators.required],
-      leaveDates: this.fb.array([]),
+    const token: any = localStorage.getItem('token')
+    let user = JSON.parse(token)
+    console.log(user)
+   this.userId = user.id
+  }
+
+  roles: Role[] = [];
+  roleSub!: Subscription;
+  getRoles(){
+    this.roleSub = this.roleService.getRole(this.searchText, this.currentPage, this.pageSize).subscribe((res: any)=>{
+      this.roles = res.items;
+      this.totalItems = res.count;
+      console.log(this.roles);
+    })
+  }
+
+  leaves :Subscription
+  getLeaveByUser(){
+    this.leaves = this.leaveService.getLeaveByUser(this.userId).subscribe((res)=>{
+      console.log(res)
+
+    })
+
+  }
+
+
+  // Function to check if the role is restricted
+  isRestrictedRole(roleName: string): boolean {
+    const restrictedRoles = [
+      'Sales Executive',
+      'Key Account Manager',
+      'Manager',
+      'Accountant',
+      'Team Lead',
+      'Administrator',
+      'Approval Administrator',
+      'HR Administrator',
+      'Super Administrator',
+      'HR'
+    ];
+    return restrictedRoles.includes(roleName);
+  }
+
+  // Other functions like openRoleDialog, deleteRole...
+
+  public searchText!: string;
+  search(event: Event){
+    this.searchText = (event.target as HTMLInputElement).value.trim()
+    this.getRoles()
+  }
+
+
+  delete!: Subscription;
+  deleteRole(id: number){
+    let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+    dialogRef.afterClosed().subscribe(res => {
+      if(res){
+        this.delete = this.roleService.deleteRole(id).subscribe(res => {
+          this.snackBar.open("Role deleted successfully...","" ,{duration:3000})
+          this.getRoles()
+        });
+      }
     });
   }
 
-  ngOnInit() {
-    this.getLeaveType();
+openRoleDialog(){
+    console.log("clkickeddddddddddddd")
+    this.router.navigate(['/addLeave'])
   }
 
-  get leaveDates(): FormArray {
-    return this.leaveRequestForm.get('leaveDates') as FormArray;
+  openApplyLeave(){
+    console.log("clkickeddddddddddddd")
+    this.router.navigate(['/login/addLeave'])
+
   }
 
-  onDateChange() {
-    const startDate = this.leaveRequestForm.get('startDate')!.value;
-    const endDate = this.leaveRequestForm.get('endDate')!.value;
-
-    if (startDate && endDate && this.validateDateRange()) {
-      this.updateLeaveDates(new Date(startDate), new Date(endDate));
-    }
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  pageSize = 5;
+  currentPage = 1;
+  totalItems = 0;
+  onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.getRoles();
   }
 
-  validateDateRange(): boolean {
-    const startDate = this.leaveRequestForm.get('startDate')!.value;
-    const endDate = this.leaveRequestForm.get('endDate')!.value;
-    return new Date(startDate) <= new Date(endDate);
-  }
-
-  updateLeaveDates(start: Date, end: Date) {
-    const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
-    leaveDatesArray.clear();
-
-    for (let dt = new Date(start); dt <= end; dt.setDate(dt.getDate() + 1)) {
-      const leaveDateGroup = this.fb.group({
-        date: [formatDate(dt, 'yyyy-MM-dd', 'en-US')],
-        session1: [false],
-        session2: [false],
-      });
-      leaveDatesArray.push(leaveDateGroup);
-    }
-  }
-
-  onSessionChange(index: number, session: string) {
-    const leaveDateGroup = this.leaveDates.at(index) as FormGroup;
-    const currentValue = leaveDateGroup.get(session)?.value; // Get current value
-    leaveDateGroup.get(session)?.setValue(!currentValue); // Toggle the value
-    console.log(`Checkbox ${session} for date ${leaveDateGroup.get('date')?.value} changed to:`, !currentValue);
-  }
-
-
-  onSubmit() {
-    this.isLoading = true;
-    const leaveRequest = {
-      ...this.leaveRequestForm.value,
-      leaveDates: this.leaveRequestForm.get('leaveDates')!.value
-    };
-
-    // Log the leave request to see if it includes session values
-    console.log('Leave Request:', leaveRequest);
-
-    this.leaveService.addLeave(leaveRequest).subscribe(
-      (response: any) => {
-        console.log(response);
-        this.isLoading = false;
-      },
-      (error: any) => {
-        console.error(error);
-        this.isLoading = false;
-      }
-    );
-  }
-
-  goBack() {
-    // Implement navigation back (e.g., using Angular Router)
-  }
-
-  getLeaveType() {
-    this.leaveService.getLeaveType().subscribe(
-      (leaveTypes: any) => {
-        this.leaveTypes = leaveTypes;
-      },
-      (error) => {
-        console.error('Error fetching leave types:', error);
-      }
-    );
+  ngOnDestroy(): void {
+    this.roleSub?.unsubscribe();
+    this.delete?.unsubscribe();
   }
 }
-
