@@ -1,5 +1,10 @@
 {
   "dependencies": {
+    "@angular/forms": "^18.2.6",
+    "@angular/material": "^18.2.6",
+    "@fullcalendar/angular": "^6.1.15",
+    "@fullcalendar/core": "^6.1.15",
+    "@fullcalendar/daygrid": "^6.1.15",
     "nodemailer": "^6.9.15"
   }
 }
