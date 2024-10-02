@@ -8,7 +8,7 @@ const User = require('../users/models/user');
 
 
 async function syncModel() {
-    await sequelize.sync({alter: true})
+    await sequelize.sync({force: true})
 
     // Team.belongsTo(User, {
     //     foreignKey: "userId",
@@ -53,7 +53,7 @@ async function syncModel() {
         { name: "Sijin", email: "anupamav08@gmail.com", phoneNumber:"9846442233", password: "sijin@123", roleId: 2, status: true, empNo: 'OAC-2024-004', reportingManager: true },
         { name: "Shibin", email: "shibin@gmail.com", phoneNumber:"9847391646", password: "shibin@123", roleId: 3, status: true, empNo: 'OAC-2024-005' },
         { name: "Fawas", email: "fawas@gmail.com", phoneNumber:"98667799551", password: "fawas@123", roleId: 4, status: true, empNo: 'OAC-2024-006' },
-        { name: "Dhanalakshmi", email: "dhanalakshmi@gmail.com", phoneNumber:"1234567890", password: "dhanalakshmi@123", roleId: 7, status: true, empNo: 'OAC-2024-008' },
+        { name: "Dhanalakshmi", email: "dhanalakshmi@gmail.com", phoneNumber:"1234567890", password: "dhanalakshmi@123", roleId: 6, status: true, empNo: 'OAC-2024-008' },
         
     ];
 
