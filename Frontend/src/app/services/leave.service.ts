@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { LeaveType } from '../common/interfaces/leaveType';
 import { Observable } from 'rxjs/internal/Observable';
 import { environment } from '../../environments/environment';
+import { UserLeave } from '../common/interfaces/userLeave';
 
 @Injectable({
   providedIn: 'root'
@@ -37,5 +38,9 @@ export class LeaveService {
 
   deleteLeaveType(id: number) {
     return this.http.delete(this.apiUrl + "/leaveType/" + id);
+  }
+
+  getUserLeave(userId: number, typeid: number): Observable<UserLeave> {
+    return this.http.get<UserLeave>(`${this.apiUrl}/userLeave/byuserandtype/${userId}/${typeid}`);
   }
 }
