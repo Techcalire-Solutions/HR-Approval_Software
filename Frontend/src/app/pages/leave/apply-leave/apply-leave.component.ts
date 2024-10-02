@@ -88,18 +88,21 @@ userId:number
 
 leaves:any[]=[]
   leaveSub :Subscription
-  private getLeaveByUser() {
+  private getLeaveByUser(): void {
     if (!this.userId) return;
 
-    this.leaveSub = this.leaveService.getLeavesByUser(this.userId).subscribe(
-      (res) => {
-        this.leaves = res;
+    // Call service method with search, page, and pageSize
+    this.leaveSub = this.leaveService.getLeavesByUser(this.userId, this.searchText, this.currentPage, this.pageSize).subscribe(
+      (res: any) => {
+        this.leaves = res.items;  // Assuming 'res' contains 'items'
       },
       (error) => {
+        console.error('Error loading leaves:', error);
         this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
       }
     );
   }
+
 
   public searchText!: string;
   search(event: Event){
