@@ -17,7 +17,8 @@ const User = sequelize.define('user', {
   url: { type: DataTypes.STRING },
 
   reportingManager: { type: DataTypes.BOOLEAN, defaultValue: false },
-  paswordReset: { type: DataTypes.BOOLEAN, defaultValue: false}
+  paswordReset: { type: DataTypes.BOOLEAN, defaultValue: false},
+  isTemporary: { type: DataTypes.BOOLEAN, defaultValue: true, allowNull: false },
 },
 {
   freezeTableName: true,

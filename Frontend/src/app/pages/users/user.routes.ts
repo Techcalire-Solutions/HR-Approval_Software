@@ -13,5 +13,8 @@ export const routes: Routes = [
   },
   { path: 'view/:id',  loadComponent: () => import('./view-user/view-user.component').then(c => c.ViewUserComponent),
     data: { breadcrumb: 'Open' }, canActivate: [AuthGuard]
+  },
+  { path: 'confirmation',  loadComponent: () => import('./confirmation/confirmation.component').then(c => c.ConfirmationComponent),
+    data: { breadcrumb: 'Confirmation' }, canActivate: [AuthGuard]
   }
 ];

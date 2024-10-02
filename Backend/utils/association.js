@@ -41,15 +41,15 @@ async function syncModel() {
     }
 
     const userData = [    
-        { name: "HR Admin", email: "hradmin@gmail.com", phoneNumber:"1234567890", password: "hradmin@123", roleId: 102, status: true, empNo: 'OAC-2024-3' },
-        { name: "Approval Admin", email: "admin@gmail.com", phoneNumber:"1234567890", password: "admin@123", roleId: 101, status: true, empNo: 'OAC-2024-2' },
-        { name: "Super Admin", email: "superadmin@gmail.com", phoneNumber:"1234567890", password: "superadmin@123", roleId: 103, status: true, empNo: 'OAC-2024-1' },
+        { name: "HR Admin", email: "hradmin@gmail.com", phoneNumber:"1234567890", password: "hradmin@123", roleId: 102, status: true, empNo: 'OAC-2024-3', isTemporary: false },
+        { name: "Approval Admin", email: "admin@gmail.com", phoneNumber:"1234567890", password: "admin@123", roleId: 101, status: true, empNo: 'OAC-2024-2' , isTemporary: false},
+        { name: "Super Admin", email: "superadmin@gmail.com", phoneNumber:"1234567890", password: "superadmin@123", roleId: 103, status: true, empNo: 'OAC-2024-1' , isTemporary: false},
 
 
         { name: "Ashbin", email: "ashbin@gmail.com", phoneNumber:"9846335577", password: "ashbin@123", roleId: 1, teamId:1,status: true, empNo: 'OAC-2024-001' },
         { name: "Sameer", email: "sameer@gmail.com", phoneNumber:"9846335570", password: "sameer@123", roleId: 1,teamId:1, status: true, empNo: 'OAC-2024-002' },
         { name: "Vishnu", email: "vishnu@gmail.com", phoneNumber:"9846335123", password: "vishnu@123", roleId: 1, teamId:1, status: true, empNo: 'OAC-2024-003' },
-        { name: "Sijin", email: "sijin@gmail.com", phoneNumber:"9846442233", password: "sijin@123", roleId: 2, status: true, empNo: 'OAC-2024-004', reportingManager: true },
+        { name: "Sijin", email: "anupamav08@gmail.com", phoneNumber:"9846442233", password: "sijin@123", roleId: 2, status: true, empNo: 'OAC-2024-004', reportingManager: true },
         { name: "Shibin", email: "shibin@gmail.com", phoneNumber:"9847391646", password: "shibin@123", roleId: 3, status: true, empNo: 'OAC-2024-005' },
         { name: "Fawas", email: "fawas@gmail.com", phoneNumber:"98667799551", password: "fawas@123", roleId: 4, status: true, empNo: 'OAC-2024-006' },
         { name: "Dhanalakshmi", email: "dhanalakshmi@gmail.com", phoneNumber:"1234567890", password: "dhanalakshmi@123", roleId: 7, status: true, empNo: 'OAC-2024-008' },
