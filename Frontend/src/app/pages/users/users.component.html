@@ -82,7 +82,7 @@
                         </div>
 
                             <div class="user-social">
-                                <mat-slide-toggle color="primary" [checked]="user.status" (change)="user.status = !user.status"></mat-slide-toggle>
+                                <mat-slide-toggle [checked]="user.status"  (change)="updateStatus($event, user.id, user.name)"></mat-slide-toggle>
                             </div>
                         </div>
                         <div fxFlex="70" fxLayout="column" class="user-details transition-2" [class.blocked]="!user.status">

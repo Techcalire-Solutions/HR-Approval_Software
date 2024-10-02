@@ -158,4 +158,18 @@ export class UsersComponent implements OnInit, OnDestroy {
 
     })
   }
+
+  updateSub!: Subscription;
+  updateStatus(event: any, id: number, name: string){
+    console.log(event.checked); 
+    let data = { status: event.checked }
+    this.updateSub = this.usersService.updateUserStatus(data, id).subscribe((result) => {
+      if (event.checked) {
+        this.snackbar.open(`${name} is now in active state`, "", { duration: 3000 });
+      } else {
+        this.snackbar.open(`${name} is now in inactive state`, "", { duration: 3000 });
+      }
+      this.getUsers()
+    }); 
+  }
 }

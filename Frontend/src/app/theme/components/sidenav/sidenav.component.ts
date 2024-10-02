@@ -97,9 +97,6 @@ users:User;
   getUser(){
    this.loginUserSub= this.loginService.getUserById(this.userId).subscribe((res)=>{
       this.user = res;
-
-
-
     })
   }
 
@@ -181,7 +178,9 @@ users:User;
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
         item.title === 'Role' ||
-        item.title === 'Employee' ||
+        (item.title === 'Employee' && !item.parentId) || 
+        (item.title === 'Open' && item.parentId === 3) ||
+        (item.title === 'Confirmation' && item.parentId === 3) ||
         item.title === 'Team'
         // (item.title === 'Leave' && !item.parentId) ||
         // (item.title === 'Leave Request' && item.parentId === 8) ||
