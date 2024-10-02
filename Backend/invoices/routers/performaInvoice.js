@@ -4,69 +4,63 @@ const authenticateToken = require('../../middleware/authorization');
 const PerformaInvoice = require('../models/performaInvoice');
 const PerformaInvoiceStatus = require('../models/invoiceStatus');
 const User = require('../../users/models/user');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const sequelize = require('../../utils/db');
 const s3 = require('../../utils/s3bucket');
 const Role = require('../../users/models/role');
 
 const TeamMember = require('../../users/models/teamMember');
 const Team = require('../../users/models/team');
+  
+router.post('/save', authenticateToken, async (req, res) => {
+const { piNo, url, kamId, supplierName, supplierPoNo, supplierPrice,  purpose, customerName,  customerPoNo, poValue } = req.body;
+const userId = req.user.id;
 
-
-
-
-  
-  router.post('/save', authenticateToken, async (req, res) => {
-    const {
-      piNo,
-      url,
-      kamId,
-      supplierName,
-      supplierPoNo,
-      supplierPrice,
-      purpose,
-      customerName,
-      customerPoNo,
-      poValue,
-    } = req.body;
-    const userId = req.user.id;
-  
-    try {
-      // Save the new PI
-      const newPi = new PerformaInvoice({
-        piNo,
-        url,
-        status: 'GENERATED',
-        salesPersonId: userId,
-        kamId,
-        supplierName,
-        supplierPoNo,
-        supplierPrice,
-        purpose,
-        customerName,
-        customerPoNo,
-        poValue,
-        addedById: userId,
-      });
-      await newPi.save();
-  
-      // Save the PI status
-      const piId = newPi.id;
-      const piStatus = new PerformaInvoiceStatus({
-        performaInvoiceId: piId,
-        status: 'GENERATED',
-        date: new Date(),
-      });
-      await piStatus.save();
-  
-   
-  
-      res.json({ p: newPi, status: piStatus });
-    } catch (error) {
-      console.error('Error saving PI or sending email:', error);
-      res.status(500).send(error.message);
+try {
+    const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
+    if (pi) {
+        return res.send('Invoice is already saved');
     }
-  });
+} catch (error) {
+    res.send(error.message)
+}
+
+try {
+    // Save the new PI
+    const newPi = new PerformaInvoice({
+    piNo,
+    url,
+    status: 'GENERATED',
+    salesPersonId: userId,
+    kamId,
+    supplierName,
+    supplierPoNo,
+    supplierPrice,
+    purpose,
+    customerName,
+    customerPoNo,
+    poValue,
+    addedById: userId,
+    });
+    await newPi.save();
+
+    // Save the PI status
+    const piId = newPi.id;
+    const piStatus = new PerformaInvoiceStatus({
+    performaInvoiceId: piId,
+    status: 'GENERATED',
+    date: new Date(),
+    });
+    await piStatus.save();
+
+
+
+    res.json({ p: newPi, status: piStatus });
+} catch (error) {
+    console.error('Error saving PI or sending email:', error);
+    res.status(500).send(error.message);
+}
+});
 
 router.post('/saveByKAM', authenticateToken, async (req, res) => {
     const { piNo, url, amId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
