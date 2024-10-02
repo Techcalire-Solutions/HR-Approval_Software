@@ -238,7 +238,7 @@ export class UpdatePIComponent {
   amSub!: Subscription;
   AMList: User[] = [];
   getAM(){
-    this.amSub = this.loginServie.getUserByRole(3).subscribe(user =>{
+    this.amSub = this.loginServie.getUserByRole(4).subscribe(user =>{
       this.AMList = user;
       console.log('amlist', this.AMList);
 
@@ -248,7 +248,7 @@ export class UpdatePIComponent {
   accountantSub!: Subscription;
   AccountantList: User[] = [];
   getAccountants(){
-    this.accountantSub = this.loginServie.getUserByRole(4).subscribe(user =>{
+    this.accountantSub = this.loginServie.getUserByRole(3).subscribe(user =>{
       this.AccountantList = user;
       console.log('account list',this.AccountantList);
 

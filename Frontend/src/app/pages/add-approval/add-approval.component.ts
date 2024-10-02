@@ -98,7 +98,7 @@ export class AddApprovalComponent {
   amSub!: Subscription;
   AMList: User[] = [];
   getAM(){
-    this.amSub = this.loginServie.getUserByRole(3).subscribe(user =>{
+    this.amSub = this.loginServie.getUserByRole(4).subscribe(user =>{
       this.AMList = user;
     });
   }
@@ -106,7 +106,7 @@ export class AddApprovalComponent {
   accountantSub!: Subscription;
   AccountantList: User[] = [];
   getAccountants(){
-    this.accountantSub = this.loginServie.getUserByRole(4).subscribe(user =>{
+    this.accountantSub = this.loginServie.getUserByRole(3).subscribe(user =>{
       this.AccountantList = user;
       console.log('account list',this.AccountantList);
 
