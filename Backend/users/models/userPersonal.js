@@ -8,7 +8,6 @@ const UserPersonal = sequelize.define('userPersonal', {
   dateOfJoining: { type: DataTypes.DATEONLY },
   probationPeriod: { type: DataTypes.STRING, allowNull: false },
   confirmationDate: { type: DataTypes.DATEONLY },
-  isTemporary: { type: DataTypes.BOOLEAN, defaultValue: false, allowNull: false },
   bloodGroup: { type: DataTypes.STRING},
   emergencyContactNo: { type: DataTypes.STRING },
   emergencyContactName: { type: DataTypes.STRING },

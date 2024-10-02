@@ -340,7 +340,7 @@ router.patch('/resetpassword/:id', async (req, res) => {
       let user = await User.findByPk(req.params.id);
 
       if (!user) {
-          return res.status(404).send('User not found');
+          return res.send('User not found');
       }
 
       user.password = hashedPassword;
@@ -355,5 +355,47 @@ router.patch('/resetpassword/:id', async (req, res) => {
       res.status(500).send(error.message);
   }
 });
+
+router.get('/underprobation', async (req, res) => {
+  try {
+    const user = await User.findAll({
+      where: { isTemporary: true }
+    })
+    res.send(user);
+  } catch (error) {
+    res.send(error.message)
+  }
+})
+
+router.get('/confirmed', async (req, res) => {
+  try {
+    const user = await User.findAll({
+      where: { isTemporary: false }
+    })
+    res.send(user);
+  } catch (error) {
+    res.send(error.message)
+  }
+})
+
+router.get('/confirmemployee/:id', async (req, res) => {
+  try {
+      let result = await User.findByPk(req.params.id);
+
+      if (!result) {
+          return res.json({ message: "Employee not found" });
+      }
+
+      result.isTemporary = false;
+      await result.save();
+
+      res.json({ message: "Employee confirmed" });
+  } catch (error) {
+      console.error('Error confirming employee:', error.message);
+      res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+});
+
+
 
 module.exports = router;
