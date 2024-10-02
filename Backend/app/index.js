@@ -26,6 +26,13 @@ const team = require('../users/routers/team');
 const teamMember = require('../users/routers/teamMember');
 app.use('/role', role);
 
+
+// app.use(cors({
+//     origin: 'https://approval.techclaire.com', 
+//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', 
+//     credentials: true, 
+//   }));
+
 app.use('/user', user);
 app.use('/personal', userPersonal)
 app.use('/statutoryinfo', statutoryInfo)

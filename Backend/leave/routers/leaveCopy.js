@@ -9,29 +9,34 @@ const LeaveType = require('../models/leaveType')
 
 
 
-
-// Set up the email transporter using nodemailer
 const transporter = nodemailer.createTransport({
-  service: 'gmail', // Use Gmail or another service provider
+  service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER, // Your email address from environment variables
-    pass: process.env.EMAIL_PASS, // Your email password or app-specific password from environment variables
+    user: process.env.EMAIL_USER, 
+    pass: process.env.EMAIL_PASS,
   },
 });
+
 
 function calculateLeaveDays(leaveDates) {
   let noOfDays = 0;
 
-  leaveDates.forEach(({ session1, session2 }) => {
-    if (session1 && session2) {
-      noOfDays += 1; // Full day
-    } else if (session1 || session2) {
-      noOfDays += 0.5; // Half day (only one session selected)
+  leaveDates.forEach(({ sessions }) => {
+    if (sessions) {
+     
+      if (sessions.length === 2) {
+        noOfDays += 1; 
+      } else if (sessions.length === 1) {
+        noOfDays += 0.5;
+      }
+    } else {
+      
     }
   });
 
   return noOfDays;
 }
+
 
 async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates) {
   const mailOptions = {
@@ -45,23 +50,14 @@ async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDa
     - End Date: ${endDate}
     - Notes: ${notes}
     - Number of Days: ${noOfDays}
-    - Leave Dates: ${leaveDates.map(item => {
-        const sessionString = [
-          item.session1 ? 'session1' : '',
-          item.session2 ? 'session2' : ''
-        ].filter(Boolean).join(', '); // Only include sessions that are true
-        return `${item.date} (${sessionString || 'No sessions selected'})`;
-      }).join(', ')}`
+    - Leave Dates: ${leaveDates.map(item => `${item.date} (${item.sessions.join(', ')})`).join(', ')}`,
   };
 
   return transporter.sendMail(mailOptions);
 }
 
-
-
-// Leave request route
 router.post('/', authenticateToken, async (req, res) => {
-  const { leaveTypeId, startDate, endDate, notes, leaveDates } = req.body;
+  const { leaveTypeId, startDate, endDate, notes, leaveDates } = req.body; // Accept leaveDates directly from the frontend
   const userId = req.user.id;
 
   if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
@@ -76,8 +72,8 @@ router.post('/', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Invalid date format' });
     }
 
-    // Calculate the number of leave days based on the sessions selected
-    const noOfDays = calculateLeaveDays(leaveDates);
+    // Calculate leave days based on the leaveDates array
+    const noOfDays = calculateLeaveDays(leaveDates); // Calculate leave days
 
     const user = await User.findByPk(userId);
     const leaveType = await LeaveType.findByPk(leaveTypeId);
@@ -104,7 +100,7 @@ router.post('/', authenticateToken, async (req, res) => {
       noOfDays,
       notes,
       status: 'requested',
-      leaveDates
+      leaveDates // Directly storing leaveDates as a JSON object
     });
 
     // Update user leave balance
@@ -147,34 +143,9 @@ router.get('/', authenticateToken, async (req, res) => {
     const leaves = await Leave.findAll({});
     res.status(200).send(leaves);
   } catch (error) {
-    res.status(500).send(error.message);
+    res.status(500).send(error.message);0
   }
 });
-
-router.get('/:id', async (req, res) => {
-  const id = req.body.id;
-
-  // Validate id
-  if (!id || isNaN(id)) {
-    return res.status(400).json({ message: 'Invalid leave ID' });
-  }
-
-  try {
-    const leaveRecord = await Leave.findOne({
-      where: { id: id }
-    });
-
-    if (!leaveRecord) {
-      return res.status(404).json({ message: 'Leave record not found' });
-    }
-
-    return res.status(200).json(leaveRecord);
-  } catch (error) {
-    console.error('Error fetching leave record:', error);
-    return res.status(500).json({ message: 'Server error' });
-  }
-});
-
 
 
 router.put('/:leaveId/status', authenticateToken, async (req, res) => {
