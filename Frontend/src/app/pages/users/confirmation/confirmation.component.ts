@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
 import { User } from '../../../common/interfaces/user';
@@ -15,7 +15,7 @@ import { MatDialog } from '@angular/material/dialog';
   templateUrl: './confirmation.component.html',
   styleUrl: './confirmation.component.scss'
 })
-export class ConfirmationComponent implements OnInit{
+export class ConfirmationComponent implements OnInit, OnDestroy{
   ngOnInit(): void {
     this.getProbationEmployees();
     this.getPermanentEmployees();
@@ -27,8 +27,6 @@ export class ConfirmationComponent implements OnInit{
   getProbationEmployees(){
     this.probStaffSub = this.userService.getProbationEmployees().subscribe((data) => {
       this.probEmp = data;
-      console.log(this.probEmp);
-      
     });
   }
 
@@ -37,8 +35,6 @@ export class ConfirmationComponent implements OnInit{
   getPermanentEmployees(){
     this.permanentStaffSub = this.userService.getConfirmedEmployees().subscribe((data) => {
       this.permanentEmp = data;
-      console.log(this.permanentEmp);
-      
     });
   }
 
@@ -53,12 +49,18 @@ export class ConfirmationComponent implements OnInit{
   }
 
   dialog = inject(MatDialog);
-  updateUserLeave(id: number){
-    const dialogRef = this.dialog.open(UserLeaveComponent, {
-      width: '450px',
-      data: {id: id}
-    });dialogRef.afterClosed().subscribe((result) => {
+  updateUserLeave(id: number, name: string){
+      const dialogRef = this.dialog.open(UserLeaveComponent, {
+        width: '450px',
+        data: {id: id, name: name}
+      });dialogRef.afterClosed().subscribe((result) => {
+  
+      })
+  }
 
-    })
+  ngOnDestroy(): void {
+    this.confirmSub?.unsubscribe();
+    this.permanentStaffSub?.unsubscribe();
+    this.probStaffSub?.unsubscribe();
   }
 }
