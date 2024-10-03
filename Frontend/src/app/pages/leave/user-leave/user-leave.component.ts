@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,6 +12,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-user-leave',
@@ -20,7 +21,7 @@ import { MatInputModule } from '@angular/material/input';
   templateUrl: './user-leave.component.html',
   styleUrl: './user-leave.component.scss'
 })
-export class UserLeaveComponent implements OnInit {
+export class UserLeaveComponent implements OnInit, OnDestroy {
   fb = inject(FormBuilder);
   dialogRef = inject(MatDialogRef<UserLeaveComponent>) 
   data = inject(MAT_DIALOG_DATA);
@@ -28,45 +29,73 @@ export class UserLeaveComponent implements OnInit {
   mainForm = this.fb.group({
     forms: this.fb.array([])
   });
-
-  new(initialValue?: LeaveType): FormGroup {
+  
+  new(initialValue?: LeaveType, userLeave?: UserLeave): FormGroup {
     return this.fb.group({
-      userId: [ this.data.id],
-      leaveTypeId : [ initialValue?initialValue.id : ''],
-      typeName : [initialValue?initialValue.leaveTypeName : ''],
-      noOfDays : [],
-      takenLeaves : [],
-      leaveBalance : []
+      userId: [this.data.id],
+      leaveTypeId: [initialValue ? initialValue.id : ''],
+      typeName: [initialValue ? initialValue.leaveTypeName : ''],
+      noOfDays: [userLeave ? userLeave.noOfDays : 0],
+      takenLeaves: [userLeave ? userLeave.takenLeaves : 0],
+      leaveBalance: [userLeave ? userLeave.leaveBalance : 0]
+    });
+  }
+  
+  addNew(data?: LeaveType, userLeave?: UserLeave) {
+    this.newData().push(this.new(data, userLeave));
+  }
+  
+  removeData(index: number) {
+    const formArray = this.newData();
+    formArray.removeAt(index);
+  }
+  
+  newData(): FormArray {
+    return this.mainForm.get('forms') as FormArray;
+  }
+  
+  ngOnInit(): void {
+    this.getLeaveTypes();
+    this.mainForm.get('forms')?.valueChanges.subscribe((values) => {
+      this.subscribeToValueChanges();
     });
   }
 
-  index!: number;
-  clickedForms: boolean[] = [];
-  addNew(data?:any){
-    this.newData().push(this.new(data));
-    this.clickedForms.push(false);
+  subscribeToValueChanges() {
+    const entries = this.newData(); // Get the FormArray
+    entries.controls.forEach((control, index) => {
+      control.valueChanges.subscribe((value) => {
+        this.calculateBalance(index, value);
+      });
+    });
   }
 
-  removeData(index: number) {
-    const formArray = this.newData() as FormArray;
-    formArray.removeAt(index);
-  }
-
-
-  newData(): FormArray {
-    return this.mainForm.get("forms") as FormArray;
-  }
-
-  ngOnInit(): void {
-    this.getLeaveTypes();
+  updated: UserLeave[] = [];
+  private updatedIndices: Set<number> = new Set();
+  calculateBalance(i: number, data: UserLeave){
+    let alloted: number = data.noOfDays;
+    let taken: number = data.takenLeaves;
+    const leaveBalance = alloted - taken;
+  
+    this.newData().at(i).patchValue({ leaveBalance }, { emitEvent: false });
+  if (i < this.updated.length) {
+    this.updated[i] = { ...data, leaveBalance }; 
+  } else {
+    this.updated.push({ ...data, leaveBalance }); 
   }
   
+  }
+
   onCancelClick(){
     this.dialogRef.close();
   }
 
+  submit: Subscription;
   onSubmit(){
-
+    this.submit = this.leaveService.updateUserLeave(this.updated).subscribe(res=>{
+      this.dialogRef.close();
+      this.snackBar.open(`Leave updated successfully for ${this.data.name}...`, 'Close', { duration: 3000 }); 
+    })
   }
 
   leaveService = inject(LeaveService)
@@ -75,27 +104,25 @@ export class UserLeaveComponent implements OnInit {
   getLeaveTypes(){
     this.leaveTypeSub = this.leaveService.getLeaveType().subscribe(res => {
       this.leaveTypes = res;
-      console.log(this.leaveTypes);
-      for(let i = 0; i <= this.leaveTypes.length; i++){
-        this.addNew(this.leaveTypes[i])
-        this.getUserLeave(this.leaveTypes[i].id)
+      for(let i = 0; i < this.leaveTypes.length; i++){
+        
+        this.getUserLeave(this.leaveTypes[i].id, this.leaveTypes[i])
       }
     })
   }
 
   ulSub!: Subscription;
-  getUserLeave(id: number){
+  snackBar = inject(MatSnackBar);
+  getUserLeave(id: number, leaveTypes: LeaveType){
     this.ulSub = this.leaveService.getUserLeave(this.data.id, id).subscribe(res => {
-      // for(let i = 0; i < res.length; i++){
-      //   let leaveType = this.leaveTypes.find(lt => lt.id === res[i].leaveTypeId)
-      //   this.newData().controls[i].patchValue({
-      //     leaveTypeId: leaveType.id,
-      //     typeName: leaveType.leaveTypeName,
-      //     noOfDays: res[i].noOfDays,
-      //     takenLeaves: res[i].takenLeaves,
-      //     leaveBalance: res[i].leaveBalance
-      //   })
-      // }
+      this.addNew(leaveTypes, res)
     })
+  }
+
+  
+  ngOnDestroy(): void {
+    this.ulSub?.unsubscribe();
+    this.leaveTypeSub?.unsubscribe();
+    this.submit?.unsubscribe();
   }
 }

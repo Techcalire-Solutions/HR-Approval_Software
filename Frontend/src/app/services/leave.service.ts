@@ -42,4 +42,8 @@ export class LeaveService {
   getUserLeave(userId: number, typeid: number): Observable<UserLeave> {
     return this.http.get<UserLeave>(`${this.apiUrl}/userLeave/byuserandtype/${userId}/${typeid}`);
   }
+
+  updateUserLeave(data: any): Observable<UserLeave> {
+    return this.http.patch<UserLeave>(`${this.apiUrl}/userLeave/update`, data);
+  }
 }
