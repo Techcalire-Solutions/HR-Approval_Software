@@ -157,25 +157,12 @@ router.post('/', authenticateToken, async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error:', error);
+    res.send(error.message)
     if (!res.headersSent) {
       res.send(error.message)
     }
   }
 });
-
-
-router.get('/', authenticateToken, async (req, res) => {
-  try {
-    const leaves = await Leave.findAll({});
-    res.status(200).send(leaves);
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
-
-
 
 
 router.get('/user/:userId', async (req, res) => {
@@ -263,21 +250,39 @@ router.get('/user/:userId', async (req, res) => {
 });
 
 
-router.put('/:leaveId/status', authenticateToken, async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
-    const { leaveId } = req.params;
-    const { status } = req.body;
+    const leaves = await Leave.findAll({});
+    res.status(200).send(leaves);
+  } catch (error) {
+    res.send(error.message)
+  }
+});
 
-    const leave = await Leave.findByPk(leaveId);
 
-    if (!leave) {
-      return res.status(404).send('Leave request not found');
+
+
+
+router.get('/:id', async (req, res) => {
+  try {
+    const leave = await Leave.findByPk(req.params.id);
+    if (leave) {
+      res.json(leave);
+    } else {
+      res.status(404).json({ message: `Leave not found` });
     }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
-    leave.status = status;
-    await leave.save();
 
-    res.status(200).send(leave);
+
+
+router.delete('/:id', async (req, res) => {
+  try {
+    const result = await Leave.destroy({ where: { id: req.params.id }, force: true });
+    result ? res.json({ message: `Leave with ID ${req.params.id} deleted successfully` }) : res.status(404).json({ message: "Leave not found" });
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -288,4 +293,67 @@ router.put('/:leaveId/status', authenticateToken, async (req, res) => {
 
 
 
+router.patch('/:id', authenticateToken, async (req, res) => {
+  try {
+    const { leaveDates, notes, leaveTypeId } = req.body;
+
+    // Validate if leaveDates are provided for recalculating leave days
+    if (!leaveDates) {
+      return res.status(400).json({ message: 'leaveDates are required to update leave' });
+    }
+
+    // Find the leave record by ID
+    const leave = await Leave.findByPk(req.params.id);
+    if (!leave) {
+      return res.status(404).json({ message: `Leave not found with id=${req.params.id}` });
+    }
+
+    // Find the related user leave data
+    const userLeave = await UserLeave.findOne({
+      where: { userId: leave.userId, leaveTypeId }
+    });
+
+    if (!userLeave) {
+      return res.status(404).json({ message: 'User leave mapping not found' });
+    }
+
+    // Recalculate the number of leave days based on leaveDates
+    const noOfDays = calculateLeaveDays(leaveDates);
+
+    // Check if the user has enough leave balance for the update
+    if (userLeave.leaveBalance < noOfDays) {
+      return res.status(400).json({ message: 'Not enough leave balance for this update' });
+    }
+
+    // Update leave record
+    leave.leaveDates = leaveDates;
+    leave.notes = notes || leave.notes; // Only update notes if provided
+    leave.noOfDays = noOfDays;
+
+    await leave.save();
+
+    // Update user leave balance (takenLeaves and leaveBalance)
+    userLeave.takenLeaves += noOfDays - leave.noOfDays; // Adjust taken leaves for any change
+    userLeave.leaveBalance -= (noOfDays - leave.noOfDays); // Update balance based on the new days
+    await userLeave.save();
+
+    res.json({
+      message: 'Leave updated successfully',
+      leave: {
+        userId: leave.userId,
+        leaveTypeId,
+        leaveDates,
+        noOfDays,
+        notes: leave.notes,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
+
+
 module.exports = router;
+
