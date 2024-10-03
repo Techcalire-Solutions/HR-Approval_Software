@@ -166,4 +166,16 @@ export class UsersService {
     return this.http.get( this.apiUrl+'/user/confirmemployee/' + id);
   }
 
+  getBirthdays():Observable<UserPersonal[]>{
+    return this.http.get<UserPersonal[]>( this.apiUrl + '/personal/birthdays');
+  }
+
+  getJoining():Observable<UserPersonal[]>{
+    return this.http.get<UserPersonal[]>( this.apiUrl + '/personal/joiningday');
+  }
+
+  getProbationDues():Observable<User[]>{
+    return this.http.get<User[]>( this.apiUrl + '/personal/dueprobation');
+  }
+
 }

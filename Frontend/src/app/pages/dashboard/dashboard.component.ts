@@ -6,6 +6,10 @@ import { InfoCardsComponent } from './info-cards/info-cards.component';
 import { MatrixTableComponent } from "./matrix-table/matrix-table.component";
 import { InvoiceService } from '@services/invoice.service';
 import { Subscription } from 'rxjs/internal/Subscription';
+import { AdminCardComponent } from "./admin-card/admin-card.component";
+import { BirthdayComponent } from "./birthday/birthday.component";
+import { JoiningDayComponent } from "./joining-day/joining-day.component";
+import { ProbationDueComponent } from "./probation-due/probation-due.component";
 
 @Component({
   selector: 'app-dashboard',
@@ -15,7 +19,11 @@ import { Subscription } from 'rxjs/internal/Subscription';
     MatCardModule,
     MatIconModule,
     InfoCardsComponent,
-    MatrixTableComponent
+    MatrixTableComponent,
+    AdminCardComponent,
+    BirthdayComponent,
+    JoiningDayComponent,
+    ProbationDueComponent
 ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
