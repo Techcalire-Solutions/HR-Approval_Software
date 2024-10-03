@@ -71,6 +71,7 @@ export class ApplyLeaveComponent implements OnInit {
   usersService = inject(UsersService);
   router = inject(Router)
   leaveService = inject(LeaveService)
+
 userId:number
   ngOnInit(){
     this.getLeaveByUser()
@@ -82,6 +83,7 @@ userId:number
 
   ngOnDestroy(): void {
       this.leaveSub.unsubscribe();
+      this.delete.unsubscribe()
   }
 
 
@@ -132,12 +134,18 @@ leaves:any[]=[]
     this.router.navigate(['/login/leave/add'], { queryParams: { id: item.id } });
   }
 
-  // Delete leave record
-  deleteLeave(id: number) {
-    this.leaveService.deleteLeave(id).subscribe(response => {
-      console.log(response)
-      // Reload leaves after deletion
-      this.getLeaveByUser();
+
+
+delete!: Subscription;
+deleteLeave(id: number){
+    let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+    dialogRef.afterClosed().subscribe(res => {
+      if(res){
+        this.delete = this.leaveService.deleteLeave(id).subscribe(res => {
+          this.snackBar.open('Leave request deleted successfully!', 'Close', { duration: 3000 });
+          this.getLeaveByUser()
+        });
+      }
     });
-}
+  }
 }
