@@ -15,7 +15,7 @@
         <!-- Start Date -->
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Start Date</mat-label>
-          <input matInput [matDatepicker]="startDatePicker" formControlName="startDate" placeholder="Choose start date" (dateChange)="onDateChange()" required [min]="today">
+          <input matInput [matDatepicker]="startDatePicker" formControlName="startDate" placeholder="Choose start date" (dateChange)="onDateChange()" required >
           <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
           <mat-datepicker #startDatePicker></mat-datepicker>
         </mat-form-field>
@@ -25,7 +25,7 @@
         <!-- End Date -->
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>End Date</mat-label>
-          <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" placeholder="Choose end date" (dateChange)="onDateChange()" required [min]="today">
+          <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" placeholder="Choose end date" (dateChange)="onDateChange()" required >
           <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
           <mat-datepicker #endDatePicker></mat-datepicker>
         </mat-form-field>

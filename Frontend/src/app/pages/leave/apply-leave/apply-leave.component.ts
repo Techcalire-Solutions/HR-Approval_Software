@@ -18,7 +18,6 @@ import { RoleService } from '@services/role.service';
 import { SettingsService } from '@services/settings.service';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
-import { Role } from '../../../common/interfaces/role';
 import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatMenuModule } from '@angular/material/menu';
@@ -83,11 +82,15 @@ userId:number
    this.getLeaveByUser();
   }
 
-  ngOnDestroy(): void {
-      this.leaveSub.unsubscribe();
-      // this.delete.unsubscribe();
-  }
 
+
+  ngOnDestroy(): void {
+    this.leaveSub.unsubscribe();
+    if(this.delete){
+      this.delete.unsubscribe();
+    }
+
+}
 
 
 leaves:any[]=[]
@@ -95,17 +98,12 @@ leaves:any[]=[]
   private getLeaveByUser(): void {
     if (!this.userId) return;
 
-    console.log(this.userId)
-
     this.leaveSub = this.leaveService.getLeavesByUser(this.userId, this.searchText, this.currentPage, this.pageSize).subscribe(
       (res: any) => {
-        console.log(res)
-        console.log('Response from backend:', res); // Add this line for debugging
         this.leaves = res.items;
         this.totalItems = res.count;
       },
       (error) => {
-        console.error('Error loading leaves:', error);
         this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
       }
     );
@@ -136,7 +134,7 @@ leaves:any[]=[]
 
 
 
-  // Navigate to the add/edit leave form
+
   editLeave(item:any) {
     this.router.navigate(['/login/leave/add'], { queryParams: { id: item.id } });
   }
@@ -156,12 +154,6 @@ deleteLeave(id: number){
     });
   }
 
-   // Function to convert a string to camelCase
-   toCamelCase(str: string): string {
-    return str
-      .toLowerCase()
-      .split(' ')
-      .map((word, index) => index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1))
-      .join('');
-  }
+
+
 }
