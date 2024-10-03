@@ -50,33 +50,39 @@ router.get('/byuserandtype/:userid/:typeid', authenticateToken, async (req, res)
 });
 
 
-
-
-router.patch('/accumulate', authenticateToken, async (req, res) => {
+router.patch('/update', authenticateToken, async (req, res) => {
+  let  data  = req.body;
   try {
+    console.log(data);
+    let updated = [];
+    for( let i = 0; i < data.length; i++ ){
+      let ulExist = await UserLeave.findOne({
+        where: { userId: data[i].userId, leaveTypeId: data[i].leaveTypeId }
+      })
+      if(ulExist){
+        ulExist.noOfDays  = data[i].noOfDays;
+        ulExist.takenLeaves = data[i].takenLeaves;
+        ulExist.leaveBalance = data[i].leaveBalance;
 
-    const CASUAL_LEAVE_TYPE_ID = 1;
-    const SICK_LEAVE_TYPE_ID = 1;
-
-    const userLeaves = await UserLeave.findAll();
-
-    for (const userLeave of userLeaves) {
-
-      if (userLeave.leaveTypeId === CASUAL_LEAVE_TYPE_ID || userLeave.leaveTypeId === SICK_LEAVE_TYPE_ID) {
-    
-        userLeave.leaveBalance += userLeave.noOfDays; 
-
-  
+        await ulExist.save();
+        updated.push(ulExist);
+      }else{
+        let userLeave = new UserLeave({
+          userId: data[i].userId,
+          leaveTypeId: data[i].leaveTypeId,
+          noOfDays: data[i].noOfDays,
+          takenLeaves: data[i].takenLeaves,
+          leaveBalance: data[i].leaveBalance
+        })
         await userLeave.save();
-        
+        updated.push(userLeave);
       }
     }
-    res.send(userLeaves);
+    res.send(updated);
   } catch (error) {
-    res.status(500).send({ error: 'Error during leave accumulation' });
+    res.send(error.message)
   }
-});
-
+})
 
 
 module.exports = router;

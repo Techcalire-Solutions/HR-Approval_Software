@@ -10,7 +10,9 @@ const multer = require('../../utils/userImageMulter'); // Import the configured 
 const Team = require('../models/team')
 const TeamMember = require('../models/teamMember');
 const upload = require('../../utils/userImageMulter'); 
-const s3 = require('../../utils/s3bucket')
+const s3 = require('../../utils/s3bucket');
+const UserLeave = require('../../leave/models/userLeave');
+const LeaveType = require('../../leave/models/leaveType');
 
 router.post('/add', async (req, res) => {
   const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId, empNo } = req.body;
@@ -379,15 +381,31 @@ router.get('/confirmed', async (req, res) => {
 })
 
 router.get('/confirmemployee/:id', async (req, res) => {
+  console.log("iiiiiiiiiiiiiiiiii");
+  
   try {
       let result = await User.findByPk(req.params.id);
-
+      
       if (!result) {
           return res.json({ message: "Employee not found" });
       }
 
       result.isTemporary = false;
       await result.save();
+      
+      const leaveTypes = await LeaveType.findAll({});
+      const sl = leaveTypes.find(x => x.leaveTypeName === 'Sick Leave');
+      const cl = leaveTypes.find(x => x.leaveTypeName === 'Casual Leave');
+      const slId = sl ? sl.id : null;
+      const clId = cl ? cl.id : null;
+      
+      let data = [
+        {userId: req.params.id, leaveTypeId: slId, noOfDays : 1, leaveBalance : 1},
+        {userId: req.params.id, leaveTypeId: clId, noOfDays : 1, leaveBalance : 1},
+      ]
+      for(let i = 0; i < data.length; i++){
+        UserLeave.bulkCreate([data[i]]);
+      }
 
       res.json({ message: "Employee confirmed" });
   } catch (error) {
