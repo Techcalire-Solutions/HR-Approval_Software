@@ -62,6 +62,9 @@
           </tr>
         </tbody>
       </table>
+      <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
+      (page)="onPageChange($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
+     </mat-paginator>
     </section>
   </main>
 
