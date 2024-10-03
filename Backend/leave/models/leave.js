@@ -49,9 +49,9 @@ const Leave = sequelize.define('Leave', {
   timestamps: true, // This will add `createdAt` and `updatedAt` timestamps automatically
 });
 
-// Define associations
-// Leave.belongsTo(LeaveType, { foreignKey: 'leaveTypeId' }); // Leave belongs to LeaveType
-// LeaveType.hasMany(Leave, { foreignKey: 'leaveTypeId' });  // Each LeaveType can have many Leaves
+
+LeaveType.hasMany(Leave, { foreignKey: 'leaveTypeId', onUpdate: 'CASCADE' });
+Leave.belongsTo(LeaveType);
 
 
 // Sync the model with the database
