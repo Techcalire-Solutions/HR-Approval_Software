@@ -101,6 +101,8 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     submit.dateOfJoining = this.formatDateOnly(submit.dateOfJoining);
     submit.confirmationDate = this.formatDateOnly(submit.confirmationDate);
     submit.dateOfBirth = this.formatDateOnly(submit.dateOfBirth);
+    console.log(submit);
+    
     if(this.editStatus){
       this.submitSub = this.userService.updateUserPersonal(this.id, submit).subscribe(data => {
         this.snackBar.open("Personal Details updated succesfully...","" ,{duration:3000})
@@ -121,13 +123,22 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     this.rmSub?.unsubscribe();
   }
 
-  formatDateOnly(date: any): string | null {
-    if (!date || isNaN(new Date(date).getTime())) {
-      return null; // Return null for invalid or empty dates
+  formatDateOnly(date: any): string {
+    if (!date) return '';  // Handle null or undefined date
+    const d = new Date(date);
+    if (isNaN(d.getTime())) {
+      console.error("Invalid date input: ", date);
+      return '';  // Return empty string for invalid dates
     }
-    const validDate = new Date(date);
-    return validDate.toISOString().split('T')[0]; // Return 'YYYY-MM-DD' format
+    
+    // Get the local year, month, and day (avoiding UTC conversion)
+    const year = d.getFullYear();
+    const month = ('0' + (d.getMonth() + 1)).slice(-2);  // Add leading zero and ensure month is 2 digits
+    const day = ('0' + d.getDate()).slice(-2);  // Add leading zero and ensure day is 2 digits
+    
+    return `${year}-${month}-${day}`;  // Return formatted date as YYYY-MM-DD
   }
+  
 
   @Output() nextTab = new EventEmitter<void>();
   triggerNextTab() {

@@ -13,6 +13,7 @@ const upload = require('../../utils/userImageMulter');
 const s3 = require('../../utils/s3bucket');
 const UserLeave = require('../../leave/models/userLeave');
 const LeaveType = require('../../leave/models/leaveType');
+const UserPersonal = require('../models/userPersonal');
 
 router.post('/add', async (req, res) => {
   const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId, empNo } = req.body;
@@ -381,8 +382,6 @@ router.get('/confirmed', async (req, res) => {
 })
 
 router.get('/confirmemployee/:id', async (req, res) => {
-  console.log("iiiiiiiiiiiiiiiiii");
-  
   try {
       let result = await User.findByPk(req.params.id);
       
@@ -392,6 +391,12 @@ router.get('/confirmemployee/:id', async (req, res) => {
 
       result.isTemporary = false;
       await result.save();
+
+      let up = await UserPersonal.findOne({
+        where: { userId: req.params.id}
+      })
+      up.confirmationDate = new Date();
+      await up.save();
       
       const leaveTypes = await LeaveType.findAll({});
       const sl = leaveTypes.find(x => x.leaveTypeName === 'Sick Leave');
@@ -413,6 +418,7 @@ router.get('/confirmemployee/:id', async (req, res) => {
       res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 });
+
 
 
 
