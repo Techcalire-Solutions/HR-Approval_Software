@@ -176,7 +176,9 @@ router.get('/user/:userId', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    let whereClause = {};
+    let whereClause = {
+      userId: userId,
+    };
     let limit;
     let offset;
 
