@@ -8,6 +8,7 @@ const LeaveType = require('../models/leaveType')
  const nodemailer = require('nodemailer');
  const { Op, fn, col, where } = require('sequelize');
  const sequelize = require('../../utils/db');
+ const Role = require('../../users/models/role')
 
 
 // Set up the email transporter using nodemailer
@@ -33,10 +34,32 @@ function calculateLeaveDays(leaveDates) {
   return noOfDays;
 }
 
+
+// Function to get HR Admin's email for CC
+async function getHREmail() {
+  // Find HR Admin role by roleName
+  const hrAdminRole = await Role.findOne({ where: { roleName: 'HR Administrator' } });
+  if (!hrAdminRole) {
+    throw new Error('HR Admin role not found');
+  }
+
+  // Find user with the HR Admin roleId
+  const hrAdminUser = await User.findOne({ where: { roleId: hrAdminRole.id, status: true } });
+  if (!hrAdminUser) {
+    throw new Error('HR Admin user not found');
+  }
+
+  return hrAdminUser.email; // Return the HR Admin's email
+}
+
+
 async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates) {
+  const hrAdminEmail = await getHREmail();
+
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: process.env.EMAIL_USER,
+    cc: hrAdminEmail,
     subject: 'New Leave Request Submitted',
     text: `A new leave request has been submitted:
     - Username: ${user.name}
