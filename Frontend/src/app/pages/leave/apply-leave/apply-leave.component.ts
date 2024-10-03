@@ -95,8 +95,11 @@ leaves:any[]=[]
   private getLeaveByUser(): void {
     if (!this.userId) return;
 
+    console.log(this.userId)
+
     this.leaveSub = this.leaveService.getLeavesByUser(this.userId, this.searchText, this.currentPage, this.pageSize).subscribe(
       (res: any) => {
+        console.log(res)
         console.log('Response from backend:', res); // Add this line for debugging
         this.leaves = res.items;
         this.totalItems = res.count;
