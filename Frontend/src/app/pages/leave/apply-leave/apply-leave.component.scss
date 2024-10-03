@@ -8,7 +8,6 @@ body {
   width: 100%;
   border-collapse: separate; /* Use separate to allow corner rounding */
   border-spacing: 0;
-  // overflow: hidden;
   border-radius: 10px; /* Rounded corners for the table */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for a subtle 3D effect */
 }
@@ -25,8 +24,8 @@ body {
 
 .table__body {
   max-height: 400px;
-  // overflow-x: auto;
-  // overflow-y: auto;
+  /* overflow-x: auto; */
+  /* overflow-y: auto; */
   border: 1px solid #0000000b;
   border-bottom-left-radius: 10px; /* Rounded bottom left corner */
   border-bottom-right-radius: 10px; /* Rounded bottom right corner */
@@ -38,12 +37,12 @@ table {
   table-layout: auto;
 }
 
-tr{
+tr {
   top: 0;
   z-index: 2;
 }
 
-tr td{
+tr td {
   padding: 4px 8px;
 }
 
@@ -51,7 +50,7 @@ th, td {
   padding: 12px 15px;
   text-align: left;
   border-bottom: 1px solid #ddd;
-  transition: transform 0.2s ease-in-out
+  transition: transform 0.2s ease-in-out;
 }
 
 th {
@@ -64,13 +63,11 @@ th {
 td {
   background-color: #fff;
   position: relative;
-
 }
 
 tbody tr:nth-child(odd) {
   background-color: #f9f9f9;
 }
-
 
 thead th:first-child, tbody td:first-child {
   left: 0;
@@ -99,7 +96,6 @@ thead th:first-child, tbody td:first-child {
   width: 200px;
 }
 
-
 .row {
   display: flex;
   flex-direction: row;
@@ -111,9 +107,101 @@ thead th:first-child, tbody td:first-child {
   width: 100%;
 }
 
-.icon:hover{
-  color: red;
+.icon:hover {
+  color: red !important; /* Ensures color change */
   cursor: pointer;
   transform: scale(1.5);
+}
+
+/*------------------------ Edit and delete button style ---------------------------------------------------------*/
+/*------------------------ Edit and delete button style ---------------------------------------------------------*/
+.icon-btn {
+  border-radius: 50%;
+  padding: 8px;
+  background-color: #F0F0F0 !important; /* Light Grey background */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-size: 24px;
+}
+
+.icon-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Edit Button (Primary Green) */
+.edit-btn {
+  color: #4CAF50 !important; /* Green color */
+}
+
+.edit-btn:hover {
+  background-color: #388E3C !important; /* Darker green for hover */
+}
+
+/* Delete Button (Primary Red) */
+.delete-btn {
+  color: #F44336 !important; /* Red color */
+}
+
+.delete-btn:hover {
+  background-color: #D32F2F !important; /* Darker red for hover */
+}
+
+.icon-btn-group {
+  display: flex;
+  justify-content: space-between; /* Distribute space between buttons */
+  align-items: center; /* Vertically center the icons */
+  width: 120px; /* Adjust this width based on your preference */
+}
+
+.icon-btn {
+  padding: 8px;
+  background-color: #f0f0f0;
+  border-radius: 50%;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-size: 24px;
+}
+
+.edit-btn {
+  color: #4caf50;
+}
+
+.delete-btn {
+  color: #f44336;
+}
+
+.icon-btn-group {
+  display: flex;
+  justify-content: space-around; /* Adjusts spacing between buttons */
+  align-items: center;
+  width: 100px; /* Reduced width to bring buttons closer */
+}
+
+.icon-btn {
+  padding: 8px;
+  background-color: #f0f0f0;
+  border-radius: 50%;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-size: 24px;
+}
+
+.edit-btn {
+  color: #4caf50;
+}
+
+.delete-btn {
+  color: #f44336;
+}
+
+.blocked-layout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.blocked-btn {
+  color: #9e9e9e; /* Grey color for the blocked icon */
+}
+
+.icon-btn-group button {
+  margin: 0 2px; /* Smaller space between Edit and Delete buttons */
 }
 
