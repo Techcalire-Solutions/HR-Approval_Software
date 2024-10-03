@@ -16,9 +16,23 @@ export class LeaveService {
   addLeave(data:any){
     return this.http.post(this.apiUrl+'/leave', data)
   }
-   getLeaves():Observable<any>{
+
+  getLeaves():Observable<any>{
     return this.http.get(`${this.apiUrl}/leave`);
    }
+
+  deleteLeave(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/leave/${id}`);
+  }
+
+  updateLeave(id: number, data: any): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/leave/${id}`, data);
+  }
+
+  getLeaveById(id: number) {
+    return this.http.get(`${this.apiUrl}/leave/${id}`);
+  }
+
 
    getLeavesByUser(userId: number, search?: string, page?: number, pageSize?: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/leave/user/${userId}?search=${search}&page=${page}&pageSize=${pageSize}`);
@@ -28,6 +42,9 @@ export class LeaveService {
   addLeaveType(data:any){
     return this.http.post(this.apiUrl+'/leaveType/', data)
   }
+
+
+
   getLeaveType(): Observable<any> {
     return this.http.get(`${this.apiUrl}/leaveType`);
   }

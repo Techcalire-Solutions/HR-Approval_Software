@@ -36,6 +36,8 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
+
+
 router.get('/byuserandtype/:userid/:typeid', authenticateToken, async (req, res) => {
   try {
     const userLeaves = await UserLeave.findOne({
