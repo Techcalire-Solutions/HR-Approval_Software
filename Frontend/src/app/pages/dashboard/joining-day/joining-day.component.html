@@ -1,0 +1,16 @@
+<mat-card>
+    <div class="birthday-container">
+      <h2>🎉 Joining Anniversary 🎉</h2><br>
+      <div class="card-container">
+          @for (employee of joinThisMonth; track $index) {
+              <div class="card">
+                  <!-- <p> -->
+                      <h4><a style="color: blue;">{{ employee.user.name }}</a> - Joining: {{ employee.dateOfBirth | date: 'MMMM d, y' }} - Exp: {{ employee.exp }}</h4>
+                  <!-- </p> -->
+              </div>
+          }
+      </div>
+    </div>
+  </mat-card>
+  
+  

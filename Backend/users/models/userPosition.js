@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../utils/db');
+const User = require('./user');
 
 const UserPosition = sequelize.define('userposition',{
     userId : {type : DataTypes.INTEGER, allowNull : false},
@@ -18,6 +19,9 @@ const UserPosition = sequelize.define('userposition',{
     freezeTableName: true,
     timestamps : false
 })
+
+User.hasMany(UserPosition, { foreignKey: 'userId', onUpdate: 'CASCADE' });
+UserPosition.belongsTo(User);
 
 UserPosition.sync({ alter: true })
   .then(() => console.log("UserPosition table Sync"))
