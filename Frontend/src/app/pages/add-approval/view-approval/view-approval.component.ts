@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, HostListener, inject, Input, Output, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -61,10 +61,13 @@ export class ViewApprovalComponent {
   onTabClick(tabName: string) {
     this.selectedTab = tabName;
   }
+  _snackbar = inject(MatSnackBar)
+  invoiceService = inject(InvoiceService)
+  loginService = inject(LoginService)
+  dialog = inject(MatDialog)
+  router = inject(Router)
+  snackBar=inject(MatSnackBar)
 
-  constructor(  private _snackbar: MatSnackBar,private invoiceService: InvoiceService, private loginService: LoginService, private dialog: MatDialog, private router: Router,
-    private snackBar: MatSnackBar
-  ) { }
 
   ngAfterViewInit(): void {
   }
@@ -183,7 +186,7 @@ export class ViewApprovalComponent {
           });
 
           this.invoices = invoice;
-          
+
           for (let i = 0; i < this.invoices.length; i++) {
             let invoiceSP = this.invoices[i]?.salesPersonId;
             let invoiceKAM = this.invoices[i]?.kamId;

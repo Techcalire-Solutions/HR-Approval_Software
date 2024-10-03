@@ -6,8 +6,9 @@ const UserLeave = require('../models/userLeave');
 const User = require('../../users/models/user')
 const LeaveType = require('../models/leaveType')
  const nodemailer = require('nodemailer');
-
-
+ const { Op, fn, col, where } = require('sequelize');
+ const sequelize = require('../../utils/db');
+ const Role = require('../../users/models/role')
 
 
 // Set up the email transporter using nodemailer
@@ -33,10 +34,32 @@ function calculateLeaveDays(leaveDates) {
   return noOfDays;
 }
 
+
+// Function to get HR Admin's email for CC
+async function getHREmail() {
+  // Find HR Admin role by roleName
+  const hrAdminRole = await Role.findOne({ where: { roleName: 'HR Administrator' } });
+  if (!hrAdminRole) {
+    throw new Error('HR Admin role not found');
+  }
+
+  // Find user with the HR Admin roleId
+  const hrAdminUser = await User.findOne({ where: { roleId: hrAdminRole.id, status: true } });
+  if (!hrAdminUser) {
+    throw new Error('HR Admin user not found');
+  }
+
+  return hrAdminUser.email; // Return the HR Admin's email
+}
+
+
 async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates) {
+  const hrAdminEmail = await getHREmail();
+
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: process.env.EMAIL_USER,
+    cc: hrAdminEmail,
     subject: 'New Leave Request Submitted',
     text: `A new leave request has been submitted:
     - Username: ${user.name}
@@ -153,31 +176,91 @@ router.get('/', authenticateToken, async (req, res) => {
 
 
 
-// Get leaves for a specific user by userId
-router.get('/user/:userId', (req, res) => {
-  const userId = req.params.userId;
 
-  // Use Sequelize to fetch leaves for the user
-  Leave.findAll({ where: { userId },
-    include:[
-      {
-        model :LeaveType,
-        attributes:['id','leaveTypeName']
+
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    console.log(`Fetching leaves for userId: ${userId}`);
+
+    // Check if the user exists in the User table
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    let whereClause = {};
+    let limit;
+    let offset;
+
+    // Check for pagination parameters
+    if (req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+      limit = req.query.pageSize;
+      offset = (req.query.page - 1) * req.query.pageSize;
+
+      // Check for search term
+      if (req.query.search && req.query.search !== 'undefined') {
+        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+        whereClause = {
+          [Op.or]: [
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('status'), ' ', '')),
+              { [Op.like]: `%${searchTerm}%` }
+            ),
+      
+          ]
+        };
       }
-    ]
-   })
-    .then((leaves) => {
-      // Send the response back with the found leaves
-      res.json(leaves);
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).json({ message: 'Error fetching leaves' });
+    } else {
+      // If no pagination params, apply status filter
+      if (req.query.search && req.query.search !== 'undefined') {
+        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+        whereClause = {
+          [Op.or]: [
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('status'), ' ', '')),
+              { [Op.like]: `%${searchTerm}%` }
+            ),
+            
+          ],
+          status: true
+        };
+      } else {
+        whereClause = { status: true };
+      }
+    }
+
+    // Fetch leave data based on the where clause and pagination
+    const leave = await Leave.findAll({
+      order: ['id'],
+      limit,
+      offset,
+      where: whereClause, 
+      include: [
+        {
+          model: LeaveType,  // Assuming LeaveType is the related model
+          attributes: ['id', 'leaveTypeName'],  // Specify the columns to be selected from the LeaveType model
+        }
+      ]
     });
+
+    // Get the total count of leaves matching the where clause
+    const totalCount = await Leave.count({ where: whereClause });
+
+    if (req.query.page !== 'undefined' && req.query.pageSize !== 'undefined') {
+      const response = {
+        count: totalCount,
+        items: leave,
+      };
+      res.json(response);
+    } else {
+      // Handle case for when pagination is not provided, if needed
+      res.json(leave);
+    }
+  } catch (error) {
+    res.send(error.message);
+  }
 });
-
-
-
 
 
 router.put('/:leaveId/status', authenticateToken, async (req, res) => {
