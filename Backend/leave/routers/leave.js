@@ -82,7 +82,7 @@ async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDa
 
 
 
-// Leave request route
+
 router.post('/', authenticateToken, async (req, res) => {
   const { leaveTypeId, startDate, endDate, notes, leaveDates } = req.body;
   const userId = req.user.id;

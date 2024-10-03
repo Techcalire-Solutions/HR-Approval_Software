@@ -200,12 +200,12 @@ if (leaveId) {
       const idAsNumber = +leaveId; // or use Number(leaveId)
 
       this.leaveService.updateLeave(idAsNumber, leaveRequest).subscribe(() => {
-        this.snackBar.open('Leave request submitted successfully!', 'Close', { duration: 3000 });
+        this.snackBar.open('Leave request Updated successfully!', 'Close', { duration: 3000 });
         this.router.navigate(['/login/leave'])
       });
     } else {
       this.leaveService.addLeave(leaveRequest).subscribe(() => {
-        this.snackBar.open('Leave request Updated successfully!', 'Close', { duration: 3000 });
+        this.snackBar.open('Leave request added successfully!', 'Close', { duration: 3000 });
         this.router.navigate(['/login/leave'])
       });
     }
