@@ -17,12 +17,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { LeaveService } from '@services/leave.service';
-
 import { SafePipe } from '../../add-approval/view-invoices/safe.pipe';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { Leave } from '../../../common/interfaces/leave';
+import { Subscription } from 'rxjs';
 // Custom validator to check if at least one session is selected
 function sessionSelectionValidator(group: FormGroup) {
   const session1 = group.get('session1')?.value;
@@ -60,41 +59,32 @@ function sessionSelectionValidator(group: FormGroup) {
   ],
 })
 export class AddLeaveComponent {
-  today: Date = new Date();
   isEditMode: boolean = false;
 
   leaveRequestForm: FormGroup;
   leaveTypes: any[] = [];
   isLoading = false;
 
-  constructor(private fb: FormBuilder, private leaveService: LeaveService) {
-    this.leaveRequestForm = this.fb.group({
-      leaveTypeId: ['', Validators.required],
-      startDate: ['', Validators.required],
-      endDate: ['', Validators.required],
-      notes: ['', Validators.required],
-      leaveDates: this.fb.array([]),
-    });
-  }
-  snackBar = inject(MatSnackBar);
+
+snackBar = inject(MatSnackBar);
 router = inject(Router)
 route = inject(ActivatedRoute)
+fb = inject(FormBuilder)
+leaveService = inject(LeaveService)
 
 leave : any
 
   ngOnInit() {
     this.getLeaveType();
     this.getLeaves()
-    // Check if we're editing an existing leave
 
-// Check if we're editing an existing leave
 const leaveId = this.route.snapshot.queryParamMap.get('id');
 if (leaveId) {
   this.isEditMode = true;
   this.leaveService.getLeaveById(+leaveId).subscribe((response: any) => {
-    this.leave = response; // Save the leave data
+    this.leave = response;
 
-    // Patch values to the form
+
     this.leaveRequestForm.patchValue({
       leaveTypeId: this.leave.leaveTypeId,
       startDate: this.leave.startDate,
@@ -102,10 +92,10 @@ if (leaveId) {
       notes: this.leave.notes
     });
 
-    // If leaveDates is an array, you will need to manually update the leaveDates FormArray
+
     const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
-    leaveDatesArray.clear(); // Clear any existing dates
-    this.leave.leaveDates.forEach((leaveDate: any) => {  // Explicitly type leaveDate as 'any'
+    leaveDatesArray.clear();
+    this.leave.leaveDates.forEach((leaveDate: any) => {
       leaveDatesArray.push(this.fb.group({
         date: [leaveDate.date],
         session1: [leaveDate.session1],
@@ -114,6 +104,17 @@ if (leaveId) {
     });
   });
 }
+
+
+this.leaveRequestForm = this.fb.group({
+  leaveTypeId: ['', Validators.required],
+  startDate: ['', Validators.required],
+  endDate: ['', Validators.required],
+  notes: ['', Validators.required],
+  leaveDates: this.fb.array([]),
+});
+
+
   }
   displayedColumns: string[] = ['leaveType', 'startDate', 'endDate', 'reason', 'session'];
   get leaveDates(): FormArray {
@@ -144,7 +145,7 @@ if (leaveId) {
         date: [formatDate(dt, 'yyyy-MM-dd', 'en-US')],
         session1: [false],
         session2: [false]
-      }, { validators: sessionSelectionValidator }); // Apply validator correctly here
+      }, { validators: sessionSelectionValidator });
 
       leaveDatesArray.push(leaveDateGroup);
     }
@@ -153,8 +154,8 @@ if (leaveId) {
 
   onSessionChange(index: number, session: string) {
     const leaveDateGroup = this.leaveDates.at(index) as FormGroup;
-    const currentValue = leaveDateGroup.get(session)?.value; // Get current value
-    leaveDateGroup.get(session)?.setValue(!currentValue); // Toggle the value
+    const currentValue = leaveDateGroup.get(session)?.value;
+    leaveDateGroup.get(session)?.setValue(!currentValue);
     console.log(`Checkbox ${session} for date ${leaveDateGroup.get('date')?.value} changed to:`, !currentValue);
   }
 
@@ -179,7 +180,7 @@ if (leaveId) {
     );
   }
 
-  // Fetch leave details for editing
+
   getLeaveDetails(id: number) {
     this.leaveService.getLeaveById(id).subscribe((leave) => {
       this.leave = leave;
@@ -196,27 +197,22 @@ if (leaveId) {
     const leaveId = this.route.snapshot.queryParamMap.get('id');
 
     if (this.isEditMode && leaveId) {
-      // Convert leaveId to a number
-      const idAsNumber = +leaveId; // or use Number(leaveId)
+
+      const idAsNumber = +leaveId;
 
       this.leaveService.updateLeave(idAsNumber, leaveRequest).subscribe(() => {
-        this.snackBar.open('Leave updated successfully!', '', { duration: 2000 });
+        this.snackBar.open('Leave request Updated successfully!', 'Close', { duration: 3000 });
         this.router.navigate(['/login/leave'])
       });
     } else {
       this.leaveService.addLeave(leaveRequest).subscribe(() => {
-        this.snackBar.open('Leave added successfully!', '', { duration: 2000 });
+        this.snackBar.open('Leave request added successfully!', 'Close', { duration: 3000 });
         this.router.navigate(['/login/leave'])
       });
     }
   }
 
 
-
-
-  goBack() {
-    // Implement navigation back (e.g., using Angular Router)
-  }
 
   getLeaveType() {
     this.leaveService.getLeaveType().subscribe(
@@ -229,16 +225,14 @@ if (leaveId) {
     );
   }
 
+  getLeaveSub : Subscription
   getLeaves(){
-         this.leaveService.getLeaves().subscribe((res)=>{
-          console.log(res)
+       this.getLeaveSub= this.leaveService.getLeaves().subscribe((res)=>{
          })
-         }
-
-
-  isDateBeforeToday(date: Date): boolean {
-    return new Date(date).getTime() < this.today.getTime();
   }
+
+
+
   }
 
 
