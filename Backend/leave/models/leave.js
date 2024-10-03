@@ -10,7 +10,7 @@ const Leave = sequelize.define('Leave', {
   },
   leaveTypeId: {
     type: DataTypes.INTEGER,
-    allowNull: true, // Allow null in case leave type isn't selected
+    allowNull: true, 
   },
   startDate: {
     type: DataTypes.DATE,
@@ -33,20 +33,20 @@ const Leave = sequelize.define('Leave', {
   },
   session1: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false, // Use defaultValue instead of default
+    defaultValue: false, 
   },
   session2: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false, // Use defaultValue instead of default
+    defaultValue: false, 
   },
   leaveDates: {
-    type: DataTypes.JSON, // Store JSON for leave dates
+    type: DataTypes.JSON, 
     allowNull: true,
   },
 },
 {
   freezeTableName: true,
-  timestamps: true, // This will add `createdAt` and `updatedAt` timestamps automatically
+  timestamps: true, 
 });
 
 
@@ -54,7 +54,7 @@ LeaveType.hasMany(Leave, { foreignKey: 'leaveTypeId', onUpdate: 'CASCADE' });
 Leave.belongsTo(LeaveType);
 
 
-// Sync the model with the database
+
 Leave.sync({ alter: true })
   .then(() => console.log('Leave table synchronized successfully'))
   .catch((error) => console.error('Error synchronizing Leave table:', error));
