@@ -20,8 +20,9 @@ import { LeaveService } from '@services/leave.service';
 
 import { SafePipe } from '../../add-approval/view-invoices/safe.pipe';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { Leave } from '../../../common/interfaces/leave';
 // Custom validator to check if at least one session is selected
 function sessionSelectionValidator(group: FormGroup) {
   const session1 = group.get('session1')?.value;
@@ -60,6 +61,7 @@ function sessionSelectionValidator(group: FormGroup) {
 })
 export class AddLeaveComponent {
   today: Date = new Date();
+  isEditMode: boolean = false;
 
   leaveRequestForm: FormGroup;
   leaveTypes: any[] = [];
@@ -76,10 +78,42 @@ export class AddLeaveComponent {
   }
   snackBar = inject(MatSnackBar);
 router = inject(Router)
+route = inject(ActivatedRoute)
+
+leave : any
 
   ngOnInit() {
     this.getLeaveType();
     this.getLeaves()
+    // Check if we're editing an existing leave
+
+// Check if we're editing an existing leave
+const leaveId = this.route.snapshot.queryParamMap.get('id');
+if (leaveId) {
+  this.isEditMode = true;
+  this.leaveService.getLeaveById(+leaveId).subscribe((response: any) => {
+    this.leave = response; // Save the leave data
+
+    // Patch values to the form
+    this.leaveRequestForm.patchValue({
+      leaveTypeId: this.leave.leaveTypeId,
+      startDate: this.leave.startDate,
+      endDate: this.leave.endDate,
+      notes: this.leave.notes
+    });
+
+    // If leaveDates is an array, you will need to manually update the leaveDates FormArray
+    const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
+    leaveDatesArray.clear(); // Clear any existing dates
+    this.leave.leaveDates.forEach((leaveDate: any) => {  // Explicitly type leaveDate as 'any'
+      leaveDatesArray.push(this.fb.group({
+        date: [leaveDate.date],
+        session1: [leaveDate.session1],
+        session2: [leaveDate.session2]
+      }));
+    });
+  });
+}
   }
   displayedColumns: string[] = ['leaveType', 'startDate', 'endDate', 'reason', 'session'];
   get leaveDates(): FormArray {
@@ -125,7 +159,7 @@ router = inject(Router)
   }
 
 
-  onSubmit() {
+  onSubmit1() {
     this.isLoading = true;
     const leaveRequest = {
       ...this.leaveRequestForm.value,
@@ -144,6 +178,41 @@ router = inject(Router)
       }
     );
   }
+
+  // Fetch leave details for editing
+  getLeaveDetails(id: number) {
+    this.leaveService.getLeaveById(id).subscribe((leave) => {
+      this.leave = leave;
+    });
+  }
+
+  onSubmit() {
+    this.isLoading = true;
+    const leaveRequest = {
+      ...this.leaveRequestForm.value,
+      leaveDates: this.leaveRequestForm.get('leaveDates')!.value
+    };
+
+    const leaveId = this.route.snapshot.queryParamMap.get('id');
+
+    if (this.isEditMode && leaveId) {
+      // Convert leaveId to a number
+      const idAsNumber = +leaveId; // or use Number(leaveId)
+
+      this.leaveService.updateLeave(idAsNumber, leaveRequest).subscribe(() => {
+        this.snackBar.open('Leave updated successfully!', '', { duration: 2000 });
+        this.router.navigate(['/login/leave'])
+      });
+    } else {
+      this.leaveService.addLeave(leaveRequest).subscribe(() => {
+        this.snackBar.open('Leave added successfully!', '', { duration: 2000 });
+        this.router.navigate(['/login/leave'])
+      });
+    }
+  }
+
+
+
 
   goBack() {
     // Implement navigation back (e.g., using Angular Router)

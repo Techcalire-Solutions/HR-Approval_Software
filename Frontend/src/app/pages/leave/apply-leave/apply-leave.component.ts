@@ -127,10 +127,17 @@ leaves:any[]=[]
 
 
 
-  editLeave(id:number){
-
+  // Navigate to the add/edit leave form
+  editLeave(item:any) {
+    this.router.navigate(['/login/leave/add'], { queryParams: { id: item.id } });
   }
-  deleteLeave(id:number){
 
-  }
+  // Delete leave record
+  deleteLeave(id: number) {
+    this.leaveService.deleteLeave(id).subscribe(response => {
+      console.log(response)
+      // Reload leaves after deletion
+      this.getLeaveByUser();
+    });
+}
 }
