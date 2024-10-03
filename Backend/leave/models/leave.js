@@ -50,8 +50,8 @@ const Leave = sequelize.define('Leave', {
 });
 
 // Define associations
-Leave.belongsTo(LeaveType, { foreignKey: 'leaveTypeId' }); // Leave belongs to LeaveType
-LeaveType.hasMany(Leave, { foreignKey: 'leaveTypeId' });  // Each LeaveType can have many Leaves
+// Leave.belongsTo(LeaveType, { foreignKey: 'leaveTypeId' }); // Leave belongs to LeaveType
+// LeaveType.hasMany(Leave, { foreignKey: 'leaveTypeId' });  // Each LeaveType can have many Leaves
 
 
 // Sync the model with the database
