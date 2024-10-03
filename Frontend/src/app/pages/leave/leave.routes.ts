@@ -10,14 +10,14 @@ export const routes: Routes = [
     data: { breadcrumb: 'Add' } , canActivate: [AuthGuard]
   },
   {
-    path: 'leaverequest',
-    loadComponent: () => import('./leave-request/leave-request.component').then(c => c.LeaveRequestComponent),
-    data: { breadcrumb: 'LeaveRequest' }, canActivate: [AuthGuard]
-  },
-  {
     path: 'userLeave',
     loadComponent: () => import('./user-leave/user-leave.component').then(c => c.UserLeaveComponent),
     data: { breadcrumb: 'LeaveRequest' }, canActivate: [AuthGuard]
+  },
+  {
+    path: 'leaverequest',
+    loadComponent: () => import('./leave.component').then(c => c.LeaveComponent),
+    data: { breadcrumb: 'Leave Requests' }, canActivate: [AuthGuard]
   },
 
 ];

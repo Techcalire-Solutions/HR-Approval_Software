@@ -29,6 +29,7 @@ import { PipesModule } from '../../../theme/pipes/pipes.module';
 import { UserDialogComponent } from '../../users/user-dialog/user-dialog.component';
 import { Router } from '@angular/router';
 import { LeaveService } from '@services/leave.service';
+import { CamelCasePipe } from '../../../common/camel-case.pipe';
 
 @Component({
   selector: 'app-apply-leave',
@@ -52,7 +53,8 @@ import { LeaveService } from '@services/leave.service';
     DatePipe,
     UserDialogComponent,
     CommonModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    CamelCasePipe
   ],
   providers: [
     { provide: DateAdapter, useClass: NativeDateAdapter },
@@ -83,7 +85,7 @@ userId:number
 
   ngOnDestroy(): void {
       this.leaveSub.unsubscribe();
-      this.delete.unsubscribe()
+      // this.delete.unsubscribe();
   }
 
 
@@ -93,10 +95,11 @@ leaves:any[]=[]
   private getLeaveByUser(): void {
     if (!this.userId) return;
 
-    // Call service method with search, page, and pageSize
     this.leaveSub = this.leaveService.getLeavesByUser(this.userId, this.searchText, this.currentPage, this.pageSize).subscribe(
       (res: any) => {
-        this.leaves = res.items;  // Assuming 'res' contains 'items'
+        console.log('Response from backend:', res); // Add this line for debugging
+        this.leaves = res.items;
+        this.totalItems = res.count;
       },
       (error) => {
         console.error('Error loading leaves:', error);
@@ -121,6 +124,7 @@ leaves:any[]=[]
   pageSize = 5;
   currentPage = 1;
   totalItems = 0;
+
   onPageChange(event: PageEvent): void {
     this.currentPage = event.pageIndex + 1;
     this.pageSize = event.pageSize;
@@ -147,5 +151,14 @@ deleteLeave(id: number){
         });
       }
     });
+  }
+
+   // Function to convert a string to camelCase
+   toCamelCase(str: string): string {
+    return str
+      .toLowerCase()
+      .split(' ')
+      .map((word, index) => index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1))
+      .join('');
   }
 }
