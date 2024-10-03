@@ -98,8 +98,11 @@ leaves:any[]=[]
   private getLeaveByUser(): void {
     if (!this.userId) return;
 
+    console.log(this.userId)
+
     this.leaveSub = this.leaveService.getLeavesByUser(this.userId, this.searchText, this.currentPage, this.pageSize).subscribe(
       (res: any) => {
+
         this.leaves = res.items;
         this.totalItems = res.count;
       },
