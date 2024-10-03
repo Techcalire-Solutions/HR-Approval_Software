@@ -66,3 +66,6 @@ Leave.sync({ alter: true })
   .catch((error) => console.error('Error synchronizing Leave table:', error));
 
 module.exports = Leave;
+
+
+
