@@ -123,10 +123,12 @@ export class AddApprovalComponent {
     accountantId:  <any>[],
     supplierName: ['', Validators.required],
     supplierPoNo: ['', Validators.required],
+    supplierCurrency:['Dollar'],
     supplierPrice: ['', Validators.required],
     purpose: ['', Validators.required],
     customerName: [''],
     customerPoNo: [''],
+    customerCurrency:['Dollar'],
     poValue: ['']
   });
 
