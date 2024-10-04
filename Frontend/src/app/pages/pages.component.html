@@ -18,12 +18,18 @@
                                 <mat-icon>person</mat-icon>
                             </button>
                         }
-                        @if (settings.menu == 'horizontal') {
+                        <!-- @if (settings.menu == 'horizontal') {
                             <a mat-raised-button color="accent" (click)="closeSubMenus()" class="small-logo">W</a>
                             <a class="logo" (click)="closeSubMenus()">LEEDS AEROSPACE</a>
-                        }
+                        } -->
                     </div>
                     <div fxLayout="row" fxLayoutAlign="end center">
+                        <button mat-icon-button class="full-screen" (click)="openAnnouncement()">
+                            <mat-icon>campaign</mat-icon>
+                        </button> 
+                        @if(announcement){
+                            <p>{{message}}</p>
+                        }
                         <div fxLayout="row" fxLayoutAlign="start center" fxShow="false" fxShow.gt-xs class="search-bar">
                             <form method="get" fxLayout="row" fxLayoutAlign="start center">
                                 <input type="text" placeholder="Type to search..." class="mat-elevation-z3"  [class.show]="toggleSearchBar">

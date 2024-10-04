@@ -19,6 +19,8 @@ import { UserMenuComponent } from '../theme/components/user-menu/user-menu.compo
 import { HorizontalMenuComponent } from '../theme/components/menu/horizontal-menu/horizontal-menu.component';
 import { BreadcrumbComponent } from '../theme/components/breadcrumb/breadcrumb.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { AnnouncementsComponent } from "./announcements/announcements.component";
+import { Announcement } from '../common/interfaces/announcement';
 @Component({
   selector: 'app-pages',
   standalone: true,
@@ -41,8 +43,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     UserMenuComponent,
     HorizontalMenuComponent,
     BreadcrumbComponent,
-
-  ],
+    AnnouncementsComponent
+],
   templateUrl: './pages.component.html',
   styleUrl: './pages.component.scss'
 })
@@ -180,6 +182,19 @@ export class PagesComponent implements OnInit {
         }
       }
     }
+  }
+
+  openAnnouncement(){
+    this.router.navigateByUrl('/login/announcements')
+  }
+
+  announcement: boolean = false;
+  message: string = '';
+  getAnnouncement(ancmnt: any){
+    console.log(ancmnt);
+    
+    this.announcement = true;
+    this.message = ancmnt.message;
   }
 
 }
