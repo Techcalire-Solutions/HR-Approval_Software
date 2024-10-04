@@ -1,0 +1,127 @@
+<div fxLayout="row" fxLayoutAlign="space-between center" class="px-2 py-1">
+    <div fxLayout="row">
+        <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
+            <mat-button-toggle value="add" (click)="openDialog(null)">
+                <mat-icon>loupe</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle value="search">
+                <mat-icon>search</mat-icon>
+            </mat-button-toggle>
+        </mat-button-toggle-group>
+    </div>
+<!-- 
+    <form class="user-search" [class.show]="controls.value == 'search'">
+        <mat-form-field class="user-search-input">
+            <input matInput placeholder="Search user by name..." (keyup)="search($event)" >
+        </mat-form-field>
+    </form> -->
+
+    <!-- <div fxLayout="row" fxLayoutAlign="space-between center">
+        <mat-button-toggle-group #viewType="matButtonToggleGroup" appearance="legacy" value="grid" hideSingleSelectionIndicator="true">
+            <mat-button-toggle value="grid">
+                <mat-icon>view_module</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle value="list">
+                <mat-icon>view_list</mat-icon>
+            </mat-button-toggle>
+        </mat-button-toggle-group>
+    </div> -->
+</div>
+
+<!-- @if (viewType.value == 'grid') {
+    <div fxLayout="row wrap">
+        @for (user of users; track user.id) {
+            <div fxFlex="100" fxFlex.gt-md="33.3" fxFlex.md="50" class="p-2">
+                <mat-card class="p-0">
+                    <div class="bg-primary" fxLayout="row" fxLayoutAlign="space-between center">
+                        <h3 class="user-name">
+                            @if (!user.status) {
+                                User blocked
+                            } @else {
+                                {{user.name}}
+                            }
+                        </h3>
+                        <button mat-icon-button [matMenuTriggerFor]="menu" #menuTrigger="matMenuTrigger" class="default-contrast">
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+                    </div>
+                    <mat-menu #menu="matMenu" xPosition="before" overlapTrigger="true">
+                        <span (mouseleave)="menuTrigger.closeMenu()">
+                            <button mat-menu-item (click)="openUserDialog(user)">
+                                <mat-icon>mode_edit</mat-icon>
+                                <span>Edit</span>
+                            </button>
+                            <button mat-menu-item (click)="deleteFunction(user.id);">
+                                <mat-icon>delete</mat-icon>
+                                <span>Delete</span>
+                            </button>
+                            <button mat-menu-item (click)="viewEmployee(user.id);">
+                                <mat-icon>open_in_new</mat-icon>
+                                <span>View</span>
+                            </button>
+                            <button mat-menu-item (click)="resetPassword(user.id, user.empNo);">
+                                <mat-icon>password</mat-icon>
+                                <span>Password</span>
+                            </button>
+                            @if(user.url){
+                                <button mat-menu-item (click)="deleteImage(user.id);">
+                                    <mat-icon>image_not_supported</mat-icon>
+                                    <span>Delete Image</span>
+                                </button>
+                            }
+                        </span>
+                    </mat-menu>
+                    <div class="user-content" fxLayout="row" fxLayoutAlign="space-around center">
+                        <div fxFlex="30" fxLayout="column" fxLayoutAlign="center center">
+                          <div class="user-img">
+                            <img *ngIf="user.url; else defaultImage" [src]="apiUrl + user.url" class="transition-2" [class.blocked]="!user.status">
+                            <ng-template #defaultImage>
+                                <img [src]="userImage" class="transition-2" [class.blocked]="!user.status">
+                            </ng-template>
+                            <mat-icon *ngIf="!user.status" class="warn-color">block</mat-icon>
+                        </div>
+
+                            <div class="user-social">
+                                <mat-slide-toggle [checked]="user.status"  (change)="updateStatus($event, user.id, user.name)"></mat-slide-toggle>
+                            </div>
+                        </div>
+                        <div fxFlex="70" fxLayout="column" class="user-details transition-2" [class.blocked]="!user.status">
+                            <p fxLayout="row" fxLayoutAlign="start center">
+                                <mat-icon class="muted-text">card_membership</mat-icon>
+                                <span>{{user.role.roleName}}</span>
+                            </p>
+                            <p fxLayout="row" fxLayoutAlign="start center">
+                                <mat-icon class="muted-text">mail_outline</mat-icon>
+                                <span>{{user.email}}</span>
+                            </p>
+                            <p fxLayout="row" fxLayoutAlign="start center">
+                                <mat-icon class="muted-text">call</mat-icon>
+                                <span>{{user.phoneNumber}}</span>
+                            </p>
+                        </div>
+                    </div>
+                </mat-card>
+            </div>
+        }
+        <mat-paginator
+          [length]="totalItems"
+          [pageSize]="pageSize"
+          [pageIndex]="currentPage - 1"
+          (page)="onPageChanged($event)"
+          [pageSizeOptions]="[10, 20, 30, 40, 50, 100]">
+        </mat-paginator>
+    </div>
+}
+@if (users) {
+    <div fxLayout="row wrap">
+        <div fxFlex="100" class="p-2">
+            <mat-card class="p-0 text-center">
+                <pagination-controls class="gradus-pagination" [autoHide]="true" [maxSize]="3" (pageChange)="onPageChanged($event)"></pagination-controls>
+            </mat-card>
+        </div>
+    </div>
+} @else {
+    <div fxLayout="column" fxLayoutAlign="center center" class="user-spinner">
+        <mat-spinner color="primary"></mat-spinner>
+    </div>
+} -->
