@@ -69,6 +69,8 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
   }
 })
 
+
+
 router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
   try {
     const user = await UserDocument.findAll({where: {userId: req.params.id}})
@@ -110,6 +112,9 @@ router.delete('/filedelete/:id', authenticateToken, async (req, res) => {
     res.status(500).send({ message: error.message });
   }
 });
+
+
+
 
 router.delete('/delete/:id', authenticateToken, async (req, res) => {
   let id = req.params.id;
