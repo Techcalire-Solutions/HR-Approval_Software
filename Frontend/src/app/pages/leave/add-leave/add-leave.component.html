@@ -37,6 +37,20 @@
         </mat-form-field>
       </div>
 
+
+      <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
+        <div class="upload-container" (click)="fileInput.click()">
+          Upload Image:
+          <input type="file" hidden #fileInput (change)="uploadFile($event)">
+          <span class="material-icons clickable-icon" [ngClass]="{'file-selected': isFileSelected}" style="margin-left: 10px;">cloud_upload</span>
+          <span *ngIf="fileName" style="margin-left: 10px;">{{ fileName }}</span> <!-- Display the file name -->
+        </div>
+      </div>
+
+<br>
+
+
+
       <div formArrayName="leaveDates">
         <div *ngFor="let leaveDate of leaveDates.controls; let i = index" [formGroupName]="i" class="leave-session-card">
           <mat-card>

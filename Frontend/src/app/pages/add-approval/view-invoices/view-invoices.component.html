@@ -8,14 +8,26 @@
       <tr>
         <td><strong>Supplier Name:</strong> {{ pi.supplierName }}</td>
         <td><strong>Supplier PO No:</strong> {{ pi.supplierPoNo }}</td>
-        <td><strong>Supplier Price:</strong> <span style="color: green;"> $ {{ pi.supplierPrice }}</span></td>
+        <td>
+          <strong>Supplier Price:</strong>
+          <span style="color: green;">
+              {{ pi.supplierCurrency === 'Dollar' ? '$' : pi.supplierCurrency }} {{ pi.supplierPrice }}
+          </span>
+      </td>
+
         <td><strong>Purpose:</strong> {{ pi.purpose }}</td>
       </tr>
       <tr>
 
         <td *ngIf="pi.customerName"><strong>Customer Name:</strong> {{ pi.customerName }}</td>
         <td *ngIf="pi.customerName"><strong>Customer PO No:</strong> {{ pi.customerPoNo }}</td>
-        <td *ngIf="pi.customerName"><strong>Customer PO Value:</strong> <span style="color: green;"> $ {{ pi.poValue }}</span></td>
+        <td *ngIf="pi.customerName">
+          <strong>Customer PO Value:</strong>
+          <span style="color: green;">
+              {{ pi.customerCurrency === 'Dollar' ? '$' : pi.customerCurrency }} {{ pi.poValue }}
+          </span>
+      </td>
+
       </tr>
     </tbody>
   </table>
