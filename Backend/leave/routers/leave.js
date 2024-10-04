@@ -9,8 +9,8 @@ const LeaveType = require('../models/leaveType')
  const { Op, fn, col, where } = require('sequelize');
  const sequelize = require('../../utils/db');
  const Role = require('../../users/models/role')
-
-
+ const s3 = require('../../utils/s3bucket');
+ const upload = require('../../utils/leaveDocumentMulter');
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -84,7 +84,7 @@ async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDa
 
 
 router.post('/', authenticateToken, async (req, res) => {
-  const { leaveTypeId, startDate, endDate, notes, leaveDates } = req.body;
+  const { leaveTypeId, startDate, endDate, notes,fileUrl, leaveDates } = req.body;
   const userId = req.user.id;
 
   if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
@@ -126,6 +126,7 @@ router.post('/', authenticateToken, async (req, res) => {
       endDate,
       noOfDays,
       notes,
+      fileUrl,
       status: 'requested',
       leaveDates
     });
@@ -136,7 +137,7 @@ router.post('/', authenticateToken, async (req, res) => {
     await userLeave.save();
 
     // Send email notification
-    await sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates);
+    await sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays,fileUrl, leaveDates);
 
     res.json({
       message: 'Leave request submitted successfully',
@@ -153,6 +154,7 @@ router.post('/', authenticateToken, async (req, res) => {
         endDate,
         noOfDays,
         notes,
+        fileUrl,
         leaveDates
       },
     });
@@ -255,7 +257,7 @@ router.get('/user/:userId', async (req, res) => {
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const leaves = await Leave.findAll({});
-    res.status(200).send(leaves);
+    res.send(leaves);
   } catch (error) {
     res.send(error.message)
   }
@@ -346,6 +348,39 @@ router.patch('/:id', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     res.send(error.message)
+  }
+});
+
+
+router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.send({ message: 'No file uploaded' });
+    }
+    
+    const customFileName = req.body.name || req.file.originalname;  
+    const sanitizedFileName = customFileName.replace(/[^a-zA-Z0-9]/g, '_');
+
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `Leave/documents/${Date.now()}_${sanitizedFileName}`,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+      ACL: 'public-read'
+    };
+
+    const data = await s3.upload(params).promise();
+
+    const fileUrl = data.Location ? data.Location : '';
+    const key = fileUrl ? fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+
+    res.send({
+      message: 'File uploaded successfully',
+      file: req.file,
+      fileUrl: key
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
   }
 });
 

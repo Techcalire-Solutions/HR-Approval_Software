@@ -46,14 +46,15 @@ export class AddRoleDialogComponent {
   public form: FormGroup;
   public passwordHide:boolean = true;
   snackBar = inject(MatSnackBar);
-  
+
   constructor(public dialogRef: MatDialogRef<AddRoleDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public role: Role,
               public fb: FormBuilder,private roleService:RoleService) {
     this.form = this.fb.group({
 
-      roleName: [null, Validators.compose([Validators.required, Validators.minLength(2)])],
-      abbreviation: [null, Validators.compose([Validators.required, Validators.minLength(2)])],
+      roleName: ['', Validators.required],
+      abbreviation: ['', Validators.required],
+      status: [true]
 
     });
   }
