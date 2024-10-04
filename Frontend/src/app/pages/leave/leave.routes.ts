@@ -18,9 +18,9 @@ export const routes: Routes = [
     data: { breadcrumb: 'LeaveRequest' }, canActivate: [AuthGuard]
   },
   {
-    path: 'leaverequest',
+    path: 'leaveCalendar',
     loadComponent: () => import('./leave.component').then(c => c.LeaveComponent),
-    data: { breadcrumb: 'Leave Requests' }, canActivate: [AuthGuard]
+    data: { breadcrumb: 'Calender View' }, canActivate: [AuthGuard]
   },
 
 ];
