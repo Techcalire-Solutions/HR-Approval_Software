@@ -123,7 +123,8 @@ router.patch('/update/:id', async(req,res)=>{
         return res.status(400).send("Invalid dateOfBirth format.");
       }
     }
-
+    console.log(formattedDateOfBirth, formattedDateOfJoining);
+    
     let result = await UserPersonal.findByPk(req.params.id);
     result.dateOfJoining = dateOfJoining ? formattedDateOfJoining[0] : null;
     result.probationPeriod = probationPeriod;
@@ -142,8 +143,11 @@ router.patch('/update/:id', async(req,res)=>{
     result.emergencyContactNo = emergencyContactNo;
     result.emergencyContactName = emergencyContactName;
     result.emergencyContactRelation = emergencyContactRelation;
-
+    console.log(result);
+    
     await result.save();
+    console.log(result);
+    
     res.send(result);
   } catch (error) {
     res.send(error.message);
