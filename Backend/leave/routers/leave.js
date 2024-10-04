@@ -257,7 +257,7 @@ router.get('/user/:userId', async (req, res) => {
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const leaves = await Leave.findAll({});
-    res.status(200).send(leaves);
+    res.send(leaves);
   } catch (error) {
     res.send(error.message)
   }
