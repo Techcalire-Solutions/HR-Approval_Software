@@ -41,6 +41,8 @@ export class UsersService {
     }
   }
 
+  
+
   // deleteInvoice(id: number, fileName: string){
   //   return this._http.delete(this.url + `/invoice/filedelete/?id=${id}&fileName=${fileName}`);
   // }
@@ -93,7 +95,7 @@ export class UsersService {
   getUserStatutoryuDetailsByUser(id: number): Observable<StatutoryInfo> {
     return this.http.get<StatutoryInfo>( this.apiUrl + '/statutoryinfo/findbyuser/' + id);
   }
-  
+
   getUserAcoountDetailsByUser(id: number): Observable<UserAccount> {
     return this.http.get<UserAccount>( this.apiUrl + '/account/findbyuser/' + id);
   }

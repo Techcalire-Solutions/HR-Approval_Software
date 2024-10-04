@@ -19,7 +19,6 @@ import { Role } from '../../../common/interfaces/role';
 import { UsersService } from '../../../services/users.service';
 import { Subscription } from 'rxjs';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { environment } from '../../../../environments/environment';
 import { User } from '../../../common/interfaces/user';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PersonalDetailsComponent } from "../personal-details/personal-details.component";
@@ -154,7 +153,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
       }
       this.uploadSub = this.userService.uploadImage(this.file).subscribe({
         next: (invoice) => {
-          
+
           this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ invoice.fileUrl}`;
           if (this.imageUrl) {
             this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.imageUrl);
@@ -175,13 +174,15 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     this.hidePassword = !this.hidePassword;
   }
 
+
+
   roles:Role[]=[];
   roleSub!: Subscription;
   getRoles(){
     this.roleSub = this.roleService.getRole().subscribe((res)=>{
       this.roles = res;
       console.log(res);
-      
+
     })
   }
 
@@ -210,7 +211,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
       this.submit = this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
         this.dataToPass = { id: res.user.id, empNo: this.invNo, name: res.user.name, updateStatus: this.editStatus };
         console.log(this.dataToPass);
-        
+
         this.selectedTabIndex = 1;
         if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
           this.personalDetailsComponent.ngOnInit();

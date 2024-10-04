@@ -39,6 +39,9 @@ const Leave = sequelize.define('Leave', {
     type: DataTypes.BOOLEAN,
     defaultValue: false, 
   },
+  fileUrl: { 
+    type: DataTypes.STRING
+   },
   leaveDates: {
     type: DataTypes.JSON, 
     allowNull: true,

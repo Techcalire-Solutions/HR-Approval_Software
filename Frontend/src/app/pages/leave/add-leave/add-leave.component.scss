@@ -12,3 +12,13 @@
 .full-width {
   width: 100%;
 }
+
+//------Upload css code--------------------------
+.clickable-icon {
+  cursor: pointer;
+  transition: color 0.3s; /* Smooth color transition */
+}
+
+.file-selected {
+  color: green; /* Change the icon color when a file is selected */
+}
