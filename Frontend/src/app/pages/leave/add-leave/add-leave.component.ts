@@ -22,6 +22,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
+import { SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 // Custom validator to check if at least one session is selected
 function sessionSelectionValidator(group: FormGroup) {
   const session1 = group.get('session1')?.value;
@@ -71,6 +73,7 @@ router = inject(Router)
 route = inject(ActivatedRoute)
 fb = inject(FormBuilder)
 leaveService = inject(LeaveService)
+sanitizer = inject(DomSanitizer);
 
 leave : any
 
@@ -111,6 +114,7 @@ this.leaveRequestForm = this.fb.group({
   startDate: ['', Validators.required],
   endDate: ['', Validators.required],
   notes: ['', Validators.required],
+  fileUrl:[''],
   leaveDates: this.fb.array([]),
 });
 
@@ -230,6 +234,35 @@ this.leaveRequestForm = this.fb.group({
        this.getLeaveSub= this.leaveService.getLeaves().subscribe((res)=>{
          })
   }
+
+  uploadProgress: number | null = null;
+  file!: File;
+  imageUrl!: string;
+  fileName: string = ''; // Holds the name of the file
+  isFileSelected: boolean = false; // Track if a file is selected
+
+  uploadFile(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const selectedFile = input.files?.[0]; // Get the first file if it exists
+
+    if (selectedFile) { // Check if a file was selected
+      this.file = selectedFile; // Assign the file
+      this.fileName = this.file.name; // Store the file name
+      this.isFileSelected = true; // Set the selected state to true
+      this.leaveService.uploadImage(this.file).subscribe({
+        next: (res) => {
+          this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${res.fileUrl}`;
+          this.leaveRequestForm.get('url')?.setValue(res.fileUrl);
+        },
+        error: () => console.error('Upload failed'),
+      });
+    } else {
+      console.warn('No file selected'); // Handle the case where no file was selected
+      this.fileName = ''; // Reset the file name if no file is selected
+      this.isFileSelected = false; // Reset the selected state
+    }
+  }
+
 
 
 
