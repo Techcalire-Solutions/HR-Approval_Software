@@ -1,0 +1,30 @@
+<mat-card>
+    <mat-card-header> <mat-card-title> ADD ANNOUNCEMENTS </mat-card-title> </mat-card-header>
+</mat-card>
+<div class="add-announcement-form">
+    <form [formGroup]="form">
+        <mat-form-field>
+            <input matInput type="text" placeholder="Message" #newMessage formControlName="message">
+        </mat-form-field>
+    
+        <mat-form-field>
+            <mat-select #newType placeholder="Select Type" formControlName="type">
+                <mat-option value="info">Info</mat-option>
+                <mat-option value="success">Success</mat-option>
+                <mat-option value="warning">Warning</mat-option>
+                <mat-option value="error">Error</mat-option>
+            </mat-select>
+        </mat-form-field>
+    
+        <mat-checkbox #newDismissible checked formControlName="dismissible">Dismissible</mat-checkbox>
+
+        <input type="file" (change)="onFileSelected($event)" />
+    
+        <button mat-raised-button color="primary" (click)="addAnnouncement(newMessage.value, newType.value, newDismissible.checked)">
+            Add Announcement
+        </button>
+    </form>
+  </div>
+  @if(isVisible){
+    <app-pages></app-pages> 
+  }

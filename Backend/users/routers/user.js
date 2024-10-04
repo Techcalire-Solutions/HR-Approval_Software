@@ -395,9 +395,10 @@ router.get('/confirmemployee/:id', async (req, res) => {
       let up = await UserPersonal.findOne({
         where: { userId: req.params.id}
       })
-      up.confirmationDate = new Date();
-      await up.save();
-      
+      if(!up){
+        return res.send(`Personal data is not added for the employee ${result.name}`)
+      }
+    
       const leaveTypes = await LeaveType.findAll({});
       const sl = leaveTypes.find(x => x.leaveTypeName === 'Sick Leave');
       const cl = leaveTypes.find(x => x.leaveTypeName === 'Casual Leave');
@@ -412,7 +413,7 @@ router.get('/confirmemployee/:id', async (req, res) => {
         UserLeave.bulkCreate([data[i]]);
       }
 
-      res.json({ message: "Employee confirmed" });
+      // res.json({ message: "Employee confirmed" });
   } catch (error) {
       console.error('Error confirming employee:', error.message);
       res.status(500).json({ message: "Internal Server Error", error: error.message });
