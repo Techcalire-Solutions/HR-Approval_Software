@@ -11,6 +11,9 @@ export const routes: Routes = [
       {path: 'dashboard', loadComponent: () => import('./dashboard/dashboard.component').then(c => c.DashboardComponent),
         data: { breadcrumb: 'Dashboard' }, canActivate: [AuthGuard]
       },
+      {path: 'announcements', loadComponent: () => import('./announcements/announcements.component').then(c => c.AnnouncementsComponent),
+        data: { breadcrumb: 'Announcements' }, canActivate: [AuthGuard]
+      },
 
       {
         path: 'role',

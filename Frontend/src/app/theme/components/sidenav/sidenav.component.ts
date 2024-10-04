@@ -75,13 +75,11 @@ users:User;
 
 
   ngOnInit() {
-    console.log('hiii', this.role);
     const token = localStorage.getItem('token');
     if (token) {
       let user = JSON.parse(token);
       this.roleId = user.role;
       this.userId = user.id;
-      console.log('hiii', this.role);
       this.getUser()
       this.invoiceService.getRoleById(user.role).subscribe((res) => {
         this.role = res.roleName;
@@ -174,7 +172,7 @@ users:User;
         item.title === 'Dashboard' ||
         item.title === 'Role' ||
         (item.title === 'Employee' && !item.parentId) ||
-        (item.title === 'Open' && item.parentId === 3) ||
+        (item.title === 'Directory' && item.parentId === 3) ||
         (item.title === 'Confirmation' && item.parentId === 3) ||
         item.title === 'Team' ||
         (item.title === 'Leave' && !item.parentId) ||
