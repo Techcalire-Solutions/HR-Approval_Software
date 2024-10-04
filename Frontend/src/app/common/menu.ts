@@ -29,7 +29,7 @@ export const verticalMenuItems = [
   new Menu(17, 'YTD Reports', '/login/viewApproval', null, 'visibility', null, false, 13),
   new Menu(17, 'Pay Details', '/login/viewApproval', null, 'visibility', null, false, 13),
   new Menu(18, 'User leave', '/login/userLeave', null, 'visibility', null, false, 8),
-
+  new Menu(19, 'Events Calender', '/login/leave/events', null, 'visibility', null, false, 8),
 
 ];
 
