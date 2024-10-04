@@ -4,6 +4,7 @@ import { LeaveType } from '../common/interfaces/leaveType';
 import { Observable } from 'rxjs/internal/Observable';
 import { environment } from '../../environments/environment';
 import { UserLeave } from '../common/interfaces/userLeave';
+import {  throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -37,6 +38,17 @@ export class LeaveService {
    getLeavesByUser(userId: number, search?: string, page?: number, pageSize?: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/leave/user/${userId}?search=${search}&page=${page}&pageSize=${pageSize}`);
   }
+
+  uploadImage(file: any): Observable<any> {
+    if (file instanceof File) {
+      const formData = new FormData();
+      formData.append("file", file, file.name);
+      return this.http.post(`${this.apiUrl}/leave/fileupload`, formData);
+    }
+    return throwError(() => new Error("Invalid file type"));
+  }
+
+
 
 
   addLeaveType(data:any){
