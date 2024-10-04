@@ -27,7 +27,13 @@
           <mat-label>Supplier PO#</mat-label>
           <input matInput placeholder="Enter Supplier PO#" formControlName="supplierPoNo">
         </mat-form-field>
-
+        <mat-form-field appearance="outline">
+          <mat-label>Supplier Currency</mat-label>
+          <mat-select formControlName="supplierCurrency">
+              <mat-option value="Dollar">Dollar</mat-option>
+              <mat-option value="AED">AED</mat-option>
+          </mat-select>
+      </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Supplier Price $</mat-label>
           <input matInput placeholder="Enter Supplier Price" formControlName="supplierPrice">
@@ -102,6 +108,13 @@
             <mat-label>Customer PO#</mat-label>
             <input matInput placeholder="Enter Customer PO#" formControlName="customerPoNo">
           </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Customer Currency</mat-label>
+            <mat-select formControlName="customerCurrency">
+                <mat-option value="Dollar">Dollar</mat-option>
+                <mat-option value="AED">AED</mat-option>
+            </mat-select>
+        </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>CustomerPO Value $</mat-label>
