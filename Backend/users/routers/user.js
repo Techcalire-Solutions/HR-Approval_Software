@@ -413,7 +413,7 @@ router.get('/confirmemployee/:id', async (req, res) => {
         UserLeave.bulkCreate([data[i]]);
       }
 
-      // res.json({ message: "Employee confirmed" });
+      res.json({ message: "Employee confirmed" });
   } catch (error) {
       console.error('Error confirming employee:', error.message);
       res.status(500).json({ message: "Internal Server Error", error: error.message });
