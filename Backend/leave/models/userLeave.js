@@ -11,7 +11,8 @@ const sequelize = require('../../utils/db')
     freezeTableName :true,
     timestamps : true
  })
-//  UserLeave.sync({alter:true})
-// .then(()=>console.log)
+ 
+ UserLeave.sync({alter:true})
+.then(()=>console.log)
 
 module.exports = UserLeave
