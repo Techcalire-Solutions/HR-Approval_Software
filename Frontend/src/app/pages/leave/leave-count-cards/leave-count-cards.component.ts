@@ -49,19 +49,20 @@ export class LeaveCountCardsComponent {
 
     this.leaveService.getLeaveCounts(userId).subscribe(
       (res) => {
-        // Check if the response has any leave counts
+        console.log(res)
+
         if (res && res.length > 0) {
-          this.leaveCounts = res; // Use the received leave counts
+          this.leaveCounts = res;
         } else {
-          this.leaveCounts = []; // Set to an empty array if no leaves
+          this.leaveCounts = [];
         }
       },
       (error) => {
         console.error('Error fetching leave counts:', error);
-        this.leaveCounts = []; // Set to an empty array on error
+        this.leaveCounts = []; 
       }
     );
-  
+
 
 
     this.orders = orders;
