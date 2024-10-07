@@ -10,6 +10,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { AnnouncementsService } from '@services/announcements.service';
 import { Subscription } from 'rxjs';
 import { PagesComponent } from '../../pages.component';
+import { MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-add-announcements',
@@ -28,6 +30,8 @@ export class AddAnnouncementsComponent {
 
   fb = inject(FormBuilder);
   announcementService = inject(AnnouncementsService);
+  dialogRef = inject(MatDialogRef<AddAnnouncementsComponent>);
+  snackBar = inject(MatSnackBar); 
 
   form = this.fb.group({
     message: [''],
@@ -47,26 +51,15 @@ export class AddAnnouncementsComponent {
     const file = event.target.files[0];
     this.file = file ? file : null;
   }
-
-  ngAfterViewInit() {
-    if (!this.pagesComponent) {
-      console.error('pagesComponent is not initialized');
-    }
-  }
   
-  @ViewChild(PagesComponent) pagesComponent!: PagesComponent;
   ancmntSub!: Subscription;
   isVisible: boolean = false;
   addAnnouncement(message: string, type: string, dismissible: boolean){
     console.log(this.form.getRawValue());
     this.ancmntSub = this.announcementService.addAnnouncement(this.form.getRawValue()).subscribe((res) => {
-      console.log(res);
-      if (this.pagesComponent) {
-        this.pagesComponent.getAnnouncement(res);
-      } else {
-        console.error('pagesComponent is undefined');
-      }
-
+      this.announcementService.triggerSubmit(res);
+      this.dialogRef.close();
+      this.snackBar.open(`Announcement added successfully...`, 'Close', { duration: 3000 });
     })
   }
 
