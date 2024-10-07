@@ -1,5 +1,5 @@
-import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Component, EventEmitter, inject, Input, OnDestroy, Output, ViewChild } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -12,16 +12,21 @@ import { Subscription } from 'rxjs';
 import { PagesComponent } from '../../pages.component';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
+import { SafePipe } from "../../add-approval/view-invoices/safe.pipe";
 
 @Component({
   selector: 'app-add-announcements',
   standalone: true,
   imports: [MatFormFieldModule, MatCheckboxModule, MatSelectModule, MatOptionModule, MatInputModule, MatButtonModule, MatCardModule,
-    ReactiveFormsModule, PagesComponent],
+    ReactiveFormsModule, PagesComponent, MatIconModule, SafePipe],
   templateUrl: './add-announcements.component.html',
   styleUrl: './add-announcements.component.scss'
 })
-export class AddAnnouncementsComponent {
+export class AddAnnouncementsComponent implements OnDestroy {
+  ngOnDestroy(): void {
+    this.ancmntSub?.unsubscribe();
+  }
   @Input() message: string = '';
   @Input() type: string = 'info';
   @Input() dismissible: boolean = true;
@@ -34,9 +39,10 @@ export class AddAnnouncementsComponent {
   snackBar = inject(MatSnackBar); 
 
   form = this.fb.group({
-    message: [''],
-    type: ['info'],
-    dismissible: [true] 
+    message: ['', Validators.required],
+    type: ['info', Validators.required],
+    dismissible: [true],
+    fileUrl: [''], 
   }); 
 
   dismissed: boolean = false;
@@ -47,15 +53,31 @@ export class AddAnnouncementsComponent {
   }
 
   file: File | null = null;
+  fileType: string;
+  uploadSub!: Subscription;
+  imageUrl: string = ''
   onFileSelected(event: any) {
-    const file = event.target.files[0];
-    this.file = file ? file : null;
+    const input = event.target as HTMLInputElement;
+    let file: any = input.files?.[0];
+    this.fileType = file.type.split('/')[1];
+    if (file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    this.uploadSub = this.announcementService.uploadAnnouncementDoc(formData).subscribe({
+        next: (invoice) => {
+          console.log(invoice);
+          
+          this.form.get('fileUrl')?.setValue(invoice.fileUrl);
+          this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ invoice.fileUrl}`;
+        }
+      });
+    }
   }
   
   ancmntSub!: Subscription;
   isVisible: boolean = false;
-  addAnnouncement(message: string, type: string, dismissible: boolean){
-    console.log(this.form.getRawValue());
+  addAnnouncement(){
     this.ancmntSub = this.announcementService.addAnnouncement(this.form.getRawValue()).subscribe((res) => {
       this.announcementService.triggerSubmit(res);
       this.dialogRef.close();
@@ -63,4 +85,15 @@ export class AddAnnouncementsComponent {
     })
   }
 
+  onDeleteImage(){
+    this.announcementService.deleteAnnouncementByName(this.imageUrl).subscribe(res=>{
+      this.snackBar.open('Image deleted successfully...', 'Close', { duration: 3000 });
+      this.imageUrl = '';
+      this.form.get('fileUrl')?.setValue('');
+    })
+  }
+
+  close(){
+    this.dialogRef.close();
+  }
 }

@@ -31,4 +31,16 @@ export class AnnouncementsService {
   deleteAnnouncement(id: number){
     return this.http.delete(this.apiUrl + '/announcements/delete/' + id)
   }
+
+  uploadAnnouncementDoc(formData: any): Observable<any> {
+    return this.http.post(this.apiUrl + '/announcements/fileupload', formData);
+  }
+
+  deleteAnnouncementByid(key: string, id: number) {
+    return this.http.delete(`${this.apiUrl}/announcements/filedelete/${id}/?key=${key}/`);
+  }
+
+  deleteAnnouncementByName(key: string) {
+    return this.http.delete(`${this.apiUrl}/announcements/filedeletebyurl/?key=${key}/`);
+  }
 }

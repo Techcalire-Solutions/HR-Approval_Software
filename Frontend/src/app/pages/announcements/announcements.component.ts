@@ -63,7 +63,7 @@ export class AnnouncementsComponent implements OnInit, OnDestroy{
       // data: user
     });
     dialogRef.afterClosed().subscribe(user => {
-      // this.getRoles()
+      this.getAnnouncement()
     });
   }
 
