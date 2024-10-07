@@ -29,7 +29,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     CommonModule,
     MatIconModule,
     SafePipe,
-    MatProgressSpinnerModule, MatFormFieldModule, ReactiveFormsModule, 
+    MatProgressSpinnerModule, MatFormFieldModule, ReactiveFormsModule,
   ],
   templateUrl: './view-invoices.component.html',
   styleUrl: './view-invoices.component.scss'
@@ -134,12 +134,14 @@ export class ViewInvoicesComponent {
           amId: result.amId,
           accountantId: result.accountantId
         }
-       
+
 
         this.invoiceService.updatePIStatus(data).subscribe(result => {
-    
-          this.router.navigateByUrl('/home/viewApproval')
+
+
           this.snackBar.open(`Invoice ${this.piNo} updated to ${status}...`,"" ,{duration:3000})
+
+          this.router.navigateByUrl('/login/viewApproval')
         });
       }
     })
