@@ -6,6 +6,76 @@ const User = require('../../users/models/user');
 const { Op, where } = require('sequelize');
 const cron = require('node-cron');
 const moment = require('moment');
+const LeaveType = require('../models/leaveType')
+
+
+
+// Schedule a cron job to run on the 1st day of every month at midnight
+cron.schedule('0 0 1 * *', async () => {
+  try {
+    // Fetch all leave types
+    const leaveTypes = await LeaveType.findAll();
+    const sickLeaveType = leaveTypes.find(type => type.leaveTypeName === 'Sick Leave');
+    const casualLeaveType = leaveTypes.find(type => type.leaveTypeName === 'Casual Leave');
+
+    // If both leave types exist, proceed
+    if (sickLeaveType && casualLeaveType) {
+      const userLeaves = await UserLeave.findAll({
+        where: {
+          leaveTypeId: {
+            [Op.in]: [sickLeaveType.id, casualLeaveType.id]
+          }
+        }
+      });
+
+      // Increment leave balances
+      for (let userLeave of userLeaves) {
+        userLeave.leaveBalance += 1; // Increment leave balance for CL and SL
+        await userLeave.save();
+      }
+
+      console.log('Leave balances updated successfully.');
+    } else {
+      console.error('Sick Leave or Casual Leave type not found.');
+    }
+  } catch (error) {
+    console.error('Error updating leave balances:', error);
+  }
+});
+
+
+router.get('/leavecount/:userId', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const userLeaves = await UserLeave.findAll({
+      where: { userId },
+      include: [
+        {
+          model: LeaveType,
+          as: 'leaveType', 
+          attributes: ['leaveTypeName'],
+        },
+      ],
+    });
+
+    if (!userLeaves.length) {
+      return res.status(404).json({ message: 'No leave records found for this user.' });
+    }
+
+    const leaveCounts = userLeaves.map(({ leaveTypeId, leaveBalance, takenLeaves, leaveType }) => ({
+      leaveTypeId,
+      leaveTypeName: leaveType.leaveTypeName,
+      leaveBalance,
+      takenLeaves,
+    }));
+
+    res.json(leaveCounts);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
 
 router.post('/', authenticateToken, async (req, res) => {
   try {

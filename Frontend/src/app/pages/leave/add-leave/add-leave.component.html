@@ -1,3 +1,5 @@
+<app-leave-count-cards></app-leave-count-cards>
+
 <mat-card class="leave-card">
   <mat-card-content class="form-wrapper">
     <form [formGroup]="leaveRequestForm" (ngSubmit)="onSubmit()">
@@ -37,15 +39,16 @@
         </mat-form-field>
       </div>
 
-
-      <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
-        <div class="upload-container" (click)="fileInput.click()">
-          Upload Image:
-          <input type="file" hidden #fileInput (change)="uploadFile($event)">
-          <span class="material-icons clickable-icon" [ngClass]="{'file-selected': isFileSelected}" style="margin-left: 10px;">cloud_upload</span>
-          <span *ngIf="fileName" style="margin-left: 10px;">{{ fileName }}</span> <!-- Display the file name -->
+      <div *ngIf="isSickLeaveAndMoreThanThreeDays()" class="upload-container" (click)="fileInput.click()">
+        Upload Image:
+        <input type="file" hidden #fileInput (change)="uploadFile($event)">
+        <span class="material-icons clickable-icon" [ngClass]="{'file-selected': isFileSelected}" style="margin-left: 10px;">cloud_upload</span>
+        <span *ngIf="fileName" style="margin-left: 10px;">{{ fileName }}</span>
+        <div *ngIf="!isFileSelected" style="color: red;">
+          File upload is mandatory for sick leave exceeding 3 days.
         </div>
       </div>
+
 
 <br>
 
@@ -67,9 +70,14 @@
       </div>
 
       <br>
-      <button mat-raised-button type="submit" color="primary" class="submit-btn" [disabled]="!leaveRequestForm.valid || isLoading">
-        {{ isEditMode ? 'Update' : 'Apply' }} Leave
-      </button>
+      <button mat-raised-button
+      type="submit"
+      color="primary"
+      class="submit-btn"
+      [disabled]="!leaveRequestForm.valid || isLoading || (isSickLeaveAndMoreThanThreeDays() && !isFileSelected)">
+{{ isEditMode ? 'Update' : 'Apply' }} Leave
+</button>
+
     </form>
   </mat-card-content>
 </mat-card>
