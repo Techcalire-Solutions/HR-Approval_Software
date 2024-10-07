@@ -52,6 +52,10 @@ router.get('/findbyuser/:id', async (req, res) => {
     }
   })
 
+  
+
+
+
 router.post('/branchlogin', async(req, res)=> {
     try {
         const { branchCode, authorizationCode } = req.body;
