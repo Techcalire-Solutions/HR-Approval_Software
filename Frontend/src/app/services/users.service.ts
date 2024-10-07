@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
-import { Role } from '../common/interfaces/role';
 import { User } from '../common/interfaces/user';
 import { environment } from '../../environments/environment';
 import { UserPersonal } from '../common/interfaces/user-personal';

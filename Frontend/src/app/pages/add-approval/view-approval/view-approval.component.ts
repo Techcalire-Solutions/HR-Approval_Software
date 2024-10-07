@@ -119,8 +119,6 @@ export class ViewApprovalComponent {
       if(this.roleName === 'Administrator') { this.admin = true }
       if(this.roleName === 'Team Lead') { this.teamLead = true }
       this.getInvoices();
-
-
     })
   }
 

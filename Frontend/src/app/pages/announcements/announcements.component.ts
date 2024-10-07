@@ -1,5 +1,5 @@
 import { DatePipe, CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -19,6 +19,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddAnnouncementsComponent } from './add-announcements/add-announcements.component';
 import { AnnouncementsService } from '@services/announcements.service';
 import { Subscription } from 'rxjs';
+import { Announcement } from '../../common/interfaces/announcement';
+import { Role } from '../../common/interfaces/role';
+import { RoleService } from '@services/role.service';
+import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-announcements',
@@ -33,15 +38,32 @@ import { Subscription } from 'rxjs';
 export class AnnouncementsComponent implements OnInit, OnDestroy{
   dialog = inject(MatDialog)
   announcementService = inject(AnnouncementsService);
+  roleService = inject(RoleService);
+  snackBar = inject(MatSnackBar);
   ngOnInit(): void {
     this.getAnnouncement();
+
+    const token: any = localStorage.getItem('token')
+    let user = JSON.parse(token)
+
+    let roleId = user.role
+    this.getRoleById(roleId)
   }
+
+  roleSub!: Subscription;
+  roleName: string;
+  getRoleById(id: number){
+    this.roleSub = this.roleService.getRoleById(id).subscribe((res: Role) => {
+      this.roleName = res.abbreviation
+    })
+  }
+
   openDialog(data: any){
     let dialogRef = this.dialog.open(AddAnnouncementsComponent, {
       // data: user
     });
     dialogRef.afterClosed().subscribe(user => {
-      // this.getRoles()
+      this.getAnnouncement()
     });
   }
 
@@ -50,9 +72,53 @@ export class AnnouncementsComponent implements OnInit, OnDestroy{
   }
 
   announceSub!: Subscription;
+  announcements: Announcement[] = [];
   getAnnouncement(){
     this.announcementService.getAnnouncement().subscribe(res => {
-      console.log(res);  
+      this.announcements = res;
     })
+  }
+
+  getAnnouncementClass(type: string): string {
+    switch (type) {
+      case 'info':
+        return 'announcement-info';
+      case 'warning':
+        return 'announcement-warning';
+      case 'success':
+        return 'announcement-success';
+      case 'error':
+        return 'announcement-error';
+      default:
+        return '';
+    }
+  }
+
+  getSymbol(type: string): string {
+    switch (type) {
+      case 'info':
+        return 'ℹ️'; // Information symbol
+      case 'warning':
+        return '⚠️'; // Warning symbol
+      case 'success':
+        return '✅'; // Success symbol
+        case 'error':
+          return '❌';
+      default:
+        return '';
+    }
+  }
+
+  delete: Subscription;
+  deleteAnnouncement( id: number){
+    let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+    dialogRef.afterClosed().subscribe(res => {
+      if(res){
+        this.delete = this.announcementService.deleteAnnouncement(id).subscribe(res => {
+          this.snackBar.open("Announcement deleted successfully...","" ,{duration:3000})
+          this.getAnnouncement()
+        });
+      }
+    });
   }
 }
