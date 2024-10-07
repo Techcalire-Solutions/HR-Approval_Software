@@ -52,10 +52,9 @@ export class ViewInvoicesComponent {
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
     this.userId = user.id;
-    this.getPiById(id)
 
     let roleId = user.role
-    this.getRoleById(roleId)
+    this.getRoleById(roleId, id)
   }
 
   roleSub!: Subscription;
@@ -66,9 +65,11 @@ export class ViewInvoicesComponent {
   ma: boolean = false;
   admin: boolean = false;
   teamLead: boolean = false;
-  getRoleById(id: number){
+  getRoleById(id: number, piId: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;
+      this.getPiById(piId)
+
       if(this.roleName === 'Sales Executive') this.sp = true;
       if(this.roleName === 'Key Account Manager') this.kam = true;
       if(this.roleName === 'Manager') this.am = true;
@@ -89,14 +90,14 @@ export class ViewInvoicesComponent {
       this.piNo = pi.pi.piNo;
       this.signedUrl= pi.signedUrl
 
-      if( pi.status === 'GENERATED' && this.roleName === 'Key Account Manager' ){
-          pi = {
-            ...pi,
+      if( this.pi.status === 'GENERATED' && this.roleName === 'Key Account Manager' ){
+        this.pi = {
+            ...this.pi,
             approveButtonStatus: true
           };
-      }else if( pi.status === 'KAM VERIFIED' && this.roleName === 'Manager'){
-        pi = {
-          ...pi,
+      }else if( this.pi.status === 'KAM VERIFIED' && this.roleName === 'Manager'){
+        this.pi = {
+          ...this.pi,
           approveButtonStatus: true
         };
       }
@@ -176,6 +177,7 @@ export class ViewInvoicesComponent {
       if(result){
         // this.getInvoices()
         this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
+       
       }
     })
   }
