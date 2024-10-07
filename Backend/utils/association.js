@@ -5,10 +5,26 @@ const sequelize = require('./db');
 const bcrypt = require('bcrypt');
 const Role = require('../users/models/role');
 const User = require('../users/models/user');
+// models/index.js
+const UserLeave = require('../leave/models/userLeave');
+const LeaveType = require('../leave/models/leaveType');
+
 
 
 async function syncModel() {
     await sequelize.sync({alter: true})
+
+    // Define associations
+UserLeave.belongsTo(LeaveType, {
+    foreignKey: 'leaveTypeId',
+    as: 'leaveType' // This alias is used in the include when querying
+  });
+  
+  LeaveType.hasMany(UserLeave, {
+    foreignKey: 'leaveTypeId',
+  });
+
+
 
     // Team.belongsTo(User, {
     //     foreignKey: "userId",

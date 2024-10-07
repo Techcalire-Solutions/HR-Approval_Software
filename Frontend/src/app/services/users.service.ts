@@ -54,6 +54,9 @@ export class UsersService {
     return this.http.delete(`${this.apiUrl}/user/filedelete/${id}`);
   }
 
+  deleteUserImageByurl(key: string) {
+    return this.http.delete(`${this.apiUrl}/user/filedeletebyurl/${key}`);
+  }
 
   getUserByRoleId(id:number):Observable<User>{
     return this.http.get<User>(this.apiUrl + '/user/findbyrole/'+id)
@@ -138,6 +141,11 @@ export class UsersService {
   deleteUserDoc(key: string, id: number) {
     return this.http.delete(`${this.apiUrl}/document/filedelete/${id}/?key=${key}/`);
   }
+
+  deleteUserDocByUrl(key: string) {
+    return this.http.delete(`${this.apiUrl}/document/filedeletebyurl?key=${key}/`);
+  }
+
 
   deleteUserDocComplete(id: number) {
     return this.http.delete(`${this.apiUrl}/document/delete/${id}`);

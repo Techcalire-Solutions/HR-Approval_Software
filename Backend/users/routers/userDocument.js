@@ -88,7 +88,8 @@ router.delete('/filedelete/:id', authenticateToken, async (req, res) => {
         let userDoc = await UserDocument.findByPk(id);
         fileKey = userDoc.docUrl
         userDoc.docUrl = '';
-
+        console.log(fileKey);
+        
         await userDoc.save();
     } catch (error) {
       res.send(error.message)
@@ -143,5 +144,30 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
   }
 });
 
+router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
+  console.log(req.query,"OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+  
+  let fileKey = req.query.key;
+  console.log(fileKey,"PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPp");
+  // Users/documents/1728293965786_Ashbin_Aadhar
+  try {
+    if (!fileKey) {
+      return res.status(400).send({ message: 'No file key provided' });
+    }
 
+    // Set S3 delete parameters
+    const deleteParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `Users/documents/1728293965786_Ashbin_Aadhar`
+    };
+
+    // Delete the file from S3
+    await s3.deleteObject(deleteParams).promise();
+
+    res.status(200).send({ message: 'File deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting file from S3:', error);
+    res.status(500).send({ message: error.message });
+  }
+});
 module.exports = router;
