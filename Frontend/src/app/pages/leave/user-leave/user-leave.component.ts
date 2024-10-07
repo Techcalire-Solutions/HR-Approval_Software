@@ -35,7 +35,7 @@ export class UserLeaveComponent implements OnInit, OnDestroy {
       userId: [this.data.id],
       leaveTypeId: [initialValue ? initialValue.id : ''],
       typeName: [initialValue ? initialValue.leaveTypeName : ''],
-      noOfDays: [userLeave ? userLeave.noOfDays : 0],
+      noOfDays: [userLeave ? Number(userLeave.noOfDays) : 0],
       takenLeaves: [userLeave ? userLeave.takenLeaves : 0],
       leaveBalance: [userLeave ? userLeave.leaveBalance : 0]
     });

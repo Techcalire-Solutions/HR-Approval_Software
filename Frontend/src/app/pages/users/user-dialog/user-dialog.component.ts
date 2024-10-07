@@ -118,7 +118,10 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   }
 
   patchUser(user: User){
+    console.log(user);
+    
     this.invNo = user.empNo
+    this.imageUrl = user.url
     this.form.patchValue({
       name: user.name,
       roleId: user.roleId,

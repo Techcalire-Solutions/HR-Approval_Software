@@ -5,29 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const PerformaInvoice = require('../models/performaInvoice');
 const authenticateToken = require('../../middleware/authorization');
-const s3 = require('../../utils/s3bucket')
-// const upload = multer({ storage: multer.memoryStorage() }); 
-
-// router.post('/fileupload', multer.single('file'), authenticateToken, (req, res) => {
-//   try {
-//     if (!req.file) {
-//       return res.status(400).send({ message: 'No file uploaded' });
-//     }
-
-//     // Construct the URL path
-//     const fileUrl = `/invoices/uploads/${req.file.filename}`;
-
-//     res.status(200).send({
-//       message: 'File uploaded successfully',
-//       file: req.file,
-//       fileUrl: fileUrl
-//     });
-//   } catch (error) {
-//     console.error('Error uploading file:', error);
-//     res.status(500).send({ message: error.message });
-//   }
-// });
-
+const s3 = require('../../utils/s3bucket');
 
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
@@ -100,50 +78,26 @@ router.post('/bankslipupload', upload.single('file'), authenticateToken, async (
 });
 
 router.delete('/filedelete', authenticateToken, async (req, res) => {
-  try {
-    const fileName = path.basename(req.query.fileName);
-
-    const filePath = path.join(__dirname, '../uploads', fileName);
-
-    // Check if the file exists
-    if (fs.existsSync(filePath)) {
-      // Delete the file
-      fs.unlink(filePath, async (err) => {
-        if (err) {
-          console.error('Error deleting file:', err);
-          return res.status(500).send({ message: 'Error deleting file' });
-        }
-
-        // File deletion was successful, proceed with database operations
-        const pi = await PerformaInvoice.findByPk(req.query.id);
-        pi.url = '';
-        await pi.save();
-
-        // const piStatusArray = await PerformaInvoiceStatus.findAll({
-        //   where: { id: req.query.id },
-        // });
-
-        // if (piStatusArray.length > 0) {
-        //   for (const piStatus of piStatusArray) {
-        //     await piStatus.destroy();
-        //   }
-        //   console.log('All records deleted.');
-        // } else {
-        //   console.log('No records found.');
-        // }
-
-        res.send(pi); // Send the response after the file is deleted and database operations are complete
-      });
-    } else {
-      return res.status(404).send({ message: 'File not found' });
-    }
-  } catch (error) {
-    console.error('Error:', error.message);
-    res.status(500).send(error.message);
+  let s3Url = req.query.key
+  
+  const url = new URL(s3Url);
+  const fileKey = url.pathname.substring(1); 
+  
+  if (!fileKey) {
+    return res.status(400).send({ message: 'No file key provided' });
   }
+
+  // Set S3 delete parameters
+  const deleteParams = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: 'invoices/1728290040829_PROFORMA_INVOICE___SO__M32220_pdf'
+  };
+  
+  // Delete the file from S3
+  await s3.deleteObject(deleteParams).promise();
+
+  res.status(200).send({ message: 'File deleted successfully' });
 });
-
-
 
 router.delete('/filedelete/:id', async (req, res) => {
   let id = req.params.id;
