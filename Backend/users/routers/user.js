@@ -205,7 +205,7 @@ router.get('/findone/:id', async (req, res) => {
 });
 
 router.patch('/update/:id', async(req,res)=>{
-  const { name, email, phoneNumber, roleId} = req.body;
+  const { name, email, phoneNumber, roleId, url} = req.body;
   // const pass = await bcrypt.hash(password, 10);
   try {
     let result = await User.findByPk(req.params.id);
@@ -214,6 +214,7 @@ router.patch('/update/:id', async(req,res)=>{
     result.phoneNumber = phoneNumber;
     // result.password = pass;
     result.roleId = roleId;
+    result.url = url
 
     await result.save();
     res.send(result);
@@ -317,6 +318,30 @@ router.delete('/filedelete/:id', authenticateToken, async (req, res) => {
     }
     if (!fileKey) {
       return res.status(400).send({ message: 'No file key provided' });
+    }
+
+    // Set S3 delete parameters
+    const deleteParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileKey
+    };
+
+    // Delete the file from S3
+    await s3.deleteObject(deleteParams).promise();
+
+    res.status(200).send({ message: 'File deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting file from S3:', error);
+    res.status(500).send({ message: error.message });
+  }
+});
+
+
+router.delete('/filedeletebyurl/:key', authenticateToken, async (req, res) => {
+  let fileKey = req.params.key;
+  try {
+    if (!fileKey) {
+      return res.send({ message: 'No file key provided' });
     }
 
     // Set S3 delete parameters
