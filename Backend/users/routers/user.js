@@ -384,6 +384,13 @@ router.get('/confirmed', async (req, res) => {
 router.get('/confirmemployee/:id', async (req, res) => {
   try {
       let result = await User.findByPk(req.params.id);
+
+      let up = await UserPersonal.findOne({
+        where: { userId: req.params.id}
+      })
+      if(!up){
+        return res.send(`Personal data is not added for the employee ${result.name}`)
+      }
       
       if (!result) {
           return res.json({ message: "Employee not found" });
@@ -392,12 +399,6 @@ router.get('/confirmemployee/:id', async (req, res) => {
       result.isTemporary = false;
       await result.save();
 
-      let up = await UserPersonal.findOne({
-        where: { userId: req.params.id}
-      })
-      up.confirmationDate = new Date();
-      await up.save();
-      
       const leaveTypes = await LeaveType.findAll({});
       const sl = leaveTypes.find(x => x.leaveTypeName === 'Sick Leave');
       const cl = leaveTypes.find(x => x.leaveTypeName === 'Casual Leave');

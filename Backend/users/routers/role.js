@@ -8,10 +8,9 @@ const sequelize = require('../../utils/db');
 
 router.post('/', authenticateToken, async (req, res) => {
     try {
-            const { roleName,abbreviation, status } = req.body;
+            const { roleName, abbreviation, status } = req.body;
 
             const role = new Role({roleName,abbreviation, status});
-
             await role.save();
 
             res.send(role);
@@ -128,7 +127,6 @@ router.get('/rolename', authenticateToken, async (req, res) => {
 
 router.delete('/:id', authenticateToken, async(req,res)=>{
     try {
-
         const result = await Role.destroy({
             where: { id: req.params.id },
             force: true,

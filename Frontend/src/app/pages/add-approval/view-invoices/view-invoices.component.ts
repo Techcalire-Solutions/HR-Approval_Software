@@ -29,7 +29,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     CommonModule,
     MatIconModule,
     SafePipe,
-    MatProgressSpinnerModule, MatFormFieldModule, ReactiveFormsModule, 
+    MatProgressSpinnerModule, MatFormFieldModule, ReactiveFormsModule,
   ],
   templateUrl: './view-invoices.component.html',
   styleUrl: './view-invoices.component.scss'
@@ -45,12 +45,14 @@ export class ViewInvoicesComponent {
     private router: Router, private loginService: LoginService
   ){}
 
+  userId: number
   ngOnInit(): void {
     let id = this.route.snapshot.params['id'];
 
-    this.getPiById(id)
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
+    this.userId = user.id;
+    this.getPiById(id)
 
     let roleId = user.role
     this.getRoleById(roleId)
@@ -78,7 +80,7 @@ export class ViewInvoicesComponent {
   piSub!: Subscription;
   url!: string;
   piNo!: string;
-  pi!: PerformaInvoice;
+  pi!: any;
   bankSlip!: string;
   signedUrl:string;
   getPiById(id: number){
@@ -86,6 +88,24 @@ export class ViewInvoicesComponent {
       this.pi = pi.pi;
       this.piNo = pi.pi.piNo;
       this.signedUrl= pi.signedUrl
+
+      if( pi.status === 'GENERATED' && this.roleName === 'Key Account Manager' ){
+          pi = {
+            ...pi,
+            approveButtonStatus: true
+          };
+      }else if( pi.status === 'KAM VERIFIED' && this.roleName === 'Manager'){
+        pi = {
+          ...pi,
+          approveButtonStatus: true
+        };
+      }
+      // else if(this.roleName === 'Administrator'){
+      //   pi = {
+      //     ...pi,
+      //     approveButtonStatus: true
+      //   };
+      // }
       // this.url = environment.apiUrl + pi.url;
       if(pi.pi.bankSlip != null) this.bankSlip = pi.bankSlip;
       this.getPiStatusByPiId(id)
@@ -134,12 +154,14 @@ export class ViewInvoicesComponent {
           amId: result.amId,
           accountantId: result.accountantId
         }
-       
+
 
         this.invoiceService.updatePIStatus(data).subscribe(result => {
-    
-          this.router.navigateByUrl('/home/viewApproval')
+
+
           this.snackBar.open(`Invoice ${this.piNo} updated to ${status}...`,"" ,{duration:3000})
+
+          this.router.navigateByUrl('/login/viewApproval')
         });
       }
     })

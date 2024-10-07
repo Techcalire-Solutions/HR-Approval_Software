@@ -107,13 +107,31 @@ router.patch('/update/:id', async(req,res)=>{
   const { dateOfJoining, probationPeriod, confirmationDate, isTemporary, maritalStatus, dateOfBirth, gender, parentName,
      spouseName, referredBy, reportingManger, bloodGroup, emergencyContactNo, emergencyContactName, emergencyContactRelation } = req.body
   try {
+    let formattedDateOfJoining;
+    let formattedDateOfBirth;
+
+    if (dateOfJoining) {
+      formattedDateOfJoining = await saveDates(dateOfJoining);
+      if (formattedDateOfJoining.length === 0) {
+        return res.status(400).send("Invalid dateOfJoining format.");
+      }
+    }
+
+    if (dateOfBirth) {
+      formattedDateOfBirth = await saveDates(dateOfBirth);
+      if (formattedDateOfBirth.length === 0) {
+        return res.status(400).send("Invalid dateOfBirth format.");
+      }
+    }
+    console.log(formattedDateOfBirth, formattedDateOfJoining);
+    
     let result = await UserPersonal.findByPk(req.params.id);
-    result.dateOfJoining = dateOfJoining;
+    result.dateOfJoining = dateOfJoining ? formattedDateOfJoining[0] : null;
     result.probationPeriod = probationPeriod;
     result.confirmationDate = confirmationDate;
     result.isTemporary = isTemporary;
     result.maritalStatus = maritalStatus;
-    result.dateOfBirth = dateOfBirth;
+    result.dateOfBirth = dateOfBirth ? formattedDateOfBirth[0] : null;
     result.probationPeriod = probationPeriod;
     result.gender = gender;
     result.parentName = parentName;
@@ -125,8 +143,11 @@ router.patch('/update/:id', async(req,res)=>{
     result.emergencyContactNo = emergencyContactNo;
     result.emergencyContactName = emergencyContactName;
     result.emergencyContactRelation = emergencyContactRelation;
-
+    console.log(result);
+    
     await result.save();
+    console.log(result);
+    
     res.send(result);
   } catch (error) {
     res.send(error.message);

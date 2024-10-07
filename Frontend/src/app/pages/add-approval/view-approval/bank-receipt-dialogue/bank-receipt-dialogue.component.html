@@ -6,21 +6,12 @@
   </head>
 
   <body>
+  <mat-toolbar color="primary">
 
+              <span>PROFORMA INVOICE: {{piNo}}</span>
+            </mat-toolbar>
     <div class="wrapper">
-      <mat-card-header>
-        <mat-card-title>
-          <div>
-            PROFORMA INVOICE: {{piNo}}
 
-            <!-- <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon" class="d-block mr-0 ml-auto"
-              onClick="history.back()" style="margin-left: auto;">
-              <span class="material-icons" style="color: white;">exit_to_app</span>
-            </button> -->
-          </div>
-
-        </mat-card-title>
-      </mat-card-header>
       <form action="#" #form class="form">
         <input type="file" class="file-input" hidden #fileInput>
         <!-- <span class="material-icons">cloud_upload</span> -->
