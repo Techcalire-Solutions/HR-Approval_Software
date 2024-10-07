@@ -69,7 +69,7 @@ export class PagesComponent implements OnInit {
   constructor(public settingsService: SettingsService, public router: Router, private menuService: MenuService){
     this.settings = this.settingsService.settings;
   }
-  announcementService = inject(AnnouncementsService) 
+  announcementService = inject(AnnouncementsService)
   ngOnInit() {
     if(window.innerWidth <= 768){
       this.settings.menu = 'vertical';
@@ -205,10 +205,15 @@ export class PagesComponent implements OnInit {
   type: string = ''
   getAnnouncement(ancmnt: any){
     console.log(ancmnt);
-    
+
     this.announcement = true;
     this.message = ancmnt.message;
     this.type = ancmnt.type;
+  }
+
+  openCalender(){
+    this.router.navigate(['/login/leave/events']);
+
   }
 
 }
