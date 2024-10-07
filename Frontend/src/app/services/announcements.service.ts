@@ -36,11 +36,11 @@ export class AnnouncementsService {
     return this.http.post(this.apiUrl + '/announcements/fileupload', formData);
   }
 
-  deleteAnnouncementByid(key: string, id: number) {
-    return this.http.delete(`${this.apiUrl}/announcements/filedelete/${id}/?key=${key}/`);
+  deleteAnouncemntUpload(id: number, key?: string) {
+    return this.http.delete(`${this.apiUrl}/announcements/filedelete?id=${id}&key=${key}`);
   }
 
-  deleteAnnouncementByName(key: string) {
-    return this.http.delete(`${this.apiUrl}/announcements/filedeletebyurl/?key=${key}/`);
+  deleteAnouncemntUploadByurl(key: string) {
+    return this.http.delete(`${this.apiUrl}/announcements/filedeletebyurl/?key=${key}`);
   }
 }
