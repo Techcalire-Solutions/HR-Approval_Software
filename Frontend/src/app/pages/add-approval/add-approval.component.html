@@ -35,7 +35,7 @@
           </mat-select>
       </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Supplier Price $</mat-label>
+          <mat-label>Supplier Price</mat-label>
           <input matInput placeholder="Enter Supplier Price" formControlName="supplierPrice">
         </mat-form-field>
 
@@ -117,7 +117,7 @@
         </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>CustomerPO Value $</mat-label>
+            <mat-label>CustomerPO Value</mat-label>
             <input matInput placeholder="Enter PO Value" formControlName="poValue">
           </mat-form-field>
 
@@ -192,9 +192,9 @@
         <!-- <span class="material-icons button-style" style="font-size: 25px;">save</span> -->
         SAVE
       </button>
-      <button mat-raised-button type="button" class="btn btn-success" (click)="onUpdate()" [disabled]="!piForm.valid" *ngIf="editStatus">
+      <!-- <button mat-raised-button type="button" class="btn btn-success" (click)="onUpdate()" [disabled]="!piForm.valid" *ngIf="editStatus">
         <span class="material-icons" style="font-size: 25px;">save</span>
-      </button>
+      </button> -->
     </div>
   </mat-card-content>
 </mat-card>
