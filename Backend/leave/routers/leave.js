@@ -56,6 +56,11 @@ async function getHREmail() {
 async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates) {
   const hrAdminEmail = await getHREmail();
 
+  // Ensure leaveDates is valid
+  if (!Array.isArray(leaveDates)) {
+    throw new Error('leaveDates must be an array');
+  }
+
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: process.env.EMAIL_USER,
@@ -74,17 +79,127 @@ async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDa
           item.session2 ? 'session2' : ''
         ].filter(Boolean).join(', '); // Only include sessions that are true
         return `${item.date} (${sessionString || 'No sessions selected'})`;
-      }).join(', ')}`
+      }).join(', ')}` 
   };
 
   return transporter.sendMail(mailOptions);
 }
 
 
+// Define LOP type name
+const LOP_TYPE_NAME = 'LOP'; // Replace with the actual name for Leave Without Pay
 
+// Function to calculate leave days
+function calculateLeaveDays(leaveDates) {
+  return leaveDates.length; // Update based on your leave day calculation logic
+}
 
 router.post('/', authenticateToken, async (req, res) => {
-  const { leaveTypeId, startDate, endDate, notes,fileUrl, leaveDates } = req.body;
+  const { leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
+  const userId = req.user.id;
+
+  // Check for required fields
+  if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  try {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return res.status(400).json({ message: 'Invalid date format' });
+    }
+
+    if (!Array.isArray(leaveDates)) {
+      return res.status(400).json({ message: 'leaveDates must be an array' });
+    }
+
+    const noOfDays = calculateLeaveDays(leaveDates);
+
+    // Find the leave type by ID
+    const leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
+
+    if (!leaveType) {
+      return res.status(404).json({ message: 'Leave type not found' });
+    }
+
+    // Handle Leave Without Pay (LOP)
+    let userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId: leaveType.id } });
+
+    if (!userLeave) {
+      // Create mapping for LOP if it doesn't exist
+      if (leaveType.leaveTypeName === 'LOP') {
+        userLeave = await UserLeave.create({
+          userId,
+          leaveTypeId: leaveType.id,
+          noOfDays: 0,
+          takenLeaves: 0,
+          leaveBalance: Infinity, // Unlimited for LOP
+        });
+      } else {
+        return res.status(404).json({ message: 'User leave mapping not found' });
+      }
+    }
+
+    // Check leave balance for non-LOP leaves
+    if (leaveType.leaveTypeName !== 'LOP' && userLeave.leaveBalance < noOfDays) {
+      return res.status(400).json({ message: 'Not enough leave balance' });
+    }
+
+    // Create the leave record
+    const leave = await Leave.create({
+      userId,
+      leaveTypeId: leaveType.id,
+      startDate,
+      endDate,
+      noOfDays,
+      notes,
+      fileUrl,
+      status: 'requested',
+      leaveDates,
+    });
+
+    // Update leave balance for non-LOP leaves
+    if (leaveType.leaveTypeName !== 'LOP') {
+      userLeave.takenLeaves += noOfDays;
+      userLeave.leaveBalance -= noOfDays;
+      await userLeave.save();
+    }
+
+    // Send email notification
+    await sendLeaveEmail(userId, leaveType, startDate, endDate, notes, noOfDays, leaveDates);
+
+    // Respond with success
+    res.json({
+      message: 'Leave request submitted successfully',
+      leave: {
+        user: {
+          id: userId,
+          name: req.user.name,
+        },
+        leaveType: {
+          id: leaveType.id,
+          name: leaveType.leaveTypeName,
+        },
+        startDate,
+        endDate,
+        noOfDays,
+        notes,
+        fileUrl,
+        leaveDates,
+      },
+    });
+  } catch (error) {
+    console.error('Error submitting leave request:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+});
+
+
+
+router.post('/test', authenticateToken, async (req, res) => {
+  const { leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
   const userId = req.user.id;
 
   if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
@@ -99,8 +214,19 @@ router.post('/', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Invalid date format' });
     }
 
-    // Calculate the number of leave days based on the sessions selected
+    if (!Array.isArray(leaveDates)) {
+      return res.status(400).json({ message: 'leaveDates must be an array' });
+    }
+
     const noOfDays = calculateLeaveDays(leaveDates);
+
+    const leaveTypes = await LeaveType.findAll();
+    const sickLeaveType = leaveTypes.find(type => type.leaveTypeName === 'Sick Leave');
+    const sickLeaveTypeId = sickLeaveType ? sickLeaveType.id : null;
+
+    if (sickLeaveTypeId && leaveTypeId === sickLeaveTypeId && noOfDays > 3 && !fileUrl) {
+      return res.status(400).json({ message: 'File upload is mandatory for sick leave exceeding 3 days' });
+    }
 
     const user = await User.findByPk(userId);
     const leaveType = await LeaveType.findByPk(leaveTypeId);
@@ -118,7 +244,6 @@ router.post('/', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Not enough leave balance' });
     }
 
-    // Create leave record
     const leave = await Leave.create({
       userId,
       leaveTypeId,
@@ -128,16 +253,14 @@ router.post('/', authenticateToken, async (req, res) => {
       notes,
       fileUrl,
       status: 'requested',
-      leaveDates
+      leaveDates,
     });
 
-    // Update user leave balance
     userLeave.takenLeaves += noOfDays;
     userLeave.leaveBalance -= noOfDays;
     await userLeave.save();
 
-    // Send email notification
-    await sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays,fileUrl, leaveDates);
+    await sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates);
 
     res.json({
       message: 'Leave request submitted successfully',
@@ -155,16 +278,18 @@ router.post('/', authenticateToken, async (req, res) => {
         noOfDays,
         notes,
         fileUrl,
-        leaveDates
+        leaveDates,
       },
     });
   } catch (error) {
-    res.send(error.message)
-    if (!res.headersSent) {
-      res.send(error.message)
-    }
+    console.error('Error submitting leave request:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 });
+
+
+
+
 
 
 router.get('/user/:userId', async (req, res) => {
