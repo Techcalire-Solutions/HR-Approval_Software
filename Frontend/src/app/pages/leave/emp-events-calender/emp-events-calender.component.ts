@@ -65,13 +65,14 @@ export class EmpEventsCalenderComponent {
       });
     }
   }];
-  events: CalendarEvent[] = [{
-    start: subDays(startOfDay(new Date()), 1),
-    end: addDays(new Date(), 1),
-    title: 'Add Leave',
-    color: colors.red,
-    actions: this.actions
-  },
+  events: CalendarEvent[] = [
+  //   {
+  //   start: subDays(startOfDay(new Date()), 1),
+  //   end: addDays(new Date(), 1),
+  //   title: 'Add Leave',
+  //   color: colors.red,
+  //   actions: this.actions
+  // },
   // {
   //   start: subDays(startOfDay(new Date()), 1),
   //   end: addDays(new Date(), 1),

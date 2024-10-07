@@ -6,12 +6,13 @@ const UserLeave = require('../models/userLeave');
 const User = require('../../users/models/user')
 const LeaveType = require('../models/leaveType')
  const nodemailer = require('nodemailer');
- const { Op, fn, col, where } = require('sequelize');
+ const { Op } = require('sequelize');
  const sequelize = require('../../utils/db');
  const Role = require('../../users/models/role')
  const s3 = require('../../utils/s3bucket');
  const upload = require('../../utils/leaveDocumentMulter');
 
+//-----------------------------------Mail code-------------------------------------------------------
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -20,6 +21,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+//-----------------------------------Calculating Leave Days-------------------------------------------
 function calculateLeaveDays(leaveDates) {
   let noOfDays = 0;
 
@@ -33,9 +35,7 @@ function calculateLeaveDays(leaveDates) {
 
   return noOfDays;
 }
-
-
-
+//-------------------------------------Find HR Mail-----------------------------------------------------
 async function getHREmail() {
 
   const hrAdminRole = await Role.findOne({ where: { roleName: 'HR Administrator' } });
@@ -52,7 +52,7 @@ async function getHREmail() {
   return hrAdminUser.email; 
 }
 
-
+//-------------------------------------Mail sending function------------------------------------------
 async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates) {
   const hrAdminEmail = await getHREmail();
 
@@ -86,19 +86,50 @@ async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDa
 }
 
 
-// Define LOP type name
-const LOP_TYPE_NAME = 'LOP'; // Replace with the actual name for Leave Without Pay
 
-// Function to calculate leave days
 function calculateLeaveDays(leaveDates) {
-  return leaveDates.length; // Update based on your leave day calculation logic
+  return leaveDates.length; 
 }
 
+//--------------------------------File upload--------------------------------------------------------
+router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.send({ message: 'No file uploaded' });
+    }
+    
+    const customFileName = req.body.name || req.file.originalname;  
+    const sanitizedFileName = customFileName.replace(/[^a-zA-Z0-9]/g, '_');
+
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `Leave/documents/${Date.now()}_${sanitizedFileName}`,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+      ACL: 'public-read'
+    };
+
+    const data = await s3.upload(params).promise();
+
+    const fileUrl = data.Location ? data.Location : '';
+    const key = fileUrl ? fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+
+    res.send({
+      message: 'File uploaded successfully',
+      file: req.file,
+      fileUrl: key
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+});
+
+
+//----------------------------POST API------------------------------------------------------------
 router.post('/', authenticateToken, async (req, res) => {
   const { leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
   const userId = req.user.id;
 
-  // Check for required fields
   if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
@@ -107,191 +138,41 @@ router.post('/', authenticateToken, async (req, res) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
 
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      return res.status(400).json({ message: 'Invalid date format' });
-    }
-
-    if (!Array.isArray(leaveDates)) {
-      return res.status(400).json({ message: 'leaveDates must be an array' });
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || !Array.isArray(leaveDates)) {
+      return res.status(400).json({ message: 'Invalid input' });
     }
 
     const noOfDays = calculateLeaveDays(leaveDates);
-
-    // Find the leave type by ID
     const leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
 
-    if (!leaveType) {
-      return res.status(404).json({ message: 'Leave type not found' });
-    }
+    if (!leaveType) return res.status(404).json({ message: 'Leave type not found' });
 
-    // Handle Leave Without Pay (LOP)
     let userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId: leaveType.id } });
-
+    
     if (!userLeave) {
-      // Create mapping for LOP if it doesn't exist
       if (leaveType.leaveTypeName === 'LOP') {
-        userLeave = await UserLeave.create({
-          userId,
-          leaveTypeId: leaveType.id,
-          noOfDays: 0,
-          takenLeaves: 0,
-          leaveBalance: Infinity, // Unlimited for LOP
-        });
+        userLeave = await UserLeave.create({ userId, leaveTypeId: leaveType.id, noOfDays: 0, takenLeaves: 0, leaveBalance: Infinity });
       } else {
         return res.status(404).json({ message: 'User leave mapping not found' });
       }
     }
 
-    // Check leave balance for non-LOP leaves
     if (leaveType.leaveTypeName !== 'LOP' && userLeave.leaveBalance < noOfDays) {
       return res.status(400).json({ message: 'Not enough leave balance' });
     }
 
-    // Create the leave record
-    const leave = await Leave.create({
-      userId,
-      leaveTypeId: leaveType.id,
-      startDate,
-      endDate,
-      noOfDays,
-      notes,
-      fileUrl,
-      status: 'requested',
-      leaveDates,
-    });
-
-    // Update leave balance for non-LOP leaves
-    if (leaveType.leaveTypeName !== 'LOP') {
-      userLeave.takenLeaves += noOfDays;
-      userLeave.leaveBalance -= noOfDays;
-      await userLeave.save();
-    }
-
-    // Send email notification
+    const leave = await Leave.create({ userId, leaveTypeId: leaveType.id, startDate, endDate, noOfDays, notes, fileUrl, status: 'requested', leaveDates });
+    
     await sendLeaveEmail(userId, leaveType, startDate, endDate, notes, noOfDays, leaveDates);
 
-    // Respond with success
-    res.json({
-      message: 'Leave request submitted successfully',
-      leave: {
-        user: {
-          id: userId,
-          name: req.user.name,
-        },
-        leaveType: {
-          id: leaveType.id,
-          name: leaveType.leaveTypeName,
-        },
-        startDate,
-        endDate,
-        noOfDays,
-        notes,
-        fileUrl,
-        leaveDates,
-      },
-    });
+    res.json({ message: 'Leave request submitted successfully', leave });
   } catch (error) {
-    console.error('Error submitting leave request:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    res.send(error.message)
   }
 });
 
 
-
-router.post('/test', authenticateToken, async (req, res) => {
-  const { leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
-  const userId = req.user.id;
-
-  if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
-    return res.status(400).json({ message: 'Missing required fields' });
-  }
-
-  try {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      return res.status(400).json({ message: 'Invalid date format' });
-    }
-
-    if (!Array.isArray(leaveDates)) {
-      return res.status(400).json({ message: 'leaveDates must be an array' });
-    }
-
-    const noOfDays = calculateLeaveDays(leaveDates);
-
-    const leaveTypes = await LeaveType.findAll();
-    const sickLeaveType = leaveTypes.find(type => type.leaveTypeName === 'Sick Leave');
-    const sickLeaveTypeId = sickLeaveType ? sickLeaveType.id : null;
-
-    if (sickLeaveTypeId && leaveTypeId === sickLeaveTypeId && noOfDays > 3 && !fileUrl) {
-      return res.status(400).json({ message: 'File upload is mandatory for sick leave exceeding 3 days' });
-    }
-
-    const user = await User.findByPk(userId);
-    const leaveType = await LeaveType.findByPk(leaveTypeId);
-    const userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId } });
-
-    if (!leaveType) {
-      return res.status(404).json({ message: 'Leave type not found' });
-    }
-
-    if (!userLeave) {
-      return res.status(404).json({ message: 'User leave mapping not found' });
-    }
-
-    if (userLeave.leaveBalance < noOfDays) {
-      return res.status(400).json({ message: 'Not enough leave balance' });
-    }
-
-    const leave = await Leave.create({
-      userId,
-      leaveTypeId,
-      startDate,
-      endDate,
-      noOfDays,
-      notes,
-      fileUrl,
-      status: 'requested',
-      leaveDates,
-    });
-
-    userLeave.takenLeaves += noOfDays;
-    userLeave.leaveBalance -= noOfDays;
-    await userLeave.save();
-
-    await sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates);
-
-    res.json({
-      message: 'Leave request submitted successfully',
-      leave: {
-        user: {
-          id: userId,
-          name: user.name,
-        },
-        leaveType: {
-          id: leaveTypeId,
-          name: leaveType.leaveTypeName,
-        },
-        startDate,
-        endDate,
-        noOfDays,
-        notes,
-        fileUrl,
-        leaveDates,
-      },
-    });
-  } catch (error) {
-    console.error('Error submitting leave request:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
-  }
-});
-
-
-
-
-
-
+//-------------------------GET LEAVE BY USER ID-------------------------------------------------
 router.get('/user/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -378,7 +259,7 @@ router.get('/user/:userId', async (req, res) => {
   }
 });
 
-
+//--------------------------GET LEAVE------------------------------------------------------------
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const leaves = await Leave.findAll({});
@@ -390,7 +271,7 @@ router.get('/', authenticateToken, async (req, res) => {
 
 
 
-
+//-------------------------GET BY ID--------------------------------------------------------------
 
 router.get('/:id', async (req, res) => {
   try {
@@ -406,22 +287,7 @@ router.get('/:id', async (req, res) => {
 });
 
 
-
-
-router.delete('/:id', async (req, res) => {
-  try {
-    const result = await Leave.destroy({ where: { id: req.params.id }, force: true });
-    result ? res.json({ message: `Leave with ID ${req.params.id} deleted successfully` }) : res.status(404).json({ message: "Leave not found" });
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
-
-
-
-
-
+//--------------------------------Update Leave-----------------------------------------------------
 router.patch('/:id', authenticateToken, async (req, res) => {
   try {
     const { leaveDates, notes, leaveTypeId } = req.body;
@@ -477,37 +343,21 @@ router.patch('/:id', authenticateToken, async (req, res) => {
 });
 
 
-router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
+//-----------------------------Delete Leave---------------------------------------------------------
+router.delete('/:id', async (req, res) => {
   try {
-    if (!req.file) {
-      return res.send({ message: 'No file uploaded' });
-    }
-    
-    const customFileName = req.body.name || req.file.originalname;  
-    const sanitizedFileName = customFileName.replace(/[^a-zA-Z0-9]/g, '_');
-
-    const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: `Leave/documents/${Date.now()}_${sanitizedFileName}`,
-      Body: req.file.buffer,
-      ContentType: req.file.mimetype,
-      ACL: 'public-read'
-    };
-
-    const data = await s3.upload(params).promise();
-
-    const fileUrl = data.Location ? data.Location : '';
-    const key = fileUrl ? fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
-
-    res.send({
-      message: 'File uploaded successfully',
-      file: req.file,
-      fileUrl: key
-    });
+    const result = await Leave.destroy({ where: { id: req.params.id }, force: true });
+    result ? res.json({ message: `Leave with ID ${req.params.id} deleted successfully` }) : res.status(404).json({ message: "Leave not found" });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.status(500).send(error.message);
   }
 });
+
+
+
+
+
+
 
 
 
