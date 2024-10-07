@@ -1,6 +1,6 @@
 import { CommonModule, formatDate } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, FormArray, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, FormArray, FormsModule, ReactiveFormsModule, ValidatorFn, AbstractControl } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -24,6 +24,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { DomSanitizer } from '@angular/platform-browser';
+import { LeaveCountCardsComponent } from '../leave-count-cards/leave-count-cards.component';
 // Custom validator to check if at least one session is selected
 function sessionSelectionValidator(group: FormGroup) {
   const session1 = group.get('session1')?.value;
@@ -51,7 +52,8 @@ function sessionSelectionValidator(group: FormGroup) {
     SafePipe,
     MatDatepickerModule,
     MatTableModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    LeaveCountCardsComponent
   ],
   templateUrl: './add-leave.component.html',
   styleUrl: './add-leave.component.scss',
@@ -264,8 +266,20 @@ this.leaveRequestForm = this.fb.group({
   }
 
 
+// Method to check if the selected leave is sick leave and duration is more than 3 days
+isSickLeaveAndMoreThanThreeDays(): boolean {
+  const leaveTypeId = this.leaveRequestForm.get('leaveTypeId')?.value;
+  const startDate = this.leaveRequestForm.get('startDate')?.value;
+  const endDate = this.leaveRequestForm.get('endDate')?.value;
 
+  const sickLeaveTypeId = this.leaveTypes.find(type => type.leaveTypeName === 'Sick Leave')?.id;
 
+  if (leaveTypeId === sickLeaveTypeId && startDate && endDate) {
+    const duration = (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 3600 * 24) + 1; // Calculate the duration in days
+    return duration > 3; // Return true if duration is greater than 3 days
   }
+  return false; // Return false if it's not sick leave or dates are invalid
+}
 
 
+}
