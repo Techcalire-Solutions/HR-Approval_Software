@@ -68,29 +68,17 @@
 
 
 
-  <mat-card-actions *ngIf="(kam && (pi.status !== 'KAM VERIFIED')) ||
-  (am && (pi.status !== 'AM VERIFIED') && (pi.status !== 'BANK SLIP ISSUED'))">
-
-    <button mat-button class="approve-button" (click)="verified('approved')" *ngIf="!sp && !admin && !teamLead"
-      [disabled]="pi.status === 'KAM REJECTED' ||
-                pi.status === 'AM VERIFIED' ||
-
-                pi.status === 'AM REJECTED' ||
-                pi.status === 'KAM REJECTED' ||
-                pi.status === 'AM REJECTED'">
-      APPROVE
-    </button>
-
-    <!-- Reject Button -->
-    <button mat-raised-button class="reject-button" (click)="verified('rejected')" *ngIf="!sp && !admin && !teamLead"
-      [disabled]="pi.status === 'KAM REJECTED' ||
-      pi.status === 'AM VERIFIED' ||
-
-      pi.status === 'AM REJECTED' ||
-      pi.status === 'KAM REJECTED' ||
-      pi.status === 'AM REJECTED'">
-      REJECT
-    </button>
+  <mat-card-actions>
+    @if(pi.approveButtonStatus){
+      <button mat-button class="approve-button" (click)="verified('approved')">
+        APPROVE
+      </button>
+  
+      <!-- Reject Button -->
+      <button mat-raised-button class="reject-button" (click)="verified('rejected')">
+        REJECT
+      </button>
+    }
   </mat-card-actions>
 
   <mat-card-actions *ngIf="(ma && pi.status !== 'BANK SLIP ISSUED') || (admin && pi.status !== 'BANK SLIP ISSUED')">
