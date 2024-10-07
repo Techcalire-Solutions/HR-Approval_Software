@@ -50,12 +50,12 @@ export class UsersService {
     return this.http.delete(`${this.apiUrl}/user/delete/${id}`);
   }
 
-  deleteUserImage(id: number) {
-    return this.http.delete(`${this.apiUrl}/user/filedelete/${id}`);
+  deleteUserImage(id: number, key?: string) {
+    return this.http.delete(`${this.apiUrl}/user/filedelete?id=${id}&key=${key}`);
   }
 
   deleteUserImageByurl(key: string) {
-    return this.http.delete(`${this.apiUrl}/user/filedeletebyurl/${key}`);
+    return this.http.delete(`${this.apiUrl}/user/filedeletebyurl/?key=${key}`);
   }
 
   getUserByRoleId(id:number):Observable<User>{
@@ -138,14 +138,13 @@ export class UsersService {
     return this.http.get<UserDocument[]>( this.apiUrl + '/document/findbyuser/' + id);
   }
 
-  deleteUserDoc(key: string, id: number) {
-    return this.http.delete(`${this.apiUrl}/document/filedelete/${id}/?key=${key}/`);
+  deleteUserDoc(id: number, key?: string) {
+    return this.http.delete(`${this.apiUrl}/document/filedelete?id=${id}&key=${key}`);
   }
 
-  deleteUserDocByUrl(key: string) {
-    return this.http.delete(`${this.apiUrl}/document/filedeletebyurl?key=${key}/`);
+  deleteUserDocByurl(key: string) {
+    return this.http.delete(`${this.apiUrl}/document/filedeletebyurl/?key=${key}`);
   }
-
 
   deleteUserDocComplete(id: number) {
     return this.http.delete(`${this.apiUrl}/document/delete/${id}`);
