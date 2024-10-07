@@ -89,7 +89,7 @@ export class ViewInvoicesComponent {
       this.piNo = pi.pi.piNo;
       this.signedUrl= pi.signedUrl
 
-      if( pi.status === 'GENERATED' && this.roleName === 'Key Account Manager'){
+      if( pi.status === 'GENERATED' && this.roleName === 'Key Account Manager' ){
           pi = {
             ...pi,
             approveButtonStatus: true
@@ -99,12 +99,13 @@ export class ViewInvoicesComponent {
           ...pi,
           approveButtonStatus: true
         };
-      }else if(this.roleName === 'Administrator'){
-        pi = {
-          ...pi,
-          approveButtonStatus: true
-        };
       }
+      // else if(this.roleName === 'Administrator'){
+      //   pi = {
+      //     ...pi,
+      //     approveButtonStatus: true
+      //   };
+      // }
       // this.url = environment.apiUrl + pi.url;
       if(pi.pi.bankSlip != null) this.bankSlip = pi.bankSlip;
       this.getPiStatusByPiId(id)
