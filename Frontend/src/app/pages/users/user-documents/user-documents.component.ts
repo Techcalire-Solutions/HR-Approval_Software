@@ -55,6 +55,8 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
           console.log(this.imageUrl[i]);
           
         }
+      }else{
+        this.addDoc()
       }
     })
   }
@@ -181,10 +183,20 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
   }
 
   onDeleteImage(i: number){
-    this.userSevice.deleteUserDoc(this.imageUrl[i], this.id[i]).subscribe(x => {
-      this.imageUrl[i] = '';
-      this.doc().at(i).get('docUrl')?.setValue('');
-      this.snackBar.open(`${this.doc().at(i).get('docUrl')?.value} is deleted from employee data`,"" ,{duration:3000})
-    })
+    console.log(this.id[i]);
+    
+    if(this.id[i] !== undefined){
+      this.userSevice.deleteUserDoc(this.imageUrl[i], this.id[i]).subscribe(x => {
+        this.imageUrl[i] = '';
+        this.doc().at(i).get('docUrl')?.setValue('');
+        this.snackBar.open(`${this.doc().at(i).get('docUrl')?.value} is deleted from employee data`,"" ,{duration:3000})
+      })
+    }else{
+      this.userSevice.deleteUserDocByUrl(this.imageUrl[i]).subscribe(x => {
+        // this.imageUrl[i] = '';
+        this.doc().at(i).get('docUrl')?.setValue('');
+        this.snackBar.open(`${this.doc().at(i).get('docUrl')?.value} is deleted from employee data`,"" ,{duration:3000})
+      })
+    }
   }
 }
