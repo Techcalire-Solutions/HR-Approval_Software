@@ -41,7 +41,7 @@ export class ConfirmationComponent implements OnInit, OnDestroy{
   snackBar = inject(MatSnackBar)
   confirmSub!: Subscription;
   confirmEmployee(id: number, name: string){
-    this.confirmSub = this.userService.confirmEmployee(id).subscribe(res =>{
+    this.confirmSub = this.userService.confirmEmployee(id).subscribe(res =>{     
       this.snackBar.open(`${name} is confirmed`,"" ,{duration:3000})
       this.getProbationEmployees();
       this.getPermanentEmployees();

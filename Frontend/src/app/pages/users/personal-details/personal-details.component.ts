@@ -98,9 +98,9 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
       ...this.form.getRawValue()
     }
     submit.userId = submit.userId ? submit.userId : this.data.id;
-    submit.dateOfJoining = this.formatDateOnly(submit.dateOfJoining);
-    submit.confirmationDate = this.formatDateOnly(submit.confirmationDate);
-    submit.dateOfBirth = this.formatDateOnly(submit.dateOfBirth);
+    // submit.dateOfJoining = this.formatDateOnly(submit.dateOfJoining);
+    // submit.confirmationDate = this.formatDateOnly(submit.confirmationDate);
+    // submit.dateOfBirth = this.formatDateOnly(submit.dateOfBirth);
     console.log(submit);
     
     if(this.editStatus){

@@ -22,10 +22,12 @@ export interface PerformaInvoice {
 
   supplierName: string;
   supplierPoNo: string;
+  supplierCurrency: string;
   supplierPrice: string;
   purpose:string;
   customerName: string;
   customerPoNo: string;
+  customerCurrency: string;
   poValue: string;
   count: number;
   addedById: number;

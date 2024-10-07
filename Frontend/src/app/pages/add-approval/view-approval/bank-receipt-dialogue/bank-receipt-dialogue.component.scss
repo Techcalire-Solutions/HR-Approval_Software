@@ -1,33 +1,33 @@
-*{
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
 }
 
-body{
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background: #6990f2;
+body {
+  background: #fff; /* Change the background color to white */
+  margin: 0;
+  padding: 0;
 }
 
-.wrapper{
+.wrapper {
   background: #fff;
   width: auto;
-  padding: 30px;
+  padding-right: 30px;
+  padding-left: 30px;
   border-radius: 5px;
+  margin: 20px auto; /* Center the wrapper horizontally */
 }
 
-.wrapper header{
+.wrapper header {
   color: #6990f2;
   font-size: 27px;
   font-weight: 600;
   text-align: center;
 }
 
-.wrapper .form{
+.wrapper .form {
   border: 2px dashed #6990f2;
   height: 167px;
   border-radius: 5px;
@@ -39,20 +39,20 @@ body{
   cursor: pointer;
 }
 
-.form :where(span, p){
+.form :where(span, p) {
   color: #6990f2;
 }
 
-.form span{
+.form span {
   font-size: 50px;
 }
 
-.form p{
+.form p {
   font-size: 15px;
   margin-top: 15px;
 }
 
-section .row{
+section .row {
   background: #e9f0ff;
   margin-bottom: 10px;
   list-style: none;
@@ -63,43 +63,43 @@ section .row{
   justify-content: space-between;
 }
 
-section .row span{
+section .row span {
   font-size: 30px;
   color: #6990f2;
 }
 
-section .details span{
+section .details span {
   font-size: 14px;
 }
 
-.progressive-area .row .content{
+.progress-area .row .content {
   width: 100%;
   margin-left: 15px;
 }
 
-.progress-area .details{
+.progress-area .details {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.upload-area .row .content{
+.upload-area .row .content {
   display: flex;
   align-items: center;
 }
 
-.upload-area .row .details{
+.upload-area .row .details {
   display: flex;
   margin-left: 15px;
   flex-direction: column;
 }
 
-.upload-area .details .size{
+.upload-area .details .size {
   font-size: 11px;
   color: #404040;
 }
 
-.progress-area .progress-bar{
+.progress-area .progress-bar {
   height: 6px;
   width: 100%;
   background: #fff;
@@ -107,22 +107,21 @@ section .details span{
   border-radius: 30px;
 }
 
-.progress-bar .progress{
+.progress-bar .progress {
   height: 100%;
   width: 0%;
   background: #6990f2;
   border-radius: inherit;
 }
 
-.upload-area{
+.upload-area {
   max-height: 150px;
   overflow-y: scroll;
 }
 
-.upload-area::-webkit-scrollbar{
+.upload-area::-webkit-scrollbar {
   width: 0px;
 }
-
 
 /* Success Button */
 .btn-success {
@@ -163,4 +162,3 @@ section .details span{
   margin-right: 8px; /* Space between the icon and text */
   font-size: 25px; /* Size of the icon */
 }
-

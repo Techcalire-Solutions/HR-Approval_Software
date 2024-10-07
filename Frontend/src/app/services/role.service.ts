@@ -25,7 +25,12 @@ export class RoleService {
     return this.http.patch<Role>(this.apiUrl + "/role/" + id, data);
   }
 
+  public getRoleById(id: number): Observable<Role>{
+    return this.http.get<Role>(this.apiUrl + '/role/'+id);
+  }
+
   deleteRole(id: number) {
     return this.http.delete(this.apiUrl + "/role/" + id);
   }
+
 }

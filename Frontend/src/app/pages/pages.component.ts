@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, Inject, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Settings, SettingsService } from '../services/settings.service';
@@ -19,6 +19,9 @@ import { UserMenuComponent } from '../theme/components/user-menu/user-menu.compo
 import { HorizontalMenuComponent } from '../theme/components/menu/horizontal-menu/horizontal-menu.component';
 import { BreadcrumbComponent } from '../theme/components/breadcrumb/breadcrumb.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { AnnouncementsComponent } from "./announcements/announcements.component";
+import { Announcement } from '../common/interfaces/announcement';
+import { AnnouncementsService } from '@services/announcements.service';
 @Component({
   selector: 'app-pages',
   standalone: true,
@@ -41,8 +44,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     UserMenuComponent,
     HorizontalMenuComponent,
     BreadcrumbComponent,
-
-  ],
+    AnnouncementsComponent
+],
   templateUrl: './pages.component.html',
   styleUrl: './pages.component.scss'
 })
@@ -66,7 +69,7 @@ export class PagesComponent implements OnInit {
   constructor(public settingsService: SettingsService, public router: Router, private menuService: MenuService){
     this.settings = this.settingsService.settings;
   }
-
+  announcementService = inject(AnnouncementsService) 
   ngOnInit() {
     if(window.innerWidth <= 768){
       this.settings.menu = 'vertical';
@@ -76,6 +79,17 @@ export class PagesComponent implements OnInit {
     this.menuOption = this.settings.menu;
     this.menuTypeOption = this.settings.menuType;
     this.defaultMenu = this.settings.menu;
+
+    this.announcementService.callSubmit$.subscribe((data) => {
+      console.log('Submit called in Component B with data:', data);
+      // Call the function here
+      this.getAnnouncement(data);
+    });
+  }
+
+  handleSubmit(data: any) {
+    // Handle submission
+    console.log('Handling submit in Component B');
   }
 
   ngAfterViewInit(){
@@ -180,6 +194,21 @@ export class PagesComponent implements OnInit {
         }
       }
     }
+  }
+
+  openAnnouncement(){
+    this.router.navigateByUrl('/login/announcements')
+  }
+
+  announcement: boolean = false;
+  message: string = '';
+  type: string = ''
+  getAnnouncement(ancmnt: any){
+    console.log(ancmnt);
+    
+    this.announcement = true;
+    this.message = ancmnt.message;
+    this.type = ancmnt.type;
   }
 
 }
