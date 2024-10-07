@@ -168,7 +168,7 @@ export class AddApprovalComponent {
       }
       this.uploadSub = this.invoiceService.uploadInvoice(this.file).subscribe({
         next: (invoice) => {
-          this.imageUrl = invoice.fileUrl;
+          this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${invoice.fileUrl}`;
           this.piForm.get('url')?.setValue(invoice.fileUrl);
           this.uploadComplete = true;
         },
@@ -286,6 +286,17 @@ export class AddApprovalComponent {
   clearFileInput() {
     let file = this.fileName
     let id = this.id
+  }
 
+  onDeleteImage(){
+    this.invoiceService.deleteUploaded(this.imageUrl).subscribe(res=>{
+      console.log(res);
+      
+    })
+    // this.announcementService.deleteAnnouncementByName(this.imageUrl).subscribe(res=>{
+    //   this.snackBar.open('Image deleted successfully...', 'Close', { duration: 3000 });
+    //   this.imageUrl = '';
+    //   this.form.get('fileUrl')?.setValue('');
+    // })
   }
 }

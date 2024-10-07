@@ -60,9 +60,9 @@ router.patch('/update', authenticateToken, async (req, res) => {
         where: { userId: data[i].userId, leaveTypeId: data[i].leaveTypeId }
       })
       if(ulExist){
-        ulExist.noOfDays  = data[i].noOfDays;
-        ulExist.takenLeaves = data[i].takenLeaves;
-        ulExist.leaveBalance = data[i].leaveBalance;
+        ulExist.noOfDays  = +data[i].noOfDays;
+        ulExist.takenLeaves = +data[i].takenLeaves;
+        ulExist.leaveBalance = +data[i].leaveBalance;
 
         await ulExist.save();
         updated.push(ulExist);
@@ -70,9 +70,9 @@ router.patch('/update', authenticateToken, async (req, res) => {
         let userLeave = new UserLeave({
           userId: data[i].userId,
           leaveTypeId: data[i].leaveTypeId,
-          noOfDays: data[i].noOfDays,
-          takenLeaves: data[i].takenLeaves,
-          leaveBalance: data[i].leaveBalance
+          noOfDays: +data[i].noOfDays,
+          takenLeaves: +data[i].takenLeaves,
+          leaveBalance: +data[i].leaveBalance
         })
         await userLeave.save();
         updated.push(userLeave);
