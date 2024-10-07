@@ -41,7 +41,6 @@ export class SidenavComponent implements OnInit , PipeTransform{
     let searchText = new RegExp(args, 'ig');
     if (value) {
 
-
       return value.filter(user => {
         if (user.name) {
           return user.name.search(searchText) !== -1;
@@ -70,7 +69,6 @@ userJoinedDate : any;
 users:User;
 // menuItems: Menu[] = [];
   filteredMenuItems: Menu[] = [];
-
 
 
 
@@ -123,10 +121,10 @@ users:User;
         item.title === 'Dashboard' ||
         (item.title === 'Approval Uploads' && !item.parentId) ||
         (item.title === 'Add' && item.parentId === 5) ||
-        (item.title === 'View' && item.parentId === 5) ||
-        (item.title === 'Leave' && !item.parentId)||
-        (item.title === 'Apply Leave' && item.parentId === 8) ||
-        (item.title === 'Events Calender' && item.parentId === 8)
+        (item.title === 'View' && item.parentId === 5)
+        // (item.title === 'Leave' && !item.parentId)||
+        // (item.title === 'Apply Leave' && item.parentId === 8) ||
+        // (item.title === 'Events Calender' && item.parentId === 8)
         // (item.title === 'Leave Balance' && item.parentId === 8)
         // (item.title === 'Payroll' && !item.parentId) ||
         // (item.title === 'Payslip' && item.parentId === 13) ||
@@ -153,13 +151,13 @@ users:User;
     else if (role === 'HR') {
 
       this.filteredMenuItems = allMenuItems.filter(item =>
-        item.title === 'Dashboard' ||
-        (item.title === 'Leave' && !item.parentId) ||
-        (item.title === 'Apply leave' && item.parentId === 8) ||
-        (item.title === 'Leave Balance' && item.parentId === 8) ||
-        (item.title === 'Payroll' && !item.parentId) ||
-        (item.title === 'Payslip' && item.parentId === 13) ||
-        (item.title === 'Pay Details' && item.parentId === 13)
+        item.title === 'Dashboard'
+        // (item.title === 'Leave' && !item.parentId) ||
+        // (item.title === 'Apply leave' && item.parentId === 8) ||
+        // (item.title === 'Leave Balance' && item.parentId === 8) ||
+        // (item.title === 'Payroll' && !item.parentId) ||
+        // (item.title === 'Payslip' && item.parentId === 13) ||
+        // (item.title === 'Pay Details' && item.parentId === 13)
       );
 
     }
@@ -168,27 +166,25 @@ users:User;
       console.log('hiii', this.role);
 
 
-
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
         item.title === 'Role' ||
         (item.title === 'Employee' && !item.parentId) ||
         (item.title === 'Directory' && item.parentId === 3) ||
         (item.title === 'Confirmation' && item.parentId === 3) ||
-        item.title === 'Team' ||
-        (item.title === 'Leave' && !item.parentId) ||
-        (item.title === 'Calender View' && item.parentId === 8) ||
-        (item.title === 'User Leave' && item.parentId === 8) ||
-        (item.title === 'Emergency Leave' && item.parentId === 8) ||
-        (item.title === 'Payroll' && !item.parentId) ||
-        (item.title === 'Process Payroll' && item.parentId === 13) ||
-        (item.title === 'Salary Statement' && item.parentId === 13) ||
-        (item.title === 'YTD Reports' && item.parentId === 13)
+        item.title === 'Team'
+        // (item.title === 'Leave' && !item.parentId) ||
+        // (item.title === 'Calender View' && item.parentId === 8) ||
+        // (item.title === 'User Leave' && item.parentId === 8) ||
+        // (item.title === 'Emergency Leave' && item.parentId === 8) ||
+        // (item.title === 'Payroll' && !item.parentId) ||
+        // (item.title === 'Process Payroll' && item.parentId === 13) ||
+        // (item.title === 'Salary Statement' && item.parentId === 13) ||
+        // (item.title === 'YTD Reports' && item.parentId === 13)
       );
       console.log('filteredMenuItems',this.filteredMenuItems);
     }
     else if (role === 'Super Administrator') {
-
 
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
@@ -247,3 +243,5 @@ users:User;
   }
 
 }
+
+
