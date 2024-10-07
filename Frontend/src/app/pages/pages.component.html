@@ -28,7 +28,9 @@
                             <mat-icon>campaign</mat-icon>
                         </button> 
                         @if(announcement){
-                            <p>{{message}}</p>
+                            <div [ngClass]="type">
+                                <p>{{ message }}</p>
+                            </div>
                         }
                         <div fxLayout="row" fxLayoutAlign="start center" fxShow="false" fxShow.gt-xs class="search-bar">
                             <form method="get" fxLayout="row" fxLayoutAlign="start center">

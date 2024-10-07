@@ -1,31 +1,33 @@
 <div fxLayout="row" fxLayoutAlign="space-between center" class="px-2 py-1">
     <div fxLayout="row">
         <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-            <mat-button-toggle value="add" (click)="openDialog(null)">
-                <mat-icon>loupe</mat-icon>
-            </mat-button-toggle>
+            @if (roleName === 'HR Admin' || roleName === 'Super Admin') {
+                <mat-button-toggle value="add" (click)="openDialog(null)">
+                    <mat-icon>loupe</mat-icon>
+                </mat-button-toggle>
+            }
+
             <mat-button-toggle value="search">
                 <mat-icon>search</mat-icon>
             </mat-button-toggle>
         </mat-button-toggle-group>
     </div>
-<!-- 
-    <form class="user-search" [class.show]="controls.value == 'search'">
-        <mat-form-field class="user-search-input">
-            <input matInput placeholder="Search user by name..." (keyup)="search($event)" >
-        </mat-form-field>
-    </form> -->
+</div>
 
-    <!-- <div fxLayout="row" fxLayoutAlign="space-between center">
-        <mat-button-toggle-group #viewType="matButtonToggleGroup" appearance="legacy" value="grid" hideSingleSelectionIndicator="true">
-            <mat-button-toggle value="grid">
-                <mat-icon>view_module</mat-icon>
-            </mat-button-toggle>
-            <mat-button-toggle value="list">
-                <mat-icon>view_list</mat-icon>
-            </mat-button-toggle>
-        </mat-button-toggle-group>
-    </div> -->
+<div>
+    <ul>
+        @for (item of announcements; track $index) {
+            <li [ngClass]="getAnnouncementClass(item.type)" style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center;">
+                    <span class="symbol">{{ getSymbol(item.type) }}</span>
+                    {{ item.message }}
+                </div>
+                <button mat-button color="warn" (click)="deleteAnnouncement(item.id)">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </li>
+        }
+    </ul>
 </div>
 
 <!-- @if (viewType.value == 'grid') {
