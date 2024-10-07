@@ -111,10 +111,10 @@ export class ViewApprovalComponent {
            this.pendingHeader='GENERATED'}
       if(this.roleName === 'Manager') { this.status = 'KAM VERIFIED'; this.am = true
           this.header = 'REJECTED'
-           this.pendingHeader='KAM VERIFIED'
+           this.pendingHeader='VERIFIED'
        }
       if(this.roleName === 'Accountant') { this.status = 'AM VERIFIED'; this.ma = true
-         this.pendingHeader='AM VERIFIED'
+         this.pendingHeader='VERIFIED'
       }
       if(this.roleName === 'Administrator') { this.admin = true }
       if(this.roleName === 'Team Lead') { this.teamLead = true }
