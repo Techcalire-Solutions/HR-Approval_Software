@@ -78,52 +78,88 @@ router.post('/bankslipupload', upload.single('file'), authenticateToken, async (
 });
 
 router.delete('/filedelete', authenticateToken, async (req, res) => {
-  let s3Url = req.query.key
-  
-  const url = new URL(s3Url);
-  const fileKey = url.pathname.substring(1); 
-  
-  if (!fileKey) {
-    return res.status(400).send({ message: 'No file key provided' });
-  }
-
-  // Set S3 delete parameters
-  const deleteParams = {
-    Bucket: process.env.AWS_BUCKET_NAME,
-    Key: 'invoices/1728290040829_PROFORMA_INVOICE___SO__M32220_pdf'
-  };
-  
-  // Delete the file from S3
-  await s3.deleteObject(deleteParams).promise();
-
-  res.status(200).send({ message: 'File deleted successfully' });
-});
-
-router.delete('/filedelete/:id', async (req, res) => {
-  let id = req.params.id;
+  let id = req.query.id;
   try {
-    const pi = await PerformaInvoice.findByPk(id);
-    let filename = pi.url
-    const directoryPath = path.join(__dirname, '../uploads'); // Replace 'uploads' with your folder name
-    const filePath = path.join(directoryPath, filename);
+    try {
+        let result = await PerformaInvoice.findByPk(id);
+        fileKey = result.url  ;
+        result.url   = '';
+        await result.save();
+    } catch (error) {
+      res.send(error.message)
+    }
+    let key;
+    if (!fileKey) {
+      key = req.query.key;
+      
+      fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+    }
 
-    fs.access(filePath, fs.constants.F_OK, (err) => {
-        if (err) {
-            return res.status(404).json({ message: 'File not found' });
-        }
+    // Set S3 delete parameters
+    const deleteParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileKey
+    };
 
-        // Delete the file
-        fs.unlink(filePath, (err) => {
-            if (err) {
-                return res.status(500).json({ message: 'Error deleting file' });
-            }
+    // Delete the file from S3
+    await s3.deleteObject(deleteParams).promise();
 
-            return res.status(200).json({ message: 'File deleted successfully' });
-        });
-    })
+    res.status(200).send({ message: 'File deleted successfully' });
   } catch (error) {
-    console.error('Error deleting file:', error);
+    console.error('Error deleting file from S3:', error);
     res.status(500).send({ message: error.message });
   }
 });
+
+router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
+    key = req.query.key;
+    fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+    try {
+      if (!fileKey) {
+        return res.send({ message: 'No file key provided' });
+      }
+
+      // Set S3 delete parameters
+      const deleteParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileKey
+      };
+
+      // Delete the file from S3
+      await s3.deleteObject(deleteParams).promise();
+
+      res.status(200).send({ message: 'File deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting file from S3:', error);
+      res.status(500).send({ message: error.message });
+    }
+});
+
+// router.delete('/filedelete/:id', authenticateToken, async (req, res) => {
+//   let id = req.params.id;
+//   try {
+//     const pi = await PerformaInvoice.findByPk(id);
+//     let filename = pi.url
+//     const directoryPath = path.join(__dirname, '../uploads'); // Replace 'uploads' with your folder name
+//     const filePath = path.join(directoryPath, filename);
+
+//     fs.access(filePath, fs.constants.F_OK, (err) => {
+//         if (err) {
+//             return res.status(404).json({ message: 'File not found' });
+//         }
+
+//         // Delete the file
+//         fs.unlink(filePath, (err) => {
+//             if (err) {
+//                 return res.status(500).json({ message: 'Error deleting file' });
+//             }
+
+//             return res.status(200).json({ message: 'File deleted successfully' });
+//         });
+//     })
+//   } catch (error) {
+//     console.error('Error deleting file:', error);
+//     res.status(500).send({ message: error.message });
+//   }
+// });
 module.exports = router;
