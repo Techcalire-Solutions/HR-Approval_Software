@@ -34,6 +34,9 @@ export class LeaveService {
     return this.http.get(`${this.apiUrl}/leave/${id}`);
   }
 
+  getLeaveCounts(userId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/userLeave/leavecount/${userId}`);
+  }
 
    getLeavesByUser(userId: number, search?: string, page?: number, pageSize?: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/leave/user/${userId}?search=${search}&page=${page}&pageSize=${pageSize}`);

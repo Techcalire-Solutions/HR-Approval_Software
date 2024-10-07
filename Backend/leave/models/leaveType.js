@@ -13,7 +13,7 @@ const leaveTypeData = [
   { leaveTypeName: 'Casual Leave' },
   { leaveTypeName: 'Sick Leave' },
   { leaveTypeName: 'LOP' },
-  { leaveTypeName: 'Emergency Leave' },
+  { leaveTypeName: 'Comb Off' },
 ];
 
 // Function to initialize leave types if the table is empty
