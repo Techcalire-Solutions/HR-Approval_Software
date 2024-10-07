@@ -113,9 +113,6 @@ router.delete('/filedelete/:id', authenticateToken, async (req, res) => {
   }
 });
 
-
-
-
 router.delete('/delete/:id', authenticateToken, async (req, res) => {
   let id = req.params.id;
   try {

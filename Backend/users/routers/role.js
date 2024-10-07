@@ -127,7 +127,6 @@ router.get('/rolename', authenticateToken, async (req, res) => {
 
 router.delete('/:id', authenticateToken, async(req,res)=>{
     try {
-
         const result = await Role.destroy({
             where: { id: req.params.id },
             force: true,
