@@ -5,8 +5,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { Settings, SettingsService } from '@services/settings.service';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
-import { orders, products, customers, refunds } from '../../../common/dashboard-data';
 import { LeaveService } from '@services/leave.service';
+import { UsersService } from '@services/users.service';
 
 @Component({
   selector: 'app-leave-count-cards',
@@ -17,98 +17,85 @@ import { LeaveService } from '@services/leave.service';
     MatChipsModule,
     MatIconModule,
     NgxChartsModule
-
   ],
   templateUrl: './leave-count-cards.component.html',
   styleUrl: './leave-count-cards.component.scss',
   encapsulation: ViewEncapsulation.None
 })
 export class LeaveCountCardsComponent {
-  public orders: any[];
-  public products: any[];
-  public customers: any[];
-  public refunds: any[];
+
   public colorScheme: any = {
     domain: ['#999']
   };
   public autoScale = true;
+
   @ViewChild('resizedDiv') resizedDiv: ElementRef;
-  public previousWidthOfResizedDiv:number = 0;
+  public previousWidthOfResizedDiv: number = 0;
   public settings: Settings;
+  leaveService = inject(LeaveService);
+  userService = inject(UsersService)
+
+  leaveCounts: any[] = [];
+  hasLeaveCounts: boolean = false;
+  userId: number;
+  errorMessage: string | null = null;
+
   constructor(public settingsService: SettingsService) {
     this.settings = this.settingsService.settings;
   }
-  leaveService = inject(LeaveService)
 
-  leaveCounts: any[] = [];
-  userId:number
-  ngOnInit(){
+  ngOnInit() {
     const token: any = localStorage.getItem('token');
     let user = JSON.parse(token);
-    const userId = user.id;
+    this.userId = user.id;
 
+    // Check if user is in probation
+    this.checkProbationAndGetLeaveCounts(this.userId);
+  }
+
+  // Separate method to check probation and then fetch leave counts
+  checkProbationAndGetLeaveCounts(userId: number) {
+    this.userService.getProbationEmployees().subscribe(
+      (probationList) => {
+        const isUserOnProbation = probationList.some((probationUser: any) => probationUser.id === userId);
+
+        // If user is NOT on probation, fetch leave counts
+        if (!isUserOnProbation) {
+          this.fetchLeaveCounts(userId);
+        } else {
+          // If user is on probation, only show LOP
+          this.leaveCounts = [{ leaveTypeName: 'LOP', leaveBalance: 0 }];
+          this.hasLeaveCounts = true;
+        }
+      },
+      (error) => {
+        console.error('Error checking probation status:', error);
+        this.errorMessage = 'Unable to verify probation status.';
+      }
+    );
+  }
+
+  // Separate method to fetch leave counts
+  fetchLeaveCounts(userId: number) {
     this.leaveService.getLeaveCounts(userId).subscribe(
       (res) => {
-        console.log(res)
-
         if (res && res.length > 0) {
           this.leaveCounts = res;
+          this.hasLeaveCounts = true;
         } else {
           this.leaveCounts = [];
+          this.hasLeaveCounts = false;
         }
       },
       (error) => {
         console.error('Error fetching leave counts:', error);
-        this.leaveCounts = []; 
+        this.errorMessage = 'Unable to fetch leave counts.';
+        this.hasLeaveCounts = false;
       }
     );
-
-
-
-    this.orders = orders;
-    this.products = products;
-    this.customers = customers;
-    this.refunds = refunds;
-    this.orders = this.addRandomValue('orders');
-    this.customers = this.addRandomValue('customers');
   }
 
-  public onSelect(event: any) {
-    console.log(event);
+  ngOnDestroy() {
+    // Any cleanup if needed
   }
-
-  public addRandomValue(param: any) {
-    switch(param) {
-      case 'orders':
-        for (let i = 1; i < 30; i++) {
-          this.orders[0].series.push({"name": 1980+i, "value": Math.ceil(Math.random() * 1000000)});
-        }
-        return this.orders;
-      case 'customers':
-        for (let i = 1; i < 15; i++) {
-          this.customers[0].series.push({"name": 2000+i, "value": Math.ceil(Math.random() * 1000000)});
-        }
-        return this.customers;
-      default:
-        return this.orders;
-    }
-  }
-
-  ngOnDestroy(){
-    this.orders[0].series.length = 0;
-    this.customers[0].series.length = 0;
-  }
-
-  ngAfterViewChecked() {
-    if(this.previousWidthOfResizedDiv != this.resizedDiv.nativeElement.clientWidth){
-      setTimeout(() => this.orders = [...orders] );
-      setTimeout(() => this.products = [...products] );
-      setTimeout(() => this.customers = [...customers] );
-      setTimeout(() => this.refunds = [...refunds] );
-    }
-    this.previousWidthOfResizedDiv = this.resizedDiv.nativeElement.clientWidth;
-  }
-
 }
-
-

@@ -71,7 +71,7 @@ router.get('/leavecount/:userId', authenticateToken, async (req, res) => {
 
     res.json(leaveCounts);
   } catch (error) {
-    res.status(500).send({ error: error.message });
+  res.send(error.message)
   }
 });
 
