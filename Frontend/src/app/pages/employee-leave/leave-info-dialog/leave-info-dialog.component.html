@@ -1,0 +1,15 @@
+<h1 mat-dialog-title class="dialog-title">
+  <span class="title">Leave Request Confirmation</span>
+  <button mat-button (click)="onBack()" class="back-button" aria-label="Back">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+</h1>
+
+<div mat-dialog-content class="dialog-content">
+  <p>{{ message }}</p>
+</div>
+
+<div mat-dialog-actions class="dialog-actions">
+  <button mat-button (click)="onCancel()" class="cancel-button">Cancel</button>
+  <button mat-button (click)="onOk()" class="ok-button">OK</button>
+</div>
