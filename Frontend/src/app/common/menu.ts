@@ -16,10 +16,12 @@ export const verticalMenuItems = [
   new Menu(7, 'View', '/login/viewApproval', null, 'visibility', null, false, 5),
 
   new Menu(8, 'Leave', '', null, 'upload_file', null, true, 0),
-  new Menu(9, 'Calender View', '/login/leave/leaveCalendar', null,'visibility', null, false, 8),
-  new Menu(10, 'Emergency Leave', '/login/leave/leaverequest', null, 'add_circle', null, false, 8),
-  new Menu(11, 'Apply Leave', '/login/leave', null, 'visibility', null, false, 8),
-  new Menu(12, 'Leave Balance', '/login/leave/leaverequest', null, 'visibility', null, false, 8),
+  new Menu(9, 'Calendar View', '/login/admin-leave', null,'visibility', null, false, 8),
+  new Menu(21, 'View Request', '/login/admin-leave/view-leave-request', null,'visibility', null, false, 8),
+  new Menu(10, 'Emergency Leave', '/login/admin-leave/leaverequest', null, 'add_circle', null, false, 8),
+
+  new Menu(11, 'Apply Leave', '/login/employee-leave', null, 'visibility', null, false, 8),
+  new Menu(12, 'Leave Balance', '/login/employee-leave/leaverequest', null, 'visibility', null, false, 8),
 
 
   new Menu(13, 'Payroll', '', null, 'upload_file', null, true, 0),
@@ -29,7 +31,7 @@ export const verticalMenuItems = [
   new Menu(17, 'YTD Reports', '/login/viewApproval', null, 'visibility', null, false, 13),
   new Menu(17, 'Pay Details', '/login/viewApproval', null, 'visibility', null, false, 13),
   new Menu(18, 'User leave', '/login/userLeave', null, 'visibility', null, false, 8),
-  new Menu(19, 'Events Calender', '/login/leave/events', null, 'visibility', null, false, 8),
+  new Menu(20, 'Events Calender', '/login/leave/events', null, 'visibility', null, false, 8),
 
 ];
 
