@@ -2,5 +2,8 @@ import { LeaveType } from "./leaveType";
 
 export interface Leave{
   id:number;
-  leaveType: LeaveType
+  // leaveTypeId: number;
+  // leaveType: LeaveType
+  startDate: Date;
+  notes: string
 }
