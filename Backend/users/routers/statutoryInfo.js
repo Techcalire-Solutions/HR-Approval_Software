@@ -5,7 +5,7 @@ const StatutoryInfo = require('../models/statutoryInfo');
 const {Op} = require('sequelize');
 
 router.post('/add', authenticateToken, async (req, res) => {
-  const { userId, adharNo, panNumber, esiNumber, uanNumber }  = req.body;
+  const { userId, adharNo, panNumber, esiNumber, uanNumber, insuranceNumber }  = req.body;
 
   try {
     // Build a dynamic where condition to only include non-null and non-empty values
@@ -25,6 +25,10 @@ router.post('/add', authenticateToken, async (req, res) => {
     if (uanNumber) {
       whereCondition[Op.or].push({ uanNumber: { [Op.ne]: null, [Op.eq]: uanNumber } });
     }
+    if (insuranceNumber) {
+      whereCondition[Op.or].push({ insuranceNumber: { [Op.ne]: null, [Op.eq]: insuranceNumber } });
+    }
+
 
     // If no conditions were added, skip the userExist check
     if (whereCondition[Op.or].length > 0) {
@@ -47,7 +51,7 @@ router.post('/add', authenticateToken, async (req, res) => {
     }
 
     // Create and save the new statutory information
-    const user = new StatutoryInfo({ userId, adharNo, panNumber, esiNumber, uanNumber });
+    const user = new StatutoryInfo({ userId, adharNo, panNumber, esiNumber, uanNumber, insuranceNumber });
     await user.save();
     res.send(user);
     
@@ -75,6 +79,7 @@ router.patch('/update/:id', async(req,res)=>{
     result.panNumber = panNumber;
     result.esiNumber = esiNumber;
     result.uanNumber = uanNumber;
+    result.insuranceNumber = insuranceNumber;
 
     await result.save();
     res.send(result);

@@ -189,18 +189,24 @@ router.patch('/statusupdate/:id', async (req, res) => {
   }
 })
 
+// Route to get a user by ID
 router.get('/findone/:id', async (req, res) => {
   let id = req.params.id;
+  console.log(id);
+  
   try {
     const user = await User.findByPk(id, {
-      include: {
-        model: Role,
-        attributes: ['id', 'roleName']
-      }
+      include: [
+        {
+          model: Role,
+          attributes: ['id', 'roleName']
+        },
+
+      ]
     });
     res.send(user);
   } catch (error) {
-    res.status(500).send(error.message);
+    res.send(error.message);
   }
 });
 
@@ -255,16 +261,87 @@ router.get('/findbyrole/:id', async (req, res) => {
   }
 })
 
-router.get('/getreportingmanager', async (req, res) => {
+router.get('/getdirectors', async (req, res) => {
   try {
     const user = await User.findAll({
-      where: { reportingManager: true }
+      where: { director: true }
     })
     res.send(user);
   } catch (error) {
     res.send(error.message)
   }
 })
+
+router.get('/getbyrm/:id', async (req, res) => {
+  try {
+    console.log(req.params.id); // Log the received id for debugging
+    
+    const id = parseInt(req.params.id, 10)
+
+    const users = await User.findAll({
+      include: [
+        {
+          model: UserPersonal,
+          required: true, // Only include users with a matching UserPersonal record
+          where: {
+            reportingMangerId: { [Op.ne]: null },
+            reportingMangerId: id
+          },
+        },
+      ],
+    });
+
+    res.send(users); // Send the retrieved users
+  } catch (error) {
+    res.send(error.message); // Send error message
+  }
+});
+
+
+
+//   try {
+//     const users = await User.findAll({
+//       include: [
+//         {
+//           model: UserPersonal,
+//           required: false,
+//           include: [
+//             {
+//               model: User,
+//               as: 'manager', // To include reporting manager details
+//               required: false,
+//             },
+//           ],
+//         },
+//       ],
+//     });
+
+//     // Transform data into a hierarchical structure
+//     const hierarchy = users.map(user => {
+//       const personalDetails = user.personalDetails || [];
+//       console.log(personalDetails);
+      
+//       return {
+//         id: user.id,
+//         name: user.name,
+//         empNo: user.empNo,
+//         email: user.email,
+//         director: user.director,
+//         reportingManager: personalDetails.manager ? {
+//           id: personalDetails.manager.id,
+//           name: personalDetails.manager.name,
+//         } : null,
+//         // Add other fields from UserPersonal if needed
+//       };
+//     });
+
+//     res.status(200).json(users);
+//   } catch (error) {
+//     console.error('Error fetching user hierarchy:', error);
+//     res.status(500).json({ message: 'Internal Server Error' });
+//   }
+// });
+
 
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {

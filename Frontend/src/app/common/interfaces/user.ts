@@ -30,7 +30,7 @@ export interface User {
   parentName: string
   spouseName: string
   referredBy: string
-  reportingManger: number
 
   probationEndDate: Date
+  
 }
