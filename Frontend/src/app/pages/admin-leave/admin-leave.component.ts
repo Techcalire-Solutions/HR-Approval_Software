@@ -15,6 +15,21 @@ import { CommonModule } from '@angular/common';
 import { LeaveService } from '@services/leave.service';
 import { Router } from '@angular/router';
 import { Leave } from '../../common/interfaces/leave';
+
+const colors: any = {
+  red: {
+    primary: '#ad2121',
+    secondary: '#FAE3E3'
+  },
+  blue: {
+    primary: '#1e90ff',
+    secondary: '#D1E8FF'
+  },
+  yellow: {
+    primary: '#e3bc08',
+    secondary: '#FDF1BA'
+  }
+};
 @Component({
   selector: 'app-admin-leave',
   standalone: true,
@@ -29,75 +44,148 @@ import { Leave } from '../../common/interfaces/leave';
   templateUrl: './admin-leave.component.html',
   styleUrl: './admin-leave.component.scss'
 })
+
 export class AdminLeaveComponent {
-  router = inject(Router)
-  view: CalendarView = CalendarView.Month; // Use enum here
+  view: CalendarView | "month" | "week" | "day" = 'month';
   viewDate: Date = new Date();
+  activeDayIsOpen: boolean = true;
+  events: CalendarEvent[] = [];
+  // actions: CalendarEventAction[] = [{
+  //   label: '<i class="material-icons icon-sm white">edit</i>',
+  //   onClick: ({ event }: { event: CalendarEvent }): void => {
+  //     this.openScheduleDialog(event);
+  //   }
+  // }, {
+  //   label: '<i class="material-icons icon-sm white">close</i>',
+  //   onClick: ({ event }: { event: CalendarEvent }): void => {
+  //     this.events = this.events.filter(iEvent => iEvent !== event);
+  //     this.snackBar.open('Event deleted successfully!', undefined, {
+  //       duration: 1500
+  //     });
+  //   }
+  // }];
+  // events: CalendarEvent[] = [{
+  //   start: subDays(startOfDay(new Date()), 1),
+  //   end: addDays(new Date(), 1),
+  //   title: 'A 3 day event',
+  //   color: colors.red,
+  //   // actions: this.actions
+  // }, {
+  //   start: startOfDay(new Date()),
+  //   title: 'An event with no end date',
+  //   color: colors.yellow,
+  //   // actions: this.actions
+  // }, {
+  //   start: subDays(endOfMonth(new Date()), 3),
+  //   end: addDays(endOfMonth(new Date()), 3),
+  //   title: 'A long event that spans 2 months',
+  //   color: colors.blue
+  // }, {
+  //   start: addHours(startOfDay(new Date()), 2),
+  //   end: new Date(),
+  //   title: 'A draggable and resizable event',
+  //   color: colors.yellow,
+  //   // actions: this.actions,
+  //   resizable: {
+  //     beforeStart: true,
+  //     afterEnd: true
+  //   },
+  //   draggable: true
+  // }];
 
-  CalendarView = CalendarView; // Expose the CalendarView enum to the template
 
-  events: CalendarEvent[] = [];  // CalendarEvent type
   refresh: Subject<any> = new Subject();
-  activeDayIsOpen: boolean = false;
-  selectedLeaves: any[] = [];  // To hold leaves for the selected date
-  leaveService = inject(LeaveService)
-  snackBar = inject(MatSnackBar);
-  constructor(private http: HttpClient) {}
 
-  ngOnInit(): void {
-    // this.fetchLeavesForDate(this.viewDate);  // Fetch initial leaves data
-    this.getLeaves()
-  }
+  public settings: Settings;
+  leaveService=inject(LeaveService)
+  settingsService=inject(SettingsService)
+  dialog=inject(MatDialog)
+  snackBar=inject(MatSnackBar)
 
-  // Handle day click event
-  dayClicked(day: any): void {
-    const clickedDate = day.date;
-    this.fetchLeavesForDate(clickedDate);
-    this.router.navigate(['/login/view-leave-request'], { queryParams: { date: clickedDate } });
-  }
 
-  // Fetch leaves for the clicked date
-  fetchLeavesForDate(date: Date): void {
-    this.http.get(`/leave/getBydate?date=${date.toISOString()}`).subscribe((response: any) => {
-      this.selectedLeaves = response;  // Assume the response contains an array of leaves
-    });
-  }
 
-  getLeaveSub : Subscription
-  leaves:Leave[]=[]
-  totalItems = 0;
-  getLeaves(){
-       this.getLeaveSub= this.leaveService.getLeaves().subscribe((res)=> {
-        console.log('res',res);
 
-        this.leaves = res.items;
-        this.totalItems = res.count;
-        console.log('leaves', this.leaves);
-        console.log('totalItems', this.totalItems);
 
+    ngOnInit() {
+      this.getLeaves()
+      this.settings = this.settingsService.settings;
+      // Fetch leaves from your service or however you're getting them
+      // const leaves: Leave[] = [
+      //   {
+      //     id: 4,
+      //     notes: 'Emergency',
+      //     startDate: startOfDay(new Date()),
+      //   },
+      //   // Add other leave objects here...
+      // ];
+
+      // Convert leaves to CalendarEvent[]
+
+    }
+getLeaveSub : Subscription
+  leaves:any[]=[]
+  totalItemsCount = 0;
+  getLeaves() {
+    this.getLeaveSub = this.leaveService.getLeaves().subscribe(
+      (res) => {
+        console.log('res', res);
+
+        // Assuming `res.items` contains the array of leaves
+        this.leaves = res;
+        this.totalItemsCount = res.length;
+
+        // console.log('leaves', this.leaves);
+        console.log('totalItemsCount', this.totalItemsCount);
+        this.events = this.mapLeavesToCalendarEvents(this.leaves);
       },
       (error) => {
+        // Handle any errors
         this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
-      })
+      }
+    );
   }
 
-  // Approve leave
-  approveLeave(leaveId: number): void {
-    this.http.post(`/leave/${leaveId}/approve`, {}).subscribe(() => {
-      this.refreshLeaves();
-    });
+  dayClicked({ date, events }: { date: Date, events: CalendarEvent[] }): void {
+    if (isSameMonth(date, this.viewDate)) {
+      if ((isSameDay(this.viewDate, date) && this.activeDayIsOpen === true) || events.length === 0) {
+        this.activeDayIsOpen = false;
+      } else {
+        this.activeDayIsOpen = true;
+        this.viewDate = date;
+      }
+    }
+  }
+  mapLeavesToCalendarEvents(leaves: any[]): CalendarEvent[] {
+    return leaves.map(leave => ({
+      id: leave.id,
+      user: leave.user.name, // Assuming leave.user.name contains the user's name
+      title: `${leave.user.name}: ${leave.leaveType.leaveTypeName} - Reason: ${leave.notes}`, // Concatenating the notes with the user's name
+      start: startOfDay(new Date(leave.startDate)), // Assuming leave.startDate is a date string
+      end: startOfDay(new Date(leave.endDate)), // Assuming leave.endDate is a date string
+      // Add other necessary properties for CalendarEvent
+    }));
   }
 
-  // Reject leave
-  rejectLeave(leaveId: number): void {
-    this.http.post(`/leave/${leaveId}/reject`, {}).subscribe(() => {
-      this.refreshLeaves();
-    });
+
+
+
+  openScheduleDialog(event: any) {
+    // let dialogRef = this.dialog.open(ScheduleDialogComponent, {
+    //   data: event
+    // });
+
+    // dialogRef.afterClosed().subscribe(result => {
+    //   if (result) {
+    //     if (!result.isEdit) {
+    //       result.color = colors.blue;
+    //       result.actions = this.actions;
+    //       this.events.push(result);
+    //       this.refresh.next(null);
+    //     } else {
+    //       //implement edit here
+    //     }
+    //   }
+    // });
   }
 
-  // Refresh the leaves after approve/reject
-  refreshLeaves(): void {
-    this.fetchLeavesForDate(this.viewDate);  // Refresh for the current date
-  }
 }
-
