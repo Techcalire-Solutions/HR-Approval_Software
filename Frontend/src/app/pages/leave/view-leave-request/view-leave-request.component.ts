@@ -137,8 +137,8 @@ userId:number
     // this.getLeaveByUser()
   }
 
-  openApplyLeave(){
-    this.router.navigate(['/login/leave/add'])
+  openCalendar(){
+    this.router.navigate(['login/leave/leaveCalendar']);
 
   }
 

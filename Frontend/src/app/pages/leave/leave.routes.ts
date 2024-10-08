@@ -17,24 +17,19 @@ export const routes: Routes = [
     loadComponent: () => import('./user-leave/user-leave.component').then(c => c.UserLeaveComponent),
     data: { breadcrumb: 'LeaveRequest' }, canActivate: [AuthGuard]
   },
-  // {
-  //   path: 'leaveCalendar',
-  //   loadComponent: () => import('./leave.component').then(c => c.LeaveComponent),
-  //   data: { breadcrumb: 'Calender View' }, canActivate: [AuthGuard]
-  // },
-
-  // {
-  //   path: 'view-leave-request',
-  //   loadComponent: () => import('./view-leave-request/view-leave-request.component').then(c => c.ViewLeaveRequestComponent),
-  //   data: { breadcrumb: 'View Leave REquest' }, canActivate: [AuthGuard]
-  // },
 
 
   {
-    // temporary path-> need to change
+
     path: 'leaveCalendar',
+    loadComponent: () => import('./leave.component').then(c => c.LeaveComponent),
+    data: { breadcrumb: 'Calender View' }, canActivate: [AuthGuard]
+  },
+  {
+
+    path: 'view-leave-request',
     loadComponent: () => import('./view-leave-request/view-leave-request.component').then(c => c.ViewLeaveRequestComponent),
-    data: { breadcrumb: 'View Leave REquest' }, canActivate: [AuthGuard]
+    data: { breadcrumb: 'View Leave Request' }, canActivate: [AuthGuard]
   },
 ];
 
