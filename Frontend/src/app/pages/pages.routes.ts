@@ -14,6 +14,11 @@ export const routes: Routes = [
       {path: 'announcements', loadComponent: () => import('./announcements/announcements.component').then(c => c.AnnouncementsComponent),
         data: { breadcrumb: 'Announcements' }, canActivate: [AuthGuard]
       },
+      {
+        path: 'tree',
+        loadComponent: () => import('./hierarchy-tree/hierarchy-tree.component').then(c => c.HierarchyTreeComponent),
+        data: { breadcrumb: 'HierarchyTree' }, canActivate: [AuthGuard]
+      },
 
       {
         path: 'role',

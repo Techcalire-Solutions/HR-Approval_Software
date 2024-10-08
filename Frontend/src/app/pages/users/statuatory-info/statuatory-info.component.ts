@@ -32,7 +32,8 @@ export class StatuatoryInfoComponent implements OnDestroy {
     adharNo : [''],
     panNumber : [''],
     esiNumber : [''],
-    uanNumber : ['']
+    uanNumber : [''],
+    insuranceNumber: ['']
   });
 
   editStatus: boolean = false;
@@ -55,7 +56,8 @@ export class StatuatoryInfoComponent implements OnDestroy {
           adharNo : data.adharNo,
           panNumber : data.panNumber,
           esiNumber : data.esiNumber,
-          uanNumber : data.uanNumber
+          uanNumber : data.uanNumber,
+          insuranceNumber : data.insuranceNumber
         })
       }
     })
