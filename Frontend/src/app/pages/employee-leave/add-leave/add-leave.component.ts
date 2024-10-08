@@ -26,6 +26,8 @@ import { SafeResourceUrl } from '@angular/platform-browser';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LeaveCountCardsComponent } from '../leave-count-cards/leave-count-cards.component';
 import { UsersService } from '@services/users.service';
+import { MatDialog } from '@angular/material/dialog';
+import { LeaveInfoDialogComponent } from '../leave-info-dialog/leave-info-dialog.component';
 // Custom validator to check if at least one session is selected
 function sessionSelectionValidator(group: FormGroup) {
   const session1 = group.get('session1')?.value;
@@ -77,13 +79,14 @@ route = inject(ActivatedRoute)
 fb = inject(FormBuilder)
 leaveService = inject(LeaveService)
 sanitizer = inject(DomSanitizer);
-userService = inject(UsersService)
+userService = inject(UsersService);
+dialog = inject(MatDialog);
 
 leave : any
 userId : number
   ngOnInit() {
     this.getLeaveType();
-    this.getLeaves()
+    // this.getLeaves()
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
     this.userId = user.id;
@@ -172,25 +175,6 @@ this.leaveRequestForm = this.fb.group({
   }
 
 
-  onSubmit1() {
-    this.isLoading = true;
-    const leaveRequest = {
-      ...this.leaveRequestForm.value,
-      leaveDates: this.leaveRequestForm.get('leaveDates')!.value
-    };
-
-    this.leaveService.addLeave(leaveRequest).subscribe(
-      () => {
-        this.isLoading = false;
-        this.snackBar.open('Leave request submitted successfully!', 'Close', { duration: 3000 });
-        this.router.navigate(['/login/applyLeave'])
-      },
-      () => {
-        this.isLoading = false;
-        this.snackBar.open('Failed to submit leave request. Please try again.', 'Close', { duration: 3000 });
-      }
-    );
-  }
 
 
   getLeaveDetails(id: number) {
@@ -199,7 +183,7 @@ this.leaveRequestForm = this.fb.group({
     });
   }
 
-  onSubmit() {
+  onSubmit1() {
     this.isLoading = true;
     const leaveRequest = {
       ...this.leaveRequestForm.value,
@@ -212,15 +196,79 @@ this.leaveRequestForm = this.fb.group({
 
       const idAsNumber = +leaveId;
 
-      this.leaveService.updateLeave(idAsNumber, leaveRequest).subscribe(() => {
+      this.leaveService.updateLeave(idAsNumber, leaveRequest).subscribe((response) => {
+        this.dialog.open(LeaveInfoDialogComponent, {
+          data: { message: response.message }
+        });
+
         this.snackBar.open('Leave request Updated successfully!', 'Close', { duration: 3000 });
         this.router.navigate(['/login/leave'])
       });
     } else {
-      this.leaveService.addLeave(leaveRequest).subscribe(() => {
+      this.leaveService.addLeave(leaveRequest).subscribe((response:any) => {
+        this.dialog.open(LeaveInfoDialogComponent, {
+          data: { message: response.message }
+        });
+
         this.snackBar.open('Leave request added successfully!', 'Close', { duration: 3000 });
         this.router.navigate(['/login/leave'])
       });
+    }
+  }
+
+  onSubmit() {
+    this.isLoading = true; // Disable the button and show loading indicator
+
+    const leaveRequest = {
+      ...this.leaveRequestForm.value,
+      leaveDates: this.leaveRequestForm.get('leaveDates')!.value
+    };
+
+    const leaveId = this.route.snapshot.queryParamMap.get('id');
+
+    if (this.isEditMode && leaveId) {
+      const idAsNumber = +leaveId;
+
+      // Update leave request
+      this.leaveService.updateLeave(idAsNumber, leaveRequest).subscribe((response: any) => {
+        this.openDialog(response.message);
+      });
+    } else {
+      // Add new leave request
+      this.leaveService.addLeave(leaveRequest).subscribe((response: any) => {
+        this.openDialog(response.message);
+      });
+    }
+  }
+
+  openDialog(message: string) {
+    // Open the confirmation dialog
+    const dialogRef = this.dialog.open(LeaveInfoDialogComponent, {
+      data: { message: message }
+    });
+
+    // Handle the dialog result
+    dialogRef.afterClosed().subscribe(result => {
+      this.handleDialogResult(result);
+    });
+  }
+
+  handleDialogResult(result: any) {
+    if (result?.action === 'proceed') {
+      // User clicked OK - show success snackbar and navigate
+      this.snackBar.open('Leave request submitted successfully!', 'Close', { duration: 3000 });
+      this.router.navigate(['/login/employee-leave']); // Redirect to the view page after applying leave
+    } else if (result?.action === 'back') {
+      // User clicked Back - allow them to return to the form without submitting
+      this.isLoading = false;
+    } else if (result?.action === 'cancel') {
+      // User clicked Cancel - show cancel snackbar and redirect to the view page
+      this.isLoading = false;
+      this.leaveRequestForm.reset(); // Reset the form
+
+      // Show snackbar for cancellation and redirect
+      this.snackBar.open('Leave request cancelled!', 'Close', { duration: 3000 });
+      this.router.navigate(['/login/employee-leave']); // Redirect to the view page after cancelling
     }
   }
 

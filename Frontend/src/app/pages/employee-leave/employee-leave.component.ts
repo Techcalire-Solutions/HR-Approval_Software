@@ -141,7 +141,7 @@ leaves:any[]=[]
 
 
   editLeave(item:any) {
-    this.router.navigate(['/login/leave/add'], { queryParams: { id: item.id } });
+    this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item.id } });
   }
 
 
