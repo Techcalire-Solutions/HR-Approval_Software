@@ -3,19 +3,17 @@
 <body>
   <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
     <div fxLayout="row" class="col">
-        <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-          <mat-button-toggle value="add" (click)="openApplyLeave()">
-            <mat-icon style="color: green;">event</mat-icon>
+      <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
+        <mat-button-toggle value="add" (click)="openApplyLeave()">
+          <mat-icon style="color: green;">event</mat-icon>
           CALENDAR
-          </mat-button-toggle>
-
-
-        </mat-button-toggle-group>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
     </div>
     <div fxLayout="row" class="col">
       <form class="user-search" [class.show]="controls.value == 'search'">
         <mat-form-field class="user-search-input">
-            <input matInput placeholder="Search leave by leave type..." name="search" (keyup)="search($event)">
+          <input matInput placeholder="Search leave by leave type..." name="search" (keyup)="search($event)">
         </mat-form-field>
       </form>
     </div>
@@ -26,78 +24,64 @@
       <table>
         <thead>
           <tr>
-
             <th>Leave Date</th>
-            <th>Leave Type</th>
-            <!-- <th>Reason</th> -->
+            <th>Leave Type Id</th>
+            <th>User</th>
+            <th>Reason</th>
             <th>Status</th>
-            <th>Action</th>
+             <th>Action</th>
           </tr>
         </thead>
         <tbody>
           <!-- Loop through each leave -->
           <tr *ngFor="let item of leaves">
-            <!-- Leave Type (From associated LeaveType model) -->
-
-
-            <!-- Leave Dates and Sessions -->
-            <!-- <td>
+            <!-- Leave Date -->
+            <td>
               <ng-container *ngFor="let date of item.leaveDates">
-                {{ date.date | date: 'dd - MM - yyyy' }}
-                <span *ngIf="date.session1">Session 1</span>
-                <span *ngIf="date.session2">Session 2</span>
-                <br>
+                {{ date.date | date: 'dd-MM-yyyy' }}<br>
+                @if(date.session1==true){
+                  session 1<br>
+                }
+                @if(date.session2==true){
+                  session 2<br>
+                }
+
+
+
               </ng-container>
-            </td> -->
-            <td>{{ item.leaveType?.leaveTypeName }}</td>
-            <!-- Status -->
-            <!-- <td>{{ item.status | camelCase }}</td> -->
+            </td>
+
+            <!-- Leave Type -->
+            <td>{{ item.leaveType.leaveTypeName }}</td>
+            <td>{{ item.user.name }}</td>
+            <td>{{ item.notes }}</td>
 
 
+            <td>{{ item.status }}</td>
 
             <!-- Actions -->
             <td>
-                                     <!-- Edit and Delete Buttons -->
-                                     <button mat-raised-button class="approve-button" (click)="approveLeave()"                                     > APPROVE
-                                   </button>
-                                   <button mat-raised-button class="reject-button"
-                                     (click)="rejectLeave()">
-                                     REJECT
-                                   </button>
-
-<!-- Blocked Icon -->
-<ng-template #blockedAction>
-  <div class="icon-btn-group blocked-layout">
-    <button mat-icon-button class="icon-btn blocked-btn" disabled>
-      <mat-icon>block</mat-icon> <!-- Blocked Icon -->
-    </button>
-  </div>
-</ng-template>
-
-
-
-
-
-
-
-
-
+              <!-- Approve and Reject Buttons -->
+              <button mat-raised-button class="approve-button" (click)="approveLeave(item.id)">
+                APPROVE
+              </button> &nbsp;
+              <button mat-raised-button class="reject-button" (click)="rejectLeave(item.id)">
+                REJECT
+              </button>
             </td>
           </tr>
         </tbody>
       </table>
-      <mat-paginator
-      [length]="totalItems"
-      [pageSize]="pageSize"
-      [pageIndex]="currentPage - 1"
-      (page)="onPageChange($event)"
-      [pageSizeOptions]="[10, 20, 30, 40, 50, 100]">
-    </mat-paginator>
 
+      <!-- Paginator -->
+      <mat-paginator
+        [length]="totalItemsCount"
+        [pageSize]="pageSize"
+        [pageIndex]="currentPage - 1"
+        (page)="onPageChange($event)"
+        [pageSizeOptions]="[10, 20, 30, 40, 50, 100]">
+      </mat-paginator>
     </section>
   </main>
-
-
-
 </body>
 </html>

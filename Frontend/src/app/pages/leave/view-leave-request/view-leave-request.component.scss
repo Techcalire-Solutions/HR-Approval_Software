@@ -205,3 +205,36 @@ thead th:first-child, tbody td:first-child {
   margin: 0 2px; /* Smaller space between Edit and Delete buttons */
 }
 
+
+/* Approve Button */
+.approve-button {
+  background-color: #28a745; /* Green background */
+  color: #fff; /* White text */
+  border: none; /* Remove default border */
+  padding: 5px 5px; /* Smaller padding */
+  font-size: 10px; /* Smaller font size */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth background color transition */
+  margin-right: 10px; /* Space between buttons */
+}
+
+.approve-button:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+
+/* Reject Button */
+.reject-button {
+  background-color: #dc3545; /* Red background */
+  color: #fff; /* White text */
+  border: none; /* Remove default border */
+  padding: 5px 5px; /* Smaller padding */
+  font-size: 10px; /* Smaller font size */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth background color transition */
+}
+
+.reject-button:hover {
+  background-color: #c82333; /* Darker red on hover */
+}
