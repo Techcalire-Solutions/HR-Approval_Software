@@ -104,7 +104,7 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
       });
     } else {
       // Remove the row directly if no changes
-      formGroup.removeAt(index);
+      this.doc().removeAt(index)
     }
   }
   
@@ -183,20 +183,18 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
   }
 
   onDeleteImage(i: number){
-    console.log(this.id[i]);
-    
-    if(this.id[i] !== undefined){
-      this.userSevice.deleteUserDoc(this.imageUrl[i], this.id[i]).subscribe(x => {
-        this.imageUrl[i] = '';
-        this.doc().at(i).get('docUrl')?.setValue('');
-        this.snackBar.open(`${this.doc().at(i).get('docUrl')?.value} is deleted from employee data`,"" ,{duration:3000})
-      })
+    if(this.id[i]){
+      this.userSevice.deleteUserDoc(this.id[i], this.imageUrl[i]).subscribe(data=>{
+        this.imageUrl[i] = ''
+          this.doc().at(i).get('docUrl')?.setValue('');
+        this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
+      });
     }else{
-      this.userSevice.deleteUserDocByUrl(this.imageUrl[i]).subscribe(x => {
-        // this.imageUrl[i] = '';
-        this.doc().at(i).get('docUrl')?.setValue('');
-        this.snackBar.open(`${this.doc().at(i).get('docUrl')?.value} is deleted from employee data`,"" ,{duration:3000})
-      })
+      this.userSevice.deleteUserDocByurl(this.imageUrl[i]).subscribe(data=>{
+        this.imageUrl[i] = ''
+          this.doc().at(i).get('docUrl')?.setValue('');
+        this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
+      });
     }
   }
 }
