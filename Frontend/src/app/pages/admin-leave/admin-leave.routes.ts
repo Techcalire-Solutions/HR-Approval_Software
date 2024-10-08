@@ -20,4 +20,10 @@ export const routes: Routes = [
     loadComponent: () => import('./leave-types/leave-types.component').then(c => c.LeaveTypesComponent),
     data: { breadcrumb: 'LeaveTypes' }, canActivate: [AuthGuard]
   },
+  {
+    path: 'applyEmergencyleave',
+    loadComponent: () => import('./apply-emergency-leave/apply-emergency-leave.component').then(c => c.ApplyEmergencyLeaveComponent),
+    data: { breadcrumb: 'Apply Emergency Leave' }, canActivate: [AuthGuard]
+  },
+
 ];
