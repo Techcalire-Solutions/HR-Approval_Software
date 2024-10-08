@@ -19,7 +19,8 @@ export interface UserPersonal {
   parentName: string
   spouseName: string
   referredBy: string
-  reportingManger: number
+  reportingMangerId: number
+  manager: User
 
   user: User;
   age: number;
