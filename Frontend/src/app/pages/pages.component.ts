@@ -213,7 +213,10 @@ export class PagesComponent implements OnInit {
 
   openCalender(){
     this.router.navigate(['/login/leave/events']);
+  }
 
+  openTree(){
+    this.router.navigateByUrl('/login/tree')
   }
 
 }

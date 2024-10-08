@@ -1,0 +1,8 @@
+<ul>
+    <ng-container *ngFor="let child of getChildrenNodes()">
+        <li>
+            <a href="#"><img [src]="'path/to/default/image.jpg'" alt=""><span>{{child.name}}</span></a>
+            <app-hierarchy-tree-node [parentId]="child.id" [getChildren]="getChildren"></app-hierarchy-tree-node>
+        </li>
+    </ng-container>
+</ul>

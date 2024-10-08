@@ -61,13 +61,11 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.id = params['id'];
-      console.log(this.imageUrl);
-      
       if (this.id) {
         console.log(this.id);
         
         this.editStatus = true;
-        this.getUser(this.id) // Call a function if 'id' exists
+        this.getUser(this.id)
       }else{
         this.generateEmployeeNumber()
       }
@@ -202,6 +200,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
 
   selectedTabIndex: number = 0;
+  formSubmitted: boolean = true;
   isFormSubmitted: boolean = false;
   isWorkFormSubmitted: boolean = false;
   isContactsFormSubmitted: boolean = false;
@@ -223,6 +222,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
           this.personalDetailsComponent.ngOnInit();
         }
         this.isFormSubmitted = true;
+        this.formSubmitted = false;
         this.snackBar.open("User added succesfully...","" ,{duration:3000})
       })
     }
@@ -230,16 +230,19 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
   personalSubmit(event: any){
     this.isWorkFormSubmitted = event.isFormSubmitted
+    this.isFormSubmitted = false;
     this.selectedTabIndex = 2;
   }
 
   workSubmit(event: any){
     this.isContactsFormSubmitted = event.isFormSubmitted
+    this.isWorkFormSubmitted = false;
     this.selectedTabIndex = 3
   }
 
   contactSubmit(event: any){
     this.isSocialFormSubmitted = event.isFormSubmitted
+    this.isContactsFormSubmitted = false;
     this.selectedTabIndex = 4
     if (this.userAccountComponent && this.selectedTabIndex === 4) {
       this.userAccountComponent.ngOnInit();
@@ -248,6 +251,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
   accountSubmit(event: any){
     this.isAccountFormSubmitted = event.isFormSubmitted
+    this.isSocialFormSubmitted = false;
     this.selectedTabIndex = 5
     if (this.userDocumentsComponent && this.selectedTabIndex === 5) {
       this.userDocumentsComponent.trigger();
@@ -345,6 +349,35 @@ export class UserDialogComponent implements OnInit, OnDestroy {
         this.isAccountFormSubmitted = true;
         this.userDocumentsComponent.triggerNew(this.dataToPass);
       }
+    }
+  }
+
+  generateRandomPassword() {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
+    let password = '';
+    for (let i = 0; i < 10; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    console.log(password);
+    
+    this.form.get('password')?.setValue(password);
+    this.form.get('confirmPassword')?.setValue(password);  // Clear confirm password
+  }
+
+  copyEmpNoAndPassword() {
+    const empNo = this.form.get('empNo')?.value;
+    const password = this.form.get('password')?.value;
+
+    if (empNo && password) {
+      const textToCopy = `Emp ID: ${empNo}\nPassword: ${password}`;
+      navigator.clipboard.writeText(textToCopy).then(
+        () => {
+          console.log('Email and password copied to clipboard');
+        },
+        (err) => {
+          console.error('Could not copy text: ', err);
+        }
+      );
     }
   }
 
