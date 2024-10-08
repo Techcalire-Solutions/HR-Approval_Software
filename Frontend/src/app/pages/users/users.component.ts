@@ -112,7 +112,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   deleteFunction(id: number){
     const dialogRef = this.dialog.open(DeleteDialogueComponent, {
-      width: '450px',
+      width: '320px',
       data: {}
     });
 
@@ -161,7 +161,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   updateSub!: Subscription;
   updateStatus(event: any, id: number, name: string){
-    console.log(event.checked); 
+    console.log(event.checked);
     let data = { status: event.checked }
     this.updateSub = this.usersService.updateUserStatus(data, id).subscribe((result) => {
       if (event.checked) {
@@ -170,6 +170,6 @@ export class UsersComponent implements OnInit, OnDestroy {
         this.snackbar.open(`${name} is now in inactive state`, "", { duration: 3000 });
       }
       this.getUsers()
-    }); 
+    });
   }
 }

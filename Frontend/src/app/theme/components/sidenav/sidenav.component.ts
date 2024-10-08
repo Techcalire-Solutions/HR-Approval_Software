@@ -123,15 +123,15 @@ users:User;
         (item.title === 'Add' && item.parentId === 5) ||
         (item.title === 'View' && item.parentId === 5) ||
         (item.title === 'Leave' && !item.parentId)||
-        (item.title === 'Apply Leave' && item.parentId === 8)
-        // (item.title === 'Leave Balance' && item.parentId === 8)
-        // (item.title === 'Payroll' && !item.parentId) ||
-        // (item.title === 'Payslip' && item.parentId === 13) ||
-        // (item.title === 'Pay Details' && item.parentId === 13)
+        (item.title === 'Apply Leave' && item.parentId === 8) ||
+        (item.title === 'Leave Balance' && item.parentId === 8)||
+        (item.title === 'Payroll' && !item.parentId) ||
+        (item.title === 'Payslip' && item.parentId === 13) ||
+        (item.title === 'Pay Details' && item.parentId === 13)
 
       );
     }
-    
+
     else if (
       role === 'Accountant'
     ) {

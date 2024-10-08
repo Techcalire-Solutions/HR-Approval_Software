@@ -262,14 +262,74 @@ router.get('/user/:userId', async (req, res) => {
 //--------------------------GET LEAVE------------------------------------------------------------
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const leaves = await Leave.findAll({});
+    const leaves = await Leave.findAll({
+      include: [
+        {
+          model: LeaveType,  
+          // as: 'leaveType',  
+          attributes: ['leaveTypeName'] 
+        },
+        {
+          model: User,       
+          // as: 'user',       
+          attributes: ['name'] 
+        }
+      ]
+    });
+
     res.send(leaves);
   } catch (error) {
-    res.send(error.message)
+    res.status(500).send(error.message); // Send an error with status code
   }
 });
 
+// Approve leave API
+router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
+  const leaveId = req.params.id;
 
+  try {
+    // Find the leave by its ID
+    const leave = await Leave.findByPk(leaveId);
+
+    // Check if leave exists
+    if (!leave) {
+      return res.status(404).send({ message: 'Leave request not found' });
+    }
+
+    // Update leave status to 'approved'
+    leave.status = 'approved';
+    await leave.save(); // Save the updated leave
+
+    // Send success response
+    res.send({ message: 'Leave approved successfully', leave });
+  } catch (error) {
+    // Handle errors
+    res.status(500).send({ message: 'An error occurred while approving the leave', error: error.message });
+  }
+});
+
+router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
+  const leaveId = req.params.id;
+
+  try {
+    const leave = await Leave.findByPk(leaveId);
+
+   
+    if (!leave) {
+      return res.status(404).send({ message: 'Leave request not found' });
+    }
+
+   
+    leave.status = 'rejected';
+    await leave.save(); 
+
+  
+    res.send({ message: 'Leave approved successfully', leave });
+  } catch (error) {
+
+    res.status(500).send({ message: 'An error occurred while approving the leave', error: error.message });
+  }
+});
 
 //-------------------------GET BY ID--------------------------------------------------------------
 
