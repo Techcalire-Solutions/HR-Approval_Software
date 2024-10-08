@@ -123,15 +123,15 @@ users:User;
         (item.title === 'Add' && item.parentId === 5) ||
         (item.title === 'View' && item.parentId === 5) ||
         (item.title === 'Leave' && !item.parentId)||
-        (item.title === 'Apply Leave' && item.parentId === 8)
-        // (item.title === 'Leave Balance' && item.parentId === 8)
-        // (item.title === 'Payroll' && !item.parentId) ||
-        // (item.title === 'Payslip' && item.parentId === 13) ||
-        // (item.title === 'Pay Details' && item.parentId === 13)
+        (item.title === 'Apply Leave' && item.parentId === 8) ||
+        (item.title === 'Leave Balance' && item.parentId === 8)||
+        (item.title === 'Payroll' && !item.parentId) ||
+        (item.title === 'Payslip' && item.parentId === 13) ||
+        (item.title === 'Pay Details' && item.parentId === 13)
 
       );
     }
-    
+
     else if (
       role === 'Accountant'
     ) {
@@ -174,7 +174,8 @@ users:User;
         (item.title === 'Confirmation' && item.parentId === 3) ||
         item.title === 'Team'
         // (item.title === 'Leave' && !item.parentId) ||
-        // (item.title === 'Calender View' && item.parentId === 8) ||
+        // (item.title === 'Calendar View' && item.parentId === 8) ||
+        // (item.title === 'View Request' && item.parentId === 8) ||
         // (item.title === 'User Leave' && item.parentId === 8) ||
         // (item.title === 'Emergency Leave' && item.parentId === 8) ||
         // (item.title === 'Payroll' && !item.parentId) ||
@@ -196,7 +197,8 @@ users:User;
         (item.title === 'Approval Uploads' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5) ||
         (item.title === 'Leave' && !item.parentId) ||
-        (item.title === 'Calender View' && item.parentId === 8) ||
+        (item.title === 'Calendar View' && item.parentId === 8) ||
+        (item.title === 'View Request' && item.parentId === 8) ||
         (item.title === 'User Leave' && item.parentId === 8) ||
         (item.title === 'Emergency Leave' && item.parentId === 8) ||
         (item.title === 'Payroll' && !item.parentId) ||

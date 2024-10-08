@@ -31,9 +31,14 @@ export const routes: Routes = [
         data: { breadcrumb: 'Employees' }, canActivate: [AuthGuard]
       },
       {
-        path: 'leave',
-        loadChildren: () => import('./leave/leave.routes').then(c => c.routes),
+        path: 'admin-leave',
+        loadChildren: () => import('./admin-leave/admin-leave.routes').then(c => c.routes),
         data: { breadcrumb: 'Leave' }, canActivate: [AuthGuard]
+      },
+      {
+        path: 'employee-leave',
+        loadChildren: () => import('./employee-leave/employee-leave.routes').then(c => c.routes),
+        data: { breadcrumb: 'VIEW LEAVES' }, canActivate: [AuthGuard]
       },
       {
         path: 'addApproval',
@@ -67,11 +72,7 @@ export const routes: Routes = [
         loadComponent: () => import('./team/team.component').then(c => c.TeamComponent),
         data: { breadcrumb: 'Team' }, canActivate: [AuthGuard]
       },
-      {
-        path: 'leaveType',
-        loadComponent: () => import('./leave/leave-types/leave-types.component').then(c => c.LeaveTypesComponent),
-        data: { breadcrumb: 'Leave Type' }, canActivate: [AuthGuard]
-      },
+
     ]
   }
 ];

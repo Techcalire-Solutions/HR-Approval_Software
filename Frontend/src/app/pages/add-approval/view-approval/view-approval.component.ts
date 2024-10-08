@@ -427,7 +427,7 @@ export class ViewApprovalComponent {
 
   deleteFunction(id: number){
     const dialogRef = this.dialog.open(DeleteDialogueComponent, {
-      width: '450px',
+      width: '320px',
       data: {}
     });
 
