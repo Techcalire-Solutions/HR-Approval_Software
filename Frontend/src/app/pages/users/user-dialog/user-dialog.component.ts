@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatRadioModule } from '@angular/material/radio';
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -38,7 +38,7 @@ import { MatSelectModule } from '@angular/material/select';
   imports: [ ReactiveFormsModule, FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule,  MatDatepickerModule,
     MatNativeDateModule, MatRadioModule, MatDialogModule,  MatButtonModule, MatCheckboxModule, DatePipe,  MatToolbarModule,
     PersonalDetailsComponent, UserPositionComponent, StatuatoryInfoComponent, UserAccountComponent, UserDocumentsComponent, MatCardModule,
-    MatOptionModule, MatSelectModule
+    MatOptionModule, MatSelectModule, CommonModule
 ],
   templateUrl: './user-dialog.component.html',
   styleUrl: './user-dialog.component.scss'
@@ -61,8 +61,11 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.id = params['id'];
-
+      console.log(this.imageUrl);
+      
       if (this.id) {
+        console.log(this.id);
+        
         this.editStatus = true;
         this.getUser(this.id) // Call a function if 'id' exists
       }else{
@@ -121,7 +124,10 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     console.log(user);
     
     this.invNo = user.empNo
-    this.imageUrl = user.url
+    if(user.url != null && user.url != '' && user.url != 'undefined'){
+      
+      this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${user.url}`
+    }
     this.form.patchValue({
       name: user.name,
       roleId: user.roleId,
@@ -132,7 +138,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
       joiningDate: user.createdAt,
       teamId: user.teamId
     })
-    if(user.url != null) this.imageUrl = this.url + user.url
   }
 
   uploadProgress: number | null = null;
@@ -140,7 +145,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   file!: any;
   uploadSub!: Subscription;
   fileType: string = '';
-  imageUrl!: string;
+  imageUrl: string = '';
   public safeUrl!: SafeResourceUrl;
   uploadFile(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -184,8 +189,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   getRoles(){
     this.roleSub = this.roleService.getRole().subscribe((res)=>{
       this.roles = res;
-      console.log(res);
-
     })
   }
 
@@ -346,10 +349,18 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   }
 
   deleteImage() {
-    this.userService.deleteUserImage(this.id).subscribe(data=>{
-      this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
-      this.getUser(this.id)
-    });
+    if(this.id){
+      this.userService.deleteUserImage(this.id, this.imageUrl).subscribe(data=>{
+        this.imageUrl = ''
+        this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
+        this.getUser(this.id)
+      });
+    }else{
+      this.userService.deleteUserImageByurl(this.imageUrl).subscribe(data=>{
+        this.imageUrl = ''
+        this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
+      });
+    }
   }
 }
 
