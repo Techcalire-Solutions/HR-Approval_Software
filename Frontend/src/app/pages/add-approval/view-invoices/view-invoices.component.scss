@@ -1,5 +1,5 @@
 mat-card {
-  max-width: auto;
+  max-width: 100%; /* Ensure card takes up full width on mobile */
   margin: 20px auto;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
@@ -64,8 +64,8 @@ mat-card-title {
 
 .col {
   flex: 1;
-  margin-right: 20px;
-  width: 100%;
+  min-width: 300px; /* Ensure columns stack on smaller screens */
+  margin-bottom: 20px; /* Space between stacked columns */
 }
 
 .col:last-child {
@@ -136,7 +136,7 @@ th, td {
   padding: 12px 15px;
   text-align: left;
   border-bottom: 1px solid #ddd;
-  transition: transform 0.2s ease-in-out;
+  word-wrap: break-word; /* Ensure long text breaks */
 }
 
 th {
@@ -163,11 +163,9 @@ thead th:first-child, tbody td:first-child {
 }
 
 .status {
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: white;
-  font-weight: bold;
-  text-align: center;
+  white-space: nowrap; /* Prevent text from breaking */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .status.delivered {
@@ -262,4 +260,51 @@ button.mat-button-disabled {
   cursor: not-allowed; /* Cursor to indicate it's not clickable */
   opacity: 0.7; /* Slightly faded look */
   border: 1px solid #cccccc !important; /* Light border to match background */
+}
+
+/* Responsive Behavior */
+@media (max-width: 768px) {
+  .col {
+    width: 100%; /* Columns take full width on small screens */
+    margin-right: 0;
+  }
+
+  .row {
+    flex-direction: column;
+  }
+
+  .table {
+    display: block;
+    overflow-x: auto; /* Allow horizontal scroll on small screens */
+  }
+
+  th, td {
+    padding: 8px 10px; /* Smaller padding on mobile */
+    font-size: 12px;
+  }
+
+  .image-container img {
+    max-width: 100%;
+    max-height: 200px; /* Adjust image size for mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .table {
+    font-size: 14px;
+  }
+
+  th:nth-child(1), td:nth-child(1),
+  th:nth-child(2), td:nth-child(2) {
+    width: 30%; /* Adjust column widths on mobile */
+  }
+
+  th:nth-child(3), td:nth-child(3),
+  th:nth-child(4), td:nth-child(4) {
+    width: 20%; /* Adjust column widths on mobile */
+  }
+
+  .input-group input {
+    width: 100%; /* Search input takes full width on mobile */
+  }
 }

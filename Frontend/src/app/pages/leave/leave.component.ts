@@ -15,6 +15,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { LeaveService } from '@services/leave.service';
 import { Leave } from '../../common/interfaces/leave';
+import { Router } from '@angular/router';
 const colors: any = {
   red: {
     primary: '#ad2121',
@@ -48,6 +49,7 @@ const colors: any = {
   }
 })
 export class LeaveComponent implements OnInit {
+  router = inject(Router)
   view: CalendarView = CalendarView.Month; // Use enum here
   viewDate: Date = new Date();
 
@@ -70,6 +72,7 @@ export class LeaveComponent implements OnInit {
   dayClicked(day: any): void {
     const clickedDate = day.date;
     this.fetchLeavesForDate(clickedDate);
+    this.router.navigate(['/login/view-leave-request'], { queryParams: { date: clickedDate } });
   }
 
   // Fetch leaves for the clicked date
