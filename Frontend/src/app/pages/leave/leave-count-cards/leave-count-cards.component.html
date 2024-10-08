@@ -1,17 +1,24 @@
 <div fxLayout="row wrap" #resizedDiv>
-  <div *ngIf="leaveCounts.length === 0">No leave counts available.</div>
-  <ng-container *ngFor="let leave of leaveCounts">
-    <div fxFlex="100" fxFlex.gt-sm="25" fxFlex.sm="50" class="p-2">
-      <mat-card class="pb-2">
-        <mat-card-header class="pt-2" fxLayoutAlign="space-between center">
-          <mat-card-subtitle>{{ leave.leaveTypeName }}</mat-card-subtitle>
-          <mat-chip-set>
-            <mat-chip color="accent" highlighted="true" class="info-chip">
-              <mat-icon class="icon-sm">trending_up</mat-icon>{{ leave.leaveBalance || 0 }}
-            </mat-chip>
-          </mat-chip-set>
-        </mat-card-header>
-      </mat-card>
-    </div>
+  <!-- Display error message if available -->
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <!-- Check if there are no leave counts using the flag -->
+  <div *ngIf="!hasLeaveCounts && !errorMessage">No leave counts available.</div>
+
+  <ng-container *ngIf="hasLeaveCounts"> <!-- Render leave counts only if available -->
+    <ng-container *ngFor="let leave of leaveCounts">
+      <div fxFlex="100" fxFlex.gt-sm="25" fxFlex.sm="50" class="p-2">
+        <mat-card class="pb-2">
+          <mat-card-header class="pt-2" fxLayoutAlign="space-between center">
+            <mat-card-subtitle>{{ leave.leaveTypeName }}</mat-card-subtitle>
+            <mat-chip-set>
+              <mat-chip color="accent" highlighted="true" class="info-chip">
+                <mat-icon class="icon-sm">trending_up</mat-icon>{{ leave.leaveBalance || 0 }}
+              </mat-chip>
+            </mat-chip-set>
+          </mat-card-header>
+        </mat-card>
+      </div>
+    </ng-container>
   </ng-container>
 </div>
