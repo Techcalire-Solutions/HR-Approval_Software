@@ -423,7 +423,7 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     }
 
     // Update leave status to 'approved'
-    leave.status = 'approved';
+    leave.status = 'Approved';
     await leave.save(); // Save the updated leave
 
     // Send success response
@@ -446,7 +446,7 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
     }
 
    
-    leave.status = 'rejected';
+    leave.status = 'Rejected';
     await leave.save(); 
 
   

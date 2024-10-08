@@ -62,10 +62,10 @@
             <!-- Actions -->
             <td>
               <!-- Approve and Reject Buttons -->
-              <button mat-raised-button class="approve-button" (click)="approveLeave(item.id)">
+              <button mat-raised-button class="approve-button" (click)="approveLeave(item.id)" [disabled]="item.status === 'Approved'">
                 APPROVE
               </button> &nbsp;
-              <button mat-raised-button class="reject-button" (click)="rejectLeave(item.id)">
+              <button mat-raised-button class="reject-button" (click)="rejectLeave(item.id)" [disabled]="item.status === 'Rejected'">
                 REJECT
               </button>
             </td>
