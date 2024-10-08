@@ -197,7 +197,7 @@ users:User;
         (item.title === 'Approval Uploads' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5) ||
         (item.title === 'Leave' && !item.parentId) ||
-        (item.title === 'Calendar View' && !item.parentId) ||
+        (item.title === 'Calendar View' && item.parentId === 8) ||
         (item.title === 'View Request' && item.parentId === 8) ||
         (item.title === 'User Leave' && item.parentId === 8) ||
         (item.title === 'Emergency Leave' && item.parentId === 8) ||

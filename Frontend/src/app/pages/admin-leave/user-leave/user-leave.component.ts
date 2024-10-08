@@ -5,14 +5,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { LeaveService } from '@services/leave.service';
 import { Subscription } from 'rxjs';
-import { LeaveType } from '../../../common/interfaces/leaveType';
-import { UserLeave } from '../../../common/interfaces/userLeave';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { UserLeave } from '../../../common/interfaces/userLeave';
+import { LeaveType } from '../../../common/interfaces/leaveType';
 
 @Component({
   selector: 'app-user-leave',
@@ -23,13 +23,13 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class UserLeaveComponent implements OnInit, OnDestroy {
   fb = inject(FormBuilder);
-  dialogRef = inject(MatDialogRef<UserLeaveComponent>) 
+  dialogRef = inject(MatDialogRef<UserLeaveComponent>)
   data = inject(MAT_DIALOG_DATA);
 
   mainForm = this.fb.group({
     forms: this.fb.array([])
   });
-  
+
   new(initialValue?: LeaveType, userLeave?: UserLeave): FormGroup {
     return this.fb.group({
       userId: [this.data.id],
@@ -40,20 +40,20 @@ export class UserLeaveComponent implements OnInit, OnDestroy {
       leaveBalance: [userLeave ? userLeave.leaveBalance : 0]
     });
   }
-  
+
   addNew(data?: LeaveType, userLeave?: UserLeave) {
     this.newData().push(this.new(data, userLeave));
   }
-  
+
   removeData(index: number) {
     const formArray = this.newData();
     formArray.removeAt(index);
   }
-  
+
   newData(): FormArray {
     return this.mainForm.get('forms') as FormArray;
   }
-  
+
   ngOnInit(): void {
     this.getLeaveTypes();
     this.mainForm.get('forms')?.valueChanges.subscribe((values) => {
@@ -76,14 +76,14 @@ export class UserLeaveComponent implements OnInit, OnDestroy {
     let alloted: number = data.noOfDays;
     let taken: number = data.takenLeaves;
     const leaveBalance = alloted - taken;
-  
+
     this.newData().at(i).patchValue({ leaveBalance }, { emitEvent: false });
   if (i < this.updated.length) {
-    this.updated[i] = { ...data, leaveBalance }; 
+    this.updated[i] = { ...data, leaveBalance };
   } else {
-    this.updated.push({ ...data, leaveBalance }); 
+    this.updated.push({ ...data, leaveBalance });
   }
-  
+
   }
 
   onCancelClick(){
@@ -94,7 +94,7 @@ export class UserLeaveComponent implements OnInit, OnDestroy {
   onSubmit(){
     this.submit = this.leaveService.updateUserLeave(this.updated).subscribe(res=>{
       this.dialogRef.close();
-      this.snackBar.open(`Leave updated successfully for ${this.data.name}...`, 'Close', { duration: 3000 }); 
+      this.snackBar.open(`Leave updated successfully for ${this.data.name}...`, 'Close', { duration: 3000 });
     })
   }
 
@@ -105,7 +105,7 @@ export class UserLeaveComponent implements OnInit, OnDestroy {
     this.leaveTypeSub = this.leaveService.getLeaveType().subscribe(res => {
       this.leaveTypes = res;
       for(let i = 0; i < this.leaveTypes.length; i++){
-        
+
         this.getUserLeave(this.leaveTypes[i].id, this.leaveTypes[i])
       }
     })
@@ -119,7 +119,7 @@ export class UserLeaveComponent implements OnInit, OnDestroy {
     })
   }
 
-  
+
   ngOnDestroy(): void {
     this.ulSub?.unsubscribe();
     this.leaveTypeSub?.unsubscribe();

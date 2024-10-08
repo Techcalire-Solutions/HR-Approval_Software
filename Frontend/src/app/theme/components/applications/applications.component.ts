@@ -6,7 +6,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
-import { LeaveTypesComponent } from '../../../pages/leave/leave-types/leave-types.component';
+import { LeaveTypesComponent } from '../../../pages/admin-leave/leave-types/leave-types.component';
 
 @Component({
   selector: 'app-applications',
