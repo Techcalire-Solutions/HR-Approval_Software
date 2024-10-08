@@ -31,6 +31,7 @@ export const routes: Routes = [
 
 
   {
+    // temporary path-> need to change
     path: 'leaveCalendar',
     loadComponent: () => import('./view-leave-request/view-leave-request.component').then(c => c.ViewLeaveRequestComponent),
     data: { breadcrumb: 'View Leave REquest' }, canActivate: [AuthGuard]

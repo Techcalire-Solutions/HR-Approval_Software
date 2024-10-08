@@ -70,65 +70,71 @@ export class ViewLeaveRequestComponent {
   usersService = inject(UsersService);
   router = inject(Router)
   leaveService = inject(LeaveService)
+  snackbar=inject(MatSnackBar)
 
 userId:number
   ngOnInit(){
-    this.getLeaveByUser()
-    const token: any = localStorage.getItem('token')
-    let user = JSON.parse(token)
-    this.userId = user.id;
-   this.getLeaveByUser();
+    this.getLeaves()
+  //   const token: any = localStorage.getItem('token')
+  //   let user = JSON.parse(token)
+  //   this.userId = user.id;
+  //  this.getLeaveByUser();
   }
 
   getLeaveSub : Subscription
-  leaves:Leave[]=[]
+  leaves:any[]=[]
   totalItemsCount = 0;
-  getLeaves(){
-       this.getLeaveSub= this.leaveService.getLeaves().subscribe((res)=> {
-        console.log('res',res);
+  getLeaves() {
+    this.getLeaveSub = this.leaveService.getLeaves().subscribe(
+      (res) => {
+        console.log('res', res);
 
-        this.leaves = res.items;
-        this.totalItemsCount = res.count;
-        console.log('leaves', this.leaves);
-        console.log('totalItems', this.totalItems);
+        // Assuming `res.items` contains the array of leaves
+        this.leaves = res;
+        // this.totalItemsCount = res.count;
 
+        // console.log('leaves', this.leaves);
+        // console.log('totalItemsCount', this.totalItemsCount);
       },
       (error) => {
-        this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
-      })
-  }
-
-  ngOnDestroy(): void {
-    this.leaveSub.unsubscribe();
-
-
-}
-
-
-// leaves:any[]=[]
-  leaveSub :Subscription
-  private getLeaveByUser(): void {
-    if (!this.userId) return;
-
-    console.log(this.userId)
-
-    this.leaveSub = this.leaveService.getLeavesByUser(this.userId, this.searchText, this.currentPage, this.pageSize).subscribe(
-      (res: any) => {
-
-        this.leaves = res.items;
-        this.totalItems = res.count;
-      },
-      (error) => {
+        // Handle any errors
         this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
       }
     );
   }
 
 
+  ngOnDestroy(): void {
+    // this.leaveSub.unsubscribe();
+
+
+}
+
+
+// leaves:any[]=[]
+  // leaveSub :Subscription
+  // private getLeaveByUser(): void {
+  //   if (!this.userId) return;
+
+  //   console.log(this.userId)
+
+  //   this.leaveSub = this.leaveService.getLeavesByUser(this.userId, this.searchText, this.currentPage, this.pageSize).subscribe(
+  //     (res: any) => {
+
+  //       this.leaves = res.items;
+  //       this.totalItems = res.count;
+  //     },
+  //     (error) => {
+  //       this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
+  //     }
+  //   );
+  // }
+
+
   public searchText!: string;
   search(event: Event){
     this.searchText = (event.target as HTMLInputElement).value.trim()
-    this.getLeaveByUser()
+    // this.getLeaveByUser()
   }
 
   openApplyLeave(){
@@ -144,14 +150,35 @@ userId:number
   onPageChange(event: PageEvent): void {
     this.currentPage = event.pageIndex + 1;
     this.pageSize = event.pageSize;
-    this.getLeaveByUser()
+    this.getLeaves()
   }
 
-  approveLeave(){
-
+  approveLeave(leaveId: any) {
+    this.leaveService.updateApproveLeaveStatus(leaveId).subscribe(
+      (res) => {
+        console.log('Leave approved:', res);
+        this.snackbar.open('Leave approved successfully', '', { duration: 3000 });
+        this.getLeaves(); // Refresh leave data after approval
+      },
+      (error) => {
+        this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
+        console.error('Error approving leave:', error);
+      }
+    );
   }
-rejectLeave(){
 
+rejectLeave(leaveId: any){
+  this.leaveService.updateRejectLeaveStatus(leaveId).subscribe(
+    (res) => {
+      console.log('Leave Rejected:', res);
+      this.snackbar.open('Leave rejected successfully', '', { duration: 3000 });
+      this.getLeaves(); // Refresh leave data after approval
+    },
+    (error) => {
+      this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
+      console.error('Error approving leave:', error);
+    }
+  );
 }
 
 
