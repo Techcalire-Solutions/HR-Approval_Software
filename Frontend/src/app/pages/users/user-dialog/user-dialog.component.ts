@@ -62,6 +62,8 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     this.route.params.subscribe(params => {
       this.id = params['id'];
       if (this.id) {
+        console.log(this.id);
+        
         this.editStatus = true;
         this.getUser(this.id)
       }else{

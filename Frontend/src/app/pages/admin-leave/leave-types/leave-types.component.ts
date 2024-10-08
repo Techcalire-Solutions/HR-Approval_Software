@@ -11,13 +11,13 @@ import { MatInputModule } from '@angular/material/input';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { SafePipe } from '../../add-approval/view-invoices/safe.pipe';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { LeaveService } from '@services/leave.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { LeaveType } from '../../../common/interfaces/leaveType';
 import { MatDialogModule } from '@angular/material/dialog';
+import { SafePipe } from '../../add-approval/view-invoices/safe.pipe';
+import { LeaveType } from '../../../common/interfaces/leaveType';
 
 @Component({
   selector: 'app-leave-types',

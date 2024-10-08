@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+  <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
+    <div fxLayout="row" class="col">
+      <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
+        <mat-button-toggle value="add" (click)="openCalendar()">
+          <mat-icon style="color: green;">event</mat-icon>
+          CALENDAR
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+    <div fxLayout="row" class="col">
+      <form class="user-search" [class.show]="controls.value == 'search'">
+        <mat-form-field class="user-search-input">
+          <input matInput placeholder="Search leave by leave type..." name="search" (keyup)="search($event)">
+        </mat-form-field>
+      </form>
+    </div>
+  </div>
+
+  <main class="table" id="customers_table">
+    <section class="table__body">
+      <table>
+        <thead>
+          <tr>
+            <th>Leave Date</th>
+            <th>Leave Type Id</th>
+            <th>User</th>
+            <th>Reason</th>
+            <th>Status</th>
+             <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Loop through each leave -->
+          <tr *ngFor="let item of leaves">
+            <!-- Leave Date -->
+            <td>
+              <ng-container *ngFor="let date of item.leaveDates">
+                {{ date.date | date: 'dd-MM-yyyy' }}<br>
+                @if(date.session1==true){
+                  session 1<br>
+                }
+                @if(date.session2==true){
+                  session 2<br>
+                }
+
+
+
+              </ng-container>
+            </td>
+
+            <!-- Leave Type -->
+            <td>{{ item.leaveType.leaveTypeName }}</td>
+            <td>{{ item.user.name }}</td>
+            <td>{{ item.notes }}</td>
+
+
+            <td>{{ item.status }}</td>
+
+            <!-- Actions -->
+            <td>
+              <!-- Approve and Reject Buttons -->
+              <button mat-raised-button class="approve-button" (click)="approveLeave(item.id)" [disabled]="item.status === 'Approved'">
+                APPROVE
+              </button> &nbsp;
+              <button mat-raised-button class="reject-button" (click)="rejectLeave(item.id)" [disabled]="item.status === 'Rejected'">
+                REJECT
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Paginator -->
+      <mat-paginator
+        [length]="totalItemsCount"
+        [pageSize]="pageSize"
+        [pageIndex]="currentPage - 1"
+        (page)="onPageChange($event)"
+        [pageSizeOptions]="[10, 20, 30, 40, 50, 100]">
+      </mat-paginator>
+    </section>
+  </main>
+</body>
+</html>
