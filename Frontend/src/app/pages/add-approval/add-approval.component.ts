@@ -289,14 +289,20 @@ export class AddApprovalComponent {
   }
 
   onDeleteImage(){
-    this.invoiceService.deleteUploaded(this.imageUrl).subscribe(res=>{
-      console.log(res);
-      
-    })
-    // this.announcementService.deleteAnnouncementByName(this.imageUrl).subscribe(res=>{
-    //   this.snackBar.open('Image deleted successfully...', 'Close', { duration: 3000 });
-    //   this.imageUrl = '';
-    //   this.form.get('fileUrl')?.setValue('');
-    // })
+    if(this.id){
+      this.invoiceService.deleteUploaded(this.id, this.imageUrl).subscribe(data=>{
+        this.imageUrl = ''
+        this.piForm.get('url')?.setValue('')
+        this.snackBar.open("Invoice is deleted successfully...","" ,{duration:3000})
+        this.router.navigateByUrl('/login/viewApproval')
+      });
+    }else{
+      this.invoiceService.deleteUploadByurl(this.imageUrl).subscribe(data=>{
+        this.imageUrl = ''
+        this.piForm.get('url')?.setValue('')
+        this.snackBar.open("invoice is deleted successfully...","" ,{duration:3000})
+        this.router.navigateByUrl('/login/viewApproval')
+      });
+    }
   }
 }

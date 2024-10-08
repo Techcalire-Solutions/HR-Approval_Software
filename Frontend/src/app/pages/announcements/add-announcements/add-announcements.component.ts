@@ -86,11 +86,19 @@ export class AddAnnouncementsComponent implements OnDestroy {
   }
 
   onDeleteImage(){
-    this.announcementService.deleteAnnouncementByName(this.imageUrl).subscribe(res=>{
-      this.snackBar.open('Image deleted successfully...', 'Close', { duration: 3000 });
-      this.imageUrl = '';
-      this.form.get('fileUrl')?.setValue('');
-    })
+    // if(this.id[i]){
+    //   this.userSevice.deleteUserDoc(this.id[i], this.imageUrl[i]).subscribe(data=>{
+    //     this.imageUrl[i] = ''
+    //       this.doc().at(i).get('docUrl')?.setValue('');
+    //     this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
+    //   });
+    // }else{
+      this.announcementService.deleteAnouncemntUploadByurl(this.imageUrl).subscribe(data=>{
+        this.imageUrl = ''
+        this.form.get('fileUrl')?.setValue('')
+        this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
+      });
+    // }
   }
 
   close(){
