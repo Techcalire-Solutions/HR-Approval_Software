@@ -1,12 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CalendarEvent, CalendarEventAction, CalendarModule, CalendarView } from 'angular-calendar';
 import { startOfDay, subDays, addDays, endOfMonth, isSameDay, isSameMonth, addHours } from 'date-fns';
-import { blockTransition } from '../../theme/utils/app-animation';
+// import { blockTransition } from '../../theme/utils/app-animation';
 import { Subject, Subscription } from 'rxjs';
 import { Settings, SettingsService } from '@services/settings.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-// import { ScheduleDialogComponent } from './schedule-dialog/schedule-dialog.component';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,25 +13,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { LeaveService } from '@services/leave.service';
-import { Leave } from '../../common/interfaces/leave';
 import { Router } from '@angular/router';
-const colors: any = {
-  red: {
-    primary: '#ad2121',
-    secondary: '#FAE3E3'
-  },
-  blue: {
-    primary: '#1e90ff',
-    secondary: '#D1E8FF'
-  },
-  yellow: {
-    primary: '#e3bc08',
-    secondary: '#FDF1BA'
-  }
-};
-
+import { Leave } from '../../common/interfaces/leave';
 @Component({
-  selector: 'app-leave',
+  selector: 'app-admin-leave',
   standalone: true,
   imports: [
     FlexLayoutModule,
@@ -42,13 +26,10 @@ const colors: any = {
     CalendarModule,
     CommonModule
   ],
-  templateUrl: './leave.component.html',
-  animations: [blockTransition],
-  host: {
-    '[@blockTransition]': ''
-  }
+  templateUrl: './admin-leave.component.html',
+  styleUrl: './admin-leave.component.scss'
 })
-export class LeaveComponent implements OnInit {
+export class AdminLeaveComponent {
   router = inject(Router)
   view: CalendarView = CalendarView.Month; // Use enum here
   viewDate: Date = new Date();
@@ -119,3 +100,4 @@ export class LeaveComponent implements OnInit {
     this.fetchLeavesForDate(this.viewDate);  // Refresh for the current date
   }
 }
+

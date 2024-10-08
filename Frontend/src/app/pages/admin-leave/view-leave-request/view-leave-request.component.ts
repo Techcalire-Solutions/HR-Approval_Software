@@ -8,7 +8,6 @@ import { RoleService } from '@services/role.service';
 import { SettingsService } from '@services/settings.service';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
-import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
 
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -28,11 +27,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { CamelCasePipe } from '../../../common/camel-case.pipe';
 import { PipesModule } from '../../../theme/pipes/pipes.module';
 import { UserDialogComponent } from '../../users/user-dialog/user-dialog.component';
-
-import { CamelCasePipe } from '../../../common/camel-case.pipe';
-import { Leave } from '../../../common/interfaces/leave';
 @Component({
   selector: 'app-view-leave-request',
   standalone: true,
@@ -137,8 +134,8 @@ userId:number
     // this.getLeaveByUser()
   }
 
-  openApplyLeave(){
-    this.router.navigate(['/login/leave/add'])
+  openCalendar(){
+    this.router.navigate(['login/leave/leaveCalendar']);
 
   }
 

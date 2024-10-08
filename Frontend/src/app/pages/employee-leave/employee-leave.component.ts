@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { CommonModule, DatePipe, formatDate } from '@angular/common';
+import { FormArray, FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -18,20 +18,22 @@ import { RoleService } from '@services/role.service';
 import { SettingsService } from '@services/settings.service';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
-import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { PipesModule } from '../../../theme/pipes/pipes.module';
-import { UserDialogComponent } from '../../users/user-dialog/user-dialog.component';
-import { Router } from '@angular/router';
+
+import { ActivatedRoute, Router } from '@angular/router';
 import { LeaveService } from '@services/leave.service';
-import { CamelCasePipe } from '../../../common/camel-case.pipe';
+import { DomSanitizer } from '@angular/platform-browser';
+import { CamelCasePipe } from '../../common/camel-case.pipe';
+import { PipesModule } from '../../theme/pipes/pipes.module';
+import { UserDialogComponent } from '../users/user-dialog/user-dialog.component';
+import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 
 @Component({
-  selector: 'app-apply-leave',
+  selector: 'app-employee-leave',
   standalone: true,
   imports: [
     MatTableModule,
@@ -60,10 +62,10 @@ import { CamelCasePipe } from '../../../common/camel-case.pipe';
     { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS },
     UsersService
   ],
-  templateUrl: './apply-leave.component.html',
-  styleUrls: ['./apply-leave.component.scss']
+  templateUrl: './employee-leave.component.html',
+  styleUrl: './employee-leave.component.scss'
 })
-export class ApplyLeaveComponent implements OnInit {
+export class EmployeeLeaveComponent {
   public page:any;
   snackBar = inject(MatSnackBar);
   roleService = inject(RoleService);
@@ -120,7 +122,7 @@ leaves:any[]=[]
   }
 
   openApplyLeave(){
-    this.router.navigate(['/login/leave/add'])
+    this.router.navigate(['/login/employee-leave/add'])
 
   }
 
