@@ -85,6 +85,16 @@ dialog = inject(MatDialog);
 leave : any
 userId : number
   ngOnInit() {
+      // Initialize the form first (Moved this part up)
+  this.leaveRequestForm = this.fb.group({
+    leaveTypeId: ['', Validators.required],
+    startDate: ['', Validators.required],
+    endDate: ['', Validators.required],
+    notes: ['', Validators.required],
+    fileUrl: [''],  // File URL initialization for file upload
+    leaveDates: this.fb.array([])  // Initializing an empty array for leave dates
+  });
+  
     this.getLeaveType();
     // this.getLeaves()
     const token: any = localStorage.getItem('token')
