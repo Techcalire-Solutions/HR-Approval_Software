@@ -1,0 +1,24 @@
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.half-width {
+  width: 48%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+//------Upload css code--------------------------
+.clickable-icon {
+  cursor: pointer;
+  transition: color 0.3s; /* Smooth color transition */
+}
+
+.file-selected {
+  color: green; /* Change the icon color when a file is selected */
+}
