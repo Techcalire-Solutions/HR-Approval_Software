@@ -116,7 +116,7 @@
             </div>
 
             <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
-              @if(imageUrl && imageUrl != 'undefined') {
+              @if(imageUrl != '') {
                 <input type="file" class="file-input" hidden #fileInput>
                 <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
                   <img [src]="imageUrl" alt="Image" title="Image" height="100" width="100" (click)="fileInput.click()" class="clickable-image" />
@@ -125,7 +125,6 @@
                       <mat-icon>delete</mat-icon>
                     </button>
                   }
-
                 </div>
               } @else{
                 <div class="upload-container" style="display: flex; align-items: center;">

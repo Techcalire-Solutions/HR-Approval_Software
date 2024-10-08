@@ -25,6 +25,7 @@ import { Subscription } from 'rxjs';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LeaveCountCardsComponent } from '../leave-count-cards/leave-count-cards.component';
+import { UsersService } from '@services/users.service';
 // Custom validator to check if at least one session is selected
 function sessionSelectionValidator(group: FormGroup) {
   const session1 = group.get('session1')?.value;
@@ -76,12 +77,17 @@ route = inject(ActivatedRoute)
 fb = inject(FormBuilder)
 leaveService = inject(LeaveService)
 sanitizer = inject(DomSanitizer);
+userService = inject(UsersService)
 
 leave : any
-
+userId : number
   ngOnInit() {
     this.getLeaveType();
     this.getLeaves()
+    const token: any = localStorage.getItem('token')
+    let user = JSON.parse(token)
+    this.userId = user.id;
+    this.checkProbationStatus()
 
 const leaveId = this.route.snapshot.queryParamMap.get('id');
 if (leaveId) {
@@ -281,5 +287,17 @@ isSickLeaveAndMoreThanThreeDays(): boolean {
   return false; // Return false if it's not sick leave or dates are invalid
 }
 
+
+ // Check if the user is on probation
+ isProbationEmployee: boolean = false;
+ checkProbationStatus() {
+
+  this.userService.getProbationEmployees().subscribe((employees) => {
+    this.isProbationEmployee = employees.some((emp: any) => emp.id === this.userId); // Check if the user is in the probation list
+    if (this.isProbationEmployee) {
+      this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP'); // Filter to show only LOP
+    }
+  });
+}
 
 }

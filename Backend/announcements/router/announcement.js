@@ -88,20 +88,22 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
     }
 });
 
-router.delete('/filedelete/:id', authenticateToken, async (req, res) => {
-  let id = req.params.id;
+router.delete('/filedelete', authenticateToken, async (req, res) => {
+  let id = req.query.id;
   try {
     try {
         let result = await Announcement.findByPk(id);
-        fileKey = userDoc.fileUrl 
+        fileKey = result.fileUrl ;
         result.fileUrl  = '';
-
         await result.save();
     } catch (error) {
       res.send(error.message)
     }
+    let key;
     if (!fileKey) {
-      return res.status(400).send({ message: 'No file key provided' });
+      key = req.query.key;
+      
+      fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
     }
 
     // Set S3 delete parameters
@@ -121,29 +123,26 @@ router.delete('/filedelete/:id', authenticateToken, async (req, res) => {
 });
 
 router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
-  try {
-    let fileKey = req.query.key;
-    const urlToRemove = 'https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/';
-    fileKey = fileKey.replace(urlToRemove, '');
-    console.log(fileKey);
-    
-    if (!fileKey) {
-      return res.status(400).send({ message: 'No file key provided' });
+    key = req.query.key;
+    fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+    try {
+      if (!fileKey) {
+        return res.send({ message: 'No file key provided' });
+      }
+
+      // Set S3 delete parameters
+      const deleteParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileKey
+      };
+
+      // Delete the file from S3
+      await s3.deleteObject(deleteParams).promise();
+
+      res.status(200).send({ message: 'File deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting file from S3:', error);
+      res.status(500).send({ message: error.message });
     }
-
-    // Set S3 delete parameters
-    const deleteParams = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: fileKey
-    };
-
-    // Delete the file from S3
-    await s3.deleteObject(deleteParams).promise();
-
-    res.status(200).send({ message: 'File deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting file from S3:', error);
-    res.status(500).send({ message: error.message });
-  }
 });
 module.exports = router;
