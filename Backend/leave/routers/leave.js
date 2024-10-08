@@ -125,7 +125,8 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
 });
 
 
-//----------------------------POST API------------------------------------------------------------
+//-----------------------------------------------TEST-----------------------------------------
+
 router.post('/', authenticateToken, async (req, res) => {
   const { leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
   const userId = req.user.id;
@@ -142,13 +143,132 @@ router.post('/', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Invalid input' });
     }
 
+    // Calculate the number of leave days
+    const noOfDays = calculateLeaveDays(leaveDates);
+
+    // Fetch leave type and user leave balance
+    const leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
+    if (!leaveType) return res.status(404).json({ message: 'Leave type not found' });
+
+    // Fetch all leave balances for the user
+    const userLeaves = await UserLeave.findAll({ where: { userId } });
+
+    // Find the leave balance for the requested leave type
+    const userLeave = userLeaves.find(leave => leave.leaveTypeId === leaveType.id);
+    let leaveBalance = userLeave ? userLeave.leaveBalance : 0;
+
+    // Arrays to store leave dates
+    let leaveDatesApplied = [];
+    let lopDates = [];
+
+    // If requested leave exceeds balance, apply leave and then LOP for the excess days
+    if (leaveBalance < noOfDays) {
+      const availableLeaveDays = leaveBalance;
+      const lopDays = noOfDays - availableLeaveDays;
+
+      // Apply leave for available balance (CL, SL, Comb Off)
+      await Leave.create({
+        userId,
+        leaveTypeId: leaveType.id,
+        startDate,
+        endDate,
+        noOfDays: availableLeaveDays,
+        notes,
+        fileUrl,
+        status: 'requested',
+        leaveDates: leaveDates.slice(0, availableLeaveDays) // Use the first available days
+      });
+
+      // Get leave dates for the requested leave type
+      leaveDatesApplied = leaveDates.slice(0, availableLeaveDays); // The leave dates within the available balance
+
+      // Apply LOP for the remaining days (if any)
+      if (lopDays > 0) {
+        const lopLeaveType = await LeaveType.findOne({ where: { leaveTypeName: 'LOP' } });
+        if (lopLeaveType) {
+          await Leave.create({
+            userId,
+            leaveTypeId: lopLeaveType.id,
+            startDate,
+            endDate,
+            noOfDays: lopDays,
+            notes,
+            fileUrl,
+            status: 'requested',
+            leaveDates: leaveDates.slice(availableLeaveDays, availableLeaveDays + lopDays) // Remaining dates considered as LOP
+          });
+
+          // Get LOP dates
+          lopDates = leaveDates.slice(availableLeaveDays, availableLeaveDays + lopDays); // The dates that exceed the available leave balance
+        } else {
+          return res.status(404).json({ message: 'LOP leave type not found' });
+        }
+      }
+
+      // Response includes the leave dates for CL/SL/Comb Off and LOP
+      return res.json({
+        message: `Leave request submitted. ${availableLeaveDays} days applied as ${leaveType.leaveTypeName} and ${lopDays} days as LOP.`,
+        leaveDatesApplied, // Dates for CL/SL/Comb Off
+        lopDates // Dates for LOP
+      });
+
+    } else {
+      // If leave balance is sufficient, apply for all the requested days
+      await Leave.create({
+        userId,
+        leaveTypeId: leaveType.id,
+        startDate,
+        endDate,
+        noOfDays,
+        notes,
+        fileUrl,
+        status: 'requested',
+        leaveDates
+      });
+
+      // Get leave dates for the requested leave type
+      leaveDatesApplied = leaveDates; // All dates since leave balance is sufficient
+
+      // Send response with leave dates applied and no LOP
+      return res.json({
+        message: 'Leave request submitted successfully',
+        leaveDatesApplied, // Dates for CL/SL/Comb Off
+        lopDates: [] // No LOP dates in this case
+      });
+    }
+
+  } catch (error) {
+    console.error('Error in leave request submission:', error.message);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+//----------------------------POST API------------------------------------------------------------
+router.post('/TEST', authenticateToken, async (req, res) => {
+  console.log(req.body);  // Debug log
+  const { leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
+  const userId = req.user.id;
+
+  if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  try {
+    console.log('Start and End Dates:', startDate, endDate);
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || !Array.isArray(leaveDates)) {
+      return res.status(400).json({ message: 'Invalid input' });
+    }
+
     const noOfDays = calculateLeaveDays(leaveDates);
     const leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
 
     if (!leaveType) return res.status(404).json({ message: 'Leave type not found' });
 
     let userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId: leaveType.id } });
-    
+
     if (!userLeave) {
       if (leaveType.leaveTypeName === 'LOP') {
         userLeave = await UserLeave.create({ userId, leaveTypeId: leaveType.id, noOfDays: 0, takenLeaves: 0, leaveBalance: Infinity });
@@ -162,14 +282,16 @@ router.post('/', authenticateToken, async (req, res) => {
     }
 
     const leave = await Leave.create({ userId, leaveTypeId: leaveType.id, startDate, endDate, noOfDays, notes, fileUrl, status: 'requested', leaveDates });
-    
+
     await sendLeaveEmail(userId, leaveType, startDate, endDate, notes, noOfDays, leaveDates);
 
     res.json({ message: 'Leave request submitted successfully', leave });
   } catch (error) {
-    res.send(error.message)
+    console.error('Error in leave request submission:', error.message);
+    res.status(500).json({ message: error.message });
   }
 });
+
 
 
 //-------------------------GET LEAVE BY USER ID-------------------------------------------------
