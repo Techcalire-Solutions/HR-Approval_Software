@@ -24,7 +24,9 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { DomSanitizer } from '@angular/platform-browser';
-import { LeaveCountCardsComponent } from '../leave-count-cards/leave-count-cards.component';
+import { LeaveCountCardsComponent } from '../../employee-leave/leave-count-cards/leave-count-cards.component';
+import { UsersService } from '@services/users.service';
+import { User } from '../../../common/interfaces/user';
 // Custom validator to check if at least one session is selected
 function sessionSelectionValidator(group: FormGroup) {
   const session1 = group.get('session1')?.value;
@@ -33,7 +35,7 @@ function sessionSelectionValidator(group: FormGroup) {
   return (session1 || session2) ? null : { sessionRequired: true };
 }
 @Component({
-  selector: 'app-add-leave',
+  selector: 'app-apply-emergency-leave',
   standalone: true,
   imports: [
     CommonModule,
@@ -55,14 +57,14 @@ function sessionSelectionValidator(group: FormGroup) {
     MatSnackBarModule,
     LeaveCountCardsComponent
   ],
-  templateUrl: './add-leave.component.html',
-  styleUrl: './add-leave.component.scss',
+  templateUrl: './apply-emergency-leave.component.html',
+  styleUrl: './apply-emergency-leave.component.scss',
   providers: [
     { provide: DateAdapter, useClass: NativeDateAdapter },
     { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
   ],
 })
-export class AddLeaveComponent {
+export class ApplyEmergencyLeaveComponent {
   isEditMode: boolean = false;
 
   leaveRequestForm: FormGroup;
@@ -76,12 +78,27 @@ route = inject(ActivatedRoute)
 fb = inject(FormBuilder)
 leaveService = inject(LeaveService)
 sanitizer = inject(DomSanitizer);
+userService = inject(UsersService)
 
 leave : any
+userId : number
+usersSub!: Subscription;
+Users: User[] = [];
+getUsers(){
+  this.usersSub = this.userService.getUser().subscribe(res=>{
+    this.Users = res;
+    console.log('res',res);
 
+  })
+}
   ngOnInit() {
+    this.getUsers()
     this.getLeaveType();
     this.getLeaves()
+    const token: any = localStorage.getItem('token')
+    let user = JSON.parse(token)
+    this.userId = user.id;
+    this.checkProbationStatus()
 
 const leaveId = this.route.snapshot.queryParamMap.get('id');
 if (leaveId) {
@@ -282,4 +299,17 @@ isSickLeaveAndMoreThanThreeDays(): boolean {
 }
 
 
+ // Check if the user is on probation
+ isProbationEmployee: boolean = false;
+ checkProbationStatus() {
+
+  this.userService.getProbationEmployees().subscribe((employees) => {
+    this.isProbationEmployee = employees.some((emp: any) => emp.id === this.userId); // Check if the user is in the probation list
+    if (this.isProbationEmployee) {
+      this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP'); // Filter to show only LOP
+    }
+  });
 }
+
+}
+

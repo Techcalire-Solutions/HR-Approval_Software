@@ -315,18 +315,7 @@ span{
 
 
 
-/* Add Bank Slip Button */
-.add-bank-slip-button {
-  background-color: #145ca9; /* Blue background */
-  color: #fff; /* White text */
-  border: none; /* Remove default border */
-  padding: 8px 16px; /* Padding */
-  font-size: 14px; /* Font size */
-  border-radius: 4px; /* Rounded corners */
-  cursor: pointer; /* Pointer cursor on hover */
-  transition: background-color 0.3s ease; /* Smooth background color transition */
-  margin-left: 5px; /* Space between buttons or elements */
-}
+
 
 .add-bank-slip-button:hover {
   background-color: #0056b3; /* Darker blue on hover */
@@ -341,7 +330,19 @@ span{
   border-radius: 4px; /* Rounded corners */
   cursor: pointer; /* Pointer cursor on hover */
   transition: background-color 0.3s ease; /* Smooth background color transition */
-  margin-right: 10px; /* Space between buttons */
+  // margin-right: 10px; /* Space between buttons */
+}
+/* Add Bank Slip Button */
+.add-bank-slip-button {
+  background-color: #145ca9; /* Blue background */
+  color: #fff; /* White text */
+  border: none; /* Remove default border */
+  padding: 5px 5px; /* Smaller padding */
+  font-size: 10px; /* Font size */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth background color transition */
+  margin-left: 25px; /* Space between buttons or elements */
 }
 
 .update-button:hover {
