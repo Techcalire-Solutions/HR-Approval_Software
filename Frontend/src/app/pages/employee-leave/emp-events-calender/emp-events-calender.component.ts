@@ -1,5 +1,5 @@
 
-import { AddLeaveComponent } from '../add-leave/add-leave.component';
+import { AddLeaveComponent } from '../../employee-leave/add-leave/add-leave.component';
 import { Component, OnInit } from '@angular/core';
 import { CalendarEvent, CalendarEventAction, CalendarModule, CalendarView } from 'angular-calendar';
 import { startOfDay, subDays, addDays, endOfMonth, isSameDay, isSameMonth, addHours } from 'date-fns';
