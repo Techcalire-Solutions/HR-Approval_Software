@@ -186,4 +186,12 @@ export class UsersService {
     return this.http.get<User[]>( this.apiUrl + '/personal/dueprobation');
   }
 
+  getDirectors(): Observable<User[]>{
+    return this.http.get<User[]>(this.apiUrl + '/user/getdirectors')
+  }
+
+  getUserByRm(id: number): Observable<User[]>{
+    return this.http.get<User[]>(this.apiUrl + '/user/getbyrm/'+id)
+  }
+
 }

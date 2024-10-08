@@ -67,3 +67,11 @@
         flex-direction: column;
     }
 }
+
+span {
+  cursor: pointer;
+}
+
+span:hover{
+  color: #e41010;
+}

@@ -30,7 +30,7 @@ async function saveDates(dateStrings) {
 
 router.post('/add', authenticateToken, async (req, res) => {
   const { userId, empNo, dateOfJoining, probationPeriod, confirmationDate, isTemporary, maritalStatus, dateOfBirth, gender, 
-    parentName, spouseName, referredBy, reportingManger, bloodGroup, emergencyContactNo, emergencyContactName, emergencyContactRelation } = req.body;
+    parentName, spouseName, referredBy, reportingMangerId, bloodGroup, emergencyContactNo, emergencyContactName, emergencyContactRelation } = req.body;
 
   try {
     const existingUser = await UserPersonal.findOne({ where: { userId } });
@@ -67,7 +67,7 @@ router.post('/add', authenticateToken, async (req, res) => {
       parentName, 
       spouseName, 
       referredBy, 
-      reportingManger,
+      reportingMangerId,
       bloodGroup, 
       emergencyContactNo, 
       emergencyContactName, 
@@ -95,7 +95,14 @@ router.get('/find', authenticateToken, async (req, res) => {
 
 router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
   try {
-    const user = await UserPersonal.findOne({where: {userId: req.params.id}})
+    const user = await UserPersonal.findOne({
+      where: {userId: req.params.id},
+      include: {
+        model: User,
+        as: 'manager',
+        attributes: ['name']
+      }
+    })
 
     res.send(user)
   } catch (error) {
@@ -105,7 +112,7 @@ router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
 
 router.patch('/update/:id', async(req,res)=>{
   const { dateOfJoining, probationPeriod, confirmationDate, isTemporary, maritalStatus, dateOfBirth, gender, parentName,
-     spouseName, referredBy, reportingManger, bloodGroup, emergencyContactNo, emergencyContactName, emergencyContactRelation } = req.body
+     spouseName, referredBy, reportingMangerId, bloodGroup, emergencyContactNo, emergencyContactName, emergencyContactRelation } = req.body
   try {
     let formattedDateOfJoining;
     let formattedDateOfBirth;
@@ -137,7 +144,7 @@ router.patch('/update/:id', async(req,res)=>{
     result.parentName = parentName;
     result.spouseName = spouseName;
     result.referredBy = referredBy;
-    result.reportingManger = reportingManger;
+    result.reportingMangerId = reportingMangerId;
     result.confirmationDate = confirmationDate;
     result.bloodGroup = bloodGroup;
     result.emergencyContactNo = emergencyContactNo;
@@ -244,7 +251,8 @@ router.get('/dueprobation', authenticateToken, async (req, res) => {
         },
       ],
     });
-
+    console.log(users.length,"00000000000000000000000000000");
+    
     const probationDueUsers = [];
 
     for (let i = 0; i < users.length; i++) {
@@ -266,8 +274,7 @@ router.get('/dueprobation', authenticateToken, async (req, res) => {
 
     res.send(probationDueUsers);
   } catch (error) {
-    console.error('Error fetching probation due users:', error);
-    res.status(500).send('Internal Server Error');
+    res.send(error.message);
   }
 });
 

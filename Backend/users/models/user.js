@@ -10,13 +10,12 @@ const User = sequelize.define('user', {
   password: { type: DataTypes.STRING, allowNull: false },
   roleId: { type: DataTypes.INTEGER, allowNull: false },
   teamId : { type: DataTypes.INTEGER, allowNull: true },
-  teamMemberId : { type: DataTypes.INTEGER, allowNull: true },
   status: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
 
   userImage: { type: DataTypes.STRING },
   url: { type: DataTypes.STRING },
+  director: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
 
-  reportingManager: { type: DataTypes.BOOLEAN, defaultValue: false },
   paswordReset: { type: DataTypes.BOOLEAN, defaultValue: false},
   isTemporary: { type: DataTypes.BOOLEAN, defaultValue: true, allowNull: false },
 },
