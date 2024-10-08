@@ -81,7 +81,8 @@
                 <button type="button" class="small-btn" (click)="generateRandomPassword()">
                   <span class="material-icons">autorenew</span>
                 </button>
-                <button type="button" class="small-btn" (click)="copyEmpNoAndPassword()" [disabled]="form.invalid">
+                <button type="button" class="small-btn" (click)="copyEmpNoAndPassword()" 
+                  [disabled]="form.controls.password.value === ''">
                   <span class="material-icons">content_copy</span>
                 </button>
               </div>
