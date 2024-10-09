@@ -118,8 +118,47 @@ router.get('/byuserandtype/:userid/:typeid', authenticateToken, async (req, res)
   }
 });
 
-
 router.patch('/update', authenticateToken, async (req, res) => {
+  let data = req.body;
+  try {
+    let updated = [];
+    for (let i = 0; i < data.length; i++) {
+      let ulExist = await UserLeave.findOne({
+        where: { userId: data[i].userId, leaveTypeId: data[i].leaveTypeId }
+      });
+
+      if (ulExist) {
+        // Update leave balance and days taken
+        ulExist.noOfDays = +data[i].noOfDays;
+        ulExist.takenLeaves = +data[i].takenLeaves;
+
+        // Ensure leave balance doesn't go negative
+        ulExist.leaveBalance = Math.max(ulExist.leaveBalance - data[i].noOfDays, 0);
+
+        await ulExist.save();
+        updated.push(ulExist);
+      } else {
+        // If leave record doesn't exist, create a new one
+        let userLeave = new UserLeave({
+          userId: data[i].userId,
+          leaveTypeId: data[i].leaveTypeId,
+          noOfDays: +data[i].noOfDays,
+          takenLeaves: +data[i].takenLeaves,
+          leaveBalance: +data[i].leaveBalance
+        });
+        await userLeave.save();
+        updated.push(userLeave);
+      }
+    }
+    res.send(updated);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+
+
+router.patch('test/update', authenticateToken, async (req, res) => {
   let  data  = req.body;
   try {
     console.log(data);
@@ -152,6 +191,8 @@ router.patch('/update', authenticateToken, async (req, res) => {
     res.send(error.message)
   }
 })
+
+
 
 
 module.exports = router;
