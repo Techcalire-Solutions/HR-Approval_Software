@@ -118,6 +118,10 @@ router.get('/byuserandtype/:userid/:typeid', authenticateToken, async (req, res)
 });
 
 
+
+
+
+
 router.patch('/update', authenticateToken, async (req, res) => {
   let  data  = req.body;
   try {
@@ -150,6 +154,8 @@ router.patch('/update', authenticateToken, async (req, res) => {
     res.send(error.message)
   }
 })
+
+
 
 
 module.exports = router;

@@ -118,7 +118,7 @@ function splitLeaveDates(leaveDates, availableLeaveDays) {
 }
 
 
-//----------------------------------- POST Leave Request Route-------------------------------------------
+//-----------------------------------Leave Request Route-------------------------------------------
 
 
 router.post('/', authenticateToken, async (req, res) => {
@@ -139,31 +139,9 @@ router.post('/', authenticateToken, async (req, res) => {
       return total + dayCount;
     }, 0);
 
-    // Fetch leave type
+    // Fetch leave type and user leave balance
     const leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
     if (!leaveType) return res.status(404).json({ message: 'Leave type not found' });
-
-    // Check if LOP was selected directly
-    if (leaveType.leaveTypeName === 'LOP') {
-      // Apply LOP for all the requested days
-      await Leave.create({
-        userId,
-        leaveTypeId: leaveType.id,
-        startDate,
-        endDate,
-        noOfDays,
-        notes,
-        fileUrl,
-        status: 'requested',
-        leaveDates // Apply all the leave dates as LOP
-      });
-
-      return res.json({
-        message: 'LOP leave request submitted successfully.',
-        leaveDatesApplied: leaveDates,
-        lopDates: leaveDates // All dates are LOP
-      });
-    }
 
     // Fetch all leave balances for the user
     const userLeaves = await UserLeave.findAll({ where: { userId } });
@@ -252,7 +230,6 @@ router.post('/', authenticateToken, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
 
 
 router.post('test/', authenticateToken, async (req, res) => {
@@ -367,6 +344,7 @@ router.post('test/', authenticateToken, async (req, res) => {
     }
 
   } catch (error) {
+    console.error('Error in leave request submission:', error.message);
     res.status(500).json({ message: error.message });
   }
 });
@@ -378,7 +356,9 @@ router.post('test/', authenticateToken, async (req, res) => {
 router.get('/user/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
+    console.log(`Fetching leaves for userId: ${userId}`);
 
+    // Find user based on provided userId
     const user = await User.findByPk(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
