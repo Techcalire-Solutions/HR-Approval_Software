@@ -1,0 +1,68 @@
+/* payroll.component.css */
+.payroll-container {
+    width: 60%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f4f6f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+  }
+  
+  .payroll-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-family: Arial, sans-serif;
+    color: #333;
+  }
+  
+  .payroll-table th, .payroll-table td {
+    text-align: left;
+    padding: 12px;
+    border: 1px solid #ddd;
+  }
+  
+  .payroll-table th {
+    background-color: #2980b9;
+    color: #fff;
+  }
+  
+  .deduction-header {
+    background-color: #e74c3c;
+    color: #fff;
+    text-align: center;
+  }
+  
+  .input-field {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .input-field:focus {
+    border-color: #2980b9;
+    outline: none;
+  }
+  
+  .payroll-summary {
+    text-align: center;
+    padding: 20px;
+    background-color: #ecf0f1;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 18px;
+    color: #2c3e50;
+  }
+  
+  .payroll-summary p {
+    margin: 10px 0;
+  }
+  

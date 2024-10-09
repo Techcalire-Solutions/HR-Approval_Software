@@ -163,9 +163,6 @@ users:User;
     }
 
     else if (role === 'HR Administrator') {
-      console.log('hiii', this.role);
-
-
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
         item.title === 'Role' ||
@@ -183,7 +180,6 @@ users:User;
         // (item.title === 'Salary Statement' && item.parentId === 13) ||
         // (item.title === 'YTD Reports' && item.parentId === 13)
       );
-      console.log('filteredMenuItems',this.filteredMenuItems);
     }
     else if (role === 'Super Administrator') {
 
@@ -206,7 +202,6 @@ users:User;
         (item.title === 'Salary Statement' && item.parentId === 13) ||
         (item.title === 'YTD Reports' && item.parentId === 13)
       );
-      console.log('filteredMenuItemsfilteredMenuItems',this.filteredMenuItems);
 
     }
      else {

@@ -66,8 +66,6 @@ export class StatuatoryInfoComponent implements OnDestroy {
   @Output() dataSubmitted = new EventEmitter<any>();
   submitSub!: Subscription;
   onSubmit(){
-    console.log(this.editStatus);
-    
     let submit = {
       ...this.form.getRawValue()
     }

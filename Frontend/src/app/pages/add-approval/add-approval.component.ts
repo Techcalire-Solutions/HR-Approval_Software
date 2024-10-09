@@ -108,8 +108,6 @@ export class AddApprovalComponent {
   getAccountants(){
     this.accountantSub = this.loginServie.getUserByRole(4).subscribe(user =>{
       this.AccountantList = user;
-      console.log('account list',this.AccountantList);
-
     });
   }
 
@@ -173,7 +171,6 @@ export class AddApprovalComponent {
           this.uploadComplete = true;
         },
         error: (error) => {
-          console.error('Upload failed:', error);
           this.uploadComplete = true;
         }
       });

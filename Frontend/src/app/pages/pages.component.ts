@@ -81,8 +81,6 @@ export class PagesComponent implements OnInit {
     this.defaultMenu = this.settings.menu;
 
     this.announcementService.callSubmit$.subscribe((data) => {
-      console.log('Submit called in Component B with data:', data);
-      // Call the function here
       this.getAnnouncement(data);
     });
   }
@@ -204,8 +202,6 @@ export class PagesComponent implements OnInit {
   message: string = '';
   type: string = ''
   getAnnouncement(ancmnt: any){
-    console.log(ancmnt);
-
     this.announcement = true;
     this.message = ancmnt.message;
     this.type = ancmnt.type;
