@@ -10,39 +10,44 @@ const LeaveType = require('../models/leaveType')
 
 
 // -----------------------------Leave Accumulation function-----------------------------------------------
+
+
+
+// Function to update leave balances for Sick Leave and Casual Leave on the 1st of every month
+// Function to update leave balances for Sick Leave and Casual Leave on the 1st of every month
 cron.schedule('0 0 1 * *', async () => {
   try {
+    // Fetch all leave types (for SL, CL)
+    const leaveTypes = await LeaveType.findAll({
+      where: {
+        leaveTypeName: ['Sick Leave', 'Casual Leave']
+      }
+    });
 
-    const leaveTypes = await LeaveType.findAll();
-    const sickLeaveType = leaveTypes.find(type => type.leaveTypeName === 'Sick Leave');
-    const casualLeaveType = leaveTypes.find(type => type.leaveTypeName === 'Casual Leave');
-
-
-    if (sickLeaveType && casualLeaveType) {
+    // Fetch all user leave records for SL and CL types
+    for (const leaveType of leaveTypes) {
       const userLeaves = await UserLeave.findAll({
-        where: {
-          leaveTypeId: {
-            [Op.in]: [sickLeaveType.id, casualLeaveType.id]
-          }
-        }
+        where: { leaveTypeId: leaveType.id }
       });
 
-  
-      for (let userLeave of userLeaves) {
-        userLeave.leaveBalance += 1; 
+      // Increment noOfDays by 1 and update leaveBalance
+      for (const userLeave of userLeaves) {
+        userLeave.noOfDays += 1; // Increment noOfDays by 1
+        userLeave.leaveBalance = userLeave.noOfDays - userLeave.takenLeaves; // Update leaveBalance
         await userLeave.save();
       }
-
-    } else {
-      console.error('Sick Leave or Casual Leave type not found.');
     }
+
+    console.log('User leave balances updated successfully at the start of the month');
   } catch (error) {
-    console.error('Error updating leave balances:', error);
+    console.error('Error updating leave balances:', error.message);
   }
 });
 
-//---------------------------------Leave count---------------------------------------------------------------
 
+
+//---------------------------------Leave count---------------------------------------------------------------
+//---------------------------------Leave count---------------------------------------------------------------
 router.get('/leavecount/:userId', authenticateToken, async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -53,8 +58,8 @@ router.get('/leavecount/:userId', authenticateToken, async (req, res) => {
       include: [
         {
           model: LeaveType,
-          as: 'leaveType', 
-          attributes: ['leaveTypeName'],
+          as: 'leaveType', // Use the alias defined in associations
+          attributes: ['leaveTypeName', 'id'],
         },
       ],
     });
@@ -63,40 +68,28 @@ router.get('/leavecount/:userId', authenticateToken, async (req, res) => {
       return res.status(404).json({ message: 'No leave records found for this user.' });
     }
 
-    // Find LOP leave type if it exists in the response
-    let lopExists = userLeaves.some(({ leaveType }) => leaveType.leaveTypeName === 'LOP');
+    // Prepare the leaveCounts by returning only the relevant fields
+    const leaveCounts = userLeaves.map((userLeave) => {
+      return {
+        userId: userLeave.userId,
+        leaveTypeId: userLeave.leaveTypeId,
+        leaveTypeName: userLeave.leaveType.leaveTypeName, // Optionally include leave type name
+        noOfDays: userLeave.noOfDays,
+        takenLeaves: userLeave.takenLeaves,
+        leaveBalance: userLeave.leaveBalance,
+      };
+    });
 
-    // If LOP does not exist, add it with default values
-    if (!lopExists) {
-      const lopLeaveType = await LeaveType.findOne({
-        where: { leaveTypeName: 'LOP' },
-        attributes: ['id', 'leaveTypeName']
-      });
+    res.json({
+      leaveCounts
+    });
 
-      if (lopLeaveType) {
-        userLeaves.push({
-          leaveTypeId: lopLeaveType.id,
-          leaveType: lopLeaveType,
-          leaveBalance: null, // Since LOP is unlimited, set it to null
-          takenLeaves: 0
-        });
-      }
-    }
-
-    // Prepare the response data
-    const leaveCounts = userLeaves.map(({ leaveTypeId, leaveBalance, takenLeaves, leaveType }) => ({
-      leaveTypeId,
-      leaveTypeName: leaveType.leaveTypeName,
-      leaveBalance: leaveType.leaveTypeName === 'LOP' ? null : leaveBalance, // LOP has no balance
-      takenLeaves,
-    }));
-
-    res.json(leaveCounts);
   } catch (error) {
     console.error('Error fetching leave counts:', error.message);
     res.status(500).json({ message: 'Error fetching leave counts', error: error.message });
   }
 });
+
 
 
 
@@ -145,77 +138,38 @@ router.get('/byuserandtype/:userid/:typeid', authenticateToken, async (req, res)
 
 
 
-
-
 router.patch('/update', authenticateToken, async (req, res) => {
-  let data = req.body;
+  let  data  = req.body;
   try {
     let updated = [];
-    
-    // Loop through each leave update request
-    for (let i = 0; i < data.length; i++) {
+    for( let i = 0; i < data.length; i++ ){
       let ulExist = await UserLeave.findOne({
         where: { userId: data[i].userId, leaveTypeId: data[i].leaveTypeId }
-      });
-
-      if (ulExist) {
-        // Handle leave types with balance (Casual, Sick, Combo Off)
-        if (ulExist.leaveType.leaveTypeName !== 'LOP') {
-          let excessLeave = data[i].takenLeaves - ulExist.leaveBalance;
-
-          // If the user exceeds their leave balance, convert excess to LOP
-          if (excessLeave > 0) {
-            // Update LOP balance (handle in separate function or here)
-            let lopLeave = await UserLeave.findOne({
-              where: { userId: data[i].userId, leaveTypeId: lopLeaveType.id }
-            });
-
-            if (!lopLeave) {
-              lopLeave = new UserLeave({
-                userId: data[i].userId,
-                leaveTypeId: lopLeaveType.id,
-                leaveBalance: null,
-                takenLeaves: excessLeave
-              });
-              await lopLeave.save();
-            } else {
-              lopLeave.takenLeaves += excessLeave;
-              await lopLeave.save();
-            }
-
-            // Set taken leaves to the maximum balance for this leave type
-            data[i].takenLeaves = ulExist.leaveBalance;
-          }
-        }
-
-        // Update the existing leave record
-        ulExist.noOfDays = +data[i].noOfDays;
+      })
+      if(ulExist){
+        ulExist.noOfDays  = +data[i].noOfDays;
         ulExist.takenLeaves = +data[i].takenLeaves;
         ulExist.leaveBalance = +data[i].leaveBalance;
 
         await ulExist.save();
         updated.push(ulExist);
-      } else {
-        // Create a new leave record if it doesn't exist
+      }else{
         let userLeave = new UserLeave({
           userId: data[i].userId,
           leaveTypeId: data[i].leaveTypeId,
           noOfDays: +data[i].noOfDays,
           takenLeaves: +data[i].takenLeaves,
           leaveBalance: +data[i].leaveBalance
-        });
+        })
         await userLeave.save();
         updated.push(userLeave);
       }
     }
-
     res.send(updated);
   } catch (error) {
-    res.send(error.message);
+    res.send(error.message)
   }
-});
-
-
+})
 
 
 module.exports = router;
