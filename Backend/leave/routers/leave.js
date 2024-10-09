@@ -236,7 +236,6 @@ router.post('/', authenticateToken, async (req, res) => {
     }
 
   } catch (error) {
-    console.error('Error in leave request submission:', error.message);
     res.status(500).json({ message: error.message });
   }
 });
@@ -247,8 +246,6 @@ router.post('/', authenticateToken, async (req, res) => {
 router.get('/user/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
-    console.log(`Fetching leaves for userId: ${userId}`);
-
 
     const user = await User.findByPk(userId);
     if (!user) {

@@ -33,7 +33,6 @@ cron.schedule('0 0 1 * *', async () => {
         await userLeave.save();
       }
 
-      console.log('Leave balances updated successfully.');
     } else {
       console.error('Sick Leave or Casual Leave type not found.');
     }
@@ -122,7 +121,6 @@ router.get('/byuserandtype/:userid/:typeid', authenticateToken, async (req, res)
 router.patch('/update', authenticateToken, async (req, res) => {
   let  data  = req.body;
   try {
-    console.log(data);
     let updated = [];
     for( let i = 0; i < data.length; i++ ){
       let ulExist = await UserLeave.findOne({

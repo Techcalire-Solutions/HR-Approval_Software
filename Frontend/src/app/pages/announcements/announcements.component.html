@@ -22,9 +22,11 @@
                     <span class="symbol">{{ getSymbol(item.type) }}</span>
                     {{ item.message }}
                 </div>
-                <button mat-button color="warn" (click)="deleteAnnouncement(item.id)">
-                    <mat-icon>delete</mat-icon>
-                </button>
+                @if (roleName === 'HR Admin' || roleName === 'Super Admin'){
+                    <button mat-button color="warn" (click)="deleteAnnouncement(item.id)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                }
             </li>
         }
     </ul>

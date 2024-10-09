@@ -31,12 +31,15 @@ router.delete('/delete/:id', authenticateToken, async(req, res) => {
     try {
       const ancmnt = await Announcement.findByPk(req.params.id);
       let fileKey = ancmnt.fileUrl;
-      const deleteParams = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: fileKey
-      };
-  
-      await s3.deleteObject(deleteParams).promise();
+      if(fileKey){
+        const deleteParams = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: fileKey
+        };
+    
+        await s3.deleteObject(deleteParams).promise();
+      }
+
 
         const result = await Announcement.destroy({
             where: { id: req.params.id },
@@ -117,7 +120,6 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
 
     res.status(200).send({ message: 'File deleted successfully' });
   } catch (error) {
-    console.error('Error deleting file from S3:', error);
     res.status(500).send({ message: error.message });
   }
 });
@@ -141,7 +143,6 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
 
       res.status(200).send({ message: 'File deleted successfully' });
     } catch (error) {
-      console.error('Error deleting file from S3:', error);
       res.status(500).send({ message: error.message });
     }
 });

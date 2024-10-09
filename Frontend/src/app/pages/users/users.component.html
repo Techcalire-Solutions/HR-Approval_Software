@@ -33,10 +33,12 @@
         @for (user of users; track user.id) {
             <div fxFlex="100" fxFlex.gt-md="33.3" fxFlex.md="50" class="p-2">
                 <mat-card class="p-0">
-                    <div class="bg-primary" fxLayout="row" fxLayoutAlign="space-between center">
+                    <div [ngClass]="{'bg-primary': !user.separated, 'bg-danger': user.separated}" fxLayout="row" fxLayoutAlign="space-between center">
                         <h3 class="user-name">
-                            @if (!user.status) {
+                            @if (!user.status && !user.separated) {
                                 User blocked
+                            }@else if (!user.status && user.separated) {
+                                User separated
                             } @else {
                                 {{user.name}}
                             }
@@ -62,6 +64,10 @@
                             <button mat-menu-item (click)="resetPassword(user.id, user.empNo);">
                                 <mat-icon>password</mat-icon>
                                 <span>Password</span>
+                            </button>
+                            <button mat-menu-item (click)="resignEmployee(user.id, user.empNo);">
+                                <mat-icon>low_priority</mat-icon>
+                                <span>Separation</span>
                             </button>
                             @if(user.url){
                                 <button mat-menu-item (click)="deleteImage(user.id);">

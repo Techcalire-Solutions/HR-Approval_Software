@@ -161,7 +161,6 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   updateSub!: Subscription;
   updateStatus(event: any, id: number, name: string){
-    console.log(event.checked);
     let data = { status: event.checked }
     this.updateSub = this.usersService.updateUserStatus(data, id).subscribe((result) => {
       if (event.checked) {
@@ -171,5 +170,13 @@ export class UsersComponent implements OnInit, OnDestroy {
       }
       this.getUsers()
     });
+  }
+
+  rsignSub!: Subscription;
+  resignEmployee(id: number, emp: string){
+    this.rsignSub = this.usersService.resignEmployee(id).subscribe(res => {
+      this.snackbar.open(`${emp} is now resigned`, "", { duration: 3000 });
+      this.getUsers()
+    })
   }
 }

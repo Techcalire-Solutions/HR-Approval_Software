@@ -18,6 +18,7 @@ const User = sequelize.define('user', {
 
   paswordReset: { type: DataTypes.BOOLEAN, defaultValue: false},
   isTemporary: { type: DataTypes.BOOLEAN, defaultValue: true, allowNull: false },
+  separated: { type: DataTypes.BOOLEAN, defaultValue: false}
 },
 {
   freezeTableName: true,

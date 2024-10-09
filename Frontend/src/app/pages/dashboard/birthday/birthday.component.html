@@ -4,7 +4,8 @@
     <div class="card-container">
         @for (employee of birthdaysThisMonth; track $index) {
             <div class="card">
-                <h4><a style="color: blue;">{{ employee.user.name }}</a> - Birthday: {{ employee.dateOfBirth | date: 'MMMM d, y' }} - Age: {{ employee.age }}</h4>
+                <h4><a style="color: blue;">{{ employee.user.name }}</a> - Birthday: {{ employee.dateOfBirth | date: 'MMMM d, y' }}</h4>
+                <!--  - Age: {{ employee.age }} -->
             </div>
         }
     </div>
