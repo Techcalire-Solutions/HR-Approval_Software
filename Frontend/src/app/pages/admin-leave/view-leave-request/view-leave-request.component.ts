@@ -84,18 +84,12 @@ userId:number
   getLeaves() {
     this.getLeaveSub = this.leaveService.getLeaves().subscribe(
       (res) => {
-        console.log('res', res);
-
-        // Assuming `res.items` contains the array of leaves
-        this.leaves = res;
-        // this.totalItemsCount = res.count;
-
-        // console.log('leaves', this.leaves);
-        // console.log('totalItemsCount', this.totalItemsCount);
-      },
-      (error) => {
-        // Handle any errors
-        this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
+        console.log(res);
+        if(res.res){
+          this.leaves = res.leaves;
+        }else{
+          this.snackBar.open('No data is added', '', { duration: 3000 });
+        }
       }
     );
   }
@@ -153,13 +147,11 @@ userId:number
   approveLeave(leaveId: any) {
     this.leaveService.updateApproveLeaveStatus(leaveId).subscribe(
       (res) => {
-        console.log('Leave approved:', res);
         this.snackbar.open('Leave approved successfully', '', { duration: 3000 });
         this.getLeaves(); // Refresh leave data after approval
       },
       (error) => {
         this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
-        console.error('Error approving leave:', error);
       }
     );
   }
@@ -167,13 +159,11 @@ userId:number
 rejectLeave(leaveId: any){
   this.leaveService.updateRejectLeaveStatus(leaveId).subscribe(
     (res) => {
-      console.log('Leave Rejected:', res);
       this.snackbar.open('Leave rejected successfully', '', { duration: 3000 });
       this.getLeaves(); // Refresh leave data after approval
     },
     (error) => {
       this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
-      console.error('Error approving leave:', error);
     }
   );
 }

@@ -52,8 +52,6 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
           if(res[i].docUrl){
             this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ res[i].docUrl }`;
           }
-          console.log(this.imageUrl[i]);
-          
         }
       }else{
         this.addDoc()
@@ -84,17 +82,14 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
   }
 
   removeData(index: number) {
-    console.log(index);
     
     const formGroup = this.doc().at(index).value;
-    console.log(formGroup);
     
     // Check if form group is dirty (any changes made)
     if (formGroup.docName != '' || formGroup.docUrl != '') {
       // Call the API to handle the update before removing
       this.userSevice.deleteUserDocComplete(this.id[index]).subscribe({
         next: (response) => {
-          console.log('Update successful:', response);
           // Remove the row only after successful API call
           formGroup.removeAt(index);
         },
@@ -138,7 +133,6 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
       const docFormGroup = this.doc().at(i) as FormGroup;
       const docName = docFormGroup.value.docName;  // Extract docName from the form
       const name = `${userName}_${docName}`;
-    // console.log(this.data, docName);
 
     const formData = new FormData();
     formData.append('file', file);

@@ -62,8 +62,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     this.route.params.subscribe(params => {
       this.id = params['id'];
       if (this.id) {
-        console.log(this.id);
-        
         this.editStatus = true;
         this.getUser(this.id)
       }else{
@@ -119,8 +117,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   }
 
   patchUser(user: User){
-    console.log(user);
-    
     this.invNo = user.empNo
     if(user.url != null && user.url != '' && user.url != 'undefined'){
       
@@ -168,7 +164,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
           this.uploadComplete = true; // Set to true when upload is complete
         },
         error: (error) => {
-          console.error('Upload failed:', error);
           this.uploadComplete = true; // Set to true to remove the progress bar even on error
         }
       });
@@ -215,8 +210,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     }else{
       this.submit = this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
         this.dataToPass = { id: res.user.id, empNo: this.invNo, name: res.user.name, updateStatus: this.editStatus };
-        console.log(this.dataToPass);
-
         this.selectedTabIndex = 1;
         if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
           this.personalDetailsComponent.ngOnInit();
@@ -358,7 +351,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     for (let i = 0; i < 10; i++) {
       password += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    console.log(password);
     
     this.form.get('password')?.setValue(password);
     this.form.get('confirmPassword')?.setValue(password);  // Clear confirm password

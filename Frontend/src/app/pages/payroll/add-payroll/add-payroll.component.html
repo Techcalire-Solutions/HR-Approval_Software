@@ -1,0 +1,82 @@
+<!-- payroll.component.html -->
+<div class="payroll-container">
+    <h2>Payroll Calculation</h2>
+    <form [formGroup]="payrollForm">
+      <table class="payroll-table">
+        
+        <thead>
+        <tr>
+            <td>Name</td>
+            <td colspan="2"><input formControlName="userName" class="input-field" readonly="true"></td>
+        </tr>
+        <tr>
+            <td>Designation</td>
+            <td colspan="2"><input formControlName="userRole" class="input-field" readonly="true"></td>
+        </tr>
+          <tr>
+            <th>Salary Component</th>
+            <th>Monthly (₹)</th>
+            <th>Yearly (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Basic Pay</td>
+            <td><input type="number" formControlName="basicPay" class="input-field"></td>
+            <td><input type="number" formControlName="yearbasicPay" class="input-field"></td>
+          </tr>
+          <tr>
+            <td>House Rent Allowance (HRA)</td>
+            <td><input type="number" formControlName="hra" class="input-field"></td>
+            <td><input type="number" formControlName="yearhra" class="input-field"></td>
+          </tr>
+          <tr>
+            <td>Travel Allowance</td>
+            <td><input type="number" formControlName="conveyanceAllowance" class="input-field"></td>
+            <td><input type="number" formControlName="yearconveyanceAllowance" class="input-field"></td>
+          </tr>
+          <tr>
+            <td>Bonuses</td>
+            <td><input type="number" formControlName="lta" class="input-field"></td>
+            <td><input type="number" formControlName="lta" class="input-field"></td>
+          </tr>
+          <tr>
+            <td>Overtime Pay</td>
+            <td><input type="number" formControlName="specialAllowance" class="input-field"></td>
+            <td><input type="number" formControlName="specialAllowance" class="input-field"></td>
+          </tr>
+          
+          <!-- Input fields for deductions -->
+          <tr>
+            <th class="deduction-header">GrossPay</th>
+            <th colspan="2" class="deduction-header">
+                <input type="number" formControlName="basicPay" class="input-field">
+            </th>
+          </tr>
+          <tr>
+            <td>Income Tax</td>
+            <td><input type="number" formControlName="providentFund" class="input-field"></td>
+            <td><input type="number" formControlName="providentFund" class="input-field"></td>
+          </tr>
+          <tr>
+            <td>Provident Fund</td>
+            <td><input type="number" formControlName="insurance" class="input-field"></td>
+            <td><input type="number" formControlName="insurance" class="input-field"></td>
+          </tr>
+          <tr>
+            <td>Insurance Premiums</td>
+            <td><input type="number" formControlName="grativity" class="input-field"></td>
+            <td><input type="number" formControlName="grativity" class="input-field"></td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+  
+    <!-- Payroll summary section -->
+    <div class="payroll-summary">
+      <p><strong>Gross Pay:</strong> ₹ {{ grossPay }}</p>
+      <!-- <p><strong>Total Deductions:</strong> ₹ {{ grossPay - netPay }}</p>
+      <p><strong>Net Pay:</strong> ₹ {{ netPay }}</p> -->
+    </div>
+  </div>
+  

@@ -141,7 +141,6 @@ router.get('/byuserandtype/:userid/:typeid', authenticateToken, async (req, res)
 router.patch('/update', authenticateToken, async (req, res) => {
   let  data  = req.body;
   try {
-    console.log(data);
     let updated = [];
     for( let i = 0; i < data.length; i++ ){
       let ulExist = await UserLeave.findOne({

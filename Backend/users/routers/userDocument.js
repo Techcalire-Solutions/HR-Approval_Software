@@ -106,7 +106,6 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
 
     res.send({ message: 'File deleted successfully' });
   } catch (error) {
-    console.error('Error deleting file from S3:', error);
     res.status(500).send({ message: error.message });
   }
 });
@@ -125,7 +124,6 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
     let key;
     if (!fileKey) {
       key = req.query.key;
-      console.log(key);
       
       fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
     }
@@ -141,7 +139,6 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
 
     res.status(200).send({ message: 'File deleted successfully' });
   } catch (error) {
-    console.error('Error deleting file from S3:', error);
     res.status(500).send({ message: error.message });
   }
 });
@@ -165,7 +162,6 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
 
       res.status(200).send({ message: 'File deleted successfully' });
     } catch (error) {
-      console.error('Error deleting file from S3:', error);
       res.status(500).send({ message: error.message });
     }
 });

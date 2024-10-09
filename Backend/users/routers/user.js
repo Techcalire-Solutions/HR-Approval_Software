@@ -56,7 +56,6 @@ router.post('/add', async (req, res) => {
     }
 
   } catch (error) {
-    console.error('Error:', error.message);
     res.send('Server error');
   }
 });
@@ -192,7 +191,6 @@ router.patch('/statusupdate/:id', async (req, res) => {
 // Route to get a user by ID
 router.get('/findone/:id', async (req, res) => {
   let id = req.params.id;
-  console.log(id);
   
   try {
     const user = await User.findByPk(id, {
@@ -218,7 +216,6 @@ router.patch('/update/:id', async(req,res)=>{
     result.name = name;
     result.email = email;
     result.phoneNumber = phoneNumber;
-    // result.password = pass;
     result.roleId = roleId;
     result.url = url
 
@@ -274,7 +271,6 @@ router.get('/getdirectors', async (req, res) => {
 
 router.get('/getbyrm/:id', async (req, res) => {
   try {
-    console.log(req.params.id); // Log the received id for debugging
     
     const id = parseInt(req.params.id, 10)
 
@@ -296,52 +292,6 @@ router.get('/getbyrm/:id', async (req, res) => {
     res.send(error.message); // Send error message
   }
 });
-
-
-
-//   try {
-//     const users = await User.findAll({
-//       include: [
-//         {
-//           model: UserPersonal,
-//           required: false,
-//           include: [
-//             {
-//               model: User,
-//               as: 'manager', // To include reporting manager details
-//               required: false,
-//             },
-//           ],
-//         },
-//       ],
-//     });
-
-//     // Transform data into a hierarchical structure
-//     const hierarchy = users.map(user => {
-//       const personalDetails = user.personalDetails || [];
-//       console.log(personalDetails);
-      
-//       return {
-//         id: user.id,
-//         name: user.name,
-//         empNo: user.empNo,
-//         email: user.email,
-//         director: user.director,
-//         reportingManager: personalDetails.manager ? {
-//           id: personalDetails.manager.id,
-//           name: personalDetails.manager.name,
-//         } : null,
-//         // Add other fields from UserPersonal if needed
-//       };
-//     });
-
-//     res.status(200).json(users);
-//   } catch (error) {
-//     console.error('Error fetching user hierarchy:', error);
-//     res.status(500).json({ message: 'Internal Server Error' });
-//   }
-// });
-
 
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
@@ -376,7 +326,6 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
       fileUrl: key // S3 URL of the uploaded file
     });
   } catch (error) {
-    console.error('Error uploading file to S3:', error);
     res.send({ message: error.message });
   }
 });
@@ -395,7 +344,6 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
     let key;
     if (!fileKey) {
       key = req.query.key;
-      console.log(key);
       
       fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
     }
@@ -411,7 +359,6 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
 
     res.status(200).send({ message: 'File deleted successfully' });
   } catch (error) {
-    console.error('Error deleting file from S3:', error);
     res.status(500).send({ message: error.message });
   }
 });
@@ -435,7 +382,6 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
 
       res.status(200).send({ message: 'File deleted successfully' });
     } catch (error) {
-      console.error('Error deleting file from S3:', error);
       res.status(500).send({ message: error.message });
     }
 });
@@ -455,11 +401,9 @@ router.patch('/resetpassword/:id', async (req, res) => {
       user.paswordReset = paswordReset;
 
       await user.save();
-      console.log('Updated user:', user);
       
       res.send(user);
   } catch (error) {
-      console.error('Error resetting password:', error);
       res.status(500).send(error.message);
   }
 });
@@ -520,7 +464,6 @@ router.get('/confirmemployee/:id', async (req, res) => {
 
       res.json({ message: "Employee confirmed" });
   } catch (error) {
-      console.error('Error confirming employee:', error.message);
       res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 });
@@ -535,5 +478,21 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/resignemployee/:id', async (req, res) => {
+  try {
+      let result = await User.findByPk(req.params.id);
+      
+      if (!result) {
+          return res.json({ message: "Employee not found" });
+      }
+
+      result.separated = true;
+      result.status = false;
+      await result.save();
+      res.json({ message: "Employee Separetd" });
+  } catch (error) {
+      res.json({ message: "Internal Server Error", error: error.message });
+  }
+});
 
 module.exports = router;
