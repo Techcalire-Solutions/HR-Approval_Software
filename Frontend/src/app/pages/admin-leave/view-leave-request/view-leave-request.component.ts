@@ -30,6 +30,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { CamelCasePipe } from '../../../common/camel-case.pipe';
 import { PipesModule } from '../../../theme/pipes/pipes.module';
 import { UserDialogComponent } from '../../users/user-dialog/user-dialog.component';
+import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
 @Component({
   selector: 'app-view-leave-request',
   standalone: true,
@@ -101,6 +102,24 @@ userId:number
   }
 
 
+  editLeave(item:any) {
+    this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item.id } });
+  }
+
+
+
+delete!: Subscription;
+deleteLeave(id: number){
+    let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+    dialogRef.afterClosed().subscribe(res => {
+      if(res){
+        this.delete = this.leaveService.deleteLeave(id).subscribe(res => {
+          this.snackBar.open('Leave request deleted successfully!', 'Close', { duration: 3000 });
+          this.getLeaves()
+        });
+      }
+    });
+  }
   ngOnDestroy(): void {
     // this.leaveSub.unsubscribe();
 

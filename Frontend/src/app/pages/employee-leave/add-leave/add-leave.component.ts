@@ -278,6 +278,8 @@ this.leaveRequestForm = this.fb.group({
     this.leaveService.getLeaveType().subscribe(
       (leaveTypes: any) => {
         this.leaveTypes = leaveTypes;
+        console.log('leaveTypes',leaveTypes);
+
       },
       (error) => {
         console.error('Error fetching leave types:', error);

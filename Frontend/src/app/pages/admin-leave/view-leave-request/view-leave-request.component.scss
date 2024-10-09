@@ -212,12 +212,23 @@ thead th:first-child, tbody td:first-child {
   color: #fff; /* White text */
   border: none; /* Remove default border */
   padding: 5px 5px; /* Smaller padding */
-  font-size: 10px; /* Smaller font size */
+  font-size: 12px; /* Smaller font size */
   border-radius: 4px; /* Rounded corners */
   cursor: pointer; /* Pointer cursor on hover */
   transition: background-color 0.3s ease; /* Smooth background color transition */
   margin-right: 10px; /* Space between buttons */
 }
+// .edit-button{
+//   background-color: #28a745; /* Green background */
+//   color: #fff; /* White text */
+//   border: none; /* Remove default border */
+//   padding: 2px 2px; /* Smaller padding */
+//   font-size: 10px; /* Smaller font size */
+//   border-radius: 4px; /* Rounded corners */
+//   cursor: pointer; /* Pointer cursor on hover */
+//   transition: background-color 0.3s ease; /* Smooth background color transition */
+//   margin-right: 10px; /* Space between buttons */
+// }
 
 .approve-button:hover {
   background-color: #218838; /* Darker green on hover */
@@ -229,7 +240,7 @@ thead th:first-child, tbody td:first-child {
   color: #fff; /* White text */
   border: none; /* Remove default border */
   padding: 5px 5px; /* Smaller padding */
-  font-size: 10px; /* Smaller font size */
+  font-size: 12px; /* Smaller font size */
   border-radius: 4px; /* Rounded corners */
   cursor: pointer; /* Pointer cursor on hover */
   transition: background-color 0.3s ease; /* Smooth background color transition */
