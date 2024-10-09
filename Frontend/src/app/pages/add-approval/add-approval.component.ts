@@ -135,16 +135,6 @@ export class AddApprovalComponent {
   @ViewChild('progressArea') progressArea!: ElementRef<HTMLElement>;
   @ViewChild('uploadArea') uploadArea!: ElementRef<HTMLElement>;
 
-  // ngAfterViewInit() {
-  //   this.form.nativeElement.addEventListener('click', () => {
-  //     this.fileInput.nativeElement.click();
-  //   });
-
-  //   this.fileInput.nativeElement.addEventListener('change', (e: Event) => {
-  //     this.uploadFile(e)
-  //   });
-  // }
-
   uploadProgress: number | null = null;
   uploadComplete: boolean = false;
   file!: any;
@@ -171,6 +161,7 @@ export class AddApprovalComponent {
           this.uploadComplete = true;
         },
         error: (error) => {
+          console.error('Upload failed:', error);
           this.uploadComplete = true;
         }
       });
@@ -205,10 +196,7 @@ export class AddApprovalComponent {
 
 
   extractLetters(input: string): string {
-    // return input.replace(/[^a-zA-Z]/g, "");
     var extractedChars = input.match(/[A-Za-z-]/g);
-
-    // Combine the matched characters into a string
     var result = extractedChars ? extractedChars.join('') : '';
 
     return result;
@@ -219,46 +207,22 @@ export class AddApprovalComponent {
     if(this.roleName=='Sales Executive'){
       this.submit = this.invoiceService.addPI(this.piForm.getRawValue()).subscribe((invoice: any) =>{
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('login/viewApproval');
+        this.router.navigateByUrl('login/viewApproval?isSubmitted=true')
       });
     } else if(this.roleName=='Key Account Manager'){
       this.submit = this.invoiceService.addPIByKAM(this.piForm.getRawValue()).subscribe((invoice: any) =>{
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('login/viewApproval')
+        this.router.navigateByUrl('login/viewApproval?isSubmitted=true')
       });
     }
     else if(this.roleName=='Manager'){
       this.submit = this.invoiceService.addPIByAM(this.piForm.getRawValue()).subscribe((invoice: any) =>{
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('login/viewApproval')
+        this.router.navigateByUrl('login/viewApproval?isSubmitted=true')
       });
     }
 
   }
-
-  // onUpdate(){
-  //   if(this.roleName=='Sales Executive'){
-  //   this.submit = this.invoiceService.updatePIBySE(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-
-  //     this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
-  //     this.router.navigateByUrl('login/viewApproval')
-  //   });
-  // }else if(this.roleName=='Key Account Manager'){
-  //   this.submit = this.invoiceService.updatePIByKAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-
-  //     this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
-  //     this.router.navigateByUrl('login/viewApproval')
-  //   });
-  // }
-
-  // else if(this.roleName=='Manager'){
-  //   this.submit = this.invoiceService.updatePIByAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-
-  //     this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
-  //     this.router.navigateByUrl('login/viewApproval')
-  //   });
-  // }
-  // }
 
   piSub!: Subscription;
   editStatus: boolean = false;
