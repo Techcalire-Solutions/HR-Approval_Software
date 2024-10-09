@@ -118,7 +118,7 @@ function splitLeaveDates(leaveDates, availableLeaveDays) {
 }
 
 
-//-----------------------------------Leave Request Route-------------------------------------------
+//----------------------------------- POST Leave Request Route-------------------------------------------
 
 
 router.post('/', authenticateToken, async (req, res) => {
