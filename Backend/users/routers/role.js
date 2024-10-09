@@ -7,13 +7,12 @@ const sequelize = require('../../utils/db');
 
 
 router.post('/', authenticateToken, async (req, res) => {
+  const { roleName, abbreviation, status } = req.body;
     try {
-            const { roleName, abbreviation, status } = req.body;
-
-            const role = new Role({roleName,abbreviation, status});
-            await role.save();
-
-            res.send(role);
+          const role = new Role({roleName, abbreviation, status});
+          await role.save();
+          
+          res.send(role);
 
     } catch (error) {
         res.send(error.message);

@@ -77,6 +77,8 @@ export class AddRoleDialogComponent {
     this.dialogRef.close();
   }
   onSubmit(){
+    console.log(this.role);
+    
     if(this.role){
       this.roleService.updateRole(this.role.id, this.form.getRawValue()).subscribe(data => {
         this.dialogRef.close()
@@ -84,6 +86,8 @@ export class AddRoleDialogComponent {
       });
     }else{
       this.roleService.addRole(this.form.getRawValue()).subscribe((res)=>{
+        console.log(res);
+        
         this.dialogRef.close();
         this.snackBar.open("Role added succesfully...","" ,{duration:3000})
       })
