@@ -40,34 +40,19 @@ import { ReactiveFormsModule } from '@angular/forms';
   styleUrl: './view-approval.component.scss'
 })
 export class ViewApprovalComponent {
-
-  displayedColumns = ['piNo','kam', 'view', 'manage'];
-  rows: any[] = [];
-  sortedData!: any[];
-  showResponsiveTableCode!: any;
-
-@ViewChild(MatPaginator, { static: true }) paginator1!: MatPaginator;
-  @Input() status: string = '';
-  @Input() actionStatus!: any;
-  @Output() edit = new EventEmitter();
-  @Output() delete = new EventEmitter();
-  @Output() view = new EventEmitter();
-  @Output() page = new EventEmitter();
-  @Output() sort = new EventEmitter();
-  @Output() dup = new EventEmitter();
-
-
-  header: string = 'Invoices';
-
   _snackbar = inject(MatSnackBar)
   invoiceService = inject(InvoiceService)
   loginService = inject(LoginService)
   dialog = inject(MatDialog)
   router = inject(Router)
-  snackBar=inject(MatSnackBar)
+  snackBar = inject(MatSnackBar)
 
+  @Input() status: string = '';
 
-  ngAfterViewInit(): void {
+  selectedTab: string = '';
+  header: string = 'Invoices';
+  onTabClick(tabName: string) {
+    this.selectedTab = tabName;
   }
 
   ngOnDestroy(): void {
@@ -77,22 +62,13 @@ export class ViewApprovalComponent {
 
   user: number;
   ngOnInit() {
-    this.getInvoices()
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
-
     this.user = user.id;
-
     let roleId = user.role
     this.getRoleById(roleId)
-    this.onTabClick(this.selectedTab);
-  }
-  onTabClick(tabName: string): void {
-    this.selectedTab = tabName;
-    // Any additional logic related to opening a tab can go here
   }
 
-  selectedTab: string = 'invoice';
   roleSub!: Subscription;
   roleName!: string;
   sp: boolean = false;
@@ -106,47 +82,22 @@ export class ViewApprovalComponent {
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;
 
-      if(this.roleName === 'Sales Executive') { this.status = 'REJECTED'; this.sp = true
-            this.header = 'GENERATED'
-           this.pendingHeader='REJECTED'
+      if(this.roleName === 'Sales Executive') { 
+        this.status = 'GENERATED'; this.sp = true; this.header = 'REJECTED'; this.pendingHeader='GENERATED'
        }
-      if(this.roleName === 'Key Account Manager') { this.status = 'GENERATED'; this.kam = true;
-           this.header = 'AM REJECTED'
-           this.pendingHeader='GENERATED'}
-      if(this.roleName === 'Manager') { this.status = 'KAM VERIFIED'; this.am = true
-          this.header = 'REJECTED'
-           this.pendingHeader='VERIFIED'
-       }
-      if(this.roleName === 'Accountant') { this.status = 'AM VERIFIED'; this.ma = true
-         this.pendingHeader='VERIFIED'
+      if(this.roleName === 'Key Account Manager') { 
+        this.status = 'GENERATED'; this.kam = true; this.header = 'AM REJECTED'; this.pendingHeader='GENERATED'
+      }
+      if(this.roleName === 'Manager') { 
+        this.status = 'KAM VERIFIED'; this.am = true; this.header = 'REJECTED'; this.pendingHeader='VERIFIED'
+      }
+      if(this.roleName === 'Accountant') { 
+        this.status = 'AM VERIFIED'; this.ma = true; this.pendingHeader='VERIFIED'
       }
       if(this.roleName === 'Administrator') { this.admin = true }
       if(this.roleName === 'Team Lead') { this.teamLead = true }
       this.getInvoices();
     })
-  }
-
-  sortData(sort: Sort) {
-      const data = this.rows;
-
-      if (!sort.active || sort.direction === '') {
-          this.sortedData = data;
-          return;
-      }
-
-      this.sortedData = data.sort((a, b) => {
-          const isAsc = sort.direction === 'asc';
-
-          if (['id', 'progress'].includes(sort.active)) {
-              return compare(parseInt(a[sort.active]), parseInt(b[sort.active]), isAsc)
-          }
-
-          return compare(a[sort.active], b[sort.active], isAsc)
-      });
-  }
-
-  findDuplicates(row: any){
-
   }
 
   invoices: any[] = [];
@@ -234,7 +185,6 @@ export class ViewApprovalComponent {
 
         this.submittingForm = false;
       }, (error: any) => {
-        // Handle error here if needed
         this.submittingForm = false;
       });
     }
@@ -260,10 +210,12 @@ export class ViewApprovalComponent {
   onStepSelectionChange(status: string) {
     if(this.roleName === 'Sales Executive'){
       if(status === 'assigned'){
-        this.status = 'GENERATED';
+        // this.status = 'GENERATED';
+        this.status = 'REJECTED';
         this.getInvoices();
       }else if(status === 'pending'){
-        this.status = 'REJECTED';
+        // this.status = 'REJECTED';
+        this.status = 'GENERATED';
         this.getInvoices()
       }else if(status === 'completed'){
         this.status = 'BANK SLIP ISSUED';
@@ -278,7 +230,6 @@ export class ViewApprovalComponent {
         this.status = 'GENERATED'
         this.getInvoices()
       }else if(status === 'assigned'){
-
         this.pageStatus = false;
         this.status = 'AM REJECTED'
         this.getInvoices()
@@ -326,7 +277,6 @@ export class ViewApprovalComponent {
         this.pageStatus = false;
         this.status = ''
         this.getInvoices()
-
       }
 
     }
