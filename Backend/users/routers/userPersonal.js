@@ -23,7 +23,6 @@ async function saveDates(dateStrings) {
 
     return formattedDates;
   } catch (error) {
-    console.error('Error formatting dates:', error);
     throw error;
   }
 }
@@ -77,7 +76,6 @@ router.post('/add', authenticateToken, async (req, res) => {
     await user.save();
     res.status(201).send(user); // Return a 201 status for successful creation
   } catch (error) {
-    console.error('Error saving user:', error);
     res.status(500).send(error.message);
   }
 });
@@ -130,7 +128,6 @@ router.patch('/update/:id', async(req,res)=>{
         return res.status(400).send("Invalid dateOfBirth format.");
       }
     }
-    console.log(formattedDateOfBirth, formattedDateOfJoining);
     
     let result = await UserPersonal.findByPk(req.params.id);
     result.dateOfJoining = dateOfJoining ? formattedDateOfJoining[0] : null;
@@ -150,10 +147,8 @@ router.patch('/update/:id', async(req,res)=>{
     result.emergencyContactNo = emergencyContactNo;
     result.emergencyContactName = emergencyContactName;
     result.emergencyContactRelation = emergencyContactRelation;
-    console.log(result);
     
     await result.save();
-    console.log(result);
     
     res.send(result);
   } catch (error) {
@@ -251,7 +246,6 @@ router.get('/dueprobation', authenticateToken, async (req, res) => {
         },
       ],
     });
-    console.log(users.length,"00000000000000000000000000000");
     
     const probationDueUsers = [];
 

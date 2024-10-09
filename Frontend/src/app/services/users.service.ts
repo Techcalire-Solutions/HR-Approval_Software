@@ -194,4 +194,8 @@ export class UsersService {
     return this.http.get<User[]>(this.apiUrl + '/user/getbyrm/'+id)
   }
 
+  resignEmployee(id: number): Observable<any> {
+    return this.http.get( this.apiUrl+'/user/resignemployee/' + id);
+  }
+
 }

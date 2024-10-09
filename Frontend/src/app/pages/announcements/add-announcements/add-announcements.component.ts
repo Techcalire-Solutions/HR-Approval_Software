@@ -66,8 +66,6 @@ export class AddAnnouncementsComponent implements OnDestroy {
 
     this.uploadSub = this.announcementService.uploadAnnouncementDoc(formData).subscribe({
         next: (invoice) => {
-          console.log(invoice);
-          
           this.form.get('fileUrl')?.setValue(invoice.fileUrl);
           this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ invoice.fileUrl}`;
         }

@@ -128,14 +128,10 @@ getLeaveSub : Subscription
   getLeaves() {
     this.getLeaveSub = this.leaveService.getLeaves().subscribe(
       (res) => {
-        console.log('res', res);
-
         // Assuming `res.items` contains the array of leaves
         this.leaves = res;
         this.totalItemsCount = res.length;
 
-        // console.log('leaves', this.leaves);
-        console.log('totalItemsCount', this.totalItemsCount);
         this.events = this.mapLeavesToCalendarEvents(this.leaves);
       },
       (error) => {

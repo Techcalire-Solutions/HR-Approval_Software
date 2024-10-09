@@ -23,7 +23,6 @@ export class BirthdayComponent implements OnInit, OnDestroy{
   birthdaysThisMonth: UserPersonal[] = [];
   getBirthdays(){
     this.birthSub = this.userService.getBirthdays().subscribe(res=>{
-      console.log(res);
       this.birthdaysThisMonth = res;
     })
   }
