@@ -51,9 +51,14 @@
         <!-- Reason -->
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Reason</mat-label>
-          <textarea matInput formControlName="notes" placeholder="Enter reason" required></textarea>
+          <textarea matInput
+                    formControlName="notes"
+                    placeholder="Enter reason"
+                    required
+                    (input)="prefixEmergency()">
+          </textarea>
         </mat-form-field>
-      </div>
+</div>
 
       <div *ngIf="isSickLeaveAndMoreThanThreeDays()" class="upload-container" (click)="fileInput.click()">
         Upload Image:

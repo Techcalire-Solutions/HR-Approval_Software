@@ -129,6 +129,7 @@ if (leaveId) {
 
 
 this.leaveRequestForm = this.fb.group({
+  userId: ['', Validators.required],
   leaveTypeId: ['', Validators.required],
   startDate: ['', Validators.required],
   endDate: ['', Validators.required],
@@ -139,9 +140,16 @@ this.leaveRequestForm = this.fb.group({
 
 
   }
+  emergencyPrefix = 'Emergency: ';
   displayedColumns: string[] = ['leaveType', 'startDate', 'endDate', 'reason', 'session'];
   get leaveDates(): FormArray {
     return this.leaveRequestForm.get('leaveDates') as FormArray;
+  }
+  prefixEmergency(): void {
+    const notesControl = this.leaveRequestForm.get('notes');
+    if (notesControl && !notesControl.value.startsWith(this.emergencyPrefix)) {
+      notesControl.setValue(this.emergencyPrefix + notesControl.value);
+    }
   }
 
   onDateChange() {
@@ -183,25 +191,27 @@ this.leaveRequestForm = this.fb.group({
   }
 
 
-  onSubmit1() {
-    this.isLoading = true;
-    const leaveRequest = {
-      ...this.leaveRequestForm.value,
-      leaveDates: this.leaveRequestForm.get('leaveDates')!.value
-    };
+  // onSubmit1() {
+  //   this.isLoading = true;
+  //   const leaveRequest = {
+  //     ...this.leaveRequestForm.value,
+  //     leaveDates: this.leaveRequestForm.get('leaveDates')!.value
+  //   };
 
-    this.leaveService.addLeave(leaveRequest).subscribe(
-      () => {
-        this.isLoading = false;
-        this.snackBar.open('Leave request submitted successfully!', 'Close', { duration: 3000 });
-        this.router.navigate(['/login/applyLeave'])
-      },
-      () => {
-        this.isLoading = false;
-        this.snackBar.open('Failed to submit leave request. Please try again.', 'Close', { duration: 3000 });
-      }
-    );
-  }
+  //   this.leaveService.addEmergencyLeave(leaveRequest).subscribe(
+  //     (res:any) => {
+  //       console.log('resp',res);
+
+  //       this.isLoading = false;
+  //       this.snackBar.open('Leave request submitted successfully!', 'Close', { duration: 3000 });
+  //       this.router.navigate(['/login/admin-leave/view-leave-request'])
+  //     },
+  //     () => {
+  //       this.isLoading = false;
+  //       this.snackBar.open('Failed to submit leave request. Please try again.', 'Close', { duration: 3000 });
+  //     }
+  //   );
+  // }
 
 
   getLeaveDetails(id: number) {
@@ -211,7 +221,8 @@ this.leaveRequestForm = this.fb.group({
   }
 
   onSubmit() {
-    this.isLoading = true;
+    this.isLoading = true; // Disable the button and show loading indicator
+
     const leaveRequest = {
       ...this.leaveRequestForm.value,
       leaveDates: this.leaveRequestForm.get('leaveDates')!.value
@@ -220,17 +231,19 @@ this.leaveRequestForm = this.fb.group({
     const leaveId = this.route.snapshot.queryParamMap.get('id');
 
     if (this.isEditMode && leaveId) {
-
       const idAsNumber = +leaveId;
 
-      this.leaveService.updateLeave(idAsNumber, leaveRequest).subscribe(() => {
-        this.snackBar.open('Leave request Updated successfully!', 'Close', { duration: 3000 });
-        this.router.navigate(['/login/leave'])
+      // Update leave request
+      this.leaveService.updateLeave(idAsNumber, leaveRequest).subscribe((response: any) => {
+        // this.openDialog(response.message);
+        console.log('hi entry updated');
       });
     } else {
-      this.leaveService.addLeave(leaveRequest).subscribe(() => {
-        this.snackBar.open('Leave request added successfully!', 'Close', { duration: 3000 });
-        this.router.navigate(['/login/leave'])
+      // Add new leave request
+      this.leaveService.addEmergencyLeave(leaveRequest).subscribe((response: any) => {
+        console.log('hi entry addede');
+
+        // this.openDialog(response.message);
       });
     }
   }
