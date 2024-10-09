@@ -63,7 +63,7 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
           parentName: data.parentName,
           spouseName: data.spouseName,
           referredBy: data.referredBy,
-          reportingManger: data.reportingManger,
+          reportingMangerId: data.reportingMangerId,
           emergencyContactNo: data.emergencyContactNo,
           emergencyContactName: data.emergencyContactName,
           emergencyContactRelation: data.emergencyContactRelation, 
@@ -85,7 +85,7 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     parentName: [''],
     spouseName: [''],
     referredBy: [''],
-    reportingManger: <any>[],
+    reportingMangerId: <any>[],
     emergencyContactNo: ['', Validators.compose([Validators.pattern(/^\d{10}$/)])],
     emergencyContactName: [''],
     emergencyContactRelation: [''], 
@@ -98,10 +98,6 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
       ...this.form.getRawValue()
     }
     submit.userId = submit.userId ? submit.userId : this.data.id;
-    // submit.dateOfJoining = this.formatDateOnly(submit.dateOfJoining);
-    // submit.confirmationDate = this.formatDateOnly(submit.confirmationDate);
-    // submit.dateOfBirth = this.formatDateOnly(submit.dateOfBirth);
-    console.log(submit);
     
     if(this.editStatus){
       this.submitSub = this.userService.updateUserPersonal(this.id, submit).subscribe(data => {
@@ -149,7 +145,7 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
   rmSub!: Subscription;
   rm: User[] = [];
   getReportingManager(){
-    this.rmSub = this.userService.getReportingManagers().subscribe(res=>{
+    this.rmSub = this.userService.getUser().subscribe(res=>{
       this.rm = res;
     })
   }

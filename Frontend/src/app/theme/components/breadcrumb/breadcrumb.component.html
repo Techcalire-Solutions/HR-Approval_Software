@@ -8,7 +8,7 @@
                         <span class="breadcrumb-title">Home</span>
                     </a>
                 }
-                @for (breadcrumb of breadcrumbs; track breadcrumb; let i = $index) {
+                @for (breadcrumb of breadcrumbs; track $index; let i = $index) {
                     <div class="breadcrumb-item" fxLayout="row" fxLayoutAlign="start center">
                         <a [hidden]="i == (breadcrumbs.length - 1)" [routerLink]="[breadcrumb.url]">{{breadcrumb.name}}</a>
                         <span [hidden]="i != (breadcrumbs.length - 1)" class="breadcrumb-title active">{{breadcrumb.name}}</span>
