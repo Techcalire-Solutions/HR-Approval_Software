@@ -117,9 +117,10 @@ function splitLeaveDates(leaveDates, availableLeaveDays) {
 }
 
 // POST Leave Request Route
-router.post('/', async (req, res) => {
+router.post('/',authenticateToken, async (req, res) => {
   try {
-    const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
+    const {  leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
+    const userId = req.user.id;
 
     // Step 1: Ensure leaveTypeId exists
     if (!leaveTypeId) {
