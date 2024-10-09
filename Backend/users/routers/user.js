@@ -216,7 +216,6 @@ router.patch('/update/:id', async(req,res)=>{
     result.name = name;
     result.email = email;
     result.phoneNumber = phoneNumber;
-    // result.password = pass;
     result.roleId = roleId;
     result.url = url
 
@@ -293,52 +292,6 @@ router.get('/getbyrm/:id', async (req, res) => {
     res.send(error.message); // Send error message
   }
 });
-
-
-
-//   try {
-//     const users = await User.findAll({
-//       include: [
-//         {
-//           model: UserPersonal,
-//           required: false,
-//           include: [
-//             {
-//               model: User,
-//               as: 'manager', // To include reporting manager details
-//               required: false,
-//             },
-//           ],
-//         },
-//       ],
-//     });
-
-//     // Transform data into a hierarchical structure
-//     const hierarchy = users.map(user => {
-//       const personalDetails = user.personalDetails || [];
-//       console.log(personalDetails);
-      
-//       return {
-//         id: user.id,
-//         name: user.name,
-//         empNo: user.empNo,
-//         email: user.email,
-//         director: user.director,
-//         reportingManager: personalDetails.manager ? {
-//           id: personalDetails.manager.id,
-//           name: personalDetails.manager.name,
-//         } : null,
-//         // Add other fields from UserPersonal if needed
-//       };
-//     });
-
-//     res.status(200).json(users);
-//   } catch (error) {
-//     console.error('Error fetching user hierarchy:', error);
-//     res.status(500).json({ message: 'Internal Server Error' });
-//   }
-// });
-
 
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
