@@ -85,17 +85,12 @@ userId:number
   getLeaves() {
     this.getLeaveSub = this.leaveService.getLeaves().subscribe(
       (res) => {
-
-        // Assuming `res.items` contains the array of leaves
-        this.leaves = res;
-        // this.totalItemsCount = res.count;
-
-        // console.log('leaves', this.leaves);
-        // console.log('totalItemsCount', this.totalItemsCount);
-      },
-      (error) => {
-        // Handle any errors
-        this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
+        console.log(res);
+        if(res.res){
+          this.leaves = res.leaves;
+        }else{
+          this.snackBar.open('No data is added', '', { duration: 3000 });
+        }
       }
     );
   }
