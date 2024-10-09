@@ -35,6 +35,7 @@ export class AddPayrollComponent implements OnInit, OnDestroy{
     conveyanceAllowance: <any>[, Validators.required],
     yearconveyanceAllowance: <any>[, Validators.required],
     lta: <any>[],
+    yearlta: <any>[],
     specialAllowance: <any>[],
     providentFund: <any>[, Validators.required],
     insurance: <any>[],
@@ -58,10 +59,27 @@ export class AddPayrollComponent implements OnInit, OnDestroy{
   grossPay: number = 0;
   calculatePayroll() {
     this.payrollForm.get('basicPay')?.valueChanges.subscribe(() => {
-      console.log(this.payrollForm.get('basicPay')?.value);
       let bp: any = this.payrollForm.get('basicPay')?.value;
       let ybp = 12 * bp;
       this.payrollForm.patchValue({ yearbasicPay: ybp }, { emitEvent: false })
+    });
+
+    this.payrollForm.get('hra')?.valueChanges.subscribe(() => {
+      let hr: any = this.payrollForm.get('hra')?.value;
+      let yhr = 12 * hr;
+      this.payrollForm.patchValue({ yearhra: yhr }, { emitEvent: false })
+    });
+
+    this.payrollForm.get('conveyanceAllowance')?.valueChanges.subscribe(() => {
+      let conveyanceAllowance: any = this.payrollForm.get('conveyanceAllowance')?.value;
+      let yca = 12 * conveyanceAllowance;
+      this.payrollForm.patchValue({ yearconveyanceAllowance: yca }, { emitEvent: false })
+    });
+
+    this.payrollForm.get('lta')?.valueChanges.subscribe(() => {
+      let bp: any = this.payrollForm.get('lta')?.value;
+      let ylta = 12 * bp;
+      this.payrollForm.patchValue({ yearlta: ylta }, { emitEvent: false })
     });
     
     const formValues = this.payrollForm.value;
