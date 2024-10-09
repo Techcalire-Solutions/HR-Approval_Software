@@ -181,7 +181,6 @@ this.leaveRequestForm = this.fb.group({
     const leaveDateGroup = this.leaveDates.at(index) as FormGroup;
     const currentValue = leaveDateGroup.get(session)?.value;
     leaveDateGroup.get(session)?.setValue(!currentValue);
-    console.log(`Checkbox ${session} for date ${leaveDateGroup.get('date')?.value} changed to:`, !currentValue);
   }
 
 
@@ -323,7 +322,6 @@ this.leaveRequestForm = this.fb.group({
         error: () => console.error('Upload failed'),
       });
     } else {
-      console.warn('No file selected'); // Handle the case where no file was selected
       this.fileName = ''; // Reset the file name if no file is selected
       this.isFileSelected = false; // Reset the selected state
     }

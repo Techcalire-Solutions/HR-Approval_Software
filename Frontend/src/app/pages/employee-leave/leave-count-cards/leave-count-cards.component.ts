@@ -70,7 +70,6 @@ export class LeaveCountCardsComponent {
         }
       },
       (error) => {
-        console.error('Error checking probation status:', error);
         this.errorMessage = 'Unable to verify probation status.';
       }
     );

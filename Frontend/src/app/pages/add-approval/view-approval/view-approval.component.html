@@ -5,36 +5,26 @@
 
       <div class="container pt-4">
         <section class="icon-container mb-4">
-          <!-- <a (click)="onTabClick('upload')" *ngIf="roleName ==='Sales Executive'" routerLink="invoice/upload">
-            <span class="material-symbols-outlined"
-              [ngClass]="{'selected': selectedTab === 'upload'}">upload_file
+          <a (click)="onTabClick('bookmark')" *ngIf="!admin">
+            <span (click)="onStepSelectionChange('pending')" class="material-symbols-outlined"
+              [ngClass]="{'selected': selectedTab === 'bookmark'}"> {{pendingHeader}}
             </span>
-          </a> -->
-        <!-- HTML Template -->
-<a (click)="onTabClick('bookmark')" *ngIf="!admin">
-  <span (click)="onStepSelectionChange('pending')" class="material-symbols-outlined"
-        [ngClass]="{'selected': selectedTab === 'bookmark'}"> {{pendingHeader}}
-  </span>
-</a>
-
-<a (click)="onTabClick('factCheck')" *ngIf="!admin && !ma">
-  <span (click)="onStepSelectionChange('assigned')" class="material-symbols-outlined"
-        [ngClass]="{'selected': selectedTab === 'factCheck'}"> {{header}}
-  </span>
-</a>
-
-<a (click)="onTabClick('list')" *ngIf="!admin">
-  <span (click)="onStepSelectionChange('completed')" class="material-symbols-outlined"
-        [ngClass]="{'selected': selectedTab === 'list'}"> COMPLETED
-  </span>
-</a>
-
-<a (click)="onTabClick('invoice')">
-  <span (click)="onStepSelectionChange('all')" class="material-symbols-outlined"
-        [ngClass]="{'selected': selectedTab === 'invoice'}"> ALL
-  </span>
-</a>
-
+          </a>
+          <a (click)="onTabClick('factCheck')" *ngIf="!admin && !ma">
+            <span (click)="onStepSelectionChange('assigned')" class="material-symbols-outlined"
+              [ngClass]="{'selected': selectedTab === 'factCheck'}"> {{header}}
+            </span>
+          </a>
+          <a (click)="onTabClick('list')" *ngIf="!admin">
+            <span (click)="onStepSelectionChange('completed')" class="material-symbols-outlined"
+              [ngClass]="{'selected': selectedTab === 'list'}"> COMPLETED
+            </span>
+          </a>
+          <a (click)="onTabClick('invoice')">
+            <span (click)="onStepSelectionChange('all')" class="material-symbols-outlined"
+              [ngClass]="{'selected': selectedTab === 'invoice'}"> ALL
+            </span>
+          </a>
         </section>
       </div>
 
@@ -45,7 +35,6 @@
         <mat-toolbar class="table-header">
           <div class="row" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div class="col">
-              <!-- <h1>{{header}}</h1> -->
             </div>
             <div class="col" style="text-align: right;">
               <div class="input-group">
@@ -56,25 +45,20 @@
         </mat-toolbar>
 
         <div class="table-container">
-          <table matSort (matSortChange)="sortData($event)">
+          <table>
             <thead>
               <tr>
-                <th mat-sort-header="invoiceNo" scope="col">EntryNo</th>
-                <th mat-sort-header="sp" scope="col">Sales Executive</th>
-                <th mat-sort-header="kam" scope="col">KAM</th>
-                <th mat-sort-header="am" scope="col">Manager</th>
-                <th mat-sort-header="ma" scope="col">Accountant</th>
-                <th mat-sort-header="status" scope="col">Status</th>
-                <th mat-sort-header="view" scope="col">Manage</th>
+                <th scope="col">EntryNo</th>
+                <th scope="col">Sales Executive</th>
+                <th scope="col">KAM</th>
+                <th scope="col">Manager</th>
+                <th scope="col">Accountant</th>
+                <th scope="col">Status</th>
+                <th scope="col">Manage</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let invoice of invoices; let i = index" [routerLink]="['/login/viewInvoices/', invoice.id]"
-
-                >
-<!--                 (mousedown)="onMouseDown($event, invoice)" (mouseup)="onMouseUp($event)"
-                (mouseleave)="onMouseLeave($event)" -->
-
+              <tr *ngFor="let invoice of invoices; let i = index" [routerLink]="['/login/viewInvoices/', invoice.id]" >
                 <td [attr.data-label]="'InvoiceNo'">{{invoice.piNo || '-'}}</td>
                 <td [attr.data-label]="'SP'">{{invoice.salesPerson?.name || '-'}}</td>
                 <td [attr.data-label]="'KAM'">{{invoice.kam?.name || '-'}}</td>
@@ -85,13 +69,9 @@
 
                 <td (click)="$event.stopPropagation()">
                   <div class="action-icons">
-                    <!-- ||(am && (invoice.status=='AM VERIFIED'))|| (sp && (invoice.status=='GENERATED' || invoice.status=='KAM REJECTED'|| invoice.status=='AM REJECTED'))|| (kam && (invoice.status=='KAM VERIFIED' || invoice.status=='AM REJECTED'))&& invoice.userStatus -->
                     <button class="update-button" [routerLink]="['/login/updatePI', invoice.id]"
                       *ngIf="admin || invoice.editButtonStatus">Update
                     </button>
-                    <!-- <button class="delete-button" (click)="deleteFunction(invoice.id)"
-                      *ngIf="admin ||(am && (invoice.status=='AM VERIFIED'))|| (sp && (invoice.status=='GENERATED' || invoice.status=='KAM REJECTED'))|| (kam && (invoice.status=='KAM VERIFIED' || invoice.status=='AM REJECTED'))&& invoice.userStatus">Delete
-                    </button> -->
                     <button class="delete-button" (click)="deleteFunction(invoice.id)"
                     *ngIf="admin|| invoice.editButtonStatus">Delete
                   </button>
@@ -131,14 +111,4 @@
 
   <mat-divider></mat-divider>
 
-  <!-- <footer class="text-center text-white" style="background-color: #f1f1f1;">
-      <div class="container pt-4">
-        <section class="icon-container mb-4">
-          <a *ngIf="roleName !=='Initiator Sales Person'"><span class="material-icons" (click)="onStepSelectionChange('pending')" style="color: green;">pending_actions</span></a>
-          <a (click)="onStepSelectionChange('assigned')"><span class="material-icons" style="color: darkgoldenrod;">bookmark_added</span></a>
-          <a (click)="onStepSelectionChange('completed')"><span class="material-icons" style="color: red;">fact_check</span></a>
-          <a (click)="onStepSelectionChange('all')"><span class="material-icons" style="color: darkslategray;">list_alt</span></a>
-        </section>
-      </div>
-    </footer> -->
 </div>
