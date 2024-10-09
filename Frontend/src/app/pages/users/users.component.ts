@@ -28,6 +28,7 @@ import { count, Subscription } from 'rxjs';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 import { Router } from '@angular/router';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { AddPayrollComponent } from '../payroll/add-payroll/add-payroll.component';
 
 
 @Component({
@@ -161,7 +162,6 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   updateSub!: Subscription;
   updateStatus(event: any, id: number, name: string){
-    console.log(event.checked);
     let data = { status: event.checked }
     this.updateSub = this.usersService.updateUserStatus(data, id).subscribe((result) => {
       if (event.checked) {
@@ -171,5 +171,17 @@ export class UsersComponent implements OnInit, OnDestroy {
       }
       this.getUsers()
     });
+  }
+
+  rsignSub!: Subscription;
+  resignEmployee(id: number, emp: string){
+    this.rsignSub = this.usersService.resignEmployee(id).subscribe(res => {
+      this.snackbar.open(`${emp} is now resigned`, "", { duration: 3000 });
+      this.getUsers()
+    })
+  }
+
+  openPayRoll(id: number){
+    this.router.navigateByUrl('login/users/payroll/'+id)
   }
 }

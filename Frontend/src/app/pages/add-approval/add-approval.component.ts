@@ -108,8 +108,6 @@ export class AddApprovalComponent {
   getAccountants(){
     this.accountantSub = this.loginServie.getUserByRole(4).subscribe(user =>{
       this.AccountantList = user;
-      console.log('account list',this.AccountantList);
-
     });
   }
 
@@ -173,7 +171,6 @@ export class AddApprovalComponent {
           this.uploadComplete = true;
         },
         error: (error) => {
-          console.error('Upload failed:', error);
           this.uploadComplete = true;
         }
       });
@@ -222,7 +219,7 @@ export class AddApprovalComponent {
     if(this.roleName=='Sales Executive'){
       this.submit = this.invoiceService.addPI(this.piForm.getRawValue()).subscribe((invoice: any) =>{
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('login/viewApproval')
+        this.router.navigateByUrl('login/viewApproval');
       });
     } else if(this.roleName=='Key Account Manager'){
       this.submit = this.invoiceService.addPIByKAM(this.piForm.getRawValue()).subscribe((invoice: any) =>{

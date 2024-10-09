@@ -18,17 +18,29 @@
     <app-admin-card></app-admin-card>
 </div>
 
-<div fxLayout="row" fxLayoutAlign="space-between" fxLayoutWrap>
-    <div fxFlex="33" fxFlex.gt-sm="33" class="p-2">
-        <app-birthday></app-birthday>
+@if(roleName === 'HR Administrator' || roleName === 'Super Administrator'){
+    <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutWrap>
+        <div fxFlex="33" fxFlex.gt-sm="33" class="p-2">
+            <app-birthday></app-birthday>
+        </div>
+        <div fxFlex="33" fxFlex.gt-sm="33" class="p-2">
+            <app-probation-due></app-probation-due>
+        </div>
+        <div fxFlex="33" fxFlex.gt-sm="33" class="p-2">
+            <app-joining-day></app-joining-day>
+        </div>
     </div>
-    <div fxFlex="33" fxFlex.gt-sm="33" class="p-2">
-        <app-probation-due></app-probation-due>
+}@else {
+    <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutWrap>
+        <div fxFlex="50" fxFlex.gt-sm="50" class="p-2">
+            <app-birthday></app-birthday>
+        </div>
+        <div fxFlex="50" fxFlex.gt-sm="50" class="p-2">
+            <app-joining-day></app-joining-day>
+        </div>
     </div>
-    <div fxFlex="33" fxFlex.gt-sm="33" class="p-2">
-        <app-joining-day></app-joining-day>
-    </div>
-</div>
+}
+
 
 
 
