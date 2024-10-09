@@ -5,11 +5,6 @@
 
       <div class="container pt-4">
         <section class="icon-container mb-4">
-          <!-- <a (click)="onTabClick('upload')" *ngIf="roleName ==='Sales Executive'" routerLink="invoice/upload">
-            <span class="material-symbols-outlined"
-              [ngClass]="{'selected': selectedTab === 'upload'}">upload_file
-            </span>
-          </a> -->
           <a (click)="onTabClick('bookmark')" *ngIf="!admin">
             <span (click)="onStepSelectionChange('pending')" class="material-symbols-outlined"
               [ngClass]="{'selected': selectedTab === 'bookmark'}"> {{pendingHeader}}
@@ -40,7 +35,6 @@
         <mat-toolbar class="table-header">
           <div class="row" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div class="col">
-              <!-- <h1>{{header}}</h1> -->
             </div>
             <div class="col" style="text-align: right;">
               <div class="input-group">

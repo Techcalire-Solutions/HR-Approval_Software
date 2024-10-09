@@ -49,6 +49,10 @@
                     </div>
                     <mat-menu #menu="matMenu" xPosition="before" overlapTrigger="true">
                         <span (mouseleave)="menuTrigger.closeMenu()">
+                            <button mat-menu-item (click)="openPayRoll(user.id)">
+                                <mat-icon>payment</mat-icon>
+                                <span>Payroll</span>
+                            </button>
                             <button mat-menu-item (click)="openUserDialog(user)">
                                 <mat-icon>mode_edit</mat-icon>
                                 <span>Edit</span>

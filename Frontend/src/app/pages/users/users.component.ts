@@ -28,6 +28,7 @@ import { count, Subscription } from 'rxjs';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 import { Router } from '@angular/router';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { AddPayrollComponent } from '../payroll/add-payroll/add-payroll.component';
 
 
 @Component({
@@ -178,5 +179,9 @@ export class UsersComponent implements OnInit, OnDestroy {
       this.snackbar.open(`${emp} is now resigned`, "", { duration: 3000 });
       this.getUsers()
     })
+  }
+
+  openPayRoll(id: number){
+    this.router.navigateByUrl('login/users/payroll/'+id)
   }
 }
