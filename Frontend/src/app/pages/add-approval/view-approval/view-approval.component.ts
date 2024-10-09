@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Sort } from '@angular/material/sort';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { InvoiceService } from '@services/invoice.service';
 import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
@@ -46,6 +46,7 @@ export class ViewApprovalComponent {
   dialog = inject(MatDialog)
   router = inject(Router)
   snackBar = inject(MatSnackBar)
+  route = inject(ActivatedRoute)
 
   @Input() status: string = '';
 
@@ -61,7 +62,12 @@ export class ViewApprovalComponent {
   }
 
   user: number;
+  isSubmitted: boolean = false;
   ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      this.isSubmitted = params['isSubmitted'] === 'true'; // Convert the string to a boolean
+      console.log(this.isSubmitted); // This will log true or false based on the query parameter
+    });
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
     this.user = user.id;
@@ -81,21 +87,39 @@ export class ViewApprovalComponent {
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;
+      if(!this.isSubmitted){
+        if(this.roleName === 'Sales Executive') { 
+          this.status = 'GENERATED'; this.sp = true; this.header = 'REJECTED'; this.pendingHeader='GENERATED'
+         }
+        if(this.roleName === 'Key Account Manager') { 
+          this.status = 'GENERATED'; this.kam = true; this.header = 'AM REJECTED'; this.pendingHeader='GENERATED'
+        }
+        if(this.roleName === 'Manager') { 
+          this.status = 'KAM VERIFIED'; this.am = true; this.header = 'REJECTED'; this.pendingHeader='VERIFIED'
+        }
+        if(this.roleName === 'Accountant') { 
+          this.status = 'AM VERIFIED'; this.ma = true; this.pendingHeader='VERIFIED'
+        }
+        if(this.roleName === 'Administrator' || this.roleName === 'Super Administrator') { this.admin = true }
+        if(this.roleName === 'Team Lead') { this.teamLead = true }
+      }else{
+        this.status = '';
+        this.selectedTab = 'invoice';
+        this.pageStatus = false;
+        if(this.roleName === 'Sales Executive') { 
+          this.sp = true; this.header = 'REJECTED'; this.pendingHeader='GENERATED'
+         }
+        if(this.roleName === 'Key Account Manager') { 
+          this.kam = true; this.header = 'AM REJECTED'; this.pendingHeader='GENERATED'
+        }
+        if(this.roleName === 'Manager') { 
+          this.am = true; this.header = 'REJECTED'; this.pendingHeader='VERIFIED'
+        }
+        if(this.roleName === 'Accountant') { 
+          this.ma = true; this.pendingHeader='VERIFIED'
+        }
+      }
 
-      if(this.roleName === 'Sales Executive') { 
-        this.status = 'GENERATED'; this.sp = true; this.header = 'REJECTED'; this.pendingHeader='GENERATED'
-       }
-      if(this.roleName === 'Key Account Manager') { 
-        this.status = 'GENERATED'; this.kam = true; this.header = 'AM REJECTED'; this.pendingHeader='GENERATED'
-      }
-      if(this.roleName === 'Manager') { 
-        this.status = 'KAM VERIFIED'; this.am = true; this.header = 'REJECTED'; this.pendingHeader='VERIFIED'
-      }
-      if(this.roleName === 'Accountant') { 
-        this.status = 'AM VERIFIED'; this.ma = true; this.pendingHeader='VERIFIED'
-      }
-      if(this.roleName === 'Administrator') { this.admin = true }
-      if(this.roleName === 'Team Lead') { this.teamLead = true }
       this.getInvoices();
     })
   }
