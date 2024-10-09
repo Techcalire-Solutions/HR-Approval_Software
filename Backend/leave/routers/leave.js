@@ -747,6 +747,7 @@ router.delete('/:id', async (req, res) => {
 
 //----------------------------Get Leaves-----------------------------
 router.get('/', async (req, res) => {
+  
   try {
     // Fetch all leave requests along with leave type name and user name
     const leave = await Leave.findAll({
@@ -761,12 +762,11 @@ router.get('/', async (req, res) => {
         }
       ]
     });
-
-    // If leave records are found, return them
+    
     if (leave.length > 0) {
-      res.json(leave);
+      res.json({leave: leave, res: true});
     } else {
-      res.status(404).json({ message: "No leave records found." });
+      res.json({ message: "No leave records found.", res: false });
     }
   } catch (error) {
     // Log the error and return a 500 status with the error message

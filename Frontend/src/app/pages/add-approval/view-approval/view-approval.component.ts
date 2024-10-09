@@ -25,16 +25,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 @Component({
   selector: 'app-view-approval',
   standalone: true,
-  imports: [
-    MatToolbarModule, MatFormFieldModule, ReactiveFormsModule,
-    MatIconModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatDividerModule,
-    RouterModule,
-    MatCardModule,
-    CommonModule,
-    MatDialogModule
+  imports: [ MatToolbarModule, MatFormFieldModule, ReactiveFormsModule, MatIconModule, MatPaginatorModule, MatDividerModule,
+    RouterModule, MatCardModule,MatDialogModule, CommonModule
   ],
   templateUrl: './view-approval.component.html',
   styleUrl: './view-approval.component.scss'
@@ -59,14 +51,17 @@ export class ViewApprovalComponent {
   ngOnDestroy(): void {
     this.roleSub?.unsubscribe();
     this.invoiceSubscriptions?.unsubscribe();
+    this.querySub?.unsubscribe();
+    this.verifiedSub?.unsubscribe();
   }
 
   user: number;
   isSubmitted: boolean = false;
+  querySub!: Subscription;
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      this.isSubmitted = params['isSubmitted'] === 'true'; // Convert the string to a boolean
-      console.log(this.isSubmitted); // This will log true or false based on the query parameter
+    this.querySub = this.route.queryParams.subscribe(params => {
+      this.isSubmitted = params['isSubmitted'] === 'true'; 
+      console.log(this.isSubmitted);
     });
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
@@ -234,11 +229,9 @@ export class ViewApprovalComponent {
   onStepSelectionChange(status: string) {
     if(this.roleName === 'Sales Executive'){
       if(status === 'assigned'){
-        // this.status = 'GENERATED';
         this.status = 'REJECTED';
         this.getInvoices();
       }else if(status === 'pending'){
-        // this.status = 'REJECTED';
         this.status = 'GENERATED';
         this.getInvoices()
       }else if(status === 'completed'){
@@ -306,7 +299,7 @@ export class ViewApprovalComponent {
     }
   }
 
-  // submittingForm: boolean = false;
+  verifiedSub: Subscription;
   verified(value: string, piNo: string, sp: string, id: number){
     let status = this.status;
     this.submittingForm = true;
@@ -331,7 +324,7 @@ export class ViewApprovalComponent {
           accountantId: result.accountantId
         }
 
-        this.invoiceService.updatePIStatus(data).subscribe(result => {
+        this.verifiedSub = this.invoiceService.updatePIStatus(data).subscribe(result => {
           this.submittingForm = false;
           this.getInvoices()
           this.snackBar.open(`Invoice ${piNo} updated to ${status}...`,"" ,{duration:3000})
@@ -350,57 +343,9 @@ export class ViewApprovalComponent {
       if(result){
         this.getInvoices()
         this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
-        // this.invoiceService.updatePIStatusWithBankSlip(data).subscribe(result => {
-        // });
       }
     })
   }
-
-  private pressTimer: any;
-  private longPressDuration = 500; // Duration in ms for a long press
-  @HostListener('document:mouseup', ['$event'])
-  onMouseUp(event: MouseEvent) {
-    clearTimeout(this.pressTimer);
-  }
-
-  // @HostListener('document:mouseleave', ['$event'])
-  // onMouseLeave(event: MouseEvent) {
-  //   clearTimeout(this.pressTimer);
-  // }
-
-  // onMouseDown(event: MouseEvent, invoice: any) {
-  //   this.pressTimer = setTimeout(() => {
-  //     this.openDialog(invoice);
-  //   }, this.longPressDuration);
-  // }
-
-  // openDialog(invoice: any) {
-  //   const snackBarRef = this.snackBar.open('Approve or Reject?', 'Approve', {
-  //     duration: 5000,
-  //     horizontalPosition: 'center',
-  //     verticalPosition: 'bottom',
-  //   });
-
-  //   snackBarRef.onAction().subscribe(() => {
-  //     this.handleApprove(invoice);
-  //   });
-
-  //   snackBarRef.afterDismissed().subscribe(info => {
-  //     if (!info.dismissedByAction) {
-  //       // If not dismissed by action, prompt for rejection
-  //       this.snackBar.open('Do you want to reject?', 'Reject', {
-  //         duration: 5000,
-  //         horizontalPosition: 'center',
-  //         verticalPosition: 'bottom',
-  //       }).onAction().subscribe(() => {
-  //         this.handleReject(invoice);
-  //       });
-  //     }
-  //   });
-  // }
-
-
-
   deleteFunction(id: number){
     const dialogRef = this.dialog.open(DeleteDialogueComponent, {
       width: '320px',
@@ -419,18 +364,6 @@ export class ViewApprovalComponent {
         }))
       }
     });
-
-
-    }
-
-  handleApprove(invoice: any) {
   }
-
-  handleReject(invoice: any) {
-  }
-
 }
 
-function compare(a: number | string, b: number | string, isAsc: boolean) {
-return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
-}
