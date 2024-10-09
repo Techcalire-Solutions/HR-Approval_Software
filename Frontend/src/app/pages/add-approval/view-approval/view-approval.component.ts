@@ -16,12 +16,12 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatDividerModule } from '@angular/material/divider';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
-import { CommonModule } from '@angular/common';
 import { BankReceiptDialogueComponent } from './bank-receipt-dialogue/bank-receipt-dialogue.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-view-approval',
   standalone: true,
@@ -146,7 +146,8 @@ export class ViewApprovalComponent {
       this.invoiceSubscriptions = apiCall.subscribe((res: any) => {
         invoice = res.items;
         this.totalItems = res.count;
-
+        console.log(invoice);
+        
         if (invoice) {
           invoice.forEach((mainObj: any) => {
             const matchingStatus = mainObj.performaInvoiceStatuses.find(
@@ -158,7 +159,8 @@ export class ViewApprovalComponent {
           });
 
           this.invoices = invoice;
-
+          console.log(this.invoices);
+          
           for (let i = 0; i < this.invoices.length; i++) {
             let invoiceSP = this.invoices[i]?.salesPersonId;
             let invoiceKAM = this.invoices[i]?.kamId;
