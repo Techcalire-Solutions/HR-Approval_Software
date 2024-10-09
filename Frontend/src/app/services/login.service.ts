@@ -27,8 +27,6 @@ export class LoginService {
   }
 
   loginUser(data: any) {
-    console.log(data);
-    
    return this._http.post(this.url + '/auth', data).pipe(
      tap((tokens) => this.doLoginUser(data.email, tokens)),
      mapTo(true), catchError((error: any) => {

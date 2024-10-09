@@ -68,7 +68,6 @@ export class ProfileComponent {
   getPersonsalData(id: number){
     this.puSub = this.userService.getUserPersonalDetailsByUser(id).subscribe(x => {
       this.userPersonal = x;
-      console.log(this.userPersonal);  
     });  
   }
 
@@ -76,8 +75,7 @@ export class ProfileComponent {
   userStat: StatutoryInfo;
   getStatutoryData(id: number){
     this.suSub = this.userService.getUserStatutoryuDetailsByUser(id).subscribe(x => {
-      this.userStat = x;
-      console.log(this.userStat);     
+      this.userStat = x;    
     })
   }
 
@@ -86,8 +84,6 @@ export class ProfileComponent {
   getAccountData(id: number){
     this.auSub = this.userService.getUserAcoountDetailsByUser(id).subscribe(x => { 
       this.accounts = x;
-      console.log(this.accounts);
-      
     });
   }
 
@@ -96,8 +92,6 @@ export class ProfileComponent {
   getPositionData(id: number){
     this.posuSub = this.userService.getUserPositionDetailsByUser(id).subscribe(x => {
       this.positions = x;
-      console.log(x);
-      
     })
   }
 
@@ -105,7 +99,6 @@ export class ProfileComponent {
   documents: UserDocument[] = [];
   getDocuments(id: number){
     this.docSub = this.userService.getUserDocumentsByUser(id).subscribe(x => {
-      console.log(x);
       this.documents = x
     });
   }

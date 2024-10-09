@@ -66,7 +66,7 @@ export class InfoCardsComponent implements OnInit, OnDestroy {
   }
 
   invoiceSubscriptions: Subscription;
-  paCount: number;
+  paCount: number = 0;
   getPendingApprovals(){
     let apiCall;
     if (this.roleName === 'Sales Executive') {
@@ -91,7 +91,7 @@ export class InfoCardsComponent implements OnInit, OnDestroy {
     } 
   }
 
-  kamVerCount!: number;
+  kamVerCount: number = 0;
   getKamApproved(){
     let apiCall;
     
@@ -117,7 +117,7 @@ export class InfoCardsComponent implements OnInit, OnDestroy {
     } 
   }
 
-  amVerCount!: number;
+  amVerCount: number = 0;
   getAmApproved(){
     let apiCall;
     

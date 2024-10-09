@@ -52,10 +52,8 @@ export class LoginComponent {
     this.loginService.loginUser(this.loginForm.value).subscribe({
       next: (res: boolean) => { 
         if (res) {
-          console.log(res);
           const token: any = localStorage.getItem('token')
           let user = JSON.parse(token)
-          console.log(user);
           if(!user.paswordReset){
             this.resetPassword(user.id, user.empNo)
           }else{
@@ -79,8 +77,6 @@ export class LoginComponent {
 
   dialog = inject(MatDialog)
   resetPassword(id: number, empNo: string){
-    console.log(id, empNo);
-    
     const dialogRef = this.dialog.open(ResetPasswordComponent, {
       width: '450px',
       data: {id: id, empNo: empNo, paswordReset: true}
@@ -106,11 +102,7 @@ export class LoginComponent {
   }
 
   setCurrentUser(user: any): void {
-    console.log(user);
-    
     if (user && user.token) {
-      console.log(user);
-      
       localStorage.setItem('token', JSON.stringify(user.token));
     }
   }

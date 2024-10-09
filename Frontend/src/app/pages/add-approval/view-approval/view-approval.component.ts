@@ -198,8 +198,6 @@ export class ViewApprovalComponent {
                 userStatus: true
               };
             }
-            console.log( invoice[i]);
-            console.log(this.editButtonStatus);
 
             if(invoice[i].addedById === this.user){
               if(invoice[i].addedBy.role.roleName === 'Sales Executive' &&

@@ -55,8 +55,6 @@ const transporter = nodemailer.createTransport({
     
     try {
         const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
-        console.log(pi);
-        
             if (pi) {
                 return res.send('Invoice is already saved');
             }
@@ -163,8 +161,6 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
       // Find the AM's email address
       const am = await User.findOne({ where: { id: amId } });
       const amEmail = am.email;
-      console.log("AM EMAIL:.............", amEmail);
-  
       // Set up email options
       const mailOptions = {
         from: `Proforma invoice <${process.env.EMAIL_USER}>`,
@@ -184,8 +180,7 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
   
       res.json({ p: newPi, status: piStatus });
     } catch (error) {
-      console.error('Error saving PI or sending email:', error);
-      res.status(500).send(error.message);
+      res.send(error.message);
     }
   });
 
@@ -234,7 +229,6 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
       // Find the Accountant's email address
       const accountant = await User.findOne({ where: { id: accountantId } });
       const accountantEmail = accountant.email;
-      console.log("Accountant EMAIL:.............", accountantEmail);
   
       // Set up email options
       const mailOptions = {
@@ -255,7 +249,6 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
   
       res.json({ p: newPi, status: piStatus });
     } catch (error) {
-      console.error('Error saving PI or sending email:', error);
       res.status(500).send(error.message);
     }
   });
@@ -880,7 +873,6 @@ router.delete('/:id', async(req,res)=>{
 
 router.get('/dashboard', authenticateToken, async (req, res) => {
     let status = req.query.status;
-    console.log(status,"dssssssssssssssssssssssssssssss");
     
     let where = {};
 
@@ -917,7 +909,6 @@ router.get('/dashboard', authenticateToken, async (req, res) => {
                 { model: User, as: 'am', attributes: ['name'] }
             ]
         });
-        console.log(pi,"_____________________________");
         
         const totalCount = await PerformaInvoice.count({ where: where });
 

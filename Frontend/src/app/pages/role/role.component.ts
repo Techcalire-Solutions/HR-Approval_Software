@@ -72,7 +72,6 @@ export class RoleComponent implements OnInit, OnDestroy {
     this.roleSub = this.roleService.getRole(this.searchText, this.currentPage, this.pageSize).subscribe((res: any)=>{
       this.roles = res.items;
       this.totalItems = res.count;
-      console.log(this.roles);
     })
   }
 

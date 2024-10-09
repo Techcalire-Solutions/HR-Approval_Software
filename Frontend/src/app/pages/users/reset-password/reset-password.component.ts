@@ -50,7 +50,6 @@ export class ResetPasswordComponent {
     for (let i = 0; i < 10; i++) {
       password += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    console.log(password);
     
     this.form.get('password')?.setValue(password);
     this.form.get('confirmPassword')?.setValue(password);  // Clear confirm password
@@ -78,8 +77,6 @@ export class ResetPasswordComponent {
   reset!: Subscription;
   onSubmit(){
     this.reset = this.userService.resetPassword(this.data.id, this.form.getRawValue()).subscribe(x => {
-      console.log(x);
-      
       this.dialogRef.close();
       this.snackBar.open(`You have successfully reset ${this.data.empNo} password...`,"" ,{duration:3000})
     })

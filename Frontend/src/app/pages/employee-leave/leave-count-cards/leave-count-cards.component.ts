@@ -69,7 +69,6 @@ export class LeaveCountCardsComponent {
         }
       },
       (error) => {
-        console.error('Error checking probation status:', error);
         this.errorMessage = 'Unable to verify probation status.';
       }
     );
@@ -88,7 +87,6 @@ export class LeaveCountCardsComponent {
         }
       },
       (error) => {
-        console.error('Error fetching leave counts:', error);
         this.errorMessage = 'Unable to fetch leave counts.';
         this.hasLeaveCounts = false;
       }
