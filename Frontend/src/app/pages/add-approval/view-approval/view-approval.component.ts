@@ -56,11 +56,9 @@ export class ViewApprovalComponent {
   @Output() sort = new EventEmitter();
   @Output() dup = new EventEmitter();
 
-  selectedTab: string = '';
+
   header: string = 'Invoices';
-  onTabClick(tabName: string) {
-    this.selectedTab = tabName;
-  }
+
   _snackbar = inject(MatSnackBar)
   invoiceService = inject(InvoiceService)
   loginService = inject(LoginService)
@@ -87,8 +85,14 @@ export class ViewApprovalComponent {
 
     let roleId = user.role
     this.getRoleById(roleId)
+    this.onTabClick(this.selectedTab);
+  }
+  onTabClick(tabName: string): void {
+    this.selectedTab = tabName;
+    // Any additional logic related to opening a tab can go here
   }
 
+  selectedTab: string = 'invoice';
   roleSub!: Subscription;
   roleName!: string;
   sp: boolean = false;
