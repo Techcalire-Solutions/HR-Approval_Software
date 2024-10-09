@@ -77,6 +77,7 @@ export class EmployeeLeaveComponent {
 
 userId:number
   ngOnInit(){
+    
     this.getLeaveByUser()
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
