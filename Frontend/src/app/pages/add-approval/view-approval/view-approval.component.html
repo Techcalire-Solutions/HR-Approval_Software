@@ -45,16 +45,16 @@
         </mat-toolbar>
 
         <div class="table-container">
-          <table matSort (matSortChange)="sortData($event)">
+          <table>
             <thead>
               <tr>
-                <th mat-sort-header="invoiceNo" scope="col">EntryNo</th>
-                <th mat-sort-header="sp" scope="col">Sales Executive</th>
-                <th mat-sort-header="kam" scope="col">KAM</th>
-                <th mat-sort-header="am" scope="col">Manager</th>
-                <th mat-sort-header="ma" scope="col">Accountant</th>
-                <th mat-sort-header="status" scope="col">Status</th>
-                <th mat-sort-header="view" scope="col">Manage</th>
+                <th scope="col">EntryNo</th>
+                <th scope="col">Sales Executive</th>
+                <th scope="col">KAM</th>
+                <th scope="col">Manager</th>
+                <th scope="col">Accountant</th>
+                <th scope="col">Status</th>
+                <th scope="col">Manage</th>
               </tr>
             </thead>
             <tbody>
