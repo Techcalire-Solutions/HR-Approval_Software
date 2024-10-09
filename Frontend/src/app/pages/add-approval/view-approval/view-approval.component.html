@@ -5,36 +5,26 @@
 
       <div class="container pt-4">
         <section class="icon-container mb-4">
-          <!-- <a (click)="onTabClick('upload')" *ngIf="roleName ==='Sales Executive'" routerLink="invoice/upload">
-            <span class="material-symbols-outlined"
-              [ngClass]="{'selected': selectedTab === 'upload'}">upload_file
+          <a (click)="onTabClick('bookmark')" *ngIf="!admin">
+            <span (click)="onStepSelectionChange('pending')" class="material-symbols-outlined"
+              [ngClass]="{'selected': selectedTab === 'bookmark'}"> {{pendingHeader}}
             </span>
-          </a> -->
-        <!-- HTML Template -->
-<a (click)="onTabClick('bookmark')" *ngIf="!admin">
-  <span (click)="onStepSelectionChange('pending')" class="material-symbols-outlined"
-        [ngClass]="{'selected': selectedTab === 'bookmark'}"> {{pendingHeader}}
-  </span>
-</a>
-
-<a (click)="onTabClick('factCheck')" *ngIf="!admin && !ma">
-  <span (click)="onStepSelectionChange('assigned')" class="material-symbols-outlined"
-        [ngClass]="{'selected': selectedTab === 'factCheck'}"> {{header}}
-  </span>
-</a>
-
-<a (click)="onTabClick('list')" *ngIf="!admin">
-  <span (click)="onStepSelectionChange('completed')" class="material-symbols-outlined"
-        [ngClass]="{'selected': selectedTab === 'list'}"> COMPLETED
-  </span>
-</a>
-
-<a (click)="onTabClick('invoice')">
-  <span (click)="onStepSelectionChange('all')" class="material-symbols-outlined"
-        [ngClass]="{'selected': selectedTab === 'invoice'}"> ALL
-  </span>
-</a>
-
+          </a>
+          <a (click)="onTabClick('factCheck')" *ngIf="!admin && !ma">
+            <span (click)="onStepSelectionChange('assigned')" class="material-symbols-outlined"
+              [ngClass]="{'selected': selectedTab === 'factCheck'}"> {{header}}
+            </span>
+          </a>
+          <a (click)="onTabClick('list')" *ngIf="!admin">
+            <span (click)="onStepSelectionChange('completed')" class="material-symbols-outlined"
+              [ngClass]="{'selected': selectedTab === 'list'}"> COMPLETED
+            </span>
+          </a>
+          <a (click)="onTabClick('invoice')">
+            <span (click)="onStepSelectionChange('all')" class="material-symbols-outlined"
+              [ngClass]="{'selected': selectedTab === 'invoice'}"> ALL
+            </span>
+          </a>
         </section>
       </div>
 
@@ -45,7 +35,6 @@
         <mat-toolbar class="table-header">
           <div class="row" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div class="col">
-              <!-- <h1>{{header}}</h1> -->
             </div>
             <div class="col" style="text-align: right;">
               <div class="input-group">
@@ -56,16 +45,16 @@
         </mat-toolbar>
 
         <div class="table-container">
-          <table matSort (matSortChange)="sortData($event)">
+          <table>
             <thead>
               <tr>
-                <th mat-sort-header="invoiceNo" scope="col">EntryNo</th>
-                <th mat-sort-header="sp" scope="col">Sales Executive</th>
-                <th mat-sort-header="kam" scope="col">KAM</th>
-                <th mat-sort-header="am" scope="col">Manager</th>
-                <th mat-sort-header="ma" scope="col">Accountant</th>
-                <th mat-sort-header="status" scope="col">Status</th>
-                <th mat-sort-header="view" scope="col">Manage</th>
+                <th scope="col">EntryNo</th>
+                <th scope="col">Sales Executive</th>
+                <th scope="col">KAM</th>
+                <th scope="col">Manager</th>
+                <th scope="col">Accountant</th>
+                <th scope="col">Status</th>
+                <th scope="col">Manage</th>
               </tr>
             </thead>
             <tbody>
