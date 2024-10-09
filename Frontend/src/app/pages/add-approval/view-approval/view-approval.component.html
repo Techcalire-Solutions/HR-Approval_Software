@@ -10,26 +10,31 @@
               [ngClass]="{'selected': selectedTab === 'upload'}">upload_file
             </span>
           </a> -->
-          <a (click)="onTabClick('bookmark')" *ngIf="!admin">
-            <span (click)="onStepSelectionChange('pending')" class="material-symbols-outlined"
-              [ngClass]="{'selected': selectedTab === 'bookmark'}"> {{pendingHeader}}
-            </span>
-          </a>
-          <a (click)="onTabClick('factCheck')" *ngIf="!admin && !ma">
-            <span (click)="onStepSelectionChange('assigned')" class="material-symbols-outlined"
-              [ngClass]="{'selected': selectedTab === 'factCheck'}"> {{header}}
-            </span>
-          </a>
-          <a (click)="onTabClick('list')" *ngIf="!admin">
-            <span (click)="onStepSelectionChange('completed')" class="material-symbols-outlined"
-              [ngClass]="{'selected': selectedTab === 'list'}"> COMPLETED
-            </span>
-          </a>
-          <a (click)="onTabClick('invoice')">
-            <span (click)="onStepSelectionChange('all')" class="material-symbols-outlined"
-              [ngClass]="{'selected': selectedTab === 'invoice'}"> ALL
-            </span>
-          </a>
+        <!-- HTML Template -->
+<a (click)="onTabClick('bookmark')" *ngIf="!admin">
+  <span (click)="onStepSelectionChange('pending')" class="material-symbols-outlined"
+        [ngClass]="{'selected': selectedTab === 'bookmark'}"> {{pendingHeader}}
+  </span>
+</a>
+
+<a (click)="onTabClick('factCheck')" *ngIf="!admin && !ma">
+  <span (click)="onStepSelectionChange('assigned')" class="material-symbols-outlined"
+        [ngClass]="{'selected': selectedTab === 'factCheck'}"> {{header}}
+  </span>
+</a>
+
+<a (click)="onTabClick('list')" *ngIf="!admin">
+  <span (click)="onStepSelectionChange('completed')" class="material-symbols-outlined"
+        [ngClass]="{'selected': selectedTab === 'list'}"> COMPLETED
+  </span>
+</a>
+
+<a (click)="onTabClick('invoice')">
+  <span (click)="onStepSelectionChange('all')" class="material-symbols-outlined"
+        [ngClass]="{'selected': selectedTab === 'invoice'}"> ALL
+  </span>
+</a>
+
         </section>
       </div>
 
@@ -105,7 +110,7 @@
                     *ngIf="!sp && ma">
               {{ invoice.status === 'BANK SLIP ISSUED' ? 'Edit Wireslip' : 'Wireslip' }}
             </button>
-          
+
 
                   </div>
                 </td>
