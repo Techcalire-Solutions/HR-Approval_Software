@@ -73,10 +73,6 @@ export class ViewLeaveRequestComponent {
 userId:number
   ngOnInit(){
     this.getLeaves()
-  //   const token: any = localStorage.getItem('token')
-  //   let user = JSON.parse(token)
-  //   this.userId = user.id;
-  //  this.getLeaveByUser();
   }
 
   getLeaveSub : Subscription
@@ -87,7 +83,6 @@ userId:number
     this.getLeaveSub = this.leaveService.getLeaves().subscribe(
       (res) => {
         console.log(res);
-        this.leave = res
         if(res.res){
           this.leaves = res.leave;
 
