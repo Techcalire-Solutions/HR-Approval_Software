@@ -26,6 +26,13 @@ const team = require('../users/routers/team');
 const teamMember = require('../users/routers/teamMember');
 app.use('/role', role);
 
+
+// app.use(cors({
+//     origin: 'https://approval.techclaire.com', 
+//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', 
+//     credentials: true, 
+//   }));
+
 app.use('/user', user);
 app.use('/personal', userPersonal)
 app.use('/statutoryinfo', statutoryInfo)
@@ -51,10 +58,12 @@ app.use('/users/userImages', express.static(path.join(__dirname, '../users/userI
 const leave = require('../leave/routers/leave');
 const leaveType = require('../leave/routers/leaveType');
 const userLeave = require('../leave/routers/userLeave');
-
 app.use('/leave', leave);
 app.use('/leaveType', leaveType);
 app.use('/userLeave', userLeave);
+
+const announcements = require('../announcements/router/announcement');
+app.use('/announcements', announcements)
 
 
 const port = process.env.PORT || 8000;

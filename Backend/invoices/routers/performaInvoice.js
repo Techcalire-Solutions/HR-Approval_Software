@@ -4,7 +4,7 @@ const authenticateToken = require('../../middleware/authorization');
 const PerformaInvoice = require('../models/performaInvoice');
 const PerformaInvoiceStatus = require('../models/invoiceStatus');
 const User = require('../../users/models/user');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const sequelize = require('../../utils/db');
 const s3 = require('../../utils/s3bucket');
 const Role = require('../../users/models/role');
@@ -12,15 +12,30 @@ const nodemailer = require('nodemailer');
 const TeamMember = require('../../users/models/teamMember');
 const Team = require('../../users/models/team');
 
+//   const transporter = nodemailer.createTransport({
+//     service: 'gmail',
+//     auth: {
+//       user: process.env.EMAIL_USER,
+//       pass: process.env.EMAIL_PASS, 
+//     },
+//   });
 
-  const transporter = nodemailer.createTransport({
-    service: 'gmail', // Or 'Gmail' depending on the Nodemailer version
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
     auth: {
-      user: process.env.EMAIL_USER, // Your email address
-      pass: process.env.EMAIL_PASS, // Your email password or App Password
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+    secure: false, // Set to true if using port 465
+    tls: {
+      rejectUnauthorized: false,
     },
   });
 
+
+
+  
   router.post('/save', authenticateToken, async (req, res) => {
     const {
       piNo,
@@ -28,13 +43,24 @@ const Team = require('../../users/models/team');
       kamId,
       supplierName,
       supplierPoNo,
+      supplierCurrency,
       supplierPrice,
       purpose,
       customerName,
       customerPoNo,
+      customerCurrency,
       poValue,
     } = req.body;
     const userId = req.user.id;
+    
+    try {
+        const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
+            if (pi) {
+                return res.send('Invoice is already saved');
+            }
+    } catch (error) {
+        res.send(error.message)
+    }
   
     try {
       // Save the new PI
@@ -46,10 +72,12 @@ const Team = require('../../users/models/team');
         kamId,
         supplierName,
         supplierPoNo,
+        supplierCurrency,
         supplierPrice,
         purpose,
         customerName,
         customerPoNo,
+        customerCurrency,
         poValue,
         addedById: userId,
       });
@@ -63,11 +91,10 @@ const Team = require('../../users/models/team');
         date: new Date(),
       });
       await piStatus.save();
-  
+
       // Send email notification
       const kam = await User.findOne({ where: { id: kamId } });
       const kamEmail = kam.email;
-      console.log("KAM EMAIL:.............", kamEmail);
   
       const mailOptions = {
         from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
@@ -77,24 +104,30 @@ const Team = require('../../users/models/team');
           `Entry Number: ${piNo}\n` +
           `Supplier Name: ${supplierName}\n` +
           `Supplier PO No: ${supplierPoNo}\n` +
-          `Supplier Price: ${supplierPrice}\n` +
+          
+          `Supplier Price: ${supplierCurrency} ${supplierPrice}\n` +
           `Status: ${newPi.status}\n` +
-          `${purpose === 'Stock' ? `Purpose: Stock\n` : `Purpose: Customer\nCustomer Name: ${customerName}\nCustomer PO No: ${customerPoNo}\nCustomer PO Value: ${poValue}\n`}`,
+          `${purpose === 'Stock' ? `Purpose: Stock\n` : `Purpose: Customer\nCustomer Name: ${customerName}\nCustomer PO No: ${customerPoNo}\nCustomer PO Value:${customerCurrency} ${poValue}\n`}`,
       };
   
       await transporter.sendMail(mailOptions);
-  
-      res.json({ p: newPi, status: piStatus });
-    } catch (error) {
-      console.error('Error saving PI or sending email:', error);
-      res.status(500).send(error.message);
+      res.json({p: newPi, status: piStatus})
+    }catch (error) {
+        res.send(error.message)
     }
-  });
+})
 
 router.post('/saveByKAM', authenticateToken, async (req, res) => {
-    const { piNo, url, amId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
+    const { piNo, url, amId, supplierName, supplierPoNo, supplierCurrency,supplierPrice, purpose, customerName, customerPoNo,customerCurrency, poValue } = req.body;
     const userId = req.user.id;
-  
+    try {
+        const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
+            if (pi) {
+                return res.send('Invoice is already saved');
+            }
+    } catch (error) {
+        res.send(error.message)
+    }
     try {
       // Save the new PI
       const newPi = new PerformaInvoice({
@@ -105,10 +138,12 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
         kamId: userId,
         supplierName,
         supplierPoNo,
+        supplierCurrency,
         supplierPrice,
         purpose,
         customerName,
         customerPoNo,
+        customerCurrency,
         poValue,
         addedById: userId
       });
@@ -126,8 +161,6 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
       // Find the AM's email address
       const am = await User.findOne({ where: { id: amId } });
       const amEmail = am.email;
-      console.log("AM EMAIL:.............", amEmail);
-  
       // Set up email options
       const mailOptions = {
         from: `Proforma invoice <${process.env.EMAIL_USER}>`,
@@ -137,9 +170,9 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
             `Entry Number: ${piNo}\n` +
             `Supplier Name: ${supplierName}\n` +
             `Supplier PO No: ${supplierPoNo}\n`+
-            `Supplier Price:${supplierPrice}\n`+
+            `Supplier Price: ${supplierCurrency} ${supplierPrice}\n` +
             `Status: ${newPi.status}\n` +
-            `${purpose === 'Stock' ? `Purpose: Stock\n` : `Purpose: Customer\nCustomer Name: ${customerName}\nCustomer PO No: ${customerPoNo}\nCustomer PO Value: ${poValue}\n`}`,
+            `${purpose === 'Stock' ? `Purpose: Stock\n` : `Purpose: Customer\nCustomer Name: ${customerName}\nCustomer PO No: ${customerPoNo}\nCustomer PO Value:${customerCurrency} ${poValue}\n`}`,
       };
   
       // Send email notification
@@ -147,16 +180,22 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
   
       res.json({ p: newPi, status: piStatus });
     } catch (error) {
-      console.error('Error saving PI or sending email:', error);
-      res.status(500).send(error.message);
+      res.send(error.message);
     }
   });
 
 
 router.post('/saveByAM', authenticateToken, async (req, res) => {
-    const { piNo, url, accountantId, supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue } = req.body;
+    const { piNo, url, accountantId, supplierName, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerName, customerPoNo,customerCurrency, poValue } = req.body;
     const userId = req.user.id;
-  
+    try {
+        const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
+            if (pi) {
+                return res.send('Invoice is already saved');
+            }
+    } catch (error) {
+        res.send(error.message)
+    }
     try {
       // Save the new PI
       const newPi = new PerformaInvoice({
@@ -167,10 +206,12 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
         amId: userId,
         supplierName,
         supplierPoNo,
+        supplierCurrency,
         supplierPrice,
         purpose,
         customerName,
         customerPoNo,
+        customerCurrency,
         poValue,
         addedById: userId
       });
@@ -188,7 +229,6 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
       // Find the Accountant's email address
       const accountant = await User.findOne({ where: { id: accountantId } });
       const accountantEmail = accountant.email;
-      console.log("Accountant EMAIL:.............", accountantEmail);
   
       // Set up email options
       const mailOptions = {
@@ -199,9 +239,9 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
             `Entry Number: ${piNo}\n` +
             `Supplier Name: ${supplierName}\n` +
             `Supplier PO No: ${supplierPoNo}\n`+
-            `Supplier Price:${supplierPrice}\n`+
+            `Supplier Price: ${supplierCurrency} ${supplierPrice}\n` +
             `Status: ${newPi.status}\n` +
-            `${purpose === 'Stock' ? `Purpose: Stock\n` : `Purpose: Customer\nCustomer Name: ${customerName}\nCustomer PO No: ${customerPoNo}\nCustomer PO Value: ${poValue}\n`}`,
+            `${purpose === 'Stock' ? `Purpose: Stock\n` : `Purpose: Customer\nCustomer Name: ${customerName}\nCustomer PO No: ${customerPoNo}\nCustomer PO Value:${customerCurrency} ${poValue}\n`}`,
       };
   
       // Send email notification
@@ -209,7 +249,6 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
   
       res.json({ p: newPi, status: piStatus });
     } catch (error) {
-      console.error('Error saving PI or sending email:', error);
       res.status(500).send(error.message);
     }
   });
@@ -712,7 +751,7 @@ router.patch('/bankslip/:id', authenticateToken, async(req, res) => {
 });
 
 router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
-    const { url, kamId,supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue} = req.body;
+    const { url, kamId,supplierName, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerName, customerPoNo,customerCurrency, poValue} = req.body;
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
         pi.url = url;
@@ -722,10 +761,12 @@ router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
         pi.status = `GENERATED`;
         pi.supplierName=supplierName;
         pi.supplierPoNo=supplierPoNo;
+        pi.supplierCurrency=supplierCurrency;
         pi.supplierPrice=supplierPrice;
         pi.purpose=purpose;
         pi.customerName=customerName;
         pi.customerPoNo=customerPoNo;
+        pi.customerCurrency=customerCurrency;
         pi.poValue=poValue;
 
         await pi.save();
@@ -743,7 +784,7 @@ router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
 });
 
 router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
-    const { url, kamId,supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue} = req.body;
+    const { url, kamId,supplierName, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerName, customerPoNo,customerCurrency, poValue} = req.body;
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
         pi.url = url;
@@ -753,10 +794,12 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
         pi.status = `KAM VERIFIED`;
         pi.supplierName=supplierName;
         pi.supplierPoNo=supplierPoNo;
+        pi.supplierCurrency=supplierCurrency;
         pi.supplierPrice=supplierPrice;
         pi.purpose=purpose;
         pi.customerName=customerName;
         pi.customerPoNo=customerPoNo;
+        pi.customerCurrency=customerCurrency;
         pi.poValue=poValue;
 
         await pi.save();
@@ -774,7 +817,7 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
 });
 
 router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
-    const { url, kamId,supplierName, supplierPoNo, supplierPrice, purpose, customerName, customerPoNo, poValue} = req.body;
+    const { url, kamId,supplierName, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerName, customerPoNo,customerCurrency, poValue} = req.body;
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
         pi.url = url;
@@ -784,10 +827,12 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
         pi.status = `AM VERIFIED`;
         pi.supplierName=supplierName;
         pi.supplierPoNo=supplierPoNo;
+        pi.supplierCurrency=supplierCurrency;
         pi.supplierPrice=supplierPrice;
         pi.purpose=purpose;
         pi.customerName=customerName;
         pi.customerPoNo=customerPoNo;
+        pi.customerCurrency=customerCurrency;
         pi.poValue=poValue;
 
         await pi.save();
@@ -828,14 +873,14 @@ router.delete('/:id', async(req,res)=>{
 
 router.get('/dashboard', authenticateToken, async (req, res) => {
     let status = req.query.status;
-
+    
     let where = {};
 
     if (status != '' && status != 'undefined') {
         where.status = status;
     }
 
-    if (req.user.roleId !== 6) {
+    if (req.user.roleId !== 101) {
         const userId = req.user.id;
         where[Op.or] = [
             { salesPersonId: userId },
@@ -864,6 +909,7 @@ router.get('/dashboard', authenticateToken, async (req, res) => {
                 { model: User, as: 'am', attributes: ['name'] }
             ]
         });
+        
         const totalCount = await PerformaInvoice.count({ where: where });
 
         if (req.query.pageSize && req.query.page && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {

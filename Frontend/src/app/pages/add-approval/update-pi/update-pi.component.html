@@ -86,13 +86,13 @@
       </mat-form-field>
       <mat-form-field *ngIf="am" class="full-width" appearance="outline">
         <mat-label>Accountant</mat-label>
-        <mat-select placeholder="" formControlName="acoountantId">
+        <mat-select placeholder="" formControlName="accountantId">
           <!-- <mat-form-field class="full-width">
             <div class="row">
               <input matInput (input)="filterRole($event)" placeholder="Search">
             </div>
           </mat-form-field> -->
-          <mat-option *ngFor="let item of AMList" [value]="item.id">
+          <mat-option *ngFor="let item of AccountantList" [value]="item.id">
             {{item.name}}
           </mat-option>
           <!-- <mat-option *ngIf="kam.length === 0" [value]="'add'">
@@ -177,9 +177,9 @@
           </mat-card-content>
         </div>
       </div>
-      <div *ngIf="imageUrl">
+      <!-- <div *ngIf="imageUrl">
         <a [href]="imageUrl" target="_blank">{{ imageUrl }}</a>
-      </div>
+      </div> -->
 
       <!-- <button mat-raised-button color="primary" type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid" *ngIf="!editStatus">
       save

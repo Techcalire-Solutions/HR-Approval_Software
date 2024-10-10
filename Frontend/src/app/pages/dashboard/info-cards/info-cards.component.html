@@ -3,10 +3,10 @@
       <div fxFlex.xs="100" fxFlex.sm="50" fxFlex.lg="16.66" class="p-2">
         <mat-card class="pb-2">
           <mat-card-header class="pt-2" fxLayoutAlign="space-between center">
-            <mat-card-subtitle>PENDING</mat-card-subtitle>
+            <mat-card-subtitle>GENERATED</mat-card-subtitle>
             <mat-chip-set>
               <mat-chip color="accent" highlighted="true" class="info-chip">
-                <mat-icon class="icon-sm">trending_up</mat-icon>{{ paCount }}
+                <mat-icon class="icon-sm">create</mat-icon>{{ paCount }}
               </mat-chip>
             </mat-chip-set>
           </mat-card-header>
@@ -21,7 +21,7 @@
             <mat-card-subtitle>KAM VERIFIED</mat-card-subtitle>
             <mat-chip-set>
               <mat-chip color="primary" highlighted="true" class="info-chip">
-                <mat-icon class="icon-sm">trending_up</mat-icon>{{ kamVerCount }}
+                <mat-icon class="icon-sm">check_circle</mat-icon>{{ kamVerCount }}
               </mat-chip>
             </mat-chip-set>
           </mat-card-header>
@@ -34,8 +34,8 @@
         <mat-card-header class="pt-2" fxLayoutAlign="space-between center">
           <mat-card-subtitle>AM VERIFIED</mat-card-subtitle>
           <mat-chip-set>
-            <mat-chip color="warn" highlighted="true" class="info-chip">
-              <mat-icon class="icon-sm">trending_up</mat-icon>{{ amVerCount }}
+            <mat-chip color="primary" highlighted="true" class="info-chip">
+              <mat-icon class="icon-sm">check_circle</mat-icon>{{ amVerCount }}
             </mat-chip>
           </mat-chip-set>
         </mat-card-header>
@@ -49,7 +49,7 @@
             <mat-card-subtitle>KAM REJECTED</mat-card-subtitle>
             <mat-chip-set>
               <mat-chip color="warn" highlighted="true" class="info-chip">
-                <mat-icon class="icon-sm">trending_up</mat-icon>{{ kamRejCount }}
+                <mat-icon class="icon-sm">loop</mat-icon>{{ kamRejCount }}
               </mat-chip>
             </mat-chip-set>
           </mat-card-header>
@@ -63,8 +63,8 @@
           <mat-card-header class="pt-2" fxLayoutAlign="space-between center">
             <mat-card-subtitle>AM REJECTED</mat-card-subtitle>
             <mat-chip-set>
-              <mat-chip color="primary" highlighted="true" class="info-chip">
-                <mat-icon class="icon-sm">trending_up</mat-icon>{{ amRejCount }}
+              <mat-chip color="warn" highlighted="true" class="info-chip">
+                <mat-icon class="icon-sm">loop</mat-icon>{{ amRejCount }}
               </mat-chip>
             </mat-chip-set>
           </mat-card-header>
@@ -79,7 +79,7 @@
           <mat-card-subtitle>COMPLETED</mat-card-subtitle>
           <mat-chip-set>
             <mat-chip color="accent" highlighted="true" class="info-chip">
-              <mat-icon class="icon-sm">trending_up</mat-icon>{{ compCount }}
+              <mat-icon class="icon-sm">done</mat-icon>{{ compCount }}
             </mat-chip>
           </mat-chip-set>
         </mat-card-header>

@@ -17,6 +17,7 @@ import { Menu } from '../../../common/models/menu.model';
 import { environment } from '../../../../environments/environment';
 import { LoginService } from '@services/login.service';
 import { User } from '../../../common/interfaces/user';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-sidenav',
@@ -35,11 +36,10 @@ import { User } from '../../../common/interfaces/user';
   encapsulation: ViewEncapsulation.None
 })
 export class SidenavComponent implements OnInit , PipeTransform{
-  url = environment.apiUrl;
+  url = 'https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/';
   transform(value: User[] | null, args?: any): any {
     let searchText = new RegExp(args, 'ig');
     if (value) {
-
 
       return value.filter(user => {
         if (user.name) {
@@ -56,9 +56,9 @@ export class SidenavComponent implements OnInit , PipeTransform{
   public menuItems: Array<any>;
   public settings: Settings;
   loginService = inject(LoginService);
-  constructor(private cdr: ChangeDetectorRef, private router: Router, public settingsService: SettingsService,public invoiceService:InvoiceService, public menuService: MenuService,
-    private userService:UsersService
-  ){
+  constructor(private router: Router, public settingsService: SettingsService,public invoiceService:InvoiceService, public menuService: MenuService
+
+   ){
       this.settings = this.settingsService.settings;
   }
 user:any
@@ -69,6 +69,8 @@ userJoinedDate : any;
 users:User;
 // menuItems: Menu[] = [];
   filteredMenuItems: Menu[] = [];
+
+
 
   ngOnInit() {
     const token = localStorage.getItem('token');
@@ -84,80 +86,136 @@ users:User;
     }
   }
 
+  ngOnDestroy():void{
+    this.loginUserSub.unsubscribe()
+
+  }
+
+  loginUserSub:Subscription
   getUser(){
-    this.loginService.getUserById(this.userId).subscribe((res)=>{
+   this.loginUserSub= this.loginService.getUserById(this.userId).subscribe((res)=>{
       this.user = res;
-
-
     })
   }
 
   filterMenuItemsByRole(role: string) {
 
-
     const allMenuItems = this.menuService.getVerticalMenuItems();
 
-    if (role === 'Administrator') {
+    if (role === 'Administrator')  //Approval administrator
+      {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        item.title === 'Role' ||
-        item.title === 'User' ||
         item.title === 'Team' ||
-
         (item.title === 'Approval Uploads' && !item.parentId) ||
-        (item.title === 'View' && item.parentId === 5) 
-        // (item.title === 'Leave' && !item.parentId) ||
-        // (item.title === 'Leave Request' && item.parentId === 8) ||
-        // (item.title === 'Emergency Leave' && item.parentId === 8) ||
-        // (item.title === 'Payroll' && !item.parentId) ||
-        // (item.title === 'Process Payroll' && item.parentId === 13) ||
-        // (item.title === 'Salary Statement' && item.parentId === 13) || 
-        // (item.title === 'YTD Reports' && item.parentId === 13)
+        (item.title === 'View' && item.parentId === 5)
 
-      
       );
     } else if (
       role === 'Sales Executive' ||
       role === 'Key Account Manager' ||
       role === 'Manager' ||
-      role === 'Team Lead' ||
-      role === 'Accountant' 
+      role === 'Team Lead'
     ) {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
         (item.title === 'Approval Uploads' && !item.parentId) ||
         (item.title === 'Add' && item.parentId === 5) ||
-        (item.title === 'View' && item.parentId === 5) 
-        // (item.title === 'Leave' && !item.parentId) ||
-        // (item.title === 'Apply leave' && item.parentId === 8) ||
-        // (item.title === 'Leave Balance' && item.parentId === 8) || 
+        (item.title === 'View' && item.parentId === 5)
+        // (item.title === 'Leave' && !item.parentId)||
+        // (item.title === 'Apply Leave' && item.parentId === 8) ||
+        // (item.title === 'Events Calender' && item.parentId === 8)
+        // (item.title === 'Leave Balance' && item.parentId === 8)
         // (item.title === 'Payroll' && !item.parentId) ||
         // (item.title === 'Payslip' && item.parentId === 13) ||
-        // (item.title === 'Pay Details' && item.parentId === 13) 
-        
+        // (item.title === 'Pay Details' && item.parentId === 13)
+
       );
-    } else {
+    }
+    else if (
+      role === 'Accountant'
+    ) {
+      this.filteredMenuItems = allMenuItems.filter(item =>
+        item.title === 'Dashboard' ||
+        (item.title === 'Approval Uploads' && !item.parentId) ||
+        (item.title === 'View' && item.parentId === 5)
+        // (item.title === 'Leave' && !item.parentId) ||
+        // (item.title === 'Apply leave' && item.parentId === 8) ||
+        // (item.title === 'Leave Balance' && item.parentId === 8) ||
+        // (item.title === 'Payroll' && !item.parentId) ||
+        // (item.title === 'Payslip' && item.parentId === 13) ||
+        // (item.title === 'Pay Details' && item.parentId === 13)
+
+      );
+    }
+    else if (role === 'HR') {
+
+      this.filteredMenuItems = allMenuItems.filter(item =>
+        item.title === 'Dashboard'
+        // (item.title === 'Leave' && !item.parentId) ||
+        // (item.title === 'Apply leave' && item.parentId === 8) ||
+        // (item.title === 'Leave Balance' && item.parentId === 8) ||
+        // (item.title === 'Payroll' && !item.parentId) ||
+        // (item.title === 'Payslip' && item.parentId === 13) ||
+        // (item.title === 'Pay Details' && item.parentId === 13)
+      );
+
+    }
+
+    else if (role === 'HR Administrator') {
+      this.filteredMenuItems = allMenuItems.filter(item =>
+        item.title === 'Dashboard' ||
+        item.title === 'Role' ||
+        (item.title === 'Employee' && !item.parentId) ||
+        (item.title === 'Directory' && item.parentId === 3) ||
+        (item.title === 'Confirmation' && item.parentId === 3) ||
+        item.title === 'Team'
+        // (item.title === 'Leave' && !item.parentId) ||
+        // (item.title === 'Calender View' && item.parentId === 8) ||
+        // (item.title === 'User Leave' && item.parentId === 8) ||
+        // (item.title === 'Emergency Leave' && item.parentId === 8) ||
+        // (item.title === 'Payroll' && !item.parentId) ||
+        // (item.title === 'Process Payroll' && item.parentId === 13) ||
+        // (item.title === 'Salary Statement' && item.parentId === 13) ||
+        // (item.title === 'YTD Reports' && item.parentId === 13)
+      );
+    }
+    else if (role === 'Super Administrator') {
+
+      this.filteredMenuItems = allMenuItems.filter(item =>
+        item.title === 'Dashboard' ||
+        item.title === 'Role' ||
+        (item.title === 'Employee' && !item.parentId) ||
+        (item.title === 'Directory' && item.parentId === 3) ||
+        (item.title === 'Confirmation' && item.parentId === 3) ||
+        item.title === 'Team' ||
+        (item.title === 'Approval Uploads' && !item.parentId) ||
+        (item.title === 'View' && item.parentId === 5) ||
+        (item.title === 'Leave' && !item.parentId) ||
+        (item.title === 'Calender View' && item.parentId === 8) ||
+        (item.title === 'User Leave' && item.parentId === 8) ||
+        (item.title === 'Emergency Leave' && item.parentId === 8) ||
+        (item.title === 'Payroll' && !item.parentId) ||
+        (item.title === 'Process Payroll' && item.parentId === 13) ||
+        (item.title === 'Salary Statement' && item.parentId === 13) ||
+        (item.title === 'YTD Reports' && item.parentId === 13)
+      );
+    }
+     else {
       this.filteredMenuItems = [];
     }
 
   }
 
-
-
-
-
-
   logout() {
-
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('JWT_TOKEN');
     localStorage.removeItem('REFRESH_TOKEN');
     localStorage.removeItem('token');
-    sessionStorage.clear(); // Clear all session storage if needed
+    sessionStorage.clear();
     this.router.navigate(['/']);
   }
-
 
   public closeSubMenus(){
     let menu = document.getElementById("vertical-menu");
@@ -175,7 +233,9 @@ users:User;
   }
 
   openProfile(){
-  this.router.navigateByUrl('login/profile')
+    this.router.navigateByUrl('login/profile')
   }
 
 }
+
+

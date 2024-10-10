@@ -11,6 +11,14 @@ export const routes: Routes = [
       {path: 'dashboard', loadComponent: () => import('./dashboard/dashboard.component').then(c => c.DashboardComponent),
         data: { breadcrumb: 'Dashboard' }, canActivate: [AuthGuard]
       },
+      {path: 'announcements', loadComponent: () => import('./announcements/announcements.component').then(c => c.AnnouncementsComponent),
+        data: { breadcrumb: 'Announcements' }, canActivate: [AuthGuard]
+      },
+      {
+        path: 'tree',
+        loadComponent: () => import('./hierarchy-tree/hierarchy-tree.component').then(c => c.HierarchyTreeComponent),
+        data: { breadcrumb: 'HierarchyTree' }, canActivate: [AuthGuard]
+      },
 
       {
         path: 'role',
@@ -18,24 +26,19 @@ export const routes: Routes = [
         data: { breadcrumb: 'Role' }, canActivate: [AuthGuard]
       },
       {
-        path: 'applyLeave',
-        loadComponent: () => import('./leave/apply-leave/apply-leave.component').then(c => c.ApplyLeaveComponent),
-        data: { breadcrumb: 'ApplyLeave' }, canActivate: [AuthGuard]
-      },
-      {
-        path: 'leaveRequest',
-        loadComponent: () => import('./leave/leave-request/leave-request.component').then(c => c.LeaveRequestComponent),
-        data: { breadcrumb: 'LeaveRequest' }, canActivate: [AuthGuard]
-      },
-      {
-        path: 'userLeave',
-        loadComponent: () => import('./leave/user-leave/user-leave.component').then(c => c.UserLeaveComponent),
-        data: { breadcrumb: 'LeaveRequest' }, canActivate: [AuthGuard]
-      },
-      {
         path: 'users',
         loadChildren: () => import('./users/user.routes').then(c => c.routes),
-        data: { breadcrumb: 'Users' }, canActivate: [AuthGuard]
+        data: { breadcrumb: 'Employees' }, canActivate: [AuthGuard]
+      },
+      {
+        path: 'admin-leave',
+        loadChildren: () => import('./admin-leave/admin-leave.routes').then(c => c.routes),
+        data: { breadcrumb: 'Leave' }, canActivate: [AuthGuard]
+      },
+      {
+        path: 'employee-leave',
+        loadChildren: () => import('./employee-leave/employee-leave.routes').then(c => c.routes),
+        data: { breadcrumb: 'VIEW LEAVES' }, canActivate: [AuthGuard]
       },
       {
         path: 'addApproval',
@@ -69,11 +72,8 @@ export const routes: Routes = [
         loadComponent: () => import('./team/team.component').then(c => c.TeamComponent),
         data: { breadcrumb: 'Team' }, canActivate: [AuthGuard]
       },
-      {
-        path: 'leaveType',
-        loadComponent: () => import('./leave/leave-types/leave-types.component').then(c => c.LeaveTypesComponent),
-        data: { breadcrumb: 'Leave Type' }, canActivate: [AuthGuard]
-      },
+
     ]
   }
 ];
+

@@ -108,8 +108,6 @@ export class AddApprovalComponent {
   getAccountants(){
     this.accountantSub = this.loginServie.getUserByRole(4).subscribe(user =>{
       this.AccountantList = user;
-      console.log('account list',this.AccountantList);
-
     });
   }
 
@@ -123,10 +121,12 @@ export class AddApprovalComponent {
     accountantId:  <any>[],
     supplierName: ['', Validators.required],
     supplierPoNo: ['', Validators.required],
+    supplierCurrency:['Dollar'],
     supplierPrice: ['', Validators.required],
     purpose: ['', Validators.required],
     customerName: [''],
     customerPoNo: [''],
+    customerCurrency:['Dollar'],
     poValue: ['']
   });
 
@@ -134,16 +134,6 @@ export class AddApprovalComponent {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('progressArea') progressArea!: ElementRef<HTMLElement>;
   @ViewChild('uploadArea') uploadArea!: ElementRef<HTMLElement>;
-
-  // ngAfterViewInit() {
-  //   this.form.nativeElement.addEventListener('click', () => {
-  //     this.fileInput.nativeElement.click();
-  //   });
-
-  //   this.fileInput.nativeElement.addEventListener('change', (e: Event) => {
-  //     this.uploadFile(e)
-  //   });
-  // }
 
   uploadProgress: number | null = null;
   uploadComplete: boolean = false;
@@ -166,7 +156,7 @@ export class AddApprovalComponent {
       }
       this.uploadSub = this.invoiceService.uploadInvoice(this.file).subscribe({
         next: (invoice) => {
-          this.imageUrl = invoice.fileUrl;
+          this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${invoice.fileUrl}`;
           this.piForm.get('url')?.setValue(invoice.fileUrl);
           this.uploadComplete = true;
         },
@@ -206,10 +196,7 @@ export class AddApprovalComponent {
 
 
   extractLetters(input: string): string {
-    // return input.replace(/[^a-zA-Z]/g, "");
     var extractedChars = input.match(/[A-Za-z-]/g);
-
-    // Combine the matched characters into a string
     var result = extractedChars ? extractedChars.join('') : '';
 
     return result;
@@ -220,45 +207,21 @@ export class AddApprovalComponent {
     if(this.roleName=='Sales Executive'){
       this.submit = this.invoiceService.addPI(this.piForm.getRawValue()).subscribe((invoice: any) =>{
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('login/viewApproval')
+        this.router.navigateByUrl('login/viewApproval?isSubmitted=true')
       });
     } else if(this.roleName=='Key Account Manager'){
       this.submit = this.invoiceService.addPIByKAM(this.piForm.getRawValue()).subscribe((invoice: any) =>{
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('login/viewApproval')
+        this.router.navigateByUrl('login/viewApproval?isSubmitted=true')
       });
     }
     else if(this.roleName=='Manager'){
       this.submit = this.invoiceService.addPIByAM(this.piForm.getRawValue()).subscribe((invoice: any) =>{
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('login/viewApproval')
+        this.router.navigateByUrl('login/viewApproval?isSubmitted=true')
       });
     }
 
-  }
-
-  onUpdate(){
-    if(this.roleName=='Sales Executive'){
-    this.submit = this.invoiceService.updatePIBySE(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-
-      this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
-      this.router.navigateByUrl('login/viewApproval')
-    });
-  }else if(this.roleName=='Key Account Manager'){
-    this.submit = this.invoiceService.updatePIByKAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-
-      this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
-      this.router.navigateByUrl('login/viewApproval')
-    });
-  }
-
-  else if(this.roleName=='Manager'){
-    this.submit = this.invoiceService.updatePIByAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-
-      this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
-      this.router.navigateByUrl('login/viewApproval')
-    });
-  }
   }
 
   piSub!: Subscription;
@@ -284,6 +247,23 @@ export class AddApprovalComponent {
   clearFileInput() {
     let file = this.fileName
     let id = this.id
+  }
 
+  onDeleteImage(){
+    if(this.id){
+      this.invoiceService.deleteUploaded(this.id, this.imageUrl).subscribe(data=>{
+        this.imageUrl = ''
+        this.piForm.get('url')?.setValue('')
+        this.snackBar.open("Invoice is deleted successfully...","" ,{duration:3000})
+        this.router.navigateByUrl('/login/viewApproval')
+      });
+    }else{
+      this.invoiceService.deleteUploadByurl(this.imageUrl).subscribe(data=>{
+        this.imageUrl = ''
+        this.piForm.get('url')?.setValue('')
+        this.snackBar.open("invoice is deleted successfully...","" ,{duration:3000})
+        this.router.navigateByUrl('/login/viewApproval')
+      });
+    }
   }
 }

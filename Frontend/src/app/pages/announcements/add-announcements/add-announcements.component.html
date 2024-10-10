@@ -1,0 +1,58 @@
+<mat-card>
+<mat-card-header style="background-color: rgb(17, 121, 206);">
+  <div style="display: flex; align-items: center; width: 100%;">
+    <mat-card-title>ADD ANNOUNCEMENTS</mat-card-title>
+    <!-- <button mat-mini-fab color="primary" type="button" aria-label="Close button" style="margin-left: auto;"> -->
+      <mat-icon style="margin-left: auto;" (click)="close()">close</mat-icon>
+    <!-- </button> -->
+  </div>
+</mat-card-header>
+
+      
+
+</mat-card>
+<div class="add-announcement-form">
+    <form [formGroup]="form">
+        <mat-form-field>
+            <input matInput type="text" placeholder="Message" #newMessage formControlName="message">
+        </mat-form-field>
+    
+        <mat-form-field>
+            <mat-select #newType placeholder="Select Type" formControlName="type">
+                <mat-option value="info">Info</mat-option>
+                <mat-option value="success">Success</mat-option>
+                <mat-option value="warning">Warning</mat-option>
+                <mat-option value="error">Error</mat-option>
+            </mat-select>
+        </mat-form-field>
+    
+        <!-- <mat-checkbox #newDismissible checked formControlName="dismissible">Dismissible</mat-checkbox> -->
+
+        <!-- <input type="file" (change)="onFileSelected($event)" /> -->
+        @if(!imageUrl){
+            <div class="col">
+              <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event)">
+              <span class="material-icons file-upload-icon" (click)="fileInput.click()">cloud_upload</span>
+              <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
+            </div>
+        }
+        @else{
+        <div class="col">
+            <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+            @if(fileType === 'pdf'){
+                <iframe [src]="imageUrl | safe" width="100%" height="300px"></iframe>
+            }@else {
+                <img [src]="imageUrl" alt="Image" title="Image" height="300px" class="clickable-image" />
+            }
+
+            <mat-icon style="color: red;" (click)="onDeleteImage()">delete</mat-icon>
+            </div>
+        </div>
+        } 
+    
+        <button mat-raised-button color="primary" (click)="addAnnouncement()" [disabled]="!form.valid">
+            Add Announcement
+        </button>
+    </form>
+</div>
+

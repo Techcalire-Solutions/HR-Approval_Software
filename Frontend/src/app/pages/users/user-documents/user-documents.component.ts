@@ -52,9 +52,9 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
           if(res[i].docUrl){
             this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ res[i].docUrl }`;
           }
-          console.log(this.imageUrl[i]);
-          
         }
+      }else{
+        this.addDoc()
       }
     })
   }
@@ -82,17 +82,14 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
   }
 
   removeData(index: number) {
-    console.log(index);
     
     const formGroup = this.doc().at(index).value;
-    console.log(formGroup);
     
     // Check if form group is dirty (any changes made)
     if (formGroup.docName != '' || formGroup.docUrl != '') {
       // Call the API to handle the update before removing
       this.userSevice.deleteUserDocComplete(this.id[index]).subscribe({
         next: (response) => {
-          console.log('Update successful:', response);
           // Remove the row only after successful API call
           formGroup.removeAt(index);
         },
@@ -102,7 +99,7 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
       });
     } else {
       // Remove the row directly if no changes
-      formGroup.removeAt(index);
+      this.doc().removeAt(index)
     }
   }
   
@@ -136,7 +133,6 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
       const docFormGroup = this.doc().at(i) as FormGroup;
       const docName = docFormGroup.value.docName;  // Extract docName from the form
       const name = `${userName}_${docName}`;
-    // console.log(this.data, docName);
 
     const formData = new FormData();
     formData.append('file', file);
@@ -152,8 +148,6 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
   }
 
   isAnyFormClicked(): boolean {
-    console.log(this.clickedForms);
-    
     for(let i = 0; i < this.clickedForms.length; i++) {
       if (!this.clickedForms[i]) {
         return false; // Return false if any value is false
@@ -183,10 +177,18 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
   }
 
   onDeleteImage(i: number){
-    this.userSevice.deleteUserDoc(this.imageUrl[i], this.id[i]).subscribe(x => {
-      this.imageUrl[i] = '';
-      this.doc().at(i).get('docUrl')?.setValue('');
-      this.snackBar.open(`${this.doc().at(i).get('docUrl')?.value} is deleted from employee data`,"" ,{duration:3000})
-    })
+    if(this.id[i]){
+      this.userSevice.deleteUserDoc(this.id[i], this.imageUrl[i]).subscribe(data=>{
+        this.imageUrl[i] = ''
+          this.doc().at(i).get('docUrl')?.setValue('');
+        this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
+      });
+    }else{
+      this.userSevice.deleteUserDocByurl(this.imageUrl[i]).subscribe(data=>{
+        this.imageUrl[i] = ''
+          this.doc().at(i).get('docUrl')?.setValue('');
+        this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
+      });
+    }
   }
 }

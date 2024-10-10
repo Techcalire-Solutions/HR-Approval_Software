@@ -46,7 +46,10 @@
         </div>
         <button mat-raised-button color="primary" (click)="addDoc()">New Line</button>
         <button mat-raised-button color="warn" (click)="completeForm()"
-        [disabled]="!mainForm.get('uploadForms')?.valid || !isAnyFormClicked()">Complete</button>
+          [disabled]="!mainForm.get('uploadForms')?.valid || !isAnyFormClicked()">Complete</button>
+        <button mat-raised-button color="primary" onclick="history.back()" style="margin-left: 10px;">
+          Exit
+        </button>
       </div>
     </mat-card>
   </form>

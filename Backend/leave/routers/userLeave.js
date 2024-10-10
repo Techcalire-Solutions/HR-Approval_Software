@@ -2,10 +2,96 @@ const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const UserLeave = require('../models/userLeave');
-const User = require('../../users/models/user');
 const { Op } = require('sequelize');
 const cron = require('node-cron');
 const moment = require('moment');
+const LeaveType = require('../models/leaveType')
+
+
+
+// -----------------------------Leave Accumulation function-----------------------------------------------
+
+
+
+// Function to update leave balances for Sick Leave and Casual Leave on the 1st of every month
+// Function to update leave balances for Sick Leave and Casual Leave on the 1st of every month
+cron.schedule('0 0 1 * *', async () => {
+  try {
+    // Fetch all leave types (for SL, CL)
+    const leaveTypes = await LeaveType.findAll({
+      where: {
+        leaveTypeName: ['Sick Leave', 'Casual Leave']
+      }
+    });
+
+    // Fetch all user leave records for SL and CL types
+    for (const leaveType of leaveTypes) {
+      const userLeaves = await UserLeave.findAll({
+        where: { leaveTypeId: leaveType.id }
+      });
+
+      // Increment noOfDays by 1 and update leaveBalance
+      for (const userLeave of userLeaves) {
+        userLeave.noOfDays += 1; // Increment noOfDays by 1
+        userLeave.leaveBalance = userLeave.noOfDays - userLeave.takenLeaves; // Update leaveBalance
+        await userLeave.save();
+      }
+    }
+
+    console.log('User leave balances updated successfully at the start of the month');
+  } catch (error) {
+    console.error('Error updating leave balances:', error.message);
+  }
+});
+
+
+
+//---------------------------------Leave count---------------------------------------------------------------
+//---------------------------------Leave count---------------------------------------------------------------
+router.get('/leavecount/:userId', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    // Fetch user leaves with associated leave types
+    const userLeaves = await UserLeave.findAll({
+      where: { userId },
+      include: [
+        {
+          model: LeaveType,
+          as: 'leaveType', // Use the alias defined in associations
+          attributes: ['leaveTypeName', 'id'],
+        },
+      ],
+    });
+
+    if (!userLeaves.length) {
+      return res.status(404).json({ message: 'No leave records found for this user.' });
+    }
+
+    // Prepare the leaveCounts by returning only the relevant fields
+    const leaveCounts = userLeaves.map((userLeave) => {
+      return {
+        userId: userLeave.userId,
+        leaveTypeId: userLeave.leaveTypeId,
+        leaveTypeName: userLeave.leaveType.leaveTypeName, // Optionally include leave type name
+        noOfDays: userLeave.noOfDays,
+        takenLeaves: userLeave.takenLeaves,
+        leaveBalance: userLeave.leaveBalance,
+      };
+    });
+
+    res.json({
+      leaveCounts
+    });
+
+  } catch (error) {
+    console.error('Error fetching leave counts:', error.message);
+    res.status(500).json({ message: 'Error fetching leave counts', error: error.message });
+  }
+});
+
+
+
 
 router.post('/', authenticateToken, async (req, res) => {
   try {
@@ -38,32 +124,52 @@ router.get('/', authenticateToken, async (req, res) => {
 
 
 
-
-router.patch('/accumulate', authenticateToken, async (req, res) => {
+router.get('/byuserandtype/:userid/:typeid', authenticateToken, async (req, res) => {
   try {
-
-    const CASUAL_LEAVE_TYPE_ID = 1;
-    const SICK_LEAVE_TYPE_ID = 1;
-
-    const userLeaves = await UserLeave.findAll();
-
-    for (const userLeave of userLeaves) {
-
-      if (userLeave.leaveTypeId === CASUAL_LEAVE_TYPE_ID || userLeave.leaveTypeId === SICK_LEAVE_TYPE_ID) {
-    
-        userLeave.leaveBalance += userLeave.noOfDays; 
-
-  
-        await userLeave.save();
-        
-      }
-    }
+    const userLeaves = await UserLeave.findOne({
+      where: { userId : req.params.userid, leaveTypeId: req.params.typeid}
+    });
     res.send(userLeaves);
   } catch (error) {
-    res.status(500).send({ error: 'Error during leave accumulation' });
+    res.status(500).send({ error: error.message });
   }
 });
 
+
+
+
+router.patch('/update', authenticateToken, async (req, res) => {
+  let  data  = req.body;
+  try {
+    let updated = [];
+    for( let i = 0; i < data.length; i++ ){
+      let ulExist = await UserLeave.findOne({
+        where: { userId: data[i].userId, leaveTypeId: data[i].leaveTypeId }
+      })
+      if(ulExist){
+        ulExist.noOfDays  = +data[i].noOfDays;
+        ulExist.takenLeaves = +data[i].takenLeaves;
+        ulExist.leaveBalance = +data[i].leaveBalance;
+
+        await ulExist.save();
+        updated.push(ulExist);
+      }else{
+        let userLeave = new UserLeave({
+          userId: data[i].userId,
+          leaveTypeId: data[i].leaveTypeId,
+          noOfDays: +data[i].noOfDays,
+          takenLeaves: +data[i].takenLeaves,
+          leaveBalance: +data[i].leaveBalance
+        })
+        await userLeave.save();
+        updated.push(userLeave);
+      }
+    }
+    res.send(updated);
+  } catch (error) {
+    res.send(error.message)
+  }
+})
 
 
 module.exports = router;

@@ -1,6 +1,3 @@
-
-
-
 <mat-card *ngIf="pi">
 
   <table class="table table-bordered">
@@ -8,14 +5,26 @@
       <tr>
         <td><strong>Supplier Name:</strong> {{ pi.supplierName }}</td>
         <td><strong>Supplier PO No:</strong> {{ pi.supplierPoNo }}</td>
-        <td><strong>Supplier Price:</strong> <span style="color: green;"> $ {{ pi.supplierPrice }}</span></td>
+        <td>
+          <strong>Supplier Price:</strong>
+          <span style="color: green;">
+            {{ pi.supplierCurrency === 'Dollar' ? '$' : pi.supplierCurrency }} {{ pi.supplierPrice }}
+          </span>
+        </td>
+
         <td><strong>Purpose:</strong> {{ pi.purpose }}</td>
       </tr>
       <tr>
 
         <td *ngIf="pi.customerName"><strong>Customer Name:</strong> {{ pi.customerName }}</td>
         <td *ngIf="pi.customerName"><strong>Customer PO No:</strong> {{ pi.customerPoNo }}</td>
-        <td *ngIf="pi.customerName"><strong>Customer PO Value:</strong> <span style="color: green;"> $ {{ pi.poValue }}</span></td>
+        <td *ngIf="pi.customerName">
+          <strong>Customer PO Value:</strong>
+          <span style="color: green;">
+            {{ pi.customerCurrency === 'Dollar' ? '$' : pi.customerCurrency }} {{ pi.poValue }}
+          </span>
+        </td>
+
       </tr>
     </tbody>
   </table>
@@ -32,7 +41,7 @@
     <div class="col">
       <mat-card-header>
         <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon"
-        class="d-block mr-0 ml-auto" onClick="history.back()" style="margin-left: auto;">
+          class="d-block mr-0 ml-auto" onClick="history.back()" style="margin-left: auto;">
           <mat-icon>exit_to_app</mat-icon>
         </button>
       </mat-card-header>
@@ -59,23 +68,20 @@
 
 
 
-  <mat-card-actions *ngIf="(kam && (pi.status !== 'KAM VERIFIED')) ||
-  (am && (pi.status !== 'AM VERIFIED') && (pi.status !== 'BANK SLIP ISSUED'))">
-<button mat-raised-button class="approve-button"
-(click)="verified('approved')"
-*ngIf="!sp && !admin && !teamLead">
-APPROVE
-</button>
-
-<!-- Reject Button -->
-<button mat-raised-button class="reject-button"
-(click)="verified('rejected')"
-*ngIf="!sp && !admin && !teamLead">
-REJECT
-</button>
+  <mat-card-actions>
+    @if(pi.approveButtonStatus){
+      <button mat-button class="approve-button" (click)="verified('approved')">
+        APPROVE
+      </button>
+  
+      <!-- Reject Button -->
+      <button mat-raised-button class="reject-button" (click)="verified('rejected')">
+        REJECT
+      </button>
+    }
   </mat-card-actions>
 
-  <mat-card-actions *ngIf="ma || admin" >
+  <mat-card-actions *ngIf="(ma && pi.status !== 'BANK SLIP ISSUED') || (admin && pi.status !== 'BANK SLIP ISSUED')">
     <button mat-raised-button type="button" class="btn btn-success" (click)="addBankSlip(piNo, pi.id)">
       <span class="material-icons" style="font-size: 25px;">task_alt</span>ADD WIRESLIP
     </button>
@@ -83,48 +89,50 @@ REJECT
   <mat-card>
     <!DOCTYPE html>
     <html lang="en">
+
     <head>
 
     </head>
+
     <body>
 
-        <main class="table" id="customers_table">
-            <section class="table__header">
-                <div class="row">
-                    <div class="col">
-                        <h4>STATUS</h4>
-                    </div>
+      <main class="table" id="customers_table">
+        <section class="table__header">
+          <div class="row">
+            <div class="col">
+              <h4>STATUS</h4>
+            </div>
 
-                    <div class="col" style="margin-top: 0;">
-                        <div class="input-group">
-                            <input type="search" placeholder="Search Data by status..." (keyup)="applyFilter($event)">
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <div class="col" style="margin-top: 0;">
+              <div class="input-group">
+                <input type="search" placeholder="Search Data by status..." (keyup)="applyFilter($event)">
+              </div>
+            </div>
+          </div>
+        </section>
 
-            <section class="table__body">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Status</th>
-                            <th>Remarks</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let row of status">
-                            <td>{{row.status}}</td>
-                            <td>{{row.remarks}}</td>
-                            <td>{{row.date | date: 'dd/MM/yyyy'}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
-        </main>
+        <section class="table__body">
+          <table>
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Remarks</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of status">
+                <td>{{row.status}}</td>
+                <td>{{row.remarks}}</td>
+                <td>{{row.date | date: 'dd/MM/yyyy'}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </main>
     </body>
+
     </html>
 
   </mat-card>
 </mat-card>
-

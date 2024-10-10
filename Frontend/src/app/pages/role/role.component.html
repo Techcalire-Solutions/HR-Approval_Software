@@ -22,15 +22,16 @@
       <table>
         <thead>
           <tr>
+            <th></th>
             <th> Designation </th>
             <th> Manage </th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let role of roles">
+            <td>{{ role.id }}</td>
             <td>{{ role.roleName }}</td>
             <td>
-              <!-- Disable edit and delete buttons for specific roles -->
               <button
                 mat-icon-button
                 (click)="openRoleDialog(role)"
@@ -48,6 +49,9 @@
           </tr>
         </tbody>
       </table>
+      <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
+       (page)="onPageChange($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
+      </mat-paginator>
     </section>
   </main>
 </body>

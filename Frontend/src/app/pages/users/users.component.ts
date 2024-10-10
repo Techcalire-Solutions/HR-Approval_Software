@@ -27,6 +27,8 @@ import { User } from '../../common/interfaces/user';
 import { count, Subscription } from 'rxjs';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 import { Router } from '@angular/router';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { AddPayrollComponent } from '../payroll/add-payroll/add-payroll.component';
 
 
 @Component({
@@ -111,7 +113,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   deleteFunction(id: number){
     const dialogRef = this.dialog.open(DeleteDialogueComponent, {
-      width: '450px',
+      width: '320px',
       data: {}
     });
 
@@ -147,5 +149,39 @@ export class UsersComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  resetPassword(id: number, empNo: string){
+    const dialogRef = this.dialog.open(ResetPasswordComponent, {
+      width: '450px',
+      data: {id: id, empNo: empNo, paswordReset: false}
+    });dialogRef.afterClosed().subscribe((result) => {
+
+    })
+  }
+
+  updateSub!: Subscription;
+  updateStatus(event: any, id: number, name: string){
+    let data = { status: event.checked }
+    this.updateSub = this.usersService.updateUserStatus(data, id).subscribe((result) => {
+      if (event.checked) {
+        this.snackbar.open(`${name} is now in active state`, "", { duration: 3000 });
+      } else {
+        this.snackbar.open(`${name} is now in inactive state`, "", { duration: 3000 });
+      }
+      this.getUsers()
+    });
+  }
+
+  rsignSub!: Subscription;
+  resignEmployee(id: number, emp: string){
+    this.rsignSub = this.usersService.resignEmployee(id).subscribe(res => {
+      this.snackbar.open(`${emp} is now resigned`, "", { duration: 3000 });
+      this.getUsers()
+    })
+  }
+
+  openPayRoll(id: number){
+    this.router.navigateByUrl('login/users/payroll/'+id)
   }
 }

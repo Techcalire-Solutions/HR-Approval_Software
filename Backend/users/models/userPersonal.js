@@ -8,7 +8,6 @@ const UserPersonal = sequelize.define('userPersonal', {
   dateOfJoining: { type: DataTypes.DATEONLY },
   probationPeriod: { type: DataTypes.STRING, allowNull: false },
   confirmationDate: { type: DataTypes.DATEONLY },
-  isTemporary: { type: DataTypes.BOOLEAN, defaultValue: false, allowNull: false },
   bloodGroup: { type: DataTypes.STRING},
   emergencyContactNo: { type: DataTypes.STRING },
   emergencyContactName: { type: DataTypes.STRING },
@@ -19,7 +18,7 @@ const UserPersonal = sequelize.define('userPersonal', {
   parentName: { type: DataTypes.STRING },
   spouseName: { type: DataTypes.STRING },
   referredBy: { type: DataTypes.STRING },
-  reportingManger: { type: DataTypes.INTEGER }
+  reportingMangerId: { type: DataTypes.INTEGER }
 
 },
 {
@@ -27,8 +26,16 @@ const UserPersonal = sequelize.define('userPersonal', {
   timestamps: true
 });
 
+// In your models setup file
+// User.hasMany(UserPersonal, { foreignKey: 'userId', as: 'personalDetails' });
+// UserPersonal.belongsTo(User, { foreignKey: 'reportingManagerId', as: 'reportingManager' });
+
+
 User.hasMany(UserPersonal, { foreignKey: 'userId', onUpdate: 'CASCADE' });
-UserPersonal.belongsTo(User);
+UserPersonal.belongsTo(User, { foreignKey: 'userId' });
+
+User.hasOne(UserPersonal, { foreignKey: 'reportingMangerId', onUpdate: 'CASCADE' });
+UserPersonal.belongsTo(User, { foreignKey: 'reportingMangerId', as: 'manager'  });
 
 // Synchronizing the model with the database
 UserPersonal.sync({ alter: true })
