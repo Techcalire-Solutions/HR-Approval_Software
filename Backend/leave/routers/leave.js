@@ -262,26 +262,11 @@ router.post('/', authenticateToken, async (req, res) => {
         leaveDates: leaveDatesApplied // Save only the applied dates
       });
 
-      // Optionally save the LOP dates (if needed)
-      if (lopDays > 0) {
-        await Leave.create({
-          userId,
-          leaveTypeId: leaveType.id,  // Or LOP leave type if different
-          startDate,
-          endDate,
-          noOfDays: lopDays,
-          notes,
-          fileUrl,
-          status: 'requested',
-          leaveDates: lopDates // Save LOP dates if applicable
-        });
-      }
-
-      // Notify user of LOP requirement
+      // Notify user that LOP will need to be applied again separately
       return res.json({
-        message: `Leave request submitted. ${availableLeaveDays} days applied as ${leaveType.leaveTypeName} and ${lopDays} days are beyond balance, which would need to be applied as LOP.`,
+        message: `Leave request submitted. ${availableLeaveDays} days applied as ${leaveType.leaveTypeName} and ${lopDays} days are beyond balance. Please apply for the remaining days as LOP separately.`,
         leaveDatesApplied,
-        lopDates: lopDates || [] // Return LOP dates if saved
+        lopDates: lopDates || [] // Return LOP dates if needed
       });
 
     } else {
