@@ -19,7 +19,7 @@ export const verticalMenuItems = [
 
   new Menu(9, 'Calendar', '/login/admin-leave', null,'event_available', null, false, 8),
   new Menu(21, 'View', '/login/admin-leave/view-leave-request', null,'edit_calendar', null, false, 8),
-  new Menu(10, 'Emergency', '/login/admin-leave/applyEmergencyleave', null, 'event_note', null, false, 8),
+  new Menu(10, 'Emergency', '/login/admin-leave/apply-emergency-leave', null, 'event_note', null, false, 8),
 
 
   new Menu(11, 'Apply Leave', '/login/employee-leave', null, 'visibility', null, false, 8),

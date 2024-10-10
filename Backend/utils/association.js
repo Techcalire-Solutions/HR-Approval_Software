@@ -15,16 +15,6 @@ async function syncModel() {
     await sequelize.sync({alter: true})
 
 //------------------------------LEAVE ASSOCIATIONS-----------------------------------------------
-UserLeave.belongsTo(LeaveType, {
-    foreignKey: 'leaveTypeId',
-    as: 'leaveType'
-  });
-  
-  LeaveType.hasMany(UserLeave, {
-    foreignKey: 'leaveTypeId',
-    as: 'userLeaves' 
-  });
-
   Leave.belongsTo(LeaveType, { foreignKey: 'leaveTypeId' });
   Leave.belongsTo(User, { foreignKey: 'userId' });
   

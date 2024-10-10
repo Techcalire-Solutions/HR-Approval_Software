@@ -1,3 +1,5 @@
+import { LeaveType } from "./leaveType"
+
 export interface UserLeave{
     id: number,
     userId : number
@@ -5,5 +7,6 @@ export interface UserLeave{
     noOfDays : number
     takenLeaves : number
     leaveBalance : number
+    leaveType: LeaveType
 }
 

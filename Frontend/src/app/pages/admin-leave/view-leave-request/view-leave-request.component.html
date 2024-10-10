@@ -34,7 +34,7 @@
         </thead>
         <tbody>
           <!-- Loop through each leave -->
-          <tr *ngFor="let item of leave">
+          <tr *ngFor="let item of leaves">
             <!-- Leave Date -->
             <td>
               <ng-container *ngFor="let date of item.leaveDates">
@@ -62,8 +62,8 @@
             <!-- Actions -->
             <td>
               <!-- Approve and Reject Buttons (only visible if not Admin Approved) -->
-              <ng-container *ngIf="item.status !== 'Admin Approved'">
-                <button mat-raised-button class="approve-button" (click)="approveLeave(item.id)" [disabled]="item.status === 'Approved' || item.status === 'AdminApproved'">
+              <ng-container *ngIf="item.status !== 'AdminApproved'">
+                <button mat-raised-button class="approve-button" (click)="approveLeave(item.id)" [disabled]="item.status === 'Approved' || item.status === 'Admin Approved'">
                   APPROVE
                 </button> &nbsp;
                 <button mat-raised-button class="reject-button" (click)="rejectLeave(item.id)" [disabled]="item.status === 'Rejected'">
@@ -74,7 +74,7 @@
               <!-- Edit and Delete Buttons (only visible if Admin Approved) -->
               <span *ngIf="item.status === 'AdminApproved'">
                 &nbsp;
-                <button mat-raised-button class="edit-button" (click)="editLeave(item.id)">EDIT</button>
+                <button mat-raised-button class="edit-button" (click)="editLeave(item.id, item.status)">EDIT</button>
                 &nbsp;
                 <button mat-raised-button class="delete-button" (click)="deleteLeave(item.id)">DELETE</button>
               </span>

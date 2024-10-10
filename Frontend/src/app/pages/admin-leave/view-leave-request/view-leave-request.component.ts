@@ -27,7 +27,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { CamelCasePipe } from '../../../common/camel-case.pipe';
+import { CamelCasePipe } from '../../../theme/pipes/camel-case.pipe';
 import { PipesModule } from '../../../theme/pipes/pipes.module';
 import { UserDialogComponent } from '../../users/user-dialog/user-dialog.component';
 import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
@@ -73,10 +73,6 @@ export class ViewLeaveRequestComponent {
 userId:number
   ngOnInit(){
     this.getLeaves()
-  //   const token: any = localStorage.getItem('token')
-  //   let user = JSON.parse(token)
-  //   this.userId = user.id;
-  //  this.getLeaveByUser();
   }
 
   getLeaveSub : Subscription
@@ -87,7 +83,6 @@ userId:number
     this.getLeaveSub = this.leaveService.getLeaves().subscribe(
       (res) => {
         console.log(res);
-        this.leave = res
         if(res.res){
           this.leaves = res.leave;
 
@@ -99,8 +94,8 @@ userId:number
   }
 
 
-  editLeave(item:any) {
-    this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item.id } });
+  editLeave(id: number, status: string) {    
+    this.router.navigate(['/login/admin-leave/update-emergency-leave'], { queryParams: { id: id } });
   }
 
 

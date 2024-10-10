@@ -43,7 +43,7 @@ async function getHREmail() {
 async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates) {
   const hrAdminEmail = await getHREmail();
 
-  // Ensure leaveDates is valid
+
   if (!Array.isArray(leaveDates)) {
     throw new Error('leaveDates must be an array');
   }
@@ -64,7 +64,7 @@ async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDa
         const sessionString = [
           item.session1 ? 'session1' : '',
           item.session2 ? 'session2' : ''
-        ].filter(Boolean).join(', '); // Only include sessions that are true
+        ].filter(Boolean).join(', '); 
         return `${item.date} (${sessionString || 'No sessions selected'})`;
       }).join(', ')}` 
   };
@@ -80,9 +80,9 @@ function calculateLeaveDays(leaveDates) {
 
   leaveDates.forEach(date => {
     if (date.session1 && date.session2) {
-      totalDays += 1;  // Both sessions selected, count as 1 day
+      totalDays += 1;  
     } else if (date.session1 || date.session2) {
-      totalDays += 0.5;  // Only one session selected, count as 0.5 days
+      totalDays += 0.5;  
     }
   });
 
@@ -98,15 +98,15 @@ function splitLeaveDates(leaveDates, availableLeaveDays) {
   for (let date of leaveDates) {
     let daysForDate = 0;
 
-    // Count each session separately for the current date
+ 
     if (date.session1) daysForDate += 0.5;
     if (date.session2) daysForDate += 0.5;
 
     if (appliedDays + daysForDate <= availableLeaveDays) {
-      leaveDatesApplied.push(date); // Add to applied leave
+      leaveDatesApplied.push(date); 
       appliedDays += daysForDate;
     } else {
-      lopDates.push(date); // Add remaining days to LOP
+      lopDates.push(date); 
     }
   }
 
@@ -117,22 +117,21 @@ router.post('/', authenticateToken, async (req, res) => {
   const { leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
   const userId = req.user.id;
 
-  // Validate required fields
   if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
 
   try {
-    // Calculate number of leave days based on session1 and session2
+   
     const noOfDays = calculateLeaveDays(leaveDates);
 
-    // Fetch leave type
+   
     const leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
     if (!leaveType) return res.status(404).json({ message: 'Leave type not found' });
 
-    // Check if LOP is requested (if leaveTypeId corresponds to LOP)
+  
     if (leaveType.leaveTypeName === 'LOP') {
-      // Apply LOP directly
+     
       await Leave.create({
         userId,
         leaveTypeId: leaveType.id,
@@ -148,11 +147,11 @@ router.post('/', authenticateToken, async (req, res) => {
       return res.json({
         message: 'Leave request submitted successfully as LOP.',
         leaveDatesApplied: leaveDates,
-        lopDates: leaveDates // Apply the same dates as LOP
+        lopDates: leaveDates 
       });
     }
 
-    // For non-LOP leaves, fetch user leave balance
+   
     const userLeaves = await UserLeave.findAll({ where: { userId } });
     const userLeave = userLeaves.find(leave => leave.leaveTypeId === leaveType.id);
 
@@ -160,15 +159,23 @@ router.post('/', authenticateToken, async (req, res) => {
 
     let leaveBalance = userLeave.leaveBalance;
 
-    // If requested leave exceeds balance, inform the user about LOP requirement
-    if (leaveBalance < noOfDays) {
-      const availableLeaveDays = leaveBalance; // Apply available balance
-      const lopDays = noOfDays - availableLeaveDays; // Remaining days as LOP
+    
+    if (leaveBalance === 0 && leaveType.leaveTypeName !== 'LOP') {
+      return res.json({
+        message: `Your ${leaveType.leaveTypeName} balance is 0. No leave will be applied.`,
+        
+      });
+    }
 
-      // Split leaveDates into applied and LOP dates
+    
+    if (leaveBalance < noOfDays) {
+      const availableLeaveDays = leaveBalance; 
+      const lopDays = noOfDays - availableLeaveDays; 
+
+      
       const { leaveDatesApplied, lopDates } = splitLeaveDates(leaveDates, availableLeaveDays);
 
-      // Apply leave for available balance
+      
       await Leave.create({
         userId,
         leaveTypeId: leaveType.id,
@@ -178,18 +185,18 @@ router.post('/', authenticateToken, async (req, res) => {
         notes,
         fileUrl,
         status: 'requested',
-        leaveDates: leaveDatesApplied // Save only the applied dates
+        leaveDates: leaveDatesApplied 
       });
 
-      // Notify user that LOP will need to be applied again separately
+     
       return res.json({
         message: `Leave request submitted. ${availableLeaveDays} days applied as ${leaveType.leaveTypeName} and ${lopDays} days are beyond balance. Please apply for the remaining days as LOP separately.`,
         leaveDatesApplied,
-        lopDates: lopDates || [] // Return LOP dates if needed
+        lopDates: lopDates || [] 
       });
 
     } else {
-      // If leave balance is sufficient, apply for all requested days
+      
       await Leave.create({
         userId,
         leaveTypeId: leaveType.id,
@@ -199,13 +206,13 @@ router.post('/', authenticateToken, async (req, res) => {
         notes,
         fileUrl,
         status: 'requested',
-        leaveDates // Apply all the leave dates as balance is sufficient
+        leaveDates 
       });
 
       return res.json({
         message: 'Leave request submitted successfully. No LOP days required as balance is sufficient.',
         leaveDatesApplied: leaveDates,
-        lopDates: [] // No LOP days as balance is sufficient
+        lopDates: [] 
       });
     }
   } catch (error) {
@@ -213,107 +220,202 @@ router.post('/', authenticateToken, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
-
 //------------------------------------------------Emergency leave-----------------------------
 
 router.post('/emergencyLeave', authenticateToken, async (req, res) => {
   const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
- 
 
-  // Validate required fields
   if (!userId || !leaveTypeId || !startDate || !endDate || !leaveDates) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
 
+  let userLeave;
+  let leaveType;
   try {
-    // Calculate number of leave days based on session1 and session2
-    const noOfDays = calculateLeaveDays(leaveDates);
-
-    // Fetch leave type and user leave balance
-    const leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
+    leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
     if (!leaveType) return res.status(404).json({ message: 'Leave type not found' });
-
-    // Fetch user leave balance for the given leave type
-    console.log('userIduserIduserId',userId);
-    
-    const userLeaves = await UserLeave.findAll({ where: { userId } });
-    const userLeave = userLeaves.find(leave => leave.leaveTypeId === leaveType.id);
-    console.log('userLeaveuserLeave',userLeaves);
-    
-
-    if (!userLeave) 
-      // return res.status(404).json({ message: 'User leave record not found' });
-    {
-      await UserLeave.create({
-        userId,
-        leaveTypeId: leaveType.id,
-      
-        takenLeaves:noOfDays,
-       
-        
-      });
-    }
-
-    let leaveBalance = userLeave.leaveBalance;
-
-    // If requested leave exceeds balance, inform the user about LOP requirement
-    if (leaveBalance < noOfDays) {
-      const availableLeaveDays = leaveBalance; // Apply available balance
-      const lopDays = noOfDays - availableLeaveDays; // Remaining days as LOP
-
-      // Split leaveDates into applied and LOP dates
-      const { leaveDatesApplied, lopDates } = splitLeaveDates(leaveDates, availableLeaveDays);
-
-      // Apply leave for available balance
-      await Leave.create({
-        userId,
-        leaveTypeId: leaveType.id,
-        startDate,
-        endDate,
-        noOfDays: availableLeaveDays,
-        notes,
-        fileUrl,
-        status: 'AdminApproved',
-        leaveDates: leaveDatesApplied // Save only the applied dates
-      });
-
-      // Notify user of LOP requirement
-      return res.json({
-        message: `Emergency Leave request submitted. ${availableLeaveDays} days applied as ${leaveType.leaveTypeName} and ${lopDays} days are beyond balance, which would need to be applied as LOP.`,
-        leaveDatesApplied,
-        lopDates: [] // No LOP dates saved, but user is notified
-      });
-
-    } else {
-      // If leave balance is sufficient, apply for all requested days
-      await Leave.create({
-        userId,
-        leaveTypeId: leaveType.id,
-        startDate,
-        endDate,
-        noOfDays,
-        notes,
-        fileUrl,
-        status: 'AdminApproved',
-        leaveDates // Apply all the leave dates as balance is sufficient
-      });
-
-      return res.json({
-        message: 'Emergency Leave request submitted successfully. No LOP days required as balance is sufficient.',
-        leaveDatesApplied: leaveDates,
-        lopDates: [] // No LOP days as balance is sufficient
-      });
-    }
   } catch (error) {
-    console.error('Error in Emergency leave submission:', error.message);
-    res.status(500).json({ message: error.message });
+    res.send(error.message)
+  }
+
+  const noOfDays = calculateLeaveDays(leaveDates);
+  try {
+    userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId } });
+    console.log(userLeave, "userLeAVE");
+    
+    if(userLeave){
+      console.log(userLeave, "usserLeave");
+      
+      if(leaveType.leaveTypeName === 'LOP' || userLeave.leaveBalance >= noOfDays){
+        if(userLeave.noOfDays) { userLeave.leaveBalance -= noOfDays; }
+        userLeave.takenLeaves += noOfDays;
+        await userLeave.save();
+      }else{
+        return res.send("Exceeds the balance allotted leave days")
+      }
+    }else{
+      userLeave = await UserLeave.create({
+        userId,
+        leaveTypeId: leaveTypeId,
+        takenLeaves: noOfDays,
+      });
+      console.log(userLeave, "newUL");
+      
+    }
+    let leave;
+    try {
+      leave = await Leave.create({ userId, leaveTypeId: leaveType.id, startDate, endDate, noOfDays, notes, fileUrl, status: 'AdminApproved', leaveDates });
+    } catch (error) {
+      res.send(error.message)
+    }
+    res.json({userLeave, leave})
+  } catch (error) {
+    res.send(error.message)
   }
 });
 
+router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) => {
+  
+  const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
+
+  if (!userId || !leaveTypeId || !startDate || !endDate || !leaveDates) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  let userLeave;
+  let leaveType;
+  try {
+    leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
+    if (!leaveType) return res.status(404).json({ message: 'Leave type not found' });
+  } catch (error) {
+    res.send(error.message)
+  }
+
+  const noOfDays = calculateLeaveDays(leaveDates);
+
+  let leave;
+  try {
+    leave = await Leave.findByPk(req.params.id)
+    addedDays = leave.noOfDays
+
+    try {
+      userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId } });
+  
+      if(userLeave){
+        userLeave.noOfDays += addedDays;
+        userLeave.leaveBalance += addedDays;
+        await userLeave.save();
+        if(leaveType.leaveTypeName === 'LOP' || userLeave.leaveBalance >= noOfDays){
+          if(userLeave.noOfDays) { userLeave.leaveBalance -= noOfDays; }
+          userLeave.takenLeaves += noOfDays;
+          await userLeave.save();
+        }else{
+          return res.send("Exceeds the balance allotted leave days")
+        }
+      }else{
+        userLeave = await UserLeave.create({
+          userId,
+          leaveTypeId: leaveTypeId,
+          takenLeaves: noOfDays,
+        });
+      }
+    } catch (error) {
+      res.send(error.message)
+    }
+
+    leave.userId = userId
+    leave.noOfDays = noOfDays
+    leave.startDate = startDate, 
+    leave.endDate = endDate, 
+    leave.noOfDays = noOfDays,
+    leave.notes = notes,
+    leave.fileUrl = fileUrl, 
+    leave.leaveDates = leaveDates
+
+    await leave.save();
+    res.json({leave, userLeave})
+  } catch (error) {
+    res.send(error.message)
+  }
 
 
 
+  //   // Fetch user leave balance for the given leave type
+  //   console.log('userIduserIduserId',userId);
+    
+  //   const userLeaves = await UserLeave.findAll({ where: { userId } });
+  //   const userLeave = userLeaves.find(leave => leave.leaveTypeId === leaveType.id);
+  //   console.log('userLeaveuserLeave',userLeaves);
+    
+
+  //   if (!userLeave) 
+  //     // return res.status(404).json({ message: 'User leave record not found' });
+  //   {
+  //     await UserLeave.create({
+  //       userId,
+  //       leaveTypeId: leaveType.id,
+      
+  //       takenLeaves:noOfDays,
+       
+        
+  //     });
+  //   }
+
+  //   let leaveBalance = userLeave.leaveBalance;
+
+  //   // If requested leave exceeds balance, inform the user about LOP requirement
+  //   if (leaveBalance < noOfDays) {
+  //     const availableLeaveDays = leaveBalance; // Apply available balance
+  //     const lopDays = noOfDays - availableLeaveDays; // Remaining days as LOP
+
+  //     // Split leaveDates into applied and LOP dates
+  //     const { leaveDatesApplied, lopDates } = splitLeaveDates(leaveDates, availableLeaveDays);
+
+  //     // Apply leave for available balance
+  //     await Leave.create({
+  //       userId,
+  //       leaveTypeId: leaveType.id,
+  //       startDate,
+  //       endDate,
+  //       noOfDays: availableLeaveDays,
+  //       notes,
+  //       fileUrl,
+  //       status: 'AdminApproved',
+  //       leaveDates: leaveDatesApplied // Save only the applied dates
+  //     });
+
+  //     // Notify user of LOP requirement
+  //     return res.json({
+  //       message: `Emergency Leave request submitted. ${availableLeaveDays} days applied as ${leaveType.leaveTypeName} and ${lopDays} days are beyond balance, which would need to be applied as LOP.`,
+  //       leaveDatesApplied,
+  //       lopDates: [] // No LOP dates saved, but user is notified
+  //     });
+
+  //   } else {
+  //     // If leave balance is sufficient, apply for all requested days
+  //     await Leave.create({
+  //       userId,
+  //       leaveTypeId: leaveType.id,
+  //       startDate,
+  //       endDate,
+  //       noOfDays,
+  //       notes,
+  //       fileUrl,
+  //       status: 'AdminApproved',
+  //       leaveDates // Apply all the leave dates as balance is sufficient
+  //     });
+
+  //     return res.json({
+  //       message: 'Emergency Leave request submitted successfully. No LOP days required as balance is sufficient.',
+  //       leaveDatesApplied: leaveDates,
+  //       lopDates: [] // No LOP days as balance is sufficient
+  //     });
+  //   }
+  // } catch (error) {
+  //   console.error('Error in Emergency leave submission:', error.message);
+  //   res.status(500).json({ message: error.message });
+  // }
+});
 
 //-------------------------GET LEAVE BY USER ID-------------------------------------------------
 router.get('/user/:userId', async (req, res) => {
@@ -403,7 +505,6 @@ router.get('/user/:userId', async (req, res) => {
 });
 
 
-
 //--------------------------------File upload--------------------------------------------------------
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
@@ -446,19 +547,72 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
   try {
     const leave = await Leave.findByPk(leaveId);
 
-   
     if (!leave) {
       return res.status(404).send({ message: 'Leave request not found' });
     }
 
-   
-    leave.status = 'Approved';
-    await leave.save(); 
+    // Fetch the leave type name for this leave
+    const leaveType = await LeaveType.findOne({
+      where: { id: leave.leaveTypeId }
+    });
 
-  
+    if (!leaveType) {
+      return res.status(404).send({ message: 'Leave type not found' });
+    }
+
+    // Fetch the user leave record for the specific user and leave type
+    const userLeave = await UserLeave.findOne({
+      where: {
+        userId: leave.userId,
+        leaveTypeId: leave.leaveTypeId // Assuming leaveTypeId is present in the leave request
+      }
+    });
+
+    // Only check for leave record if it's not LOP
+    if (!userLeave && leaveType.leaveTypeName !== 'LOP') {
+      return res.status(404).send({ message: 'User leave record not found' });
+    }
+
+    // Check if the leave type is LOP using leaveTypeName
+    if (leaveType.leaveTypeName === 'LOP') {
+      // Update the leave status to 'Approved' for LOP without checking leave balance
+      leave.status = 'Approved';
+      await leave.save();
+
+      // Fetch or create the user leave record for LOP and update taken leaves
+      if (!userLeave) {
+        // If the user doesn't have a record for LOP, create one
+        await UserLeave.create({
+          userId: leave.userId,
+          leaveTypeId: leave.leaveTypeId,
+          noOfDays: 0, // For LOP, no specific days are tracked here
+          takenLeaves: leave.noOfDays // Increment takenLeaves for LOP
+        });
+      } else {
+        // Update the takenLeaves count for the existing record
+        userLeave.takenLeaves += leave.noOfDays;
+        await userLeave.save();
+      }
+
+      return res.send({ message: 'Leave approved successfully as LOP', leave });
+    }
+
+    // For non-LOP leaves, we check the balance and update the user leave record
+    if (userLeave.leaveBalance < leave.noOfDays) {
+      return res.status(400).send({ message: 'Insufficient leave balance' });
+    }
+
+    // Update the leave status to 'Approved'
+    leave.status = 'Approved';
+    await leave.save();
+
+    // Update the user leave balance
+    userLeave.leaveBalance -= leave.noOfDays;
+    userLeave.takenLeaves += leave.noOfDays; // Increment taken leaves
+    await userLeave.save();
+
     res.send({ message: 'Leave approved successfully', leave });
   } catch (error) {
-
     res.status(500).send({ message: 'An error occurred while approving the leave', error: error.message });
   }
 });
@@ -504,6 +658,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+
 //-------------------------------------- UPDATE API---------------------------------------------------
 
 router.patch('/:id', authenticateToken, async (req, res) => {
@@ -513,9 +668,19 @@ router.patch('/:id', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'leaveDates are required to update leave' });
     }
 
+    // Find the leave entry by its ID
     const leave = await Leave.findByPk(req.params.id);
     if (!leave) {
       return res.status(404).json({ message: `Leave not found with id=${req.params.id}` });
+    }
+
+    // Find the user leave mapping record based on the leaveTypeId and userId
+    const leaveType = await LeaveType.findOne({
+      where: { id: leaveTypeId }
+    });
+
+    if (!leaveType) {
+      return res.status(404).json({ message: 'Leave type not found' });
     }
 
     const userLeave = await UserLeave.findOne({
@@ -540,8 +705,8 @@ router.patch('/:id', authenticateToken, async (req, res) => {
     // Calculate the new number of leave days based on the filtered leaveDates
     const noOfDays = calculateLeaveDays(filteredLeaveDates);
 
-    // If the updated leave days exceed the balance, return error
-    if (userLeave.leaveBalance < noOfDays) {
+    // If the leave type is "LOP", skip the balance check
+    if (leaveType.leaveTypeName !== 'LOP' && userLeave.leaveBalance < noOfDays) {
       return res.status(400).json({ message: 'Not enough leave balance for this update' });
     }
 
@@ -553,11 +718,13 @@ router.patch('/:id', authenticateToken, async (req, res) => {
     // Save the updated leave
     await leave.save();
 
-    // Adjust the taken leaves and balance based on the update
-    const previousNoOfDays = leave.noOfDays; // This is the number of days before the update
-    userLeave.takenLeaves += noOfDays - previousNoOfDays;
-    userLeave.leaveBalance -= (noOfDays - previousNoOfDays); // Adjust balance according to the updated noOfDays
-    await userLeave.save();
+    // Adjust the taken leaves and balance based on the update, but skip this for LOP
+    if (leaveType.leaveTypeName !== 'LOP') {
+      const previousNoOfDays = leave.noOfDays; // This is the number of days before the update
+      userLeave.takenLeaves += noOfDays - previousNoOfDays;
+      userLeave.leaveBalance -= (noOfDays - previousNoOfDays); // Adjust balance according to the updated noOfDays
+      await userLeave.save();
+    }
 
     res.json({
       message: 'Leave updated successfully',
@@ -574,6 +741,8 @@ router.patch('/:id', authenticateToken, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+
 
 
 //-----------------------------Delete Leave---------------------------------------------------------
