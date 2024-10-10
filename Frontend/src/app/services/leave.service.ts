@@ -60,14 +60,9 @@ export class LeaveService {
     return throwError(() => new Error("Invalid file type"));
   }
 
-
-
-
   addLeaveType(data:any){
     return this.http.post(this.apiUrl+'/leaveType/', data)
   }
-
-
 
   getLeaveType(): Observable<any> {
     return this.http.get(`${this.apiUrl}/leaveType`);
@@ -86,5 +81,11 @@ export class LeaveService {
 
   updateUserLeave(data: any): Observable<UserLeave> {
     return this.http.patch<UserLeave>(`${this.apiUrl}/userLeave/update`, data);
+  }
+
+
+  private leaveDataApi = environment.leaveDataApi;
+  getHolidays(): Observable<any> {
+    return this.http.get(this.leaveDataApi);
   }
 }

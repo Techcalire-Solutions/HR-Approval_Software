@@ -89,7 +89,8 @@ userId:number
         console.log(res);
         this.leave = res
         if(res.res){
-          this.leave = res.leave;
+          this.leaves = res.leave;
+
         }else{
           this.snackBar.open('No data is added', '', { duration: 3000 });
         }
