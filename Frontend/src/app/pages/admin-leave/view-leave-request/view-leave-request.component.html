@@ -4,10 +4,10 @@
   <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
     <div fxLayout="row" class="col">
       <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-        <mat-button-toggle value="add" (click)="openCalendar()">
+        <!-- <mat-button-toggle value="add" (click)="openCalendar()">
           <mat-icon style="color: green;">event</mat-icon>
           CALENDAR
-        </mat-button-toggle>
+        </mat-button-toggle> -->
       </mat-button-toggle-group>
     </div>
     <div fxLayout="row" class="col">
@@ -18,7 +18,7 @@
       </form>
     </div>
   </div>
-@if(leaves){
+<!-- @if(leaves){ -->
   <main class="table" id="customers_table">
     <section class="table__body">
       <table>
@@ -34,7 +34,7 @@
         </thead>
         <tbody>
           <!-- Loop through each leave -->
-          <tr *ngFor="let item of leaves">
+          <tr *ngFor="let item of leave">
             <!-- Leave Date -->
             <td>
               <ng-container *ngFor="let date of item.leaveDates">
@@ -61,14 +61,25 @@
 
             <!-- Actions -->
             <td>
-              <!-- Approve and Reject Buttons -->
-              <button mat-raised-button class="approve-button" (click)="approveLeave(item.id)" [disabled]="item.status === 'Approved'">
-                APPROVE
-              </button> &nbsp;
-              <button mat-raised-button class="reject-button" (click)="rejectLeave(item.id)" [disabled]="item.status === 'Rejected'">
-                REJECT
-              </button>
+              <!-- Approve and Reject Buttons (only visible if not Admin Approved) -->
+              <ng-container *ngIf="item.status !== 'Admin Approved'">
+                <button mat-raised-button class="approve-button" (click)="approveLeave(item.id)" [disabled]="item.status === 'Approved' || item.status === 'Admin Approved'">
+                  APPROVE
+                </button> &nbsp;
+                <button mat-raised-button class="reject-button" (click)="rejectLeave(item.id)" [disabled]="item.status === 'Rejected'">
+                  REJECT
+                </button>
+              </ng-container>
+
+              <!-- Edit and Delete Buttons (only visible if Admin Approved) -->
+              <span *ngIf="item.status === 'AdminApproved'">
+                &nbsp;
+                <button mat-raised-button class="edit-button" (click)="editLeave(item.id)">EDIT</button>
+                &nbsp;
+                <button mat-raised-button class="delete-button" (click)="deleteLeave(item.id)">DELETE</button>
+              </span>
             </td>
+
           </tr>
         </tbody>
       </table>
@@ -83,7 +94,7 @@
       </mat-paginator>
     </section>
   </main>
-}
+<!-- } -->
 
 </body>
 </html>

@@ -56,8 +56,7 @@ const Leave = sequelize.define('Leave', {
 LeaveType.hasMany(Leave, { foreignKey: 'leaveTypeId', onUpdate: 'CASCADE' });
 Leave.belongsTo(LeaveType);
 
-User.hasMany(Leave, { foreignKey: 'userId', onUpdate: 'CASCADE' });
-Leave.belongsTo(User);
+
 
 
 

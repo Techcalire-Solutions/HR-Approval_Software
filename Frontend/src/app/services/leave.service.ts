@@ -17,6 +17,9 @@ export class LeaveService {
   addLeave(data:any){
     return this.http.post(this.apiUrl+'/leave', data)
   }
+  addEmergencyLeave(data:any){
+    return this.http.post(this.apiUrl+'/leave/emergencyLeave', data)
+  }
 
   getLeaves():Observable<any>{
     return this.http.get(`${this.apiUrl}/leave`);

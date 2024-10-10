@@ -48,6 +48,7 @@ export class LeaveCountCardsComponent {
     const token: any = localStorage.getItem('token');
     let user = JSON.parse(token);
     this.userId = user.id;
+    console.log(this.userId)
 
     // Check if user is in probation
     this.checkProbationAndGetLeaveCounts(this.userId);
@@ -74,24 +75,27 @@ export class LeaveCountCardsComponent {
     );
   }
 
-  // Separate method to fetch leave counts
   fetchLeaveCounts(userId: number) {
     this.leaveService.getLeaveCounts(userId).subscribe(
       (res) => {
-        if (res && res.length > 0) {
-          this.leaveCounts = res;
+        console.log('Leave counts response:', res);  // Log response to confirm
+        if (res && res.leaveCounts && res.leaveCounts.length > 0) {
+          this.leaveCounts = res.leaveCounts;  // Set leave counts if data is present
           this.hasLeaveCounts = true;
         } else {
           this.leaveCounts = [];
           this.hasLeaveCounts = false;
+          this.errorMessage = 'No leave records found for this user.';  // Display error if no records
         }
       },
       (error) => {
-        this.errorMessage = 'Unable to fetch leave counts.';
+        console.error('Error fetching leave counts:', error);
+        this.errorMessage = 'Unable to fetch leave counts.';  // Error handling
         this.hasLeaveCounts = false;
       }
     );
   }
+
 
   ngOnDestroy() {
     // Any cleanup if needed

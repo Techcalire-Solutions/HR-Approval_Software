@@ -77,6 +77,7 @@ export class EmployeeLeaveComponent {
 
 userId:number
   ngOnInit(){
+
     this.getLeaveByUser()
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
@@ -156,8 +157,12 @@ deleteLeave(id: number){
         });
       }
     });
+    this.leaves = this.leaves.filter(item => item.id !== id);
   }
 
-
+  // Method to check if leaveDates contains valid sessions
+  hasValidSessions(leaveDates: any[]): boolean {
+    return leaveDates.some(date => date.session1 || date.session2); // Check if session1 or session2 is present
+  }
 
 }
