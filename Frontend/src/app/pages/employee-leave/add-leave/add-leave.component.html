@@ -39,15 +39,16 @@
         </mat-form-field>
       </div>
 
-      <div *ngIf="isSickLeaveAndMoreThanThreeDays()" class="upload-container" (click)="fileInput.click()">
-        Upload Image:
+      <div *ngIf="isSickLeave()" class="upload-container" (click)="fileInput.click()">
+       Medical document:
         <input type="file" hidden #fileInput (change)="uploadFile($event)">
         <span class="material-icons clickable-icon" [ngClass]="{'file-selected': isFileSelected}" style="margin-left: 10px;">cloud_upload</span>
         <span *ngIf="fileName" style="margin-left: 10px;">{{ fileName }}</span>
-        <div *ngIf="!isFileSelected" style="color: red;">
-          File upload is mandatory for sick leave exceeding 3 days.
-        </div>
+        <!-- <div *ngIf="!isFileSelected">
+          File upload is optional for sick leave.
+        </div> -->
       </div>
+
 
 
 <br>
@@ -74,7 +75,7 @@
       type="submit"
       color="primary"
       class="submit-btn"
-      [disabled]="!leaveRequestForm.valid || isLoading || (isSickLeaveAndMoreThanThreeDays() && !isFileSelected)">
+      [disabled]="!leaveRequestForm.valid || isLoading ">
 {{ isEditMode ? 'Update' : 'Apply' }} Leave
 </button>
 
