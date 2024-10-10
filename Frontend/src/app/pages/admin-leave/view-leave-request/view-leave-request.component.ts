@@ -27,7 +27,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { CamelCasePipe } from '../../../common/camel-case.pipe';
+import { CamelCasePipe } from '../../../theme/pipes/camel-case.pipe';
 import { PipesModule } from '../../../theme/pipes/pipes.module';
 import { UserDialogComponent } from '../../users/user-dialog/user-dialog.component';
 import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';

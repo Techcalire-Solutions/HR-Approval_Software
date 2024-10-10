@@ -27,7 +27,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LeaveService } from '@services/leave.service';
 import { DomSanitizer } from '@angular/platform-browser';
-import { CamelCasePipe } from '../../common/camel-case.pipe';
+import { CamelCasePipe } from '../../theme/pipes/camel-case.pipe';
 import { PipesModule } from '../../theme/pipes/pipes.module';
 import { UserDialogComponent } from '../users/user-dialog/user-dialog.component';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
