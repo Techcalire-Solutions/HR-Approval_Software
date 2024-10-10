@@ -19,7 +19,7 @@ import { UsersService } from '@services/users.service';
     NgxChartsModule
   ],
   templateUrl: './leave-count-cards.component.html',
-  styleUrl: './leave-count-cards.component.scss',
+  styleUrls: ['./leave-count-cards.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
 export class LeaveCountCardsComponent {
@@ -33,7 +33,7 @@ export class LeaveCountCardsComponent {
   public previousWidthOfResizedDiv: number = 0;
   public settings: Settings;
   leaveService = inject(LeaveService);
-  userService = inject(UsersService)
+  userService = inject(UsersService);
 
   leaveCounts: any[] = [];
   hasLeaveCounts: boolean = false;
@@ -53,7 +53,6 @@ export class LeaveCountCardsComponent {
     this.checkProbationAndGetLeaveCounts(this.userId);
   }
 
-  // Separate method to check probation and then fetch leave counts
   checkProbationAndGetLeaveCounts(userId: number) {
     this.userService.getProbationEmployees().subscribe(
       (probationList) => {
@@ -77,24 +76,36 @@ export class LeaveCountCardsComponent {
   fetchLeaveCounts(userId: number) {
     this.leaveService.getLeaveCounts(userId).subscribe(
       (res) => {
-        console.log('Leave counts response:', res);  // Log response to confirm
-        if (res && res.leaveCounts && res.leaveCounts.length > 0) {
-          this.leaveCounts = res.leaveCounts;  // Set leave counts if data is present
+        console.log('Leave records response:', res);  // Debugging line
+
+        // Check if userLeaves exists and has records
+        if (res && res.userLeaves && res.userLeaves.length > 0) {
+          this.leaveCounts = res.userLeaves;
           this.hasLeaveCounts = true;
         } else {
           this.leaveCounts = [];
           this.hasLeaveCounts = false;
-          this.errorMessage = 'No leave records found for this user.';  // Display error if no records
+          this.errorMessage = 'No leave records found for this user.';
         }
       },
       (error) => {
-        console.error('Error fetching leave counts:', error);
-        this.errorMessage = 'Unable to fetch leave counts.';  // Error handling
+        console.error('Error fetching leave records:', error);  // Debugging line
+        this.errorMessage = 'Unable to fetch leave counts.';
         this.hasLeaveCounts = false;
       }
     );
   }
 
+
+
+  // Calculate the leave balance based on leave type
+  getLeaveBalance(leave: any): number {
+    if (leave.leaveTypeName === 'LOP') {
+      return leave.takenLeaves;  // For LOP, return taken leaves
+    } else {
+      return Math.max(leave.noOfDays - leave.takenLeaves, 0);  // For other leave types, show balance
+    }
+  }
 
   ngOnDestroy() {
     // Any cleanup if needed
