@@ -11,5 +11,10 @@
 
 <div mat-dialog-actions class="dialog-actions">
   <button mat-button (click)="onCancel()" class="cancel-button">Cancel</button>
-  <button mat-button (click)="onOk()" class="ok-button">OK</button>
+
+  <!-- Show the OK button only if showOkButton is true -->
+  <button  mat-button (click)="onOk()" class="ok-button">
+    <!-- <button *ngIf="showOkButton" mat-button (click)="onOk()" class="ok-button"> -->
+    OK
+  </button>
 </div>
