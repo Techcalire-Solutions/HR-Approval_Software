@@ -73,8 +73,8 @@ async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDa
 }
 
 
-//-----------------------------------POST API-------------------------------------------------------------
-// Function to calculate the number of leave days, considering session1 and session2
+//-----------------------------------ASYNC FUNCTIONS-----------POST API-------------------------------------------------------------
+
 function calculateLeaveDays(leaveDates) {
   let totalDays = 0;
 
@@ -89,7 +89,7 @@ function calculateLeaveDays(leaveDates) {
   return totalDays;
 }
 
-// Function to split leave dates into applied and LOP dates
+
 function splitLeaveDates(leaveDates, availableLeaveDays) {
   let leaveDatesApplied = [];
   let lopDates = [];
@@ -113,8 +113,7 @@ function splitLeaveDates(leaveDates, availableLeaveDays) {
   return { leaveDatesApplied, lopDates };
 }
 
-
-router.post('/1', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   const { leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
   const userId = req.user.id;
 
@@ -127,11 +126,33 @@ router.post('/1', authenticateToken, async (req, res) => {
     // Calculate number of leave days based on session1 and session2
     const noOfDays = calculateLeaveDays(leaveDates);
 
-    // Fetch leave type and user leave balance
+    // Fetch leave type
     const leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
     if (!leaveType) return res.status(404).json({ message: 'Leave type not found' });
 
-    // Fetch user leave balance for the given leave type
+    // Check if LOP is requested (if leaveTypeId corresponds to LOP)
+    if (leaveType.leaveTypeName === 'LOP') {
+      // Apply LOP directly
+      await Leave.create({
+        userId,
+        leaveTypeId: leaveType.id,
+        startDate,
+        endDate,
+        noOfDays,
+        notes,
+        fileUrl,
+        status: 'requested',
+        leaveDates
+      });
+
+      return res.json({
+        message: 'Leave request submitted successfully as LOP.',
+        leaveDatesApplied: leaveDates,
+        lopDates: leaveDates // Apply the same dates as LOP
+      });
+    }
+
+    // For non-LOP leaves, fetch user leave balance
     const userLeaves = await UserLeave.findAll({ where: { userId } });
     const userLeave = userLeaves.find(leave => leave.leaveTypeId === leaveType.id);
 
@@ -160,11 +181,11 @@ router.post('/1', authenticateToken, async (req, res) => {
         leaveDates: leaveDatesApplied // Save only the applied dates
       });
 
-      // Notify user of LOP requirement
+      // Notify user that LOP will need to be applied again separately
       return res.json({
-        message: `Leave request submitted. ${availableLeaveDays} days applied as ${leaveType.leaveTypeName} and ${lopDays} days are beyond balance, which would need to be applied as LOP.`,
+        message: `Leave request submitted. ${availableLeaveDays} days applied as ${leaveType.leaveTypeName} and ${lopDays} days are beyond balance. Please apply for the remaining days as LOP separately.`,
         leaveDatesApplied,
-        lopDates: [] // No LOP dates saved, but user is notified
+        lopDates: lopDates || [] // Return LOP dates if needed
       });
 
     } else {
@@ -192,6 +213,10 @@ router.post('/1', authenticateToken, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+
+//------------------------------------------------Emergency leave-----------------------------
+
 router.post('/emergencyLeave', authenticateToken, async (req, res) => {
   const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
  
@@ -286,121 +311,7 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
   }
 });
 
-router.post('/', authenticateToken, async (req, res) => {
-  const { leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
-  const userId = req.user.id;
 
-  // Validate required fields
-  if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
-    return res.status(400).json({ message: 'Missing required fields' });
-  }
-
-  try {
-    // Calculate number of leave days based on session1 and session2
-    const noOfDays = calculateLeaveDays(leaveDates);
-
-    // Fetch leave type
-    const leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
-    if (!leaveType) return res.status(404).json({ message: 'Leave type not found' });
-
-    // Check if LOP is requested (if leaveTypeId corresponds to LOP)
-    if (leaveType.leaveTypeName === 'LOP') {
-      // Apply LOP directly
-      await Leave.create({
-        userId,
-        leaveTypeId: leaveType.id,
-        startDate,
-        endDate,
-        noOfDays,
-        notes,
-        fileUrl,
-        status: 'requested',
-        leaveDates
-      });
-
-      return res.json({
-        message: 'Leave request submitted successfully as LOP.',
-        leaveDatesApplied: leaveDates,
-        lopDates: leaveDates // Apply the same dates as LOP
-      });
-    }
-
-    // For non-LOP leaves, fetch user leave balance
-    const userLeaves = await UserLeave.findAll({ where: { userId } });
-    const userLeave = userLeaves.find(leave => leave.leaveTypeId === leaveType.id);
-
-    if (!userLeave) return res.status(404).json({ message: 'User leave record not found' });
-
-    let leaveBalance = userLeave.leaveBalance;
-
-    // If requested leave exceeds balance, inform the user about LOP requirement
-    if (leaveBalance < noOfDays) {
-      const availableLeaveDays = leaveBalance; // Apply available balance
-      const lopDays = noOfDays - availableLeaveDays; // Remaining days as LOP
-
-      // Split leaveDates into applied and LOP dates
-      const { leaveDatesApplied, lopDates } = splitLeaveDates(leaveDates, availableLeaveDays);
-
-      // Apply leave for available balance
-      await Leave.create({
-        userId,
-        leaveTypeId: leaveType.id,
-        startDate,
-        endDate,
-        noOfDays: availableLeaveDays,
-        notes,
-        fileUrl,
-        status: 'requested',
-        leaveDates: leaveDatesApplied // Save only the applied dates
-      });
-
-      // Optionally save the LOP dates (if needed)
-      if (lopDays > 0) {
-        await Leave.create({
-          userId,
-          leaveTypeId: leaveType.id,  // Or LOP leave type if different
-          startDate,
-          endDate,
-          noOfDays: lopDays,
-          notes,
-          fileUrl,
-          status: 'requested',
-          leaveDates: lopDates // Save LOP dates if applicable
-        });
-      }
-
-      // Notify user of LOP requirement
-      return res.json({
-        message: `Leave request submitted. ${availableLeaveDays} days applied as ${leaveType.leaveTypeName} and ${lopDays} days are beyond balance, which would need to be applied as LOP.`,
-        leaveDatesApplied,
-        lopDates: lopDates || [] // Return LOP dates if saved
-      });
-
-    } else {
-      // If leave balance is sufficient, apply for all requested days
-      await Leave.create({
-        userId,
-        leaveTypeId: leaveType.id,
-        startDate,
-        endDate,
-        noOfDays,
-        notes,
-        fileUrl,
-        status: 'requested',
-        leaveDates // Apply all the leave dates as balance is sufficient
-      });
-
-      return res.json({
-        message: 'Leave request submitted successfully. No LOP days required as balance is sufficient.',
-        leaveDatesApplied: leaveDates,
-        lopDates: [] // No LOP days as balance is sufficient
-      });
-    }
-  } catch (error) {
-    console.error('Error in leave request submission:', error.message);
-    res.status(500).json({ message: error.message });
-  }
-});
 
 
 
@@ -593,6 +504,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+//-------------------------------------- UPDATE API---------------------------------------------------
+
 router.patch('/:id', authenticateToken, async (req, res) => {
   try {
     const { leaveDates, notes, leaveTypeId } = req.body;
@@ -661,32 +574,6 @@ router.patch('/:id', authenticateToken, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
-
-
-// Code for retrieving and processing leave items (example)
-async function getLeaveItem(leaveId) {
-  const leaveItem = await Leave.findByPk(leaveId);
-  
-  if (!leaveItem) {
-    throw new Error(`Leave not found for id=${leaveId}`);
-  }
-
-  // Parse leaveDates if it is a string (after being saved as JSON)
-  let leaveDates = [];
-  try {
-    leaveDates = JSON.parse(leaveItem.leaveDates);  // Parse JSON string back to array
-  } catch (error) {
-    throw new Error('Error parsing leaveDates from database');
-  }
-
-  // Now you can safely loop over leaveDates
-  leaveDates.forEach(date => {
-    console.log(date.date, date.session1, date.session2);
-  });
-
-  return leaveItem;
-}
 
 
 //-----------------------------Delete Leave---------------------------------------------------------
