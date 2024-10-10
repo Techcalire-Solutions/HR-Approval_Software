@@ -21,6 +21,10 @@ export class LeaveService {
     return this.http.post(this.apiUrl+'/leave/emergencyLeave', data)
   }
 
+  updatemergencyLeave(data:any, id: number){
+    return this.http.patch(this.apiUrl +'/leave/updateemergencyLeave/'+ id, data)
+  }
+
   getLeaves():Observable<any>{
     return this.http.get(`${this.apiUrl}/leave`);
    }
@@ -81,6 +85,10 @@ export class LeaveService {
 
   updateUserLeave(data: any): Observable<UserLeave> {
     return this.http.patch<UserLeave>(`${this.apiUrl}/userLeave/update`, data);
+  }
+
+  getUserLeaveByUser(id: number){
+    return this.http.get<UserLeave[]>(`${this.apiUrl}/userLeave/byuser/${id}`);
   }
 
 

@@ -220,9 +220,6 @@ router.post('/', authenticateToken, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
-
-
 //------------------------------------------------Emergency leave-----------------------------
 
 router.post('/emergencyLeave', authenticateToken, async (req, res) => {
@@ -275,6 +272,72 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
   } catch (error) {
     res.send(error.message)
   }
+});
+
+router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) => {
+  
+  const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
+
+  if (!userId || !leaveTypeId || !startDate || !endDate || !leaveDates) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  let userLeave;
+  let leaveType;
+  try {
+    leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
+    if (!leaveType) return res.status(404).json({ message: 'Leave type not found' });
+  } catch (error) {
+    res.send(error.message)
+  }
+
+  const noOfDays = calculateLeaveDays(leaveDates);
+
+  let leave;
+  try {
+    leave = await Leave.findByPk(req.params.id)
+    addedDays = leave.noOfDays
+
+    try {
+      userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId } });
+  
+      if(userLeave){
+        userLeave.noOfDays += addedDays;
+        userLeave.leaveBalance += addedDays;
+        await userLeave.save();
+        if(leaveType.leaveTypeName === 'LOP' || userLeave.leaveBalance >= noOfDays){
+          if(userLeave.noOfDays) { userLeave.leaveBalance -= noOfDays; }
+          userLeave.takenLeaves += noOfDays;
+          await userLeave.save();
+        }else{
+          return res.send("Exceeds the balance allotted leave days")
+        }
+      }else{
+        userLeave = await UserLeave.create({
+          userId,
+          leaveTypeId: leaveTypeId,
+          takenLeaves: noOfDays,
+        });
+      }
+    } catch (error) {
+      res.send(error.message)
+    }
+
+    leave.userId = userId
+    leave.noOfDays = noOfDays
+    leave.startDate = startDate, 
+    leave.endDate = endDate, 
+    leave.noOfDays = noOfDays,
+    leave.notes = notes,
+    leave.fileUrl = fileUrl, 
+    leave.leaveDates = leaveDates
+
+    await leave.save();
+    res.json({leave, userLeave})
+  } catch (error) {
+    res.send(error.message)
+  }
+
 
 
   //   // Fetch user leave balance for the given leave type
@@ -353,10 +416,6 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
   //   res.status(500).json({ message: error.message });
   // }
 });
-
-
-
-
 
 //-------------------------GET LEAVE BY USER ID-------------------------------------------------
 router.get('/user/:userId', async (req, res) => {
@@ -444,7 +503,6 @@ router.get('/user/:userId', async (req, res) => {
     res.send(error.message);
   }
 });
-
 
 
 //--------------------------------File upload--------------------------------------------------------
