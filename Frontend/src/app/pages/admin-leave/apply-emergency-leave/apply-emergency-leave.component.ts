@@ -219,7 +219,7 @@ this.leaveRequestForm = this.fb.group({
 
   onSubmit() {
     this.isLoading = true; // Disable the button and show loading indicator
-
+    console.log('on submit');
     const leaveRequest = {
       ...this.leaveRequestForm.value,
       leaveDates: this.leaveRequestForm.get('leaveDates')!.value
@@ -229,6 +229,7 @@ this.leaveRequestForm = this.fb.group({
 
     if (this.isEditMode && leaveId) {
       const idAsNumber = +leaveId;
+console.log('leaveRequest',leaveRequest);
 
       // Update leave request
       this.leaveService.updateLeave(idAsNumber, leaveRequest).subscribe((response: any) => {
@@ -238,7 +239,7 @@ this.leaveRequestForm = this.fb.group({
     } else {
       // Add new leave request
       this.leaveService.addEmergencyLeave(leaveRequest).subscribe((response: any) => {
-        console.log('hi entry addede');
+        console.log('hi entry addede', response);
 
         // this.openDialog(response.message);
       });
