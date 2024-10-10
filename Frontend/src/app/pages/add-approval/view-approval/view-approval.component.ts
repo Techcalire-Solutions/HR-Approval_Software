@@ -138,7 +138,7 @@ export class ViewApprovalComponent {
     } else if (this.roleName === 'Accountant') {
       this.pageStatus = false
       apiCall = this.invoiceService.getPIByMA(this.status, this.filterValue, this.currentPage, this.pageSize);
-    }else if (this.roleName === 'Administrator') {
+    }else if (this.roleName === 'Administrator' || this.roleName === 'Super Administrator') {
       apiCall = this.invoiceService.getPIByAdmin(this.status, this.filterValue, this.currentPage, this.pageSize);
     }
 
