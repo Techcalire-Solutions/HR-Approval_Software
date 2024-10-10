@@ -56,12 +56,6 @@ cron.schedule('0 0 1 * *', async () => {
   }
 });
 
-
-
-
-
-
-//----------------------------------------------Leave count-----------------------------------------------------
 router.get('/leavecount/:userId', authenticateToken, async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -120,8 +114,6 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-
-
 router.get('/byuserandtype/:userid/:typeid', authenticateToken, async (req, res) => {
   try {
     const userLeaves = await UserLeave.findOne({
@@ -133,6 +125,17 @@ router.get('/byuserandtype/:userid/:typeid', authenticateToken, async (req, res)
   }
 });
 
+router.get('/byuser/:userid', authenticateToken, async (req, res) => {
+  try {
+    const userLeaves = await UserLeave.findAll({
+      where: { userId : req.params.userid},
+      include: [{model: LeaveType}]
+    });
+    res.send(userLeaves);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
 
 
 

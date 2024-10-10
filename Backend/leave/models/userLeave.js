@@ -13,6 +13,9 @@ const LeaveType = require('../models/leaveType')
     timestamps : true
  })
 
+ LeaveType.hasMany(UserLeave, { foreignKey: 'leaveTypeId', onUpdate: 'CASCADE' });
+ UserLeave.belongsTo(LeaveType);
+ 
 
  UserLeave.sync({alter:true})
 .then(()=>console.log)
