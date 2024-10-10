@@ -160,6 +160,13 @@ router.post('/', authenticateToken, async (req, res) => {
 
     let leaveBalance = userLeave.leaveBalance;
 
+    // Check if leave balance is 0 for non-LOP leave types (CL, SL, Comb Off)
+    if (leaveBalance === 0 && leaveType.leaveTypeName !== 'LOP') {
+      return res.json({
+        message: `Your ${leaveType.leaveTypeName} balance is 0. No leave will be applied.`,
+      });
+    }
+
     // If requested leave exceeds balance, inform the user about LOP requirement
     if (leaveBalance < noOfDays) {
       const availableLeaveDays = leaveBalance; // Apply available balance
@@ -213,6 +220,7 @@ router.post('/', authenticateToken, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 
 //------------------------------------------------Emergency leave-----------------------------
@@ -481,19 +489,56 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
   try {
     const leave = await Leave.findByPk(leaveId);
 
-   
     if (!leave) {
       return res.status(404).send({ message: 'Leave request not found' });
     }
 
-   
-    leave.status = 'Approved';
-    await leave.save(); 
+    // Fetch the leave type name to check if it's LOP
+    const leaveType = await LeaveType.findOne({
+      where: { id: leave.leaveTypeId }
+    });
 
-  
+    if (!leaveType) {
+      return res.status(404).send({ message: 'Leave type not found' });
+    }
+
+    // If the leave type is LOP (Leave Without Pay), we don't check for user leave record
+    if (leaveType.leaveTypeName === 'LOP') {
+      // Update the leave status to 'Approved' for LOP without checking leave balance
+      leave.status = 'Approved';
+      await leave.save();
+
+      return res.send({ message: 'Leave approved successfully as LOP', leave });
+    }
+
+    // Fetch the user leave record for the specific user and leave type (for non-LOP)
+    const userLeave = await UserLeave.findOne({
+      where: {
+        userId: leave.userId, 
+        leaveTypeId: leave.leaveTypeId // Assuming leaveTypeId is present in the leave request
+      }
+    });
+
+    if (!userLeave) {
+      return res.status(404).send({ message: 'User leave record not found' });
+    }
+
+    // Check if the user has sufficient leave balance
+    if (userLeave.leaveBalance < leave.noOfDays) {
+      return res.status(400).send({ message: 'Insufficient leave balance' });
+    }
+
+    // Update the leave status to 'Approved'
+    leave.status = 'Approved';
+    await leave.save();
+
+    // Update the user leave balance
+    userLeave.leaveBalance -= leave.noOfDays;
+    userLeave.takenLeaves += leave.noOfDays; // Increment taken leaves
+    await userLeave.save();
+
     res.send({ message: 'Leave approved successfully', leave });
   } catch (error) {
-
     res.status(500).send({ message: 'An error occurred while approving the leave', error: error.message });
   }
 });
