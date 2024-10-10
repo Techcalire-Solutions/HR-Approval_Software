@@ -31,9 +31,11 @@
               &nbsp;&nbsp; &nbsp;&nbsp;<span class="material-icons" style="font-size: 30px; color: rgb(30,58,138);"
               (click)="manageUser()" >playlist_add</span>
               @for(item of users; track item){
-                <mat-option [value]="item.id">
-                  {{item.name}}
-                </mat-option>
+                @if(item.name !== 'HR Admin' && item.name !== 'Approval Admin' && item.name !== 'Super Admin'){
+                  <mat-option [value]="item.id">
+                    {{ item.name }}
+                  </mat-option>
+                }
               }
              </mat-select>
           </mat-form-field>
@@ -44,9 +46,11 @@
             <mat-label>Members</mat-label>
             <mat-select formControlName="teamMembers" multiple>
               @for(item of users; track item){
-                <mat-option [value]="item.id">
-                  {{ item.name }}
-                </mat-option>
+                @if(item.name !== 'HR Admin' && item.name !== 'Approval Admin' && item.name !== 'Super Admin'){
+                  <mat-option [value]="item.id">
+                    {{ item.name }}
+                  </mat-option>
+                }
               }
             </mat-select>
             <!-- <mat-error *ngIf="partForm.controls['applications'].hasError('required')">
