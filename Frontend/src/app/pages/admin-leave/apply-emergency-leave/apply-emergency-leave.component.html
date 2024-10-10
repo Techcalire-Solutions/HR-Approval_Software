@@ -1,5 +1,4 @@
-<!-- <app-leave-count-cards></app-leave-count-cards> -->
-
+<app-leave-count-cards></app-leave-count-cards>
 <mat-card class="leave-card">
   <mat-card-content class="form-wrapper">
     <form [formGroup]="leaveRequestForm" (ngSubmit)="onSubmit()">
@@ -7,7 +6,7 @@
 
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Employee</mat-label>
-          <mat-select formControlName="userId" placeholder="Select Employee" required>
+          <mat-select formControlName="userId" placeholder="Select Employee" required #id (selectionChange)="checkProbationStatus(id.value)">
               @for(item of Users; track $index){
                 @if(item.name !== 'HR Admin' && item.name !== 'Approval Admin' && item.name !== 'Super Admin'){
                   <mat-option [value]="item.id">

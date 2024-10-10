@@ -48,7 +48,6 @@ export class LeaveCountCardsComponent {
     const token: any = localStorage.getItem('token');
     let user = JSON.parse(token);
     this.userId = user.id;
-    console.log(this.userId)
 
     // Check if user is in probation
     this.checkProbationAndGetLeaveCounts(this.userId);
