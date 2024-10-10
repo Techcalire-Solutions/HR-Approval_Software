@@ -1,3 +1,5 @@
+import { User } from "./user"
+
 export interface UserPersonal {
   id: number
   userId: number
@@ -17,5 +19,10 @@ export interface UserPersonal {
   parentName: string
   spouseName: string
   referredBy: string
-  reportingManger: number
+  reportingMangerId: number
+  manager: User
+
+  user: User;
+  age: number;
+  exp: number;
 }

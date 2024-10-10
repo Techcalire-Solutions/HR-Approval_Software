@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatRadioModule } from '@angular/material/radio';
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -19,7 +19,6 @@ import { Role } from '../../../common/interfaces/role';
 import { UsersService } from '../../../services/users.service';
 import { Subscription } from 'rxjs';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { environment } from '../../../../environments/environment';
 import { User } from '../../../common/interfaces/user';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PersonalDetailsComponent } from "../personal-details/personal-details.component";
@@ -39,7 +38,7 @@ import { MatSelectModule } from '@angular/material/select';
   imports: [ ReactiveFormsModule, FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule,  MatDatepickerModule,
     MatNativeDateModule, MatRadioModule, MatDialogModule,  MatButtonModule, MatCheckboxModule, DatePipe,  MatToolbarModule,
     PersonalDetailsComponent, UserPositionComponent, StatuatoryInfoComponent, UserAccountComponent, UserDocumentsComponent, MatCardModule,
-    MatOptionModule, MatSelectModule
+    MatOptionModule, MatSelectModule, CommonModule
 ],
   templateUrl: './user-dialog.component.html',
   styleUrl: './user-dialog.component.scss'
@@ -62,10 +61,9 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.id = params['id'];
-
       if (this.id) {
         this.editStatus = true;
-        this.getUser(this.id) // Call a function if 'id' exists
+        this.getUser(this.id)
       }else{
         this.generateEmployeeNumber()
       }
@@ -120,6 +118,10 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
   patchUser(user: User){
     this.invNo = user.empNo
+    if(user.url != null && user.url != '' && user.url != 'undefined'){
+      
+      this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${user.url}`
+    }
     this.form.patchValue({
       name: user.name,
       roleId: user.roleId,
@@ -130,7 +132,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
       joiningDate: user.createdAt,
       teamId: user.teamId
     })
-    if(user.url != null) this.imageUrl = this.url + user.url
   }
 
   uploadProgress: number | null = null;
@@ -138,7 +139,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   file!: any;
   uploadSub!: Subscription;
   fileType: string = '';
-  imageUrl!: string;
+  imageUrl: string = '';
   public safeUrl!: SafeResourceUrl;
   uploadFile(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -154,7 +155,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
       }
       this.uploadSub = this.userService.uploadImage(this.file).subscribe({
         next: (invoice) => {
-          
+
           this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ invoice.fileUrl}`;
           if (this.imageUrl) {
             this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.imageUrl);
@@ -163,7 +164,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
           this.uploadComplete = true; // Set to true when upload is complete
         },
         error: (error) => {
-          console.error('Upload failed:', error);
           this.uploadComplete = true; // Set to true to remove the progress bar even on error
         }
       });
@@ -174,6 +174,8 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   togglePasswordVisibility() {
     this.hidePassword = !this.hidePassword;
   }
+
+
 
   roles:Role[]=[];
   roleSub!: Subscription;
@@ -193,6 +195,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
 
   selectedTabIndex: number = 0;
+  formSubmitted: boolean = true;
   isFormSubmitted: boolean = false;
   isWorkFormSubmitted: boolean = false;
   isContactsFormSubmitted: boolean = false;
@@ -207,13 +210,12 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     }else{
       this.submit = this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
         this.dataToPass = { id: res.user.id, empNo: this.invNo, name: res.user.name, updateStatus: this.editStatus };
-        console.log(this.dataToPass);
-        
         this.selectedTabIndex = 1;
         if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
           this.personalDetailsComponent.ngOnInit();
         }
         this.isFormSubmitted = true;
+        this.formSubmitted = false;
         this.snackBar.open("User added succesfully...","" ,{duration:3000})
       })
     }
@@ -221,16 +223,19 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
   personalSubmit(event: any){
     this.isWorkFormSubmitted = event.isFormSubmitted
+    this.isFormSubmitted = false;
     this.selectedTabIndex = 2;
   }
 
   workSubmit(event: any){
     this.isContactsFormSubmitted = event.isFormSubmitted
+    this.isWorkFormSubmitted = false;
     this.selectedTabIndex = 3
   }
 
   contactSubmit(event: any){
     this.isSocialFormSubmitted = event.isFormSubmitted
+    this.isContactsFormSubmitted = false;
     this.selectedTabIndex = 4
     if (this.userAccountComponent && this.selectedTabIndex === 4) {
       this.userAccountComponent.ngOnInit();
@@ -239,6 +244,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
   accountSubmit(event: any){
     this.isAccountFormSubmitted = event.isFormSubmitted
+    this.isSocialFormSubmitted = false;
     this.selectedTabIndex = 5
     if (this.userDocumentsComponent && this.selectedTabIndex === 5) {
       this.userDocumentsComponent.trigger();
@@ -339,11 +345,47 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     }
   }
 
+  generateRandomPassword() {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
+    let password = '';
+    for (let i = 0; i < 10; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    
+    this.form.get('password')?.setValue(password);
+    this.form.get('confirmPassword')?.setValue(password);  // Clear confirm password
+  }
+
+  copyEmpNoAndPassword() {
+    const empNo = this.form.get('empNo')?.value;
+    const password = this.form.get('password')?.value;
+
+    if (empNo && password) {
+      const textToCopy = `Emp ID: ${empNo}\nPassword: ${password}`;
+      navigator.clipboard.writeText(textToCopy).then(
+        () => {
+          console.log('Email and password copied to clipboard');
+        },
+        (err) => {
+          console.error('Could not copy text: ', err);
+        }
+      );
+    }
+  }
+
   deleteImage() {
-    this.userService.deleteUserImage(this.id).subscribe(data=>{
-      this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
-      this.getUser(this.id)
-    });
+    if(this.id){
+      this.userService.deleteUserImage(this.id, this.imageUrl).subscribe(data=>{
+        this.imageUrl = ''
+        this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
+        this.getUser(this.id)
+      });
+    }else{
+      this.userService.deleteUserImageByurl(this.imageUrl).subscribe(data=>{
+        this.imageUrl = ''
+        this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
+      });
+    }
   }
 }
 

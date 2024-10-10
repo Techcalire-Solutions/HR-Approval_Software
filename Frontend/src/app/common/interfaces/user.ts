@@ -30,5 +30,8 @@ export interface User {
   parentName: string
   spouseName: string
   referredBy: string
-  reportingManger: number
+
+  separated: boolean
+  probationEndDate: Date
+  
 }

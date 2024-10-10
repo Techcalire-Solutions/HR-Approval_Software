@@ -46,14 +46,15 @@ export class AddRoleDialogComponent {
   public form: FormGroup;
   public passwordHide:boolean = true;
   snackBar = inject(MatSnackBar);
-  
+
   constructor(public dialogRef: MatDialogRef<AddRoleDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public role: Role,
               public fb: FormBuilder,private roleService:RoleService) {
     this.form = this.fb.group({
 
-      roleName: [null, Validators.compose([Validators.required, Validators.minLength(2)])],
-      abbreviation: [null, Validators.compose([Validators.required, Validators.minLength(2)])],
+      roleName: ['', Validators.required],
+      abbreviation: ['', Validators.required],
+      status: [true]
 
     });
   }
@@ -76,6 +77,8 @@ export class AddRoleDialogComponent {
     this.dialogRef.close();
   }
   onSubmit(){
+    console.log(this.role);
+    
     if(this.role){
       this.roleService.updateRole(this.role.id, this.form.getRawValue()).subscribe(data => {
         this.dialogRef.close()
@@ -83,6 +86,8 @@ export class AddRoleDialogComponent {
       });
     }else{
       this.roleService.addRole(this.form.getRawValue()).subscribe((res)=>{
+        console.log(res);
+        
         this.dialogRef.close();
         this.snackBar.open("Role added succesfully...","" ,{duration:3000})
       })

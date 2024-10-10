@@ -10,8 +10,17 @@
         </div>
         <div class="input-field">
           <i class="fas fa-lock"></i>
-          <input type="password" placeholder="Password" formControlName="password" />
+          <input
+            type="{{ showPassword ? 'text' : 'password' }}"
+            placeholder="Password"
+            formControlName="password"
+          />
+          <span class="material-icons eye-icon" (click)="togglePasswordVisibility()">
+            {{ showPassword ? 'visibility' : 'visibility_off' }}
+          </span>
         </div>
+        
+        
         <input type="submit" value="Login" class="btn solid" />
         <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
       </form>

@@ -87,6 +87,8 @@ export class UpdatePIComponent {
       this.patchdata(this.id);
     }
     this.getKAM();
+    this.getAM();
+    this.getAccountants();
 
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
@@ -150,7 +152,6 @@ export class UpdatePIComponent {
           this.uploadComplete = true; // Set to true when upload is complete
         },
         error: (error) => {
-          console.error('Upload failed:', error);
           this.uploadComplete = true; // Set to true to remove the progress bar even on error
         }
       });
@@ -246,8 +247,6 @@ export class UpdatePIComponent {
   getAccountants(){
     this.accountantSub = this.loginServie.getUserByRole(4).subscribe(user =>{
       this.AccountantList = user;
-      console.log('account list',this.AccountantList);
-
     });
   }
   submit!: Subscription;
@@ -255,19 +254,19 @@ export class UpdatePIComponent {
 
     if(this.roleName=='Sales Executive'){
       this.submit = this.invoiceService.updatePIBySE(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
+        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
         this.router.navigateByUrl('login/viewApproval')
       });
     }else if(this.roleName=='Key Account Manager'){
       this.submit = this.invoiceService.updatePIByKAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
+        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
         this.router.navigateByUrl('login/viewApproval')
       });
     }
 
     else if(this.roleName=='Manager'){
       this.submit = this.invoiceService.updatePIByAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
+        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
         this.router.navigateByUrl('login/viewApproval')
       });
     }
@@ -288,6 +287,8 @@ export class UpdatePIComponent {
         status: inv.status,
         remarks: remarks,
         kamId: inv.kamId,
+        amId: inv.amId,
+        accountantId: inv.accountantId,
         supplierName: inv.supplierName,
         supplierPoNo: inv.supplierPoNo,
         supplierPrice: inv.supplierPrice,

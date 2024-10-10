@@ -1,0 +1,35 @@
+table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+th, td {
+  text-align: left;
+  // padding: 8px;
+  word-wrap: break-word;
+}
+
+input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+th:nth-child(1), td:nth-child(1) {
+  width: 30%; /* Adjust the width of the first column */
+}
+
+th:nth-child(2), td:nth-child(2),
+th:nth-child(3), td:nth-child(3),
+th:nth-child(4), td:nth-child(4),
+th:nth-child(5), td:nth-child(5) {
+  width: 10%; /* Adjust these as needed */
+}
+.submit {
+  width: 100%;
+  background-color: rgb(8, 71, 138);
+}
+
+.remove {
+  width: 100%;
+  color: rgb(221, 23, 23);
+}

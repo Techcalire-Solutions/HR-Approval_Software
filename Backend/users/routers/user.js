@@ -10,7 +10,10 @@ const multer = require('../../utils/userImageMulter'); // Import the configured 
 const Team = require('../models/team')
 const TeamMember = require('../models/teamMember');
 const upload = require('../../utils/userImageMulter'); 
-const s3 = require('../../utils/s3bucket')
+const s3 = require('../../utils/s3bucket');
+const UserLeave = require('../../leave/models/userLeave');
+const LeaveType = require('../../leave/models/leaveType');
+const UserPersonal = require('../models/userPersonal');
 
 router.post('/add', async (req, res) => {
   const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId, empNo } = req.body;
@@ -30,10 +33,8 @@ router.post('/add', async (req, res) => {
       return res.send(`User already exists with the email or employee number and Role`);
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create the new user
     const user = await User.create({
       name, empNo, email, phoneNumber, password: hashedPassword, roleId, status, userImage, url, teamId
     });
@@ -55,7 +56,6 @@ router.post('/add', async (req, res) => {
     }
 
   } catch (error) {
-    console.error('Error:', error.message);
     res.send('Server error');
   }
 });
@@ -188,31 +188,36 @@ router.patch('/statusupdate/:id', async (req, res) => {
   }
 })
 
+// Route to get a user by ID
 router.get('/findone/:id', async (req, res) => {
   let id = req.params.id;
+  
   try {
     const user = await User.findByPk(id, {
-      include: {
-        model: Role,
-        attributes: ['id', 'roleName']
-      }
+      include: [
+        {
+          model: Role,
+          attributes: ['id', 'roleName']
+        },
+
+      ]
     });
     res.send(user);
   } catch (error) {
-    res.status(500).send(error.message);
+    res.send(error.message);
   }
 });
 
 router.patch('/update/:id', async(req,res)=>{
-  const { name, email, phoneNumber, roleId} = req.body;
+  const { name, email, phoneNumber, roleId, url} = req.body;
   // const pass = await bcrypt.hash(password, 10);
   try {
     let result = await User.findByPk(req.params.id);
     result.name = name;
     result.email = email;
     result.phoneNumber = phoneNumber;
-    // result.password = pass;
     result.roleId = roleId;
+    result.url = url
 
     await result.save();
     res.send(result);
@@ -242,56 +247,6 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
   }
 })
 
-// router.post('/fileupload', multer.single('file'), authenticateToken, (req, res) => {
-//   try {
-
-//     if (!req.file) {
-//       return res.status(400).send({ message: 'No file uploaded' });
-//     }
-//     console.log(req.file);
-    
-//     // Construct the URL path
-//     const fileUrl = `/users/userImages/${req.file.originalname}`;
-
-//     res.status(200).send({
-//       message: 'File uploaded successfully',
-//       file: req.file,
-//       fileUrl: fileUrl
-//     });
-//   } catch (error) {
-//     console.error('Error uploading file:', error);
-//     res.status(500).send({ message: error.message });
-//   }
-// });
-
-// router.delete('/filedelete/:id', async (req, res) => {
-//   let id = req.params.id;
-//   try {
-//     const pi = await PerformaInvoice.findByPk(id);
-//     let filename = pi.url
-//     const directoryPath = path.join(__dirname, '../userImages'); // Replace 'uploads' with your folder name
-//     const filePath = path.join(directoryPath, filename);
-
-//     fs.access(filePath, fs.constants.F_OK, (err) => {
-//       if (err) {
-//         return res.status(404).json({ message: 'File not found' });
-//       }
-
-//       // Delete the file
-//       fs.unlink(filePath, (err) => {
-//         if (err) {
-//           return res.status(500).json({ message: 'Error deleting file' });
-//         }
-
-//         return res.status(200).json({ message: 'File deleted successfully' });
-//       });
-//     })
-//   } catch (error) {
-//     console.error('Error deleting file:', error);
-//     res.status(500).send({ message: error.message });
-//   }
-// });
-
 router.get('/findbyrole/:id', async (req, res) => {
   try {
     const user = await User.findAll({
@@ -303,16 +258,40 @@ router.get('/findbyrole/:id', async (req, res) => {
   }
 })
 
-router.get('/getreportingmanager', async (req, res) => {
+router.get('/getdirectors', async (req, res) => {
   try {
     const user = await User.findAll({
-      where: { reportingManager: true }
+      where: { director: true }
     })
     res.send(user);
   } catch (error) {
     res.send(error.message)
   }
 })
+
+router.get('/getbyrm/:id', async (req, res) => {
+  try {
+    
+    const id = parseInt(req.params.id, 10)
+
+    const users = await User.findAll({
+      include: [
+        {
+          model: UserPersonal,
+          required: true, // Only include users with a matching UserPersonal record
+          where: {
+            reportingMangerId: { [Op.ne]: null },
+            reportingMangerId: id
+          },
+        },
+      ],
+    });
+
+    res.send(users); // Send the retrieved users
+  } catch (error) {
+    res.send(error.message); // Send error message
+  }
+});
 
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
@@ -347,25 +326,26 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
       fileUrl: key // S3 URL of the uploaded file
     });
   } catch (error) {
-    console.error('Error uploading file to S3:', error);
     res.send({ message: error.message });
   }
 });
 
-router.delete('/filedelete/:id', authenticateToken, async (req, res) => {
-  let id = req.params.id;
+router.delete('/filedelete', authenticateToken, async (req, res) => {
+  let id = req.query.id;
   try {
     try {
         let user = await User.findByPk(id);
-        fileKey = user.url
+        fileKey = user.url;
         user.url = '';
-
         await user.save();
     } catch (error) {
       res.send(error.message)
     }
+    let key;
     if (!fileKey) {
-      return res.status(400).send({ message: 'No file key provided' });
+      key = req.query.key;
+      
+      fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
     }
 
     // Set S3 delete parameters
@@ -379,8 +359,140 @@ router.delete('/filedelete/:id', authenticateToken, async (req, res) => {
 
     res.status(200).send({ message: 'File deleted successfully' });
   } catch (error) {
-    console.error('Error deleting file from S3:', error);
     res.status(500).send({ message: error.message });
   }
 });
+
+router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
+    key = req.query.key;
+    fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+    try {
+      if (!fileKey) {
+        return res.send({ message: 'No file key provided' });
+      }
+
+      // Set S3 delete parameters
+      const deleteParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileKey
+      };
+
+      // Delete the file from S3
+      await s3.deleteObject(deleteParams).promise();
+
+      res.status(200).send({ message: 'File deleted successfully' });
+    } catch (error) {
+      res.status(500).send({ message: error.message });
+    }
+});
+
+router.patch('/resetpassword/:id', async (req, res) => {
+  const { password, paswordReset } = req.body;
+
+  try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      let user = await User.findByPk(req.params.id);
+
+      if (!user) {
+          return res.send('User not found');
+      }
+
+      user.password = hashedPassword;
+      user.paswordReset = paswordReset;
+
+      await user.save();
+      
+      res.send(user);
+  } catch (error) {
+      res.status(500).send(error.message);
+  }
+});
+
+router.get('/underprobation', async (req, res) => {
+  try {
+    const user = await User.findAll({
+      where: { isTemporary: true }
+    })
+    res.send(user);
+  } catch (error) {
+    res.send(error.message)
+  }
+})
+
+router.get('/confirmed', async (req, res) => {
+  try {
+    const user = await User.findAll({
+      where: { isTemporary: false }
+    })
+    res.send(user);
+  } catch (error) {
+    res.send(error.message)
+  }
+})
+
+router.get('/confirmemployee/:id', async (req, res) => {
+  try {
+      let result = await User.findByPk(req.params.id);
+
+      let up = await UserPersonal.findOne({
+        where: { userId: req.params.id}
+      })
+      if(!up){
+        return res.send(`Personal data is not added for the employee ${result.name}`)
+      }
+      
+      if (!result) {
+          return res.json({ message: "Employee not found" });
+      }
+
+      result.isTemporary = false;
+      await result.save();
+
+      const leaveTypes = await LeaveType.findAll({});
+      const sl = leaveTypes.find(x => x.leaveTypeName === 'Sick Leave');
+      const cl = leaveTypes.find(x => x.leaveTypeName === 'Casual Leave');
+      const slId = sl ? sl.id : null;
+      const clId = cl ? cl.id : null;
+      
+      let data = [
+        {userId: req.params.id, leaveTypeId: slId, noOfDays : 1, leaveBalance : 1},
+        {userId: req.params.id, leaveTypeId: clId, noOfDays : 1, leaveBalance : 1},
+      ]
+      for(let i = 0; i < data.length; i++){
+        UserLeave.bulkCreate([data[i]]);
+      }
+
+      res.json({ message: "Employee confirmed" });
+  } catch (error) {
+      res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+});
+
+
+router.get('/', async (req, res) => {
+  try {
+    const users = await User.findAll();
+    res.status(200).json(users); 
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
+router.get('/resignemployee/:id', async (req, res) => {
+  try {
+      let result = await User.findByPk(req.params.id);
+      
+      if (!result) {
+          return res.json({ message: "Employee not found" });
+      }
+
+      result.separated = true;
+      result.status = false;
+      await result.save();
+      res.json({ message: "Employee Separetd" });
+  } catch (error) {
+      res.json({ message: "Internal Server Error", error: error.message });
+  }
+});
+
 module.exports = router;

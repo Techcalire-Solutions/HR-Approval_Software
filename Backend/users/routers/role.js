@@ -7,14 +7,12 @@ const sequelize = require('../../utils/db');
 
 
 router.post('/', authenticateToken, async (req, res) => {
+  const { roleName, abbreviation, status } = req.body;
     try {
-            const { roleName,abbreviation, status } = req.body;
-
-            const role = new Role({roleName,abbreviation, status});
-
-            await role.save();
-
-            res.send(role);
+          const role = new Role({roleName, abbreviation, status});
+          await role.save();
+          
+          res.send(role);
 
     } catch (error) {
         res.send(error.message);
@@ -24,6 +22,7 @@ router.post('/', authenticateToken, async (req, res) => {
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const roles = await Role.findAll({});
+
     res.send(roles);
   } catch (error) {
     res.status(500).send({ error: error.message });
@@ -89,7 +88,10 @@ router.get('/find', async (req, res) => {
 
       res.json(response);
     } else {
-      res.json(role);
+      const filteredRoles = role.filter(role => 
+        role.roleName !== 'Administrator' && role.roleName !== 'Super Administrator' && role.roleName !== 'HR Administrator'
+      );
+      res.json(filteredRoles);
     }
   } catch (error) {
     res.send(error.message);
@@ -124,7 +126,6 @@ router.get('/rolename', authenticateToken, async (req, res) => {
 
 router.delete('/:id', authenticateToken, async(req,res)=>{
     try {
-
         const result = await Role.destroy({
             where: { id: req.params.id },
             force: true,

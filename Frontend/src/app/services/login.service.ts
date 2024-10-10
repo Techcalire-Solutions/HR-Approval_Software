@@ -26,21 +26,15 @@ export class LoginService {
     this.storeTokens(tokens)
   }
 
-  loginUser(data: any)
-  {
-
+  loginUser(data: any) {
    return this._http.post(this.url + '/auth', data).pipe(
      tap((tokens) => this.doLoginUser(data.email, tokens)),
-     mapTo(true),
-
-     catchError((error: any) => {
-
-       return of(false)
+     mapTo(true), catchError((error: any) => {
+        return of(false)
      })
    )
   }
   private storeTokens(tokens: any){
-
     localStorage.setItem(this.JWT_TOKEN, tokens.token.accessToken)
     localStorage.setItem(this.REFRESH_TOKEN, tokens.token.refreshToken)
     localStorage.setItem('token', JSON.stringify(tokens))

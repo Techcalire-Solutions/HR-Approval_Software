@@ -36,6 +36,13 @@ export class InvoiceService {
     }
   }
 
+  deleteUploaded(id: number, key?: string) {
+    return this._http.delete(`${this.url}/invoice/filedelete?id=${id}&key=${key}`);
+  }
+
+  deleteUploadByurl(key: string) {
+    return this._http.delete(`${this.url}/invoice/filedeletebyurl/?key=${key}`);
+  }
 
   // deleteInvoice(id: number, fileName: string){
   //   return this._http.delete(this.url + `/invoice/filedelete/?id=${id}&fileName=${fileName}`);
@@ -86,7 +93,6 @@ export class InvoiceService {
   }
 
 
-
   updatePIBySE(data: any, id: number){
     return this._http.patch(this.url + '/performaInvoice/updateBySE/'+ id, data);
   }
@@ -98,8 +104,6 @@ export class InvoiceService {
   updatePIByAM(data: any, id: number){
     return this._http.patch(this.url + '/performaInvoice/updateByAM/'+ id, data);
   }
-
-
 
   getPIById(id: number): Observable<any>{
     return this._http.get<any>(this.url + '/performaInvoice/findbyid/'+id);

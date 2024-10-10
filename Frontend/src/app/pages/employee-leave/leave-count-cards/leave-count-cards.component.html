@@ -1,0 +1,29 @@
+<div fxLayout="row wrap" #resizedDiv>
+  <!-- Display error message if available -->
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <!-- Check if there are no leave counts using the flag -->
+  <div *ngIf="!hasLeaveCounts && !errorMessage">No leave counts available.</div>
+
+  <!-- Render leave counts only if available -->
+  <ng-container *ngIf="hasLeaveCounts">
+    <ng-container *ngFor="let leave of leaveCounts">
+      <div fxFlex="100" fxFlex.gt-sm="25" fxFlex.sm="50" class="p-2">
+        <mat-card class="pb-2">
+          <mat-card-header class="pt-2" fxLayoutAlign="space-between center">
+            <mat-card-subtitle>{{ leave.leaveTypeName }}</mat-card-subtitle>
+
+            <!-- Display leave balance for non-LOP, or taken leaves for LOP -->
+            <mat-chip-set>
+              <mat-chip color="accent" highlighted="true" class="info-chip">
+                <mat-icon class="icon-sm">trending_up</mat-icon>
+                <!-- Display leave balance or taken leaves based on leave type -->
+                {{ leave.leaveTypeName === 'LOP' ? leave.takenLeaves : leave.noOfDays - leave.takenLeaves || 0 }}
+              </mat-chip>
+            </mat-chip-set>
+          </mat-card-header>
+        </mat-card>
+      </div>
+    </ng-container>
+  </ng-container>
+</div>

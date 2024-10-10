@@ -74,7 +74,7 @@ export class VerificationDialogueComponent {
   am: User[] = [];
   getAm() {
     this.userSub = this.loginService.getUserByRole(3).subscribe(data => {
-  
+
       this.am = data;
       });
 
