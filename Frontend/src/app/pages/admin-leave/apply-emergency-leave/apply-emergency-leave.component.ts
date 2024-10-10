@@ -1,6 +1,6 @@
 import { CommonModule, formatDate } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, FormArray, FormsModule, ReactiveFormsModule, ValidatorFn, AbstractControl } from '@angular/forms';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { FormGroup, FormBuilder, Validators, FormArray, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -20,13 +20,13 @@ import { LeaveService } from '@services/leave.service';
 import { SafePipe } from '../../add-approval/view-invoices/safe.pipe';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
-import { SafeResourceUrl } from '@angular/platform-browser';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LeaveCountCardsComponent } from '../../employee-leave/leave-count-cards/leave-count-cards.component';
 import { UsersService } from '@services/users.service';
 import { User } from '../../../common/interfaces/user';
+import { MatChipsModule } from '@angular/material/chips';
+import { UserLeave } from '../../../common/interfaces/userLeave';
 // Custom validator to check if at least one session is selected
 function sessionSelectionValidator(group: FormGroup) {
   const session1 = group.get('session1')?.value;
@@ -54,8 +54,7 @@ function sessionSelectionValidator(group: FormGroup) {
     SafePipe,
     MatDatepickerModule,
     MatTableModule,
-    MatSnackBarModule,
-    LeaveCountCardsComponent
+    LeaveCountCardsComponent, MatChipsModule
   ],
   templateUrl: './apply-emergency-leave.component.html',
   styleUrl: './apply-emergency-leave.component.scss',
@@ -64,7 +63,15 @@ function sessionSelectionValidator(group: FormGroup) {
     { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
   ],
 })
-export class ApplyEmergencyLeaveComponent {
+export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
+  ngOnDestroy(): void {
+    this.submit?.unsubscribe();
+    this.usersSub?.unsubscribe();
+    this.leaveSub?.unsubscribe();
+    this.leaveTypeSub?.unsubscribe();
+    this.ulSub?.unsubscribe();
+    this.employeeSub?.unsubscribe();
+  }
   isEditMode: boolean = false;
 
   leaveRequestForm: FormGroup;
@@ -90,35 +97,10 @@ export class ApplyEmergencyLeaveComponent {
   ngOnInit() {
     this.getUsers()
     this.getLeaveType();
-    const token: any = localStorage.getItem('token')
-    let user = JSON.parse(token)
-    this.userId = user.id;
-
     const leaveId = this.route.snapshot.queryParamMap.get('id');
     if (leaveId) {
       this.isEditMode = true;
-      this.leaveService.getLeaveById(+leaveId).subscribe((response: any) => {
-        this.leave = response;
-
-
-        this.leaveRequestForm.patchValue({
-          leaveTypeId: this.leave.leaveTypeId,
-          startDate: this.leave.startDate,
-          endDate: this.leave.endDate,
-          notes: this.leave.notes
-        });
-
-
-        const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
-        leaveDatesArray.clear();
-        this.leave.leaveDates.forEach((leaveDate: any) => {
-          leaveDatesArray.push(this.fb.group({
-            date: [leaveDate.date],
-            session1: [leaveDate.session1],
-            session2: [leaveDate.session2]
-          }));
-        });
-      });
+      this.getLeaveDetails(+leaveId)
     }
 
     this.leaveRequestForm = this.fb.group({
@@ -181,15 +163,34 @@ export class ApplyEmergencyLeaveComponent {
     leaveDateGroup.get(session)?.setValue(!currentValue);
   }
 
+  leaveSub!: Subscription;
   getLeaveDetails(id: number) {
-    this.leaveService.getLeaveById(id).subscribe((leave) => {
+    this.leaveSub = this.leaveService.getLeaveById(id).subscribe((leave) => {
       this.leave = leave;
+      this.leaveRequestForm.patchValue({
+        userId: this.leave.userId,
+        leaveTypeId: this.leave.leaveTypeId,
+        startDate: this.leave.startDate,
+        endDate: this.leave.endDate,
+        notes: this.leave.notes
+      });
+
+
+      const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
+      leaveDatesArray.clear();
+      this.leave.leaveDates.forEach((leaveDate: any) => {
+        leaveDatesArray.push(this.fb.group({
+          date: [leaveDate.date],
+          session1: [leaveDate.session1],
+          session2: [leaveDate.session2]
+        }));
+      });
     });
   }
 
+  submit!: Subscription;
   onSubmit() {
-    this.isLoading = true; // Disable the button and show loading indicator
-    console.log('on submit');
+    this.isLoading = true;
     const leaveRequest = {
       ...this.leaveRequestForm.value,
       leaveDates: this.leaveRequestForm.get('leaveDates')!.value
@@ -199,25 +200,22 @@ export class ApplyEmergencyLeaveComponent {
 
     if (this.isEditMode && leaveId) {
       const idAsNumber = +leaveId;
-      console.log('leaveRequest',leaveRequest);
 
-      // Update leave request
-      this.leaveService.updateLeave(idAsNumber, leaveRequest).subscribe((response: any) => {
-        // this.openDialog(response.message);
-        console.log('hi entry updated');
+      this.submit = this.leaveService.updatemergencyLeave(leaveRequest, this.leave.id).subscribe((response: any) => {
+        history.back()
+        this.snackBar.open("Emergency leave updated succesfully...","" ,{duration:3000})
       });
     } else {
-      // Add new leave request
-      this.leaveService.addEmergencyLeave(leaveRequest).subscribe((response: any) => {
-        console.log('hi entry addede', response);
-
-        // this.openDialog(response.message);
+      this.submit = this.leaveService.addEmergencyLeave(leaveRequest).subscribe((response: any) => {
+        history.back()
+        this.snackBar.open("Emergency leave added succesfully...","" ,{duration:3000})
       });
     }
   }
 
+  leaveTypeSub!: Subscription;
   getLeaveType() {
-    this.leaveService.getLeaveType().subscribe( (leaveTypes: any) => {
+    this.leaveTypeSub = this.leaveService.getLeaveType().subscribe( (leaveTypes: any) => {
       console.log(leaveTypes);
       
         this.leaveTypes = leaveTypes;
@@ -230,11 +228,13 @@ export class ApplyEmergencyLeaveComponent {
 
   uploadProgress: number | null = null;
   file!: File;
-  imageUrl!: string;
+  imageUrl: string = '';
   fileName: string = ''; // Holds the name of the file
   isFileSelected: boolean = false; // Track if a file is selected
 
   uploadFile(event: Event) {
+    console.log(event);
+    
     const input = event.target as HTMLInputElement;
     const selectedFile = input.files?.[0]; // Get the first file if it exists
 
@@ -274,18 +274,30 @@ export class ApplyEmergencyLeaveComponent {
 
  // Check if the user is on probation
  isProbationEmployee: boolean = false;
+ employeeSub!: Subscription;
  checkProbationStatus(id: number) {
-  this.getLeaveType()
-  this.userService.getProbationEmployees().subscribe((employees) => {
-    
-    this.isProbationEmployee = employees.some((emp: any) => emp.id === id);
-    
-    if (this.isProbationEmployee) {
-      this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
-    }
-  });
-}
+    this.getLeaveType()
+    this.getUserLeaves(id)
+    this.employeeSub = this.userService.getProbationEmployees().subscribe((employees) => {
+      
+      this.isProbationEmployee = employees.some((emp: any) => emp.id === id);
+      
+      if (this.isProbationEmployee) {
+        this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
+      }
+    });
+  }
 
+  ulSub!: Subscription;
+  userLeaves: UserLeave[] = [];
+  getUserLeaves(id: number){
+    this.ulSub = this.leaveService.getUserLeaveByUser(id).subscribe((response: any) => {
+      this.userLeaves = response;
+    });
+  }
 
+  deleteImage(){
+
+  }
 }
 
