@@ -3,19 +3,17 @@
 <body>
   <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
     <div fxLayout="row" class="col">
-        <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-          <mat-button-toggle value="add" (click)="openApplyLeave()">
-            <mat-icon style="color: green;">event</mat-icon>
+      <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
+        <mat-button-toggle value="add" (click)="openApplyLeave()">
+          <mat-icon style="color: green;">event</mat-icon>
           ADD
-          </mat-button-toggle>
-
-
-        </mat-button-toggle-group>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
     </div>
     <div fxLayout="row" class="col">
       <form class="user-search" [class.show]="controls.value == 'search'">
         <mat-form-field class="user-search-input">
-            <input matInput placeholder="Search leave by leave type..." name="search" (keyup)="search($event)">
+          <input matInput placeholder="Search leave by leave type..." name="search" (keyup)="search($event)">
         </mat-form-field>
       </form>
     </div>
@@ -51,60 +49,52 @@
             <!-- Status -->
             <td>{{ item.status | camelCase }}</td>
 
-
-
             <!-- Actions -->
             <td>
-                                     <!-- Edit and Delete Buttons -->
-<ng-container *ngIf="item.status.toLowerCase() !== 'accepted' && item.status.toLowerCase() !== 'rejected'; else blockedAction">
-  <div class="icon-btn-group">
-    <button mat-icon-button
-            (click)="editLeave(item)"
-            class="icon-btn edit-btn">
-      <mat-icon>mode_edit</mat-icon>
-    </button>
+              <!-- Edit and Delete Buttons -->
+              <ng-container *ngIf="item.status.toLowerCase() !== 'approved' && item.status.toLowerCase() !== 'rejected'; else blockedAction">
+                <div class="icon-btn-group">
+                  <!-- Edit Button -->
+                  <button mat-icon-button
+                          (click)="editLeave(item)"
+                          class="icon-btn edit-btn"
+                          [disabled]="item.status.toLowerCase() === 'approved' || item.status.toLowerCase() === 'rejected'">
+                    <mat-icon>mode_edit</mat-icon>
+                  </button>
 
-    <button mat-icon-button
-            (click)="deleteLeave(item.id)"
-            class="icon-btn delete-btn">
-      <mat-icon>delete</mat-icon>
-    </button>
-  </div>
-</ng-container>
+                  <!-- Delete Button -->
+                  <button mat-icon-button
+                          (click)="deleteLeave(item.id)"
+                          class="icon-btn delete-btn"
+                          [disabled]="item.status.toLowerCase() === 'approved' || item.status.toLowerCase() === 'rejected'">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </ng-container>
 
-<!-- Blocked Icon -->
-<ng-template #blockedAction>
-  <div class="icon-btn-group blocked-layout">
-    <button mat-icon-button class="icon-btn blocked-btn" disabled>
-      <mat-icon>block</mat-icon> <!-- Blocked Icon -->
-    </button>
-  </div>
-</ng-template>
-
-
-
-
-
-
-
-
-
+              <!-- Blocked Action: Show when the status is "approved" or "rejected" -->
+              <ng-template #blockedAction>
+                <div class="icon-btn-group blocked-layout">
+                  <button mat-icon-button class="icon-btn blocked-btn" disabled>
+                    <mat-icon>block</mat-icon> <!-- Blocked Icon -->
+                  </button>
+                </div>
+              </ng-template>
             </td>
           </tr>
         </tbody>
       </table>
+
+      <!-- Paginator -->
       <mat-paginator
-      [length]="totalItems"
-      [pageSize]="pageSize"
-      [pageIndex]="currentPage - 1"
-      (page)="onPageChange($event)"
-      [pageSizeOptions]="[10, 20, 30, 40, 50, 100]">
-    </mat-paginator>
+        [length]="totalItems"
+        [pageSize]="pageSize"
+        [pageIndex]="currentPage - 1"
+        (page)="onPageChange($event)"
+        [pageSizeOptions]="[10, 20, 30, 40, 50, 100]">
+      </mat-paginator>
 
     </section>
   </main>
-
-
-
 </body>
 </html>
