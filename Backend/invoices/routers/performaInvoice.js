@@ -880,7 +880,7 @@ router.get('/dashboard', authenticateToken, async (req, res) => {
         where.status = status;
     }
 
-    if (req.user.roleId !== 101) {
+    if (req.user.roleId !== 101 && req.user.roleId !== 103) {
         const userId = req.user.id;
         where[Op.or] = [
             { salesPersonId: userId },
