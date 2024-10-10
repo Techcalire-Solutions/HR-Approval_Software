@@ -5,21 +5,28 @@
 
       <div class="container pt-4">
         <section class="icon-container mb-4">
-          <a (click)="onTabClick('bookmark')" *ngIf="!admin">
-            <span (click)="onStepSelectionChange('pending')" class="material-symbols-outlined"
-              [ngClass]="{'selected': selectedTab === 'bookmark'}"> {{pendingHeader}}
-            </span>
-          </a>
-          <a (click)="onTabClick('factCheck')" *ngIf="!admin && !ma">
-            <span (click)="onStepSelectionChange('assigned')" class="material-symbols-outlined"
-              [ngClass]="{'selected': selectedTab === 'factCheck'}"> {{header}}
-            </span>
-          </a>
-          <a (click)="onTabClick('list')" *ngIf="!admin">
-            <span (click)="onStepSelectionChange('completed')" class="material-symbols-outlined"
-              [ngClass]="{'selected': selectedTab === 'list'}"> COMPLETED
-            </span>
-          </a>
+          @if(!admin){
+            <a (click)="onTabClick('bookmark')">
+              <span (click)="onStepSelectionChange('pending')" class="material-symbols-outlined"
+                [ngClass]="{'selected': selectedTab === 'bookmark'}"> {{pendingHeader}}
+              </span>
+            </a>
+            <a (click)="onTabClick('list')">
+              <span (click)="onStepSelectionChange('completed')" class="material-symbols-outlined"
+                [ngClass]="{'selected': selectedTab === 'list'}"> COMPLETED
+              </span>
+            </a>
+            @if(!ma){
+              <a (click)="onTabClick('factCheck')">
+                <span (click)="onStepSelectionChange('assigned')" class="material-symbols-outlined"
+                  [ngClass]="{'selected': selectedTab === 'factCheck'}"> {{header}}
+                </span>
+              </a>
+            }
+          }
+
+         
+
           <a (click)="onTabClick('invoice')">
             <span (click)="onStepSelectionChange('all')" class="material-symbols-outlined"
               [ngClass]="{'selected': selectedTab === 'invoice'}"> ALL
@@ -58,46 +65,50 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let invoice of invoices; let i = index" [routerLink]="['/login/viewInvoices/', invoice.id]" >
-                <td [attr.data-label]="'InvoiceNo'">{{invoice.piNo || '-'}}</td>
-                <td [attr.data-label]="'SP'">{{invoice.salesPerson?.name || '-'}}</td>
-                <td [attr.data-label]="'KAM'">{{invoice.kam?.name || '-'}}</td>
-                <td [attr.data-label]="'AM'">{{invoice.am?.name || '-'}}</td>
-                <td [attr.data-label]="'MA'">{{invoice.accountant?.name}}</td>
-                <td [attr.data-label]="'Status'">{{invoice.status}}_{{invoice.count}}</td>
-
-
-                <td (click)="$event.stopPropagation()">
-                  <div class="action-icons">
-                    <button class="update-button" [routerLink]="['/login/updatePI', invoice.id]"
-                      *ngIf="admin || invoice.editButtonStatus">Update
-                    </button>
-                    <button class="delete-button" (click)="deleteFunction(invoice.id)"
-                    *ngIf="admin|| invoice.editButtonStatus">Delete
-                  </button>
-                    <button mat-raised-button class="approve-button"
-                      (click)="verified('approved', invoice.piNo, invoice.salesPerson?.name, invoice.id)"
-                      *ngIf="!sp && pageStatus && !admin && !teamLead "> APPROVE
-                    </button>
-                    <button mat-raised-button class="reject-button"
-                      (click)="verified('rejected', invoice.piNo, invoice.salesPerson ? invoice.salesPerson.name : invoice.kam?.name, invoice.id)"
-                      *ngIf="!sp && pageStatus && !admin && !teamLead">
-                      REJECT
-                    </button>
-
-                    <button mat-raised-button class="add-bank-slip-button"
-                    (click)="addBankSlip(invoice.piNo, invoice.id)"
-                    *ngIf="!sp && ma">
-              {{ invoice.status === 'BANK SLIP ISSUED' ? 'Edit Wireslip' : 'Wireslip' }}
-            </button>
-
-
-                  </div>
-                </td>
-              </tr>
-              <tr *ngIf="invoices.length === 0">
-                <td [colSpan]="7" style="text-align: center;">No records found</td>
-              </tr>
+              @for(invoice of invoices;let i=$index; track $index){
+                <tr [routerLink]="['/login/viewInvoices/', invoice.id]" >
+                  <td [attr.data-label]="'InvoiceNo'">{{invoice.piNo || '-'}}</td>
+                  <td [attr.data-label]="'SP'">{{invoice.salesPerson?.name || '-'}}</td>
+                  <td [attr.data-label]="'KAM'">{{invoice.kam?.name || '-'}}</td>
+                  <td [attr.data-label]="'AM'">{{invoice.am?.name || '-'}}</td>
+                  <td [attr.data-label]="'MA'">{{invoice.accountant?.name}}</td>
+                  <td [attr.data-label]="'Status'">{{invoice.status}}_{{invoice.count}}</td>
+  
+  
+                  <td (click)="$event.stopPropagation()">
+                    <div class="action-icons">
+                      @if(admin || invoice.editButtonStatus){
+                        <button class="update-button" [routerLink]="['/login/updatePI', invoice.id]">Update
+                        </button>
+                        <button class="delete-button" (click)="deleteFunction(invoice.id)">Delete
+                        </button>
+                      }
+                     
+                      @if(!sp && pageStatus && !admin && !teamLead){
+                      <button mat-raised-button class="approve-button"
+                        (click)="verified('approved', invoice.piNo, invoice.salesPerson?.name, invoice.id)"> APPROVE
+                      </button>
+                      <button mat-raised-button class="reject-button"
+                        (click)="verified('rejected', invoice.piNo, invoice.salesPerson ? invoice.salesPerson.name : invoice.kam?.name, invoice.id)">
+                        REJECT
+                      </button>
+                    }
+                      @if(!sp && ma){
+                        <button mat-raised-button class="add-bank-slip-button"
+                        (click)="addBankSlip(invoice.piNo, invoice.id)">      {{ invoice.status === 'BANK SLIP ISSUED' ? 'Edit Wireslip' : 'Wireslip' }}
+                      </button>
+                      }
+                     
+                    </div>
+                  </td>
+                </tr>
+              }
+              @if(invoices.length === 0){
+                <tr>
+                  <td [colSpan]="7" style="text-align: center;">No records found</td>
+                </tr>
+              }
+             
             </tbody>
           </table>
 

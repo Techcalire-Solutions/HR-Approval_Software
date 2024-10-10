@@ -63,7 +63,7 @@
             <td>
               <!-- Approve and Reject Buttons (only visible if not Admin Approved) -->
               <ng-container *ngIf="item.status !== 'Admin Approved'">
-                <button mat-raised-button class="approve-button" (click)="approveLeave(item.id)" [disabled]="item.status === 'Approved' || item.status === 'Admin Approved'">
+                <button mat-raised-button class="approve-button" (click)="approveLeave(item.id)" [disabled]="item.status === 'Approved' || item.status === 'AdminApproved'">
                   APPROVE
                 </button> &nbsp;
                 <button mat-raised-button class="reject-button" (click)="rejectLeave(item.id)" [disabled]="item.status === 'Rejected'">

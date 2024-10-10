@@ -9,8 +9,6 @@ import { Subscription } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { PerformaInvoice } from '../../../common/interfaces/performaInvoice';
 import { SafePipe } from '../view-invoices/safe.pipe';
-
-import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
@@ -25,7 +23,7 @@ import { User } from '../../../common/interfaces/user';
 @Component({
   selector: 'app-update-pi',
   standalone: true,
-  imports: [CommonModule,
+  imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
     MatCardModule,
