@@ -70,74 +70,68 @@ export class ApplyEmergencyLeaveComponent {
   leaveRequestForm: FormGroup;
   leaveTypes: any[] = [];
   isLoading = false;
+  snackBar = inject(MatSnackBar);
+  router = inject(Router)
+  route = inject(ActivatedRoute)
+  fb = inject(FormBuilder)
+  leaveService = inject(LeaveService)
+  sanitizer = inject(DomSanitizer);
+  userService = inject(UsersService)
 
-
-snackBar = inject(MatSnackBar);
-router = inject(Router)
-route = inject(ActivatedRoute)
-fb = inject(FormBuilder)
-leaveService = inject(LeaveService)
-sanitizer = inject(DomSanitizer);
-userService = inject(UsersService)
-
-leave : any
-userId : number
-usersSub!: Subscription;
-Users: User[] = [];
-getUsers(){
-  this.usersSub = this.userService.getUser().subscribe(res=>{
-    this.Users = res;
-  })
-}
+  leave : any
+  userId : number
+  usersSub!: Subscription;
+  Users: User[] = [];
+  getUsers(){
+    this.usersSub = this.userService.getUser().subscribe(res=>{
+      this.Users = res;
+    })
+  }
   ngOnInit() {
     this.getUsers()
     this.getLeaveType();
-    this.getLeaves()
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
     this.userId = user.id;
-    this.checkProbationStatus()
 
-const leaveId = this.route.snapshot.queryParamMap.get('id');
-if (leaveId) {
-  this.isEditMode = true;
-  this.leaveService.getLeaveById(+leaveId).subscribe((response: any) => {
-    this.leave = response;
+    const leaveId = this.route.snapshot.queryParamMap.get('id');
+    if (leaveId) {
+      this.isEditMode = true;
+      this.leaveService.getLeaveById(+leaveId).subscribe((response: any) => {
+        this.leave = response;
 
 
-    this.leaveRequestForm.patchValue({
-      leaveTypeId: this.leave.leaveTypeId,
-      startDate: this.leave.startDate,
-      endDate: this.leave.endDate,
-      notes: this.leave.notes
+        this.leaveRequestForm.patchValue({
+          leaveTypeId: this.leave.leaveTypeId,
+          startDate: this.leave.startDate,
+          endDate: this.leave.endDate,
+          notes: this.leave.notes
+        });
+
+
+        const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
+        leaveDatesArray.clear();
+        this.leave.leaveDates.forEach((leaveDate: any) => {
+          leaveDatesArray.push(this.fb.group({
+            date: [leaveDate.date],
+            session1: [leaveDate.session1],
+            session2: [leaveDate.session2]
+          }));
+        });
+      });
+    }
+
+    this.leaveRequestForm = this.fb.group({
+      userId: ['', Validators.required],
+      leaveTypeId: ['', Validators.required],
+      startDate: ['', Validators.required],
+      endDate: ['', Validators.required],
+      notes: ['', Validators.required],
+      fileUrl:[''],
+      leaveDates: this.fb.array([]),
     });
-
-
-    const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
-    leaveDatesArray.clear();
-    this.leave.leaveDates.forEach((leaveDate: any) => {
-      leaveDatesArray.push(this.fb.group({
-        date: [leaveDate.date],
-        session1: [leaveDate.session1],
-        session2: [leaveDate.session2]
-      }));
-    });
-  });
-}
-
-
-this.leaveRequestForm = this.fb.group({
-  userId: ['', Validators.required],
-  leaveTypeId: ['', Validators.required],
-  startDate: ['', Validators.required],
-  endDate: ['', Validators.required],
-  notes: ['', Validators.required],
-  fileUrl:[''],
-  leaveDates: this.fb.array([]),
-});
-
-
   }
+
   emergencyPrefix = 'Emergency: ';
   displayedColumns: string[] = ['leaveType', 'startDate', 'endDate', 'reason', 'session'];
   get leaveDates(): FormArray {
@@ -187,30 +181,6 @@ this.leaveRequestForm = this.fb.group({
     leaveDateGroup.get(session)?.setValue(!currentValue);
   }
 
-
-  // onSubmit1() {
-  //   this.isLoading = true;
-  //   const leaveRequest = {
-  //     ...this.leaveRequestForm.value,
-  //     leaveDates: this.leaveRequestForm.get('leaveDates')!.value
-  //   };
-
-  //   this.leaveService.addEmergencyLeave(leaveRequest).subscribe(
-  //     (res:any) => {
-  //       console.log('resp',res);
-
-  //       this.isLoading = false;
-  //       this.snackBar.open('Leave request submitted successfully!', 'Close', { duration: 3000 });
-  //       this.router.navigate(['/login/admin-leave/view-leave-request'])
-  //     },
-  //     () => {
-  //       this.isLoading = false;
-  //       this.snackBar.open('Failed to submit leave request. Please try again.', 'Close', { duration: 3000 });
-  //     }
-  //   );
-  // }
-
-
   getLeaveDetails(id: number) {
     this.leaveService.getLeaveById(id).subscribe((leave) => {
       this.leave = leave;
@@ -229,7 +199,7 @@ this.leaveRequestForm = this.fb.group({
 
     if (this.isEditMode && leaveId) {
       const idAsNumber = +leaveId;
-console.log('leaveRequest',leaveRequest);
+      console.log('leaveRequest',leaveRequest);
 
       // Update leave request
       this.leaveService.updateLeave(idAsNumber, leaveRequest).subscribe((response: any) => {
@@ -246,24 +216,17 @@ console.log('leaveRequest',leaveRequest);
     }
   }
 
-
-
   getLeaveType() {
-    this.leaveService.getLeaveType().subscribe(
-      (leaveTypes: any) => {
+    this.leaveService.getLeaveType().subscribe( (leaveTypes: any) => {
+      console.log(leaveTypes);
+      
         this.leaveTypes = leaveTypes;
-      },
-      (error) => {
+      },(error) => {
         console.error('Error fetching leave types:', error);
       }
     );
   }
 
-  getLeaveSub : Subscription
-  getLeaves(){
-       this.getLeaveSub= this.leaveService.getLeaves().subscribe((res)=>{
-         })
-  }
 
   uploadProgress: number | null = null;
   file!: File;
@@ -293,33 +256,36 @@ console.log('leaveRequest',leaveRequest);
   }
 
 
-// Method to check if the selected leave is sick leave and duration is more than 3 days
-isSickLeaveAndMoreThanThreeDays(): boolean {
-  const leaveTypeId = this.leaveRequestForm.get('leaveTypeId')?.value;
-  const startDate = this.leaveRequestForm.get('startDate')?.value;
-  const endDate = this.leaveRequestForm.get('endDate')?.value;
+  // Method to check if the selected leave is sick leave and duration is more than 3 days
+  isSickLeaveAndMoreThanThreeDays(): boolean {
+    const leaveTypeId = this.leaveRequestForm.get('leaveTypeId')?.value;
+    const startDate = this.leaveRequestForm.get('startDate')?.value;
+    const endDate = this.leaveRequestForm.get('endDate')?.value;
 
-  const sickLeaveTypeId = this.leaveTypes.find(type => type.leaveTypeName === 'Sick Leave')?.id;
+    const sickLeaveTypeId = this.leaveTypes.find(type => type.leaveTypeName === 'Sick Leave')?.id;
 
-  if (leaveTypeId === sickLeaveTypeId && startDate && endDate) {
-    const duration = (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 3600 * 24) + 1; // Calculate the duration in days
-    return duration > 3; // Return true if duration is greater than 3 days
+    if (leaveTypeId === sickLeaveTypeId && startDate && endDate) {
+      const duration = (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 3600 * 24) + 1; // Calculate the duration in days
+      return duration > 3; // Return true if duration is greater than 3 days
+    }
+    return false; // Return false if it's not sick leave or dates are invalid
   }
-  return false; // Return false if it's not sick leave or dates are invalid
-}
 
 
  // Check if the user is on probation
  isProbationEmployee: boolean = false;
- checkProbationStatus() {
-
+ checkProbationStatus(id: number) {
+  this.getLeaveType()
   this.userService.getProbationEmployees().subscribe((employees) => {
-    this.isProbationEmployee = employees.some((emp: any) => emp.id === this.userId); // Check if the user is in the probation list
+    
+    this.isProbationEmployee = employees.some((emp: any) => emp.id === id);
+    
     if (this.isProbationEmployee) {
-      this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP'); // Filter to show only LOP
+      this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
     }
   });
 }
+
 
 }
 
