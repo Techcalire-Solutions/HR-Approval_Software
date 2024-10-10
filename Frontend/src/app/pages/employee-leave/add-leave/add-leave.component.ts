@@ -94,7 +94,7 @@ userId : number
     fileUrl: [''],  // File URL initialization for file upload
     leaveDates: this.fb.array([])  // Initializing an empty array for leave dates
   });
-  
+
     this.getLeaveType();
     // this.getLeaves()
     const token: any = localStorage.getItem('token')
@@ -192,41 +192,9 @@ this.leaveRequestForm = this.fb.group({
     });
   }
 
-  onSubmit1() {
-    this.isLoading = true;
-    const leaveRequest = {
-      ...this.leaveRequestForm.value,
-      leaveDates: this.leaveRequestForm.get('leaveDates')!.value
-    };
-
-    const leaveId = this.route.snapshot.queryParamMap.get('id');
-
-    if (this.isEditMode && leaveId) {
-
-      const idAsNumber = +leaveId;
-
-      this.leaveService.updateLeave(idAsNumber, leaveRequest).subscribe((response) => {
-        this.dialog.open(LeaveInfoDialogComponent, {
-          data: { message: response.message }
-        });
-
-        this.snackBar.open('Leave request Updated successfully!', 'Close', { duration: 3000 });
-        this.router.navigate(['/login/leave'])
-      });
-    } else {
-      this.leaveService.addLeave(leaveRequest).subscribe((response:any) => {
-        this.dialog.open(LeaveInfoDialogComponent, {
-          data: { message: response.message }
-        });
-
-        this.snackBar.open('Leave request added successfully!', 'Close', { duration: 3000 });
-        this.router.navigate(['/login/leave'])
-      });
-    }
-  }
 
   onSubmit() {
-    this.isLoading = true; // Disable the button and show loading indicator
+    this.isLoading = true; 
 
     const leaveRequest = {
       ...this.leaveRequestForm.value,
@@ -287,6 +255,8 @@ this.leaveRequestForm = this.fb.group({
     this.leaveService.getLeaveType().subscribe(
       (leaveTypes: any) => {
         this.leaveTypes = leaveTypes;
+        console.log('leaveTypes',leaveTypes);
+
       },
       (error) => {
         console.error('Error fetching leave types:', error);

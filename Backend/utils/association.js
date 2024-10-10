@@ -8,24 +8,28 @@ const User = require('../users/models/user');
 // models/index.js
 const UserLeave = require('../leave/models/userLeave');
 const LeaveType = require('../leave/models/leaveType');
-const userData = require('./user.json');
+const userData = require('./user.json');const Leave = require('../leave/models/leave')
 
 
 async function syncModel() {
     await sequelize.sync({alter: true})
 
-    // Define associations
+//------------------------------LEAVE ASSOCIATIONS-----------------------------------------------
 UserLeave.belongsTo(LeaveType, {
     foreignKey: 'leaveTypeId',
-    as: 'leaveType' // This alias is used in the include when querying
+    as: 'leaveType'
   });
   
   LeaveType.hasMany(UserLeave, {
     foreignKey: 'leaveTypeId',
+    as: 'userLeaves' 
   });
 
-
-
+  Leave.belongsTo(LeaveType, { foreignKey: 'leaveTypeId' });
+  Leave.belongsTo(User, { foreignKey: 'userId' });
+  
+  
+  
     // Team.belongsTo(User, {
     //     foreignKey: "userId",
     //     as: "leader",

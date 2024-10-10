@@ -5,7 +5,8 @@
   <!-- Check if there are no leave counts using the flag -->
   <div *ngIf="!hasLeaveCounts && !errorMessage">No leave counts available.</div>
 
-  <ng-container *ngIf="hasLeaveCounts"> <!-- Render leave counts only if available -->
+  <!-- Render leave counts only if available -->
+  <ng-container *ngIf="hasLeaveCounts">
     <ng-container *ngFor="let leave of leaveCounts">
       <div fxFlex="100" fxFlex.gt-sm="25" fxFlex.sm="50" class="p-2">
         <mat-card class="pb-2">
@@ -17,7 +18,7 @@
               <mat-chip color="accent" highlighted="true" class="info-chip">
                 <mat-icon class="icon-sm">trending_up</mat-icon>
                 <!-- Display leave balance or taken leaves based on leave type -->
-                {{ leave.leaveTypeName === 'LOP' ? leave.takenLeaves : leave.leaveBalance || 0 }}
+                {{ leave.leaveTypeName === 'LOP' ? leave.takenLeaves : leave.noOfDays - leave.takenLeaves || 0 }}
               </mat-chip>
             </mat-chip-set>
           </mat-card-header>
