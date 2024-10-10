@@ -94,8 +94,8 @@ userId:number
   }
 
 
-  editLeave(item:any) {
-    this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item.id } });
+  editLeave(id: number, status: string) {    
+    this.router.navigate(['/login/admin-leave/update-emergency-leave'], { queryParams: { id: id } });
   }
 
 
