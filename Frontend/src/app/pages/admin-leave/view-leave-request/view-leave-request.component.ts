@@ -81,13 +81,15 @@ userId:number
 
   getLeaveSub : Subscription
   leaves:any[]=[]
+  leave:any[]=[]
   totalItemsCount = 0;
   getLeaves() {
     this.getLeaveSub = this.leaveService.getLeaves().subscribe(
       (res) => {
         console.log(res);
+        this.leave = res
         if(res.res){
-          this.leaves = res.leaves;
+          this.leave = res.leave;
         }else{
           this.snackBar.open('No data is added', '', { duration: 3000 });
         }
