@@ -486,8 +486,8 @@ router.get('/resignemployee/:id', async (req, res) => {
           return res.json({ message: "Employee not found" });
       }
 
-      result.separated = true;
-      result.status = false;
+      result.separated = !result.separated;
+      result.status = !result.separated;
       await result.save();
       res.json({ message: "Employee Separetd" });
   } catch (error) {

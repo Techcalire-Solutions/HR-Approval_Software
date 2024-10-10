@@ -116,7 +116,7 @@
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>Reporting Manger</mat-label>
             <mat-select formControlName="reportingMangerId" >
-              @for (item of rm; track item) {
+              @for (item of rm; track $index) {
                 <mat-option [value]="item.id">
                   {{ item.name }}_{{ item.empNo }}
                 </mat-option>

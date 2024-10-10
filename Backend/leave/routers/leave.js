@@ -516,63 +516,21 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
   const leaveId = req.params.id;
 
   try {
-    // Find the leave by its ID
     const leave = await Leave.findByPk(leaveId);
 
-    // Check if leave exists
+   
     if (!leave) {
       return res.status(404).send({ message: 'Leave request not found' });
     }
 
-    // Fetch the leave type to check if it's LOP
-    const leaveType = await LeaveType.findOne({ where: { id: leave.leaveTypeId } });
+   
+    leave.status = 'Approved';
+    await leave.save(); 
 
-    if (!leaveType) {
-      return res.status(404).send({ message: 'Leave type not found' });
-    }
-
-    // If leave type is LOP (Leave Without Pay), skip balance check
-    if (leaveType.leaveTypeName !== 'LOP') {
-      // Find user leave balance for the requested leave type
-      const userLeave = await UserLeave.findOne({
-        where: {
-          userId: leave.userId,
-          leaveTypeId: leave.leaveTypeId
-        }
-      });
-
-      if (!userLeave) {
-        return res.status(404).send({ message: 'Leave balance not found for the user.' });
-      }
-
-      // Calculate the total number of requested leave days
-      let requestedDays = leave.noOfDays;
-
-      // Check if leave balance is sufficient
-      if (userLeave.leaveBalance < requestedDays) {
-        return res.status(400).send({
-          message: `Insufficient leave balance. You only have ${userLeave.leaveBalance} days left.`
-        });
-      }
-
-      // Update leave balance (deduct the requested days from the user's balance)
-      userLeave.leaveBalance -= requestedDays;
-      await userLeave.save();
-    }
-
-    // Update leave status to 'Approved'
-    leave.status = 'approved';
-    await leave.save(); // Save the updated leave
-
-    // Send success response
-    res.send({
-      message: 'Leave approved successfully',
-      leave,
-      remainingLeaveBalance: leaveType.leaveTypeName === 'LOP' ? 'Unlimited' : userLeave?.leaveBalance
-    });
-
+  
+    res.send({ message: 'Leave approved successfully', leave });
   } catch (error) {
-    // Handle errors
+
     res.status(500).send({ message: 'An error occurred while approving the leave', error: error.message });
   }
 });

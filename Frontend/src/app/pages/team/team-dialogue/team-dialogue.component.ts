@@ -115,6 +115,7 @@ export class TeamDialogueComponent {
        teamMembers: teamM
      }
     this.teamService.addTeam(data).subscribe((res) => {
+      this.dialogRef.close();
       this._snackbar.open("Team added successfully...", "", { duration: 3000 })
       this.clearControls()
     }, (error => {
