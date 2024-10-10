@@ -9,8 +9,9 @@ const LeaveType = require('../models/leaveType')
  const { Op } = require('sequelize');
  const sequelize = require('../../utils/db');
  const Role = require('../../users/models/role')
- const s3 = require('../../utils/s3bucket');
+
  const upload = require('../../utils/leaveDocumentMulter');
+ const s3 = require('../../utils/s3bucket');
 
 //-----------------------------------Mail code-------------------------------------------------------
 const transporter = nodemailer.createTransport({
@@ -732,8 +733,64 @@ router.get('/', async (req, res) => {
   }
 });
 
+//------------------------Delete file from s3------------------------------------------------------------
+router.delete('/filedelete', authenticateToken, async (req, res) => {
+  let id = req.query.id;
+  try {
+    try {
+        let result = await Leave.findByPk(id);
+        fileKey = result.url  ;
+        result.url   = '';
+        await result.save();
+    } catch (error) {
+      res.send(error.message)
+    }
+    let key;
+    if (!fileKey) {
+      key = req.query.key;
+      
+      fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+    }
 
+    // Set S3 delete parameters
+    const deleteParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileKey
+    };
 
+    // Delete the file from S3
+    await s3.deleteObject(deleteParams).promise();
+
+    res.status(200).send({ message: 'File deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting file from S3:', error);
+    res.status(500).send({ message: error.message });
+  }
+});
+
+router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
+    key = req.query.key;
+    fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+    try {
+      if (!fileKey) {
+        return res.send({ message: 'No file key provided' });
+      }
+
+      // Set S3 delete parameters
+      const deleteParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileKey
+      };
+
+      // Delete the file from S3
+      await s3.deleteObject(deleteParams).promise();
+
+      res.status(200).send({ message: 'File deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting file from S3:', error);
+      res.status(500).send({ message: error.message });
+    }
+});
 
 
 

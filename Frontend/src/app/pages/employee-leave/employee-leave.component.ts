@@ -147,7 +147,7 @@ leaves:any[]=[]
 
 
 delete!: Subscription;
-deleteLeave(id: number){
+deleteLeave1(id: number){
     let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
     dialogRef.afterClosed().subscribe(res => {
       if(res){
@@ -164,5 +164,39 @@ deleteLeave(id: number){
   hasValidSessions(leaveDates: any[]): boolean {
     return leaveDates.some(date => date.session1 || date.session2); // Check if session1 or session2 is present
   }
+
+  deleteLeave(id: number): void {
+    let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+    dialogRef.afterClosed().subscribe((res) => {
+      if (res) {
+        this.delete = this.leaveService.deleteLeave(id).subscribe({
+          next: (response) => {
+            const leaveItem = this.leaves.find(leave => leave.id === id);
+            if (leaveItem?.fileUrl) {
+              this.leaveService.deleteUploadByurl(leaveItem.fileUrl).subscribe({
+                next: () => {
+                  this.snackBar.open('Leave request and file deleted successfully!', 'Close', { duration: 3000 });
+                },
+                error: () => {
+                  this.snackBar.open('Leave request deleted, but file deletion failed!', 'Close', { duration: 3000 });
+                }
+              });
+            } else {
+              this.snackBar.open('Leave request deleted successfully, but no file was associated.', 'Close', { duration: 3000 });
+            }
+
+            this.getLeaveByUser();
+          },
+          error: (error) => {
+            this.snackBar.open('Error deleting leave request!', 'Close', { duration: 3000 });
+          }
+        });
+      }
+    });
+
+    this.leaves = this.leaves.filter(item => item.id !== id);
+  }
+
+
 
 }
