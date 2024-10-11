@@ -250,7 +250,7 @@ router.post('/', authenticateToken, async (req, res) => {
         noOfDays,
         notes,
         fileUrl,
-        status: 'requested',
+        status: 'Requested',
         leaveDates
       });
 
