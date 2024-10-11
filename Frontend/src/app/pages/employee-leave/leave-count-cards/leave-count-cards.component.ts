@@ -3,10 +3,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
-import { Settings, SettingsService } from '@services/settings.service';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { LeaveService } from '@services/leave.service';
-import { UsersService } from '@services/users.service';
+import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-leave-count-cards',
@@ -16,7 +15,7 @@ import { UsersService } from '@services/users.service';
     MatCardModule,
     MatChipsModule,
     MatIconModule,
-    NgxChartsModule
+    CommonModule
   ],
   templateUrl: './leave-count-cards.component.html',
   styleUrls: ['./leave-count-cards.component.scss'],
@@ -24,62 +23,26 @@ import { UsersService } from '@services/users.service';
 })
 export class LeaveCountCardsComponent {
 
-  public colorScheme: any = {
-    domain: ['#999']
-  };
-  public autoScale = true;
-
   @ViewChild('resizedDiv') resizedDiv: ElementRef;
-  public previousWidthOfResizedDiv: number = 0;
-  public settings: Settings;
-  leaveService = inject(LeaveService);
-  userService = inject(UsersService);
+  public leaveCounts: any[] = [];
+  public hasLeaveCounts: boolean = false;
+  public userId: number;
+  public errorMessage: string | null = null;
 
-  leaveCounts: any[] = [];
-  hasLeaveCounts: boolean = false;
-  userId: number;
-  errorMessage: string | null = null;
-
-  constructor(public settingsService: SettingsService) {
-    this.settings = this.settingsService.settings;
-  }
+  leaveService =  inject(LeaveService)
+  leaveCountsSubscription: Subscription;
 
   ngOnInit() {
     const token: any = localStorage.getItem('token');
     let user = JSON.parse(token);
     this.userId = user.id;
-
-    // Check if user is in probation
-    this.checkProbationAndGetLeaveCounts(this.userId);
+    this.fetchLeaveCounts();
   }
 
-  checkProbationAndGetLeaveCounts(userId: number) {
-    this.userService.getProbationEmployees().subscribe(
-      (probationList) => {
-        const isUserOnProbation = probationList.some((probationUser: any) => probationUser.id === userId);
-
-        // If user is NOT on probation, fetch leave counts
-        if (!isUserOnProbation) {
-          this.fetchLeaveCounts(userId);
-        } else {
-          // If user is on probation, only show LOP
-          this.leaveCounts = [{ leaveTypeName: 'LOP', leaveBalance: 0 }];
-          this.hasLeaveCounts = true;
-        }
-      },
-      (error) => {
-        this.errorMessage = 'Unable to verify probation status.';
-      }
-    );
-  }
-
-  fetchLeaveCounts(userId: number) {
-    this.leaveService.getLeaveCounts(userId).subscribe(
+  fetchLeaveCounts() {
+   this.leaveCountsSubscription= this.leaveService.getLeaveCounts(this.userId).subscribe(
       (res) => {
-        console.log('Leave records response:', res);  // Debugging line
-
-        // Check if userLeaves exists and has records
-        if (res && res.userLeaves && res.userLeaves.length > 0) {
+        if (res.userLeaves && res.userLeaves.length > 0) {
           this.leaveCounts = res.userLeaves;
           this.hasLeaveCounts = true;
         } else {
@@ -89,25 +52,24 @@ export class LeaveCountCardsComponent {
         }
       },
       (error) => {
-        console.error('Error fetching leave records:', error);  // Debugging line
         this.errorMessage = 'Unable to fetch leave counts.';
         this.hasLeaveCounts = false;
       }
     );
   }
 
-
-
-  // Calculate the leave balance based on leave type
   getLeaveBalance(leave: any): number {
-    if (leave.leaveTypeName === 'LOP') {
-      return leave.takenLeaves;  // For LOP, return taken leaves
+    if (leave.leaveType.leaveTypeName === 'LOP') {
+      return leave.takenLeaves;
     } else {
-      return Math.max(leave.noOfDays - leave.takenLeaves, 0);  // For other leave types, show balance
+      return Math.max(leave.noOfDays - leave.takenLeaves, 0);
+    }
+  }
+  
+  ngOnDestroy() {
+    if (this.leaveCountsSubscription) {
+      this.leaveCountsSubscription.unsubscribe();
     }
   }
 
-  ngOnDestroy() {
-    // Any cleanup if needed
-  }
 }
