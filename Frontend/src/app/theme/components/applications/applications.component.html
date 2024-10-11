@@ -10,21 +10,21 @@
         </mat-toolbar>
         <mat-card>
             <mat-grid-list cols="3" rowHeight="1:1">
-                <mat-grid-tile>
+                <!-- <mat-grid-tile>
                   <button mat-button>
                       <mat-icon class="muted-text">person</mat-icon>
                       <span>My account</span>
                   </button>
-                </mat-grid-tile>
+                </mat-grid-tile> -->
                 <mat-grid-tile>
-                  <button mat-button (click)="openLeaveTypesDialog()">
+                  <button mat-button (click)="openLeaveTypes()">
                     <mat-icon class="muted-text">schedule</mat-icon>
                     <span>Leave Types</span>
                   </button>
 
 
                 </mat-grid-tile>
-                <mat-grid-tile>
+                <!-- <mat-grid-tile>
                   <button mat-button>
                       <mat-icon class="muted-text">play_arrow</mat-icon>
                       <span>Player</span>
@@ -41,31 +41,31 @@
                       <mat-icon class="muted-text">event</mat-icon>
                       <span>Calendar</span>
                   </button>
-                </mat-grid-tile>
+                </mat-grid-tile> -->
                 <mat-grid-tile>
-                  <button mat-button>
-                      <mat-icon class="muted-text">image</mat-icon>
-                      <span>Gallery</span>
+                  <button mat-button (click)="openTeam()">
+                    <mat-icon class="muted-text">groups</mat-icon>
+                    <span>Team</span>
                   </button>
                 </mat-grid-tile>
                  <mat-grid-tile>
-                  <button mat-button>
-                      <mat-icon class="muted-text">library_books</mat-icon>
-                      <span>Documents</span>
+                  <button mat-button (click)="openRole()">
+                    <mat-icon class="muted-text">group</mat-icon>
+                    <span>Role</span>
                   </button>
                 </mat-grid-tile>
-                <mat-grid-tile>
+                <!-- <mat-grid-tile>
                   <button mat-button>
                       <mat-icon class="muted-text">mail</mat-icon>
                       <span>Mail</span>
                   </button>
-                </mat-grid-tile>
-                <mat-grid-tile>
+                </mat-grid-tile> -->
+                <!-- <mat-grid-tile>
                   <button mat-button>
                       <mat-icon class="muted-text">place</mat-icon>
                       <span>Maps</span>
                   </button>
-                </mat-grid-tile>
+                </mat-grid-tile> -->
             </mat-grid-list>
         </mat-card>
     </span>

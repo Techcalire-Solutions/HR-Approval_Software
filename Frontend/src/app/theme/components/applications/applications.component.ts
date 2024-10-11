@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -7,6 +7,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { LeaveTypesComponent } from '../../../pages/admin-leave/leave-types/leave-types.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-applications',
@@ -29,14 +30,18 @@ export class ApplicationsComponent implements OnInit {
 
   ngOnInit() {
   }
+  router=inject(Router)
 
-  openLeaveTypesDialog(): void {
-    this.dialog.open(LeaveTypesComponent, {
-      width: '400px', // Adjust the width as necessary
-      height: '200px'
-    });
+  openLeaveTypes(): void {
+    this.router.navigateByUrl('/login/admin-leave/leave-types')
+
   }
+  openRole(): void {
+    this.router.navigateByUrl('/login/role')
 
-
+  }
+  openTeam():void{
+    this.router.navigateByUrl('/login/team')
+  }
 }
 

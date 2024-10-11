@@ -30,6 +30,9 @@ export const routes: Routes = [
         loadChildren: () => import('./users/user.routes').then(c => c.routes),
         data: { breadcrumb: 'Employees' }, canActivate: [AuthGuard]
       },
+      // {path: 'leaveType', loadComponent: () => import('./admin-leave/leave-types/leave-types.component').then(c => c.LeaveTypesComponent),
+      //   data: { breadcrumb: 'Leave Type' }, canActivate: [AuthGuard]
+      // },
       {
         path: 'admin-leave',
         loadChildren: () => import('./admin-leave/admin-leave.routes').then(c => c.routes),
