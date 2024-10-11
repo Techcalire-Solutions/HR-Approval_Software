@@ -296,8 +296,5 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
     });
   }
 
-  deleteImage(){
-
-  }
 }
 
