@@ -39,6 +39,7 @@ async function syncModel() {
         {id: 4, roleName: 'Accountant',abbreviation:'Accountant'}, 
         {id: 5, roleName: 'Team Lead',abbreviation:'Team Lead'}, 
         {id: 6, roleName: 'HR',abbreviation:'HR'}, 
+        {id: 6, roleName: 'IT',abbreviation:'IT'}, 
 
         {id:101, roleName: 'Administrator',abbreviation:'Approval Admin'}, 
         {id:102, roleName: 'HR Administrator',abbreviation:'HR Admin'}, 
