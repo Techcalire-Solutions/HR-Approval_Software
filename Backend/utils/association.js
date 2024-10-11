@@ -10,8 +10,8 @@ async function syncModel() {
     await sequelize.sync({alter: true})
 
 //------------------------------LEAVE ASSOCIATIONS-----------------------------------------------
-  Leave.belongsTo(LeaveType, { foreignKey: 'leaveTypeId' });
-  Leave.belongsTo(User, { foreignKey: 'userId' });
+//   Leave.belongsTo(LeaveType, { foreignKey: 'leaveTypeId' });
+//   Leave.belongsTo(User, { foreignKey: 'userId' });
   
     const roleData = [
         {id: 1, roleName: 'Sales Executive',abbreviation:'SE'}, 
