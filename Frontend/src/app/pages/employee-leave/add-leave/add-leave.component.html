@@ -4,7 +4,7 @@
   <mat-card-content class="form-wrapper">
     <form [formGroup]="leaveRequestForm" (ngSubmit)="onSubmit()">
       <div class="form-row">
-        <!-- Leave Type -->
+
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Leave Type</mat-label>
           <mat-select formControlName="leaveTypeId" placeholder="Select leave type" required>
@@ -14,7 +14,7 @@
           </mat-select>
         </mat-form-field>
 
-        <!-- Start Date -->
+
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Start Date</mat-label>
           <input matInput [matDatepicker]="startDatePicker" formControlName="startDate" placeholder="Choose start date" (dateChange)="onDateChange()" required >
@@ -24,7 +24,7 @@
       </div>
 
       <div class="form-row">
-        <!-- End Date -->
+
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>End Date</mat-label>
           <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" placeholder="Choose end date" (dateChange)="onDateChange()" required >
@@ -32,7 +32,7 @@
           <mat-datepicker #endDatePicker></mat-datepicker>
         </mat-form-field>
 
-        <!-- Reason -->
+     
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Reason</mat-label>
           <textarea matInput formControlName="notes" placeholder="Enter reason" required></textarea>

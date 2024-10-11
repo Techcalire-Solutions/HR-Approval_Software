@@ -13,7 +13,7 @@ const LeaveType = require('../models/leaveType')
 
 cron.schedule('0 0 1 * *', async () => {
   try {
-    // Fetch all leave types (for SL, CL)
+    // Fetch all leave types for Sick Leave and Casual Leave
     const leaveTypes = await LeaveType.findAll({
       where: {
         leaveTypeName: ['Sick Leave', 'Casual Leave']
@@ -25,27 +25,37 @@ cron.schedule('0 0 1 * *', async () => {
       return;
     }
 
-    // Fetch all user leave records for SL and CL types
+    // Iterate through each leave type (SL and CL)
     for (const leaveType of leaveTypes) {
+      console.log(`Processing leave type: ${leaveType.leaveTypeName}`);
+
       const userLeaves = await UserLeave.findAll({
         where: { leaveTypeId: leaveType.id }
       });
 
       if (userLeaves.length === 0) {
         console.log(`No user leave records found for ${leaveType.leaveTypeName}.`);
-        continue; // Skip to the next leave type if no user records are found
+        continue; // Skip if no user leave records are found
       }
 
-      // Increment noOfDays by 1 and update leaveBalance
+      // Update leave balance and increment noOfDays for each user
       for (const userLeave of userLeaves) {
-        userLeave.noOfDays += 1; // Increment noOfDays by 1
-        userLeave.leaveBalance = userLeave.noOfDays - userLeave.takenLeaves; // Update leaveBalance
+        console.log(`Updating leave for User ID ${userLeave.userId}, Leave Type: ${leaveType.leaveTypeName}`);
+
+        // Increment noOfDays by 1 (if leaveBalance is positive)
+        const newNoOfDays = userLeave.noOfDays + 1;
+
+        // Ensure leaveBalance doesn't go negative
+        const newLeaveBalance = Math.max(newNoOfDays - userLeave.takenLeaves, 0);
+
+        // Update user leave record
+        userLeave.noOfDays = newNoOfDays;
+        userLeave.leaveBalance = newLeaveBalance;
 
         // Log the update for debugging purposes
-        console.log(`Updating leave for User ID ${userLeave.userId}, Leave Type: ${leaveType.leaveTypeName}`);
-        console.log(`Old Balance: ${userLeave.leaveBalance}, New Balance: ${userLeave.leaveBalance}`);
+        console.log(`Old Balance: ${userLeave.leaveBalance}, New Balance: ${newLeaveBalance}`);
 
-        // Save the updated record
+        // Save the updated record in the database
         await userLeave.save();
       }
     }
@@ -56,11 +66,12 @@ cron.schedule('0 0 1 * *', async () => {
   }
 });
 
+
 router.get('/leavecount/:userId', authenticateToken, async (req, res) => {
   try {
     const userId = req.params.userId;
 
-    // Fetch user leaves with associated leave types
+
     const userLeaves = await UserLeave.findAll({
       where: { userId },
       include: {
@@ -70,11 +81,45 @@ router.get('/leavecount/:userId', authenticateToken, async (req, res) => {
       },
     });
 
+    
     if (!userLeaves.length) {
-      return res.status(404).json({ message: 'No leave records found for this user.' });
+      return res.json({
+        userLeaves: [
+          {
+            id: null,
+            userId: userId,
+            leaveTypeId: 3, 
+            noOfDays: 0,
+            takenLeaves: 0,
+            leaveBalance: 0,
+            leaveType: {
+              leaveTypeName: "LOP",
+              id: 3
+            }
+          }
+        ]
+      });
     }
 
-    // Directly return userLeaves without mapping
+ 
+    const lopLeaveExists = userLeaves.some(leave => leave.leaveType.leaveTypeName === 'LOP');
+    if (!lopLeaveExists) {
+      
+      userLeaves.push({
+        id: null,
+        userId: userId,
+        leaveTypeId: 3,
+        noOfDays: 0,
+        takenLeaves: 0,
+        leaveBalance: 0,
+        leaveType: {
+          leaveTypeName: "LOP",
+          id: 3
+        }
+      });
+    }
+
+   
     res.json({ userLeaves });
 
   } catch (error) {
@@ -82,6 +127,7 @@ router.get('/leavecount/:userId', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Error fetching leave counts', error: error.message });
   }
 });
+
 
 
 
@@ -113,6 +159,8 @@ router.get('/', authenticateToken, async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 });
+
+
 
 router.get('/byuserandtype/:userid/:typeid', authenticateToken, async (req, res) => {
   try {
