@@ -1,14 +1,9 @@
 
-const Team = require("../users/models/team");
-const TeamMember = require("../users/models/teamMember");
 const sequelize = require('./db');
 const bcrypt = require('bcrypt');
 const Role = require('../users/models/role');
 const User = require('../users/models/user');
-// models/index.js
-const UserLeave = require('../leave/models/userLeave');
-const LeaveType = require('../leave/models/leaveType');
-const userData = require('./user.json');const Leave = require('../leave/models/leave')
+const userData = require('./user.json');
 
 
 async function syncModel() {
