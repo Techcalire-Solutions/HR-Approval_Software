@@ -93,8 +93,9 @@ userId:number
     );
   }
 
+  
 
-  editLeave(id: number, status: string) {    
+  editLeave(id: number, status: string) {
     this.router.navigate(['/login/admin-leave/update-emergency-leave'], { queryParams: { id: id } });
   }
 
