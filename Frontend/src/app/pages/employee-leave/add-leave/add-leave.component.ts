@@ -313,7 +313,10 @@ isSickLeave(): boolean {
 }
 
 ngOnDestroy(){
-  this.getLeaveSub.unsubscribe();
+  if(this.getLeaveSub){
+    this.getLeaveSub.unsubscribe();
+  }
+
 
 
 }
