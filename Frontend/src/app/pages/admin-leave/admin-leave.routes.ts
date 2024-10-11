@@ -30,4 +30,9 @@ export const routes: Routes = [
     loadComponent: () => import('./apply-emergency-leave/apply-emergency-leave.component').then(c => c.ApplyEmergencyLeaveComponent),
     data: { breadcrumb: 'Update Emergency Leave' }, canActivate: [AuthGuard]
   },
+  {
+    path: 'compo-off/:id',
+    loadComponent: () => import('./add-combooff/add-combooff.component').then(c => c.AddCombooffComponent),
+    data: { breadcrumb: 'Compo Off' }, canActivate: [AuthGuard]
+  },
 ];

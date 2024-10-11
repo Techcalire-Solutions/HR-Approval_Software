@@ -63,7 +63,10 @@ app.use('/leaveType', leaveType);
 app.use('/userLeave', userLeave);
 
 const announcements = require('../announcements/router/announcement');
-app.use('/announcements', announcements)
+app.use('/announcements', announcements);
+
+const holiday = require('../leave/routers/holiday');
+app.use('/holidays', holiday);
 
 
 const port = process.env.PORT || 8000;
