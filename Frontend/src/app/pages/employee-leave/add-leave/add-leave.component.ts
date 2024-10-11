@@ -82,19 +82,11 @@ sanitizer = inject(DomSanitizer);
 userService = inject(UsersService);
 dialog = inject(MatDialog);
 
+
+
 leave : any
 userId : number
   ngOnInit() {
-      // Initialize the form first (Moved this part up)
-  this.leaveRequestForm = this.fb.group({
-    leaveTypeId: ['', Validators.required],
-    startDate: ['', Validators.required],
-    endDate: ['', Validators.required],
-    notes: ['', Validators.required],
-    fileUrl: [''],  // File URL initialization for file upload
-    leaveDates: this.fb.array([])  // Initializing an empty array for leave dates
-  });
-
     this.getLeaveType();
     // this.getLeaves()
     const token: any = localStorage.getItem('token')
@@ -141,6 +133,8 @@ this.leaveRequestForm = this.fb.group({
 
 
   }
+
+
   displayedColumns: string[] = ['leaveType', 'startDate', 'endDate', 'reason', 'session'];
   get leaveDates(): FormArray {
     return this.leaveRequestForm.get('leaveDates') as FormArray;
@@ -206,12 +200,12 @@ this.leaveRequestForm = this.fb.group({
     if (this.isEditMode && leaveId) {
       const idAsNumber = +leaveId;
 
-      // Update leave request
+
       this.leaveService.updateLeave(idAsNumber, leaveRequest).subscribe((response: any) => {
         this.openDialog(response.message);
       });
     } else {
-      // Add new leave request
+
       this.leaveService.addLeave(leaveRequest).subscribe((response: any) => {
         this.openDialog(response.message);
       });
@@ -219,12 +213,12 @@ this.leaveRequestForm = this.fb.group({
   }
 
   openDialog(message: string) {
-    // Open the confirmation dialog
+
     const dialogRef = this.dialog.open(LeaveInfoDialogComponent, {
       data: { message: message }
     });
 
-    // Handle the dialog result
+
     dialogRef.afterClosed().subscribe(result => {
       this.handleDialogResult(result);
     });
@@ -232,20 +226,20 @@ this.leaveRequestForm = this.fb.group({
 
   handleDialogResult(result: any) {
     if (result?.action === 'proceed') {
-      // User clicked OK - show success snackbar and navigate
+
       this.snackBar.open('Leave request submitted successfully!', 'Close', { duration: 3000 });
-      this.router.navigate(['/login/employee-leave']); // Redirect to the view page after applying leave
+      this.router.navigate(['/login/employee-leave']);
     } else if (result?.action === 'back') {
-      // User clicked Back - allow them to return to the form without submitting
+
       this.isLoading = false;
     } else if (result?.action === 'cancel') {
-      // User clicked Cancel - show cancel snackbar and redirect to the view page
-      this.isLoading = false;
-      this.leaveRequestForm.reset(); // Reset the form
 
-      // Show snackbar for cancellation and redirect
+      this.isLoading = false;
+      this.leaveRequestForm.reset();
+
+
       this.snackBar.open('Leave request cancelled!', 'Close', { duration: 3000 });
-      this.router.navigate(['/login/employee-leave']); // Redirect to the view page after cancelling
+      this.router.navigate(['/login/employee-leave']);
     }
   }
 
@@ -255,7 +249,6 @@ this.leaveRequestForm = this.fb.group({
     this.leaveService.getLeaveType().subscribe(
       (leaveTypes: any) => {
         this.leaveTypes = leaveTypes;
-        console.log('leaveTypes',leaveTypes);
 
       },
       (error) => {
@@ -273,17 +266,17 @@ this.leaveRequestForm = this.fb.group({
   uploadProgress: number | null = null;
   file!: File;
   imageUrl!: string;
-  fileName: string = ''; // Holds the name of the file
-  isFileSelected: boolean = false; // Track if a file is selected
+  fileName: string = '';
+  isFileSelected: boolean = false;
 
   uploadFile(event: Event) {
     const input = event.target as HTMLInputElement;
-    const selectedFile = input.files?.[0]; // Get the first file if it exists
+    const selectedFile = input.files?.[0];
 
-    if (selectedFile) { // Check if a file was selected
-      this.file = selectedFile; // Assign the file
-      this.fileName = this.file.name; // Store the file name
-      this.isFileSelected = true; // Set the selected state to true
+    if (selectedFile) {
+      this.file = selectedFile;
+      this.fileName = this.file.name;
+      this.isFileSelected = true;
       this.leaveService.uploadImage(this.file).subscribe({
         next: (res) => {
           this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${res.fileUrl}`;
@@ -292,34 +285,37 @@ this.leaveRequestForm = this.fb.group({
         error: () => console.error('Upload failed'),
       });
     } else {
-      this.fileName = ''; // Reset the file name if no file is selected
-      this.isFileSelected = false; // Reset the selected state
+      this.fileName = '';
+      this.isFileSelected = false;
     }
   }
 
 
 
-// Method to check if the selected leave is sick leave
+
 isSickLeave(): boolean {
   const leaveTypeId = this.leaveRequestForm.get('leaveTypeId')?.value;
-
   const sickLeaveTypeId = this.leaveTypes.find(type => type.leaveTypeName === 'Sick Leave')?.id;
-
-  // Check if the selected leave is Sick Leave
   return leaveTypeId === sickLeaveTypeId;
 }
 
 
- // Check if the user is on probation
+
  isProbationEmployee: boolean = false;
  checkProbationStatus() {
 
   this.userService.getProbationEmployees().subscribe((employees) => {
-    this.isProbationEmployee = employees.some((emp: any) => emp.id === this.userId); // Check if the user is in the probation list
+    this.isProbationEmployee = employees.some((emp: any) => emp.id === this.userId);
     if (this.isProbationEmployee) {
-      this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP'); // Filter to show only LOP
+      this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
     }
   });
+}
+
+ngOnDestroy(){
+  this.getLeaveSub.unsubscribe();
+
+
 }
 
 }

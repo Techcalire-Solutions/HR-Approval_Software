@@ -52,11 +52,14 @@ const Leave = sequelize.define('Leave', {
   timestamps: true, 
 });
 
+//------------------------------LEAVE ASSOCIATIONS-----------------------------------------------
 
 LeaveType.hasMany(Leave, { foreignKey: 'leaveTypeId', onUpdate: 'CASCADE' });
 Leave.belongsTo(LeaveType);
 
+Leave.belongsTo(LeaveType, { foreignKey: 'leaveTypeId' });
 
+Leave.belongsTo(User, { foreignKey: 'userId' });
 
 
 

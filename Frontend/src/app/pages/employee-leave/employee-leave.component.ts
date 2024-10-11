@@ -23,14 +23,12 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxPaginationModule } from 'ngx-pagination';
-
-import { ActivatedRoute, Router } from '@angular/router';
 import { LeaveService } from '@services/leave.service';
-import { DomSanitizer } from '@angular/platform-browser';
 import { CamelCasePipe } from '../../theme/pipes/camel-case.pipe';
 import { PipesModule } from '../../theme/pipes/pipes.module';
 import { UserDialogComponent } from '../users/user-dialog/user-dialog.component';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-employee-leave',
@@ -77,7 +75,6 @@ export class EmployeeLeaveComponent {
 
 userId:number
   ngOnInit(){
-
     this.getLeaveByUser()
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
@@ -100,11 +97,8 @@ leaves:any[]=[]
   leaveSub :Subscription
   private getLeaveByUser(): void {
     if (!this.userId) return;
-
     this.leaveSub = this.leaveService.getLeavesByUser(this.userId, this.searchText, this.currentPage, this.pageSize).subscribe(
       (res: any) => {
-        console.log(res)
-
         this.leaves = res.items;
         this.totalItems = res.count;
       },
@@ -147,7 +141,7 @@ leaves:any[]=[]
 
 
 delete!: Subscription;
-deleteLeave1(id: number){
+deleteLeaveStableFunction(id: number){
     let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
     dialogRef.afterClosed().subscribe(res => {
       if(res){
@@ -160,10 +154,11 @@ deleteLeave1(id: number){
     this.leaves = this.leaves.filter(item => item.id !== id);
   }
 
-  // Method to check if leaveDates contains valid sessions
+
   hasValidSessions(leaveDates: any[]): boolean {
-    return leaveDates.some(date => date.session1 || date.session2); // Check if session1 or session2 is present
+    return leaveDates.some(date => date.session1 || date.session2);
   }
+
 
   deleteLeave(id: number): void {
     let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
