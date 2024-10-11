@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InvoiceService } from '@services/invoice.service';
@@ -39,10 +39,14 @@ export class ViewInvoicesComponent {
   ngOnDestroy(): void {
 
   }
+  invoiceService=inject(InvoiceService)
+  loginService=inject(LoginService)
+  snackBar=inject(MatSnackBar)
+  router=inject(Router)
+  route=inject(ActivatedRoute)
+  dialog=inject(MatDialog)
+ 
 
-  constructor(private route: ActivatedRoute, private invoiceService: InvoiceService, private dialog: MatDialog, private snackBar: MatSnackBar,
-    private router: Router, private loginService: LoginService
-  ){}
 
   userId: number
   ngOnInit(): void {

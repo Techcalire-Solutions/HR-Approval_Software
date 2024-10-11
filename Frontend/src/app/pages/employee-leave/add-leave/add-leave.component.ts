@@ -194,7 +194,7 @@ this.leaveRequestForm = this.fb.group({
 
 
   onSubmit() {
-    this.isLoading = true; 
+    this.isLoading = true;
 
     const leaveRequest = {
       ...this.leaveRequestForm.value,
@@ -298,19 +298,15 @@ this.leaveRequestForm = this.fb.group({
   }
 
 
-// Method to check if the selected leave is sick leave and duration is more than 3 days
-isSickLeaveAndMoreThanThreeDays(): boolean {
+
+// Method to check if the selected leave is sick leave
+isSickLeave(): boolean {
   const leaveTypeId = this.leaveRequestForm.get('leaveTypeId')?.value;
-  const startDate = this.leaveRequestForm.get('startDate')?.value;
-  const endDate = this.leaveRequestForm.get('endDate')?.value;
 
   const sickLeaveTypeId = this.leaveTypes.find(type => type.leaveTypeName === 'Sick Leave')?.id;
 
-  if (leaveTypeId === sickLeaveTypeId && startDate && endDate) {
-    const duration = (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 3600 * 24) + 1; // Calculate the duration in days
-    return duration > 3; // Return true if duration is greater than 3 days
-  }
-  return false; // Return false if it's not sick leave or dates are invalid
+  // Check if the selected leave is Sick Leave
+  return leaveTypeId === sickLeaveTypeId;
 }
 
 

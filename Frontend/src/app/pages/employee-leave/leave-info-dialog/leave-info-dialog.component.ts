@@ -1,8 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { CommonModule } from '@angular/common';  // Import CommonModule
+ // Import CommonModule
 
 @Component({
   selector: 'app-leave-info-dialog',
@@ -10,7 +11,8 @@ import { CommonModule } from '@angular/common';  // Import CommonModule
   imports: [
     MatDialogModule,
     MatIconModule,
-    CommonModule  // Add CommonModule to imports
+    CommonModule
+
   ],
   templateUrl: './leave-info-dialog.component.html',
   styleUrls: ['./leave-info-dialog.component.scss']

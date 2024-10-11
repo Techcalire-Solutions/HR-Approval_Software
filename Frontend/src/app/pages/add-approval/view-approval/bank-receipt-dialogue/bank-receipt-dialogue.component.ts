@@ -1,4 +1,4 @@
-import { Component, ElementRef, Inject, Optional, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, Inject, Optional, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -13,7 +13,6 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatDividerModule } from '@angular/material/divider';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
-import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
@@ -26,16 +25,19 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     MatSortModule,
     MatDividerModule,
     RouterModule,
-    MatCardModule,
-    CommonModule],
+    MatCardModule],
   templateUrl: './bank-receipt-dialogue.component.html',
   styleUrl: './bank-receipt-dialogue.component.scss'
 })
 export class BankReceiptDialogueComponent {
-
-  constructor(private invoiceService: InvoiceService, private fb: FormBuilder, private snackBar: MatSnackBar, private router: Router,
-    public dialog: MatDialog, @Optional() public dialogRef: MatDialogRef<BankReceiptDialogueComponent>, @Optional() @Inject(MAT_DIALOG_DATA) private dialogData: any  ){}
-
+  invoiceService=inject(InvoiceService)
+  fb=inject(FormBuilder)
+  snackBar=inject(MatSnackBar)
+  router=inject(Router)
+  dialog=inject(MatDialog)
+  dialogRef = inject(MatDialogRef<BankReceiptDialogueComponent>)
+  dialogData = inject(MAT_DIALOG_DATA);
+ 
   ngOnDestroy(): void {
     this.uploadSub?.unsubscribe();
   }

@@ -9,3 +9,5 @@ function jwtTokens({id,name,email,phoneNumber,roleId}){
 }
 
 module.exports = jwtTokens;
+
+

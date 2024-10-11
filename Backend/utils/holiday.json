@@ -1,0 +1,297 @@
+{
+    "holidays": {
+      "2024": [
+        {
+          "date": "2024-01-02",
+          "name": "Mannam Jayanthi",
+          "type": "Regional Holiday",
+          "comments": "Kerala Only"
+        },
+        {
+          "date": "2024-01-26",
+          "name": "Republic Day",
+          "type": "Public Holiday",
+          "comments": ""
+        },
+        {
+          "date": "2024-03-08",
+          "name": "Maha Shivratri",
+          "type": "Regional Holiday",
+          "comments": "Most states"
+        },
+        {
+          "date": "2024-03-28",
+          "name": "Maundy Thursday",
+          "type": "Regional Holiday",
+          "comments": "Kerala only"
+        },
+        {
+          "date": "2024-03-29",
+          "name": "Good Friday",
+          "type": "Regional Holiday",
+          "comments": "Kerala only"
+        },
+        {
+          "date": "2024-03-31",
+          "name": "Easter Sunday",
+          "type": "Regional Holiday",
+          "comments": ""
+        },
+        {
+          "date": "2024-04-01",
+          "name": "Bank Holiday",
+          "type": "Not a Public Holiday",
+          "comments": "Banks only. Annual accounts closing"
+        },
+        {
+          "date": "2024-04-10",
+          "name": "Id-ul-Fitr",
+          "type": "Regional Holiday",
+          "comments": "Most states"
+        },
+        {
+          "date": "2024-04-14",
+          "name": "Vishu",
+          "type": "Regional Holiday",
+          "comments": "Kerala Only"
+        },
+        {
+          "date": "2024-04-26",
+          "name": "Dr Ambedkar Jayanti",
+          "type": "Public Holiday",
+          "comments": "Several states"
+        },
+        {
+          "date": "2024-05-01",
+          "name": "Labour Day",
+          "type": "Regional Holiday",
+          "comments": "Many states"
+        },
+        {
+          "date": "2024-05-17",
+          "name": "Id-ul-Ad'ha",
+          "type": "Regional Holiday",
+          "comments": "Bakrid. Kerala"
+        },
+        {
+          "date": "2024-07-16",
+          "name": "Ashura",
+          "type": "Regional Holiday",
+          "comments": "10 Muharram"
+        },
+        {
+          "date": "2024-08-03",
+          "name": "Karkidaka Vavu",
+          "type": "Regional Holiday",
+          "comments": "Kerala"
+        },
+        {
+          "date": "2024-08-15",
+          "name": "Independence Day",
+          "type": "Public Holiday",
+          "comments": ""
+        },
+        {
+          "date": "2024-08-20",
+          "name": "Sree Narayana Guru Jayanti",
+          "type": "Regional Holiday",
+          "comments": "Kerala"
+        },
+        {
+          "date": "2024-08-21",
+          "name": "Sreekrishna Jayanthi",
+          "type": "Regional Holiday",
+          "comments": "Kerala only"
+        },
+        {
+          "date": "2024-09-14",
+          "name": "First Onam",
+          "type": "Regional Holiday",
+          "comments": "Kerala only. Harvest Festival"
+        },
+        {
+          "date": "2024-09-15",
+          "name": "Thiruvonam",
+          "type": "Regional Holiday",
+          "comments": "Kerala only. Harvest Festival"
+        },
+        {
+          "date": "2024-09-16",
+          "name": "Third Onam",
+          "type": "Regional Holiday",
+          "comments": "Kerala only. Harvest Festival"
+        },
+        {
+          "date": "2024-09-17",
+          "name": "Fourth Onam",
+          "type": "Regional Holiday",
+          "comments": "Kerala only. Harvest Festival"
+        },
+        {
+          "date": "2024-09-18",
+          "name": "Sree Narayana Guru Samadhi",
+          "type": "Regional Holiday",
+          "comments": "Kerala"
+        },
+        {
+          "date": "2024-10-02",
+          "name": "Mahatma Gandhi Birthday",
+          "type": "Public Holiday",
+          "comments": ""
+        },
+        {
+          "date": "2024-10-12",
+          "name": "Mahanavami",
+          "type": "Regional Holiday",
+          "comments": "Ninth day of Dussehra"
+        },
+        {
+          "date": "2024-10-13",
+          "name": "Vijayasasami",
+          "type": "Regional Holiday",
+          "comments": "Vijaya Dashami"
+        },
+        {
+          "date": "2024-10-31",
+          "name": "Deepavali",
+          "type": "Regional Holiday",
+          "comments": "Most states"
+        },
+        {
+          "date": "2024-12-25",
+          "name": "Christmas Day",
+          "type": "Regional Holiday",
+          "comments": "Observed in all states"
+        }
+      ],
+      "2026": [
+        {
+          "date": "2026-01-02",
+          "name": "Mannam Jayanthi",
+          "type": "Regional Holiday",
+          "comments": "Kerala Only"
+        },
+        {
+          "date": "2026-01-26",
+          "name": "Republic Day",
+          "type": "Public Holiday",
+          "comments": ""
+        },
+        {
+          "date": "2026-02-15",
+          "name": "Maha Shivratri",
+          "type": "Regional Holiday",
+          "comments": "Most states"
+        },
+        {
+          "date": "2026-03-27",
+          "name": "Id-ul-Fitr",
+          "type": "Regional Holiday",
+          "comments": "Most states"
+        },
+        {
+          "date": "2026-04-01",
+          "name": "Bank Holiday",
+          "type": "Not a Public Holiday",
+          "comments": "Banks only. Annual accounts closing"
+        },
+        {
+          "date": "2026-04-02",
+          "name": "Maundy Thursday",
+          "type": "Regional Holiday",
+          "comments": "Kerala only"
+        },
+        {
+          "date": "2026-04-03",
+          "name": "Good Friday",
+          "type": "Regional Holiday",
+          "comments": "Kerala only"
+        },
+        {
+          "date": "2026-04-05",
+          "name": "Easter Sunday",
+          "type": "Regional Holiday",
+          "comments": ""
+        },
+        {
+          "date": "2026-04-14",
+          "name": "Vishu",
+          "type": "Regional Holiday",
+          "comments": "Kerala Only"
+        },
+        {
+          "date": "2026-05-01",
+          "name": "Labour Day",
+          "type": "Regional Holiday",
+          "comments": "Many states"
+        },
+        {
+          "date": "2026-05-27",
+          "name": "Id-ul-Ad'ha",
+          "type": "Regional Holiday",
+          "comments": "Bakrid, Kerala"
+        },
+        {
+          "date": "2026-06-25",
+          "name": "Ashura",
+          "type": "Regional Holiday",
+          "comments": "10 Muharram"
+        },
+        {
+          "date": "2026-08-15",
+          "name": "Independence Day",
+          "type": "Public Holiday",
+          "comments": ""
+        },
+        {
+          "date": "2026-08-25",
+          "name": "Milad-i-Sherif",
+          "type": "Regional Holiday",
+          "comments": "Birthday of Prophet Muhammad"
+        },
+        {
+          "date": "2026-08-26",
+          "name": "First Onam",
+          "type": "Regional Holiday",
+          "comments": "Kerala only. Harvest Festival"
+        },
+        {
+          "date": "2026-08-27",
+          "name": "Thiruvonam",
+          "type": "Regional Holiday",
+          "comments": "Kerala only. Harvest Festival"
+        },
+        {
+          "date": "2026-08-27",
+          "name": "Third Onam",
+          "type": "Regional Holiday",
+          "comments": "Kerala only. Harvest Festival"
+        },
+        {
+          "date": "2026-08-28",
+          "name": "Fourth Onam",
+          "type": "Regional Holiday",
+          "comments": "Kerala only. Harvest Festival"
+        },
+        {
+          "date": "2026-08-29",
+          "name": "Ayyankali Jayanthi",
+          "type": "Regional Holiday",
+          "comments": "Kerala only"
+        },
+        {
+          "date": "2026-10-25",
+          "name": "Deepavali",
+          "type": "Public Holiday",
+          "comments": ""
+        },
+        {
+          "date": "2026-12-25",
+          "name": "Christmas Day",
+          "type": "Public Holiday",
+          "comments": ""
+        }
+      ]
+    }
+  }
+  
