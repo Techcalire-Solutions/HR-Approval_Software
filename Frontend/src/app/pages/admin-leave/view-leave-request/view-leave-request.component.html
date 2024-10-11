@@ -59,25 +59,39 @@
 
             <td>{{ item.status }}</td>
 
-            <!-- Actions -->
-            <td>
-              <!-- Approve and Reject Buttons (only visible if not Admin Approved) -->
-              <ng-container *ngIf="item.status !== 'AdminApproved'">
-                <button mat-raised-button class="approve-button" (click)="approveLeave(item.id)" [disabled]="item.status === 'Approved' || item.status === 'Admin Approved'">
-                  APPROVE
-                </button> &nbsp;
-                <button mat-raised-button class="reject-button" (click)="rejectLeave(item.id)" [disabled]="item.status === 'Rejected'">
-                  REJECT
-                </button>
-              </ng-container>
 
-              <!-- Edit and Delete Buttons (only visible if Admin Approved) -->
-              <span *ngIf="item.status === 'AdminApproved'">
-                &nbsp;
-                <button mat-raised-button class="edit-button" (click)="editLeave(item.id, item.status)">EDIT</button>
-                &nbsp;
-                <button mat-raised-button class="delete-button" (click)="deleteLeave(item.id)">DELETE</button>
-              </span>
+            <td>
+
+<ng-container *ngIf="item.status !== 'AdminApproved' && item.status !== 'Rejected' && item.status !== 'Approved'">
+  <button mat-raised-button class="approve-button" (click)="approveLeave(item.id)" [disabled]="item.status === 'Approved'">
+    APPROVE
+  </button> &nbsp;
+  <button mat-raised-button class="reject-button" (click)="rejectLeave(item.id)" [disabled]="item.status === 'Rejected'">
+    REJECT
+  </button>
+</ng-container>
+
+
+<ng-container *ngIf="item.status === 'Approved'">
+  <span>
+    <em>Leave Request Approved</em>
+  </span>
+</ng-container>
+
+
+<ng-container *ngIf="item.status === 'AdminApproved'">
+  <span>
+    <em>Leave Request Admin Approved</em>
+  </span>
+</ng-container>
+
+
+<ng-container *ngIf="item.status === 'Rejected'">
+  <span>
+    <em>Leave Request Rejected</em>
+  </span>
+</ng-container>
+
             </td>
 
           </tr>
