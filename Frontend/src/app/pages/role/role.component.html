@@ -28,25 +28,28 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let role of roles">
-            <td>{{ role.id }}</td>
-            <td>{{ role.roleName }}</td>
-            <td>
-              <button
-                mat-icon-button
-                (click)="openRoleDialog(role)"
-                [disabled]="isRestrictedRole(role.roleName)">
-                <mat-icon>mode_edit</mat-icon>
-              </button>
+          @for(role of roles; track $index){
+            <tr>
+              <td>{{ role.id }}</td>
+              <td>{{ role.roleName }}</td>
+              <td>
+                <button
+                  mat-icon-button
+                  (click)="openRoleDialog(role)"
+                  [disabled]="isRestrictedRole(role.roleName)">
+                  <mat-icon>mode_edit</mat-icon>
+                </button>
+  
+                <button
+                  mat-icon-button
+                  (click)="deleteRole(role.id)"
+                  [disabled]="isRestrictedRole(role.roleName)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </tr>
+          }
 
-              <button
-                mat-icon-button
-                (click)="deleteRole(role.id)"
-                [disabled]="isRestrictedRole(role.roleName)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </td>
-          </tr>
         </tbody>
       </table>
       <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"

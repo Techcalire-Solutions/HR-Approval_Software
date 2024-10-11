@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, Inject, inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -25,12 +25,12 @@ import { Router } from '@angular/router';
   encapsulation: ViewEncapsulation.None
 })
 export class ApplicationsComponent implements OnInit {
-
-  constructor(public dialog: MatDialog){ }
+  dialog=Inject(MatDialog)
+  router=inject(Router)
 
   ngOnInit() {
   }
-  router=inject(Router)
+  
 
   openLeaveTypes(): void {
     this.router.navigateByUrl('/login/admin-leave/leave-types')
