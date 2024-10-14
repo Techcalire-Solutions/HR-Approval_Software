@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 import { UserLeave } from '../common/interfaces/userLeave';
 import {  throwError } from 'rxjs';
 import { Holidays } from '../common/interfaces/holidays';
+import { CompoOff } from '../common/interfaces/compo-off';
 
 @Injectable({
   providedIn: 'root'
@@ -84,8 +85,11 @@ export class LeaveService {
     return this.http.post(this.apiUrl+'/leaveType/', data)
   }
 
-  getLeaveType(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/leaveType`);
+  // getLeaveType(): Observable<any> {
+  //   return this.http.get(`${this.apiUrl}/leaveType`);
+  // }
+  getLeaveType(filterValue?: string, page?: number, pagesize?:number): Observable<LeaveType[]> {
+    return this.http.get<LeaveType[]>(this.apiUrl + `/leaveType/find/?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
   }
   updateLeaveType(id: number, data: any): Observable<LeaveType> {
     return this.http.patch<LeaveType>(this.apiUrl + "/leaveType/" + id, data);
@@ -116,6 +120,11 @@ export class LeaveService {
     return this.http.patch<Holidays[]>(`${this.apiUrl}/holidays/update/`+id, data);
   }
 
+  updateUpdatedCompoOff(id: number, data: any){
+    return this.http.patch<Holidays[]>(`${this.apiUrl}/holidays/updatetheupdated/`+id, data);
+  }
 
-
+  getCompoOff(id: number){
+    return this.http.get<CompoOff>(`${this.apiUrl}/holidays/findcombooff/${id}`);
+  }
 }

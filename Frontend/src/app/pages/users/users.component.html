@@ -73,6 +73,10 @@
                                 <mat-icon>low_priority</mat-icon>
                                 <span>Separation</span>
                             </button>
+                            <button mat-menu-item (click)="openAssets(user.id, user.empNo);">
+                                <mat-icon>devices</mat-icon>
+                                <span>Assets</span>
+                            </button>
                             @if(user.url){
                                 <button mat-menu-item (click)="deleteImage(user.id);">
                                     <mat-icon>image_not_supported</mat-icon>

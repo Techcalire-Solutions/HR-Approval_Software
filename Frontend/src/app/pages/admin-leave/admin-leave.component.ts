@@ -50,49 +50,7 @@ export class AdminLeaveComponent {
   viewDate: Date = new Date();
   activeDayIsOpen: boolean = true;
   events: CalendarEvent[] = [];
-  // actions: CalendarEventAction[] = [{
-  //   label: '<i class="material-icons icon-sm white">edit</i>',
-  //   onClick: ({ event }: { event: CalendarEvent }): void => {
-  //     this.openScheduleDialog(event);
-  //   }
-  // }, {
-  //   label: '<i class="material-icons icon-sm white">close</i>',
-  //   onClick: ({ event }: { event: CalendarEvent }): void => {
-  //     this.events = this.events.filter(iEvent => iEvent !== event);
-  //     this.snackBar.open('Event deleted successfully!', undefined, {
-  //       duration: 1500
-  //     });
-  //   }
-  // }];
-  // events: CalendarEvent[] = [{
-  //   start: subDays(startOfDay(new Date()), 1),
-  //   end: addDays(new Date(), 1),
-  //   title: 'A 3 day event',
-  //   color: colors.red,
-  //   // actions: this.actions
-  // }, {
-  //   start: startOfDay(new Date()),
-  //   title: 'An event with no end date',
-  //   color: colors.yellow,
-  //   // actions: this.actions
-  // }, {
-  //   start: subDays(endOfMonth(new Date()), 3),
-  //   end: addDays(endOfMonth(new Date()), 3),
-  //   title: 'A long event that spans 2 months',
-  //   color: colors.blue
-  // }, {
-  //   start: addHours(startOfDay(new Date()), 2),
-  //   end: new Date(),
-  //   title: 'A draggable and resizable event',
-  //   color: colors.yellow,
-  //   // actions: this.actions,
-  //   resizable: {
-  //     beforeStart: true,
-  //     afterEnd: true
-  //   },
-  //   draggable: true
-  // }];
-
+ 
 
   refresh: Subject<any> = new Subject();
 
@@ -109,17 +67,6 @@ export class AdminLeaveComponent {
     ngOnInit() {
       this.getLeaves()
       this.settings = this.settingsService.settings;
-      // Fetch leaves from your service or however you're getting them
-      // const leaves: Leave[] = [
-      //   {
-      //     id: 4,
-      //     notes: 'Emergency',
-      //     startDate: startOfDay(new Date()),
-      //   },
-      //   // Add other leave objects here...
-      // ];
-
-      // Convert leaves to CalendarEvent[]
 
     }
 getLeaveSub : Subscription
@@ -171,22 +118,7 @@ getLeaveSub : Subscription
 
 
   openScheduleDialog(event: any) {
-    // let dialogRef = this.dialog.open(ScheduleDialogComponent, {
-    //   data: event
-    // });
-
-    // dialogRef.afterClosed().subscribe(result => {
-    //   if (result) {
-    //     if (!result.isEdit) {
-    //       result.color = colors.blue;
-    //       result.actions = this.actions;
-    //       this.events.push(result);
-    //       this.refresh.next(null);
-    //     } else {
-    //       //implement edit here
-    //     }
-    //   }
-    // });
+  
   }
 
 }

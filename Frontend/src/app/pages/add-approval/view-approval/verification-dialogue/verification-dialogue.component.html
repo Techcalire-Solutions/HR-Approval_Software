@@ -15,28 +15,42 @@
             <input matInput placeholder="" formControlName="remarks">
           </mat-form-field>
 
-          <mat-form-field class="full-width" appearance="outline" *ngIf="status === 'KAM VERIFIED'">
-            <mat-label>Authorizer Manager</mat-label>
-            <mat-select placeholder="" formControlName="amId" (selectionChange)="onSelectionChange()">
-              <mat-option *ngFor="let item of am" [value]="item.id">
-                {{item.name}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+          @if(status === 'KAM VERIFIED'){
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Authorizer Manager</mat-label>
+              <mat-select placeholder="" formControlName="amId" (selectionChange)="onSelectionChange()">
+                @for(item of am; track $index){
+                  <mat-option [value]="item.id">
+                    {{item.name}}
+                  </mat-option>
+                }
+  
+              </mat-select>
+            </mat-form-field>
+          }
 
-          <mat-form-field class="full-width" appearance="outline" *ngIf="status === 'AM VERIFIED'">
-            <mat-label>Accountant</mat-label>
-            <mat-select placeholder="" formControlName="accountantId" (selectionChange)="onSelectionChange()">
-              <mat-option *ngFor="let item of am" [value]="item.id">
-                {{item.name}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+          @if(status === 'AM VERIFIED'){
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Accountant</mat-label>
+              <mat-select placeholder="" formControlName="accountantId" (selectionChange)="onSelectionChange()">
+                @for(item of am; track $index){
+                  <mat-option [value]="item.id">
+                    {{item.name}}
+                  </mat-option>
+                }
+               
+              </mat-select>
+            </mat-form-field>
+          }
+         
+@if(status === 'AM REJECTED' || status === 'KAM REJECTED'){
+  <mat-form-field appearance="outline">
+    <mat-label>Maker</mat-label>
+    <input matInput placeholder="" formControlName="spId" readonly>
+  </mat-form-field>
 
-          <mat-form-field appearance="outline" *ngIf="status === 'AM REJECTED' || status === 'KAM REJECTED'">
-            <mat-label>Maker</mat-label>
-            <input matInput placeholder="" formControlName="spId" readonly>
-          </mat-form-field>
+}
+         
         </form>
 
       </div>

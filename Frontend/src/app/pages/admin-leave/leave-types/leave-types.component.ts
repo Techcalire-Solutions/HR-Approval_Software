@@ -1,97 +1,127 @@
-import { Component, Inject } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatCardModule } from '@angular/material/card';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
+import { Component, inject, ViewChild } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { LeaveService } from '@services/leave.service';
+import { MatTableModule } from '@angular/material/table';
+import { MatDialog } from '@angular/material/dialog';
+// import { UserDialogComponent } from '../users/user-dialog/user-dialog.component';
+import { CommonModule, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { FlexLayoutModule } from '@ngbracket/ngx-layout';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { PipesModule } from '../../../theme/pipes/pipes.module';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialogModule } from '@angular/material/dialog';
-import { SafePipe } from '../../add-approval/view-invoices/safe.pipe';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { Subscription } from 'rxjs';
+import { SettingsService } from '@services/settings.service';
+import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
+import { AddLeaveTypeDialogueComponent } from './add-leave-type-dialogue/add-leave-type-dialogue.component';
+import { LeaveService } from '@services/leave.service';
 import { LeaveType } from '../../../common/interfaces/leaveType';
-
 @Component({
   selector: 'app-leave-types',
   standalone: true,
-  imports: [CommonModule,
-    ReactiveFormsModule,
-    MatDatepickerModule,
-    MatFormFieldModule,
-    MatCardModule,
-    MatNativeDateModule,
-    MatToolbarModule,
-    MatIconModule,
+  imports: [
+    MatTableModule,
+    MatInputModule ,
+    FormsModule,
+    FlexLayoutModule,
     MatButtonModule,
-    MatSelectModule,
+    MatButtonToggleModule,
+    MatIconModule,
+    MatFormFieldModule,
     MatInputModule,
-    MatProgressBarModule,
-    MatProgressSpinnerModule, SafePipe,
-    MatDialogModule],
+    MatProgressSpinnerModule,
+    MatMenuModule,
+    MatSlideToggleModule,
+    MatCardModule,
+    NgxPaginationModule,
+    PipesModule,
+    DatePipe,
+
+    CommonModule,
+    MatPaginatorModule
+  ],
     providers: [DatePipe],
   templateUrl: './leave-types.component.html',
   styleUrl: './leave-types.component.scss'
 })
 export class LeaveTypesComponent {
+  public page:any;
+  snackBar = inject(MatSnackBar)
+  settingsService= inject(SettingsService)
+  dialog=inject(MatDialog)
+  leaveService=inject(LeaveService)
+ 
 
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public leaveType: LeaveType,
-    private formBuilder: FormBuilder, private datePipe: DatePipe,
-    private leaveService: LeaveService,
-    public dialogRef: MatDialogRef<LeaveTypesComponent>,
-    private _snackBar: MatSnackBar,
-    private dialog: MatDialog
-  ) {
-    const token: any = localStorage.getItem('token');
-    let user = JSON.parse(token);
-
-    // this.therapistId = user.id;
-
-    // this.userRole = user.role;
-  }
-  leaveTypeForm = this.formBuilder.group({
-    leaveTypeName: ['', Validators.required]
-  });
-
-  ngOnInit() {
-    if (this.leaveType) {
-      this.patchRole(this.leaveType);
-    }
+  ngOnInit(){
+    this.getLeaveTypes()
   }
 
-  patchRole(role: any){
-    this.leaveTypeForm.patchValue({
-      leaveTypeName: this.leaveType.leaveTypeName
-
+  leaveTypes: LeaveType[] = [];
+  roleSub!: Subscription;
+  getLeaveTypes(){
+    this.roleSub = this.leaveService.getLeaveType(this.searchText, this.currentPage, this.pageSize).subscribe((res: any)=>{
+      this.leaveTypes = res.items;
+      this.totalItems = res.count;
+      console.log('hiii',res);
+      
     })
   }
 
 
-  close(): void {
-    this.dialogRef.close();
-  }
-  onSubmit(){
-    if(this.leaveType){
-      this.leaveService.updateLeaveType(this.leaveType.id, this.leaveTypeForm.getRawValue()).subscribe(data => {
-        this.dialogRef.close()
-        this._snackBar.open("Role updated succesfully...","" ,{duration:3000})
-      });
-    }else{
-      this.leaveService.addLeaveType(this.leaveTypeForm.getRawValue()).subscribe((res)=>{
-        this.dialogRef.close();
-        this._snackBar.open("Role added succesfully...","" ,{duration:3000})
-      })
-    }
-  }
-  SubmitForm(){
+  // Other functions like openRoleDialog, deleteRole...
 
+  public searchText!: string;
+  search(event: Event){
+    this.searchText = (event.target as HTMLInputElement).value.trim()
+    this.getLeaveTypes()
   }
+
+
+  delete!: Subscription;
+  deleteRole(id: number){
+    let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+    dialogRef.afterClosed().subscribe(res => {
+      if(res){
+        this.delete = this.leaveService.deleteLeaveType(id).subscribe(res => {
+          this.snackBar.open("Leave Type deleted successfully...","" ,{duration:3000})
+          this.getLeaveTypes()
+        });
+      }
+    });
+  }
+
+  public openLeaveTypeDialog(leaveType: any){
+    let dialogRef = this.dialog.open(AddLeaveTypeDialogueComponent, {
+      data: leaveType
+    });
+    console.log('leaveType',leaveType);
+    
+    dialogRef.afterClosed().subscribe(leaveType => {
+      this.getLeaveTypes()
+    });
+  }
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  pageSize = 10;
+  currentPage = 1;
+  totalItems = 0;
+  onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.getLeaveTypes();
+  }
+
+  ngOnDestroy(): void {
+    this.roleSub?.unsubscribe();
+    this.delete?.unsubscribe();
+  }
+
 }

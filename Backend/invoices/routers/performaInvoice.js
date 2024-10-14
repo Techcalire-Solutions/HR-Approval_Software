@@ -12,13 +12,7 @@ const nodemailer = require('nodemailer');
 const TeamMember = require('../../users/models/teamMember');
 const Team = require('../../users/models/team');
 
-//   const transporter = nodemailer.createTransport({
-//     service: 'gmail',
-//     auth: {
-//       user: process.env.EMAIL_USER,
-//       pass: process.env.EMAIL_PASS, 
-//     },
-//   });
+
 
 
 const transporter = nodemailer.createTransport({
@@ -390,10 +384,7 @@ router.get('/findbysp', authenticateToken, async (req, res) => {
             // Fetch the SalesPerson's team
             const teamMember = await TeamMember.findOne({ where: { userId } });
     
-            // If no team is found, respond with an empty list or appropriate message
-            // if (!teamMember) {
-            //     return res.json({ count: 0, items: [] });
-            // }
+
 
             if(teamMember){
                 const teamId = teamMember.teamId;
@@ -657,6 +648,8 @@ router.get('/findbyma', authenticateToken, async(req, res) => {
     }
 })
 
+
+
 router.get('/findbyadmin', authenticateToken, async (req, res) => {
     let status = req.query.status;
     
@@ -667,13 +660,7 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
         where.status = status;
     } else if (status === 'REJECTED') {
         where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
-    }
-    // If the user is not an Administrator, apply the accountantId filter
-    // if (userRole == 'Administrator') {
-    //     // where.accountantId = user;
-
-
-    // }   
+    }  
     
     if (req.query.search !== '' && req.query.search !== 'undefined') {
         const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();

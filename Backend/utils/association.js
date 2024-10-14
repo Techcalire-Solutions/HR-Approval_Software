@@ -34,6 +34,10 @@ async function syncModel() {
     //   TeamMember.belongsTo(User, { foreignKey: "userId"});
     
 
+//------------------------------LEAVE ASSOCIATIONS-----------------------------------------------
+//   Leave.belongsTo(LeaveType, { foreignKey: 'leaveTypeId' });
+//   Leave.belongsTo(User, { foreignKey: 'userId' });
+  
     const roleData = [
         {id: 1, roleName: 'Sales Executive',abbreviation:'SE'}, 
         {id: 2, roleName: 'Key Account Manager',abbreviation:'KAM'}, 
@@ -56,9 +60,13 @@ async function syncModel() {
 
 
     const user = await User.findAll({});
+    
     const salt = await bcrypt.genSalt(10);
+    
     if(user.length === 0){
         for(let i = 0; i < userData.length; i++){
+            console.log(userData[i]);
+            
             const hashedPassword = await bcrypt.hash(userData[i].password, salt)
             const name = userData[i].phoneNumber;
             userData[i].password = hashedPassword
