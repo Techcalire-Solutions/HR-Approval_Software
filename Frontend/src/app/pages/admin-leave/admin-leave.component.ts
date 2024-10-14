@@ -50,7 +50,7 @@ export class AdminLeaveComponent {
   viewDate: Date = new Date();
   activeDayIsOpen: boolean = true;
   events: CalendarEvent[] = [];
- 
+
 
   refresh: Subject<any> = new Subject();
 
@@ -76,11 +76,11 @@ getLeaveSub : Subscription
   getLeaves() {
     this.getLeaveSub = this.leaveService.getLeaves().subscribe(
       (res) => {
-        if (res.leave) {
-
-          this.leaves = res.leave.filter((leave: any) => leave.status !== 'Rejected');
-          this.totalItemsCount = this.leaves.length;
+        console.log(res)
+        if (res) {
+          this.leaves = res
           this.events = this.mapLeavesToCalendarEvents(this.leaves);
+          console.log(this.events)
         }
       },
       (error) => {
@@ -102,7 +102,7 @@ getLeaveSub : Subscription
       }
     }
   }
-  
+
   mapLeavesToCalendarEvents(leaves: any[]): CalendarEvent[] {
     return leaves.map(leave => ({
       id: leave.id,
@@ -118,7 +118,7 @@ getLeaveSub : Subscription
 
 
   openScheduleDialog(event: any) {
-  
+
   }
 
 }
