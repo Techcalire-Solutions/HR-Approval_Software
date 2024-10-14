@@ -203,3 +203,34 @@
 
 
 
+.info {
+    // background-color: #d9edf7;
+    color: #4eb3e6;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.warning {
+    // background-color: #fcf8e3;
+    color: #f4a113;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.error {
+    // background-color: #f2dede;
+    color: #ea221f;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.success {
+    // background-color: #dff0d8;
+    color: #06e66f;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.invert-icon {
+    transform: rotate(90deg);
+  }

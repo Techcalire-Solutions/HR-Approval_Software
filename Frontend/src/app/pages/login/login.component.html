@@ -1,16 +1,26 @@
 <div class="container" [class.sign-up-mode]="isSignUpMode">
+
   <div class="forms-container">
     <div class="signin-signup">
       <form [formGroup]="loginForm" class="sign-in-form" (ngSubmit)="onSignIn()">
         <h2 class="title">Sign in</h2>
         <div class="input-field">
           <i class="fas fa-user"></i>
-          <input type="text" placeholder="Username" formControlName="email" />
+          <input type="text" placeholder="Emp ID" formControlName="empNo" />
         </div>
         <div class="input-field">
           <i class="fas fa-lock"></i>
-          <input type="password" placeholder="Password" formControlName="password" />
+          <input
+            type="{{ showPassword ? 'text' : 'password' }}"
+            placeholder="Password"
+            formControlName="password"
+          />
+          <span class="material-icons eye-icon" (click)="togglePasswordVisibility()">
+            {{ showPassword ? 'visibility' : 'visibility_off' }}
+          </span>
         </div>
+        
+        
         <input type="submit" value="Login" class="btn solid" />
         <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
       </form>
@@ -34,13 +44,20 @@
   </div>
 
   <div class="panels-container">
-    <div class="panel left-panel">
-      <!-- <div class="content">
-        <h3>New here?</h3>
-        <p>Create an account to get started.</p>
-        <button class="btn transparent" (click)="toggleSignUpMode(true)">Sign up</button>
-      </div> -->
+
+      <div class="panel left-panel">
+        <!-- <div class="content"> -->
+          <!-- Logo inclusion -->
+          <!-- <img src="../../../assets/img/avatar.png" alt="Leeds HR Logo" class="logo-image"> -->
+
+          <!-- <button class="btn1" (click)="toggleSignUpMode(true)">LEEDS HR</button>
+          <p class="caption">"Streamlining Your Workforce"</p>
+        </div> -->
+
     </div>
+
+
+
     <div class="panel right-panel">
       <div class="content">
         <h3>One of us?</h3>

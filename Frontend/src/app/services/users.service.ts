@@ -1,10 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
-import { Role } from '../common/interfaces/role';
 import { User } from '../common/interfaces/user';
 import { environment } from '../../environments/environment';
 import { UserPersonal } from '../common/interfaces/user-personal';
+import { UserPosition } from '../common/interfaces/user-position';
+import { StatutoryInfo } from '../common/interfaces/statutory-info';
+import { UserAccount } from '../common/interfaces/user-account';
+import { UserDocument } from '../common/interfaces/user-document';
 
 
 @Injectable({
@@ -37,25 +40,30 @@ export class UsersService {
     }
   }
 
+  
+
   // deleteInvoice(id: number, fileName: string){
   //   return this._http.delete(this.url + `/invoice/filedelete/?id=${id}&fileName=${fileName}`);
   // }
-  updateUser(id: number, data: any){
-      return this.http.patch(this.apiUrl + '/user/update/' + id, data);
-  }
 
   deleteUser(id: number) {
     return this.http.delete(`${this.apiUrl}/user/delete/${id}`);
   }
 
+  deleteUserImage(id: number, key?: string) {
+    return this.http.delete(`${this.apiUrl}/user/filedelete?id=${id}&key=${key}`);
+  }
+
+  deleteUserImageByurl(key: string) {
+    return this.http.delete(`${this.apiUrl}/user/filedeletebyurl/?key=${key}`);
+  }
+
   getUserByRoleId(id:number):Observable<User>{
     return this.http.get<User>(this.apiUrl + '/user/findbyrole/'+id)
-
   }
 
   getUserById(id:number):Observable<User>{
-    return this.http.get<User>('http://localhost:8000/auth/findbyuser/'+id)
-
+    return this.http.get<User>(this.apiUrl + '/user/findone/'+id)
   }
 
   addUserPersonalDetails(data: any): Observable<any> {
@@ -78,6 +86,26 @@ export class UsersService {
     return this.http.get<UserPersonal[]>( this.apiUrl + '/personal/find');
   }
 
+  getUserPersonalDetailsByUser(id: number): Observable<UserPersonal> {
+    return this.http.get<UserPersonal>( this.apiUrl + '/personal/findbyuser/' + id);
+  }
+
+  getUserPositionDetailsByUser(id: number): Observable<UserPosition> {
+    return this.http.get<UserPosition>( this.apiUrl + '/position/findbyuser/' + id);
+  }
+
+  getUserStatutoryuDetailsByUser(id: number): Observable<StatutoryInfo> {
+    return this.http.get<StatutoryInfo>( this.apiUrl + '/statutoryinfo/findbyuser/' + id);
+  }
+
+  getUserAcoountDetailsByUser(id: number): Observable<UserAccount> {
+    return this.http.get<UserAccount>( this.apiUrl + '/account/findbyuser/' + id);
+  }
+
+  getReportingManagers(): Observable<User[]>{
+    return this.http.get<User[]>(this.apiUrl + '/user/getreportingmanager')
+  }
+
   uploadUserDoc(formData: any): Observable<any> {
     return this.http.post(this.apiUrl + '/document/fileupload', formData);
   }
@@ -85,4 +113,89 @@ export class UsersService {
   addUserDocumentDetails(data: any): Observable<any> {
     return this.http.post( this.apiUrl + '/document/add', data);
   }
+
+  updateUser(id: number, data: any){
+    return this.http.patch(this.apiUrl + '/user/update/' + id, data);
+  }
+
+  updateUserPersonal(id: number, data: any){
+    return this.http.patch(this.apiUrl + '/personal/update/' + id, data);
+  }
+
+  updateUserAccount(id: number, data: any){
+    return this.http.patch(this.apiUrl + '/account/update/' + id, data);
+  }
+
+  updateUserStatutory(id: number, data: any){
+    return this.http.patch(this.apiUrl + '/statutoryinfo/update/' + id, data);
+  }
+
+  updateUserPosition(id: number, data: any){
+    return this.http.patch(this.apiUrl + '/position/update/' + id, data);
+  }
+
+  getUserDocumentsByUser(id: number): Observable<UserDocument[]> {
+    return this.http.get<UserDocument[]>( this.apiUrl + '/document/findbyuser/' + id);
+  }
+
+  deleteUserDoc(id: number, key?: string) {
+    return this.http.delete(`${this.apiUrl}/document/filedelete?id=${id}&key=${key}`);
+  }
+
+  deleteUserDocByurl(key: string) {
+    return this.http.delete(`${this.apiUrl}/document/filedeletebyurl/?key=${key}`);
+  }
+
+  deleteUserDocComplete(id: number) {
+    return this.http.delete(`${this.apiUrl}/document/delete/${id}`);
+  }
+
+  updateUserDocumentDetails(id: number, data: any): Observable<any> {
+    return this.http.patch( this.apiUrl + '/document/update/' + id, data);
+  }
+
+  resetPassword(id: number, data: any){
+    return this.http.patch(this.apiUrl + '/user/resetpassword/' + id, data);
+  }
+
+  updateUserStatus(data: any, id: number): Observable<any> {
+    return this.http.patch( this.apiUrl+'/user/statusupdate/' + id, data);
+  }
+
+  getProbationEmployees(): Observable<User[]>{
+    return this.http.get<User[]>(this.apiUrl + '/user/underprobation')
+  }
+
+  getConfirmedEmployees(): Observable<User[]>{
+    return this.http.get<User[]>(this.apiUrl + '/user/confirmed')
+  }
+
+  confirmEmployee(id: number): Observable<any> {
+    return this.http.get( this.apiUrl+'/user/confirmemployee/' + id);
+  }
+
+  getBirthdays():Observable<UserPersonal[]>{
+    return this.http.get<UserPersonal[]>( this.apiUrl + '/personal/birthdays');
+  }
+
+  getJoining():Observable<UserPersonal[]>{
+    return this.http.get<UserPersonal[]>( this.apiUrl + '/personal/joiningday');
+  }
+
+  getProbationDues():Observable<User[]>{
+    return this.http.get<User[]>( this.apiUrl + '/personal/dueprobation');
+  }
+
+  getDirectors(): Observable<User[]>{
+    return this.http.get<User[]>(this.apiUrl + '/user/getdirectors')
+  }
+
+  getUserByRm(id: number): Observable<User[]>{
+    return this.http.get<User[]>(this.apiUrl + '/user/getbyrm/'+id)
+  }
+
+  resignEmployee(id: number): Observable<any> {
+    return this.http.get( this.apiUrl+'/user/resignemployee/' + id);
+  }
+
 }

@@ -27,9 +27,15 @@
           <mat-label>Supplier PO#</mat-label>
           <input matInput placeholder="Enter Supplier PO#" formControlName="supplierPoNo">
         </mat-form-field>
-
         <mat-form-field appearance="outline">
-          <mat-label>Supplier Price $</mat-label>
+          <mat-label>Supplier Currency</mat-label>
+          <mat-select formControlName="supplierCurrency">
+              <mat-option value="Dollar">Dollar</mat-option>
+              <mat-option value="AED">AED</mat-option>
+          </mat-select>
+      </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Supplier Price</mat-label>
           <input matInput placeholder="Enter Supplier Price" formControlName="supplierPrice">
         </mat-form-field>
 
@@ -102,9 +108,16 @@
             <mat-label>Customer PO#</mat-label>
             <input matInput placeholder="Enter Customer PO#" formControlName="customerPoNo">
           </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Customer Currency</mat-label>
+            <mat-select formControlName="customerCurrency">
+                <mat-option value="Dollar">Dollar</mat-option>
+                <mat-option value="AED">AED</mat-option>
+            </mat-select>
+        </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>CustomerPO Value $</mat-label>
+            <mat-label>CustomerPO Value</mat-label>
             <input matInput placeholder="Enter PO Value" formControlName="poValue">
           </mat-form-field>
 
@@ -115,12 +128,12 @@
 
         <mat-form-field appearance="outline" *ngIf="editStatus">
           <mat-label>Remarks</mat-label>
-          <input matInput placeholder="" formControlName="remarks">
+          <input matInput placeholder="" formControlName="remarks" >
         </mat-form-field>
 
 
-
-      <mat-icon *ngIf="imageUrl" style="font-size: 25px;" (click)="clearFileInput()">delete</mat-icon>
+<!--
+      <mat-icon *ngIf="imageUrl" style="font-size: 25px;" (click)="clearFileInput()">delete</mat-icon> -->
 
       <!-- <form #form class="form">
         <ng-container *ngIf="imageUrl && imageUrl != ''; else noImageTemplate">
@@ -144,7 +157,7 @@
 
 
           <--- PDF Preview -->
-        <ng-template #fileTemplate>
+        <!-- <ng-template #fileTemplate>
           <ng-container *ngIf="safeUrl && fileType === 'pdf'; else noFileTemplate">
             <object [data]="safeUrl" type="application/pdf" width="300" height="300">
               <p style="margin-left: 20px;">Your browser does not support PDFs. <a [href]="safeUrl" target="_blank">Download the PDF</a></p>
@@ -156,15 +169,36 @@
 
         <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
         <span class="material-icons" (click)="fileInput.click()">cloud_upload</span>
-        <p (click)="fileInput.click()">Browse file to upload</p>
+        <p (click)="fileInput.click()">Browse file to upload</p> -->
+
+        @if(!imageUrl){
+          <div class="col">
+            <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
+            <span class="material-icons file-upload-icon" (click)="fileInput.click()">cloud_upload</span>
+            <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
+          </div>
+      }
+      @else{
+      <div class="col">
+          <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+          @if(fileType === 'pdf'){
+              <iframe [src]="imageUrl | safe" width="100%" height="300px"></iframe>
+          }@else {
+              <img [src]="imageUrl" alt="Image" title="Image" height="300px" class="clickable-image" />
+          }
+
+          <mat-icon style="color: red;" (click)="onDeleteImage()">delete</mat-icon>
+          </div>
+      </div>
+      } 
       </form>
 
 
 
-      <section class="progress-area" *ngIf="file">
+      <section class="progress-area" *ngIf="file" style="width:90%">
         <li class="row">
           <!-- <span class="material-icons">file_copy</span> -->
-          <div class="content">
+          <div class="content" >
             <div class="details">
               <span class="name">{{ file.name }} - {{ uploadComplete ? 'Uploaded' : 'Uploading' }}</span>
               <mat-progress-bar *ngIf="!uploadComplete" mode="indeterminate"></mat-progress-bar>
@@ -173,14 +207,15 @@
         </li>
       </section>
 
+<BR>
 
-
-      <button mat-raised-button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid" *ngIf="!editStatus">
-        <span class="material-icons button-style" style="font-size: 25px;">save</span>
+      <button mat-raised-button type="button" color="primary" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid" *ngIf="!editStatus">
+        <!-- <span class="material-icons button-style" style="font-size: 25px;">save</span> -->
+        SAVE
       </button>
-      <button mat-raised-button type="button" class="btn btn-success" (click)="onUpdate()" [disabled]="!piForm.valid" *ngIf="editStatus">
+      <!-- <button mat-raised-button type="button" class="btn btn-success" (click)="onUpdate()" [disabled]="!piForm.valid" *ngIf="editStatus">
         <span class="material-icons" style="font-size: 25px;">save</span>
-      </button>
+      </button> -->
     </div>
   </mat-card-content>
 </mat-card>

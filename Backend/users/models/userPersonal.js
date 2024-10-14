@@ -5,27 +5,37 @@ const User = require('./user');
 
 const UserPersonal = sequelize.define('userPersonal', {
   userId: { type: DataTypes.INTEGER, allowNull: false },
-  empNo: { type: DataTypes.STRING, allowNull: false },
   dateOfJoining: { type: DataTypes.DATEONLY },
   probationPeriod: { type: DataTypes.STRING, allowNull: false },
   confirmationDate: { type: DataTypes.DATEONLY },
-  isTemporary: { type: DataTypes.BOOLEAN, defaultValue: false, allowNull: false },
-
+  bloodGroup: { type: DataTypes.STRING},
+  emergencyContactNo: { type: DataTypes.STRING },
+  emergencyContactName: { type: DataTypes.STRING },
+  emergencyContactRelation: { type: DataTypes.STRING },
   maritalStatus: { type: DataTypes.STRING, allowNull: false },
   dateOfBirth: { type: DataTypes.DATEONLY },
   gender: { type: DataTypes.STRING, allowNull: false },
   parentName: { type: DataTypes.STRING },
   spouseName: { type: DataTypes.STRING },
   referredBy: { type: DataTypes.STRING },
-  reportingManger: { type: DataTypes.INTEGER }
+  reportingMangerId: { type: DataTypes.INTEGER }
+
 },
 {
   freezeTableName: true,
   timestamps: true
 });
 
+// In your models setup file
+// User.hasMany(UserPersonal, { foreignKey: 'userId', as: 'personalDetails' });
+// UserPersonal.belongsTo(User, { foreignKey: 'reportingManagerId', as: 'reportingManager' });
+
+
 User.hasMany(UserPersonal, { foreignKey: 'userId', onUpdate: 'CASCADE' });
-UserPersonal.belongsTo(User);
+UserPersonal.belongsTo(User, { foreignKey: 'userId' });
+
+User.hasOne(UserPersonal, { foreignKey: 'reportingMangerId', onUpdate: 'CASCADE' });
+UserPersonal.belongsTo(User, { foreignKey: 'reportingMangerId', as: 'manager'  });
 
 // Synchronizing the model with the database
 UserPersonal.sync({ alter: true })

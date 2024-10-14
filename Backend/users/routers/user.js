@@ -4,121 +4,68 @@ const User = require('../models/user');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const Role = require('../models/role')
-const {Op, fn, col, where} = require('sequelize');
-const sequelize = require('../../utils/db'); 
+const { Op, fn, col, where } = require('sequelize');
+const sequelize = require('../../utils/db');
 const multer = require('../../utils/userImageMulter'); // Import the configured multer instance
 const Team = require('../models/team')
-const TeamMember = require('../models/teamMember')
-
-
-// router.post('/add', async (req, res) => {
-//   console.log(req.body);
-//   const { name, email, phoneNumber, password, roleId, status, userImage, url,teamId,teamMemberId} = req.body;
-//   try {
-//     try {
-//       const userExist = await User.findOne({
-//         where: { email: email}
-//       });
-//       if (userExist) {
-//         return res.send('User already exists' )  
-//       }
-//       console.log(userExist);
-//     } catch (error) {
-//       res.send(error.message)
-//     } 
-//     const pass = await bcrypt.hash(password, 10);
-    
-//     const user = new User({name, email, phoneNumber, password: pass, roleId, status, userImage, url,teamId,teamMemberId});
-//     await user.save();
-//     console.log(user);
-
-//     const team = await Team.findOne({
-//       where: { id: teamId }
-//     });
-
-//     if (!team) {
-//       return res.send('Team not found');
-//     }
-
-//     const teamMember = await TeamMember.create({
-//       teamId: team.id,
-//       teamMemberId: user.id 
-//     });
-
-//     console.log('TeamMember created:', teamMember);
-
-   
-//     res.send({ user, teamMember });
-//   } catch (error) {
-//     res.send(error.message);
-//   }
-// })
+const TeamMember = require('../models/teamMember');
+const upload = require('../../utils/userImageMulter'); 
+const s3 = require('../../utils/s3bucket');
+const UserLeave = require('../../leave/models/userLeave');
+const LeaveType = require('../../leave/models/leaveType');
+const UserPersonal = require('../models/userPersonal');
 
 router.post('/add', async (req, res) => {
-  console.log(req.body);
-  const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId } = req.body;
-  
+  const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId, empNo } = req.body;
+
   try {
-    // Check if the user already exists
+    // Check if user exists by email/role or empNo/role
     const userExist = await User.findOne({
-      where: { email: email }
+      where: {
+        [Op.or]: [
+          { email: email, roleId: roleId },
+          { empNo: empNo, roleId: roleId }
+        ]
+      }
     });
+
     if (userExist) {
-      return res.status(400).send('User already exists');
+      return res.send(`User already exists with the email or employee number and Role`);
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // Create a new user
+
     const user = await User.create({
-      name,
-      email,
-      phoneNumber,
-      password: hashedPassword,
-      roleId,
-      status,
-      userImage,
-      url,
-      teamId
+      name, empNo, email, phoneNumber, password: hashedPassword, roleId, status, userImage, url, teamId
     });
 
-    console.log('User created:', user);
+    // Verify the team exists
+    if (teamId!=null){
+        const team = await Team.findOne({ where: { id: teamId } });
 
-    // Find the team by teamId
-    const team = await Team.findOne({
-      where: { id: teamId }
-    });
-
-    if (!team) {
-      return res.status(404).send('Team not found');
+        if (!team) {
+          return res.status(404).send('Team not found');
+        }
+        const teamMember = await TeamMember.create({
+          teamId: team.id,
+          userId: user.id
+        });
+        res.send({ user, teamMember })
+    } else {
+      res.json({ user: user });
     }
 
-    // Create a new TeamMember entry with userId
-    const teamMember = await TeamMember.create({
-      teamId: team.id,
-      userId: user.id // Correctly assigning user.id to userId in the TeamMember table
-    });
-
-    console.log('TeamMember created:', teamMember);
-
-    // Send the created user and team member as a response
-    res.status(201).send({ user, teamMember });
-    
   } catch (error) {
-    console.error('Error:', error.message);
-    res.status(500).send('Server error');
+    res.send('Server error');
   }
 });
-
-
 
 router.get('/find/', async (req, res) => {
   try {
     let whereClause = {}
     let limit;
     let offset;
-    if (req.query.pageSize && req.query.page  && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
+    if (req.query.pageSize && req.query.page && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
       limit = req.query.pageSize;
       offset = (req.query.page - 1) * req.query.pageSize;
       if (req.query.search != 'undefined') {
@@ -163,7 +110,7 @@ router.get('/find/', async (req, res) => {
                 [Op.like]: `%${searchTerm}%`
               }
             )
-          ], 
+          ],
           status: true
         };
       } else {
@@ -176,10 +123,10 @@ router.get('/find/', async (req, res) => {
     const users = await User.findAll({
       where: whereClause,
       include: [
-        {model: Role, as: 'role', attributes: ['id', 'roleName']}
+        { model: Role, as: 'role', attributes: ['id', 'roleName'] }
       ],
       order: ["id"],
-      limit, 
+      limit,
       offset
     });
 
@@ -229,61 +176,65 @@ router.get('/search/name', async (req, res) => {
   }
 });
 
-router.patch('/statusupdate/:id', async(req,res)=>{
+router.patch('/statusupdate/:id', async (req, res) => {
   try {
     let status = req.body.status;
     let result = await User.findByPk(req.params.id);
     result.status = status
     await result.save();
     res.send(result);
-    } catch (error) {
-      res.send(error.message);
-    }
+  } catch (error) {
+    res.send(error.message);
+  }
 })
 
+// Route to get a user by ID
 router.get('/findone/:id', async (req, res) => {
   let id = req.params.id;
+  
   try {
     const user = await User.findByPk(id, {
-      include: {
-        model: Role,
-        attributes: ['id', 'roleName']
-      }
+      include: [
+        {
+          model: Role,
+          attributes: ['id', 'roleName']
+        },
+
+      ]
     });
     res.send(user);
   } catch (error) {
-    res.status(500).send(error.message);
+    res.send(error.message);
   }
 });
 
-
 router.patch('/update/:id', async(req,res)=>{
-  const { name, email, phoneNumber, password, roleId} = req.body;
-  const pass = await bcrypt.hash(password, 10);
+  const { name, email, phoneNumber, roleId, url} = req.body;
+  // const pass = await bcrypt.hash(password, 10);
   try {
     let result = await User.findByPk(req.params.id);
     result.name = name;
     result.email = email;
     result.phoneNumber = phoneNumber;
-    result.password = pass;
     result.roleId = roleId;
+    result.url = url
 
     await result.save();
     res.send(result);
-    } catch (error) {
-      res.send(error.message);
-    }
+  } catch (error) {
+    res.send(error.message);
+  }
 })
 
-router.delete('/delete/:id', authenticateToken, async(req, res)=>{
+router.delete('/delete/:id', authenticateToken, async (req, res) => {
   const id = req.params.id
   try {
-      const user = await User.findByPk(id)
+    const user = await User.findByPk(id)
 
-      const result = await user.destroy({
-        force: true
-      });
-      if (result === 0) {
+    const result = await user.destroy({
+      force: true
+    });
+    if (result === 0) {
       return res.status(404).json({
         status: "fail",
         message: "Brand with that ID not found",
@@ -291,68 +242,257 @@ router.delete('/delete/:id', authenticateToken, async(req, res)=>{
     }
 
     res.status(204).json();
-    } catch (error) {
-        res.send(error.message)
-    }
+  } catch (error) {
+    res.send(error.message)
+  }
 })
-
-router.post('/fileupload', multer.single('file'), authenticateToken, (req, res) => {
-  try {
-
-    if (!req.file) {
-      return res.status(400).send({ message: 'No file uploaded' });
-    }
-
-    // Construct the URL path
-    const fileUrl = `/users/userImages/${req.file.filename}`;
-
-    res.status(200).send({
-      message: 'File uploaded successfully',
-      file: req.file,
-      fileUrl: fileUrl
-    });
-  } catch (error) {
-    console.error('Error uploading file:', error);
-    res.status(500).send({ message: error.message });
-  }
-});
-router.delete('/filedelete/:id', async (req, res) => {
-  let id = req.params.id;
-  try {
-    const pi = await PerformaInvoice.findByPk(id);
-    let filename = pi.url
-    const directoryPath = path.join(__dirname, '../userImages'); // Replace 'uploads' with your folder name
-    const filePath = path.join(directoryPath, filename);
-
-    fs.access(filePath, fs.constants.F_OK, (err) => {
-        if (err) {
-            return res.status(404).json({ message: 'File not found' });
-        }
-
-        // Delete the file
-        fs.unlink(filePath, (err) => {
-            if (err) {
-                return res.status(500).json({ message: 'Error deleting file' });
-            }
-
-            return res.status(200).json({ message: 'File deleted successfully' });
-        });
-    })
-  } catch (error) {
-    console.error('Error deleting file:', error);
-    res.status(500).send({ message: error.message });
-  }
-});
 
 router.get('/findbyrole/:id', async (req, res) => {
   try {
     const user = await User.findAll({
-      where: {roleId: req.params.id}
+      where: { roleId: req.params.id }
     })
     res.send(user);
   } catch (error) {
     res.send(error.message)
   }
 })
+
+router.get('/getdirectors', async (req, res) => {
+  try {
+    const user = await User.findAll({
+      where: { director: true }
+    })
+    res.send(user);
+  } catch (error) {
+    res.send(error.message)
+  }
+})
+
+router.get('/getbyrm/:id', async (req, res) => {
+  try {
+    
+    const id = parseInt(req.params.id, 10)
+
+    const users = await User.findAll({
+      include: [
+        {
+          model: UserPersonal,
+          required: true, // Only include users with a matching UserPersonal record
+          where: {
+            reportingMangerId: { [Op.ne]: null },
+            reportingMangerId: id
+          },
+        },
+      ],
+    });
+
+    res.send(users); // Send the retrieved users
+  } catch (error) {
+    res.send(error.message); // Send error message
+  }
+});
+
+router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send({ message: 'No file uploaded' });
+    }
+
+    // Sanitize the original file name by removing special characters and spaces
+    const sanitizedFileName = req.file.originalname.replace(/[^a-zA-Z0-9]/g, '_');
+
+    // Create S3 upload parameters
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `Users/Images/${Date.now()}_${sanitizedFileName}`, // File path with sanitized name
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+      ACL: 'public-read' // Optional: make file publicly accessible
+    };
+
+    // Upload the file to S3
+    const data = await s3.upload(params).promise();
+
+    // Check if data.Location (fileUrl) exists
+    const fileUrl = data.Location ? data.Location : '';
+
+    // Replace only if fileUrl is valid
+    const key = fileUrl ? fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+
+    res.status(200).send({
+      message: 'File uploaded successfully',
+      file: req.file,
+      fileUrl: key // S3 URL of the uploaded file
+    });
+  } catch (error) {
+    res.send({ message: error.message });
+  }
+});
+
+router.delete('/filedelete', authenticateToken, async (req, res) => {
+  let id = req.query.id;
+  try {
+    try {
+        let user = await User.findByPk(id);
+        fileKey = user.url;
+        user.url = '';
+        await user.save();
+    } catch (error) {
+      res.send(error.message)
+    }
+    let key;
+    if (!fileKey) {
+      key = req.query.key;
+      
+      fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+    }
+
+    // Set S3 delete parameters
+    const deleteParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileKey
+    };
+
+    // Delete the file from S3
+    await s3.deleteObject(deleteParams).promise();
+
+    res.status(200).send({ message: 'File deleted successfully' });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+});
+
+router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
+    key = req.query.key;
+    fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+    try {
+      if (!fileKey) {
+        return res.send({ message: 'No file key provided' });
+      }
+
+      // Set S3 delete parameters
+      const deleteParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileKey
+      };
+
+      // Delete the file from S3
+      await s3.deleteObject(deleteParams).promise();
+
+      res.status(200).send({ message: 'File deleted successfully' });
+    } catch (error) {
+      res.status(500).send({ message: error.message });
+    }
+});
+
+router.patch('/resetpassword/:id', async (req, res) => {
+  const { password, paswordReset } = req.body;
+
+  try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      let user = await User.findByPk(req.params.id);
+
+      if (!user) {
+          return res.send('User not found');
+      }
+
+      user.password = hashedPassword;
+      user.paswordReset = paswordReset;
+
+      await user.save();
+      
+      res.send(user);
+  } catch (error) {
+      res.status(500).send(error.message);
+  }
+});
+
+router.get('/underprobation', async (req, res) => {
+  try {
+    const user = await User.findAll({
+      where: { isTemporary: true }
+    })
+    res.send(user);
+  } catch (error) {
+    res.send(error.message)
+  }
+})
+
+router.get('/confirmed', async (req, res) => {
+  try {
+    const user = await User.findAll({
+      where: { isTemporary: false }
+    })
+    res.send(user);
+  } catch (error) {
+    res.send(error.message)
+  }
+})
+
+router.get('/confirmemployee/:id', async (req, res) => {
+  try {
+      let result = await User.findByPk(req.params.id);
+
+      let up = await UserPersonal.findOne({
+        where: { userId: req.params.id}
+      })
+      if(!up){
+        return res.send(`Personal data is not added for the employee ${result.name}`)
+      }
+      
+      if (!result) {
+          return res.json({ message: "Employee not found" });
+      }
+
+      result.isTemporary = false;
+      await result.save();
+
+      const leaveTypes = await LeaveType.findAll({});
+      const sl = leaveTypes.find(x => x.leaveTypeName === 'Sick Leave');
+      const cl = leaveTypes.find(x => x.leaveTypeName === 'Casual Leave');
+      const slId = sl ? sl.id : null;
+      const clId = cl ? cl.id : null;
+      
+      let data = [
+        {userId: req.params.id, leaveTypeId: slId, noOfDays : 1, leaveBalance : 1},
+        {userId: req.params.id, leaveTypeId: clId, noOfDays : 1, leaveBalance : 1},
+      ]
+      for(let i = 0; i < data.length; i++){
+        UserLeave.bulkCreate([data[i]]);
+      }
+
+      res.json({ message: "Employee confirmed" });
+  } catch (error) {
+      res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+});
+
+
+router.get('/', async (req, res) => {
+  try {
+    const users = await User.findAll();
+    res.status(200).json(users); 
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
+router.get('/resignemployee/:id', async (req, res) => {
+  try {
+      let result = await User.findByPk(req.params.id);
+      
+      if (!result) {
+          return res.json({ message: "Employee not found" });
+      }
+
+      result.separated = !result.separated;
+      result.status = !result.separated;
+      await result.save();
+      res.json({ message: "Employee Separetd" });
+  } catch (error) {
+      res.json({ message: "Internal Server Error", error: error.message });
+  }
+});
+
 module.exports = router;
- 

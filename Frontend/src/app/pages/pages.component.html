@@ -18,12 +18,25 @@
                                 <mat-icon>person</mat-icon>
                             </button>
                         }
-                        @if (settings.menu == 'horizontal') {
+                        <!-- @if (settings.menu == 'horizontal') {
                             <a mat-raised-button color="accent" (click)="closeSubMenus()" class="small-logo">W</a>
-                            <a class="logo" (click)="closeSubMenus()">WRIGHT AERO COMPONENTS</a>
-                        }
+                            <a class="logo" (click)="closeSubMenus()">LEEDS AEROSPACE</a>
+                        } -->
                     </div>
+
                     <div fxLayout="row" fxLayoutAlign="end center">
+                        <button mat-icon-button class="full-screen" (click)="openAnnouncement()">
+                            <mat-icon>campaign</mat-icon>
+                        </button>
+                        @if(announcement){
+                            <div [ngClass]="type">
+                                <p>{{ message }}</p>
+                            </div>
+                        }
+                        <button mat-icon-button class="full-screen" (click)="openTree()">
+                            <mat-icon class="invert-icon">account_tree</mat-icon>
+                        </button>
+                        
                         <div fxLayout="row" fxLayoutAlign="start center" fxShow="false" fxShow.gt-xs class="search-bar">
                             <form method="get" fxLayout="row" fxLayoutAlign="start center">
                                 <input type="text" placeholder="Type to search..." class="mat-elevation-z3"  [class.show]="toggleSearchBar">
@@ -32,9 +45,17 @@
                                 </button>
                             </form>
                         </div>
+
+                        <!-- <div fxLayout="row" fxLayoutAlign="start center" fxShow="false" fxShow.gt-xs class="search-bar">
+                        <button mat-icon-button (click)="openCalender()" type="button">
+                                  <mat-icon>event</mat-icon>
+                              </button>
+                       </div> -->
+
                         <!-- <app-flags-menu fxShow="false" fxShow.gt-sm></app-flags-menu> -->
                         <app-fullscreen></app-fullscreen>
-                        <app-applications fxShow="false" fxShow.gt-sm></app-applications>
+
+                        <!-- <app-applications fxShow="false" fxShow.gt-sm></app-applications> -->
                         <!-- <app-messages fxShow="false" fxShow.gt-xs></app-messages> -->
                         <!-- <app-user-menu></app-user-menu> -->
                     </div>
@@ -70,17 +91,16 @@
                 <!-- </div> -->
             }
 
-            <div fxLayout="row" fxLayoutAlign="center center" class="options-icon" (click)="options.toggle()">
+            <!-- <div fxLayout="row" fxLayoutAlign="center center" class="options-icon" (click)="options.toggle()">
                 <mat-icon>settings</mat-icon>
-            </div>
+            </div> -->
 
             <div #backToTop fxLayout="row" fxLayoutAlign="center center" class="back-to-top" (click)="scrollToTop()">
                 <mat-icon>arrow_upward</mat-icon>
             </div>
     </mat-sidenav-content>
 
-    <mat-sidenav #options position="end" class="options">
-
+    <!-- <mat-sidenav #options position="end" class="options">
         <div fxLayout="row" fxLayoutAlign="center center" class="control mat-elevation-z1">
             <h2>Settings</h2>
         </div>
@@ -149,6 +169,6 @@
             </div>
         </ng-scrollbar>
 
-    </mat-sidenav>
+    </mat-sidenav> -->
 
 </mat-sidenav-container>

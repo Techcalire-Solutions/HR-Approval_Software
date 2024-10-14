@@ -2,55 +2,275 @@ const express = require('express');
 const UserPersonal = require('../models/userPersonal');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
+const sequelize = require('../../utils/db');
+const { Op, fn, col, literal, where  } = require('sequelize');
+const User = require('../models/user');
+const moment = require('moment');
+const UserPosition = require('../models/userPosition')
+
+async function saveDates(dateStrings) {
+  try {
+    // Ensure dateStrings is an array
+    if (!Array.isArray(dateStrings)) {
+      dateStrings = [dateStrings]; // Convert to array if it's a single string
+    }
+
+    const formattedDates = dateStrings.map(dateString => {
+      // Split the date string and take the first part (before the space)
+      const [date] = dateString.split(' ');
+      return date; // Return the date part
+    });
+
+    return formattedDates;
+  } catch (error) {
+    throw error;
+  }
+}
 
 router.post('/add', authenticateToken, async (req, res) => {
   const { userId, empNo, dateOfJoining, probationPeriod, confirmationDate, isTemporary, maritalStatus, dateOfBirth, gender, 
-    parentName, spouseName, referredBy, reportingManger} = req.body;
+    parentName, spouseName, referredBy, reportingMangerId, bloodGroup, emergencyContactNo, emergencyContactName, emergencyContactRelation } = req.body;
+
   try {
-    try {
-      const userExist = await UserPersonal.findOne({
-        where: { empNo: empNo}
-      });
-      if (userExist) {
-        return res.status(400).send('Employee with the given employee number already exists.');
-      }
-    } catch (error) {
-      res.send(error.message)
+    const existingUser = await UserPersonal.findOne({ where: { userId } });
+    if (existingUser) {
+      return res.status(400).send("Personal details have already been added for the given user");
     }
-    
-    try {
-      const us = await UserPersonal.findOne({
-        where: { userId: userId}
-      });
-      if (us) {
-        return res.send("Personal details has already been added for the given user");
+
+    let formattedDateOfJoining;
+    let formattedDateOfBirth;
+
+    if (dateOfJoining) {
+      formattedDateOfJoining = await saveDates(dateOfJoining);
+      if (formattedDateOfJoining.length === 0) {
+        return res.status(400).send("Invalid dateOfJoining format.");
       }
-    } catch (error) {
-        res.send(error.message)
-    } 
-    
-    const user = new UserPersonal({userId, empNo,  dateOfJoining: new Date(dateOfJoining), probationPeriod, 
-      confirmationDate: new Date(confirmationDate), isTemporary, maritalStatus, dateOfBirth: new Date(dateOfBirth), gender, 
-      parentName, spouseName, referredBy, reportingManger});
+    }
+
+    if (dateOfBirth) {
+      formattedDateOfBirth = await saveDates(dateOfBirth);
+      if (formattedDateOfBirth.length === 0) {
+        return res.status(400).send("Invalid dateOfBirth format.");
+      }
+    }
+
+    const user = new UserPersonal({ 
+      userId, 
+      empNo, 
+      dateOfJoining: dateOfJoining ? formattedDateOfJoining[0] : null, 
+      probationPeriod, 
+      isTemporary,
+      maritalStatus, 
+      dateOfBirth: dateOfBirth ? formattedDateOfBirth[0] : null, 
+      gender, 
+      parentName, 
+      spouseName, 
+      referredBy, 
+      reportingMangerId,
+      bloodGroup, 
+      emergencyContactNo, 
+      emergencyContactName, 
+      emergencyContactRelation,
+    });
+
     await user.save();
-    
-    res.send(user);
+    res.status(201).send(user); // Return a 201 status for successful creation
   } catch (error) {
-    res.send(error.message);
+    res.status(500).send(error.message);
   }
-})
+});
+
 
 router.get('/find', authenticateToken, async (req, res) => {
   try {
-    console.log("jjjjjjjjj");
-    
     const user = await UserPersonal.findAll({})
-    console.log(user);
-    
+
     res.send(user)
   } catch (error) {
     res.send(error.message);
   }
 });
+
+router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
+  try {
+    const user = await UserPersonal.findOne({
+      where: {userId: req.params.id},
+      include: {
+        model: User,
+        as: 'manager',
+        attributes: ['name']
+      }
+    })
+
+    res.send(user)
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
+router.patch('/update/:id', async(req,res)=>{
+  const { dateOfJoining, probationPeriod, confirmationDate, isTemporary, maritalStatus, dateOfBirth, gender, parentName,
+     spouseName, referredBy, reportingMangerId, bloodGroup, emergencyContactNo, emergencyContactName, emergencyContactRelation } = req.body
+  try {
+    let formattedDateOfJoining;
+    let formattedDateOfBirth;
+
+    if (dateOfJoining) {
+      formattedDateOfJoining = await saveDates(dateOfJoining);
+      if (formattedDateOfJoining.length === 0) {
+        return res.status(400).send("Invalid dateOfJoining format.");
+      }
+    }
+
+    if (dateOfBirth) {
+      formattedDateOfBirth = await saveDates(dateOfBirth);
+      if (formattedDateOfBirth.length === 0) {
+        return res.status(400).send("Invalid dateOfBirth format.");
+      }
+    }
+    
+    let result = await UserPersonal.findByPk(req.params.id);
+    result.dateOfJoining = dateOfJoining ? formattedDateOfJoining[0] : null;
+    result.probationPeriod = probationPeriod;
+    result.confirmationDate = confirmationDate;
+    result.isTemporary = isTemporary;
+    result.maritalStatus = maritalStatus;
+    result.dateOfBirth = dateOfBirth ? formattedDateOfBirth[0] : null;
+    result.probationPeriod = probationPeriod;
+    result.gender = gender;
+    result.parentName = parentName;
+    result.spouseName = spouseName;
+    result.referredBy = referredBy;
+    result.reportingMangerId = reportingMangerId;
+    result.confirmationDate = confirmationDate;
+    result.bloodGroup = bloodGroup;
+    result.emergencyContactNo = emergencyContactNo;
+    result.emergencyContactName = emergencyContactName;
+    result.emergencyContactRelation = emergencyContactRelation;
+    
+    await result.save();
+    
+    res.send(result);
+  } catch (error) {
+    res.send(error.message);
+  }
+})
+
+router.get('/birthdays', authenticateToken, async (req, res) => {
+  try {
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1;
+    const currentDay = today.getDate();
+    
+    const employeesWithBirthdays = await UserPersonal.findAll({
+      where: {
+        [Op.and]: [
+          sequelize.where(fn('EXTRACT', literal('MONTH FROM "dateOfBirth"')), currentMonth),
+          sequelize.where(fn('EXTRACT', literal('DAY FROM "dateOfBirth"')), { [Op.gte]: currentDay })
+        ]
+      },include: {
+        model: User,
+        attributes: ['name']
+      }
+    });
+
+    const employeesWithBirthdaysWithAge = employeesWithBirthdays.map(employee => {
+      const birthDate = new Date(employee.dateOfBirth);
+      const age = today.getFullYear() - birthDate.getFullYear();
+      const hasHadBirthdayThisYear = 
+        today.getMonth() > birthDate.getMonth() || 
+        (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
+
+      return {
+        ...employee.toJSON(), // Convert Sequelize instance to plain object
+        age: hasHadBirthdayThisYear ? age : age - 1, // Adjust age if birthday hasn't occurred yet this year
+      };
+    });
+
+    res.status(200).json(employeesWithBirthdaysWithAge);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+router.get('/joiningday', authenticateToken, async (req, res) => {
+  try {
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1;
+    const currentDay = today.getDate();
+    
+    const employees = await UserPersonal.findAll({
+      where: {
+        [Op.and]: [
+          sequelize.where(fn('EXTRACT', literal('MONTH FROM "dateOfJoining"')), currentMonth),
+          sequelize.where(fn('EXTRACT', literal('DAY FROM "dateOfJoining"')), { [Op.gte]: currentDay })
+        ]
+      },include: {
+        model: User,
+        attributes: ['name']
+      }
+    });
+
+    const employeesWithExp = employees.map(employee => {
+      const date = new Date(employee.dateOfJoining);
+      const exp = today.getFullYear() - date.getFullYear();
+      const hasHadJoiningThisYear = 
+        today.getMonth() > date.getMonth() || 
+        (today.getMonth() === date.getMonth() && today.getDate() >= date.getDate());
+
+      return {
+        ...employee.toJSON(), // Convert Sequelize instance to plain object
+        exp: hasHadJoiningThisYear ? exp : exp - 1, // Adjust age if birthday hasn't occurred yet this year
+      };
+    });
+
+    res.status(200).json(employeesWithExp);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+router.get('/dueprobation', authenticateToken, async (req, res) => {
+  try {
+    const today = new Date();
+
+    const users = await User.findAll({
+      include: [
+        {
+          model: UserPosition,
+          attributes: ['probationPeriod'], 
+        },
+        {
+          model: UserPersonal,
+          attributes: ['dateOfJoining'],
+        },
+      ],
+    });
+    
+    const probationDueUsers = [];
+
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].userPersonals.length > 0 && users[i].userpositions.length > 0) {
+        const joiningDate = new Date(users[i].userPersonals[0].dateOfJoining);
+        const probation = users[i].userpositions[0].probationPeriod;
+
+        const probationEndDate = new Date(joiningDate);
+        probationEndDate.setDate(probationEndDate.getDate() + probation);
+        
+        if (probationEndDate <= today) {
+          probationDueUsers.push({
+            ...users[i].toJSON(), 
+            probationEndDate: probationEndDate.toISOString().split('T')[0] 
+          });
+        }
+      }
+    }
+
+    res.send(probationDueUsers);
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
 
 module.exports = router;

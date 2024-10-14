@@ -1,34 +1,27 @@
-const {DataTypes} =  require('sequelize')
-const sequelize = require('../../utils/db')
+const { DataTypes } = require('sequelize');
+const sequelize = require('../../utils/db');
 
- const LeaveType = sequelize.define('leaveType',{
-   leaveTypeName : {type : DataTypes.STRING, allowNull : true},
+const LeaveType = sequelize.define('leaveType', {
+  leaveTypeName: { type: DataTypes.STRING, allowNull: true },
+}, {
+  freezeTableName: true,
+  timestamps: true,
+});
 
- },{
-    freezeTableName :true,
-    timestamps : false
- })
 const leaveTypeData = [
   { leaveTypeName: 'Casual Leave' },
   { leaveTypeName: 'Sick Leave' },
   { leaveTypeName: 'LOP' },
-  { leaveTypeName: 'Emergency Leave' },
-
+  { leaveTypeName: 'Comb Off' },
 ];
 
-
 const initializeLeaveTypes = async () => {
-  try {
-    const leaveTypes = await LeaveType.findAll();
-    if (!leaveTypes.length) await LeaveType.bulkCreate(leaveTypeData);
-  } catch (error) {
-  
-  }
+  const leaveTypes = await LeaveType.findAll();
+  if (!leaveTypes.length) await LeaveType.bulkCreate(leaveTypeData);
 };
 
 LeaveType.sync({ alter: true })
   .then(initializeLeaveTypes)
-  .catch(error => console.error('Error syncing LeaveType model:', error));
+  .catch(console.error);
 
-
-module.exports = LeaveType
+module.exports = LeaveType;

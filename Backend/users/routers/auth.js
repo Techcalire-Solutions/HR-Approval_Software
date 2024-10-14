@@ -6,42 +6,36 @@ const User = require('../models/user');
 
 router.post('/', async (req, res) => {
     try {
-        const { email, password } = req.body;
-        console.log(`Attempting login for email: ${email}`);
-
-        const user = await User.findOne({ where: { email: email } });
+        const { empNo, password } = req.body;
+        
+        const user = await User.findOne({ where: { empNo: empNo } });
+        
         if (!user) {
-            console.log('User not found');
             return res.json({ message: 'User not found' });
         }
 
         const validPassword = await bcrypt.compare(password, user.password);
-        console.log(`Password valid: ${validPassword}`);
-
+        
         if (!validPassword) {
-            console.log('Incorrect password');
             return res.json({ message: 'Incorrect password' });
         }
 
         const token = jwtTokens(user);
-        console.log(`Generated tokens for user: ${user.id}`);
-
         res.cookie('refreshtoken', token.refreshToken, { httpOnly: true });
 
         return res.status(200).json({
             token: token,
             role: user.roleId,
             name: user.name,
-            id: user.id
+            id: user.id,
+            paswordReset: user.paswordReset,
+            empNo: user.empNo
         });
 
     } catch (error) {
-        console.error('Error occurred:', error.message);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
-
-
 
 router.get('/findbyuser/:id', async (req, res) => {
     try {
@@ -53,6 +47,10 @@ router.get('/findbyuser/:id', async (req, res) => {
       res.send(error.message)
     }
   })
+
+  
+
+
 
 router.post('/branchlogin', async(req, res)=> {
     try {

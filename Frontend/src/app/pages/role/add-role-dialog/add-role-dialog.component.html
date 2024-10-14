@@ -2,24 +2,25 @@
   @if (role) {
       <span>Edit</span>
   } @else {
-      <span>Add</span>
+      <span>ADD</span>
   }
-   Role
+   ROLE
 </h1>
 <div mat-dialog-content>
   <form [formGroup]="form" class="user-form">
     <div fxLayout="column" class="form-field-outer">
-      <mat-form-field class="w-100">
-          <mat-label> Role </mat-label>
+      <br>
+      <mat-form-field class="w-100" appearance="outline">
+          <mat-label> Role Name </mat-label>
           <input matInput formControlName="roleName" required>
           <mat-error>
               @if (form.controls['roleName'].hasError('required')) {
-                  Name is required
+                 Role name is required
               }
           </mat-error>
       </mat-form-field>
 
-      <mat-form-field class="w-100">
+      <mat-form-field class="w-100" appearance="outline">
         <mat-label>Abbreviation</mat-label>
         <input matInput formControlName="abbreviation" required>
         <mat-error>

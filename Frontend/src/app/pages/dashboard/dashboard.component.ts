@@ -1,12 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
-import { AnalyticsComponent } from './analytics/analytics.component';
-import { DiskSpaceComponent } from './disk-space/disk-space.component';
 import { InfoCardsComponent } from './info-cards/info-cards.component';
-import { TodoComponent } from './todo/todo.component';
 import { MatrixTableComponent } from "./matrix-table/matrix-table.component";
+import { InvoiceService } from '@services/invoice.service';
+import { Subscription } from 'rxjs/internal/Subscription';
+import { AdminCardComponent } from "./admin-card/admin-card.component";
+import { BirthdayComponent } from "./birthday/birthday.component";
+import { JoiningDayComponent } from "./joining-day/joining-day.component";
+import { ProbationDueComponent } from "./probation-due/probation-due.component";
+import { HolidayCalendarComponent } from "./holiday-calendar/holiday-calendar.component";
 
 @Component({
   selector: 'app-dashboard',
@@ -15,15 +19,41 @@ import { MatrixTableComponent } from "./matrix-table/matrix-table.component";
     FlexLayoutModule,
     MatCardModule,
     MatIconModule,
-    AnalyticsComponent,
-    DiskSpaceComponent,
     InfoCardsComponent,
-    TodoComponent,
-    MatrixTableComponent
+    MatrixTableComponent,
+    AdminCardComponent,
+    BirthdayComponent,
+    JoiningDayComponent,
+    ProbationDueComponent,
+    HolidayCalendarComponent
 ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent {
+  invoiceService = inject(InvoiceService)
+  user: number;
+ngOnInit(){
+  const token: any = localStorage.getItem('token')
+    let user = JSON.parse(token)
 
+    this.user = user.id;
+
+    let roleId = user.role
+    this.getRoleById(roleId)
+}
+roleSub!: Subscription;
+  roleName!: string;
+  hradmin: boolean = false;
+
+  getRoleById(id: number){
+    this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
+      this.roleName = role.roleName;
+
+      if(this.roleName === 'HR Administrator' ||this.roleName==='HR') {
+        this.hradmin = true;
+      }
+
+    })
+  }
 }

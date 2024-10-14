@@ -1,6 +1,5 @@
 import { MatInputModule } from '@angular/material/input';
-import { HttpEventType } from '@angular/common/http';
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,15 +10,59 @@ import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { UserDocument } from '../../../common/interfaces/user-document';
 
 @Component({
   selector: 'app-user-documents',
   standalone: true,
-  imports: [ MatFormFieldModule, ReactiveFormsModule, MatProgressBarModule, MatIconModule, MatInputModule, MatButtonModule, CommonModule],
+  imports: [ MatFormFieldModule, ReactiveFormsModule, MatProgressBarModule, MatIconModule, MatInputModule, MatButtonModule, CommonModule,
+    MatCardModule
+  ],
   templateUrl: './user-documents.component.html',
   styleUrl: './user-documents.component.scss'
 })
-export class UserDocumentsComponent {
+export class UserDocumentsComponent implements OnInit, OnDestroy {
+  ngOnInit(): void {  }
+
+  trigger(){
+    this.addDoc();
+  }
+
+  editStatus: boolean[] = [];
+  id: number[] = [];
+  triggerNew(data?: any): void {
+    if(data){
+      if(data.updateStatus){
+        this.getDocumentDetailsByUser(data.id)
+      }else{
+        this.addDoc()
+      }
+    }
+  }
+
+  docSub!: Subscription;
+  getDocumentDetailsByUser(id: number){
+    this.docSub = this.userSevice.getUserDocumentsByUser(id).subscribe(res=>{
+      if(res.length > 0){
+        for(let i = 0; i < res.length; i++){
+          this.id[i] = res[i].id
+          this.editStatus[i] = true;
+          this.addDoc(res[i])
+          if(res[i].docUrl){
+            this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ res[i].docUrl }`;
+          }
+        }
+      }else{
+        this.addDoc()
+      }
+    })
+  }
+
+  ngOnDestroy(): void {
+    this.uploadSub?.unsubscribe();
+    this.submit?.unsubscribe();
+  }
   @Input() data: any;
 
   fb = inject(FormBuilder);
@@ -32,29 +75,44 @@ export class UserDocumentsComponent {
   });
 
   index!: number;
+  clickedForms: boolean[] = [];
   addDoc(data?:any){
-    console.log("data");
-
-    if(this.index === undefined) this.index = 0;
-    else this.index += 1
-    // this.getProduct()
-    // this.getUnit()
     this.doc().push(this.newDoc(data));
+    this.clickedForms.push(false);
   }
 
-  removeData(i: number){
-    this.doc().removeAt(i);
+  removeData(index: number) {
+    
+    const formGroup = this.doc().at(index).value;
+    
+    // Check if form group is dirty (any changes made)
+    if (formGroup.docName != '' || formGroup.docUrl != '') {
+      // Call the API to handle the update before removing
+      this.userSevice.deleteUserDocComplete(this.id[index]).subscribe({
+        next: (response) => {
+          // Remove the row only after successful API call
+          formGroup.removeAt(index);
+        },
+        error: (error) => {
+          console.error('Error during update:', error);
+        }
+      });
+    } else {
+      // Remove the row directly if no changes
+      this.doc().removeAt(index)
+    }
   }
+  
 
   doc(): FormArray {
     return this.mainForm.get("uploadForms") as FormArray;
   }
 
-  newDoc(initialValue?: any): FormGroup {
+  newDoc(initialValue?: UserDocument): FormGroup {
     return this.fb.group({
-      // userId: [this.data.id],
-      docName: [''],
-      docUrl: ['']
+      userId: [initialValue?initialValue.userId : this.data.id],
+      docName: [initialValue?initialValue.docName : '', Validators.required],
+      docUrl: [initialValue?initialValue.docUrl : '', Validators.required]
     });
   }
 
@@ -64,6 +122,7 @@ export class UserDocumentsComponent {
 
   fileType: string;
   uploadSub!: Subscription;
+  imageUrl: any[] = [];
   onFileSelected(event: Event, i: number): void {
     const input = event.target as HTMLInputElement;
     let file: any = input.files?.[0];
@@ -74,32 +133,62 @@ export class UserDocumentsComponent {
       const docFormGroup = this.doc().at(i) as FormGroup;
       const docName = docFormGroup.value.docName;  // Extract docName from the form
       const name = `${userName}_${docName}`;
-    // console.log(this.data, docName);
 
     const formData = new FormData();
     formData.append('file', file);
     formData.append('name', name);
 
     this.uploadSub = this.userSevice.uploadUserDoc(formData).subscribe({
-      next: (invoice) => {
-        console.log('invo', invoice);
-
-        this.doc().at(i).get('docUrl')?.setValue(invoice.fileUrl);
-      }
+        next: (invoice) => {
+          this.doc().at(i).get('docUrl')?.setValue(invoice.fileUrl);
+          this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ invoice.fileUrl}`;
+        }
       });
     }
+  }
+
+  isAnyFormClicked(): boolean {
+    for(let i = 0; i < this.clickedForms.length; i++) {
+      if (!this.clickedForms[i]) {
+        return false; // Return false if any value is false
+      }
+    }
+    return true
   }
 
   submit!: Subscription;
   onSubmit(i: number): void {
     let form = this.doc().at(i) as FormGroup
-    console.log(form.value);
-    this.submit = this.userSevice.addUserDocumentDetails(form.value).subscribe(res => {
-      this.snackBar.open(`${res.docName} is added to employee data`,"" ,{duration:3000})
-    });
+    this.clickedForms[i] = true;
+    if(this.editStatus[i]){
+      this.submit = this.userSevice.updateUserDocumentDetails(this.id[i], form.value).subscribe(res => {
+        this.snackBar.open(`${res.docName} is added to employee data`,"" ,{duration:3000})
+      });
+    }else{
+      this.submit = this.userSevice.addUserDocumentDetails(form.value).subscribe(res => {
+        this.snackBar.open(`${res.docName} is added to employee data`,"" ,{duration:3000})
+      });
+    }
   }
 
   completeForm(){
+    this.snackBar.open(`Upload completed successfully...`,"" ,{duration:3000})
     this.router.navigateByUrl('/login/users')
+  }
+
+  onDeleteImage(i: number){
+    if(this.id[i]){
+      this.userSevice.deleteUserDoc(this.id[i], this.imageUrl[i]).subscribe(data=>{
+        this.imageUrl[i] = ''
+          this.doc().at(i).get('docUrl')?.setValue('');
+        this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
+      });
+    }else{
+      this.userSevice.deleteUserDocByurl(this.imageUrl[i]).subscribe(data=>{
+        this.imageUrl[i] = ''
+          this.doc().at(i).get('docUrl')?.setValue('');
+        this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
+      });
+    }
   }
 }

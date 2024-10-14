@@ -8,7 +8,6 @@ body {
 
 .table-container {
   width: 100%;
-  padding: 20px;
   overflow-x: auto;
 }
 
@@ -31,7 +30,7 @@ body {
 }
 
 .matrix-table .project {
-  background-color: #002a4d;
+  background-color: #c5cfd7;
   color: white;
   text-align: center;
   padding-left: 15px;
@@ -62,4 +61,11 @@ body {
   .matrix-table .project {
       padding-left: 10px;
   }
+}
+
+.scrollable-table {
+  overflow-x: auto; /* Enables horizontal scrolling */
+  overflow-y: hidden; /* Keeps the vertical scrolling disabled */
+  border: 1px solid #ccc; /* Optional: adds a border */
+  white-space: nowrap; /* Prevents table cells from wrapping */
 }

@@ -1,4 +1,5 @@
 export interface UserPosition {
+  id: number;
   userId : number
   division : string
   costCentre : string
@@ -8,4 +9,6 @@ export interface UserPosition {
   department : string
   office  : string
   salary : string
+  probationPeriod : number
+  officialMailId: string
 }

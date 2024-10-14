@@ -1,0 +1,207 @@
+<div fxLayout="row wrap">
+  <div fxFlex="100" fxFlex.sm="35" fxFlex.md="30" fxFlex.gt-md="25" class="p-2">
+    @if(user){
+          <mat-card>
+      <div style="text-align: center;">
+        <div style="text-align: center;">
+          @if(!user.url){
+            <img mat-card-image src="img/users/default-user.jpg" class="img-fluid"  alt="Photo 1" width="200" height="200">
+          }
+          @else {
+            <img [src]="apiUrl + user.url" alt="Photo 1" width="200" height="200">
+          }
+        </div>
+      </div>
+
+      <mat-card-content class="py-3">
+          <h1 class="text-center">{{user.empNo}}</h1>
+          <h2 class="text-center">{{user.name | uppercase}}</h2>
+          <h3 class="text-center primary-color">{{user.role.roleName}}</h3>
+          <div class="p-3">
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+              <div>Email  :<strong>{{user.email}}</strong>
+              </div>
+              <div>Phone Number  :<strong>{{user.phoneNumber}}</strong></div>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+              <div>Created At  :<strong>{{user.createdAt | date:'dd/MM/yyyy'}}</strong></div>
+              <div>Updated At  :<strong >{{user.updatedAt | date:'dd/MM/yyyy'}}</strong></div>
+            </div>
+          </div>
+
+
+
+          <!-- <h4 class="muted-text py-1">About:</h4>
+          <p class="text-justify">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+          <div fxLayoutAlign="end center">
+              <a routerLink="user-info" mat-stroked-button color="primary">
+                  More <mat-icon>arrow_right_alt</mat-icon>
+              </a>
+          </div> -->
+      </mat-card-content>
+      <mat-divider></mat-divider>
+      <div class="p-3">
+        <!-- <div class="example-action-buttons">
+          <button mat-button (click)="accordion().openAll()">Expand All</button>
+          <button mat-button (click)="accordion().closeAll()">Collapse All</button>
+        </div> -->
+        <mat-accordion class="example-headers-align" multi>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header class="custom-header">
+              <span class="panel-title"> Personal data </span>
+              <span class="spacer"></span>
+              <mat-icon style="margin-right: 10px;">person</mat-icon>
+            </mat-expansion-panel-header>
+            @if(userPersonal){
+              <div class="p-3">
+                <div class="flex-container">
+                  <div>Blood Group  :<strong>{{userPersonal.bloodGroup}}</strong></div>
+                  <div>Date of Birth  :<strong>{{userPersonal.dateOfBirth | date:'dd/MM/yyyy'}}</strong></div>
+                  <div>Gender  :<strong>{{userPersonal.gender }}</strong></div>
+                </div>
+
+                <div class="flex-container">
+                  <div>Joining Date  :<strong>{{userPersonal.dateOfJoining | date:'dd/MM/yyyy'}}</strong></div>
+                  <div>Probation Period  :<strong>{{userPersonal.probationPeriod }}</strong></div>
+                  <div>Confirmed Date  :<strong>{{userPersonal.confirmationDate | date:'dd/MM/yyyy'}}</strong></div>
+                </div>
+
+                <div class="flex-container">
+                  <div>Parent Name  :<strong>{{userPersonal.parentName }}</strong></div>
+                  <div>Marital Status  :<strong>{{userPersonal.maritalStatus }}</strong></div>
+                  <div>Spouse Name  :<strong>{{userPersonal.spouseName }}</strong></div>
+                </div>
+
+                <div class="flex-container">
+                  <div>emergencyContactName  :<strong>{{userPersonal.emergencyContactName }}</strong></div>
+                  <div>emergencyContactNo  :<strong>{{userPersonal.emergencyContactNo }}</strong></div>
+                  <div>emergencyContactRelation  :<strong>{{userPersonal.emergencyContactRelation }}</strong></div>
+                </div>
+
+                <div class="flex-container">
+                  <div>Referred By  :<strong>{{userPersonal.referredBy }}</strong></div>
+                  <div>Reporting Manger  :<strong>{{userPersonal.manager.name || 'None'}}</strong></div>
+                </div>
+              </div>
+            }@else {
+              <p>No Data is added</p>
+            }
+          </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header class="custom-header">
+              <span class="panel-title"> Position Data </span>
+              <span class="spacer"></span>
+              <mat-icon style="margin-right: 10px;">work</mat-icon>
+            </mat-expansion-panel-header>
+            @if(positions){
+               <div class="p-3">
+                <div class="flex-container">
+                  <div>Designation  :<strong>{{positions.designation }}</strong></div>
+                  <div>Official Mail  :<strong>{{positions.officialMailId }}</strong></div>
+                  <div>Salary  :<strong>{{positions.salary }}</strong></div>
+                </div>
+
+                <div class="flex-container">
+                  <div>Grade  :<strong>{{positions.grade}}</strong></div>
+                  <div>Department  :<strong >{{positions.department}}</strong></div>
+                  <div>Division  :<strong >{{positions.division}}</strong></div>
+                </div>
+
+                <div class="flex-container">
+                  <div>Cost Centre  :<strong>{{positions.costCentre}}</strong></div>
+                  <div>Location  :<strong >{{positions.location}}</strong></div>
+                  <div>Office  :<strong >{{positions.office}}</strong></div>
+                  <div>Probation Period  :<strong >{{positions.probationPeriod}}</strong></div>
+                </div>
+              </div>
+            }@else {
+              <p>No Data is added</p>
+            }
+          </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header class="custom-header">
+              <span class="panel-title"> Statutory Info </span>
+              <span class="spacer"></span>
+              <mat-icon style="margin-right: 10px;">contacts</mat-icon>
+            </mat-expansion-panel-header>
+            @if(userStat){
+              <div class="p-3">
+
+                <div class="flex-container">
+                  <div>Adhar No  :<strong >{{userStat.adharNo}}</strong></div>
+                  <div>PAN No  :<strong >{{userStat.panNumber}}</strong></div>
+                </div>
+
+                <div class="flex-container">
+                  <div>Insurance No  :<strong>{{userStat.insuranceNumber}}</strong></div>
+                  <div>ESI No  :<strong>{{userStat.esiNumber}}</strong></div>
+                  <div>UAN No  :<strong >{{userStat.uanNumber}}</strong></div>
+                </div>
+              </div>
+            }@else {
+              <p>No Data is added</p>
+            }
+          </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header class="custom-header">
+              <span class="panel-title"> Account Details </span>
+              <span class="spacer"></span>
+              <mat-icon style="margin-right: 10px;">savings</mat-icon>
+            </mat-expansion-panel-header>
+            @if(accounts){
+              <div class="p-3">
+                <div class="flex-container">
+                  <div>Account No  :<strong>{{accounts.accountNo}}</strong></div>
+                  <div>IFSC  :<strong>{{accounts.ifseCode}}</strong></div>
+                  <div>Branc hName  :<strong>{{accounts.branchName}}</strong></div>
+                </div>
+
+                <div class="flex-container">
+                  <div>Mode Of Payment  :<strong>{{accounts.modeOfPayment}}</strong></div>
+                  <div>Payment Frequency  :<strong >{{accounts.paymentFrequency}}</strong></div>
+                </div>
+              </div>
+            }@else {
+              <p>No Data is added</p>
+            }
+          </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header class="custom-header">
+              <span class="panel-title"> Documents Uploaded </span>
+              <span class="spacer"></span>
+              <mat-icon style="margin-right: 10px;">document_scanner</mat-icon>
+            </mat-expansion-panel-header>
+            @if(documents.length>0){
+              <div class="p-3">
+                @for(data of documents; track data){
+                  <div class="flex-container">
+                    <div> <strong>{{ data.docName}}</strong>  :</div>
+                    <div> <img [src]="apiUrl + data.docUrl" alt="Photo 1" width="400" height="400"></div>
+                  </div>
+                }
+              </div>
+            }@else {
+              <p>No Data is added</p>
+            }
+          </mat-expansion-panel>
+        </mat-accordion>
+
+
+
+      </div>
+      <mat-divider></mat-divider>
+
+
+    </mat-card>
+    }
+
+  </div>
+  <!-- <div fxFlex="100" fxFlex.sm="65" fxFlex.md="70" fxFlex.gt-md="75" class="p-2">
+      <router-outlet></router-outlet>
+  </div> -->
+</div>

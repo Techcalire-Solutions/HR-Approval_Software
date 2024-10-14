@@ -4,7 +4,7 @@ const authenticateToken = require('../../middleware/authorization');
 const UserAccount = require('../models/userAccount');
 
 router.post('/add', authenticateToken, async (req, res) => {
-  const { userId, accountNo, ifseCode, paymentFrequency, modeOfPayment }  = req.body;
+  const { userId, accountNo, ifseCode, paymentFrequency, modeOfPayment, branchName }  = req.body;
   try {
     try {
       const userExist = await UserAccount.findOne({
@@ -28,10 +28,37 @@ router.post('/add', authenticateToken, async (req, res) => {
         res.send(error.message)
     } 
     
-    const user = new UserAccount({ userId, accountNo, ifseCode, paymentFrequency, modeOfPayment });
+    const user = new UserAccount({ userId, accountNo, ifseCode, paymentFrequency, modeOfPayment, branchName });
     await user.save();
     
     res.send(user);
+  } catch (error) {
+    res.send(error.message);
+  }
+})
+
+router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
+  try {
+    const user = await UserAccount.findOne({where: {userId: req.params.id}})
+
+    res.send(user)
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
+router.patch('/update/:id', async(req,res)=>{
+  const { accountNo, ifseCode, paymentFrequency, modeOfPayment, branchName } = req.body
+  try {
+    let result = await UserAccount.findByPk(req.params.id);
+    result.accountNo = accountNo;
+    result.ifseCode = ifseCode;
+    result.paymentFrequency = paymentFrequency;
+    result.modeOfPayment = modeOfPayment;
+    result.branchName = branchName;
+
+    await result.save();
+    res.send(result);
   } catch (error) {
     res.send(error.message);
   }

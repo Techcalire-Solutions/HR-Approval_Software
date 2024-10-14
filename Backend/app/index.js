@@ -5,7 +5,6 @@ const cors = require('cors')
 const sequelize = require('../utils/db');
 const path = require('path');
 
-
 dotenv.config();
 app.use(cors({ origin: '*' }));
 app.use(express.json());
@@ -26,6 +25,13 @@ const auth = require('../users/routers/auth');
 const team = require('../users/routers/team');
 const teamMember = require('../users/routers/teamMember');
 app.use('/role', role);
+
+
+// app.use(cors({
+//     origin: 'https://approval.techclaire.com', 
+//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', 
+//     credentials: true, 
+//   }));
 
 app.use('/user', user);
 app.use('/personal', userPersonal)
@@ -52,13 +58,17 @@ app.use('/users/userImages', express.static(path.join(__dirname, '../users/userI
 const leave = require('../leave/routers/leave');
 const leaveType = require('../leave/routers/leaveType');
 const userLeave = require('../leave/routers/userLeave');
-
 app.use('/leave', leave);
 app.use('/leaveType', leaveType);
 app.use('/userLeave', userLeave);
 
+const announcements = require('../announcements/router/announcement');
+app.use('/announcements', announcements);
 
-console.log(process.env.DB_NAME, process.env.USER_NAME, process.env.DB_PASSWORD, process.env.DB_HOST, "________________________________________________")
+const holiday = require('../leave/routers/holiday');
+app.use('/holidays', holiday);
+
+
 const port = process.env.PORT || 8000;
 
 app.listen(port, () => {

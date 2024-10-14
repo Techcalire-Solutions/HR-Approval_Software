@@ -1,0 +1,21 @@
+<div class="combo-off-container">
+  <h3>Add Combo Off for Employees</h3>
+
+  <form [formGroup]="comboOffForm" (ngSubmit)="onSubmit()">
+    <div class="form-group" formArrayName="employees">
+      <label for="employees">Select Employees:</label>
+      @for (employee of employees; let i = $index; track $index) {
+        <div>
+          <input 
+            type="checkbox" 
+            [formControlName]="i" 
+            (change)="onCheckboxChange($event, employee.id)" /> 
+          {{ employee.name }}
+        </div>
+      }
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Combo Off</button>
+  </form>
+</div>

@@ -16,6 +16,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PerformaInvoiceStatus } from '../../../common/interfaces/performa-invoice-status';
 import { MatTableModule } from '@angular/material/table';
 import { BankReceiptDialogueComponent } from '../view-approval/bank-receipt-dialogue/bank-receipt-dialogue.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-view-invoices',
@@ -27,7 +29,7 @@ import { BankReceiptDialogueComponent } from '../view-approval/bank-receipt-dial
     CommonModule,
     MatIconModule,
     SafePipe,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule, MatFormFieldModule, ReactiveFormsModule,
   ],
   templateUrl: './view-invoices.component.html',
   styleUrl: './view-invoices.component.scss'
@@ -43,15 +45,16 @@ export class ViewInvoicesComponent {
     private router: Router, private loginService: LoginService
   ){}
 
+  userId: number
   ngOnInit(): void {
     let id = this.route.snapshot.params['id'];
 
-    this.getPiById(id)
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
+    this.userId = user.id;
 
     let roleId = user.role
-    this.getRoleById(roleId)
+    this.getRoleById(roleId, id)
   }
 
   roleSub!: Subscription;
@@ -62,9 +65,11 @@ export class ViewInvoicesComponent {
   ma: boolean = false;
   admin: boolean = false;
   teamLead: boolean = false;
-  getRoleById(id: number){
+  getRoleById(id: number, piId: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;
+      this.getPiById(piId)
+
       if(this.roleName === 'Sales Executive') this.sp = true;
       if(this.roleName === 'Key Account Manager') this.kam = true;
       if(this.roleName === 'Manager') this.am = true;
@@ -76,7 +81,7 @@ export class ViewInvoicesComponent {
   piSub!: Subscription;
   url!: string;
   piNo!: string;
-  pi!: PerformaInvoice;
+  pi!: any;
   bankSlip!: string;
   signedUrl:string;
   getPiById(id: number){
@@ -84,6 +89,24 @@ export class ViewInvoicesComponent {
       this.pi = pi.pi;
       this.piNo = pi.pi.piNo;
       this.signedUrl= pi.signedUrl
+
+      if( this.pi.status === 'GENERATED' && this.roleName === 'Key Account Manager' ){
+        this.pi = {
+            ...this.pi,
+            approveButtonStatus: true
+          };
+      }else if( this.pi.status === 'KAM VERIFIED' && this.roleName === 'Manager'){
+        this.pi = {
+          ...this.pi,
+          approveButtonStatus: true
+        };
+      }
+      // else if(this.roleName === 'Administrator'){
+      //   pi = {
+      //     ...pi,
+      //     approveButtonStatus: true
+      //   };
+      // }
       // this.url = environment.apiUrl + pi.url;
       if(pi.pi.bankSlip != null) this.bankSlip = pi.bankSlip;
       this.getPiStatusByPiId(id)
@@ -132,12 +155,14 @@ export class ViewInvoicesComponent {
           amId: result.amId,
           accountantId: result.accountantId
         }
-       
+
 
         this.invoiceService.updatePIStatus(data).subscribe(result => {
-    
-          this.router.navigateByUrl('/home/viewApproval')
+
+
           this.snackBar.open(`Invoice ${this.piNo} updated to ${status}...`,"" ,{duration:3000})
+
+          this.router.navigateByUrl('/login/viewApproval')
         });
       }
     })
@@ -152,6 +177,7 @@ export class ViewInvoicesComponent {
       if(result){
         // this.getInvoices()
         this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
+       
       }
     })
   }

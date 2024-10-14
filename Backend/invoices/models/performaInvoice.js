@@ -16,11 +16,14 @@ const PerformaInvoice = sequelize.define('performaInvoice',{
 
     supplierName:  {type : DataTypes.STRING},
     supplierPoNo:  {type : DataTypes.STRING},
+    supplierCurrency:{type : DataTypes.STRING},
     supplierPrice: {type : DataTypes.STRING },
     purpose: {type : DataTypes.STRING},
     customerName:  {type : DataTypes.STRING},
     customerPoNo: {type : DataTypes.STRING},
     poValue:{type : DataTypes.STRING },
+    customerCurrency:{type : DataTypes.STRING},
+    addedById : {type : DataTypes.INTEGER},
 },
 {
     freezeTableName: true,
@@ -39,6 +42,9 @@ PerformaInvoice.belongsTo(User, { as: 'am', foreignKey: 'amId' });
 
 User.hasMany(PerformaInvoice ,{as: 'accountant', foreignKey : 'accountantId', onUpdate : 'CASCADE'})
 PerformaInvoice.belongsTo(User,{as: 'accountant', foreignKey : 'accountantId'})
+
+User.hasMany(PerformaInvoice ,{as: 'addedBy', foreignKey : 'addedById', onUpdate : 'CASCADE'})
+PerformaInvoice.belongsTo(User,{as: 'addedBy', foreignKey : 'addedById'})
 
 PerformaInvoice.sync({ alter: true }).then(() => {
     console.log('Tables synced successfully.');
