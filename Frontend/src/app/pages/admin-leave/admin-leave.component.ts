@@ -72,22 +72,25 @@ export class AdminLeaveComponent {
 getLeaveSub : Subscription
   leaves:any[]=[]
   totalItemsCount = 0;
+
   getLeaves() {
     this.getLeaveSub = this.leaveService.getLeaves().subscribe(
       (res) => {
-        if(res.leave){
-          this.leaves = res.leave;
-          this.totalItemsCount = res.length;
+        if (res.leave) {
+
+          this.leaves = res.leave.filter((leave: any) => leave.status !== 'Rejected');
+          this.totalItemsCount = this.leaves.length;
           this.events = this.mapLeavesToCalendarEvents(this.leaves);
         }
-
       },
       (error) => {
-        // Handle any errors
+
         this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
       }
     );
   }
+
+
 
   dayClicked({ date, events }: { date: Date, events: CalendarEvent[] }): void {
     if (isSameMonth(date, this.viewDate)) {
@@ -99,6 +102,7 @@ getLeaveSub : Subscription
       }
     }
   }
+  
   mapLeavesToCalendarEvents(leaves: any[]): CalendarEvent[] {
     return leaves.map(leave => ({
       id: leave.id,

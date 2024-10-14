@@ -10,6 +10,7 @@ import { AdminCardComponent } from "./admin-card/admin-card.component";
 import { BirthdayComponent } from "./birthday/birthday.component";
 import { JoiningDayComponent } from "./joining-day/joining-day.component";
 import { ProbationDueComponent } from "./probation-due/probation-due.component";
+import { HolidayCalendarComponent } from "./holiday-calendar/holiday-calendar.component";
 
 @Component({
   selector: 'app-dashboard',
@@ -23,7 +24,8 @@ import { ProbationDueComponent } from "./probation-due/probation-due.component";
     AdminCardComponent,
     BirthdayComponent,
     JoiningDayComponent,
-    ProbationDueComponent
+    ProbationDueComponent,
+    HolidayCalendarComponent
 ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'

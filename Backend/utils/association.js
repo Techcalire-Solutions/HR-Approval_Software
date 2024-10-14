@@ -4,10 +4,35 @@ const bcrypt = require('bcrypt');
 const Role = require('../users/models/role');
 const User = require('../users/models/user');
 const userData = require('./user.json');
+const holidayData = require('./holiday.json');
+const Holiday = require("../leave/models/holiday");
 
 
 async function syncModel() {
-    await sequelize.sync({alter: true})
+   
+  await sequelize.sync({alter: true})
+
+
+    const holiday = await Holiday.findAll({})
+    
+    if(holiday.length === 0){
+        for(let i = 0; i < holidayData.length; i++){
+            Holiday.bulkCreate([holidayData[i]]);
+        }
+    }
+  
+  
+    // Team.belongsTo(User, {
+    //     foreignKey: "userId",
+    //     as: "leader",
+    //   });
+    
+    //   Team.hasMany(TeamMember, { foreignKey: "teamId" });
+    //   TeamMember.belongsTo(Team);
+
+    //   User.hasMany(TeamMember, { foreignKey: "userId"});
+    //   TeamMember.belongsTo(User, { foreignKey: "userId"});
+    
 
 //------------------------------LEAVE ASSOCIATIONS-----------------------------------------------
 //   Leave.belongsTo(LeaveType, { foreignKey: 'leaveTypeId' });
