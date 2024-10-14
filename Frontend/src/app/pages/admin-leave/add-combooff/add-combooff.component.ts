@@ -7,11 +7,13 @@ import { Subscription } from 'rxjs';
 import { LeaveService } from '@services/leave.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CompoOff } from '../../../common/interfaces/compo-off';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-add-combooff',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatIconModule],
   templateUrl: './add-combooff.component.html',
   styleUrl: './add-combooff.component.scss'
 })
@@ -20,6 +22,7 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
     let id = this.route.snapshot.params['id'];
     this.getHolidayById(id)
     this.getEmployees()
+    this.getComboOff()
   }
 
   holidaySub!: Subscription;
@@ -54,6 +57,7 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
   }
 
   selectedEmployeeIds: number[] = [];
+  deselectedEmployeeIds: number[] = [];
   // This function handles checkbox selection and updates the selectedEmployeeIds array
   onCheckboxChange(event: any, employeeId: number) {
     if (event.target.checked) {
@@ -65,15 +69,80 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
         this.selectedEmployeeIds.splice(index, 1);
       }
     }
+    if(this.co){
+      this.deselectedEmployeeIds = this.getDeselectedUserIds();
+    }
   }
 
   submit!: Subscription;
   onSubmit() {
-    this.submit = this.leaveService.updateCompoOff(this.route.snapshot.params['id'], this.selectedEmployeeIds).subscribe((res: any) => {
-      this.snackBar.open(res.message, 'Close', { duration: 3000 });
+    if(this.editStatus){
+      this.removeAlreadySelectedIds();
+      let data = {
+        selectedEmployeeIds: this.selectedEmployeeIds,
+        deselectedEmployeeIds: this.deselectedEmployeeIds
+      }
+      
+      this.submit = this.leaveService.updateUpdatedCompoOff( this.route.snapshot.params['id'], data).subscribe((res: any) => {
+        console.log(res);
+        
+        this.snackBar.open(res.message, 'Close', { duration: 3000 });  
+        history.back()
+      })
+    }else{
+      this.submit = this.leaveService.updateCompoOff(this.route.snapshot.params['id'], this.selectedEmployeeIds).subscribe((res: any) => {    
+        this.snackBar.open(res.message, 'Close', { duration: 3000 });
+        history.back()
+      })
+    }
+  }
+
+  removeAlreadySelectedIds(): void {
+    if (this.co && this.co.userId) {
+      this.selectedEmployeeIds = this.selectedEmployeeIds.filter(id => !this.co.userId.includes(id));
+    }
+  }
+
+  comboOffSub!: Subscription;
+  co: CompoOff;
+  editStatus: boolean = false;
+  getComboOff(){
+    this.comboOffSub = this.leaveService.getCompoOff(this.route.snapshot.params['id']).subscribe(res => {
+      this.co = res;
+      console.log(res);
+      
+      if(this.co){
+        this.editStatus = true;
+        this.setInitialCheckboxes(this.co.userId);
+      }
     })
   }
+
+  private setInitialCheckboxes(selectedUserIds: number[]): void {
+    const employeesArray = this.comboOffForm.controls['employees'] as FormArray;
+    this.employees.forEach((employee, index) => {
+      if (selectedUserIds.includes(employee.id)) {
+        employeesArray.at(index).setValue(true); // Set checkbox to checked
+        this.selectedEmployeeIds.push(employee.id); // Update selectedEmployeeIds array
+      } else {
+        employeesArray.at(index).setValue(false); // Set checkbox to unchecked
+      }
+    });
+  }
+
+  getDeselectedUserIds(): number[] {
+    const allEmployeeIds = this.co.userId.map(employee => employee);
+     
+    return allEmployeeIds.filter(id => !this.selectedEmployeeIds.includes(id)); 
+  }
+  
+  goBack() {
+    // Logic to navigate back, for example:
+    history.back();  // This requires importing Location from '@angular/common'
+  }
+
   ngOnDestroy(): void {
     this.employeeSub?.unsubscribe();
+    this.comboOffSub?.unsubscribe();
   }
 }
