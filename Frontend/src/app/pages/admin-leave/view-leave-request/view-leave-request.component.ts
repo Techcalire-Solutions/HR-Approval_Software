@@ -84,9 +84,12 @@ getPaginatedLeaves(): void {
  this.leaveSub = this.leaveService.getLeavesPaginated(this.searchText, this.currentPage, this.pageSize).subscribe((res:any) => {
     console.log(res);
     this.totalItems = res.count;
-    this.leaves = res.leave;
+    this.leaves = res.items;
+    console.log(this.leaves)
   });
 }
+
+
 
 
 onPageChange(event: PageEvent): void {
@@ -97,13 +100,9 @@ onPageChange(event: PageEvent): void {
 
 search(event: Event){
   this.searchText = (event.target as HTMLInputElement).value.trim()
-  // this.getLeaveByUser()
+  this.getPaginatedLeaves()
+
 }
-
-
-
-
-
 
 
   editLeave(id: number, status: string) {

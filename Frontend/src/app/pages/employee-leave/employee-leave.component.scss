@@ -205,6 +205,20 @@ thead th:first-child, tbody td:first-child {
   margin: 0 2px; /* Smaller space between Edit and Delete buttons */
 }
 
-//-----------------------session list styling -------------------------------------------------
 
+//------------------Apply leave style-------------------------------------
 
+mat-button-toggle {
+
+  color: black;
+  font-weight: bold;
+  border: none;
+}
+
+mat-button-toggle:hover {
+  background-color: darkgray;
+}
+
+mat-button-toggle:focus {
+  outline: none; 
+}

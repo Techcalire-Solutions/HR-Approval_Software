@@ -41,7 +41,7 @@ export class LeaveBalanceComponent {
   }
 
 
-  fetchLeaveCounts() {
+  fetchLeaveCounts1() {
     this.leaveCountsSubscription= this.leaveService.getLeaveCounts(this.userId).subscribe(
        (res) => {
         console.log(res)
@@ -60,11 +60,38 @@ export class LeaveBalanceComponent {
        }
      );
    }
+errorFlag :boolean = false
+   fetchLeaveCounts() {
+    this.leaveCountsSubscription = this.leaveService.getLeaveCounts(this.userId).subscribe(
+      (res) => {
+        console.log('Response from leave service:', res); // Debugging line
+        if (res.userLeaves && Array.isArray(res.userLeaves) && res.userLeaves.length > 0) {
+          this.leaveCounts = res.userLeaves;
+          this.hasLeaveCounts = true;
+
+          this.errorMessage = ''; // Clear any previous error messages
+        } else {
+          this.errorFlag = true
+          this.leaveCounts = [];
+          this.hasLeaveCounts = false;
+          this.errorMessage = 'No leave records found for this user.';
+        }
+      },
+      (error) => {
+        console.error('Error fetching leave counts:', error); // Debugging line
+        this.errorMessage = 'Unable to fetch leave counts.';
+        this.hasLeaveCounts = false;
+        this.leaveCounts = []; // Ensure leaveCounts is empty on error
+      }
+    );
+  }
+
 
 
  shouldDisplayLeaveType(leaveTypeName: string): boolean {
   const leave = this.leaveCounts.find(leave => leave.leaveType.leaveTypeName === leaveTypeName);
-  return leave && (leave.takenLeaves > 0 || leave.noOfDays > 0);
+  // return leave && (leave.takenLeaves > 0 || leave.noOfDays > 0);
+  return leave && (leave.takenLeaves >= 0 || leave.noOfDays > 0);
 
 }
 ngOnDestroy(){
