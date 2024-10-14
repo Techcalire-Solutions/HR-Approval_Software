@@ -28,6 +28,8 @@
             <th>Leave Type Id</th>
             <th>User</th>
             <th>Reason</th>
+            <th>Created Date</th>
+
             <th>Status</th>
              <th>Action</th>
           </tr>
@@ -62,7 +64,7 @@
               <td>{{ item.user.name }}</td>
               <td>{{ item.notes }}</td>
   
-  
+              <td>{{ '2024-10-14T04:12:20.884Z' | date:'medium' }}</td>
               <td>{{ item.status }}</td>
   
               <!-- Actions -->
