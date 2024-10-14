@@ -1,1 +1,2 @@
 Backend/backend-win.exe filter=lfs diff=lfs merge=lfs -text
+Backend/backend-linux filter=lfs diff=lfs merge=lfs -text
