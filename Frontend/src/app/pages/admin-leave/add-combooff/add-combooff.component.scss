@@ -89,3 +89,18 @@
     background-color: #fff;
   }
   
+
+  .combo-off-container .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .back-button {
+    display: flex;
+    align-items: center;
+  }
+ 
+  .back-button:hover{
+    color: red;
+  }

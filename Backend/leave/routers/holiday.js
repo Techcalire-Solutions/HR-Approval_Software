@@ -6,6 +6,7 @@ const Holiday = require('../models/holiday');
 const { Op, where } = require('sequelize'); 
 const UserLeave = require('../models/userLeave');
 const LeaveType = require('../models/leaveType');
+const ComboOff = require('../models/comboOff');
 
 router.post('/save', authenticateToken, async (req, res) => {
   const { name, type, comments, date } = req.body;
@@ -81,10 +82,8 @@ router.get('/find', async (req, res) => {
 router.patch('/update/:id', async (req, res) => {
   const id = req.params.id;
   const selectedEmployees = req.body;
-  console.log(selectedEmployees);
 
   const employeeLength = selectedEmployees.length; 
-  console.log(employeeLength);
   
   try {
     const holiday = await Holiday.findByPk(id);
@@ -100,6 +99,15 @@ router.patch('/update/:id', async (req, res) => {
       leaveTypeId = leaveType.id;
     } catch (error) {
       return res.status(500).send(error.message); // Send error if leaveType not found
+    }
+    let comboOff;
+    try {
+      comboOff = await ComboOff.create({
+        userId: selectedEmployees,
+        holidayId: req.params.id
+      });
+    } catch (error) {
+      res.send(error.message)
     }
 
     for (let i = 0; i < selectedEmployees.length; i++) {
@@ -127,11 +135,89 @@ router.patch('/update/:id', async (req, res) => {
       }
     }
     
-    res.json({ holiday, message:"Compository off added for employee number ${employeeLength} on the day ${holiday.name}" });
+    res.json({comboOff, holiday, message:`Compository off added for employee number ${employeeLength} on the day ${holiday.name}` });
   } catch (error) {
     res.status(500).send(error.message); // Handle outer error
   }
 });
+
+router.patch('/updatetheupdated/:id', async (req, res) => {
+  const id = req.params.id;
+  const selectedEmployees = req.body.selectedEmployeeIds || [];
+  const deselectedEmployees = req.body.deselectedEmployeeIds || [];
+  const employeeLength = selectedEmployees.length;
+
+  try {
+      const holiday = await Holiday.findByPk(id);
+      holiday.comboAdded = true;
+      holiday.comboAddedFor += employeeLength;
+      await holiday.save();
+
+      const leaveType = await LeaveType.findOne({ where: { leaveTypeName: 'Comb Off' } });
+      const leaveTypeId = leaveType.id;
+
+      let comboOff = await ComboOff.findOne({ where: { holidayId: id } });
+
+      // Remove deselected employees
+      comboOff.userId = comboOff.userId.filter(userId => !deselectedEmployees.includes(userId));
+      // Add newly selected employees (ensuring no duplicates)
+      const newUserIds = selectedEmployees.filter(userId => !comboOff.userId.includes(userId));
+      
+      // comboOff.userId.push(...newUserIds);
+      comboOff.userId = [...new Set([...comboOff.userId, ...newUserIds])];
+
+      // Save updated comboOff
+      await comboOff.save();
+      await comboOff.reload();
+
+      // Update leave balances for deselected employees
+      await Promise.all(deselectedEmployees.map(async (userId) => {
+          const ul = await UserLeave.findOne({ where: { userId, leaveTypeId } });
+          if (ul) {
+              ul.noOfDays -= 1;
+              ul.leaveBalance -= 1;
+              await ul.save();
+          }
+      }));
+
+      // Update leave balances for selected employees
+      await Promise.all(selectedEmployees.map(async (userId) => {
+          const ul = await UserLeave.findOne({ where: { userId, leaveTypeId } });
+          if (ul) {
+              ul.noOfDays += 1;
+              ul.leaveBalance += 1;
+              await ul.save();
+          } else {
+              const userLeave = new UserLeave({
+                  userId,
+                  leaveTypeId,
+                  noOfDays: 1,
+                  takenLeaves: 0,
+                  leaveBalance: 1
+              });
+              await userLeave.save();
+          }
+      }));
+
+      // Fetch the updated ComboOff again
+      const updatedComboOff = await ComboOff.findOne({ where: { holidayId: id } });
+
+      res.json({ updatedComboOff, holiday, message: `Compository off updated for employee number ${employeeLength} on the day ${holiday.name}` });
+
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/findcombooff/:id', authenticateToken, async (req, res) => {
+  let holidayId = req.params.id
+  try {
+    const co = await ComboOff.findOne({ where: { holidayId: holidayId}})
+    res.send(co)
+  } catch (error) {
+    res.send(error.message)
+  }
+})
 
 
 
