@@ -200,7 +200,7 @@ this.leaveRequestForm = this.fb.group({
     if (this.isEditMode && leaveId) {
       const idAsNumber = +leaveId;
 
-
+console.log(idAsNumber)
       this.leaveService.updateLeave(idAsNumber, leaveRequest).subscribe((response: any) => {
         this.openDialog(response.message);
       });
