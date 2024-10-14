@@ -1,5 +1,5 @@
 <mat-card>
-    <h2>Holidays</h2>
+    <h2>Upcoming Holidays</h2>
     <ul>
         @for (item of holidays; track $index; let i = $index) {
             <li [ngStyle]="{'color': item.comboAdded ? 'red' : 'black'}">

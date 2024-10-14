@@ -29,6 +29,7 @@ import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/
 import { Router } from '@angular/router';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { AddPayrollComponent } from '../payroll/add-payroll/add-payroll.component';
+import { UserAssetsComponent } from './user-assets/user-assets.component';
 
 
 @Component({
@@ -185,5 +186,14 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   openPayRoll(id: number){
     this.router.navigateByUrl('login/users/payroll/'+id)
+  }
+
+  openAssets(id: number, empNo: string){
+    const dialogRef = this.dialog.open(UserAssetsComponent, {
+      width: '450px',
+      data: {id: id, empNo: empNo}
+    });dialogRef.afterClosed().subscribe((result) => {
+
+    })
   }
 }
