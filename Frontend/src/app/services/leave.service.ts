@@ -1,11 +1,10 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { LeaveType } from '../common/interfaces/leaveType';
 import { Observable } from 'rxjs/internal/Observable';
 import { environment } from '../../environments/environment';
 import { UserLeave } from '../common/interfaces/userLeave';
 import {  throwError } from 'rxjs';
-import { Holidays } from '../common/interfaces/holidays';
 
 @Injectable({
   providedIn: 'root'
@@ -92,11 +91,9 @@ export class LeaveService {
     return this.http.get<UserLeave[]>(`${this.apiUrl}/userLeave/byuser/${id}`);
   }
 
-  getHolidays(filterValue?: string, page?: number, pagesize?:number){
-    return this.http.get<Holidays[]>(`${this.apiUrl}/holidays/find?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
-  }
 
-  updateCompoOff(id: number, data: any){
-    return this.http.patch<Holidays[]>(`${this.apiUrl}/holidays/update/`+id, data);
+  private leaveDataApi = environment.leaveDataApi;
+  getHolidays(): Observable<any> {
+    return this.http.get(this.leaveDataApi);
   }
 }

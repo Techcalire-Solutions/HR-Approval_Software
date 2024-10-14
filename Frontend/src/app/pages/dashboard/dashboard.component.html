@@ -6,21 +6,11 @@
 }
 
 
-
 @if (!hradmin) {
-    <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutWrap>
-        <div fxFlex="70" fxFlex.gt-sm="70" class="p-2">
+    <div fxLayout="row wrap">
+        <div fxFlex="100" fxFlex.gt-sm="70" class="p-2">
             <app-matrix-table></app-matrix-table>
         </div>
-        <div fxFlex="30" fxFlex.gt-sm="30" class="p-2">
-            <app-holiday-calendar></app-holiday-calendar>
-        </div>
-    </div>
-}@else {
-    <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutWrap>
-        <div fxFlex="50" fxFlex.gt-sm="50" class="p-2">
-            <app-holiday-calendar></app-holiday-calendar>
-        </div> 
     </div>
 }
 

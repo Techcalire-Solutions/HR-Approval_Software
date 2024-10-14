@@ -3,19 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "bin": {
-    "hr-approval-software": "./app/index.js"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon ./app/index.js"
-  },
-  "pkg": {
-    "targets": [
-      "node18-linux-x64",
-      "node18-macos-x64",
-      "node18-win-x64"
-    ]
   },
   "keywords": [],
   "author": "",
