@@ -1,6 +1,6 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator,MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { LeaveService } from '@services/leave.service';
@@ -17,9 +17,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
-import { NativeDateAdapter } from '@angular/material/core';
-import { MAT_NATIVE_DATE_FORMATS } from '@angular/material/core';
 import {MatTableModule} from '@angular/material/table';
 
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -31,6 +28,7 @@ import { CamelCasePipe } from '../../../theme/pipes/camel-case.pipe';
 import { PipesModule } from '../../../theme/pipes/pipes.module';
 import { UserDialogComponent } from '../../users/user-dialog/user-dialog.component';
 import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
+import { Leave } from '../../../common/interfaces/leave';
 @Component({
   selector: 'app-view-leave-request',
   standalone: true,
@@ -69,31 +67,44 @@ export class ViewLeaveRequestComponent {
   router = inject(Router)
   leaveService = inject(LeaveService)
   snackbar=inject(MatSnackBar)
+  leaveSub : Subscription
 
 userId:number
   ngOnInit(){
-    this.getLeaves()
+    this.getPaginatedLeaves()
   }
 
-  getLeaveSub : Subscription
-  leaves:any[]=[]
-  leave:any[]=[]
-  totalItemsCount = 0;
-  getLeaves() {
-    this.getLeaveSub = this.leaveService.getLeaves().subscribe(
-      (res) => {
-        console.log(res);
-        if(res.res){
-          this.leaves = res.leave;
+pageSize = 5;
+currentPage = 1;
+totalItems = 0;
+searchText: string = '';
 
-        }else{
-          this.snackBar.open('No data is added', '', { duration: 3000 });
-        }
-      }
-    );
-  }
+leaves:any[]=[]
+getPaginatedLeaves(): void {
+ this.leaveSub = this.leaveService.getLeavesPaginated(this.searchText, this.currentPage, this.pageSize).subscribe((res:any) => {
+    console.log(res);
+    this.totalItems = res.count;
+    this.leaves = res.leave;
+  });
+}
 
-  
+
+onPageChange(event: PageEvent): void {
+  this.currentPage = event.pageIndex + 1;
+  this.pageSize = event.pageSize;
+  this.getPaginatedLeaves();
+}
+
+search(event: Event){
+  this.searchText = (event.target as HTMLInputElement).value.trim()
+  // this.getLeaveByUser()
+}
+
+
+
+
+
+
 
   editLeave(id: number, status: string) {
     this.router.navigate(['/login/admin-leave/update-emergency-leave'], { queryParams: { id: id } });
@@ -108,65 +119,32 @@ deleteLeave(id: number){
       if(res){
         this.delete = this.leaveService.deleteLeave(id).subscribe(res => {
           this.snackBar.open('Leave request deleted successfully!', 'Close', { duration: 3000 });
-          this.getLeaves()
+          this.getPaginatedLeaves()
         });
       }
     });
   }
   ngOnDestroy(): void {
-    // this.leaveSub.unsubscribe();
+    this.leaveSub.unsubscribe();
 
 
 }
 
-
-// leaves:any[]=[]
-  // leaveSub :Subscription
-  // private getLeaveByUser(): void {
-  //   if (!this.userId) return;
-
-  //   console.log(this.userId)
-
-  //   this.leaveSub = this.leaveService.getLeavesByUser(this.userId, this.searchText, this.currentPage, this.pageSize).subscribe(
-  //     (res: any) => {
-
-  //       this.leaves = res.items;
-  //       this.totalItems = res.count;
-  //     },
-  //     (error) => {
-  //       this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
-  //     }
-  //   );
-  // }
-
-
-  public searchText!: string;
-  search(event: Event){
-    this.searchText = (event.target as HTMLInputElement).value.trim()
-    // this.getLeaveByUser()
-  }
 
   openCalendar(){
     this.router.navigate(['login/leave/leaveCalendar']);
 
   }
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  pageSize = 5;
-  currentPage = 1;
-  totalItems = 0;
 
-  onPageChange(event: PageEvent): void {
-    this.currentPage = event.pageIndex + 1;
-    this.pageSize = event.pageSize;
-    this.getLeaves()
-  }
+
+
 
   approveLeave(leaveId: any) {
     this.leaveService.updateApproveLeaveStatus(leaveId).subscribe(
       (res) => {
         this.snackbar.open('Leave approved successfully', '', { duration: 3000 });
-        this.getLeaves(); // Refresh leave data after approval
+        this.getPaginatedLeaves();
       },
       (error) => {
         this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
@@ -178,7 +156,7 @@ rejectLeave(leaveId: any){
   this.leaveService.updateRejectLeaveStatus(leaveId).subscribe(
     (res) => {
       this.snackbar.open('Leave rejected successfully', '', { duration: 3000 });
-      this.getLeaves(); // Refresh leave data after approval
+      this.getPaginatedLeaves();
     },
     (error) => {
       this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
