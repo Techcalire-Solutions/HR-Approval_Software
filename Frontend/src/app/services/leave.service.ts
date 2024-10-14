@@ -108,11 +108,10 @@ export class LeaveService {
   }
 
 
-  private leaveDataApi = environment.leaveDataApi;
-  getHolidays(): Observable<any> {
-    return this.http.get(this.leaveDataApi);
+  getHolidays(filterValue?: string, page?: number, pagesize?:number){
+    return this.http.get<Holidays[]>(`${this.apiUrl}/holidays/find?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
   }
-  
+
   updateCompoOff(id: number, data: any){
     return this.http.patch<Holidays[]>(`${this.apiUrl}/holidays/update/`+id, data);
   }
