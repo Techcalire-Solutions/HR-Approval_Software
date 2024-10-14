@@ -33,6 +33,7 @@
     "dragula": "3.7.3",
     "leaflet-map": "0.2.1",
     "material-icons": "1.13.12",
+    "ng2-dragula": "^5.1.0",
     "ngx-pagination": "6.0.3",
     "ngx-quill": "26.0.1",
     "ngx-scrollbar": "15.0.0",

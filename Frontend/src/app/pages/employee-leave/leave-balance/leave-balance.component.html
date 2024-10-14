@@ -1,0 +1,216 @@
+<div fxLayout="row">
+  <!-- Casual Leave Section -->
+   @if(shouldDisplayLeaveType('Casual Leave')){
+
+    <div  fxFlex="50" class="p-2">
+      <mat-card>
+        <mat-card-header fxLayoutAlign="center">
+          <mat-card-title fxLayoutAlign="center">Casual Leave</mat-card-title>
+        </mat-card-header>
+        <mat-card-content [dragula]="'bag-1'" class="bag pt-3">
+          @for (leave of leaveCounts; track leave) {
+            @if (leave.leaveType.leaveTypeName == 'Casual Leave') {
+              @for (color of colors; track color) {
+                <mat-card [class.bg-primary]="color=='primary'"
+                          [class.bg-accent]="color=='accent'"
+                          [class.bg-warn]="color=='warn'"
+                          class="draggable p-3">
+
+                  <!-- Display No of Days in Primary -->
+                  @if (color == 'primary') {
+                    <div fxLayout="row" fxLayoutAlign="start center">
+                      <div fxFlex="100">
+                        <strong>No of Days:</strong> {{ leave.noOfDays || 0 }}
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Display Leave Balance in Accent -->
+                  @if (color == 'accent') {
+                    <div fxLayout="row" fxLayoutAlign="start center">
+                      <div fxFlex="100">
+                        <strong>Leave Balance:</strong> {{ leave.leaveBalance || 0 }}
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Display Days Taken in Warn -->
+                  @if (color == 'warn') {
+                    <div fxLayout="row" fxLayoutAlign="start center">
+                      <div fxFlex="100">
+                        <strong>Days Taken:</strong> {{ leave.takenLeaves || 0 }}
+                      </div>
+                    </div>
+                  }
+                </mat-card>
+              }
+            }
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+   }
+
+   @if(shouldDisplayLeaveType('Sick Leave')){
+
+    <div fxFlex="50" class="p-2">
+      <mat-card>
+        <mat-card-header fxLayoutAlign="center">
+          <mat-card-title fxLayoutAlign="center">Sick Leave</mat-card-title>
+        </mat-card-header>
+        <mat-card-content [dragula]="'bag-1'" class="bag pt-3">
+          @for (leave of leaveCounts; track leave) {
+            @if (leave.leaveType.leaveTypeName == 'Sick Leave') {
+              @for (color of colors; track color) {
+                <mat-card [class.bg-primary]="color=='primary'"
+                          [class.bg-accent]="color=='accent'"
+                          [class.bg-warn]="color=='warn'"
+                          class="draggable p-3">
+
+                  <!-- Display No of Days in Primary -->
+                  @if (color == 'primary') {
+                    <div fxLayout="row" fxLayoutAlign="start center">
+                      <div fxFlex="100">
+                        <strong>No of Days:</strong> {{ leave.noOfDays || 0 }}
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Display Leave Balance in Accent -->
+                  @if (color == 'accent') {
+                    <div fxLayout="row" fxLayoutAlign="start center">
+                      <div fxFlex="100">
+                        <strong>Leave Balance:</strong> {{ leave.leaveBalance || 0 }}
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Display Days Taken in Warn -->
+                  @if (color == 'warn') {
+                    <div fxLayout="row" fxLayoutAlign="start center">
+                      <div fxFlex="100">
+                        <strong>Days Taken:</strong> {{ leave.takenLeaves || 0 }}
+                      </div>
+                    </div>
+                  }
+                </mat-card>
+              }
+            }
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+   }
+  <!-- Sick Leave Section -->
+
+</div>
+
+<div fxLayout="row">
+    <!-- LOP Section -->
+    @if(shouldDisplayLeaveType('LOP')){
+
+      <div fxFlex="50" class="p-2">
+        <mat-card>
+          <mat-card-header fxLayoutAlign="center">
+            <mat-card-title fxLayoutAlign="center">LOP</mat-card-title>
+          </mat-card-header>
+          <mat-card-content [dragula]="'bag-1'" class="bag pt-3">
+            @for (leave of leaveCounts; track leave) {
+              @if (leave.leaveType.leaveTypeName == 'LOP') {
+                @for (color of colors; track color) {
+                  <mat-card [class.bg-primary]="color=='primary'"
+                            [class.bg-accent]="color=='accent'"
+                            [class.bg-warn]="color=='warn'"
+                            class="draggable p-3">
+
+                    <!-- Display No of Days in Primary -->
+                    @if (color == 'primary') {
+                      <div fxLayout="row" fxLayoutAlign="start center">
+                        <div fxFlex="100">
+                          <strong>No of Days:</strong> {{ leave.noOfDays || 0 }}
+                        </div>
+                      </div>
+                    }
+
+                    <!-- Display Leave Balance in Accent -->
+                    @if (color == 'accent') {
+                      <div fxLayout="row" fxLayoutAlign="start center">
+                        <div fxFlex="100">
+                          <strong>Leave Balance:</strong> {{ leave.leaveBalance || 0 }}
+                        </div>
+                      </div>
+                    }
+
+                    <!-- Display Days Taken in Warn -->
+                    @if (color == 'warn') {
+                      <div fxLayout="row" fxLayoutAlign="start center">
+                        <div fxFlex="100">
+                          <strong>Days Taken:</strong> {{ leave.takenLeaves || 0 }}
+                        </div>
+                      </div>
+                    }
+                  </mat-card>
+                }
+              }
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+    }
+    @if(shouldDisplayLeaveType('Comb Off')){
+        <!-- Comb Off Days Section -->
+  <div fxFlex="50" class="p-2">
+    <mat-card>
+      <mat-card-header fxLayoutAlign="center">
+        <mat-card-title fxLayoutAlign="center">Comb Off Days</mat-card-title>
+      </mat-card-header>
+      <mat-card-content [dragula]="'bag-1'" class="bag pt-3">
+        @for (leave of leaveCounts; track leave) {
+          @if (leave.leaveType.leaveTypeName == 'Comb Off') {
+            @for (color of colors; track color) {
+              <mat-card [class.bg-primary]="color=='primary'"
+                        [class.bg-accent]="color=='accent'"
+                        [class.bg-warn]="color=='warn'"
+                        class="draggable p-3">
+
+                <!-- Display No of Days in Primary -->
+                @if (color == 'primary') {
+                  <div fxLayout="row" fxLayoutAlign="start center">
+                    <div fxFlex="100">
+                      <strong>No of Days:</strong> {{ leave.noOfDays || 0 }}
+                    </div>
+                  </div>
+                }
+
+                <!-- Display Leave Balance in Accent -->
+                @if (color == 'accent') {
+                  <div fxLayout="row" fxLayoutAlign="start center">
+                    <div fxFlex="100">
+                      <strong>Leave Balance:</strong> {{ leave.leaveBalance || 0 }}
+                    </div>
+                  </div>
+                }
+
+                <!-- Display Days Taken in Warn -->
+                @if (color == 'warn') {
+                  <div fxLayout="row" fxLayoutAlign="start center">
+                    <div fxFlex="100">
+                      <strong>Days Taken:</strong> {{ leave.takenLeaves || 0 }}
+                    </div>
+                  </div>
+                }
+              </mat-card>
+            }
+          }
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+    }
+
+
+
+</div>

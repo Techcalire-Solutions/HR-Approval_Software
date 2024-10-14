@@ -250,7 +250,7 @@ router.post('/', authenticateToken, async (req, res) => {
         noOfDays,
         notes,
         fileUrl,
-        status: 'Requested',
+        status: 'requested',
         leaveDates
       });
 
@@ -911,4 +911,121 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
 
 
 module.exports = router;
+
+
+
+
+//--------------------------------------------------------------------
+
+// -----------------------------Leave Accumulation function-----------------------------------------------
+
+cron.schedule('0 0 1 * *', async () => {
+    try {
+      // Fetch all leave types (for SL, CL)
+      const leaveTypes = await LeaveType.findAll({
+        where: {
+          leaveTypeName: ['Sick Leave', 'Casual Leave']
+        }
+      });
+  
+      if (leaveTypes.length === 0) {
+        console.log('No leave types found for Sick Leave or Casual Leave.');
+        return;
+      }
+  
+      // Fetch all user leave records for SL and CL types
+      for (const leaveType of leaveTypes) {
+        const userLeaves = await UserLeave.findAll({
+          where: { leaveTypeId: leaveType.id }
+        });
+  
+        if (userLeaves.length === 0) {
+          console.log(`No user leave records found for ${leaveType.leaveTypeName}.`);
+          continue; // Skip to the next leave type if no user records are found
+        }
+  
+        // Increment noOfDays by 1 and update leaveBalance
+        for (const userLeave of userLeaves) {
+          userLeave.noOfDays += 1; // Increment noOfDays by 1
+          userLeave.leaveBalance = userLeave.noOfDays - userLeave.takenLeaves; // Update leaveBalance
+  
+          // Log the update for debugging purposes
+          console.log(`Updating leave for User ID ${userLeave.userId}, Leave Type: ${leaveType.leaveTypeName}`);
+          console.log(`Old Balance: ${userLeave.leaveBalance}, New Balance: ${userLeave.leaveBalance}`);
+  
+          // Save the updated record
+          await userLeave.save();
+        }
+      }
+  
+      console.log('User leave balances updated successfully at the start of the month.');
+    } catch (error) {
+      console.error('Error updating leave balances:', error.message);
+    }
+  });
+  
+  
+  
+  router.get('/leavecount/:userId', authenticateToken, async (req, res) => {
+    try {
+      const userId = req.params.userId;
+  
+      // Fetch user leaves with associated leave types
+      const userLeaves = await UserLeave.findAll({
+        where: { userId },
+        include: {
+          model: LeaveType,
+          as: 'leaveType',
+          attributes: ['leaveTypeName', 'id'],
+        },
+      });
+  
+      // If no leave records exist, send an initial LOP record with 0 leave balance
+      if (!userLeaves.length) {
+        return res.json({
+          userLeaves: [
+            {
+              id: null,
+              userId: userId,
+              leaveTypeId: 3, // Assuming LOP ID is 3
+              noOfDays: 0,
+              takenLeaves: 0,
+              leaveBalance: 0,
+              leaveType: {
+                leaveTypeName: "LOP",
+                id: 3
+              }
+            }
+          ]
+        });
+      }
+  
+      // If leave records exist, check if LOP is missing
+      const lopLeaveExists = userLeaves.some(leave => leave.leaveType.leaveTypeName === 'LOP');
+      if (!lopLeaveExists) {
+        // Add LOP leave with 0 days if it doesn't exist
+        userLeaves.push({
+          id: null,
+          userId: userId,
+          leaveTypeId: 3, // Assuming LOP ID is 3
+          noOfDays: 0,
+          takenLeaves: 0,
+          leaveBalance: 0,
+          leaveType: {
+            leaveTypeName: "LOP",
+            id: 3
+          }
+        });
+      }
+  
+      // Return the user leaves with possible LOP addition
+      res.json({ userLeaves });
+  
+    } catch (error) {
+      console.error('Error fetching leave counts:', error.message);
+      res.status(500).json({ message: 'Error fetching leave counts', error: error.message });
+    }
+  });
+
+
 

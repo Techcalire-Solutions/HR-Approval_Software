@@ -2,21 +2,21 @@
   <span class="title">Leave Request Confirmation</span>
   <button mat-button (click)="onBack()" class="back-button" aria-label="Back">
     <mat-icon>arrow_back</mat-icon>
+
   </button>
 </h1>
 
 <div mat-dialog-content class="dialog-content">
-  <!-- Display the message from the backend -->
+
   <p>{{ message }}</p>
 </div>
 
 <div mat-dialog-actions class="dialog-actions">
-  <!-- Cancel button remains always visible -->
-  <button mat-button (click)="onCancel()" class="cancel-button">Cancel</button>
 
-  <!-- OK button will be displayed based on the showOkButton condition -->
-  <!-- If showOkButton is false, the OK button won't appear -->
+  <button mat-button (click)="onCancel()" class="cancel-button">Cancel Request</button>
+
+
   <button *ngIf="showOkButton" mat-button (click)="onOk()" class="ok-button">
-    OK
+    Save
   </button>
 </div>
