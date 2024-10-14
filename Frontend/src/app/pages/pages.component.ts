@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, inject, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Settings, SettingsService } from '../services/settings.service';
@@ -20,7 +20,6 @@ import { HorizontalMenuComponent } from '../theme/components/menu/horizontal-men
 import { BreadcrumbComponent } from '../theme/components/breadcrumb/breadcrumb.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AnnouncementsComponent } from "./announcements/announcements.component";
-import { Announcement } from '../common/interfaces/announcement';
 import { AnnouncementsService } from '@services/announcements.service';
 @Component({
   selector: 'app-pages',

@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InvoiceService } from '@services/invoice.service';
@@ -9,7 +9,6 @@ import { PerformaInvoice } from '../../../common/interfaces/performaInvoice';
 import { VerificationDialogueComponent } from '../view-approval/verification-dialogue/verification-dialogue.component';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
-import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { SafePipe } from './safe.pipe';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -18,6 +17,7 @@ import { MatTableModule } from '@angular/material/table';
 import { BankReceiptDialogueComponent } from '../view-approval/bank-receipt-dialogue/bank-receipt-dialogue.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';
+import { DatePipe, UpperCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-view-invoices',
@@ -26,10 +26,9 @@ import { ReactiveFormsModule } from '@angular/forms';
     RouterModule,
     MatTableModule,
     MatCardModule,
-    CommonModule,
     MatIconModule,
     SafePipe,
-    MatProgressSpinnerModule, MatFormFieldModule, ReactiveFormsModule,
+    MatProgressSpinnerModule, MatFormFieldModule, ReactiveFormsModule,UpperCasePipe,DatePipe
   ],
   templateUrl: './view-invoices.component.html',
   styleUrl: './view-invoices.component.scss'
@@ -40,10 +39,14 @@ export class ViewInvoicesComponent {
   ngOnDestroy(): void {
 
   }
+  invoiceService=inject(InvoiceService)
+  loginService=inject(LoginService)
+  snackBar=inject(MatSnackBar)
+  router=inject(Router)
+  route=inject(ActivatedRoute)
+  dialog=inject(MatDialog)
+ 
 
-  constructor(private route: ActivatedRoute, private invoiceService: InvoiceService, private dialog: MatDialog, private snackBar: MatSnackBar,
-    private router: Router, private loginService: LoginService
-  ){}
 
   userId: number
   ngOnInit(): void {

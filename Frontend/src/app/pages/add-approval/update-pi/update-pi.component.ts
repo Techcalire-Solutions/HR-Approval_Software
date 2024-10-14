@@ -1,5 +1,5 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, ElementRef, inject, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -9,8 +9,6 @@ import { Subscription } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { PerformaInvoice } from '../../../common/interfaces/performaInvoice';
 import { SafePipe } from '../view-invoices/safe.pipe';
-
-import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
@@ -25,7 +23,7 @@ import { User } from '../../../common/interfaces/user';
 @Component({
   selector: 'app-update-pi',
   standalone: true,
-  imports: [CommonModule,
+  imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
     MatCardModule,
@@ -42,10 +40,13 @@ import { User } from '../../../common/interfaces/user';
 })
 export class UpdatePIComponent {
   url = environment.apiUrl;
-
-  constructor(private invoiceService: InvoiceService, private fb: FormBuilder, private snackBar: MatSnackBar, private router: Router,
-    private route: ActivatedRoute, private loginServie: LoginService, private sanitizer: DomSanitizer
-  ){}
+  invoiceService =inject(InvoiceService)
+  loginService = inject(LoginService)
+  fb=inject(FormBuilder)
+  snackBar=inject(MatSnackBar)
+  router=inject(Router)
+  route=inject(ActivatedRoute)
+  sanitizer=inject(DomSanitizer)
   getPiById(id: number){
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
       // this.pi = pi;
@@ -100,7 +101,7 @@ export class UpdatePIComponent {
   kamSub!: Subscription;
   kam: User[] = [];
   getKAM(){
-    this.kamSub = this.loginServie.getUserByRole(2).subscribe(user =>{
+    this.kamSub = this.loginService.getUserByRole(2).subscribe(user =>{
       this.kam = user;
     });
   }
@@ -237,7 +238,7 @@ export class UpdatePIComponent {
   amSub!: Subscription;
   AMList: User[] = [];
   getAM(){
-    this.amSub = this.loginServie.getUserByRole(3).subscribe(user =>{
+    this.amSub = this.loginService.getUserByRole(3).subscribe(user =>{
       this.AMList = user;
     });
   }
@@ -245,7 +246,7 @@ export class UpdatePIComponent {
   accountantSub!: Subscription;
   AccountantList: User[] = [];
   getAccountants(){
-    this.accountantSub = this.loginServie.getUserByRole(4).subscribe(user =>{
+    this.accountantSub = this.loginService.getUserByRole(4).subscribe(user =>{
       this.AccountantList = user;
     });
   }

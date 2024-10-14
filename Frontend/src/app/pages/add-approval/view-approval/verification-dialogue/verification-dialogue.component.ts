@@ -1,4 +1,4 @@
-import { Component, Inject, Optional } from '@angular/core';
+import { Component, inject, Inject, Optional } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { LoginService } from '@services/login.service';
@@ -14,7 +14,7 @@ import { MatCardModule } from '@angular/material/card';
 @Component({
   selector: 'app-verification-dialogue',
   standalone: true,
-  imports: [CommonModule, MatCardModule,
+  imports: [MatCardModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -26,10 +26,12 @@ import { MatCardModule } from '@angular/material/card';
 export class VerificationDialogueComponent {
   ngOnDestroy(): void {
   }
-
-  constructor(public dialog: MatDialog, @Optional() public dialogRef: MatDialogRef<VerificationDialogueComponent>, private fb: FormBuilder,
-   @Optional() @Inject(MAT_DIALOG_DATA) private dialogData: any, private loginService: LoginService){}
-
+  loginService=inject(LoginService)
+  fb=inject(FormBuilder)
+  dialog=inject(MatDialog)
+  dialogRef = inject(MatDialogRef<VerificationDialogueComponent>)
+  dialogData = inject(MAT_DIALOG_DATA);
+  
    form = this.fb.group({
     remarks: [''],
     amId: [],

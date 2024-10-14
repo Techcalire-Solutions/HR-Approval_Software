@@ -8,7 +8,6 @@ import { Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { InvoiceService } from '@services/invoice.service';
 import { PerformaInvoice } from '../../common/interfaces/performaInvoice';
-import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
@@ -25,7 +24,7 @@ import { SafePipe } from "./view-invoices/safe.pipe";
 @Component({
   selector: 'app-add-approval',
   standalone: true,
-  imports: [CommonModule,
+  imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
     MatCardModule,
