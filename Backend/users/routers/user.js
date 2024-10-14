@@ -129,7 +129,8 @@ router.get('/find/', async (req, res) => {
       limit,
       offset
     });
-
+    console.log(users);
+    
     let totalCount;
     totalCount = await User.count();
 
@@ -187,6 +188,7 @@ router.patch('/statusupdate/:id', async (req, res) => {
     res.send(error.message);
   }
 })
+
 
 // Route to get a user by ID
 router.get('/findone/:id', async (req, res) => {

@@ -30,6 +30,9 @@ export const routes: Routes = [
         loadChildren: () => import('./users/user.routes').then(c => c.routes),
         data: { breadcrumb: 'Employees' }, canActivate: [AuthGuard]
       },
+      // {path: 'leaveType', loadComponent: () => import('./admin-leave/leave-types/leave-types.component').then(c => c.LeaveTypesComponent),
+      //   data: { breadcrumb: 'Leave Type' }, canActivate: [AuthGuard]
+      // },
       {
         path: 'admin-leave',
         loadChildren: () => import('./admin-leave/admin-leave.routes').then(c => c.routes),
@@ -50,6 +53,13 @@ export const routes: Routes = [
         loadComponent: () => import('./add-approval/view-approval/view-approval.component').then(c => c.ViewApprovalComponent),
         data: { breadcrumb: 'View Approval' }, canActivate: [AuthGuard]
       },
+      
+      {
+        path: 'approvalReport',
+        loadComponent: () => import('./add-approval/approval-report/approval-report.component').then(c => c.ApprovalReportComponent),
+        data: { breadcrumb: 'Approval Report' }, canActivate: [AuthGuard]
+      },
+
       {
         path: 'viewInvoices/:id',
         loadComponent: () => import('./add-approval/view-invoices/view-invoices.component').then(c => c.ViewInvoicesComponent),

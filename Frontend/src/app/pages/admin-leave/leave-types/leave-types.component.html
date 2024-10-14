@@ -1,50 +1,59 @@
-<h1 mat-dialog-title>
-  @if (leaveType) {
-      <span>Edit</span>
-  } @else {
-      <span>Add</span>
-  }
-   Leave Type
-</h1>
-<div mat-dialog-content>
-  <form [formGroup]="leaveTypeForm" class="user-form">
-    <div fxLayout="column" class="form-field-outer">
-      <mat-form-field class="w-100">
-          <mat-label> Leave Type </mat-label>
-          <input matInput formControlName="leaveTypeName" required>
-          <mat-error>
-              @if (leaveTypeForm.controls['leaveTypeName'].hasError('required')) {
-                LeaveType Name is required
-              }
-          </mat-error>
-      </mat-form-field>
-
-      <!-- <mat-form-field class="w-100">
-        <mat-label>Abbreviation</mat-label>
-        <input matInput formControlName="abbreviation" required>
-        <mat-error>
-            @if (leaveTypeForm.controls.abbreviation.errors?.required) {
-                Abbreviation is required
-            }
-            @if (form.controls.abbreviation.hasError('minlength')) {
-                Abbreviation isn't long enough, minimum of 5 characters
-            }
-        </mat-error>
-      </mat-form-field> -->
-
-      <!-- <div class="col center-align" style="align-content: center;">
-        <mat-slide-toggle formControlName="status">Status</mat-slide-toggle>
-      </div> -->
+<!DOCTYPE html>
+<html lang="en">
+<body>
+  <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
+    <div fxLayout="row" class="col">
+        <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
+            <mat-button-toggle value="add" (click)="openLeaveTypeDialog(null)"><mat-icon>edit_calendar</mat-icon>
+            </mat-button-toggle>
+        </mat-button-toggle-group>
     </div>
-  </form>
-</div>
-<div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
-  <button mat-raised-button color="primary" [mat-dialog-close]="leaveTypeForm.value" [disabled]="!leaveTypeForm.valid" (click)="onSubmit()">
-      @if (leaveType) {
-          Update
-      } @else {
-          Save
-      }
-  </button>
-  <button mat-raised-button color="warn" (click)="close()" type="button">Cancel</button>
-</div>
+    <div fxLayout="row" class="col">
+      <form class="user-search" [class.show]="controls.value == 'search'">
+        <mat-form-field class="user-search-input">
+            <input matInput placeholder="Search leave type by name..." name="search" (keyup)="search($event)">
+        </mat-form-field>
+      </form>
+    </div>
+  </div>
+
+  <main class="table" id="customers_table">
+    <section class="table__body">
+      <table>
+        <thead>
+          <tr>
+          
+            <th> SI No. </th>
+            <th> Leave Type </th>
+            <th> Manage </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let leaveType of leaveTypes">
+            <td>{{ leaveType.id }}</td>
+            <td>{{ leaveType.leaveTypeName }}</td>
+            <td>
+              <button
+                mat-icon-button
+                (click)="openLeaveTypeDialog(leaveType)"
+               >
+                <mat-icon>mode_edit</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                (click)="deleteRole(leaveType.id)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
+       (page)="onPageChange($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
+      </mat-paginator>
+    </section>
+  </main>
+</body>
+</html>

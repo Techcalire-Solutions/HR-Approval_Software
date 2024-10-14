@@ -85,8 +85,11 @@ export class LeaveService {
     return this.http.post(this.apiUrl+'/leaveType/', data)
   }
 
-  getLeaveType(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/leaveType`);
+  // getLeaveType(): Observable<any> {
+  //   return this.http.get(`${this.apiUrl}/leaveType`);
+  // }
+  getLeaveType(filterValue?: string, page?: number, pagesize?:number): Observable<LeaveType[]> {
+    return this.http.get<LeaveType[]>(this.apiUrl + `/leaveType/find/?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
   }
   updateLeaveType(id: number, data: any): Observable<LeaveType> {
     return this.http.patch<LeaveType>(this.apiUrl + "/leaveType/" + id, data);

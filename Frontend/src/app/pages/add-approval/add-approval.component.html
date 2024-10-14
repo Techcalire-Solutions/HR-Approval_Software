@@ -46,130 +46,97 @@
             <mat-option value="Customer">Customer</mat-option>
           </mat-select>
         </mat-form-field>
-        <mat-form-field *ngIf="sp" class="full-width" appearance="outline">
-          <mat-label>Key Account Manager</mat-label>
-          <mat-select placeholder="" formControlName="kamId">
-            <!-- <mat-form-field class="full-width">
-              <div class="row">
-                <input matInput (input)="filterRole($event)" placeholder="Search">
-              </div>
-            </mat-form-field> -->
-            <mat-option *ngFor="let item of kam" [value]="item.id">
-              {{item.name}}
-            </mat-option>
-            <!-- <mat-option *ngIf="kam.length === 0" [value]="'add'">
-              <span class="material-icons" style="font-size: 25px; color: rgb(0, 128, 55);" (click)="addRole()">playlist_add</span>
-            </mat-option> -->
-          </mat-select>
-        </mat-form-field>
+        @if(sp){
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Key Account Manager</mat-label>
+            <mat-select placeholder="" formControlName="kamId">
+@for(item of kam; track $index){
+  <mat-option [value]="item.id">
+    {{item.name}}
+  </mat-option>
+}
+            
 
-        <mat-form-field *ngIf="kamb" class="full-width" appearance="outline">
-          <mat-label>Manager</mat-label>
-          <mat-select placeholder="" formControlName="amId">
-            <!-- <mat-form-field class="full-width">
-              <div class="row">
-                <input matInput (input)="filterRole($event)" placeholder="Search">
-              </div>
-            </mat-form-field> -->
-            <mat-option *ngFor="let item of AMList" [value]="item.id">
-              {{item.name}}
-            </mat-option>
-            <!-- <mat-option *ngIf="kam.length === 0" [value]="'add'">
-              <span class="material-icons" style="font-size: 25px; color: rgb(0, 128, 55);" (click)="addRole()">playlist_add</span>
-            </mat-option> -->
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field *ngIf="am" class="full-width" appearance="outline">
-          <mat-label>Accountant</mat-label>
-          <mat-select placeholder="" formControlName="accountantId">
-            <!-- <mat-form-field class="full-width">
-              <div class="row">
-                <input matInput (input)="filterRole($event)" placeholder="Search">
-              </div>
-            </mat-form-field> -->
-            <mat-option *ngFor="let item of AccountantList" [value]="item.id">
-              {{item.name}}
-            </mat-option>
-            <!-- <mat-option *ngIf="kam.length === 0" [value]="'add'">
-              <span class="material-icons" style="font-size: 25px; color: rgb(0, 128, 55);" (click)="addRole()">playlist_add</span>
-            </mat-option> -->
-          </mat-select>
-        </mat-form-field>
-
-        <!-- Conditional Fields -->
-        <ng-container *ngIf="piForm.get('purpose')?.value === 'Customer'">
-          <mat-form-field appearance="outline">
-            <mat-label>Customer Name</mat-label>
-            <input matInput placeholder="Enter Customer Name" formControlName="customerName">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Customer PO#</mat-label>
-            <input matInput placeholder="Enter Customer PO#" formControlName="customerPoNo">
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Customer Currency</mat-label>
-            <mat-select formControlName="customerCurrency">
-                <mat-option value="Dollar">Dollar</mat-option>
-                <mat-option value="AED">AED</mat-option>
             </mat-select>
-        </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>CustomerPO Value</mat-label>
-            <input matInput placeholder="Enter PO Value" formControlName="poValue">
           </mat-form-field>
+        }
+ 
+@if(kamb){
+  <mat-form-field class="full-width" appearance="outline">
+    <mat-label>Manager</mat-label>
+    <mat-select placeholder="" formControlName="amId">
+@for(item of AMList; track $index){
+  <mat-option [value]="item.id">
+    {{item.name}}
+  </mat-option>
+}
 
-        <mat-form-field appearance="outline" *ngIf="editStatus">
-          <mat-label>Status</mat-label>
-          <input matInput placeholder="" formControlName="status">
-        </mat-form-field>
 
-        <mat-form-field appearance="outline" *ngIf="editStatus">
-          <mat-label>Remarks</mat-label>
-          <input matInput placeholder="" formControlName="remarks" >
-        </mat-form-field>
+    </mat-select>
+  </mat-form-field>
+}
+
+@if(am){
+  <mat-form-field class="full-width" appearance="outline">
+    <mat-label>Accountant</mat-label>
+    <mat-select placeholder="" formControlName="accountantId">
+@for(item of AccountantList; track $index){
+  <mat-option [value]="item.id">
+    {{item.name}}
+  </mat-option>
+}
 
 
-<!--
-      <mat-icon *ngIf="imageUrl" style="font-size: 25px;" (click)="clearFileInput()">delete</mat-icon> -->
+    </mat-select>
+  </mat-form-field>
+}
 
-      <!-- <form #form class="form">
-        <ng-container *ngIf="imageUrl && imageUrl != ''; else noImageTemplate">
-          <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
-          <img [src]="imageUrl" alt="Image" title="Image" height="300" width="300" (click)="fileInput.click()" />
-        </ng-container>
+@if(piForm.get('purpose')?.value === 'Customer'){
+  <ng-container>
+    <mat-form-field appearance="outline">
+      <mat-label>Customer Name</mat-label>
+      <input matInput placeholder="Enter Customer Name" formControlName="customerName">
+    </mat-form-field>
 
-        <ng-template #noImageTemplate>
-          <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
-          <span class="material-icons" (click)="fileInput.click()">cloud_upload</span>
-          <p (click)="fileInput.click()">Browse file to upload</p>
-        </ng-template>
-      </form> -->
+    <mat-form-field appearance="outline">
+      <mat-label>Customer PO#</mat-label>
+      <input matInput placeholder="Enter Customer PO#" formControlName="customerPoNo">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Customer Currency</mat-label>
+      <mat-select formControlName="customerCurrency">
+          <mat-option value="Dollar">Dollar</mat-option>
+          <mat-option value="AED">AED</mat-option>
+      </mat-select>
+  </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>CustomerPO Value</mat-label>
+      <input matInput placeholder="Enter PO Value" formControlName="poValue">
+    </mat-form-field>
+    @if(editStatus){
+  <mat-form-field appearance="outline">
+    <mat-label>Status</mat-label>
+    <input matInput placeholder="" formControlName="status">
+  </mat-form-field>
+}
+@if(editStatus){
+  <mat-form-field appearance="outline">
+    <mat-label>Remarks</mat-label>
+    <input matInput placeholder="" formControlName="remarks" >
+  </mat-form-field>
+}
+ 
+
+
+
 </ng-container>
+}
+        <!-- Conditional Fields -->
+
 </form>
       <form #form class="form">
-        <!-- <ng-container *ngIf="imageUrl && fileType != 'pdf'; else fileTemplate">
-          <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
-          <img [src]="imageUrl" alt="Image" title="Image" height="300" width="300" (click)="fileInput.click()" />
-        </ng-container>
-
-
-          <--- PDF Preview -->
-        <!-- <ng-template #fileTemplate>
-          <ng-container *ngIf="safeUrl && fileType === 'pdf'; else noFileTemplate">
-            <object [data]="safeUrl" type="application/pdf" width="300" height="300">
-              <p style="margin-left: 20px;">Your browser does not support PDFs. <a [href]="safeUrl" target="_blank">Download the PDF</a></p>
-            </object>
-          </ng-container>
-        </ng-template>
-
-        <ng-template #noFileTemplate> </ng-template>
-
-        <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
-        <span class="material-icons" (click)="fileInput.click()">cloud_upload</span>
-        <p (click)="fileInput.click()">Browse file to upload</p> -->
+      
 
         @if(!imageUrl){
           <div class="col">
@@ -194,28 +161,33 @@
       </form>
 
 
+@if(file){
+  <section class="progress-area" style="width:90%">
+    <li class="row">
+      <!-- <span class="material-icons">file_copy</span> -->
+      <div class="content" >
+        <div class="details">
+          <span class="name">{{ file.name }} - {{ uploadComplete ? 'Uploaded' : 'Uploading' }}</span>
+          @if(!uploadComplete){
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          }
+         
+        </div>
+      </div>
+    </li>
+  </section>
+}
 
-      <section class="progress-area" *ngIf="file" style="width:90%">
-        <li class="row">
-          <!-- <span class="material-icons">file_copy</span> -->
-          <div class="content" >
-            <div class="details">
-              <span class="name">{{ file.name }} - {{ uploadComplete ? 'Uploaded' : 'Uploading' }}</span>
-              <mat-progress-bar *ngIf="!uploadComplete" mode="indeterminate"></mat-progress-bar>
-            </div>
-          </div>
-        </li>
-      </section>
 
-<BR>
+<br>
+@if(!editStatus){
 
-      <button mat-raised-button type="button" color="primary" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid" *ngIf="!editStatus">
-        <!-- <span class="material-icons button-style" style="font-size: 25px;">save</span> -->
+}
+      <button mat-raised-button type="button" color="primary" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid">
+
         SAVE
       </button>
-      <!-- <button mat-raised-button type="button" class="btn btn-success" (click)="onUpdate()" [disabled]="!piForm.valid" *ngIf="editStatus">
-        <span class="material-icons" style="font-size: 25px;">save</span>
-      </button> -->
+
     </div>
   </mat-card-content>
 </mat-card>

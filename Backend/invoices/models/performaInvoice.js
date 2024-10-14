@@ -27,7 +27,7 @@ const PerformaInvoice = sequelize.define('performaInvoice',{
 },
 {
     freezeTableName: true,
-    timestamps : false
+    timestamps : true
 })
 
 User.hasMany(PerformaInvoice, { as: 'salesPerson', foreignKey: 'salesPersonId', onUpdate: 'CASCADE' });
