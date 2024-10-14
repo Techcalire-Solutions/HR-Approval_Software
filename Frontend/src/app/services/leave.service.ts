@@ -115,4 +115,7 @@ export class LeaveService {
   updateCompoOff(id: number, data: any){
     return this.http.patch<Holidays[]>(`${this.apiUrl}/holidays/update/`+id, data);
   }
+
+
+
 }
