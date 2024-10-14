@@ -36,7 +36,9 @@ private setOkButtonVisibility() {
 
   if (this.message.includes('balance is 0') && this.message.includes('No leave will be applied')) {
     this.showOkButton = false;
-  } else if (this.message.includes('User leave record not found')) {
+        //  message: `You do not have ${leaveType.leaveTypeName} leave allotted.`
+  // } else if (this.message.includes('User leave record not found')) {
+  } else if (this.message.includes('You do not have')) {
     this.showOkButton = false;
   } else {
     this.showOkButton = true;

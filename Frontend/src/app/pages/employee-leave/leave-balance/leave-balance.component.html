@@ -1,5 +1,11 @@
 <div fxLayout="row">
-  <!-- Casual Leave Section -->
+
+ <!-- Display message when no leave records are found -->
+ <div *ngIf="errorFlag">
+  <p>{{ errorMessage }}</p>
+</div>
+
+
    @if(shouldDisplayLeaveType('Casual Leave')){
 
     <div  fxFlex="50" class="p-2">
@@ -102,7 +108,7 @@
     </div>
 
    }
-  <!-- Sick Leave Section -->
+
 
 </div>
 
