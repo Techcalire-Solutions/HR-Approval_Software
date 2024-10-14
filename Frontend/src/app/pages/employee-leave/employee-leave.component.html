@@ -26,17 +26,18 @@
           <tr>
             <th>Leave Type</th>
             <th>Leave Date</th>
+            <th>Reason</th>
             <th>Status</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          <!-- Loop through each leave -->
+
           <tr *ngFor="let item of leaves">
-            <!-- Leave Type (From associated LeaveType model) -->
+
             <td>{{ item.leaveType?.leaveTypeName }}</td>
 
-            <!-- Leave Dates and Sessions -->
+
             <td>
               <ng-container *ngFor="let date of item.leaveDates">
                 {{ date.date | date: 'dd - MM - yyyy' }}
@@ -44,17 +45,21 @@
                 <span *ngIf="date.session2">Session 2</span>
                 <br>
               </ng-container>
+
             </td>
 
-            <!-- Status -->
-            <td>{{ item.status | camelCase }}</td>
 
-            <!-- Actions -->
+
+             <td>{{item.notes}}</td>
+
+            <td>{{ item.status}}</td>
+
+
             <td>
-              <!-- Edit and Delete Buttons -->
+
               <ng-container *ngIf="item.status.toLowerCase() !== 'approved' && item.status.toLowerCase() !== 'rejected'; else blockedAction">
                 <div class="icon-btn-group">
-                  <!-- Edit Button -->
+
                   <button mat-icon-button
                           (click)="editLeave(item)"
                           class="icon-btn edit-btn"
@@ -62,7 +67,7 @@
                     <mat-icon>mode_edit</mat-icon>
                   </button>
 
-                  <!-- Delete Button -->
+
                   <button mat-icon-button
                           (click)="deleteLeave(item.id)"
                           class="icon-btn delete-btn"
@@ -72,11 +77,11 @@
                 </div>
               </ng-container>
 
-              <!-- Blocked Action: Show when the status is "approved" or "rejected" -->
+
               <ng-template #blockedAction>
                 <div class="icon-btn-group blocked-layout">
                   <button mat-icon-button class="icon-btn blocked-btn" disabled>
-                    <mat-icon>block</mat-icon> <!-- Blocked Icon -->
+                    <mat-icon>block</mat-icon>
                   </button>
                 </div>
               </ng-template>
@@ -85,7 +90,7 @@
         </tbody>
       </table>
 
-      <!-- Paginator -->
+
       <mat-paginator
         [length]="totalItems"
         [pageSize]="pageSize"
@@ -98,3 +103,5 @@
   </main>
 </body>
 </html>
+
+
