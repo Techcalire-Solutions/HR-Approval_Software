@@ -26,7 +26,7 @@ export class ConfirmationComponent implements OnInit, OnDestroy{
   probEmp: User[] = [];
   getProbationEmployees(){
     this.probStaffSub = this.userService.getProbationEmployees().subscribe((data) => {
-      this.probEmp = data;
+      this.probEmp = data.filter(emp => emp.roleId !== 101 && emp.roleId !== 102 && emp.roleId !== 103);
     });
   }
 
