@@ -1,46 +1,51 @@
-
 @if (!hradmin) {
-    <div>
-        <app-info-cards></app-info-cards>
-    </div>
+  <div>
+      <app-info-cards></app-info-cards>
+  </div>
 }
 
 
+
 @if (!hradmin) {
-    <div fxLayout="row wrap">
-        <div fxFlex="100" fxFlex.gt-sm="70" class="p-2">
-            <app-matrix-table></app-matrix-table>
-        </div>
-    </div>
+  <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutWrap>
+      <div fxFlex="70" fxFlex.gt-sm="70" class="p-2">
+          <app-matrix-table></app-matrix-table>
+      </div>
+      <div fxFlex="30" fxFlex.gt-sm="30" class="p-2">
+          <app-holiday-calendar></app-holiday-calendar>
+      </div>
+  </div>
+}@else {
+  <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutWrap>
+      <div fxFlex="50" fxFlex.gt-sm="50" class="p-2">
+          <app-holiday-calendar></app-holiday-calendar>
+      </div>
+  </div>
 }
 
 <div>
-    <app-admin-card></app-admin-card>
+  <app-admin-card></app-admin-card>
 </div>
 
 @if(roleName === 'HR Administrator' || roleName === 'Super Administrator'){
-    <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutWrap>
-        <div fxFlex="33" fxFlex.gt-sm="33" class="p-2">
-            <app-birthday></app-birthday>
-        </div>
-        <div fxFlex="33" fxFlex.gt-sm="33" class="p-2">
-            <app-probation-due></app-probation-due>
-        </div>
-        <div fxFlex="33" fxFlex.gt-sm="33" class="p-2">
-            <app-joining-day></app-joining-day>
-        </div>
-    </div>
+  <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutWrap>
+      <div fxFlex="33" fxFlex.gt-sm="33" class="p-2">
+          <app-birthday></app-birthday>
+      </div>
+      <div fxFlex="33" fxFlex.gt-sm="33" class="p-2">
+          <app-probation-due></app-probation-due>
+      </div>
+      <div fxFlex="33" fxFlex.gt-sm="33" class="p-2">
+          <app-joining-day></app-joining-day>
+      </div>
+  </div>
 }@else {
-    <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutWrap>
-        <div fxFlex="50" fxFlex.gt-sm="50" class="p-2">
-            <app-birthday></app-birthday>
-        </div>
-        <div fxFlex="50" fxFlex.gt-sm="50" class="p-2">
-            <app-joining-day></app-joining-day>
-        </div>
-    </div>
+  <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutWrap>
+      <div fxFlex="50" fxFlex.gt-sm="50" class="p-2">
+          <app-birthday></app-birthday>
+      </div>
+      <div fxFlex="50" fxFlex.gt-sm="50" class="p-2">
+          <app-joining-day></app-joining-day>
+      </div>
+  </div>
 }
-
-
-
-

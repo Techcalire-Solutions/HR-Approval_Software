@@ -26,6 +26,9 @@ const team = require('../users/routers/team');
 const teamMember = require('../users/routers/teamMember');
 app.use('/role', role);
 
+const holiday = require('../leave/routers/holiday');
+app.use('/holidays', holiday);
+
 
 // app.use(cors({
 //     origin: 'https://approval.techclaire.com', 

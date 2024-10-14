@@ -5,6 +5,7 @@ import { Observable } from 'rxjs/internal/Observable';
 import { environment } from '../../environments/environment';
 import { UserLeave } from '../common/interfaces/userLeave';
 import {  throwError } from 'rxjs';
+import { Holidays } from '../common/interfaces/holidays';
 
 @Injectable({
   providedIn: 'root'
@@ -48,6 +49,13 @@ export class LeaveService {
    getLeavesByUser(userId: number, search?: string, page?: number, pageSize?: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/leave/user/${userId}?search=${search}&page=${page}&pageSize=${pageSize}`);
   }
+
+
+  getLeavesPaginated(search?: string, page?: number, pageSize?: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/leave/?search=${search}&page=${page}&pageSize=${pageSize}`);
+}
+
+
   updateApproveLeaveStatus(leaveId: any) {
     return this.http.put(`${this.apiUrl}/leave/approveLeave/${leaveId}`, {});
   }
@@ -100,8 +108,11 @@ export class LeaveService {
   }
 
 
-  private leaveDataApi = environment.leaveDataApi;
-  getHolidays(): Observable<any> {
-    return this.http.get(this.leaveDataApi);
+  getHolidays(filterValue?: string, page?: number, pagesize?:number){
+    return this.http.get<Holidays[]>(`${this.apiUrl}/holidays/find?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
+  }
+
+  updateCompoOff(id: number, data: any){
+    return this.http.patch<Holidays[]>(`${this.apiUrl}/holidays/update/`+id, data);
   }
 }
