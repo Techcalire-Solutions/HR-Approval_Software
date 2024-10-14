@@ -100,7 +100,8 @@ onPageChange(event: PageEvent): void {
 
 search(event: Event){
   this.searchText = (event.target as HTMLInputElement).value.trim()
-  // this.getLeaveByUser()
+  this.getPaginatedLeaves()
+
 }
 
 

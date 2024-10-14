@@ -6,9 +6,10 @@
       <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
         <mat-button-toggle value="add" (click)="openApplyLeave()">
           <mat-icon style="color: green;">event</mat-icon>
-          ADD
+          APPLY LEAVE
         </mat-button-toggle>
       </mat-button-toggle-group>
+
     </div>
     <div fxLayout="row" class="col">
       <form class="user-search" [class.show]="controls.value == 'search'">

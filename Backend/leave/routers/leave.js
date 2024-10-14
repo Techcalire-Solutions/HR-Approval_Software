@@ -269,7 +269,7 @@ router.post('/', authenticateToken, async (req, res) => {
 
     if(!userLeave){
       return res.json({
-        message: 'User leave record not found'
+          message: `You do not have ${leaveType.leaveTypeName} leave allotted.`
       });
     }
 
@@ -305,7 +305,7 @@ router.post('/', authenticateToken, async (req, res) => {
       sendLeaveEmail(user,leaveType,startDate,endDate,notes,noOfDays,leaveDates)
 
       return res.json({
-        message: `Leave request submitted. ${availableLeaveDays} days applied as ${leaveType.leaveTypeName} and ${lopDays} days are beyond balance. Please apply for the remaining days as LOP separately.`,
+        message: `${availableLeaveDays} days applied as ${leaveType.leaveTypeName}. ${lopDays} days are beyond balance; apply for LOP separately.`,
         leaveDatesApplied,
         lopDates: lopDates || [] 
       });
@@ -325,7 +325,7 @@ router.post('/', authenticateToken, async (req, res) => {
       sendLeaveEmail(user,leaveType,startDate,endDate,notes,noOfDays,leaveDates)
 
       return res.json({
-        message: 'Leave request submitted successfully. No LOP days required as balance is sufficient.',
+        message: 'Leave request successful.',
         leaveDatesApplied: leaveDates,
         lopDates: [] 
       });

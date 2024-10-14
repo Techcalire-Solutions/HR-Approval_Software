@@ -1,22 +1,20 @@
-<h1 mat-dialog-title class="dialog-title">
-  <span class="title">Leave Request Confirmation</span>
-  <button mat-button (click)="onBack()" class="back-button" aria-label="Back">
-    <mat-icon>arrow_back</mat-icon>
-
-  </button>
-</h1>
-
-<div mat-dialog-content class="dialog-content">
-
-  <p>{{ message }}</p>
-</div>
-
-<div mat-dialog-actions class="dialog-actions">
-
-  <button mat-button (click)="onCancel()" class="cancel-button">Cancel Request</button>
-
-
-  <button *ngIf="showOkButton" mat-button (click)="onOk()" class="ok-button">
-    Save
-  </button>
+<div id="confirmationModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-confirm">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Confirmation</h4>
+              <button type="button" class="back-icon" aria-label="Back" (click)="onBack()">
+                  <i class="material-icons">arrow_back</i>
+              </button>
+          </div>
+          <div class="modal-body text-center" >
+              <i class="material-icons" style="font-size: 25px; color: #60c7c1;"  *ngIf="showOkButton">check_circle</i>
+              <p>{{ message }}</p>
+          </div>
+          <div class="modal-footer justify-content-center">
+              <button type="button" class="btn btn-secondary" (click)="onCancel()" data-dismiss="modal">Cancel Request</button>
+              <button type="button" *ngIf="showOkButton" class="btn btn-primary" (click)="onOk()">Okay</button>
+          </div>
+      </div>
+  </div>
 </div>

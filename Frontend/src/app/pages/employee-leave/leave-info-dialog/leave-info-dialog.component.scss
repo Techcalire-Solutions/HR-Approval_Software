@@ -1,133 +1,84 @@
-/* Adjust the dialog size */
-::ng-deep .mat-dialog-container {
-  width: 400px; /* Reduce width to make the dialog smaller */
-  max-width: 90%; /* Ensure it scales well on smaller screens */
-  padding: 0;
-  border-radius: 8px;
-  overflow: hidden;
+body {
+  font-family: 'Varela Round', sans-serif;
 }
 
-/* Title styling (center and back button) */
-.dialog-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  font-size: 1.25rem; /* Smaller font size */
-  font-weight: 600;
-  margin: 0;
-  background-color: #3f51b5; /* Primary color (deep blue) */
-  color: #ffffff; /* White text for contrast */
-  padding: 10px 15px;
-  border-radius: 5px 5px 0 0;
+.modal-confirm {
+  color: #636363;
+  width: 400px; /* Set fixed width for the modal */
 }
 
-.title {
-  flex-grow: 1;
-  text-align: center;
-}
-
-/* Styling for Back button */
-.back-button {
-  background: none;
+.modal-confirm .modal-content {
+  padding: 20px;
+  border-radius: 5px;
   border: none;
-  padding: 5px 12px;
-  cursor: pointer;
-  color: #ffffff;
-  font-size: 0.9rem; /* Slightly smaller font for button */
-  font-weight: 500;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  text-align: center;
+  font-size: 14px;
+}
 
-  /* Adding a border and rounded corners */
+.modal-confirm .modal-header {
+  border-bottom: none;
+  position: relative;
+  display: flex; /* Enable flexbox for layout */
+  justify-content: space-between; /* Space between title and back icon */
+  align-items: center; /* Center items vertically */
+  padding: 10px 15px; /* Added padding for better spacing */
+}
+
+.modal-confirm .modal-title {
+  margin: 0; /* Remove default margin */
+  font-size: 26px;
+  flex-grow: 1; /* Allow title to take available space */
+  text-align: center; /* Center the title */
+}
+
+.modal-confirm .back-icon {
+  background: transparent; /* Transparent background */
+  border: none; /* No border */
+  cursor: pointer; /* Pointer cursor for click */
+  color: #60c7c1; /* Icon color to match theme */
+  font-size: 24px; /* Icon size */
+}
+
+.modal-confirm .modal-body {
+  color: #999;
+}
+
+.modal-confirm .modal-footer {
+  border: none;
+  text-align: center;
+  border-radius: 5px;
+  font-size: 13px;
+  padding: 10px 15px 25px;
+}
+
+.modal-confirm .btn,
+.modal-confirm .btn:active {
+  color: #fff;
   border-radius: 4px;
-  border: 1px solid transparent; /* Invisible border to keep the button shape */
+  background: #60c7c1; /* Primary button color */
+  text-decoration: none;
+  transition: all 0.4s;
+  line-height: normal;
+  min-width: 120px; /* Minimum width for buttons */
+  border: none;
+  min-height: 40px;
+  margin: 0 5px;
 }
 
-.back-button:hover {
-  background-color: #ffffff; /* White background on hover */
-  color: #3f51b5; /* Deep blue text on hover */
-  border-color: #3f51b5; /* Border turns deep blue on hover */
-  transform: scale(1.05); /* Slight hover effect */
+.modal-confirm .btn-secondary {
+  background: #c1c1c1; /* Gray for secondary action */
 }
 
-.back-button:focus {
-  outline: none; /* Remove the outline on focus */
-  box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.3); /* Add focus shadow for better accessibility */
+.modal-confirm .btn-secondary:hover,
+.modal-confirm .btn-secondary:focus {
+  background: #a8a8a8; /* Darker gray on hover */
 }
 
-/* Dialog content */
-.dialog-content {
-  padding: 20px 15px; /* Add sufficient space around content */
-  font-size: 1.1rem;
-  background-color: #f5f5f5; /* Light gray background */
-  color: #333; /* Dark text for readability */
-  border-bottom: 1px solid #e0e0e0; /* Light border */
-  max-height: 200px; /* Limit the height to avoid overflowing */
-  overflow-y: auto; /* Add scroll if content overflows */
+.modal-confirm .btn-primary {
+  background: #60c7c1; /* Consistent primary color */
 }
 
-/* Dialog actions */
-.dialog-actions {
-  display: flex;
-  justify-content: center;
-  padding: 15px 0;
-  background-color: #ffffff;
-}
-
-.ok-button, .cancel-button {
-  padding: 8px 15px; /* Slightly reduced button padding */
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
-  margin: 0 10px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.cancel-button {
-  background-color: #ff7043; /* Orange color */
-  color: #ffffff;
-
-  &:hover {
-    background-color: #ff5722; /* Darker orange on hover */
-    transform: scale(1.05); /* Slight hover effect */
-  }
-}
-
-.ok-button {
-  background-color: #4caf50; /* Green color */
-  color: #ffffff;
-
-  &:hover {
-    background-color: #388e3c; /* Darker green on hover */
-    transform: scale(1.05);
-  }
-}
-
-/* Media query for mobile devices */
-@media (max-width: 600px) {
-  ::ng-deep .mat-dialog-container {
-    width: 100%; /* Full width on small screens */
-    padding: 0;
-    max-width: 100%;
-  }
-
-  .dialog-title {
-    font-size: 1.1rem; /* Smaller font for mobile */
-    padding: 10px;
-  }
-
-  .dialog-content {
-    font-size: 1rem; /* Adjust content font size */
-    padding: 15px;
-  }
-
-  .ok-button, .cancel-button {
-    font-size: 0.9rem; /* Smaller buttons on mobile */
-    padding: 5px 10px;
-  }
-
-  .back-button {
-    font-size: 0.8rem; /* Smaller font for mobile */
-    padding: 4px 10px; /* Smaller padding for mobile */
-  }
+.modal-confirm .btn-primary:hover,
+.modal-confirm .btn-primary:focus {
+  background: #4db0b3; /* Darker shade for hover effect */
 }
