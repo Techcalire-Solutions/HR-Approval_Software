@@ -27,7 +27,6 @@
     "@swimlane/ngx-charts": "20.5.0",
     "@swimlane/ngx-datatable": "20.1.0",
     "angular-calendar": "0.31.1",
-    "angular-holiday-planner": "^0.0.2",
     "angular-in-memory-web-api": "0.18.0",
     "date-fns": "3.6.0",
     "dragula": "3.7.3",
