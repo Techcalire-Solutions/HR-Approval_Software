@@ -108,7 +108,9 @@ users:User;
         item.title === 'Dashboard' ||
         item.title === 'Team' ||
         (item.title === 'Approval Uploads' && !item.parentId) ||
-        (item.title === 'View' && item.parentId === 5)
+        (item.title === 'View' && item.parentId === 5)||
+        (item.title === 'Reports' && !item.parentId) ||
+        (item.title === 'Approval Report' && item.parentId === 21)
 
       );
     } else if (

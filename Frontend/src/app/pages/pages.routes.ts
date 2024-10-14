@@ -53,6 +53,13 @@ export const routes: Routes = [
         loadComponent: () => import('./add-approval/view-approval/view-approval.component').then(c => c.ViewApprovalComponent),
         data: { breadcrumb: 'View Approval' }, canActivate: [AuthGuard]
       },
+      
+      {
+        path: 'approvalReport',
+        loadComponent: () => import('./add-approval/approval-report/approval-report.component').then(c => c.ApprovalReportComponent),
+        data: { breadcrumb: 'Approval Report' }, canActivate: [AuthGuard]
+      },
+
       {
         path: 'viewInvoices/:id',
         loadComponent: () => import('./add-approval/view-invoices/view-invoices.component').then(c => c.ViewInvoicesComponent),
