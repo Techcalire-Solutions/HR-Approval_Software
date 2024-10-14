@@ -48,9 +48,6 @@ export class LeaveService {
    getLeavesByUser(userId: number, search?: string, page?: number, pageSize?: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/leave/user/${userId}?search=${search}&page=${page}&pageSize=${pageSize}`);
   }
-  getLeavesPaginated(search?: string, page?: number, pageSize?: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/leave/?search=${search}&page=${page}&pageSize=${pageSize}`);
-}
   updateApproveLeaveStatus(leaveId: any) {
     return this.http.put(`${this.apiUrl}/leave/approveLeave/${leaveId}`, {});
   }
