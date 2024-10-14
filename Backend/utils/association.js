@@ -1,6 +1,4 @@
 
-const Team = require("../users/models/team");
-const TeamMember = require("../users/models/teamMember");
 const sequelize = require('./db');
 const bcrypt = require('bcrypt');
 const Role = require('../users/models/role');
@@ -14,10 +12,9 @@ const userData = require('./user.json');const Leave = require('../leave/models/l
 async function syncModel() {
     await sequelize.sync({alter: true})
 
-//------------------------------LEAVE ASSOCIATIONS-----------------------------------------------
-  Leave.belongsTo(LeaveType, { foreignKey: 'leaveTypeId' });
-  Leave.belongsTo(User, { foreignKey: 'userId' });
-  
+
+
+
   
   
     // Team.belongsTo(User, {

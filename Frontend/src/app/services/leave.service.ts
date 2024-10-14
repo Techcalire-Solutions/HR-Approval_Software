@@ -64,6 +64,14 @@ export class LeaveService {
     return throwError(() => new Error("Invalid file type"));
   }
 
+  deleteUploaded(id: number, key?: string) {
+    return this.http.delete(`${this.apiUrl}/leave/filedelete?id=${id}&key=${key}`);
+  }
+
+  deleteUploadByurl(key: string) {
+    return this.http.delete(`${this.apiUrl}/leave/filedeletebyurl/?key=${key}`);
+  }
+
   addLeaveType(data:any){
     return this.http.post(this.apiUrl+'/leaveType/', data)
   }
