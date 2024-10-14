@@ -1,0 +1,32 @@
+<div class="asset-form-container">
+    <h2>Add Assets for User</h2>
+  
+    <form [formGroup]="assetForm" (ngSubmit)="onSubmit()">
+      <div formArrayName="assets">
+        <div *ngFor="let asset of assets.controls; let i = index" [formGroupName]="i" class="asset-group">
+          
+          <div>
+            <label for="assetName">Asset Name</label>
+            <input formControlName="assetName" type="text" required />
+          </div>
+  
+          <div>
+            <label for="assetType">Asset Type</label>
+            <input formControlName="assetType" type="text" required />
+          </div>
+  
+          <div>
+            <label for="assignedDate">Assigned Date</label>
+            <input formControlName="assignedDate" type="date" required />
+          </div>
+  
+          <button type="button" (click)="removeAsset(i)">Remove</button>
+  
+        </div>
+      </div>
+  
+      <button type="button" (click)="addAsset()">Add Another Asset</button>
+      <button type="submit" [disabled]="assetForm.invalid">Submit</button>
+    </form>
+  </div>
+  
