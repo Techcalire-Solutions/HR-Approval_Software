@@ -54,6 +54,9 @@ app.use('/invoice', invoice);
 app.use('/performaInvoice', pi);
 app.use('/invoiceStatus', piStatus);
 
+const company = require('../invoices/routers/company');
+app.use('/company', company);
+
 app.use('/invoices/uploads', express.static(path.join(__dirname, '../invoices/uploads')));
 app.use('/users/userImages', express.static(path.join(__dirname, '../users/userImages')));
 

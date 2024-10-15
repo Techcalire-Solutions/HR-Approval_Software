@@ -15,11 +15,13 @@ const PerformaInvoice = sequelize.define('performaInvoice',{
     count: {type : DataTypes.INTEGER, defaultValue: 1},
 
     supplierName:  {type : DataTypes.STRING},
+    supplierSoNo:  {type : DataTypes.STRING},
     supplierPoNo:  {type : DataTypes.STRING},
     supplierCurrency:{type : DataTypes.STRING},
     supplierPrice: {type : DataTypes.STRING },
     purpose: {type : DataTypes.STRING},
     customerName:  {type : DataTypes.STRING},
+    customerSoNo: {type : DataTypes.STRING},
     customerPoNo: {type : DataTypes.STRING},
     poValue:{type : DataTypes.STRING },
     customerCurrency:{type : DataTypes.STRING},

@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<body>
+  <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
+    <div fxLayout="row" class="col">
+        <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
+            <mat-button-toggle value="add" (click)="openRoleDialog(null)"><mat-icon>person_add</mat-icon>
+            </mat-button-toggle>
+            <!-- <mat-button-toggle value="search">
+                <mat-icon>search</mat-icon>
+            </mat-button-toggle> -->
+        </mat-button-toggle-group>
+    </div>
+    <div fxLayout="row" class="col">
+      <form class="user-search" [class.show]="controls.value == 'search'">
+        <!-- <mat-form-field class="user-search-input">
+            <input matInput placeholder="Search role by role name..." name="search" (keyup)="search($event)">
+        </mat-form-field> -->
+      </form>
+    </div>
+  </div>
+
+    <main class="table" id="customers_table">
+        <!-- <section class="table__header">
+            <h1>ROLES</h1>
+        </section> -->
+        <section class="table__body">
+          <table>
+            <thead>
+              <tr>
+                <th> Name </th>
+                <th> Supplier </th>
+                <th> Customer </th>
+                <th> Manage </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let company of companies">
+                <td> {{ company.companyName }} </td>
+                <td> {{ company?.supplier }} </td>
+                <td> {{ company?.customer }} </td>
+
+                <!-- Team Leader Column -->
+                <!-- <td> {{ team.leader.name }} </td> -->
+
+                <!-- Team Members Column -->
+                <!-- <td>
+                  <div *ngFor="let member of team.teamMembers" class="team-member">
+                    {{ member.user.name }}
+                    <mat-divider></mat-divider>
+                  </div>
+                </td> -->
+
+                <!-- Manage Column -->
+                <td>
+                  <button mat-menu-item (click)="openRoleDialog(company)">
+                    <mat-icon>mode_edit</mat-icon>
+                  </button> &nbsp;
+                  <!-- Uncomment if delete is needed -->
+                  <button mat-menu-item (click)="deleteTeam(company.id);">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+        </section>
+    </main>
+
+    <!-- <div class="tabs">
+     <a routerLink="role">ROLE</a>
+     <a>USER</a>
+ </div> -->
+</body>
+
+</html>
