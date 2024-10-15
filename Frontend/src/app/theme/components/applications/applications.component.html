@@ -67,6 +67,22 @@
                   </button>
                 </mat-grid-tile> -->
             </mat-grid-list>
+            <mat-grid-list cols="3" rowHeight="1:1">
+              <!-- <mat-grid-tile>
+                <button mat-button>
+                    <mat-icon class="muted-text">person</mat-icon>
+                    <span>My account</span>
+                </button>
+              </mat-grid-tile> -->
+              <mat-grid-tile>
+                <button mat-button (click)="openCompany()">
+                  <mat-icon class="muted-text">schedule</mat-icon>
+                  <span>Company</span>
+                </button>
+
+
+              </mat-grid-tile>
+              </mat-grid-list>
         </mat-card>
     </span>
 </mat-menu>

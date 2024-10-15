@@ -18,13 +18,28 @@
         <mat-form-field appearance="outline">
           <mat-label>InvoiceNo</mat-label>
           <input matInput placeholder="" formControlName="piNo" readonly="true">
-        </mat-form-field> <mat-form-field appearance="outline">
-          <mat-label>Supplier Name</mat-label>
-          <input matInput placeholder="Enter Supplier Name" formControlName="supplierName">
+        </mat-form-field> 
+        <mat-form-field appearance="outline">
+          <!-- <mat-label>Supplier Name</mat-label>
+          <input matInput placeholder="Enter Supplier Name" formControlName="supplierName"> -->
+
+          <mat-select placeholder="Choose Supplier Name" formControlName="supplierId">
+            @for(item of supplierCompanies; track $index){
+              <mat-option [value]="item.id">
+                {{item.companyName}}
+              </mat-option>
+            }
+            
+            
+                </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Supplier PO#</mat-label>
+          <mat-label>Supplier SO#</mat-label>
+          <input matInput placeholder="Enter Supplier PO#" formControlName="supplierSoNo">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Our Supplier PO#</mat-label>
           <input matInput placeholder="Enter Supplier PO#" formControlName="supplierPoNo">
         </mat-form-field>
         <mat-form-field appearance="outline">
@@ -92,13 +107,26 @@
 @if(piForm.get('purpose')?.value === 'Customer'){
   <ng-container>
     <mat-form-field appearance="outline">
-      <mat-label>Customer Name</mat-label>
-      <input matInput placeholder="Enter Customer Name" formControlName="customerName">
+      <mat-form-field appearance="outline">
+        <mat-select placeholder="Choose Customer Name" formControlName="customerId">
+          @for(item of customerCompanies; track $index){
+            <mat-option [value]="item.id">
+              {{item.companyName}}
+            </mat-option>
+          }
+          
+          
+              </mat-select>
+      </mat-form-field>
     </mat-form-field>
 
     <mat-form-field appearance="outline">
       <mat-label>Customer PO#</mat-label>
       <input matInput placeholder="Enter Customer PO#" formControlName="customerPoNo">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Our Customer SO#</mat-label>
+      <input matInput placeholder="Enter Customer PO#" formControlName="customerSoNo">
     </mat-form-field>
     <mat-form-field appearance="outline">
       <mat-label>Customer Currency</mat-label>
