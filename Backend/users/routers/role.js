@@ -9,12 +9,17 @@ const sequelize = require('../../utils/db');
 router.post('/', authenticateToken, async (req, res) => {
   const { roleName, abbreviation, status } = req.body;
     try {
+      let rrr = await Role.findAll({})
+      console.log(rrr);
+      
           const role = new Role({roleName, abbreviation, status});
           await role.save();
           
           res.send(role);
 
     } catch (error) {
+      console.log(error);
+      
         res.send(error.message);
     }
 })

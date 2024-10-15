@@ -65,13 +65,11 @@
           <mat-form-field class="full-width" appearance="outline">
             <mat-label>Key Account Manager</mat-label>
             <mat-select placeholder="" formControlName="kamId">
-@for(item of kam; track $index){
-  <mat-option [value]="item.id">
-    {{item.name}}
-  </mat-option>
-}
-            
-
+            @for(item of kam; track $index){
+              <mat-option [value]="item.id">
+                {{item.name}}
+              </mat-option>
+            }
             </mat-select>
           </mat-form-field>
         }

@@ -925,5 +925,56 @@ router.get('/dashboard', authenticateToken, async (req, res) => {
     }
 });
 
+router.patch('/getforadminreport', authenticateToken, async (req, res) => {
+    let invoices;
+    try {
+        invoices = await PerformaInvoice.findAll({})
+    } catch (error) {
+        res.send(error.message)
+    }
+    
+    let invoiceNo = req.body.invoiceNo;
+    let createdAt = req.body.createdAt;
+    let addedBy = req.body.addedBy;
+    let status = req.body.status;
+    let date = req.body.date;
+    
+    if (invoiceNo) {
+        const searchTerm = invoiceNo.replace(/\s+/g, '').trim().toLowerCase();
+        
+        invoices = invoices.filter(invoice => 
+            invoice.piNo.replace(/\s+/g, '').trim().toLowerCase().includes(searchTerm)
+        );
+    }
+
+    if (createdAt) {
+        invoices = invoices.filter(invoice => invoice.createdAt === createdAt);
+    }
+    
+    if (addedBy) {
+        invoices = invoices.filter(invoice => invoice.addedById === addedBy);
+    }
+
+    if (status) {
+        invoices = invoices.filter(invoice => invoice.status === status);
+    }
+
+    if (date) {
+        console.log(date);
+    
+        invoices = invoices.filter(invoice => {
+            // Convert both dates to local date strings (ignoring time and time zones)
+            const invoiceDate = new Date(invoice.createdAt).toLocaleDateString('en-IN'); // 'en-CA' returns YYYY-MM-DD format
+            const filterDate = new Date(date).toLocaleDateString('en-IN');
+            
+            return invoiceDate === filterDate;
+        });
+    
+        console.log(invoices);
+    }
+    
+    res.send(invoices);
+});
+
 
 module.exports = router;
