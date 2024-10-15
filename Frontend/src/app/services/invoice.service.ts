@@ -131,4 +131,8 @@ export class InvoiceService {
     return this._http.get<Role>(this.url + '/role/'+id);
   }
 
+  getAdminReports(data: any){
+    return this._http.patch<any[]>(this.url + '/performaInvoice/getforadminreport', data);
+  }
+
 }
