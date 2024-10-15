@@ -916,7 +916,14 @@ router.get('/dashboard', authenticateToken, async (req, res) => {
 router.patch('/getforadminreport', authenticateToken, async (req, res) => {
     let invoices;
     try {
-        invoices = await PerformaInvoice.findAll({})
+        invoices = await PerformaInvoice.findAll({
+            include: [
+                { model: PerformaInvoiceStatus },
+                { model: User, as: 'salesPerson', attributes: ['name'] },
+                { model: User, as: 'kam', attributes: ['name'] },
+                { model: User, as: 'am', attributes: ['name'] }
+            ]
+        })
     } catch (error) {
         res.send(error.message)
     }
