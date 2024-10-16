@@ -158,52 +158,50 @@
 </mat-form-field>       <!-- Conditional Fields -->
 
 </form>
-      <form #form class="form">
-      
-
-        @if(!imageUrl){
+<form [formGroup]="piForm" enctype="multipart/form-data">
+  <div formArrayName="url">
+    @for (uploadForm of doc().controls; track $index; let i = $index;) {
+      <div [formGroupName]="i" class="form-instance">
+        <div class="row" style="margin-top: 20px;">
           <div class="col">
-            <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
-            <span class="material-icons file-upload-icon" (click)="fileInput.click()">cloud_upload</span>
-            <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Remarks</mat-label>
+              <input matInput formControlName="remarks">
+            </mat-form-field>
           </div>
-      }
-      @else{
-      <div class="col">
-          <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
-          @if(fileType === 'pdf'){
-              <iframe [src]="imageUrl | safe" width="100%" height="300px"></iframe>
-          }@else {
-              <img [src]="imageUrl" alt="Image" title="Image" height="300px" class="clickable-image" />
+
+          @if(!imageUrl[i]){
+            <div class="col">
+              <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">
+              <span class="material-icons file-upload-icon" (click)="fileInput.click()">cloud_upload</span>
+              <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
+            </div>
           }
-
-          <mat-icon style="color: red;" (click)="onDeleteImage()">delete</mat-icon>
-          </div>
-      </div>
-      } 
-      </form>
-
-
-@if(file){
-  <section class="progress-area" style="width:90%">
-    <li class="row">
-      <!-- <span class="material-icons">file_copy</span> -->
-      <div class="content" >
-        <div class="details">
-          <span class="name">{{ file.name }} - {{ uploadComplete ? 'Uploaded' : 'Uploading' }}</span>
-          @if(!uploadComplete){
-            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          @else{
+            <div class="col">
+              <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+                @if(fileType[i] === 'pdf'){
+                  <iframe [src]="imageUrl[i] | safe" width="100%" height="300px"></iframe>
+                }@else {
+                  <img [src]="imageUrl[i]" alt="Image" title="Image" height="100" width="100" class="clickable-image" />
+                }
+                <mat-icon style="color: red;" (click)="onDeleteImage(i)">delete</mat-icon>
+              </div>
+            </div>
           }
-         
+          <button mat-icon-button color="warn" (click)="removeData(i)">
+            <mat-icon>remove_circle</mat-icon>
+          </button>
         </div>
-      </form>
+      </div>
+    }
+    <button mat-raised-button color="primary" (click)="addDoc()" [disabled]="!isImageUploaded()" >New Doc</button>
+  </div>
+</form>
 
-      <br>
-      
-      <button mat-raised-button type="button" color="primary" class="btn btn-success" 
-        (click)="onSubmit()"  [disabled]="!piForm.valid || !isImageUploaded()"> SAVE
-      </button>
+
     </div>
+    
   </mat-card-content>
 </mat-card>
 
