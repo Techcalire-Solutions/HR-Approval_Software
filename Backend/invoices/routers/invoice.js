@@ -6,13 +6,15 @@ const fs = require('fs');
 const PerformaInvoice = require('../models/performaInvoice');
 const authenticateToken = require('../../middleware/authorization');
 const s3 = require('../../utils/s3bucket');
+const { log } = require('console');
 
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).send({ message: 'No file uploaded' });
     }
-
+    console.log(req.file);
+    
     // Sanitize the original file name by removing special characters and spaces
     const sanitizedFileName = req.file.originalname.replace(/[^a-zA-Z0-9]/g, '_');
 

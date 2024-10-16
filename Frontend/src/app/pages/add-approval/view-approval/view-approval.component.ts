@@ -146,7 +146,6 @@ export class ViewApprovalComponent {
       this.invoiceSubscriptions = apiCall.subscribe((res: any) => {
         invoice = res.items;
         this.totalItems = res.count;
-        console.log(invoice);
         
         if (invoice) {
           invoice.forEach((mainObj: any) => {
@@ -159,7 +158,6 @@ export class ViewApprovalComponent {
           });
 
           this.invoices = invoice;
-          console.log(this.invoices);
           
           for (let i = 0; i < this.invoices.length; i++) {
             let invoiceSP = this.invoices[i]?.salesPersonId;

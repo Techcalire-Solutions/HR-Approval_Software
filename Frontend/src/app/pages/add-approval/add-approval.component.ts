@@ -1,5 +1,5 @@
 import { Component, ElementRef, inject, ViewChild } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -144,7 +144,7 @@ fb=inject(FormBuilder)
 
   piForm = this.fb.group({
     piNo: ['', Validators.required],
-    url: ['', Validators.required],
+    url: this.fb.array([]),
     remarks: [''],
     status: [''],
     kamId: <any>[],
@@ -163,41 +163,81 @@ fb=inject(FormBuilder)
     poValue: ['']
   });
 
+  doc(): FormArray {
+    return this.piForm.get("url") as FormArray;
+  }
+
+  index!: number;
+  clickedForms: boolean[] = [];
+  addDoc(data?:any){
+    this.doc().push(this.newDoc(data));
+    this.clickedForms.push(false);
+  }
+
+  newDoc(initialValue?: any): FormGroup {
+    return this.fb.group({
+      url: [initialValue?initialValue.docUrl : '', Validators.required],
+      remarks: [initialValue?initialValue.docUrl : ''],
+    });
+  }
+
+  removeData(index: number) {
+    const formGroup = this.doc().at(index).value;
+  
+    if (formGroup.url !== null) {
+      this.invoiceService.deleteUploadByurl(formGroup.url).subscribe({
+        next: (response) => {
+          this.doc().removeAt(index)
+        },
+        error: (error) => {
+          console.error('Error during update:', error);
+        }
+      });
+    } else {
+      this.doc().removeAt(index)
+    }
+  }
+  
+  imageUploaded: boolean
+  isImageUploaded(): boolean {
+    const controls = this.piForm.get('url')as FormArray;
+    console.log(controls.length);
+    let i = controls.length - 1;
+    if (this.imageUrl[i]) {
+      console.log(this.imageUrl[i]);
+      
+      return true;
+    }else return false;
+  }
+
   @ViewChild('form') form!: ElementRef<HTMLFormElement>;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('progressArea') progressArea!: ElementRef<HTMLElement>;
   @ViewChild('uploadArea') uploadArea!: ElementRef<HTMLElement>;
+  files: File[] = [];
+  uploadProgress: number[] = [];
+  uploadSuccess: boolean[] = [];
 
-  uploadProgress: number | null = null;
-  uploadComplete: boolean = false;
-  file!: any;
+  fileType: any[] = [];
   uploadSub!: Subscription;
-  fileType: string = '';
-  imageUrl!: string;
-  public safeUrl!: SafeResourceUrl;
-  uploadFile(event: Event) {
+  imageUrl: any[] = [];
+  onFileSelected(event: Event, i: number): void {
     const input = event.target as HTMLInputElement;
-    this.file = input.files?.[0];
-    this.fileType = this.file.type.split('/')[1];
-    if (this.file) {
-      this.uploadComplete = false; // Set to false to show the progress bar
-
-      let fileName = this.file.name;
-      if (fileName.length > 12) {
-        const splitName = fileName.split('.');
-        fileName = splitName[0].substring(0, 12) + "... ." + splitName[1];
-      }
-      this.uploadSub = this.invoiceService.uploadInvoice(this.file).subscribe({
-        next: (invoice) => {
-          this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${invoice.fileUrl}`;
-          this.piForm.get('url')?.setValue(invoice.fileUrl);
-          this.uploadComplete = true;
-        },
-        error: (error) => {
-          console.error('Upload failed:', error);
-          this.uploadComplete = true;
-        }
-      });
+    let file: any = input.files?.[0];
+    this.fileType[i] = file.type.split('/')[1]
+    if (file) {
+        let inv = this.ivNum;
+        const name = `${inv}_${i}`;
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('name', name);
+        
+        this.uploadSub = this.invoiceService.uploadInvoice(formData).subscribe({
+            next: (invoice) => {
+                this.doc().at(i).get('url')?.setValue(invoice.fileUrl);
+                this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${invoice.fileUrl}`;
+            }
+        });
     }
   }
 
@@ -238,7 +278,10 @@ fb=inject(FormBuilder)
   submit!: Subscription;
   onSubmit(){
     if(this.roleName=='Sales Executive'){
+      console.log(this.piForm.getRawValue());
       this.submit = this.invoiceService.addPI(this.piForm.getRawValue()).subscribe((invoice: any) =>{
+        console.log(invoice);
+        
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
         this.router.navigateByUrl('login/viewApproval?isSubmitted=true')
       });
@@ -282,21 +325,11 @@ fb=inject(FormBuilder)
     let id = this.id
   }
 
-  onDeleteImage(){
-    if(this.id){
-      this.invoiceService.deleteUploaded(this.id, this.imageUrl).subscribe(data=>{
-        this.imageUrl = ''
-        this.piForm.get('url')?.setValue('')
-        this.snackBar.open("Invoice is deleted successfully...","" ,{duration:3000})
-        this.router.navigateByUrl('/login/viewApproval')
-      });
-    }else{
-      this.invoiceService.deleteUploadByurl(this.imageUrl).subscribe(data=>{
-        this.imageUrl = ''
-        this.piForm.get('url')?.setValue('')
-        this.snackBar.open("invoice is deleted successfully...","" ,{duration:3000})
-        this.router.navigateByUrl('/login/viewApproval')
-      });
-    }
+  onDeleteImage(i: number){
+    this.invoiceService.deleteUploadByurl(this.imageUrl[i]).subscribe(data=>{
+      this.imageUrl[i] = ''
+        this.doc().at(i).get('docUrl')?.setValue('');
+      this.snackBar.open("Document is deleted successfully...","" ,{duration:3000})
+    });
   }
 }

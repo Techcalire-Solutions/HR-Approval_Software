@@ -14,15 +14,8 @@ export class InvoiceService {
 
   constructor(private _http:HttpClient) { }
 
-  uploadInvoice(file: any): Observable<any> {
-    if (file instanceof File) {
-      const formData = new FormData();
-      formData.append("file", file, file.name);
-      return this._http.post(this.url + '/invoice/fileupload', formData);
-    } else {
-      // Handle the case where 'file' is not a File object
-      return throwError("Invalid file type");
-    }
+  uploadInvoice(formData: FormData): Observable<any> {
+    return this._http.post(this.url + '/invoice/fileupload', formData);
   }
 
   uploadBankSlip(file: any): Observable<any> {
