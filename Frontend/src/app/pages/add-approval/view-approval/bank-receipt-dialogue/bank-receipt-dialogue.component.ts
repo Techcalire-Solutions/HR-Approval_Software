@@ -37,7 +37,7 @@ export class BankReceiptDialogueComponent {
   dialog=inject(MatDialog)
   dialogRef = inject(MatDialogRef<BankReceiptDialogueComponent>)
   dialogData = inject(MAT_DIALOG_DATA);
- 
+
   ngOnDestroy(): void {
     this.uploadSub?.unsubscribe();
   }
@@ -82,7 +82,7 @@ export class BankReceiptDialogueComponent {
         fileName = splitName[0].substring(0, 12) + "... ." + splitName[1];
       }
 
-      this.uploadSub = this.invoiceService.uploadInvoice(this.file).subscribe(invoice => {
+      this.uploadSub = this.invoiceService.uploadBankSlip(this.file).subscribe(invoice => {
         this.piForm.get('bankSlip')?.setValue(invoice.fileUrl)
         this.uploadComplete = false;
       })
@@ -94,7 +94,7 @@ export class BankReceiptDialogueComponent {
   onSubmit() {
     this.submit = this.invoiceService.addBankSlip(this.piForm.getRawValue(), this.dialogData.id).subscribe((invoice: any) =>{
       this.dialogRef.close(true);
-      window.location.reload(); 
+      window.location.reload();
     });
 
   }
