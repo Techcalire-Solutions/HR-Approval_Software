@@ -7,6 +7,7 @@ const userData = require('./user.json');
 const holidayData = require('./holiday.json');
 const Holiday = require("../leave/models/holiday");
 
+// HIII
 
 async function syncModel() {
    
