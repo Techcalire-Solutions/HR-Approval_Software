@@ -705,6 +705,7 @@ router.get('/:id', async (req, res) => {
 
 //-------------------------------------- UPDATE API---------------------------------------------------
 
+
 router.patch('/:id', authenticateToken, async (req, res) => {
   try {
     const { leaveDates, notes, leaveTypeId } = req.body;
@@ -712,97 +713,129 @@ router.patch('/:id', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'leaveDates are required to update leave' });
     }
 
-
     const leave = await Leave.findByPk(req.params.id, {
-      include: [User], 
+      include: [User],
     });
-    
+
     if (!leave) {
       return res.status(404).json({ message: `Leave not found with id=${req.params.id}` });
     }
 
     const leaveType = await LeaveType.findOne({
-      where: { id: leaveTypeId }
+      where: { id: leaveTypeId },
     });
 
     if (!leaveType) {
       return res.status(404).json({ message: 'Leave type not found' });
     }
 
-    const userLeave = await UserLeave.findOne({
-      where: { userId: leave.userId, leaveTypeId }
-    });
+    console.log('User ID:', leave.userId);
+    console.log('Leave Type ID:', leaveTypeId);
 
-    if (!userLeave) {
-      return res.status(404).json({ message: 'User leave mapping not found' });
+    let userLeave;
+
+    // Check UserLeave mapping for regular leave types
+    if (leaveType.leaveTypeName !== 'LOP') {
+      userLeave = await UserLeave.findOne({
+        where: { userId: leave.userId, leaveTypeId },
+      });
+
+      console.log('User Leave Mapping:', userLeave);
+
+      if (!userLeave) {
+        return res.status(404).json({ message: 'User leave mapping not found' });
+      }
     }
 
-  
-    const filteredLeaveDates = leaveDates.filter(leaveDate => 
+    const filteredLeaveDates = leaveDates.filter(leaveDate =>
       leaveDate.session1 || leaveDate.session2
     );
-
 
     if (filteredLeaveDates.length === 0) {
       await leave.destroy();
       return res.json({ message: 'Leave record deleted as no valid sessions were provided.' });
     }
 
-
     const noOfDays = calculateLeaveDays(filteredLeaveDates);
 
+    // Handle LOP case
+    if (leaveType.leaveTypeName === 'LOP') {
+      leave.leaveDates = filteredLeaveDates;
+      leave.notes = notes || leave.notes;
+      leave.noOfDays = noOfDays;
 
-    if (leaveType.leaveTypeName !== 'LOP' && userLeave.leaveBalance < noOfDays) {
-      return res.status(400).json({ message: 'Not enough leave balance for this update' });
+      await leave.save();
+
+      const startDate = leave.leaveDates[0].date;
+      const endDate = leave.leaveDates[leave.leaveDates.length - 1].date;
+
+      await sendLeaveUpdatedEmail(
+        leave.user,
+        leaveType,
+        startDate,
+        endDate,
+        notes,
+        noOfDays,
+        filteredLeaveDates
+      );
+
+      return res.json({
+        message: 'Leave updated successfully (LOP)',
+        leave: {
+          userId: leave.userId,
+          leaveTypeId,
+          leaveDates: filteredLeaveDates,
+          noOfDays,
+          notes: leave.notes,
+        },
+      });
     }
 
+    // Check for leave balance for regular leave types
+    if (userLeave.leaveBalance < noOfDays) {
+      return res.json({ message: 'Not enough leave balance for this update' });
+    }
 
+    // Update the leave record
     leave.leaveDates = filteredLeaveDates;
     leave.notes = notes || leave.notes;
     leave.noOfDays = noOfDays;
 
-
     await leave.save();
 
- 
-    if (leaveType.leaveTypeName !== 'LOP') {
-      const previousNoOfDays = leave.noOfDays; 
-      userLeave.takenLeaves += noOfDays - previousNoOfDays;
-      userLeave.leaveBalance -= (noOfDays - previousNoOfDays);
-      await userLeave.save();
-    }
+    const previousNoOfDays = leave.noOfDays;
+    userLeave.takenLeaves += noOfDays - previousNoOfDays;
+    userLeave.leaveBalance -= (noOfDays - previousNoOfDays);
+    await userLeave.save();
 
-     const startDate = leave.leaveDates[0].date; 
-     const endDate = leave.leaveDates[leave.leaveDates.length - 1].date; 
+    const startDate = leave.leaveDates[0].date;
+    const endDate = leave.leaveDates[leave.leaveDates.length - 1].date;
 
-
-     await sendLeaveUpdatedEmail(
-       leave.user, 
-       leaveType, 
-       startDate, 
-       endDate, 
-       notes, 
-       noOfDays, 
-       filteredLeaveDates 
-     );
+    await sendLeaveUpdatedEmail(
+      leave.user,
+      leaveType,
+      startDate,
+      endDate,
+      notes,
+      noOfDays,
+      filteredLeaveDates
+    );
 
     res.json({
       message: 'Leave updated successfully',
       leave: {
         userId: leave.userId,
         leaveTypeId,
-        leaveDates: filteredLeaveDates,  
+        leaveDates: filteredLeaveDates,
         noOfDays,
         notes: leave.notes,
       },
     });
   } catch (error) {
-    console.error('Error updating leave:', error.message);
+    console.error('Error updating leave:', error);
     res.status(500).json({ message: error.message });
   }
 });
-
-
 
 
 //-----------------------------Delete Leave---------------------------------------------------------
@@ -933,6 +966,7 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
   }
 });
 
+
 router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
     key = req.query.key;
     fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
@@ -958,6 +992,7 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
 });
 
 
+//-------------------------------------------Get leaves pagination------------------------------------------------------
 router.get('/', async (req, res) => {
   try {
     // Initialize the where clause and pagination variables
@@ -1040,6 +1075,7 @@ router.get('/', async (req, res) => {
 });
 
 
+//--------------------------------------------Get leaves ---------------------------------------------------------------------
 router.get('/all/totalleaves', authenticateToken, async (req, res) => {
   try {
     const leaves = await Leave.findAll({

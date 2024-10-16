@@ -1,0 +1,84 @@
+body {
+  font-family: 'Varela Round', sans-serif;
+}
+
+.modal-confirm {
+  color: #636363;
+  width: 400px; /* Set fixed width for the modal */
+}
+
+.modal-confirm .modal-content {
+  padding: 20px;
+  border-radius: 5px;
+  border: none;
+  text-align: center;
+  font-size: 14px;
+}
+
+.modal-confirm .modal-header {
+  border-bottom: none;
+  position: relative;
+  display: flex; /* Enable flexbox for layout */
+  justify-content: space-between; /* Space between title and back icon */
+  align-items: center; /* Center items vertically */
+  padding: 10px 15px; /* Added padding for better spacing */
+}
+
+.modal-confirm .modal-title {
+  margin: 0; /* Remove default margin */
+  font-size: 26px;
+  flex-grow: 1; /* Allow title to take available space */
+  text-align: center; /* Center the title */
+}
+
+.modal-confirm .back-icon {
+  background: transparent; /* Transparent background */
+  border: none; /* No border */
+  cursor: pointer; /* Pointer cursor for click */
+  color: #60c7c1; /* Icon color to match theme */
+  font-size: 24px; /* Icon size */
+}
+
+.modal-confirm .modal-body {
+  color: #999;
+}
+
+.modal-confirm .modal-footer {
+  border: none;
+  text-align: center;
+  border-radius: 5px;
+  font-size: 13px;
+  padding: 10px 15px 25px;
+}
+
+.modal-confirm .btn,
+.modal-confirm .btn:active {
+  color: #fff;
+  border-radius: 4px;
+  background: #60c7c1; /* Primary button color */
+  text-decoration: none;
+  transition: all 0.4s;
+  line-height: normal;
+  min-width: 120px; /* Minimum width for buttons */
+  border: none;
+  min-height: 40px;
+  margin: 0 5px;
+}
+
+.modal-confirm .btn-secondary {
+  background: #c1c1c1; /* Gray for secondary action */
+}
+
+.modal-confirm .btn-secondary:hover,
+.modal-confirm .btn-secondary:focus {
+  background: #a8a8a8; /* Darker gray on hover */
+}
+
+.modal-confirm .btn-primary {
+  background: #60c7c1; /* Consistent primary color */
+}
+
+.modal-confirm .btn-primary:hover,
+.modal-confirm .btn-primary:focus {
+  background: #4db0b3; /* Darker shade for hover effect */
+}

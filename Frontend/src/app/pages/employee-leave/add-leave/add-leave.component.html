@@ -32,7 +32,7 @@
           <mat-datepicker #endDatePicker></mat-datepicker>
         </mat-form-field>
 
-     
+
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Reason</mat-label>
           <textarea matInput formControlName="notes" placeholder="Enter reason" required></textarea>
@@ -78,6 +78,7 @@
       [disabled]="!leaveRequestForm.valid || isLoading ">
 {{ isEditMode ? 'Update' : 'Apply' }} Leave
 </button>
+
 
     </form>
   </mat-card-content>
