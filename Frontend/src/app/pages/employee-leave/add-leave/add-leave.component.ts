@@ -186,7 +186,6 @@ this.leaveRequestForm = this.fb.group({
     });
   }
 
-
   onSubmit() {
     this.isLoading = true;
 
@@ -197,27 +196,28 @@ this.leaveRequestForm = this.fb.group({
 
     const leaveId = this.route.snapshot.queryParamMap.get('id');
 
-    if (this.isEditMode && leaveId) {
-      const idAsNumber = +leaveId;
+    // Call the appropriate service method based on edit mode
+    const request$ = this.isEditMode && leaveId
+      ? this.leaveService.updateLeave(+leaveId, leaveRequest)
+      : this.leaveService.addLeave(leaveRequest);
 
-console.log(idAsNumber)
-      this.leaveService.updateLeave(idAsNumber, leaveRequest).subscribe((response: any) => {
+    // Handle the response after attempting to add or update
+    request$.subscribe(
+      (response: any) => {
+        // Open dialog with the response message
         this.openDialog(response.message);
-      });
-    } else {
-
-      this.leaveService.addLeave(leaveRequest).subscribe((response: any) => {
-        this.openDialog(response.message);
-      });
-    }
+      },
+      (error) => {
+        this.isLoading = false;
+        this.snackBar.open('An error occurred while submitting the leave request.', 'Close', { duration: 3000 });
+      }
+    );
   }
 
   openDialog(message: string) {
-
     const dialogRef = this.dialog.open(LeaveInfoDialogComponent, {
       data: { message: message }
     });
-
 
     dialogRef.afterClosed().subscribe(result => {
       this.handleDialogResult(result);
@@ -226,22 +226,18 @@ console.log(idAsNumber)
 
   handleDialogResult(result: any) {
     if (result?.action === 'proceed') {
-
       this.snackBar.open('Leave request submitted successfully!', 'Close', { duration: 3000 });
       this.router.navigate(['/login/employee-leave']);
     } else if (result?.action === 'back') {
-
-      this.isLoading = false;
+      this.isLoading = false; // Optionally handle back action
     } else if (result?.action === 'cancel') {
-
       this.isLoading = false;
       this.leaveRequestForm.reset();
-
-
       this.snackBar.open('Leave request cancelled!', 'Close', { duration: 3000 });
       this.router.navigate(['/login/employee-leave']);
     }
   }
+
 
 
 
