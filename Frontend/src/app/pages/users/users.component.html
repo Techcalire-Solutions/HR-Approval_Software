@@ -16,6 +16,7 @@
         </mat-form-field>
     </form>
 
+
     <div fxLayout="row" fxLayoutAlign="space-between center">
         <mat-button-toggle-group #viewType="matButtonToggleGroup" appearance="legacy" value="grid" hideSingleSelectionIndicator="true">
             <mat-button-toggle value="grid">
@@ -27,7 +28,6 @@
         </mat-button-toggle-group>
     </div>
 </div>
-
 @if (viewType.value == 'grid') {
     <div fxLayout="row wrap">
         @for (user of users; track user.id) {

@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -21,6 +21,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 import { User } from '../../common/interfaces/user';
 import { SafePipe } from "./view-invoices/safe.pipe";
+import { Company } from '../../common/interfaces/company';
+import { CompanyService } from '@services/company.service';
 @Component({
   selector: 'app-add-approval',
   standalone: true,
@@ -40,12 +42,16 @@ import { SafePipe } from "./view-invoices/safe.pipe";
 })
 export class AddApprovalComponent {
   url = environment.apiUrl;
+companyService =inject(CompanyService)
+invoiceService=inject(InvoiceService)
+loginService=inject(LoginService)
+snackBar=inject(MatSnackBar)
+router=inject(Router)
+route=inject(ActivatedRoute)
+dialog=inject(MatDialog)
+sanitizer=inject(DomSanitizer)
+fb=inject(FormBuilder)
 
-  constructor(private dialog: MatDialog,private invoiceService: InvoiceService, private fb: FormBuilder, private snackBar: MatSnackBar, private router: Router,
-    private route: ActivatedRoute, private loginServie: LoginService, private sanitizer: DomSanitizer
-  ){
-
-  }
 
   ngOnDestroy(): void {
     this.invSub?.unsubscribe();
@@ -54,7 +60,13 @@ export class AddApprovalComponent {
   }
 
   id!: number;
+  public companies: Company[] | null;
+  public supplierCompanies: Company[] | null;
+  public customerCompanies: Company[] | null;
   ngOnInit(): void {
+    this.getCompany();
+    this.getSuppliers()
+    this.getCustomers()
     this.generateInvoiceNumber()
     this.id = this.route.snapshot.params['id'];
     if(this.id){
@@ -69,7 +81,25 @@ export class AddApprovalComponent {
 
     let roleId = user.role
     this.getRoleById(roleId)
-    this.addDoc();
+  }
+  
+  public getCompany(): void {
+ 
+    this.companyService.getCompany().subscribe((companies: any) =>{
+      this.companies = companies
+    });
+  }
+   public getSuppliers(): void {
+  
+    this.companyService.getSuppliers().subscribe((suppliers: any) =>{
+      this.supplierCompanies = suppliers
+    });
+  }
+  public getCustomers(): void {
+  
+    this.companyService.getCustomers().subscribe((customers: any) =>{
+      this.customerCompanies = customers
+    });
   }
   roleSub!: Subscription;
   roleName!: string;
@@ -86,19 +116,20 @@ export class AddApprovalComponent {
       if(this.roleName === 'Accountant') this.ma = true;
       if(this.roleName === 'Team Lead') this.sp = true;
     })
+    
   }
 
   kamSub!: Subscription;
   kam: User[] = [];
   getKAM(){
-    this.kamSub = this.loginServie.getUserByRole(2).subscribe(user =>{
+    this.kamSub = this.loginService.getUserByRole(2).subscribe(user =>{
       this.kam = user;
     });
   }
   amSub!: Subscription;
   AMList: User[] = [];
   getAM(){
-    this.amSub = this.loginServie.getUserByRole(3).subscribe(user =>{
+    this.amSub = this.loginService.getUserByRole(3).subscribe(user =>{
       this.AMList = user;
     });
   }
@@ -106,7 +137,7 @@ export class AddApprovalComponent {
   accountantSub!: Subscription;
   AccountantList: User[] = [];
   getAccountants(){
-    this.accountantSub = this.loginServie.getUserByRole(4).subscribe(user =>{
+    this.accountantSub = this.loginService.getUserByRole(4).subscribe(user =>{
       this.AccountantList = user;
     });
   }
@@ -121,11 +152,13 @@ export class AddApprovalComponent {
     accountantId:  <any>[],
     supplierName: ['', Validators.required],
     supplierPoNo: ['', Validators.required],
+    supplierSoNo:[''],
     supplierCurrency:['Dollar'],
     supplierPrice: ['', Validators.required],
     purpose: ['', Validators.required],
     customerName: [''],
     customerPoNo: [''],
+    customerSoNo:[''],
     customerCurrency:['Dollar'],
     poValue: ['']
   });

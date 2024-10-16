@@ -29,6 +29,7 @@ import { PipesModule } from '../../theme/pipes/pipes.module';
 import { UserDialogComponent } from '../users/user-dialog/user-dialog.component';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 import { Router } from '@angular/router';
+import { LeaveGraphsComponent } from './leave-graphs/leave-graphs.component';
 
 @Component({
   selector: 'app-employee-leave',
@@ -53,7 +54,8 @@ import { Router } from '@angular/router';
     UserDialogComponent,
     CommonModule,
     MatPaginatorModule,
-    CamelCasePipe
+    CamelCasePipe,
+    LeaveGraphsComponent
   ],
   providers: [
     { provide: DateAdapter, useClass: NativeDateAdapter },
@@ -135,7 +137,7 @@ leaves:any[]=[]
 
 
   editLeave(item:any) {
-    this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item.id } });
+    // this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item.id } });
   }
 
 

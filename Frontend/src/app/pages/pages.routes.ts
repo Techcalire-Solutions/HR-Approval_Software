@@ -82,6 +82,12 @@ export const routes: Routes = [
         loadComponent: () => import('./team/team.component').then(c => c.TeamComponent),
         data: { breadcrumb: 'Team' }, canActivate: [AuthGuard]
       },
+      {
+        
+        path: 'company',
+        loadComponent: () => import('./company/company.component').then(c => c.CompanyComponent),
+        data: { breadcrumb: 'company' }, canActivate: [AuthGuard]
+      }
 
     ]
   }

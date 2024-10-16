@@ -28,7 +28,7 @@ export class LeaveService {
   }
 
   getLeaves():Observable<any>{
-    return this.http.get(`${this.apiUrl}/leave`);
+    return this.http.get(`${this.apiUrl}/leave/all/totalleaves`);
    }
 
   deleteLeave(id: number): Observable<any> {

@@ -43,5 +43,8 @@ export class ApplicationsComponent implements OnInit {
   openTeam():void{
     this.router.navigateByUrl('/login/team')
   }
+  openCompany():void{
+    this.router.navigateByUrl('/login/company')
+  }
 }
 

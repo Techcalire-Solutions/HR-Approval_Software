@@ -958,6 +958,113 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
 });
 
 
+router.get('/', async (req, res) => {
+  try {
+    // Initialize the where clause and pagination variables
+    let whereClause = {};
+    let limit;
+    let offset;
+
+    // Check if both pageSize and page are provided in the query params
+    if (typeof req.query.pageSize !== 'undefined' && typeof req.query.page !== 'undefined') {
+      limit = parseInt(req.query.pageSize, 10); // Convert pageSize to an integer
+      offset = (parseInt(req.query.page, 10) - 1) * limit; // Calculate offset based on page number and pageSize
+
+      // Check if search query is present
+      if (req.query.search && req.query.search.trim() !== '') {
+        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+        whereClause = {
+          [Op.or]: [
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('Leave.status'), ' ', '')),
+              { [Op.like]: `%${searchTerm}%` }
+            ),
+          ]
+        };
+      }
+    } else {
+      // If no pagination, apply the search term and default to active status only
+      if (req.query.search && req.query.search.trim() !== '') {
+        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+        whereClause = {
+          [Op.or]: [
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('Leave.status'), ' ', '')),
+              { [Op.like]: `%${searchTerm}%` }
+            ),
+          ],
+          // Change this line if status is a string in the database
+          status: 'true' // Change to 'false' if you want to include inactive statuses
+        };
+      } else {
+        whereClause = { status: 'true' }; // Default to 'true' if no search term
+      }
+    }
+
+    // Query the database for leave records based on whereClause, pagination, and include relations
+    const leave = await Leave.findAll({
+      order: [['id', 'DESC']], // Order by ID in descending order
+      limit, // Pagination limit
+      offset, // Pagination offset
+      where: whereClause,
+      include: [
+        {
+          model: LeaveType,
+          attributes: ['id', 'leaveTypeName'], // Include leave type details
+        },
+        {
+          model: User,
+          attributes: ['name'] // Include user name
+        }
+      ]
+    });
+
+    // Get the total count of leave records that match the whereClause
+    const totalCount = await Leave.count({ where: whereClause });
+
+    // If pagination is applied, return both count and leave items
+    if (typeof req.query.page !== 'undefined' && typeof req.query.pageSize !== 'undefined') {
+      const response = {
+        count: totalCount,
+        items: leave,
+      };
+      res.json(response);
+    } else {
+      // If no pagination, return the leave records directly
+      res.json(leave);
+    }
+  } catch (error) {
+    // Catch and send any errors encountered during the request
+    res.status(500).send(error.message);
+  }
+});
+
+
+router.get('/all/totalleaves', authenticateToken, async (req, res) => {
+  try {
+    const leaves = await Leave.findAll({
+      include: [
+        {
+          model: LeaveType,
+          attributes: ['id', 'leaveTypeName'], // Include leave type details
+        },
+        {
+          model: User,
+          attributes: ['name'] // Include user name
+        }
+      ]
+    });
+
+    res.status(200).json(leaves); // Send the response as JSON
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    res.status(500).json({ error: 'An error occurred while retrieving leaves' }); // Send an error response
+  }
+});
+
+
+
+
 
 module.exports = router;
 
