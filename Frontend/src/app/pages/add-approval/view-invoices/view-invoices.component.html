@@ -69,22 +69,7 @@
         </mat-tab>
       }
     </mat-tab-group>
-    <div class="row">
-      
-  
-      @if(bankSlip){
-        <div class="col image">
-          <mat-card-content>
-            <div class="pdf-container">
-              <iframe [src]="bankSlip | safe" width="100%"></iframe>
-            </div>
-          </mat-card-content>
-        </div>
-      }    
-    </div>
-  
-  
-  
+
     <mat-card-actions>
       @if(pi.approveButtonStatus){
         <button mat-button class="approve-button" (click)="verified('approved')">

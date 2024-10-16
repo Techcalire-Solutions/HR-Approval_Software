@@ -158,12 +158,9 @@ router.patch('/updatetheupdated/:id', async (req, res) => {
 
       let comboOff = await ComboOff.findOne({ where: { holidayId: id } });
 
-      // Remove deselected employees
       comboOff.userId = comboOff.userId.filter(userId => !deselectedEmployees.includes(userId));
-      // Add newly selected employees (ensuring no duplicates)
       const newUserIds = selectedEmployees.filter(userId => !comboOff.userId.includes(userId));
       
-      // comboOff.userId.push(...newUserIds);
       comboOff.userId = [...new Set([...comboOff.userId, ...newUserIds])];
 
       // Save updated comboOff

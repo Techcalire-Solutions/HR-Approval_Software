@@ -93,7 +93,8 @@ export class ViewInvoicesComponent {
       this.piNo = pi.pi.piNo;
       
       this.signedUrl= pi.signedUrl
-
+      console.log(this.signedUrl);
+      
       if( this.pi.status === 'GENERATED' && this.roleName === 'Key Account Manager' ){
         this.pi = {
           ...this.pi,

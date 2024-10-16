@@ -29,8 +29,10 @@ export class InvoiceService {
     }
   }
 
-  deleteUploaded(id: number, key?: string) {
-    return this._http.delete(`${this.url}/invoice/filedelete?id=${id}&key=${key}`);
+  deleteUploaded(id: number, i: number, key?: string) {
+    console.log(i);
+    
+    return this._http.delete(`${this.url}/invoice/filedelete?id=${id}&index=${i}&key=${key}`);
   }
 
   deleteUploadByurl(key: string) {
