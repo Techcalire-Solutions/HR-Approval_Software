@@ -56,7 +56,7 @@ router.post('/add', async (req, res) => {
     }
 
   } catch (error) {
-    res.send('Server error');
+    res.send(error.message);
   }
 });
 

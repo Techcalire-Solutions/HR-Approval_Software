@@ -1,1 +1,199 @@
-<p>add-company works!</p>
+<h1 mat-dialog-title>
+    @if (company) {
+        <span>Edit</span>
+    } @else {
+        <span>Add</span>
+    }
+    COMPANY
+  </h1>
+  <div mat-dialog-content>
+    <form [formGroup]="companyForm" class="user-form">
+      <div fxLayout="column" class="form-field-outer">
+        <mat-form-field appearance="outline" class="half-width">
+            <mat-label> Company name: </mat-label>
+            <input matInput formControlName="companyName" required>
+            <mat-error>
+                @if (companyForm.controls['companyName'].hasError('required')) {
+                  company name is required
+                }
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label> Company CODE: </mat-label>
+          <input matInput formControlName="code">
+          <!-- <mat-error>
+              @if (companyForm.controls['code'].hasError('required')) {
+                LeaveType Name is required
+              }
+          </mat-error> -->
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label> contactPerson: </mat-label>
+        <input matInput formControlName="contactPerson">
+        <!-- <mat-error>
+            @if (companyForm.controls['contactPerson'].hasError('required')) {
+              contactPerson is required
+            }
+        </mat-error> -->
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="half-width">
+      <mat-label> email: </mat-label>
+      <input matInput formControlName="email">
+      <!-- <mat-error>
+          @if (companyForm.controls['contactPerson'].hasError('required')) {
+            contactPerson is required
+          }
+      </mat-error> -->
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="half-width">
+    <mat-label> website: </mat-label>
+    <input matInput formControlName="website" >
+    <!-- <mat-error>
+        @if (companyForm.controls['contactPerson'].hasError('required')) {
+          contactPerson is required
+        }
+    </mat-error> -->
+</mat-form-field>
+
+<mat-form-field appearance="outline" class="half-width">
+  <mat-label> phoneNumber: </mat-label>
+  <input matInput formControlName="phoneNumber">
+  <!-- <mat-error>
+      @if (companyForm.controls['contactPerson'].hasError('required')) {
+        contactPerson is required
+      }
+  </mat-error> -->
+</mat-form-field>
+
+<mat-form-field appearance="outline" class="half-width">
+  <mat-label> address1: </mat-label>
+  <input matInput formControlName="address1">
+  <!-- <mat-error>
+      @if (companyForm.controls['contactPerson'].hasError('required')) {
+        contactPerson is required
+      }
+  </mat-error> -->
+</mat-form-field>
+
+<mat-form-field appearance="outline" class="half-width">
+  <mat-label> address2: </mat-label>
+  <input matInput formControlName="address2">
+  <!-- <mat-error>
+      @if (companyForm.controls['contactPerson'].hasError('required')) {
+        contactPerson is required
+      }
+  </mat-error> -->
+</mat-form-field>
+
+<mat-form-field appearance="outline" class="half-width">
+  <mat-label> city: </mat-label>
+  <input matInput formControlName="city">
+  <!-- <mat-error>
+      @if (companyForm.controls['contactPerson'].hasError('required')) {
+        contactPerson is required
+      }
+  </mat-error> -->
+</mat-form-field>
+
+<mat-form-field appearance="outline" class="half-width">
+  <mat-label> country: </mat-label>
+  <input matInput formControlName="country">
+  <!-- <mat-error>
+      @if (companyForm.controls['contactPerson'].hasError('required')) {
+        contactPerson is required
+      }
+  </mat-error> -->
+</mat-form-field>
+
+<mat-form-field appearance="outline" class="half-width">
+  <mat-label> state: </mat-label>
+  <input matInput formControlName="state">
+  <!-- <mat-error>
+      @if (companyForm.controls['contactPerson'].hasError('required')) {
+        contactPerson is required
+      }
+  </mat-error> -->
+</mat-form-field>
+<mat-form-field appearance="outline" class="half-width">
+  <mat-label> zipcode: </mat-label>
+  <input matInput formControlName="zipcode">
+  <!-- <mat-error>
+      @if (companyForm.controls['contactPerson'].hasError('required')) {
+        contactPerson is required
+      }
+  </mat-error> -->
+</mat-form-field>
+<mat-form-field appearance="outline" class="half-width">
+  <mat-label> linkedIn: </mat-label>
+  <input matInput formControlName="linkedIn">
+  <!-- <mat-error>
+      @if (companyForm.controls['contactPerson'].hasError('required')) {
+        contactPerson is required
+      }
+  </mat-error> -->
+</mat-form-field>
+<mat-form-field appearance="outline" class="half-width">
+  <mat-label> Remarks: </mat-label>
+  <input matInput formControlName="remarks">
+  <!-- <mat-error>
+      @if (companyForm.controls['contactPerson'].hasError('required')) {
+        contactPerson is required
+      }
+  </mat-error> -->
+</mat-form-field>
+<div class="checkbox-group">
+  <mat-checkbox formControlName="customer">Customer</mat-checkbox>
+  <mat-checkbox formControlName="supplier">Supplier</mat-checkbox>
+</div>
+  
+        <!--
+        contactPerson: string;
+  designation: string;
+  email: string;
+  website: string;
+  phoneNumber: string;
+  address1: string;
+  address2: string;
+  city: string;
+  country: string;
+  state: string;
+  zipcode: string;
+  linkedIn: string;
+  remarks: string;
+  customer: string;
+  supplier: string;
+      
+      
+      
+        <mat-form-field class="w-100">
+          <mat-label>Abbreviation</mat-label>
+          <input matInput formControlName="abbreviation" required>
+          <mat-error>
+              @if (leaveTypeForm.controls.abbreviation.errors?.required) {
+                  Abbreviation is required
+              }
+              @if (form.controls.abbreviation.hasError('minlength')) {
+                  Abbreviation isn't long enough, minimum of 5 characters
+              }
+          </mat-error>
+        </mat-form-field> -->
+  
+        <!-- <div class="col center-align" style="align-content: center;">
+          <mat-slide-toggle formControlName="status">Status</mat-slide-toggle>
+        </div> -->
+      </div>
+    </form>
+  </div>
+  <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
+    <button mat-raised-button color="primary" [mat-dialog-close]="companyForm.value" [disabled]="!companyForm.valid" (click)="onSubmit()">
+        <!-- @if (leaveType) {
+            Update
+        } @else { -->
+            Save
+        <!-- } -->
+    </button> &nbsp;
+    <button mat-raised-button color="warn" (click)="close()" type="button">Cancel</button>
+  </div>
+  

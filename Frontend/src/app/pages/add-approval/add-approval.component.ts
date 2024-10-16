@@ -150,17 +150,18 @@ fb=inject(FormBuilder)
     kamId: <any>[],
     amId:  <any>[],
     accountantId:  <any>[],
-    supplierName: ['', Validators.required],
+    supplierId: <any>[],
     supplierPoNo: ['', Validators.required],
     supplierSoNo:[''],
     supplierCurrency:['Dollar'],
     supplierPrice: ['', Validators.required],
     purpose: ['', Validators.required],
-    customerName: [''],
+    customerId: <any>[],
     customerPoNo: [''],
     customerSoNo:[''],
     customerCurrency:['Dollar'],
-    poValue: ['']
+    poValue: [''],
+    notes:['']
   });
 
   @ViewChild('form') form!: ElementRef<HTMLFormElement>;
@@ -238,7 +239,11 @@ fb=inject(FormBuilder)
   submit!: Subscription;
   onSubmit(){
     if(this.roleName=='Sales Executive'){
+      console.log('form submit getrow', this.piForm.getRawValue());
       this.submit = this.invoiceService.addPI(this.piForm.getRawValue()).subscribe((invoice: any) =>{
+        console.log('form submit',invoice);
+        console.log('form submit getrow', this.piForm.getRawValue());
+        
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
         this.router.navigateByUrl('login/viewApproval?isSubmitted=true')
       });
@@ -266,12 +271,13 @@ fb=inject(FormBuilder)
       let inv = pi.pi;
       this.fileName = inv.url
       let remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
-      this.piForm.patchValue({piNo: inv.piNo, status: inv.status, remarks: remarks, kamId: inv.kamId,  supplierName:inv.supplierName,supplierPoNo: inv.supplierPoNo,
+      this.piForm.patchValue({piNo: inv.piNo, status: inv.status, remarks: remarks, kamId: inv.kamId,  supplierId:inv.supplierId,supplierPoNo: inv.supplierPoNo,
         supplierPrice:inv.supplierPrice ,
         purpose:inv.purpose,
-        customerName:inv.customerName ,
+        customerId:inv.customerId ,
         customerPoNo: inv.customerPoNo,
-        poValue:inv.poValue})
+        poValue:inv.poValue,
+      notes:inv.notes})
       if(inv.url != '') this.imageUrl = pi.signedUrl;
 
     });

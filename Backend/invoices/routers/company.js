@@ -159,7 +159,9 @@ router.get("/customers", async (req, res) => {
 //   }
 // });
 
-router.get("/:id", async (req, res) => {
+router.get("/findone/:id", async (req, res) => {
+  console.log("LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLll");
+  
   try {
     const companyId = req.params.id;
     const company = await Company.findOne({ where: { id: companyId },
@@ -194,10 +196,6 @@ router.patch("/:id", async (req, res) => {
       country,
       state,
       zipcode,
-      shippingSame,
-      companyTermId,
-      creditLimit,
-      teamId,
       remarks
     } = req.body;
     const company = await Company.findOne({ where: { id: companyId } });
@@ -220,11 +218,7 @@ router.patch("/:id", async (req, res) => {
     company.country = country;
     company.state = state;
     company.zipcode = zipcode;
-    company.shippingSame = shippingSame;
-    company.companyTermId = companyTermId;
-    company.creditLimit = creditLimit;
     company.remarks = remarks;
-    company.teamId= teamId;
     await company.save();
 
     res.json(company);
@@ -233,6 +227,80 @@ router.patch("/:id", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+router.get('/find', async (req, res) => {
+  console.log("PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP");
+  
+  try {
+    let whereClause = {}
+    let limit;
+    let offset;
+    console.log(req.query.pageSize, req.query.page,"PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPp");
+    
+    if (req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
+      limit = req.query.pageSize;
+      offset = (req.query.page - 1) * req.query.pageSize;
+      if (req.query.search != 'undefined') {
+        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+        whereClause = {
+          [Op.or]: [
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('companyName'), ' ', '')),
+              {
+                [Op.like]: `%${searchTerm}%`
+              }
+            )
+          ]
+        };
+      }
+    } else {
+      if (req.query.search != 'undefined') {
+        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+        whereClause = {
+          [Op.or]: [
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('companyName'), ' ', '')),
+              {
+                [Op.like]: `%${searchTerm}%`
+              }
+            )
+          ], 
+          // status: true
+        };
+      }
+      //  else {
+      //   whereClause = {
+      //     status: true
+      //   };
+      // }
+    }
+
+    const company = await Company.findAll({
+      order:['id'], limit, offset, where: whereClause
+    })
+
+    let totalCount;
+    totalCount = await Company.count({where: whereClause});
+    
+    if (req.query.page != 'undefined' && req.query.pageSize != 'undefined') {
+      const response = {
+        count: totalCount,
+        items: company,
+      };
+
+      res.json(response);
+    } else {
+      // const filteredRoles = role.filter(role => 
+      //   role.roleName !== 'Administrator' && role.roleName !== 'Super Administrator' && role.roleName !== 'HR Administrator'
+      // );
+      res.json(company);
+    }
+  } catch (error) {
+    res.send(error.message);
+  }
+
+
+})
 router.delete('/:id', async(req,res)=>{
   try {
 
