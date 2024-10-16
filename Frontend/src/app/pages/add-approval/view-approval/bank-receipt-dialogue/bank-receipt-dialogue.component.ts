@@ -18,14 +18,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 @Component({
   selector: 'app-bank-receipt-dialogue',
   standalone: true,
-  imports: [  MatToolbarModule,
-    MatProgressBarModule,
-    MatIconModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatDividerModule,
-    RouterModule,
-    MatCardModule],
+  imports: [  MatToolbarModule, MatProgressBarModule, MatIconModule, MatPaginatorModule, MatSortModule,
+    MatDividerModule, RouterModule, MatCardModule ],
   templateUrl: './bank-receipt-dialogue.component.html',
   styleUrl: './bank-receipt-dialogue.component.scss'
 })
@@ -77,11 +71,11 @@ export class BankReceiptDialogueComponent {
 
     if (this.file) {
       let fileName = this.file.name
+
       if(fileName.length > 12){
         let splitName = fileName.split('.');
-        fileName = splitName[0].substring(0, 12) + "... ." + splitName[1];
+        fileName = splitName[0].substring(0, 12) + "...." + splitName[1];
       }
-
       this.uploadSub = this.invoiceService.uploadBankSlip(this.file).subscribe(invoice => {
         this.piForm.get('bankSlip')?.setValue(invoice.fileUrl)
         this.uploadComplete = false;
