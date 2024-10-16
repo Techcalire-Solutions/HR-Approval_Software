@@ -13,6 +13,7 @@
                   <input matInput formControlName="docName" required>
                 </mat-form-field>
               </div>
+              
               @if(!imageUrl[i]){
                 <div class="col">
                   <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">

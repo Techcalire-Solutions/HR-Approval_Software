@@ -49,11 +49,9 @@ export class UpdatePIComponent {
   sanitizer=inject(DomSanitizer)
   getPiById(id: number){
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
-      // this.pi = pi;
-      // this.piNo = pi.piNo;
       this.url = environment.apiUrl + pi.url;
-      // if(pi.bankSlip != null) this.bankSlip = environment.apiUrl + pi.bankSlip;
-      // this.getPiStatusByPiId(id)
+      console.log(pi);
+      
     });
   }
   ngOnDestroy(): void {
@@ -84,6 +82,8 @@ export class UpdatePIComponent {
 
     // this.generateInvoiceNumber()
     this.id = this.route.snapshot.params['id'];
+    console.log(this.id);
+    
     if(this.id){
       this.patchdata(this.id);
     }

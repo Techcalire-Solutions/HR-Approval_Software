@@ -312,19 +312,24 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
                 ]
             }
         ]})
-
-        let signedUrl = '';
-        if (pi.url) {
-            const fileUrl = pi.url;
-            const key = fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-            
-            const params = {
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: key, 
-                Expires: 60,
-              };
-          
-              signedUrl = s3.getSignedUrl('getObject', params);
+        console.log(pi.url.length);
+        
+        let signedUrl = [];
+        if (pi.url.length > 0) {
+            for(let i = 0; i < pi.url.length; i++) {
+                const fileUrl = pi.url[i];
+                console.log(fileUrl);
+                
+                const key = fileUrl.url.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+                
+                const params = {
+                    Bucket: process.env.AWS_BUCKET_NAME,
+                    Key: key, 
+                    Expires: 60,
+                  };
+                
+                  signedUrl[i] ={ url: s3.getSignedUrl('getObject', params), remarks: fileUrl.remarks}
+            }
         }
         let bankSlipUrl = '';
         if(pi.bankSlip){

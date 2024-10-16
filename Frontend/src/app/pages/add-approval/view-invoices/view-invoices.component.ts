@@ -18,12 +18,13 @@ import { BankReceiptDialogueComponent } from '../view-approval/bank-receipt-dial
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';
 import { DatePipe, UpperCasePipe } from '@angular/common';
+import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-view-invoices',
   standalone: true,
   imports: [
-    RouterModule,
+    RouterModule, MatTabGroup, MatTabsModule,
     MatTableModule,
     MatCardModule,
     MatIconModule,
@@ -34,8 +35,6 @@ import { DatePipe, UpperCasePipe } from '@angular/common';
   styleUrl: './view-invoices.component.scss'
 })
 export class ViewInvoicesComponent {
-  displayedColumns: string[] = ['supplierName', 'supplierPoNo', 'supplierPrice', 'purpose', 'customerName', 'customerPoNo', 'poValue'];
-  // dataSource = new MatTableDataSource(ELEMENT_DATA);
   ngOnDestroy(): void {
 
   }
@@ -86,18 +85,20 @@ export class ViewInvoicesComponent {
   piNo!: string;
   pi!: any;
   bankSlip!: string;
-  signedUrl:string;
+  signedUrl: any[];
   getPiById(id: number){
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
       this.pi = pi.pi;
+      
       this.piNo = pi.pi.piNo;
+      
       this.signedUrl= pi.signedUrl
 
       if( this.pi.status === 'GENERATED' && this.roleName === 'Key Account Manager' ){
         this.pi = {
-            ...this.pi,
-            approveButtonStatus: true
-          };
+          ...this.pi,
+          approveButtonStatus: true
+        };
       }else if( this.pi.status === 'KAM VERIFIED' && this.roleName === 'Manager'){
         this.pi = {
           ...this.pi,
