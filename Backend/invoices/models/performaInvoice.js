@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../utils/db');
 const User = require('../../users/models/user');
+const Company = require('../../invoices/models/company');
 
 const PerformaInvoice = sequelize.define('performaInvoice',{
     piNo : {type : DataTypes.STRING, allowNull : false},
@@ -15,19 +16,23 @@ const PerformaInvoice = sequelize.define('performaInvoice',{
     accountantId : {type : DataTypes.INTEGER},
     count: {type : DataTypes.INTEGER, defaultValue: 1},
 
-    supplierName:  {type : DataTypes.STRING},
-    supplierSoNo:  {type : DataTypes.STRING},
-    supplierPoNo:  {type : DataTypes.STRING},
-    supplierCurrency:{type : DataTypes.STRING},
-    supplierPrice: {type : DataTypes.STRING },
-    purpose: {type : DataTypes.STRING},
-    customerName:  {type : DataTypes.STRING},
-    customerSoNo: {type : DataTypes.STRING},
-    customerPoNo: {type : DataTypes.STRING},
-    poValue:{type : DataTypes.STRING },
-    customerCurrency:{type : DataTypes.STRING},
-    addedById : {type : DataTypes.INTEGER},
+    supplierId: { type: DataTypes.INTEGER},
+    supplierSoNo: { type: DataTypes.STRING },
+    supplierPoNo: { type: DataTypes.STRING },
+    supplierCurrency: { type: DataTypes.STRING },
+    supplierPrice: { type: DataTypes.STRING },
+    
+    customerId: { type: DataTypes.INTEGER},
+    customerSoNo: { type: DataTypes.STRING },
+    customerPoNo: { type: DataTypes.STRING },
+    customerCurrency: { type: DataTypes.STRING },
+    poValue: { type: DataTypes.STRING },
+
+    purpose: { type: DataTypes.STRING },
+    addedById: { type: DataTypes.INTEGER },
+    notes:  { type: DataTypes.STRING }
 },
+
 {
     freezeTableName: true,
     timestamps : true
@@ -48,6 +53,17 @@ PerformaInvoice.belongsTo(User,{as: 'accountant', foreignKey : 'accountantId'})
 
 User.hasMany(PerformaInvoice ,{as: 'addedBy', foreignKey : 'addedById', onUpdate : 'CASCADE'})
 PerformaInvoice.belongsTo(User,{as: 'addedBy', foreignKey : 'addedById'})
+
+// Supplier association
+Company.hasMany(PerformaInvoice, {as: 'suppliers', foreignKey: 'supplierId', onUpdate: 'CASCADE'});
+PerformaInvoice.belongsTo(Company, {as: 'suppliers',foreignKey: 'supplierId',onUpdate: 'CASCADE'});
+
+// Customer association
+Company.hasMany(PerformaInvoice, {as: 'customers',foreignKey: 'customerId',onUpdate: 'CASCADE'});
+PerformaInvoice.belongsTo(Company, {as: 'customers',foreignKey: 'customerId',onUpdate: 'CASCADE'});
+
+  
+
 
 PerformaInvoice.sync({ alter: true }).then(() => {
     console.log('Tables synced successfully.');

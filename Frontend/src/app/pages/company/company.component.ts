@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, inject, ViewEncapsulation } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
 import { Settings, SettingsService } from '../../services/settings.service';
@@ -31,6 +31,9 @@ import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Company } from '../../common/interfaces/company';
 import { CompanyService } from '@services/company.service';
+import { AddCompanyComponent } from './add-company/add-company.component';
+import { Router } from '@angular/router';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 @Component({
   selector: 'app-company',
   standalone: true,
@@ -46,13 +49,16 @@ import { CompanyService } from '@services/company.service';
     MatInputModule,
     MatProgressSpinnerModule,
     MatMenuModule,
+    NgxPaginationModule,
     MatSlideToggleModule,
     MatCardModule,
     NgxPaginationModule,
     PipesModule,
     DatePipe,
     UserDialogComponent,
-    MatDividerModule
+    MatDividerModule,
+    MatPaginatorModule,
+    MatPaginator
   ],
   templateUrl: './company.component.html',
   styleUrl: './company.component.scss',
@@ -61,7 +67,7 @@ import { CompanyService } from '@services/company.service';
 })
 export class CompanyComponent {
   displayedColumns: string[] = ['position', 'Name', 'Supplier', 'Customer', 'action'];
-
+  router=inject(Router)
   public companies: Company[] | null;
   public supplierCompanies: Company[] | null;
   public customerCompanies: Company[] | null;
@@ -77,80 +83,68 @@ export class CompanyComponent {
   ngOnInit() {
     this.getCompany();
 
-    this.companyService.getCompany().subscribe((res)=>{
-      this.dataSource = res;
+//     this.companyService.getCompany(this.searchText, this.currentPage, this.pageSize).subscribe((res)=>{
+//       this.dataSource = res;
 
- })
+//  })
+  }
+  pageSize = 10;
+  currentPage = 1;
+  totalItems = 0;
+  onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.getCompany();
+  }
+
+  // public searchText!: string;
+  search(event: Event){
+    this.searchText = (event.target as HTMLInputElement).value.trim()
+    this.getCompany()
   }
 
   public getCompany(): void {
-    this.companies = null; //for show spinner each time
-    this.companyService.getCompany().subscribe((teams: any) =>{
-      this.companies = teams
+   
+    this.companyService.getCompany(this.searchText, this.currentPage, this.pageSize).subscribe((res: any) =>{
+      this.companies = res.items
+      this.totalItems = res.count;
+      console.log(this.companies);
+      
     });
   }
-  // public getSuppliers(): void {
-  
-  //   this.companyService.getSuppliers().subscribe((suppliers: any) =>{
-  //     this.supplierCompanies = suppliers
-  //   });
-  // }
-  // public getCustomers(): void {
-  
-  //   this.companyService.getCustomers().subscribe((customers: any) =>{
-  //     this.customerCompanies = customers
-  //   });
-  // }
+
   applyFilter(filterValue: string) {
     // this.dataSource.filter = filterValue.trim().toLowerCase();
   }
   public addTeam(user:User){
     this.companyService.addCompany(user).subscribe(user => this.getCompany());
   }
-  // public updateUser(user:User){
-  //   this.usersService.updateUser(user).subscribe(user => this.getUsers());
-  // }
-  // public deleteUser(user:User){
-  //   this.usersService.deleteUser(user.id).subscribe(user => this.getUsers());
-  // }
-  public openRoleDialog(user: any){
-    // let dialogRef = this.dialog.open(TeamDialogueComponent, {
-    //   data: user
-    // });
-    // dialogRef.afterClosed().subscribe(user => {
-    //   this.getTeams()
-    // });
+
+  public openCompany(company: any) {
+    this.router.navigateByUrl('/login/company/addCompany', {
+      state: { company: company }
+    });
   }
 
-  public onPageChanged(event: any){
-    this.page = event;
-    // this.getTeam();
-    if(this.settings.fixedHeader){
-        document.getElementById('main-content')!.scrollTop = 0;
-    }
-    else{
-        document.getElementsByClassName('mat-drawer-content')[0].scrollTop = 0;
-    }
-  }
+  // public onPageChanged(event: any){
+  //   this.page = event;
+  //   // this.getTeam();
+  //   if(this.settings.fixedHeader){
+  //       document.getElementById('main-content')!.scrollTop = 0;
+  //   }
+  //   else{
+  //       document.getElementsByClassName('mat-drawer-content')[0].scrollTop = 0;
+  //   }
+  // }
 
-  public openUserDialog(user: any){
-    // let dialogRef = this.dialog.open(TeamDialogueComponent, {
-    //   data: user
-    // });
-    // dialogRef.afterClosed().subscribe(user => {
-    //   // if(user){
-    //   //     (user.id) ? this.updateUser(user) : this.addUser(user);
-    //   // }
-    // });
-  }
 
   delete!: Subscription;
-  deleteTeam(id: number){
+  deleteCompany(id: number){
     let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
     dialogRef.afterClosed().subscribe(res => {
       if(res){
         this.delete = this.companyService.deleteCompany(id).subscribe(res => {
-          this._snackbar.open("Team deleted successfully...","" ,{duration:3000})
+          this._snackbar.open("Company deleted successfully...","" ,{duration:3000})
           this.getCompany()
         });
       }
