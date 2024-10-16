@@ -18,7 +18,7 @@
         <mat-form-field appearance="outline">
           <mat-label>InvoiceNo</mat-label>
           <input matInput placeholder="" formControlName="piNo" readonly="true">
-        </mat-form-field> 
+        </mat-form-field>
         <mat-form-field appearance="outline">
           <!-- <mat-label>Supplier Name</mat-label>
           <input matInput placeholder="Enter Supplier Name" formControlName="supplierName"> -->
@@ -29,12 +29,12 @@
                 {{item.companyName}}
               </mat-option>
             }
-            
-            
+
+
                 </mat-select>
         </mat-form-field>
 
-        <mat-form-field appearance="outline"> 
+        <mat-form-field appearance="outline">
           <mat-label>Supplier SO#</mat-label>
           <input matInput placeholder="Enter Supplier SO#" formControlName="supplierSoNo">
         </mat-form-field>
@@ -61,7 +61,7 @@
             <mat-option value="Customer">Customer</mat-option>
           </mat-select>
         </mat-form-field>
- 
+
         @if(kamb){
           <mat-form-field class="full-width" appearance="outline">
             <mat-label>Manager</mat-label>
@@ -91,17 +91,17 @@
 @if(piForm.get('purpose')?.value === 'Customer'){
   <ng-container>
     <mat-form-field appearance="outline">
-     
+
         <mat-select placeholder="Choose Customer Name" formControlName="customerId">
           @for(item of customerCompanies; track $index){
             <mat-option [value]="item.id">
               {{item.companyName}}
             </mat-option>
           }
-          
-          
+
+
               </mat-select>
-     
+
     </mat-form-field>
 
     <mat-form-field appearance="outline">
@@ -199,9 +199,13 @@
   </div>
 </form>
 
+<br>
 
+      <button mat-raised-button type="button" color="primary" class="btn btn-success"
+        (click)="onSubmit()"  [disabled]="!piForm.valid || !isImageUploaded()"> SAVE
+      </button>
     </div>
-    
+
   </mat-card-content>
 </mat-card>
 

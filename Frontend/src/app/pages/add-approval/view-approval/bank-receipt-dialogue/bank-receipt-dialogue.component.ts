@@ -68,10 +68,10 @@ export class BankReceiptDialogueComponent {
     const input = event.target as HTMLInputElement;
     this.file = input.files?.[0];
     this.uploadComplete = true;
-    
+
     if (this.file) {
       let fileName = this.file.name
-      
+
       if(fileName.length > 12){
         let splitName = fileName.split('.');
         fileName = splitName[0].substring(0, 12) + "...." + splitName[1];
