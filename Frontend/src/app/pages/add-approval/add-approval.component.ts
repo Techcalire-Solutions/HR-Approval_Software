@@ -133,17 +133,18 @@ export class AddApprovalComponent {
     kamId: <any>[],
     amId:  <any>[],
     accountantId:  <any>[],
-    supplierId: ['', Validators.required],
+    supplierId: <any>[],
     supplierPoNo: ['', Validators.required],
     supplierSoNo:[''],
     supplierCurrency:['Dollar'],
     supplierPrice: ['', Validators.required],
     purpose: ['', Validators.required],
-    customerName: [''],
+    customerId: <any>[],
     customerPoNo: [''],
     customerSoNo:[''],
     customerCurrency:['Dollar'],
-    poValue: ['']
+    poValue: [''],
+    notes:['']
   });
 
   doc(): FormArray {

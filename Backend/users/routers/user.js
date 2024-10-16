@@ -56,7 +56,7 @@ router.post('/add', async (req, res) => {
     }
 
   } catch (error) {
-    res.send('Server error');
+    res.send(error.message);
   }
 });
 
@@ -413,6 +413,13 @@ router.patch('/resetpassword/:id', async (req, res) => {
 router.get('/underprobation', async (req, res) => {
   try {
     const user = await User.findAll({
+      include: [
+        {
+          model: Role,
+          attributes: ['id', 'roleName']
+        },
+
+      ],
       where: { isTemporary: true }
     })
     res.send(user);
