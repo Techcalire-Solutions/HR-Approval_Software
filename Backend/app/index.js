@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const cors = require('cors')
 const sequelize = require('../utils/db');
 const path = require('path');
+const excelJs = require('exceljs');
 
 dotenv.config();
 app.use(cors({ origin: '*' }));
@@ -54,6 +55,9 @@ app.use('/invoice', invoice);
 app.use('/performaInvoice', pi);
 app.use('/invoiceStatus', piStatus);
 
+const company = require('../invoices/routers/company');
+app.use('/company', company);
+
 app.use('/invoices/uploads', express.static(path.join(__dirname, '../invoices/uploads')));
 app.use('/users/userImages', express.static(path.join(__dirname, '../users/userImages')));
 
@@ -68,9 +72,27 @@ app.use('/userLeave', userLeave);
 const announcements = require('../announcements/router/announcement');
 app.use('/announcements', announcements)
 
+app.get('/export', async(req,res)=> {
+    try {
+        let workbook = new excelJs.Workbook()
+        const sheet = workbook.addWorksheet("books")
+        sheet.columns = [
+            { header: 'ID', key: 'id', width: 10 },
+            { header: 'Title', key: 'title', width: 32 },
+            { header: 'Author', key: 'author', width: 32 },
+            { header: 'Published Date', key: 'publishedDate', width: 25 }
+        ]
+        let object = JSON.parse(fs.readFileSync('data.json', 'utf8') )
+        object.books.map((value, ids) => {
+            sheet.addRow();
+        })
+
+    } catch (error) {
+        req.setEncoding(error.message)
+    }
+})
 
 const port = process.env.PORT || 8000;
-
 app.listen(port, () => {
     console.log(`server started on port ${port}`);
 })

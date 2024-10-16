@@ -21,12 +21,14 @@ export interface PerformaInvoice {
   accountant: User;
 
   supplierName: string;
+  supplierSoNo: string;
   supplierPoNo: string;
   supplierCurrency: string;
   supplierPrice: string;
   purpose:string;
   customerName: string;
   customerPoNo: string;
+  customerSoNo: string;
   customerCurrency: string;
   poValue: string;
   count: number;

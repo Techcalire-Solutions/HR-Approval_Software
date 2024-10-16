@@ -1,0 +1,49 @@
+.row {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .col {
+    flex: 1;
+    margin-right: 20px;
+  }
+  
+  .col:last-child {
+    margin-right: 0;
+  }
+  
+  .full-width {
+    width: 90%;
+  }
+  
+  .full-width-1 {
+    width: 100%;
+    margin-right: 20px;
+  }
+  
+  .full-width-shipvia {
+    width: 30%; /* Set the width to 100% */
+  }
+  
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .col {
+    width: 25%; /* Four columns per row */
+    box-sizing: border-box;
+    padding: 0 10px; /* Adjust padding as needed */
+  }
+  
+  .full-width-shipvia {
+    width: 100%; /* Full width if there are less than or equal to 4 items */
+  }
+  
+  .spinner-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+  }

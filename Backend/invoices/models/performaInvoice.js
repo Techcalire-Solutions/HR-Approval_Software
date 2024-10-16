@@ -5,7 +5,8 @@ const User = require('../../users/models/user');
 const PerformaInvoice = sequelize.define('performaInvoice',{
     piNo : {type : DataTypes.STRING, allowNull : false},
     filename : {type : DataTypes.STRING},
-    url : {type : DataTypes.STRING},
+    url: { type: DataTypes.ARRAY(DataTypes.JSON), allowNull: true },
+    // url : {type : DataTypes.ARRAY(DataTypes.STRING)},
     bankSlip : {type : DataTypes.STRING},
     status: {type : DataTypes.STRING, defaultValue: 'Generated'},
     salesPersonId :{type : DataTypes.INTEGER },
@@ -15,11 +16,13 @@ const PerformaInvoice = sequelize.define('performaInvoice',{
     count: {type : DataTypes.INTEGER, defaultValue: 1},
 
     supplierName:  {type : DataTypes.STRING},
+    supplierSoNo:  {type : DataTypes.STRING},
     supplierPoNo:  {type : DataTypes.STRING},
     supplierCurrency:{type : DataTypes.STRING},
     supplierPrice: {type : DataTypes.STRING },
     purpose: {type : DataTypes.STRING},
     customerName:  {type : DataTypes.STRING},
+    customerSoNo: {type : DataTypes.STRING},
     customerPoNo: {type : DataTypes.STRING},
     poValue:{type : DataTypes.STRING },
     customerCurrency:{type : DataTypes.STRING},

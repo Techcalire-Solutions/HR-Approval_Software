@@ -32,12 +32,14 @@ const transporter = nodemailer.createTransport({
       url,
       kamId,
       supplierName,
+      supplierSoNo,
       supplierPoNo,
       supplierCurrency,
       supplierPrice,
       purpose,
       customerName,
       customerPoNo,
+      customerSoNo,
       customerCurrency,
       poValue,
     } = req.body;
@@ -61,12 +63,14 @@ const transporter = nodemailer.createTransport({
         salesPersonId: userId,
         kamId,
         supplierName,
+        supplierSoNo,
         supplierPoNo,
         supplierCurrency,
         supplierPrice,
         purpose,
         customerName,
         customerPoNo,
+        customerSoNo,
         customerCurrency,
         poValue,
         addedById: userId,
@@ -131,7 +135,7 @@ const transporter = nodemailer.createTransport({
 })
 
 router.post('/saveByKAM', authenticateToken, async (req, res) => {
-    const { piNo, url, amId, supplierName, supplierPoNo, supplierCurrency,supplierPrice, purpose, customerName, customerPoNo,customerCurrency, poValue } = req.body;
+    const { piNo, url, amId, supplierName,supplierSoNo, supplierPoNo, supplierCurrency,supplierPrice, purpose, customerName,customerSoNo, customerPoNo,customerCurrency, poValue } = req.body;
     const userId = req.user.id;
     try {
         const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
@@ -150,12 +154,14 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
         status: 'KAM VERIFIED',
         kamId: userId,
         supplierName,
+        supplierSoNo,
         supplierPoNo,
         supplierCurrency,
         supplierPrice,
         purpose,
         customerName,
         customerPoNo,
+        customerSoNo,
         customerCurrency,
         poValue,
         addedById: userId
@@ -199,7 +205,7 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
 
 
 router.post('/saveByAM', authenticateToken, async (req, res) => {
-    const { piNo, url, accountantId, supplierName, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerName, customerPoNo,customerCurrency, poValue } = req.body;
+    const { piNo, url, accountantId, supplierName,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerName, customerPoNo,customerSoNo,customerCurrency, poValue } = req.body;
     const userId = req.user.id;
     try {
         const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
@@ -218,11 +224,13 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
         status: 'AM VERIFIED',
         amId: userId,
         supplierName,
+        supplierSoNo,
         supplierPoNo,
         supplierCurrency,
         supplierPrice,
         purpose,
         customerName,
+        customerSoNo,
         customerPoNo,
         customerCurrency,
         poValue,
@@ -331,19 +339,24 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
                 ]
             }
         ]})
-
-        let signedUrl = '';
-        if (pi.url) {
-            const fileUrl = pi.url;
-            const key = fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-            
-            const params = {
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: key, 
-                Expires: 60,
-              };
-          
-              signedUrl = s3.getSignedUrl('getObject', params);
+        console.log(pi.url.length);
+        
+        let signedUrl = [];
+        if (pi.url.length > 0) {
+            for(let i = 0; i < pi.url.length; i++) {
+                const fileUrl = pi.url[i];
+                console.log(fileUrl);
+                
+                const key = fileUrl.url.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+                
+                const params = {
+                    Bucket: process.env.AWS_BUCKET_NAME,
+                    Key: key, 
+                    Expires: 60,
+                  };
+                
+                  signedUrl[i] ={ url: s3.getSignedUrl('getObject', params), remarks: fileUrl.remarks}
+            }
         }
         let bankSlipUrl = '';
         if(pi.bankSlip){
@@ -830,7 +843,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
 
 
 router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
-    const { url, kamId,supplierName, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerName, customerPoNo,customerCurrency, poValue} = req.body;
+    const { url, kamId,supplierName,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerName,customerSoNo, customerPoNo,customerCurrency, poValue} = req.body;
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
         pi.url = url;
@@ -838,12 +851,14 @@ router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
         let count = pi.count + 1;
         pi.count = count;
         pi.status = `GENERATED`;
+        pi.supplierSoNo=supplierSoNo;
         pi.supplierName=supplierName;
         pi.supplierPoNo=supplierPoNo;
         pi.supplierCurrency=supplierCurrency;
         pi.supplierPrice=supplierPrice;
         pi.purpose=purpose;
         pi.customerName=customerName;
+        pi.customerSoNo=customerSoNo;
         pi.customerPoNo=customerPoNo;
         pi.customerCurrency=customerCurrency;
         pi.poValue=poValue;
@@ -907,7 +922,7 @@ router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
 
 
 router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
-    const { url, kamId,supplierName, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerName, customerPoNo,customerCurrency, poValue} = req.body;
+    const { url, kamId,supplierName,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerName,customerSoNo, customerPoNo,customerCurrency, poValue} = req.body;
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
         pi.url = url;
@@ -917,10 +932,12 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
         pi.status = `KAM VERIFIED`;
         pi.supplierName=supplierName;
         pi.supplierPoNo=supplierPoNo;
+        pi.supplierSoNo=supplierSoNo;
         pi.supplierCurrency=supplierCurrency;
         pi.supplierPrice=supplierPrice;
         pi.purpose=purpose;
         pi.customerName=customerName;
+        pi.customerSoNo=customerSoNo;
         pi.customerPoNo=customerPoNo;
         pi.customerCurrency=customerCurrency;
         pi.poValue=poValue;
@@ -1049,6 +1066,64 @@ router.get('/dashboard', authenticateToken, async (req, res) => {
     } catch (error) {
         res.send(error.message);
     }
+});
+
+router.patch('/getforadminreport', authenticateToken, async (req, res) => {
+    let invoices;
+    try {
+        invoices = await PerformaInvoice.findAll({
+            include: [
+                { model: PerformaInvoiceStatus },
+                { model: User, as: 'salesPerson', attributes: ['name'] },
+                { model: User, as: 'kam', attributes: ['name'] },
+                { model: User, as: 'am', attributes: ['name'] }
+            ]
+        })
+    } catch (error) {
+        res.send(error.message)
+    }
+    
+    let invoiceNo = req.body.invoiceNo;
+    let createdAt = req.body.createdAt;
+    let addedBy = req.body.addedBy;
+    let status = req.body.status;
+    let date = req.body.date;
+    
+    if (invoiceNo) {
+        const searchTerm = invoiceNo.replace(/\s+/g, '').trim().toLowerCase();
+        
+        invoices = invoices.filter(invoice => 
+            invoice.piNo.replace(/\s+/g, '').trim().toLowerCase().includes(searchTerm)
+        );
+    }
+
+    if (createdAt) {
+        invoices = invoices.filter(invoice => invoice.createdAt === createdAt);
+    }
+    
+    if (addedBy) {
+        invoices = invoices.filter(invoice => invoice.addedById === addedBy);
+    }
+
+    if (status) {
+        invoices = invoices.filter(invoice => invoice.status === status);
+    }
+
+    if (date) {
+        console.log(date);
+    
+        invoices = invoices.filter(invoice => {
+            // Convert both dates to local date strings (ignoring time and time zones)
+            const invoiceDate = new Date(invoice.createdAt).toLocaleDateString('en-IN'); // 'en-CA' returns YYYY-MM-DD format
+            const filterDate = new Date(date).toLocaleDateString('en-IN');
+            
+            return invoiceDate === filterDate;
+        });
+    
+        console.log(invoices);
+    }
+    
+    res.send(invoices);
 });
 
 
