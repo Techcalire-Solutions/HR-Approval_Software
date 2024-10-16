@@ -89,11 +89,11 @@ export class ViewInvoicesComponent {
   getPiById(id: number){
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
       this.pi = pi.pi;
+      console.log(pi);
       
       this.piNo = pi.pi.piNo;
       
       this.signedUrl= pi.signedUrl
-      console.log(this.signedUrl);
       
       if( this.pi.status === 'GENERATED' && this.roleName === 'Key Account Manager' ){
         this.pi = {
@@ -106,14 +106,9 @@ export class ViewInvoicesComponent {
           approveButtonStatus: true
         };
       }
-      // else if(this.roleName === 'Administrator'){
-      //   pi = {
-      //     ...pi,
-      //     approveButtonStatus: true
-      //   };
-      // }
-      // this.url = environment.apiUrl + pi.url;
       if(pi.pi.bankSlip != null) this.bankSlip = pi.bankSlip;
+      console.log(this.bankSlip);
+      
       this.getPiStatusByPiId(id)
     });
   }
@@ -132,7 +127,6 @@ export class ViewInvoicesComponent {
   }
   submittingForm: boolean = false;
   verified(value: string){
-
     let status = this.pi.status;
     let sp;
     if(this.pi.salesPersonId!=null)  sp = this.pi.salesPerson?.name;
@@ -180,11 +174,70 @@ export class ViewInvoicesComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        // this.getInvoices()
         this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
-       
       }
     })
   }
+
+  fileName: string = '';
+  makeExcel() {
+    let currentDate = new Date();
+    const formattedDate = currentDate.toISOString().split('T')[0];
+    this.fileName = `payment_${formattedDate}.csv`;
+    const excludedFields: any[] = ['id'];
+    
+    // Assuming this.pi is an object for a single row
+    let data = this.pi;
+
+    console.log(data);
+
+    // Get the headings based on the object keys
+    const headings = Object.keys(data).filter(key => !excludedFields.includes(key));
+    const formattedHeadings = headings.map(heading => `-- ${heading.toUpperCase()} --`);
+    
+    let excel: any[] = [];
+    
+    // Push the headings to the excel array
+    excel.push(formattedHeadings);
+
+    // Create a new row based on the single object
+    const newRow: any = [];
+
+    // Iterate over each property of the object
+    for (let key of headings) {
+        let value = data[key];
+        // if (key === 'status') {
+        //     value = data.callStatus.status; // Adjust this according to your data structure
+        // }
+        newRow.push(value);
+    }
+
+    // Push the new row to the excel array
+    excel.push(newRow);
+
+    console.log(excel);
+    
+    // Generate CSV string
+    let csvString = '';
+    excel.forEach((rowItem: any) => {
+        rowItem.forEach((colItem: any) => {
+            csvString += colItem + ',';
+        });
+        csvString += '\r\n';
+    });
+
+    // Create a download link for the CSV file
+    csvString = 'data:application/csv,' + encodeURIComponent(csvString);
+    const link = document.createElement('a');
+    link.setAttribute('href', csvString);
+    link.setAttribute('download', this.fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link); // Clean up the DOM by removing the link
+    this.snackBar.open("Exported successfully...", "", { duration: 3000 });
+    excel = [];
+  }
+
+  
 }
 
