@@ -856,11 +856,55 @@ router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
             performaInvoiceId: piId, status: 'GENERATED', date: new Date(), count: count
         })
         await piStatus.save();
+
+      
+        const kam = await User.findOne({ where: { id: kamId } });
+        if (!kam) {
+            return res.status(404).send({ message: 'KAM user not found.' });
+        }
+        const kamEmail = kam.email;
+
+   
+        const fileKey = url.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+        const params = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: fileKey,
+        };
+
+      
+        const s3File = await s3.getObject(params).promise();
+        const fileBuffer = s3File.Body;
+
+     
+        const mailOptions = {
+            from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+            to: kamEmail, 
+            subject: `Proforma Invoice Updated - ${pi.piNo}`,
+            text: `Proforma Invoice has been updated by ${req.user.name}\n\n` +
+                  `Supplier Name: ${supplierName}\n` +
+                  `Supplier PO No: ${supplierPoNo}\n` +
+                  `Status: ${pi.status} - ${pi.count}\n` +
+                  `${purpose === 'Stock' ? `Purpose: Stock\n` : `Purpose: Customer\nCustomer Name: ${customerName}\nCustomer PO No: ${customerPoNo}\n`}` +
+                  `\nPlease find the attached documents related to this Proforma Invoice.`,
+            attachments: [
+                {
+                    filename: url.split('/').pop(), 
+                    content: fileBuffer, 
+                    contentType: s3File.ContentType 
+                }
+            ]
+        };
+
+        
+        await transporter.sendMail(mailOptions);
+
         res.json({ p: pi, status: piStatus})
     } catch (error) {
         res.send(error.message)
     }
 });
+
+
 
 router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
     const { url, kamId,supplierName, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerName, customerPoNo,customerCurrency, poValue} = req.body;
@@ -927,6 +971,8 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
         res.send(error.message)
     }
 });
+
+
 
 router.delete('/:id', async(req,res)=>{
     try {
