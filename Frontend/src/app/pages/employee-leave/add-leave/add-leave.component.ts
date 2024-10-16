@@ -190,54 +190,66 @@ this.leaveRequestForm = this.fb.group({
     this.isLoading = true;
 
     const leaveRequest = {
-      ...this.leaveRequestForm.value,
-      leaveDates: this.leaveRequestForm.get('leaveDates')!.value
+        ...this.leaveRequestForm.value,
+        leaveDates: this.leaveRequestForm.get('leaveDates')!.value
     };
 
     const leaveId = this.route.snapshot.queryParamMap.get('id');
 
-    // Call the appropriate service method based on edit mode
+
     const request$ = this.isEditMode && leaveId
-      ? this.leaveService.updateLeave(+leaveId, leaveRequest)
-      : this.leaveService.addLeave(leaveRequest);
+        ? this.leaveService.updateLeave(+leaveId, leaveRequest)
+        : this.leaveService.addLeave(leaveRequest);
 
-    // Handle the response after attempting to add or update
+
     request$.subscribe(
-      (response: any) => {
-        // Open dialog with the response message
-        this.openDialog(response.message);
-      },
-      (error) => {
-        this.isLoading = false;
-        this.snackBar.open('An error occurred while submitting the leave request.', 'Close', { duration: 3000 });
-      }
+        (response: any) => {
+
+            this.openDialog(response.message,response.leaveDatesApplied,response.lopDates);
+            this.isLoading = false;
+        },
+        (error) => {
+            this.isLoading = false;
+            this.snackBar.open('An error occurred while submitting the leave request.', 'Close', { duration: 3000 });
+        }
     );
+}
+
+
+openDialog(message: string, leaveDatesApplied: any[], lopDates: any[]) {
+  let leaveSummary = `Applied Leave Dates:\n ${JSON.stringify(leaveDatesApplied)}\n`;
+  if (lopDates.length > 0) {
+    leaveSummary += `LOP Dates:\n ${JSON.stringify(lopDates)}\n`;
   }
 
-  openDialog(message: string) {
-    const dialogRef = this.dialog.open(LeaveInfoDialogComponent, {
-      data: { message: message }
-    });
+  const dialogRef = this.dialog.open(LeaveInfoDialogComponent, {
+    data: { message: `${message}\n${leaveSummary}` }
+  });
 
-    dialogRef.afterClosed().subscribe(result => {
-      this.handleDialogResult(result);
-    });
+  dialogRef.afterClosed().subscribe(result => {
+    this.handleDialogResult(result);
+  });
+}
+
+
+
+handleDialogResult(result: any) {
+  if (result?.action === 'proceed') {
+
+    this.snackBar.open('Leave request submitted successfully!', 'Close', { duration: 3000 });
+    this.router.navigate(['/login/employee-leave']);
+  } else if (result?.action === 'back') {
+
+    this.isLoading = false;
+
+  } else if (result?.action === 'cancel') {
+
+    this.isLoading = false;
+    this.leaveRequestForm.reset();
+    this.snackBar.open('Leave request cancelled!', 'Close', { duration: 3000 });
+    this.router.navigate(['/login/employee-leave']);
   }
-
-  handleDialogResult(result: any) {
-    if (result?.action === 'proceed') {
-      this.snackBar.open('Leave request submitted successfully!', 'Close', { duration: 3000 });
-      this.router.navigate(['/login/employee-leave']);
-    } else if (result?.action === 'back') {
-      this.isLoading = false; // Optionally handle back action
-    } else if (result?.action === 'cancel') {
-      this.isLoading = false;
-      this.leaveRequestForm.reset();
-      this.snackBar.open('Leave request cancelled!', 'Close', { duration: 3000 });
-      this.router.navigate(['/login/employee-leave']);
-    }
-  }
-
+}
 
 
 
