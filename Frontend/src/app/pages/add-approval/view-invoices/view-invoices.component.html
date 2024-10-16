@@ -1,5 +1,28 @@
 
 @if(pi){
+  <div class="row">
+    <div class="col">
+      <mat-card-header>
+        <mat-card-title>
+          PROFORMA INVOICE: {{ piNo | uppercase }}
+        </mat-card-title>
+      </mat-card-header>
+    </div>
+
+    <div class="col">
+      <mat-card-header>
+        <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon"
+          class="d-block mr-0 ml-auto" (click)="makeExcel()" style="margin-left: auto;">
+          <mat-icon>sim_card_download</mat-icon>
+        </button>
+        <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon"
+          class="d-block mr-0 ml-auto" onClick="history.back()" style="margin-left: auto;">
+          <mat-icon>exit_to_app</mat-icon>
+        </button>
+      </mat-card-header>
+    </div>
+  </div>
+
   <mat-card>
 
     <table class="table table-bordered">
@@ -35,49 +58,25 @@
         </tr>
       </tbody>
     </table>
-  
-    <div class="row">
-      <div class="col">
-        <mat-card-header>
-          <mat-card-title>
-            PROFORMA INVOICE: {{ piNo | uppercase }}
-          </mat-card-title>
-        </mat-card-header>
-      </div>
-  
-      <div class="col">
-        <mat-card-header>
-          <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon"
-            class="d-block mr-0 ml-auto" onClick="history.back()" style="margin-left: auto;">
-            <mat-icon>exit_to_app</mat-icon>
-          </button>
-        </mat-card-header>
-      </div>
-    </div>
-  
-    <div class="row">
-      <div class="col image">
-        <mat-card-content>
+
+    <mat-tab-group>
+      @for (url of signedUrl; let i = $index; track $index) {
+        <mat-tab [label]="'Document ' + (i + 1)">
           <div class="pdf-container">
-            <iframe [src]="signedUrl | safe" width="100%"></iframe>
+            <iframe [src]="url.url | safe" width="100%" height="600px"></iframe>
           </div>
-        </mat-card-content>
-      </div>
-  
-      @if(bankSlip){
-        <div class="col image">
-          <mat-card-content>
-            <div class="pdf-container">
-              <iframe [src]="bankSlip | safe" width="100%"></iframe>
-            </div>
-          </mat-card-content>
-        </div>
+          <a>remarks: {{url.remarks}}</a>
+        </mat-tab>
       }
-     
-    </div>
-  
-  
-  
+      @if(bankSlip){
+        <mat-tab label="WireSlip">
+          <div class="pdf-container">
+            <iframe [src]="bankSlip | safe" width="100%"></iframe>
+          </div>
+        </mat-tab>
+      }
+    </mat-tab-group>
+
     <mat-card-actions>
       @if(pi.approveButtonStatus){
         <button mat-button class="approve-button" (click)="verified('approved')">

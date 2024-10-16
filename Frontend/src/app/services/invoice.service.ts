@@ -14,15 +14,8 @@ export class InvoiceService {
 
   constructor(private _http:HttpClient) { }
 
-  uploadInvoice(file: any): Observable<any> {
-    if (file instanceof File) {
-      const formData = new FormData();
-      formData.append("file", file, file.name);
-      return this._http.post(this.url + '/invoice/fileupload', formData);
-    } else {
-      // Handle the case where 'file' is not a File object
-      return throwError("Invalid file type");
-    }
+  uploadInvoice(formData: FormData): Observable<any> {
+    return this._http.post(this.url + '/invoice/fileupload', formData);
   }
 
   uploadBankSlip(file: any): Observable<any> {
@@ -36,8 +29,10 @@ export class InvoiceService {
     }
   }
 
-  deleteUploaded(id: number, key?: string) {
-    return this._http.delete(`${this.url}/invoice/filedelete?id=${id}&key=${key}`);
+  deleteUploaded(id: number, i: number, key?: string) {
+    console.log(i);
+    
+    return this._http.delete(`${this.url}/invoice/filedelete?id=${id}&index=${i}&key=${key}`);
   }
 
   deleteUploadByurl(key: string) {
@@ -121,7 +116,7 @@ export class InvoiceService {
     return this._http.post(this.url + '/invoiceStatus/updatestatustobankslip', data);
   }
 
-  addBankSlip(data: any, id: number){
+      addBankSlip(data: any, id: number){
     return this._http.patch(this.url + '/performaInvoice/bankslip/' + id, data);
   }
   getRole(filterValue?: string, page?: number, pagesize?:number): Observable<Role[]> {

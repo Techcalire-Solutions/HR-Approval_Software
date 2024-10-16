@@ -62,35 +62,31 @@
           </mat-select>
         </mat-form-field>
  
-@if(kamb){
-  <mat-form-field class="full-width" appearance="outline">
-    <mat-label>Manager</mat-label>
-    <mat-select placeholder="" formControlName="amId">
-@for(item of AMList; track $index){
-  <mat-option [value]="item.id">
-    {{item.name}}
-  </mat-option>
-}
+        @if(kamb){
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Manager</mat-label>
+            <mat-select placeholder="" formControlName="amId">
+            @for(item of AMList; track $index){
+              <mat-option [value]="item.id">
+                {{item.name}}
+              </mat-option>
+            }
+            </mat-select>
+          </mat-form-field>
+        }
 
-
-    </mat-select>
-  </mat-form-field>
-}
-
-@if(am){
-  <mat-form-field class="full-width" appearance="outline">
-    <mat-label>Accountant</mat-label>
-    <mat-select placeholder="" formControlName="accountantId">
-@for(item of AccountantList; track $index){
-  <mat-option [value]="item.id">
-    {{item.name}}
-  </mat-option>
-}
-
-
-    </mat-select>
-  </mat-form-field>
-}
+        @if(am){
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Accountant</mat-label>
+            <mat-select placeholder="" formControlName="accountantId">
+            @for(item of AccountantList; track $index){
+              <mat-option [value]="item.id">
+                {{item.name}}
+              </mat-option>
+            }
+            </mat-select>
+          </mat-form-field>
+        }
 
 @if(piForm.get('purpose')?.value === 'Customer'){
   <ng-container>
@@ -124,26 +120,22 @@
       </mat-select>
   </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>CustomerPO Value</mat-label>
-      <input matInput placeholder="Enter PO Value" formControlName="poValue">
-    </mat-form-field>
-
-    @if(editStatus){
-  <mat-form-field appearance="outline">
-    <mat-label>Status</mat-label>
-    <input matInput placeholder="" formControlName="status">
-  </mat-form-field>
-}
-@if(editStatus){
-  <mat-form-field appearance="outline">
-    <mat-label>Remarks</mat-label>
-    <input matInput placeholder="" formControlName="remarks" >
-  </mat-form-field>
-}
- 
-
-
+            <mat-form-field appearance="outline">
+              <mat-label>CustomerPO Value</mat-label>
+              <input matInput placeholder="Enter PO Value" formControlName="poValue">
+            </mat-form-field>
+            <!-- @if(editStatus){
+          <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <input matInput placeholder="" formControlName="status">
+          </mat-form-field>
+        } -->
+        <!-- @if(editStatus){
+          <mat-form-field appearance="outline">
+            <mat-label>Remarks</mat-label>
+            <input matInput placeholder="" formControlName="remarks" >
+          </mat-form-field>
+        } -->
 
 </ng-container>
 
@@ -204,21 +196,13 @@
           }
          
         </div>
-      </div>
-    </li>
-  </section>
-}
+      </form>
 
-
-<br>
-@if(!editStatus){
-
-}
-      <button mat-raised-button type="button" color="primary" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid">
-
-        SAVE
+      <br>
+      
+      <button mat-raised-button type="button" color="primary" class="btn btn-success" 
+        (click)="onSubmit()"  [disabled]="!piForm.valid || !isImageUploaded()"> SAVE
       </button>
-
     </div>
   </mat-card-content>
 </mat-card>

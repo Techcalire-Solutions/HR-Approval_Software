@@ -18,12 +18,13 @@ import { BankReceiptDialogueComponent } from '../view-approval/bank-receipt-dial
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';
 import { DatePipe, UpperCasePipe } from '@angular/common';
+import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-view-invoices',
   standalone: true,
   imports: [
-    RouterModule,
+    RouterModule, MatTabGroup, MatTabsModule,
     MatTableModule,
     MatCardModule,
     MatIconModule,
@@ -34,8 +35,6 @@ import { DatePipe, UpperCasePipe } from '@angular/common';
   styleUrl: './view-invoices.component.scss'
 })
 export class ViewInvoicesComponent {
-  displayedColumns: string[] = ['supplierName', 'supplierPoNo', 'supplierPrice', 'purpose', 'customerName', 'customerPoNo', 'poValue'];
-  // dataSource = new MatTableDataSource(ELEMENT_DATA);
   ngOnDestroy(): void {
 
   }
@@ -86,32 +85,30 @@ export class ViewInvoicesComponent {
   piNo!: string;
   pi!: any;
   bankSlip!: string;
-  signedUrl:string;
+  signedUrl: any[];
   getPiById(id: number){
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
       this.pi = pi.pi;
+      console.log(pi);
+      
       this.piNo = pi.pi.piNo;
+      
       this.signedUrl= pi.signedUrl
-
+      
       if( this.pi.status === 'GENERATED' && this.roleName === 'Key Account Manager' ){
         this.pi = {
-            ...this.pi,
-            approveButtonStatus: true
-          };
+          ...this.pi,
+          approveButtonStatus: true
+        };
       }else if( this.pi.status === 'KAM VERIFIED' && this.roleName === 'Manager'){
         this.pi = {
           ...this.pi,
           approveButtonStatus: true
         };
       }
-      // else if(this.roleName === 'Administrator'){
-      //   pi = {
-      //     ...pi,
-      //     approveButtonStatus: true
-      //   };
-      // }
-      // this.url = environment.apiUrl + pi.url;
       if(pi.pi.bankSlip != null) this.bankSlip = pi.bankSlip;
+      console.log(this.bankSlip);
+      
       this.getPiStatusByPiId(id)
     });
   }
@@ -130,7 +127,6 @@ export class ViewInvoicesComponent {
   }
   submittingForm: boolean = false;
   verified(value: string){
-
     let status = this.pi.status;
     let sp;
     if(this.pi.salesPersonId!=null)  sp = this.pi.salesPerson?.name;
@@ -178,11 +174,70 @@ export class ViewInvoicesComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        // this.getInvoices()
         this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
-       
       }
     })
   }
+
+  fileName: string = '';
+  makeExcel() {
+    let currentDate = new Date();
+    const formattedDate = currentDate.toISOString().split('T')[0];
+    this.fileName = `payment_${formattedDate}.csv`;
+    const excludedFields: any[] = ['id'];
+    
+    // Assuming this.pi is an object for a single row
+    let data = this.pi;
+
+    console.log(data);
+
+    // Get the headings based on the object keys
+    const headings = Object.keys(data).filter(key => !excludedFields.includes(key));
+    const formattedHeadings = headings.map(heading => `-- ${heading.toUpperCase()} --`);
+    
+    let excel: any[] = [];
+    
+    // Push the headings to the excel array
+    excel.push(formattedHeadings);
+
+    // Create a new row based on the single object
+    const newRow: any = [];
+
+    // Iterate over each property of the object
+    for (let key of headings) {
+        let value = data[key];
+        // if (key === 'status') {
+        //     value = data.callStatus.status; // Adjust this according to your data structure
+        // }
+        newRow.push(value);
+    }
+
+    // Push the new row to the excel array
+    excel.push(newRow);
+
+    console.log(excel);
+    
+    // Generate CSV string
+    let csvString = '';
+    excel.forEach((rowItem: any) => {
+        rowItem.forEach((colItem: any) => {
+            csvString += colItem + ',';
+        });
+        csvString += '\r\n';
+    });
+
+    // Create a download link for the CSV file
+    csvString = 'data:application/csv,' + encodeURIComponent(csvString);
+    const link = document.createElement('a');
+    link.setAttribute('href', csvString);
+    link.setAttribute('download', this.fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link); // Clean up the DOM by removing the link
+    this.snackBar.open("Exported successfully...", "", { duration: 3000 });
+    excel = [];
+  }
+
+  
 }
 

@@ -3,17 +3,18 @@ const sequelize = require('../../utils/db');
 const User = require('../../users/models/user');
 const Company = require('../../invoices/models/company');
 
-const PerformaInvoice = sequelize.define('performaInvoice', {
-    piNo: { type: DataTypes.STRING, allowNull: false },
-    filename: { type: DataTypes.STRING },
-    url: { type: DataTypes.STRING },
-    bankSlip: { type: DataTypes.STRING },
-    status: { type: DataTypes.STRING, defaultValue: 'Generated' },
-    salesPersonId: { type: DataTypes.INTEGER },
-    kamId: { type: DataTypes.INTEGER },
-    amId: { type: DataTypes.INTEGER },
-    accountantId: { type: DataTypes.INTEGER },
-    count: { type: DataTypes.INTEGER, defaultValue: 1 },
+const PerformaInvoice = sequelize.define('performaInvoice',{
+    piNo : {type : DataTypes.STRING, allowNull : false},
+    filename : {type : DataTypes.STRING},
+    url: { type: DataTypes.ARRAY(DataTypes.JSON), allowNull: true },
+    // url : {type : DataTypes.ARRAY(DataTypes.STRING)},
+    bankSlip : {type : DataTypes.STRING},
+    status: {type : DataTypes.STRING, defaultValue: 'Generated'},
+    salesPersonId :{type : DataTypes.INTEGER },
+    kamId : {type : DataTypes.INTEGER},
+    amId: {type : DataTypes.INTEGER},
+    accountantId : {type : DataTypes.INTEGER},
+    count: {type : DataTypes.INTEGER, defaultValue: 1},
 
     supplierId: { type: DataTypes.INTEGER},
     supplierSoNo: { type: DataTypes.STRING },

@@ -18,14 +18,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 @Component({
   selector: 'app-bank-receipt-dialogue',
   standalone: true,
-  imports: [  MatToolbarModule,
-    MatProgressBarModule,
-    MatIconModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatDividerModule,
-    RouterModule,
-    MatCardModule],
+  imports: [  MatToolbarModule, MatProgressBarModule, MatIconModule, MatPaginatorModule, MatSortModule,
+    MatDividerModule, RouterModule, MatCardModule ],
   templateUrl: './bank-receipt-dialogue.component.html',
   styleUrl: './bank-receipt-dialogue.component.scss'
 })
@@ -37,7 +31,7 @@ export class BankReceiptDialogueComponent {
   dialog=inject(MatDialog)
   dialogRef = inject(MatDialogRef<BankReceiptDialogueComponent>)
   dialogData = inject(MAT_DIALOG_DATA);
- 
+
   ngOnDestroy(): void {
     this.uploadSub?.unsubscribe();
   }
@@ -74,15 +68,15 @@ export class BankReceiptDialogueComponent {
     const input = event.target as HTMLInputElement;
     this.file = input.files?.[0];
     this.uploadComplete = true;
-
+    
     if (this.file) {
       let fileName = this.file.name
+      
       if(fileName.length > 12){
         let splitName = fileName.split('.');
-        fileName = splitName[0].substring(0, 12) + "... ." + splitName[1];
+        fileName = splitName[0].substring(0, 12) + "...." + splitName[1];
       }
-
-      this.uploadSub = this.invoiceService.uploadInvoice(this.file).subscribe(invoice => {
+      this.uploadSub = this.invoiceService.uploadBankSlip(this.file).subscribe(invoice => {
         this.piForm.get('bankSlip')?.setValue(invoice.fileUrl)
         this.uploadComplete = false;
       })
@@ -94,7 +88,7 @@ export class BankReceiptDialogueComponent {
   onSubmit() {
     this.submit = this.invoiceService.addBankSlip(this.piForm.getRawValue(), this.dialogData.id).subscribe((invoice: any) =>{
       this.dialogRef.close(true);
-      window.location.reload(); 
+      window.location.reload();
     });
 
   }
