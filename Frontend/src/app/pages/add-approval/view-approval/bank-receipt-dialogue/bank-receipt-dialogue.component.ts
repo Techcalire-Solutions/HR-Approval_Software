@@ -37,7 +37,7 @@ export class BankReceiptDialogueComponent {
   dialog=inject(MatDialog)
   dialogRef = inject(MatDialogRef<BankReceiptDialogueComponent>)
   dialogData = inject(MAT_DIALOG_DATA);
- 
+
   ngOnDestroy(): void {
     this.uploadSub?.unsubscribe();
   }
@@ -94,7 +94,7 @@ export class BankReceiptDialogueComponent {
   onSubmit() {
     this.submit = this.invoiceService.addBankSlip(this.piForm.getRawValue(), this.dialogData.id).subscribe((invoice: any) =>{
       this.dialogRef.close(true);
-      window.location.reload(); 
+      window.location.reload();
     });
 
   }

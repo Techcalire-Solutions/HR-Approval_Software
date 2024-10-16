@@ -72,7 +72,7 @@ userId : number;
             }
         },
         (error) => {
-            console.error('Error fetching leave counts:', error); 
+            console.error('Error fetching leave counts:', error);
             this.errorMessage = 'Unable to fetch leave counts.';
             this.hasLeaveCounts = false;
             this.leaveCounts = [];

@@ -4,19 +4,88 @@ const authenticateToken = require('../../middleware/authorization');
 const Announcement = require('../model/announcement');
 const upload = require('../../utils/multer');
 const s3 = require('../../utils/s3bucket');
+const nodemailer = require('nodemailer');
+const User = require('../../users/models/user');
 
-router.post('/add', authenticateToken, async(req, res) => {
-    const { message, type, dismissible, fileUrl } = req.body;
-    
-    try {
-        const ancmnts = new Announcement({message, type, dismissible, fileUrl});
-        await ancmnts.save();
 
-        res.send(ancmnts);
-    } catch (error) {
-        res.send(error.message)
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  }
+
+});
+
+router.post('/add', authenticateToken, async (req, res) => {
+  const { message, type, dismissible, fileUrl } = req.body;
+
+  try {
+
+    const ancmnts = new Announcement({ message, type, dismissible, fileUrl });
+    await ancmnts.save();
+
+ 
+    const users = await User.findAll({
+      where: {
+        status: true, 
+        separated: true,
+      },
+    });
+
+    let fileBuffer, contentType;
+    if (fileUrl) {
+      const fileKey = fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+
+      const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileKey,
+      };
+
+     
+      const s3File = await s3.getObject(params).promise();
+      fileBuffer = s3File.Body;
+      contentType = s3File.ContentType;
     }
-})
+
+   
+    const userEmails = users.map(user => user.email).filter(email => email); 
+
+    if (userEmails.length === 0) {
+      return res.status(400).send({ message: "No recipients defined." });
+    }
+
+    const mailOptions = {
+      from: `HR Department <${process.env.EMAIL_USER}>`, 
+      to: userEmails, 
+      subject: 'Important Announcement',
+      html: `
+          <p>Dear Team,</p>
+          <p>We would like to bring to your attention the following announcement:</p>
+          <p><strong style="font-size: 18px;">${message}</strong></p>
+          <br>
+          <p>Best regards,</p>
+          <p>HR Department</p>
+      `,
+      attachments: fileBuffer ? [
+        {
+          filename: fileUrl.split('/').pop(), 
+          content: fileBuffer, 
+          contentType: contentType
+        }
+      ] : []
+    };
+
+   
+    await transporter.sendMail(mailOptions);
+
+    
+    res.send(ancmnts);
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+});
+
 
 router.get('/find', authenticateToken, async(req, res) => {
     try {

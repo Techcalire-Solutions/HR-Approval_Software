@@ -20,11 +20,7 @@ const transporter = nodemailer.createTransport({
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
-    },
-    secure: false, // Set to true if using port 465
-    tls: {
-      rejectUnauthorized: false,
-    },
+    }
   });
 
 
@@ -741,24 +737,97 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
     }
 });
 
-router.patch('/bankslip/:id', authenticateToken, async(req, res) => {
-    const { bankSlip} = req.body;
+
+
+router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
+    const { bankSlip } = req.body;
     try {
-        const pi = await PerformaInvoice.findByPk(req.params.id)
+        const pi = await PerformaInvoice.findByPk(req.params.id);
+        
+        if (!pi) {
+            return res.status(404).json({ message: 'Proforma invoice not found' });
+        }
+
+     
         pi.bankSlip = bankSlip;
         pi.status = 'BANK SLIP ISSUED';
         await pi.save();
 
-        const piId = pi.id;
+  
         const piStatus = new PerformaInvoiceStatus({
-            performaInvoiceId: piId, status: 'BANK SLIP ISSUED', date: new Date()
-        })
+            performaInvoiceId: pi.id, 
+            status: 'BANK SLIP ISSUED', 
+            date: new Date(),
+        });
         await piStatus.save();
-        res.json({ p: pi, status: piStatus})
+
+      
+        const users = await User.findAll({
+            where: {
+                [Op.or]: [
+                    { id: pi.salesPersonId },
+                    { id: pi.kamId },
+                    { id: pi.amId },
+                    { id: pi.accountantId },
+                    { id: pi.addedById }
+                ]
+            }
+        });
+
+       
+        const am = users.find(user => user.id === pi.amId);
+        const otherEmails = users
+            .filter(user => user.id !== pi.amId)
+            .map(user => user.email)
+            .join(',');
+
+        if (!am) {
+            return res.status(404).json({ message: 'Account Manager not found' });
+        }
+
+     
+        const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+        const params = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: fileKey,
+        };
+
+       
+        const s3File = await s3.getObject(params).promise();
+        const fileBuffer = s3File.Body;
+   
+        const mailOptions = {
+            from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+            to: am.email, 
+            cc: otherEmails, 
+            subject: `Bank Slip Uploaded for Invoice - ${pi.piNo}`,
+            html: `
+                <p>A bank slip has been uploaded for proforma invoice ID: <strong>${pi.piNo}</strong>.</p>
+                <br>
+                <p>Please review the bank slip at your earliest convenience.</p>
+                <br>
+                <p>Thank you!</p>
+            `,
+            attachments: [
+                {
+                    filename: bankSlip.split('/').pop(),
+                    content: fileBuffer, 
+                    contentType: s3File.ContentType 
+                }
+            ]
+        };
+        
+        
+        // Send the email
+        await transporter.sendMail(mailOptions);
+
+        // Send response
+        res.json({ p: pi, status: piStatus, users });
     } catch (error) {
-        res.send(error.message)
+        res.status(500).send(error.message);
     }
 });
+
 
 router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
     const { url, kamId,supplierName, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerName, customerPoNo,customerCurrency, poValue} = req.body;
