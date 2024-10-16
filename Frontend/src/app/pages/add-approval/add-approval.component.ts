@@ -1,7 +1,7 @@
-import { Component, ElementRef, inject, ViewChild } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { Router, ActivatedRoute } from '@angular/router';
 import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
@@ -16,8 +16,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 import { User } from '../../common/interfaces/user';
 import { SafePipe } from "./view-invoices/safe.pipe";
@@ -26,31 +24,22 @@ import { CompanyService } from '@services/company.service';
 @Component({
   selector: 'app-add-approval',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatCardModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatInputModule,
-    MatProgressBarModule,
-    MatProgressSpinnerModule, SafePipe],
+  imports: [ ReactiveFormsModule, MatFormFieldModule,  MatCardModule,  MatToolbarModule, MatIconModule,  MatButtonModule,
+    MatSelectModule, MatInputModule, SafePipe],
   templateUrl: './add-approval.component.html',
   styleUrl: './add-approval.component.scss'
 })
 export class AddApprovalComponent {
   url = environment.apiUrl;
-companyService =inject(CompanyService)
-invoiceService=inject(InvoiceService)
-loginService=inject(LoginService)
-snackBar=inject(MatSnackBar)
-router=inject(Router)
-route=inject(ActivatedRoute)
-dialog=inject(MatDialog)
-sanitizer=inject(DomSanitizer)
-fb=inject(FormBuilder)
+  companyService =inject(CompanyService)
+  invoiceService=inject(InvoiceService)
+  loginService=inject(LoginService)
+  snackBar=inject(MatSnackBar)
+  router=inject(Router)
+  route=inject(ActivatedRoute)
+  dialog=inject(MatDialog)
+  sanitizer=inject(DomSanitizer)
+  fb=inject(FormBuilder)
 
 
   ngOnDestroy(): void {
@@ -68,10 +57,6 @@ fb=inject(FormBuilder)
     this.getSuppliers()
     this.getCustomers()
     this.generateInvoiceNumber()
-    this.id = this.route.snapshot.params['id'];
-    if(this.id){
-      this.patchdata(this.id);
-    }
     this.getKAM();
     this.getAM();
     this.getAccountants();
@@ -81,22 +66,20 @@ fb=inject(FormBuilder)
 
     let roleId = user.role
     this.getRoleById(roleId)
+    this.addDoc()
   }
   
   public getCompany(): void {
- 
     this.companyService.getCompany().subscribe((companies: any) =>{
       this.companies = companies
     });
   }
    public getSuppliers(): void {
-  
     this.companyService.getSuppliers().subscribe((suppliers: any) =>{
       this.supplierCompanies = suppliers
     });
   }
   public getCustomers(): void {
-  
     this.companyService.getCustomers().subscribe((customers: any) =>{
       this.customerCompanies = customers
     });
@@ -150,7 +133,7 @@ fb=inject(FormBuilder)
     kamId: <any>[],
     amId:  <any>[],
     accountantId:  <any>[],
-    supplierName: ['', Validators.required],
+    supplierId: ['', Validators.required],
     supplierPoNo: ['', Validators.required],
     supplierSoNo:[''],
     supplierCurrency:['Dollar'],
@@ -201,7 +184,6 @@ fb=inject(FormBuilder)
   imageUploaded: boolean
   isImageUploaded(): boolean {
     const controls = this.piForm.get('url')as FormArray;
-    console.log(controls.length);
     let i = controls.length - 1;
     if (this.imageUrl[i]) {
       console.log(this.imageUrl[i]);
@@ -210,10 +192,6 @@ fb=inject(FormBuilder)
     }else return false;
   }
 
-  @ViewChild('form') form!: ElementRef<HTMLFormElement>;
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('progressArea') progressArea!: ElementRef<HTMLElement>;
-  @ViewChild('uploadArea') uploadArea!: ElementRef<HTMLElement>;
   files: File[] = [];
   uploadProgress: number[] = [];
   uploadSuccess: boolean[] = [];
@@ -298,31 +276,6 @@ fb=inject(FormBuilder)
       });
     }
 
-  }
-
-  piSub!: Subscription;
-  editStatus: boolean = false;
-  fileName!: string;
-  patchdata(id: number){
-    this.editStatus = true;
-    this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
-      let inv = pi.pi;
-      this.fileName = inv.url
-      let remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
-      this.piForm.patchValue({piNo: inv.piNo, status: inv.status, remarks: remarks, kamId: inv.kamId,  supplierName:inv.supplierName,supplierPoNo: inv.supplierPoNo,
-        supplierPrice:inv.supplierPrice ,
-        purpose:inv.purpose,
-        customerName:inv.customerName ,
-        customerPoNo: inv.customerPoNo,
-        poValue:inv.poValue})
-      if(inv.url != '') this.imageUrl = pi.signedUrl;
-
-    });
-  }
-
-  clearFileInput() {
-    let file = this.fileName
-    let id = this.id
   }
 
   onDeleteImage(i: number){
