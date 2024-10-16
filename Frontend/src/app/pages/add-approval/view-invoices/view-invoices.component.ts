@@ -44,7 +44,7 @@ export class ViewInvoicesComponent {
   router=inject(Router)
   route=inject(ActivatedRoute)
   dialog=inject(MatDialog)
- 
+
 
 
   userId: number
@@ -90,11 +90,11 @@ export class ViewInvoicesComponent {
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
       this.pi = pi.pi;
       console.log(pi);
-      
+
       this.piNo = pi.pi.piNo;
-      
+
       this.signedUrl= pi.signedUrl
-      
+
       if( this.pi.status === 'GENERATED' && this.roleName === 'Key Account Manager' ){
         this.pi = {
           ...this.pi,
@@ -108,7 +108,7 @@ export class ViewInvoicesComponent {
       }
       if(pi.pi.bankSlip != null) this.bankSlip = pi.bankSlip;
       console.log(this.bankSlip);
-      
+
       this.getPiStatusByPiId(id)
     });
   }
@@ -181,63 +181,33 @@ export class ViewInvoicesComponent {
 
   fileName: string = '';
   makeExcel() {
-    let currentDate = new Date();
-    const formattedDate = currentDate.toISOString().split('T')[0];
-    this.fileName = `payment_${formattedDate}.csv`;
-    const excludedFields: any[] = ['id'];
-    
-    // Assuming this.pi is an object for a single row
-    let data = this.pi;
+    console.log(this.pi);
 
-    console.log(data);
-
-    // Get the headings based on the object keys
-    const headings = Object.keys(data).filter(key => !excludedFields.includes(key));
-    const formattedHeadings = headings.map(heading => `-- ${heading.toUpperCase()} --`);
-    
-    let excel: any[] = [];
-    
-    // Push the headings to the excel array
-    excel.push(formattedHeadings);
-
-    // Create a new row based on the single object
-    const newRow: any = [];
-
-    // Iterate over each property of the object
-    for (let key of headings) {
-        let value = data[key];
-        // if (key === 'status') {
-        //     value = data.callStatus.status; // Adjust this according to your data structure
-        // }
-        newRow.push(value);
+    let data = {
+      EntryNo : 'E-002',
+      Purpose: this.pi.purpose,
+      SupplierName: this.pi.supplierName,
+      SupplierPONo: this.pi.supplierPoNo,
+      SupplierSONo: this.pi.supplierSoNo,
+      SupplierPrice: `${this.pi.supplierPrice} ${this.pi.supplierCurrency}`,
+      CustomerPoNo : this.pi.customerPoNo,
+      CustomerSoNo : this.pi.customerSoNo,
+      CustomerName : this.pi.customerName,
+      SellingPrice: `${this.pi.poValue} ${this.pi.customerCurrency}`,
+      SalesPerson: this.pi.salesPerson.name,
+      KAM : this.pi.kam.name,
+      ManagerName : this.pi.am.name,
+      AccountantName : this.pi.accountant.name,
+      AddedBy : this.pi.addedBy.name,
+      BankSlip : this.pi.bankSlip,
+      url: this.pi.url.map((u: any) => `URL: https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${u.url}, Remarks: ${u.remarks}`).join(' | '),
+      CreatedAt : this.pi.createdAt,
     }
-
-    // Push the new row to the excel array
-    excel.push(newRow);
-
-    console.log(excel);
-    
-    // Generate CSV string
-    let csvString = '';
-    excel.forEach((rowItem: any) => {
-        rowItem.forEach((colItem: any) => {
-            csvString += colItem + ',';
-        });
-        csvString += '\r\n';
+    this.invoiceService.excelExport(data).subscribe(result => {
+      console.log(result);
     });
-
-    // Create a download link for the CSV file
-    csvString = 'data:application/csv,' + encodeURIComponent(csvString);
-    const link = document.createElement('a');
-    link.setAttribute('href', csvString);
-    link.setAttribute('download', this.fileName);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link); // Clean up the DOM by removing the link
-    this.snackBar.open("Exported successfully...", "", { duration: 3000 });
-    excel = [];
   }
 
-  
+
 }
 

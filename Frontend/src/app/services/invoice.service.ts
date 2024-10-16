@@ -31,7 +31,7 @@ export class InvoiceService {
 
   deleteUploaded(id: number, i: number, key?: string) {
     console.log(i);
-    
+
     return this._http.delete(`${this.url}/invoice/filedelete?id=${id}&index=${i}&key=${key}`);
   }
 
@@ -130,4 +130,7 @@ export class InvoiceService {
     return this._http.patch<any[]>(this.url + '/performaInvoice/getforadminreport', data);
   }
 
+  excelExport(data: any){
+    return this._http.post<any[]>(this.url + '/invoice/excelupload', data);
+  }
 }

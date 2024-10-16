@@ -31,7 +31,7 @@ export class VerificationDialogueComponent {
   dialog=inject(MatDialog)
   dialogRef = inject(MatDialogRef<VerificationDialogueComponent>)
   dialogData = inject(MAT_DIALOG_DATA);
-  
+
    form = this.fb.group({
     remarks: [''],
     amId: [],
@@ -55,7 +55,7 @@ export class VerificationDialogueComponent {
 
   isSelectionMade: any = false;
   onSelectionChange() {
- this.isSelectionMade = this.form.get('amId')?.valid || this.form.get('accountantId')?.valid;
+  this.isSelectionMade = this.form.get('amId')?.valid || this.form.get('accountantId')?.valid;
   }
 
   onCancelClick(): void {
