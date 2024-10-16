@@ -106,7 +106,7 @@ users:User;
       {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        item.title === 'Team' ||
+        // item.title === 'Team' ||
         (item.title === 'Approval Uploads' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5)||
         (item.title === 'Reports' && !item.parentId) ||
@@ -152,7 +152,7 @@ users:User;
 
       );
     }
-    else if (role === 'HR') {
+    else if (role === 'HR'||role==='IT') {
 
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
@@ -170,11 +170,11 @@ users:User;
     else if (role === 'HR Administrator') {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        item.title === 'Role' ||
+        // item.title === 'Role' ||
         (item.title === 'Employee' && !item.parentId) ||
         (item.title === 'Directory' && item.parentId === 3) ||
         (item.title === 'Confirmation' && item.parentId === 3) ||
-        item.title === 'Team' ||
+        // item.title === 'Team' ||
         (item.title === 'Leave' && !item.parentId) ||
         (item.title === 'Calendar' && item.parentId === 8) ||
         (item.title === 'View' && item.parentId === 8) ||
@@ -190,11 +190,11 @@ users:User;
 
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        item.title === 'Role' ||
+        // item.title === 'Role' ||
         (item.title === 'Employee' && !item.parentId) ||
         (item.title === 'Directory' && item.parentId === 3) ||
         (item.title === 'Confirmation' && item.parentId === 3) ||
-        item.title === 'Team' ||
+        // item.title === 'Team' ||
         (item.title === 'Approval Uploads' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5) ||
         (item.title === 'Leave' && !item.parentId) ||
@@ -202,10 +202,12 @@ users:User;
         (item.title === 'View' && item.parentId === 8) ||
         (item.title === 'User Leave' && item.parentId === 8) ||
         (item.title === 'Emergency' && item.parentId === 8) ||
-        // (item.title === 'Payroll' && !item.parentId) ||
+        (item.title === 'Payroll' && !item.parentId) ||
         (item.title === 'Process Payroll' && item.parentId === 13) ||
         (item.title === 'Salary Statement' && item.parentId === 13) ||
-        (item.title === 'YTD Reports' && item.parentId === 13)
+        (item.title === 'YTD Reports' && item.parentId === 13)||
+        (item.title === 'Reports' && !item.parentId) ||
+        (item.title === 'Approval Report' && item.parentId === 21)
       );
 
     }

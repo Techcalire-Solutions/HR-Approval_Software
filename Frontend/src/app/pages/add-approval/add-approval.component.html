@@ -34,9 +34,9 @@
                 </mat-select>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline"> 
           <mat-label>Supplier SO#</mat-label>
-          <input matInput placeholder="Enter Supplier PO#" formControlName="supplierSoNo">
+          <input matInput placeholder="Enter Supplier SO#" formControlName="supplierSoNo">
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Our Supplier PO#</mat-label>
@@ -61,18 +61,6 @@
             <mat-option value="Customer">Customer</mat-option>
           </mat-select>
         </mat-form-field>
-        @if(sp){
-          <mat-form-field class="full-width" appearance="outline">
-            <mat-label>Key Account Manager</mat-label>
-            <mat-select placeholder="" formControlName="kamId">
-            @for(item of kam; track $index){
-              <mat-option [value]="item.id">
-                {{item.name}}
-              </mat-option>
-            }
-            </mat-select>
-          </mat-form-field>
-        }
  
         @if(kamb){
           <mat-form-field class="full-width" appearance="outline">
@@ -103,7 +91,7 @@
 @if(piForm.get('purpose')?.value === 'Customer'){
   <ng-container>
     <mat-form-field appearance="outline">
-      <mat-form-field appearance="outline">
+     
         <mat-select placeholder="Choose Customer Name" formControlName="customerId">
           @for(item of customerCompanies; track $index){
             <mat-option [value]="item.id">
@@ -113,7 +101,7 @@
           
           
               </mat-select>
-      </mat-form-field>
+     
     </mat-form-field>
 
     <mat-form-field appearance="outline">
@@ -122,7 +110,7 @@
     </mat-form-field>
     <mat-form-field appearance="outline">
       <mat-label>Our Customer SO#</mat-label>
-      <input matInput placeholder="Enter Customer PO#" formControlName="customerSoNo">
+      <input matInput placeholder="Enter Customer SO#" formControlName="customerSoNo">
     </mat-form-field>
     <mat-form-field appearance="outline">
       <mat-label>Customer Currency</mat-label>
@@ -149,47 +137,64 @@
           </mat-form-field>
         } -->
 
-        </ng-container>
-        }
-      </form>
-      <form [formGroup]="piForm" enctype="multipart/form-data">
-        <div formArrayName="url">
-          @for (uploadForm of doc().controls; track $index; let i = $index;) {
-            <div [formGroupName]="i" class="form-instance">
-              <div class="row" style="margin-top: 20px;">
-                <div class="col">
-                  <mat-form-field class="w-100" appearance="outline">
-                    <mat-label>Remarks</mat-label>
-                    <input matInput formControlName="remarks">
-                  </mat-form-field>
-                </div>
-                
-                @if(!imageUrl[i]){
-                  <div class="col">
-                    <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">
-                    <span class="material-icons file-upload-icon" (click)="fileInput.click()">cloud_upload</span>
-                    <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
-                  </div>
-                }
-                @else{
-                  <div class="col">
-                    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
-                      @if(fileType[i] === 'pdf'){
-                        <iframe [src]="imageUrl[i] | safe" width="100%" height="300px"></iframe>
-                      }@else {
-                        <img [src]="imageUrl[i]" alt="Image" title="Image" height="100" width="100" class="clickable-image" />
-                      }
-                      <mat-icon style="color: red;" (click)="onDeleteImage(i)">delete</mat-icon>
-                    </div>
-                  </div>
-                } 
-                <button mat-icon-button color="warn" (click)="removeData(i)">
-                  <mat-icon>remove_circle</mat-icon>
-                </button>
-              </div>
-            </div>
+</ng-container>
+
+}
+@if(sp){
+  <mat-form-field class="full-width" appearance="outline">
+    <mat-label>Key Account Manager</mat-label>
+    <mat-select placeholder="" formControlName="kamId">
+    @for(item of kam; track $index){
+      <mat-option [value]="item.id">
+        {{item.name}}
+      </mat-option>
+    }
+    </mat-select>
+  </mat-form-field>
+}
+<mat-form-field appearance="outline">
+  <mat-label>Notes</mat-label>
+  <input matInput placeholder="" formControlName="notes" >
+</mat-form-field>       <!-- Conditional Fields -->
+
+</form>
+      <form #form class="form">
+      
+
+        @if(!imageUrl){
+          <div class="col">
+            <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
+            <span class="material-icons file-upload-icon" (click)="fileInput.click()">cloud_upload</span>
+            <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
+          </div>
+      }
+      @else{
+      <div class="col">
+          <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+          @if(fileType === 'pdf'){
+              <iframe [src]="imageUrl | safe" width="100%" height="300px"></iframe>
+          }@else {
+              <img [src]="imageUrl" alt="Image" title="Image" height="300px" class="clickable-image" />
           }
-          <button mat-raised-button color="primary" (click)="addDoc()" [disabled]="!isImageUploaded()" >New Doc</button>
+
+          <mat-icon style="color: red;" (click)="onDeleteImage()">delete</mat-icon>
+          </div>
+      </div>
+      } 
+      </form>
+
+
+@if(file){
+  <section class="progress-area" style="width:90%">
+    <li class="row">
+      <!-- <span class="material-icons">file_copy</span> -->
+      <div class="content" >
+        <div class="details">
+          <span class="name">{{ file.name }} - {{ uploadComplete ? 'Uploaded' : 'Uploading' }}</span>
+          @if(!uploadComplete){
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          }
+         
         </div>
       </form>
 

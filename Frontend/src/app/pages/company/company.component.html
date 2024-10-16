@@ -5,7 +5,7 @@
   <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
     <div fxLayout="row" class="col">
         <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-            <mat-button-toggle value="add" (click)="openRoleDialog(null)"><mat-icon>person_add</mat-icon>
+            <mat-button-toggle value="add" (click)="openCompany(null)"><mat-icon>person_add</mat-icon>
             </mat-button-toggle>
             <!-- <mat-button-toggle value="search">
                 <mat-icon>search</mat-icon>
@@ -14,9 +14,9 @@
     </div>
     <div fxLayout="row" class="col">
       <form class="user-search" [class.show]="controls.value == 'search'">
-        <!-- <mat-form-field class="user-search-input">
-            <input matInput placeholder="Search role by role name..." name="search" (keyup)="search($event)">
-        </mat-form-field> -->
+        <mat-form-field class="user-search-input">
+            <input matInput placeholder="Search company by name" name="search" (keyup)="search($event)">
+        </mat-form-field>
       </form>
     </div>
   </div>
@@ -36,10 +36,36 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let company of companies">
+              @for(company of companies; track $index){
+              <tr>
+               
+                 
+               
                 <td> {{ company.companyName }} </td>
-                <td> {{ company?.supplier }} </td>
-                <td> {{ company?.customer }} </td>
+                <td>
+                  @if(company.supplier){
+                    <span>✔️</span>
+                  }
+                  @else if (!company.supplier){
+                    <span>❌</span>
+                   
+                  }
+                
+                  
+                  
+                </td>
+                <td>
+                  @if(company.customer){
+                    <span>✔️</span>
+                  }
+                  @else if (!company.customer){
+                    <span>❌</span>
+                   
+                  }
+                
+                  
+                  
+                </td>
 
                 <!-- Team Leader Column -->
                 <!-- <td> {{ team.leader.name }} </td> -->
@@ -54,17 +80,21 @@
 
                 <!-- Manage Column -->
                 <td>
-                  <button mat-menu-item (click)="openRoleDialog(company)">
+                  <button mat-menu-item (click)="openCompany(company)">
                     <mat-icon>mode_edit</mat-icon>
-                  </button> &nbsp;
+                  </button>
                   <!-- Uncomment if delete is needed -->
-                  <button mat-menu-item (click)="deleteTeam(company.id);">
+                  <button mat-menu-item (click)="deleteCompany(company.id);">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </td>
               </tr>
+            }
             </tbody>
           </table>
+          <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
+          (page)="onPageChange($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
+         </mat-paginator>
 
         </section>
     </main>

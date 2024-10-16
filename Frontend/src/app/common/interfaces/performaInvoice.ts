@@ -1,4 +1,5 @@
 
+import { Company } from "./company";
 import { PerformaInvoiceStatus } from "./performa-invoice-status";
 import { User } from "./user";
 
@@ -12,26 +13,34 @@ export interface PerformaInvoice {
   bankSlip: string;
   performaInvoiceStatuses: PerformaInvoiceStatus[];
   salesPersonId : number;
-  kamId : number;
-  amId: number;
-  accountantId : number;
+  kamId? : number;
+  amId?: number;
+  accountantId? : number;
   salesPerson: User;
   kam: User;
   am: User;
   accountant: User;
 
-  supplierName: string;
+ 
   supplierSoNo: string;
   supplierPoNo: string;
   supplierCurrency: string;
   supplierPrice: string;
   purpose:string;
-  customerName: string;
+
   customerPoNo: string;
   customerSoNo: string;
   customerCurrency: string;
   poValue: string;
+  notes: string;
   count: number;
   addedById: number;
-  addedBy: User
+  addedBy: User;
+
+
+  supplierId: number;
+  customerId?: number;
+  suppliers: Company;
+  customers: Company
+  
 }

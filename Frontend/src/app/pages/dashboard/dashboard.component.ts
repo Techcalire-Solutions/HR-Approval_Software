@@ -11,6 +11,7 @@ import { BirthdayComponent } from "./birthday/birthday.component";
 import { JoiningDayComponent } from "./joining-day/joining-day.component";
 import { ProbationDueComponent } from "./probation-due/probation-due.component";
 import { HolidayCalendarComponent } from "./holiday-calendar/holiday-calendar.component";
+import { LeaveRequestsNotificationComponent } from './leave-requests-notification/leave-requests-notification.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,7 +26,8 @@ import { HolidayCalendarComponent } from "./holiday-calendar/holiday-calendar.co
     BirthdayComponent,
     JoiningDayComponent,
     ProbationDueComponent,
-    HolidayCalendarComponent
+    HolidayCalendarComponent,
+    LeaveRequestsNotificationComponent
 ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
