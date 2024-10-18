@@ -46,8 +46,20 @@ const transporter = nodemailer.createTransport({
           notes,
           paymentMode
       } = req.body;
-  
+
+
+
       const userId = req.user.id;
+      try {
+        if(kamId==null){
+            return res.send('Please Select Key Account Manager');
+        }
+        
+    } catch (error) {
+        res.send(error.message)
+    }
+  
+
   
       try {
           // Check if the invoice already exists
@@ -196,6 +208,14 @@ const transporter = nodemailer.createTransport({
     } = req.body;
 
     const userId = req.user.id;
+    try {
+        if(amId==null){
+            return res.send('Please Select Manager to be assigned');
+        }
+        
+    } catch (error) {
+        res.send(error.message)
+    }
 
     try {
         // Check if the invoice already exists
@@ -329,8 +349,6 @@ const transporter = nodemailer.createTransport({
 });
 
   
-
-
 router.post('/saveByAM', authenticateToken, async (req, res) => {
     const {
         piNo,
@@ -352,6 +370,15 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
     } = req.body;
 
     const userId = req.user.id;
+
+    try {
+        if(accountantId==null){
+            return res.send('Please Select accountant to be assigned');
+        }
+        
+    } catch (error) {
+        res.send(error.message)
+    }
 
     try {
         // Check if the invoice already exists
@@ -383,101 +410,103 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
             addedById: userId
         });
 
-        // Save the PI status
+        const piId = newPi.id;
         const piStatus = await PerformaInvoiceStatus.create({
-            performaInvoiceId: newPi.id,
+            performaInvoiceId: piId,
             status: 'AM VERIFIED',
             date: new Date(),
         });
 
-        // Find the Accountant's email address
-        const accountant = await User.findOne({ where: { id: accountantId } });
-        if (!accountant) {
-            return res.status(404).json({ error: 'Accountant not found' });
-        }
-
-        const accountantEmail = accountant.email;
-
-        // Fetch supplier and customer details
         const supplier = await Company.findOne({ where: { id: supplierId } });
         const customer = await Company.findOne({ where: { id: customerId } });
 
-        const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
-        const customerName = customer ? customer.companyName : 'Unknown Customer';
+         const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
+          const customerName = customer ? customer.companyName : 'Unknown Customer';
 
-        // Handle file attachments from S3
+           // Find the Accountant's email address
+           const accountant = await User.findOne({ where: { id: accountantId } });
+           if (!accountant) {
+               return res.status(404).json({ error: 'Accountant not found' });
+           }
+   
+           const accountantEmail = accountant.email;
+  
+   
+
         const attachments = [];
 
-        if (url && Array.isArray(url)) {
-            for (const fileObj of url) {
-                const actualUrl = fileObj.url || fileObj.file;
-                if (!actualUrl) continue;
 
-                const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+        for (const fileObj of url) {
+            const actualUrl = fileObj.url || fileObj.file;
+            if (!actualUrl) continue;
 
-                const params = {
-                    Bucket: process.env.AWS_BUCKET_NAME,
-                    Key: fileKey,
-                };
+            const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
 
-                try {
-                    const s3File = await s3.getObject(params).promise();
-                    const fileBuffer = s3File.Body;
+            const params = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: fileKey,
+            };
 
-                    attachments.push({
-                        filename: actualUrl.split('/').pop(),
-                        content: fileBuffer,
-                        contentType: s3File.ContentType,
-                    });
-                } catch (error) {
-                    console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error);
-                    continue;
-                }
+            try {
+      
+                const s3File = await s3.getObject(params).promise();
+                const fileBuffer = s3File.Body;
+
+        
+                attachments.push({
+                    filename: actualUrl.split('/').pop(),
+                    content: fileBuffer, 
+                    contentType: s3File.ContentType 
+                });
+            } catch (error) {
+                console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error);
+                continue; 
             }
         }
 
-        // Set up email options
+       
         const mailOptions = {
-            from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
-            to: accountantEmail,
-            subject: `New Proforma Invoice Generated - ${piNo}`,
-            html: `
-                <p>A new Proforma Invoice has been generated by <strong>${req.user.name}</strong></p>
-                <p><strong>Entry Number:</strong> ${piNo}</p>
-                <p><strong>Supplier Name:</strong> ${supplierName}</p>
-                <p><strong>Supplier PO No:</strong> ${supplierPoNo}</p>
-                <p><strong>Supplier SO No:</strong> ${supplierSoNo}</p>
-                <p><strong>Status:</strong> ${newPi.status}</p>
-                ${purpose === 'Stock' 
-                    ? `<p><strong>Purpose:</strong> Stock</p>` 
-                    : `<p><strong>Purpose:</strong> Customer</p>
-                       <p><strong>Customer Name:</strong> ${customerName}</p>
-                       <p><strong>Customer PO No:</strong> ${customerPoNo}</p>
-                       <p><strong>Customer SO No:</strong> ${customerSoNo}</p>`
-                }
-                <p><strong>Notes:</strong> ${newPi.notes}</p>
-                <p>Please find the attached documents related to this Proforma Invoice.</p>
-            `,
-            attachments: attachments,
-        };
+          from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+          to: accountantEmail,
+          subject: `New Proforma Invoice Generated - ${piNo}`,
+          html: `
+              <p>A new Proforma Invoice has been generated by <strong>${req.user.name}</strong></p>
+              <p><strong>Entry Number:</strong> ${piNo}</p>
+              <p><strong>Supplier Name:</strong> ${supplierName}</p>
+              <p><strong>Supplier PO No:</strong> ${supplierPoNo}</p>
+              <p><strong>Supplier SO No:</strong> ${supplierSoNo}</p>
+              <p><strong>Status:</strong> ${newPi.status}</p>
+              ${purpose === 'Stock' 
+                  ? `<p><strong>Purpose:</strong> Stock</p>` 
+                  : `<p><strong>Purpose:</strong> Customer</p>
+                     <p><strong>Customer Name:</strong> ${customerName}</p>
+                     <p><strong>Customer PO No:</strong> ${customerPoNo}</p>
+                     <p><strong>Customer SO No:</strong> ${customerSoNo}</p>`
+              }
+              <p><strong>Notes:</strong> ${newPi.notes}</p>
+              <p>Please find the attached documents related to this Proforma Invoice.</p>
+          `,
+          attachments: attachments 
+      };
+      
+        if (accountantEmail) {
+            await transporter.sendMail(mailOptions);
+            console.log('Email sent successfully to:', accountantEmail);
+        } else {
+            console.log('No KAM email found');
+        }
 
-        // Send email notification
-        await transporter.sendMail(mailOptions);
-        console.log('Email sent successfully to:', accountantEmail);
-
-        // Return the new Proforma Invoice and its status
+    
         res.json({
-            invoice: newPi,
-            status: piStatus,
-            message: 'Proforma Invoice saved successfully'
+            piNo: newPi.piNo,          
+            status: piStatus.status,   
+            message: 'Proforma Invoice saved successfully' 
         });
     } catch (error) {
-        console.error('Error processing the request:', error);
+        console.error('Error saving proforma invoice:', error);
         res.status(500).json({ error: error.message });
     }
 });
-
-
 
 
 
