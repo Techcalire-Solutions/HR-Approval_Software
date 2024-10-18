@@ -133,4 +133,8 @@ export class InvoiceService {
   excelExport(data: any){
     return this._http.post<any[]>(this.url + '/invoice/excelupload', data);
   }
+
+  getexcel(){
+    return this._http.get(this.url + '/invoice/getexcel', { responseType: 'arraybuffer' });
+  }
 }
