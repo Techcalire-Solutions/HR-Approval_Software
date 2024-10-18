@@ -1,1 +1,7 @@
-<p>view-excel works!</p>
+<div style="margin-top: 10px;">
+  <button (click)="downloadExcel()">Download Excel</button>
+</div>
+<div class="pdf-container">
+  <iframe [src]="excelUrl" width="100%" height="600px"></iframe>
+</div>
+

@@ -144,7 +144,8 @@ export class AddApprovalComponent {
     customerSoNo:[''],
     customerCurrency:['Dollar'],
     poValue: [''],
-    notes:['']
+    notes:[''],
+    paymentMode:['']
   });
 
   doc(): FormArray {

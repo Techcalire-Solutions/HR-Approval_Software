@@ -27,6 +27,8 @@ const PerformaInvoice = sequelize.define('performaInvoice',{
     customerPoNo: { type: DataTypes.STRING },
     customerCurrency: { type: DataTypes.STRING },
     poValue: { type: DataTypes.STRING },
+    paymentMode:  { type: DataTypes.STRING },
+
 
     purpose: { type: DataTypes.STRING },
     addedById: { type: DataTypes.INTEGER },
