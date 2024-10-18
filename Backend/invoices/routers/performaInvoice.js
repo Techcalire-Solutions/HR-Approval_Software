@@ -27,7 +27,7 @@ const transporter = nodemailer.createTransport({
 
   
 
-  router.post('/save', authenticateToken, async (req, res) => {
+router.post('/save', authenticateToken, async (req, res) => {
       const {
           piNo,
           url,  
@@ -159,6 +159,7 @@ const transporter = nodemailer.createTransport({
                        <p><strong>Customer PO No:</strong> ${customerPoNo}</p>
                        <p><strong>Customer SO No:</strong> ${customerSoNo}</p>`
                 }
+                    <p><strong>Payment mode:</strong> ${newPi.paymentMode}</p>
                 <p><strong>Notes:</strong> ${newPi.notes}</p>
                 <p>Please find the attached documents related to this Proforma Invoice.</p>
             `,
@@ -186,7 +187,7 @@ const transporter = nodemailer.createTransport({
 
 
   
-  router.post('/saveByKAM', authenticateToken, async (req, res) => {
+router.post('/saveByKAM', authenticateToken, async (req, res) => {
     const {
         piNo,
         url,  
@@ -218,13 +219,13 @@ const transporter = nodemailer.createTransport({
     }
 
     try {
-        // Check if the invoice already exists
+ 
         const existingInvoice = await PerformaInvoice.findOne({ where: { piNo: piNo } });
         if (existingInvoice) {
             return res.status(400).json({ error: 'Invoice is already saved' });
         }
 
-        // Save the new Proforma Invoice
+  
         const newPi = await PerformaInvoice.create({
             piNo,
             url,
@@ -316,13 +317,14 @@ const transporter = nodemailer.createTransport({
                        <p><strong>Customer PO No:</strong> ${customerPoNo}</p>
                        <p><strong>Customer SO No:</strong> ${customerSoNo}</p>`
                 }
+                <p><strong>Payment mode:</strong> ${newPi.paymentMode}</p>
                 <p><strong>Notes:</strong> ${newPi.notes}</p>
                 <p>Please find the attached documents related to this Proforma Invoice.</p>
             `,
             attachments: attachments 
         };
 
-        console.log('Mail options:', mailOptions);  // Log mail options
+        console.log('Mail options:', mailOptions);  
         if (amEmail) {
             try {
                 const emailResponse = await transporter.sendMail(mailOptions);
@@ -349,6 +351,7 @@ const transporter = nodemailer.createTransport({
 });
 
   
+
 router.post('/saveByAM', authenticateToken, async (req, res) => {
     const {
         piNo,
@@ -381,13 +384,12 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
     }
 
     try {
-        // Check if the invoice already exists
+ 
         const existingInvoice = await PerformaInvoice.findOne({ where: { piNo: piNo } });
         if (existingInvoice) {
             return res.status(400).json({ error: 'Invoice is already saved' });
         }
 
-        // Save the new Proforma Invoice
         const newPi = await PerformaInvoice.create({
             piNo,
             url,
@@ -423,7 +425,7 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
          const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
           const customerName = customer ? customer.companyName : 'Unknown Customer';
 
-           // Find the Accountant's email address
+       
            const accountant = await User.findOne({ where: { id: accountantId } });
            if (!accountant) {
                return res.status(404).json({ error: 'Accountant not found' });
@@ -483,6 +485,7 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
                      <p><strong>Customer PO No:</strong> ${customerPoNo}</p>
                      <p><strong>Customer SO No:</strong> ${customerSoNo}</p>`
               }
+              <p><strong>Payment mode:</strong> ${newPi.paymentMode}</p>
               <p><strong>Notes:</strong> ${newPi.notes}</p>
               <p>Please find the attached documents related to this Proforma Invoice.</p>
           `,
@@ -1044,10 +1047,14 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
 
        
         const am = users.find(user => user.id === pi.amId);
+
+        const accountant = users.find(user=>user.id===pi.accountantId)
         const otherEmails = users
-            .filter(user => user.id !== pi.amId)
+            .filter(user => user.id !== pi.accountantId)
             .map(user => user.email)
             .join(',');
+       
+       
 
         if (!am) {
             return res.status(404).json({ message: 'Account Manager not found' });
@@ -1066,8 +1073,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
    
         const mailOptions = {
             from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
-            to: am.email, 
-            cc: otherEmails, 
+            to:otherEmails,
             subject: `Bank Slip Uploaded for Invoice - ${pi.piNo}`,
             html: `
                 <p>A bank slip has been uploaded for proforma invoice ID: <strong>${pi.piNo}</strong>.</p>
