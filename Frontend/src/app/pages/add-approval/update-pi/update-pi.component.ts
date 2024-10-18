@@ -24,7 +24,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatSelectModule, MatInputModule, SafePipe],
   templateUrl: './update-pi.component.html',
   styleUrl: './update-pi.component.scss',
-  encapsulation: ViewEncapsulation.None 
+  encapsulation: ViewEncapsulation.None
 })
 export class UpdatePIComponent {
   url = environment.apiUrl;
@@ -75,7 +75,7 @@ export class UpdatePIComponent {
 
   newDoc(initialValue?: any): FormGroup {
     console.log(initialValue);
-    
+
     return this.fb.group({
       url: [initialValue?initialValue.url : '', Validators.required],
       remarks: [initialValue?initialValue.remarks : ''],
@@ -84,7 +84,7 @@ export class UpdatePIComponent {
 
   removeData(index: number) {
     const formGroup = this.doc().at(index).value;
-  
+
     if (formGroup.url !== null) {
       this.invoiceService.deleteUploadByurl(formGroup.url).subscribe({
         next: (response) => {
@@ -98,7 +98,7 @@ export class UpdatePIComponent {
       this.doc().removeAt(index)
     }
   }
-  
+
   // imageUploaded: boolean
   // isImageUploaded(): boolean {
   //   const controls = this.piForm.get('url')as FormArray;
@@ -109,7 +109,7 @@ export class UpdatePIComponent {
   //   }else return false;
   // }
 
-  
+
   id!: number;
   ngOnInit(): void {
     this.id = this.route.snapshot.params['id'];
@@ -140,10 +140,11 @@ export class UpdatePIComponent {
   imageUrl: any[] = [];
   newImageUrl: any[] = [];
   onFileSelected(event: Event, i: number): void {
-    console.log(i);
-    
+
     const input = event.target as HTMLInputElement;
     let file: any = input.files?.[0];
+    console.log(file.type.split('/')[1]);
+
     this.fileType[i] = file.type.split('/')[1]
     if (file) {
         let inv = this.piNo;
@@ -151,11 +152,11 @@ export class UpdatePIComponent {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('name', name);
-        
+
         this.uploadSub = this.invoiceService.uploadInvoice(formData).subscribe({
             next: (invoice) => {
               console.log(invoice);
-              
+
                 this.doc().at(i).get('url')?.setValue(invoice.fileUrl);
                 this.newImageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${invoice.fileUrl}`;
             }
@@ -205,10 +206,10 @@ export class UpdatePIComponent {
   onUpdate(){
     if(this.roleName=='Sales Executive'){
       console.log(this.piForm.getRawValue());
-      
+
       this.submit = this.invoiceService.updatePIBySE(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
         console.log(invoice);
-        
+
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
         this.router.navigateByUrl('login/viewApproval')
       });
@@ -235,7 +236,7 @@ export class UpdatePIComponent {
     this.editStatus = true;
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
       console.log(pi);
-      
+
       let inv = pi.pi;
       this.piNo = inv.piNo
       let remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
@@ -259,13 +260,13 @@ export class UpdatePIComponent {
         notes: inv.notes
       });
       console.log(pi);
-      
+
       for (let index = 0; index < pi.signedUrl.length; index++) {
         this.addDoc(pi.pi.url[index])
       }
       if (inv.url) {
         this.imageUrl = pi.signedUrl;
-      } 
+      }
     });
   }
 

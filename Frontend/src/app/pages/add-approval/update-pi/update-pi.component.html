@@ -8,7 +8,7 @@
       <div class="col">
         <h1>UPLOAD</h1>
       </div>
-      <button mat-raised-button color="primary" onClick="history.back()" >
+      <button mat-raised-button color="primary" onClick="history.back()">
         <mat-icon>close</mat-icon>
       </button>
 
@@ -28,7 +28,7 @@
             <input matInput placeholder="" formControlName="status" readonly>
           </mat-form-field>
         }
-        
+
         <mat-form-field appearance="outline">
           <mat-label>Supplier Name</mat-label>
           <input matInput placeholder="" formControlName="supplierId">
@@ -126,7 +126,7 @@
         }
 
       </form>
-      
+
       <form [formGroup]="piForm" enctype="multipart/form-data">
         <div formArrayName="url">
           @for (uploadForm of doc().controls; track $index; let i = $index;) {
@@ -138,7 +138,7 @@
                     <input matInput formControlName="remarks">
                   </mat-form-field>
                 </div>
-                
+
                 @if(!imageUrl[i] && !newImageUrl[i]){
                   <div class="col">
                     <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">
@@ -149,11 +149,13 @@
                 @else if(imageUrl[i] && !newImageUrl[i]){
                   <div class="col">
                     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
-                      @if(fileType[i] === 'pdf'){
-                        <iframe [src]="imageUrl[i].url | safe" width="100%" height="300px"></iframe>
+                      <iframe [src]="imageUrl[i].url | safe"></iframe>
+                      <!-- @if(fileType[i] === 'pdf'){
+                        rrrrrrr
+
                       }@else {
                         <img [src]="imageUrl[i].url" alt="Image" title="Image" height="100" width="100" class="clickable-image" />
-                      }
+                      } -->
                       <mat-icon style="color: red;" (click)="onDeleteUploadedImage(i)">delete</mat-icon>
                     </div>
                   </div>
