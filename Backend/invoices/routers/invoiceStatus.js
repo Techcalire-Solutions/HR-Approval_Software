@@ -8,7 +8,7 @@ const sequelize = require('../../utils/db');
 const User = require('../../users/models/user');
 const nodemailer = require('nodemailer');
 const s3 = require('../../utils/s3bucket');
-
+const multer = require('multer');
 
 
 const transporter = nodemailer.createTransport({
@@ -20,34 +20,41 @@ const transporter = nodemailer.createTransport({
   });
 
 
-
-
 router.post('/updatestatus', authenticateToken, async (req, res) => {
-    const { performaInvoiceId, remarks, amId, accountantId } = req.body;
+    const { performaInvoiceId, remarks, amId, accountantId, status } = req.body;
 
     try {
-  
+        console.log('Incoming request data:', req.body);
+
+     
         const pi = await PerformaInvoice.findByPk(performaInvoiceId);
-        if (!pi || !pi.url) {
-            return res.status(404).send('Proforma Invoice not found or does not have an associated file.');
+        if (!pi) {
+            return res.status(404).send('Proforma Invoice not found.');
         }
 
-  
-        const status = new PerformaInvoiceStatus({
+
+
+        if (!Array.isArray(pi.url) || pi.url.length === 0) {
+            console.error('Invalid or missing URL:', pi.url);
+            return res.status(404).send('Proforma Invoice does not have an associated file or the URL is invalid.');
+        }
+
+   
+        const newStatus = new PerformaInvoiceStatus({
             performaInvoiceId,
-            status: req.body.status,
-            date: Date.now(),
+            status,
+            date: new Date(),
             remarks,
         });
-        await status.save();
+        await newStatus.save();
 
       
-        pi.status = req.body.status;
+        pi.status = status;
         if (amId != null) pi.amId = amId;
         if (accountantId != null) pi.accountantId = accountantId;
         await pi.save();
 
-      
+     
         const [salesPerson, kam, am, accountant] = await Promise.all([
             User.findOne({ where: { id: pi.salesPersonId } }),
             User.findOne({ where: { id: pi.kamId } }),
@@ -55,28 +62,29 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
             User.findOne({ where: { id: accountantId } }),
         ]);
 
+        console.log('Retrieved users:', { salesPerson, kam, am, accountant });
+
         const salesPersonEmail = salesPerson ? salesPerson.email : null;
         const kamEmail = kam ? kam.email : null;
         const accountantEmail = accountant ? accountant.email : null;
         const amEmail = am ? am.email : null;
 
-       
         let emailSubject = `Proforma Invoice Status Update - ${pi.id}`;
-        let emailText = `The status of the Proforma Invoice ${pi.id} has been updated to ${req.body.status}.\n\n` +
+        let emailText = `The status of the Proforma Invoice ${pi.id} has been updated to ${status}.\n\n` +
                         `Remarks: ${remarks}\n` +
                         `Please check the details for further information.`;
 
-    
         let toEmail = null;
 
-        switch (req.body.status) {
+      
+        switch (status) {
             case 'KAM VERIFIED':
                 emailText = `Great news! The Proforma Invoice ${pi.id} has been verified by KAM.\n\n` + emailText;
-                toEmail = [amEmail, salesPersonEmail].join(', ');
+                toEmail = [salesPersonEmail, amEmail].filter(Boolean).join(', '); 
                 break;
             case 'AM VERIFIED':
                 emailText = `The Proforma Invoice ${pi.id} has been successfully verified by AM.\n\n` + emailText;
-                toEmail = accountantEmail; 
+                toEmail = [accountantEmail, kamEmail].filter(Boolean).join(', '); 
                 break;
             case 'KAM REJECTED':
                 emailText = `The Proforma Invoice ${pi.id} has been rejected by KAM.\n\nRemarks: ${remarks}\n` +
@@ -84,15 +92,23 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                 toEmail = salesPersonEmail; 
                 break;
             case 'AM REJECTED':
-                emailText = `The Proforma Invoice ${pi.id} has been rejected by AM. Please review the remarks:\n${remarks}`;
-                toEmail = kamEmail; 
+                emailText = `The Proforma Invoice ${pi.id} has been rejected by AM.\n\nRemarks: ${remarks}\n` +
+                             `Please review the remarks and take necessary actions.`;
+        
+            
+                if (pi.addedById === pi.salesPersonId) {
+                    toEmail = salesPersonEmail;
+                } else if (pi.addedById === pi.kamId) {
+                    toEmail = kamEmail; 
+                }
                 break;
             default:
                 return res.status(400).send('Invalid status update.');
         }
+        
 
-       
-        const attachmentUrl = pi.url; 
+      
+        const attachmentUrl = pi.url[0].url; 
         const attachmentFileKey = attachmentUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
 
         const attachmentParams = {
@@ -100,11 +116,10 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
             Key: attachmentFileKey,
         };
 
-      
-        const attachmentS3File = await s3.getObject(attachmentParams).promise();
-        const attachmentBuffer = attachmentS3File.Body;
+        console.log('Fetching attachment:', attachmentParams);
 
-        
+        const attachmentS3File = await s3.getObject(attachmentParams).promise();
+
         const mailOptions = {
             from: `${req.user.name} <${req.user.email}>`,
             to: toEmail,
@@ -113,21 +128,21 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
             attachments: [
                 {
                     filename: attachmentFileKey.split('/').pop(), 
-                    content: attachmentBuffer,
-                    contentType: attachmentS3File.ContentType 
-                }
-            ]
+                    content: attachmentS3File.Body,
+                    contentType: attachmentS3File.ContentType,
+                },
+            ],
         };
 
-  
         if (toEmail) {
             await transporter.sendMail(mailOptions);
             console.log('Email sent successfully to:', toEmail);
         }
 
-        res.json({ pi, status });
+        res.json({ pi, status: newStatus });
     } catch (error) {
         console.error('Error updating status and sending email:', error.message);
+        console.error('Detailed error stack:', error.stack);
         res.status(500).send('Internal Server Error');
     }
 });

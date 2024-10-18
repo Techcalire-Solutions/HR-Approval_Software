@@ -1,13 +1,10 @@
 
 const sequelize = require('./db');
-const bcrypt = require('bcrypt');
 const Role = require('../users/models/role');
-const User = require('../users/models/user');
-const userData = require('./user.json');
 const holidayData = require('./holiday.json');
 const Holiday = require("../leave/models/holiday");
 
-// HIII
+
 
 async function syncModel() {
    
