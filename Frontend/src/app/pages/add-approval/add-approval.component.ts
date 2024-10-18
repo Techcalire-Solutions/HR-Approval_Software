@@ -21,11 +21,12 @@ import { User } from '../../common/interfaces/user';
 import { SafePipe } from "./view-invoices/safe.pipe";
 import { Company } from '../../common/interfaces/company';
 import { CompanyService } from '@services/company.service';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-add-approval',
   standalone: true,
   imports: [ ReactiveFormsModule, MatFormFieldModule,  MatCardModule,  MatToolbarModule, MatIconModule,  MatButtonModule,
-    MatSelectModule, MatInputModule, SafePipe],
+    MatSelectModule, MatInputModule, SafePipe,CommonModule],
   templateUrl: './add-approval.component.html',
   styleUrl: './add-approval.component.scss'
 })
@@ -145,7 +146,7 @@ export class AddApprovalComponent {
     customerCurrency:['Dollar'],
     poValue: [''],
     notes:[''],
-    paymentMode:['']
+    paymentMode: ['WireTransfer']
   });
 
   doc(): FormArray {
@@ -293,7 +294,7 @@ onSubmit() {
 
               const errorMessage = err?.error?.message || 'An error occurred while uploading the invoice.';
 
-       
+
               console.error('Backend error response:', err);
 
               // Display the error message
@@ -318,4 +319,12 @@ onSubmit() {
       this.snackBar.open("Document is deleted successfully...","" ,{duration:3000})
     });
   }
+
+  get isCreditCardSelected() {
+    return this.piForm.get('paymentMode')?.value === 'CreditCard';
+  }
+  onPaymentModeChange() {
+    // This method can be used for any additional logic if needed
+  }
+
 }
