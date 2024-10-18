@@ -7,7 +7,7 @@
         <h1>UPLOAD</h1>
       </div>
       <div class="col" style="margin-left: auto; margin-right: 5px;" onClick="history.back()">
-        <span class="material-icons">exit_to_app</span>
+        <mat-icon>exit_to_app</mat-icon>
       </div>
     </div>
   </mat-toolbar>
@@ -185,7 +185,7 @@
           @if(!imageUrl[i]){
             <div class="col">
               <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">
-              <span class="material-icons file-upload-icon" (click)="fileInput.click()">cloud_upload</span>
+              <mat-icon (click)="fileInput.click()">cloud_upload</mat-icon>
               <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
             </div>
           }

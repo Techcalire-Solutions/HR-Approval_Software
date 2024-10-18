@@ -6,6 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoginService } from '@services/login.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ResetPasswordComponent } from '../users/reset-password/reset-password.component';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   standalone: true,
@@ -13,7 +14,7 @@ import { ResetPasswordComponent } from '../users/reset-password/reset-password.c
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
   imports: [
-    CommonModule,
+    CommonModule, MatIconModule,
     ReactiveFormsModule
   ]
 })
