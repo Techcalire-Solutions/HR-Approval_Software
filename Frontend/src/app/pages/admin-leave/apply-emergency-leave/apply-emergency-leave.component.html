@@ -83,7 +83,7 @@
   <div class="upload-container" (click)="fileInput.click()">
     Upload Image:
     <input type="file" hidden #fileInput (change)="uploadFile($event)">
-    <span class="material-icons clickable-icon" [ngClass]="{'file-selected': isFileSelected}" style="margin-left: 10px;">cloud_upload</span>
+    <mat-icon class="clickable-icon" [ngClass]="{'file-selected': isFileSelected}" style="margin-left: 10px;">cloud_upload</mat-icon>
     
     @if(fileName){
       <span style="margin-left: 10px;">{{ fileName }}</span>
