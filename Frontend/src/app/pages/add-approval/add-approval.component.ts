@@ -257,11 +257,11 @@ export class AddApprovalComponent {
 submit : Subscription
 
 onSubmit() {
-  console.log('Submitting Invoice Data:', this.piForm.getRawValue()); // Log form data
+  console.log('Submitting Invoice Data:', this.piForm.getRawValue());
 
   let submitMethod;
 
-  // Determine the submission method based on the role
+
   if (this.roleName === 'Sales Executive') {
       submitMethod = this.invoiceService.addPI(this.piForm.getRawValue());
   } else if (this.roleName === 'Key Account Manager') {
@@ -270,14 +270,14 @@ onSubmit() {
       submitMethod = this.invoiceService.addPIByAM(this.piForm.getRawValue());
   }
 
-  // Check if a valid method was found
+
   if (submitMethod) {
       this.submit = submitMethod.subscribe({
           next: (invoice: any) => {
-              console.log('Invoice Submission Response:', invoice); // Log the response for debugging
+              console.log('Invoice Submission Response:', invoice);
 
-              // Make sure invoice has a piNo field
-              const piNo = invoice?.piNo; // Accessing piNo correctly with optional chaining
+
+              const piNo = invoice?.piNo;
 
               if (piNo) {
                   this.snackBar.open(`Proforma Invoice ${piNo} uploaded successfully...`, "", { duration: 3000 });
@@ -290,10 +290,10 @@ onSubmit() {
           error: (err) => {
               console.error('Error occurred during invoice submission:', err);
 
-              // Check if the error has a specific message
+
               const errorMessage = err?.error?.message || 'An error occurred while uploading the invoice.';
 
-              // Log the error response
+       
               console.error('Backend error response:', err);
 
               // Display the error message

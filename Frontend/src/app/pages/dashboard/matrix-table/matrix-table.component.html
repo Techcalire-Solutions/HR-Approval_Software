@@ -14,7 +14,7 @@
                 </tr>
             </thead>
             <tbody>
-              @for (item of invoices; track item) {
+              @for (item of invoices; track $index) {
                 <tr>
                   <td class="project" (click)="openInvoice(item.id)" style="cursor: pointer; text-decoration: underline; color: #007bff;
                     transition: color 0.3s;" (mouseenter)="onMouseEnter($event)" (mouseleave)="onMouseLeave($event)">{{ item.piNo }}</td>
