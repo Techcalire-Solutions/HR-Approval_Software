@@ -155,7 +155,15 @@
 <mat-form-field appearance="outline">
   <mat-label>Notes</mat-label>
   <input matInput placeholder="" formControlName="notes" >
-</mat-form-field>       <!-- Conditional Fields -->
+</mat-form-field>  
+<mat-form-field appearance="outline">
+  <mat-label>Payment Mode</mat-label>
+  <mat-select formControlName="paymentMode">
+    <mat-option value="creditcard">Credit Card</mat-option>
+    <mat-option value="wiretransfer">Wire Transfer</mat-option>
+  </mat-select>
+</mat-form-field>
+
 
 </form>
 <form [formGroup]="piForm" enctype="multipart/form-data">

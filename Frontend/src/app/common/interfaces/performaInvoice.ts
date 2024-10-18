@@ -33,6 +33,7 @@ export interface PerformaInvoice {
   customerCurrency: string;
   poValue: string;
   notes: string;
+  paymentMode:string;
   count: number;
   addedById: number;
   addedBy: User;
