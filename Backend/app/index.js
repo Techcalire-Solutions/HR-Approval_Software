@@ -4,7 +4,6 @@ const dotenv = require('dotenv');
 const cors = require('cors')
 const sequelize = require('../utils/db');
 const path = require('path');
-const excelJs = require('exceljs');
 
 dotenv.config();
 app.use(cors({ origin: '*' }));

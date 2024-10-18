@@ -70,8 +70,7 @@ router.post('/bankslipupload', upload.single('file'), authenticateToken, async (
       fileUrl: fileUrl // S3 URL of the uploaded file
     });
   } catch (error) {
-    console.error('Error uploading file to S3:', error);
-    res.status(500).send({ message: error.message });
+    res.send({ message: error.message });
   }
 });
 
@@ -172,21 +171,24 @@ router.post('/excelupload', async (req, res) => {
       Key: fileName
   };
   try {
+      // Check if the file already exists in S3
       const existingFile = await s3.getObject(paramsCheckFile).promise();
       const existingWorkbook = xlsx.read(existingFile.Body, { type: 'buffer' });
 
+      // Read and update the existing worksheet
       const sheetName = existingWorkbook.SheetNames[0];
       const worksheet = existingWorkbook.Sheets[sheetName];
-
       const existingData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
 
+      // Append new data
       const updatedData = [...existingData, ...dataToAppend];
-
       const newWorksheet = xlsx.utils.aoa_to_sheet(updatedData);
       existingWorkbook.Sheets[sheetName] = newWorksheet;
 
+      // Write updated workbook to buffer
       const updatedExcel = xlsx.write(existingWorkbook, { bookType: 'xlsx', type: 'buffer' });
 
+      // Upload updated file to S3
       const paramsUpload = {
           Bucket: bucketName,
           Key: fileName,
@@ -198,35 +200,45 @@ router.post('/excelupload', async (req, res) => {
       await s3.upload(paramsUpload).promise();
       console.log(`File updated successfully at ${paramsUpload.Key}`);
       
-      return res.send(`File updated successfully at ${paramsUpload.Key}`);
+      return res.status(200).send({ message: 'Excel file saved successfully.' });
 
   } catch (err) {
-    console.log(err);
+    // Log the full error details for internal debugging
+    console.error('Error while processing Excel upload:', err);
     
     if (err.code === 'NoSuchKey') {
-        const newWorkbook = xlsx.utils.book_new();
-        const newWorksheet = xlsx.utils.aoa_to_sheet([Object.keys(jsonData), ...dataToAppend]); // Include headers
-        xlsx.utils.book_append_sheet(newWorkbook, newWorksheet, 'Sheet1');
+        try {
+            // Create a new workbook if the file doesn't exist
+            const newWorkbook = xlsx.utils.book_new();
+            const newWorksheet = xlsx.utils.aoa_to_sheet([Object.keys(jsonData), ...dataToAppend]); // Include headers
+            xlsx.utils.book_append_sheet(newWorkbook, newWorksheet, 'Sheet1');
 
-        const newExcel = xlsx.write(newWorkbook, { bookType: 'xlsx', type: 'buffer' });
+            const newExcel = xlsx.write(newWorkbook, { bookType: 'xlsx', type: 'buffer' });
 
-        // Upload the new file to S3
-        const paramsUploadNew = {
-            Bucket: bucketName,
-            Key: fileName,
-            Body: newExcel,
-            ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            ACL: 'public-read'
-        };
+            // Upload the new file to S3
+            const paramsUploadNew = {
+                Bucket: bucketName,
+                Key: fileName,
+                Body: newExcel,
+                ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                ACL: 'public-read'
+            };
 
-        await s3.upload(paramsUploadNew).promise();
-        return res.send(`New file created successfully at ${paramsUploadNew.Key}`);
+            await s3.upload(paramsUploadNew).promise();
+            return res.status(200).send({ message: 'Excel file saved successfully.' });
+        } catch (uploadErr) {
+            // Log the error details for internal use
+            console.error('Error creating new file and uploading to S3:', uploadErr);
+            return res.status(500).send('An error occurred while creating a new file.');
+        }
     } else {
+        // Log other unexpected errors
         console.error('Error checking or uploading to S3:', err);
-        return res.send('Error checking or uploading to S3');
+        return res.status(500).send('An error occurred while uploading the file.');
     }
   }
 });
+
 
 router.get('/getexcel', authenticateToken, async (req, res) => {
   try {

@@ -2,12 +2,13 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { LeaveInfoDialogComponent } from '../leave-info-dialog/leave-info-dialog.component';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-leave-update-dialog',
   standalone: true,
   imports:[
-    CommonModule
+    CommonModule, MatIconModule
   ],
   templateUrl: './leave-update-dialog.component.html',
   styleUrl: './leave-update-dialog.component.scss'

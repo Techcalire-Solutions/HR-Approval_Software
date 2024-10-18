@@ -182,31 +182,56 @@ export class ViewInvoicesComponent {
   fileName: string = '';
   makeExcel() {
     let data = {
-      EntryNo : this.pi.piNo,
+      EntryNo: this.pi.piNo,
       Purpose: this.pi.purpose,
       SupplierName: this.pi.suppliers.companyName,
       SupplierPONo: this.pi.supplierPoNo,
       SupplierSONo: this.pi.supplierSoNo,
       SupplierPrice: `${this.pi.supplierPrice} ${this.pi.supplierCurrency}`,
-      CustomerPoNo : this.pi.customerPoNo,
-      CustomerSoNo : this.pi.customerSoNo,
-      CustomerName : this.pi.customers?.companyName|| '',
+      CustomerPoNo: this.pi.customerPoNo,
+      CustomerSoNo: this.pi.customerSoNo,
+      CustomerName: this.pi.customers?.companyName || '',
       SellingPrice: `${this.pi.poValue} ${this.pi.customerCurrency}`,
       SalesPerson: this.pi.salesPerson.name,
-      KAM : this.pi.kam.name,
-      ManagerName : this.pi.am.name,
-      AccountantName : this.pi.accountant.name,
-      AddedBy : this.pi.addedBy.name,
-      BankSlip : this.pi.bankSlip,
+      KAM: this.pi.kam.name,
+      ManagerName: this.pi.am.name,
+      AccountantName: this.pi.accountant.name,
+      AddedBy: this.pi.addedBy.name,
+      BankSlip: this.pi.bankSlip,
       url: this.pi.url.map((u: any) => `URL: https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${u.url}, Remarks: ${u.remarks}`).join(' | '),
-      CreatedAt : this.pi.createdAt,
-    }
-
-    this.invoiceService.excelExport(data).subscribe(result => {
-      console.log(result);
-      this.router.navigateByUrl('/login/viewexcel')
+      CreatedAt: this.pi.createdAt,
+    };
+  
+    this.invoiceService.excelExport(data).subscribe({
+      next: (result: any) => {
+        // Check if the result indicates success
+        console.log('Excel export successful:', result);
+  
+        // Example of checking the response message
+        if (result && result.message === "Excel file saved successfully.") {
+          // Route to the next component if the export is successful
+          this.router.navigateByUrl('/login/viewexcel');
+        } else {
+          // Handle unexpected responses
+          console.error('Unexpected response:', result);
+          alert('Unexpected response from server. Please check the logs.');
+        }
+      },
+      error: (error) => {
+        // Log detailed error information
+        console.error('Excel export failed:', error);
+  
+        if (error.error) {
+          console.error(`Error Body: ${JSON.stringify(error.error)}`);
+        }
+  
+        alert('There was an error exporting the Excel file. Please check the logs.');
+      }
     });
   }
+  
+  
+  
 
 }
 

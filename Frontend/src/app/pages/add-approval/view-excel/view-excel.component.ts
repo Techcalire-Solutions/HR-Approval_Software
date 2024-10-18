@@ -2,18 +2,39 @@ import { Component, inject, OnInit } from '@angular/core';
 import { InvoiceService } from '@services/invoice.service';
 import { SafePipe } from "../view-invoices/safe.pipe";
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DatePipe } from '@angular/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-view-excel',
   standalone: true,
-  imports: [SafePipe],
+  imports: [SafePipe, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatButtonModule],
   templateUrl: './view-excel.component.html',
-  styleUrl: './view-excel.component.scss'
+  styleUrl: './view-excel.component.scss',
+  providers: [DatePipe]
 })
 export class ViewExcelComponent implements OnInit {
   excelUrl: SafeResourceUrl;
+  datePipe = inject(DatePipe);
   ngOnInit(): void {
-    const fileUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/PaymentExcel/2024-10-17.xlsx';
+    let currentDate = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
+    this.getExcel(currentDate)
+  }
+
+  onDateChange(event: any): void {
+    const selectedDate = event.value;
+    console.log(selectedDate);
+    let newDate = this.datePipe.transform(selectedDate, 'yyyy-MM-dd');
+    this.getExcel(newDate)
+  }
+
+  getExcel(date: any){
+    const fileUrl = `https://view.officeapps.live.com/op/embed.aspx?src=https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/PaymentExcel/${date}.xlsx`;
+
     this.excelUrl = this.sanitizeUrl(fileUrl);
   }
 

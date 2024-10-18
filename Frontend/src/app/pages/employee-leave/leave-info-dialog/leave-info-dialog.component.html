@@ -4,11 +4,11 @@
           <div class="modal-header">
               <h4 class="modal-title">Confirmation</h4>
               <button type="button" class="back-icon" aria-label="Back" (click)="onBack()">
-                  <i class="material-icons">arrow_back</i>
+                  <mat-icon>arrow_back</mat-icon>
               </button>
           </div>
           <div class="modal-body text-center" >
-              <i class="material-icons" style="font-size: 25px; color: #60c7c1;"  *ngIf="showOkButton">check_circle</i>
+              <mat-icon style="font-size: 25px; color: #60c7c1;"  *ngIf="showOkButton">check_circle</mat-icon>
               <p>{{ message }}</p>
           </div>
           <div class="modal-footer justify-content-center">
