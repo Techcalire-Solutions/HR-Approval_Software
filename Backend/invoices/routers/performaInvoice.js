@@ -46,7 +46,14 @@ const transporter = nodemailer.createTransport({
       notes
     } = req.body;
     const userId = req.user.id;
-    
+    try {
+        if(kamId==null){
+            return res.send('Please Select Key Account Manager');
+        }
+        
+    } catch (error) {
+        res.send(error.message)
+    }
     try {
         const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
             if (pi) {
@@ -141,6 +148,14 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
     const { piNo, url, amId, supplierId,supplierSoNo, supplierPoNo, supplierCurrency,supplierPrice, purpose, customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes } = req.body;
     const userId = req.user.id;
     try {
+        if(amId==null){
+            return res.send('Please Select Manager to be assigned');
+        }
+        
+    } catch (error) {
+        res.send(error.message)
+    }
+    try {
         const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
             if (pi) {
                 return res.send('Invoice is already saved');
@@ -211,6 +226,16 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
 router.post('/saveByAM', authenticateToken, async (req, res) => {
     const { piNo, url, accountantId, supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId, customerPoNo,customerSoNo,customerCurrency, poValue, notes } = req.body;
     const userId = req.user.id;
+    
+    try {
+        if(accountantId==null){
+            return res.send('Please Select accountant to be assigned');
+        }
+        
+    } catch (error) {
+        res.send(error.message)
+    }
+    
     try {
         const pi =await PerformaInvoice.findOne({where: {piNo: piNo}})
             if (pi) {
