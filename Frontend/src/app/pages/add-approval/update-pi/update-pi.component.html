@@ -30,8 +30,18 @@
         }
 
         <mat-form-field appearance="outline">
-          <mat-label>Supplier Name</mat-label>
-          <input matInput placeholder="" formControlName="supplierId">
+          <!-- <mat-label>Supplier Name</mat-label>
+          <input matInput placeholder="Enter Supplier Name" formControlName="supplierName"> -->
+
+          <mat-select placeholder="Choose Supplier Name" formControlName="supplierId">
+            @for(item of supplierCompanies; track $index){
+              <mat-option [value]="item.id">
+                {{item.companyName}}
+              </mat-option>
+            }
+
+
+                </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Supplier SO#</mat-label>
@@ -42,7 +52,13 @@
           <mat-label>Supplier PO#</mat-label>
           <input matInput placeholder="Enter Supplier PO#" formControlName="supplierPoNo">
         </mat-form-field>
-
+        <mat-form-field appearance="outline">
+          <mat-label>Supplier Currency</mat-label>
+          <mat-select formControlName="supplierCurrency">
+              <mat-option value="Dollar">Dollar</mat-option>
+              <mat-option value="AED">AED</mat-option>
+          </mat-select>
+      </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Supplier Price $</mat-label>
           <input matInput placeholder="Enter Supplier Cost" formControlName="supplierPrice">
@@ -55,18 +71,7 @@
             <mat-option value="Customer">Customer</mat-option>
           </mat-select>
         </mat-form-field>
-        @if(sp){
-          <mat-form-field class="full-width" appearance="outline">
-            <mat-label>Key Account Manager</mat-label>
-            <mat-select placeholder="" formControlName="kamId">
-              @for(item of kam; track $index ){
-                <mat-option [value]="item.id">
-                  {{item.name}}
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        }
+ 
         @if(kamb){
           <mat-form-field class="full-width" appearance="outline">
             <mat-label>Manager</mat-label>
@@ -100,8 +105,18 @@
         @if(piForm.get('purpose')?.value === 'Customer'){
           <ng-container>
             <mat-form-field appearance="outline">
-              <mat-label>Customer Name</mat-label>
-              <input matInput placeholder="Enter Customer Name" formControlName="customerId">
+              <!-- <mat-option value="">None</mat-option> Option for unselection -->
+                <mat-select placeholder="Choose Customer Name" formControlName="customerId">
+                  @for(item of customerCompanies; track $index){
+                    <mat-option [value]="item.id">
+                      {{item.companyName}}
+                    </mat-option>
+                  }
+                  
+        
+        
+                      </mat-select>
+        
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -115,23 +130,43 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline">
+              <mat-label>Customer Currency</mat-label>
+              <mat-select formControlName="customerCurrency">
+                  <mat-option value="Dollar">Dollar</mat-option>
+                  <mat-option value="AED">AED</mat-option>
+              </mat-select>
+          </mat-form-field>
+          
+            <mat-form-field appearance="outline">
               <mat-label>CustomerPO Value $</mat-label>
               <input matInput placeholder="Enter PO Value" formControlName="poValue">
             </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Notes</mat-label>
-              <input matInput placeholder="Enter Notes" formControlName="notes">
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Payment Mode</mat-label>
-              <mat-select formControlName="paymentMode">
-                <mat-option value="creditcard">Credit Card</mat-option>
-                <mat-option value="wiretransfer">Wire Transfer</mat-option>
-              </mat-select>
-            </mat-form-field>
+         
           </ng-container>
         }
-
+        <mat-form-field appearance="outline">
+          <mat-label>Notes</mat-label>
+          <input matInput placeholder="Enter Notes" formControlName="notes">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Payment Mode</mat-label>
+          <mat-select formControlName="paymentMode">
+            <mat-option value="creditcard">Credit Card</mat-option>
+            <mat-option value="wiretransfer">Wire Transfer</mat-option>
+          </mat-select>
+        </mat-form-field>
+        @if(sp){
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Key Account Manager</mat-label>
+            <mat-select placeholder="" formControlName="kamId">
+              @for(item of kam; track $index ){
+                <mat-option [value]="item.id">
+                  {{item.name}}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
       </form>
 
       <form [formGroup]="piForm" enctype="multipart/form-data">
@@ -149,7 +184,7 @@
                 @if(!imageUrl[i] && !newImageUrl[i]){
                   <div class="col">
                     <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">
-                    <span class="material-icons file-upload-icon" (click)="fileInput.click()">cloud_upload</span>
+                    <mat-icon class="file-upload-icon" (click)="fileInput.click()">cloud_upload</mat-icon>
                     <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
                   </div>
                 }

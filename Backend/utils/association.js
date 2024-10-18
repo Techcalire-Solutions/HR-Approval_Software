@@ -9,8 +9,7 @@ const Holiday = require("../leave/models/holiday");
 async function syncModel() {
    
   await sequelize.sync({alter: true})
-
-
+  
     const holiday = await Holiday.findAll({})
     
     if(holiday.length === 0){

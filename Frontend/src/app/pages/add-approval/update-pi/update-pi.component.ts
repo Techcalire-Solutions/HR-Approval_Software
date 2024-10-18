@@ -17,6 +17,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { User } from '../../../common/interfaces/user';
 import { MatIconModule } from '@angular/material/icon';
+import { Company } from '../../../common/interfaces/company';
+import { CompanyService } from '@services/company.service';
 @Component({
   selector: 'app-update-pi',
   standalone: true,
@@ -35,6 +37,7 @@ export class UpdatePIComponent {
   router=inject(Router)
   route=inject(ActivatedRoute)
   sanitizer=inject(DomSanitizer)
+  companyService=inject(CompanyService)
 
   ngOnDestroy(): void {
     this.uploadSub?.unsubscribe();
@@ -62,7 +65,20 @@ export class UpdatePIComponent {
     notes:[],
     paymentMode:['']
   });
-
+  public supplierCompanies: Company[] | null;
+  public customerCompanies: Company[] | null;
+  public getSuppliers(): void {
+    this.companyService.getSuppliers().subscribe((suppliers: any) =>{
+      this.supplierCompanies = suppliers;
+      console.log('supplierCompanies',this.supplierCompanies);
+      
+    });
+  }
+  public getCustomers(): void {
+    this.companyService.getCustomers().subscribe((customers: any) =>{
+      this.customerCompanies = customers
+    });
+  }
   doc(): FormArray {
     return this.piForm.get("url") as FormArray;
   }
@@ -126,6 +142,8 @@ export class UpdatePIComponent {
 
     let roleId = user.role
     this.getRoleById(roleId)
+    this.getSuppliers();
+    this.getCustomers()
   }
 
   kamSub!: Subscription;
@@ -240,6 +258,8 @@ export class UpdatePIComponent {
 
       let inv = pi.pi;
       this.piNo = inv.piNo
+      console.log('supplier', inv.suppliers.companyName,);
+      
       let remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
 
       this.piForm.patchValue({
@@ -249,12 +269,12 @@ export class UpdatePIComponent {
         kamId: inv.kamId,
         amId: inv.amId,
         accountantId: inv.accountantId,
-        supplierId: inv.suppliers.companyName,
+        supplierId: inv.supplierId,
         supplierSoNo: inv.supplierSoNo,
         supplierPoNo: inv.supplierPoNo,
         supplierPrice: inv.supplierPrice,
         purpose: inv.purpose,
-        customerId: inv.customers.companyName,
+        customerId: inv.customerId,
         customerPoNo: inv.customerPoNo,
         customerSoNo: inv.customerSoNo,
         poValue: inv.poValue,
