@@ -68,7 +68,7 @@
           <mat-form-field class="full-width" appearance="outline">
             <mat-label>Manager</mat-label>
             <mat-select placeholder="" formControlName="amId">
-              <mat-option value="">None</mat-option> <!-- Option for unselection -->
+              
             @for(item of AMList; track $index){
               <mat-option [value]="item.id">
                 {{item.name}}
@@ -82,7 +82,7 @@
           <mat-form-field class="full-width" appearance="outline">
             <mat-label>Accountant</mat-label>
             <mat-select placeholder="" formControlName="accountantId">
-              <mat-option value="">None</mat-option> <!-- Option for unselection -->
+              
             @for(item of AccountantList; track $index){
               <mat-option [value]="item.id">
                 {{item.name}}
@@ -95,7 +95,7 @@
 @if(piForm.get('purpose')?.value === 'Customer'){
   <ng-container>
     <mat-form-field appearance="outline">
-      <mat-option value="">None</mat-option> <!-- Option for unselection -->
+     
         <mat-select placeholder="Choose Customer Name" formControlName="customerId">
           @for(item of customerCompanies; track $index){
             <mat-option [value]="item.id">
