@@ -1,6 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { InvoiceService } from '@services/invoice.service';
-import * as XLSX from 'xlsx';
 import { SafePipe } from "../view-invoices/safe.pipe";
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 

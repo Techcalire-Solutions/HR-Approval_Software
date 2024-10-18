@@ -181,8 +181,6 @@ export class ViewInvoicesComponent {
 
   fileName: string = '';
   makeExcel() {
-    console.log(this.pi);
-
     let data = {
       EntryNo : this.pi.piNo,
       Purpose: this.pi.purpose,
@@ -203,10 +201,10 @@ export class ViewInvoicesComponent {
       url: this.pi.url.map((u: any) => `URL: https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${u.url}, Remarks: ${u.remarks}`).join(' | '),
       CreatedAt : this.pi.createdAt,
     }
-    console.log(data);
 
     this.invoiceService.excelExport(data).subscribe(result => {
       console.log(result);
+      this.router.navigateByUrl('/login/viewexcel')
     });
   }
 

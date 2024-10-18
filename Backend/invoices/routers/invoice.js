@@ -160,7 +160,6 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
 
 router.post('/excelupload', async (req, res) => {
   const jsonData = req.body;
-  console.log(jsonData);
   
   const currentDate = new Date().toISOString().split('T')[0];
   const fileName = `PaymentExcel/${currentDate}.xlsx`; 
@@ -198,14 +197,13 @@ router.post('/excelupload', async (req, res) => {
 
       await s3.upload(paramsUpload).promise();
       console.log(`File updated successfully at ${paramsUpload.Key}`);
+      
       return res.send(`File updated successfully at ${paramsUpload.Key}`);
 
   } catch (err) {
     console.log(err);
     
     if (err.code === 'NoSuchKey') {
-        console.log('File does not exist in S3. Creating a new file...');
-
         const newWorkbook = xlsx.utils.book_new();
         const newWorksheet = xlsx.utils.aoa_to_sheet([Object.keys(jsonData), ...dataToAppend]); // Include headers
         xlsx.utils.book_append_sheet(newWorkbook, newWorksheet, 'Sheet1');
@@ -222,11 +220,10 @@ router.post('/excelupload', async (req, res) => {
         };
 
         await s3.upload(paramsUploadNew).promise();
-        console.log(`New file created successfully at ${paramsUploadNew.Key}`);
         return res.send(`New file created successfully at ${paramsUploadNew.Key}`);
     } else {
         console.error('Error checking or uploading to S3:', err);
-        return res.status(500).send('Error checking or uploading to S3');
+        return res.send('Error checking or uploading to S3');
     }
   }
 });

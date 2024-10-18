@@ -16,7 +16,7 @@
           <mat-icon>sim_card_download</mat-icon>
         </button>
         <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon"
-          class="d-block mr-0 ml-auto" onClick="history.back()" style="margin-left: auto;">
+          class="d-block mr-0 ml-auto" onClick="history.back()" style="margin-left: 5px;">
           <mat-icon>exit_to_app</mat-icon>
         </button>
       </mat-card-header>
@@ -28,7 +28,7 @@
     <table class="table table-bordered">
       <tbody>
         <tr>
-         
+
           <td><strong>Supplier Name:</strong> {{ pi.suppliers.companyName }}</td>
           <td><strong>Supplier PO No:</strong> {{ pi.supplierPoNo }}</td>
           <td><strong>Supplier SO No:</strong> {{ pi.supplierSoNo }}</td>
@@ -57,7 +57,7 @@
     </td>
   }
 
-  
+
         </tr>
       </tbody>
     </table>
@@ -85,7 +85,7 @@
         <button mat-button class="approve-button" (click)="verified('approved')">
           APPROVE
         </button>
-    
+
         <!-- Reject Button -->
         <button mat-raised-button class="reject-button" (click)="verified('rejected')">
           REJECT
@@ -103,20 +103,20 @@
     <mat-card>
       <!DOCTYPE html>
       <html lang="en">
-  
+
       <head>
-  
+
       </head>
-  
+
       <body>
-  
+
         <main class="table" id="customers_table">
           <section class="table__header">
             <div class="row">
               <div class="col">
                 <h4>STATUS</h4>
               </div>
-  
+
               <div class="col" style="margin-top: 0;">
                 <div class="input-group">
                   <input type="search" placeholder="Search Data by status..." (keyup)="applyFilter($event)">
@@ -124,7 +124,7 @@
               </div>
             </div>
           </section>
-  
+
           <section class="table__body">
             <table>
               <thead>
@@ -142,15 +142,15 @@
                     <td>{{row.date | date: 'dd/MM/yyyy'}}</td>
                   </tr>
                 }
-               
+
               </tbody>
             </table>
           </section>
         </main>
       </body>
-  
+
       </html>
-  
+
     </mat-card>
   </mat-card>
 }
