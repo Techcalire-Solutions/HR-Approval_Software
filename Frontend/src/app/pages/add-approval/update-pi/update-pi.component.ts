@@ -59,7 +59,8 @@ export class UpdatePIComponent {
     customerSoNo:[''],
     customerCurrency:['Dollar'],
     poValue: [''],
-    notes:[]
+    notes:[],
+    paymentMode:['']
   });
 
   doc(): FormArray {
@@ -257,7 +258,8 @@ export class UpdatePIComponent {
         customerPoNo: inv.customerPoNo,
         customerSoNo: inv.customerSoNo,
         poValue: inv.poValue,
-        notes: inv.notes
+        notes: inv.notes,
+        paymentMode: inv.paymentMode
       });
       console.log(pi);
 

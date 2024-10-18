@@ -43,7 +43,8 @@ const transporter = nodemailer.createTransport({
           customerSoNo,
           customerCurrency,
           poValue,
-          notes
+          notes,
+          paymentMode
       } = req.body;
   
       const userId = req.user.id;
@@ -74,7 +75,8 @@ const transporter = nodemailer.createTransport({
               customerCurrency,
               poValue,
               addedById: userId,
-              notes
+              notes,
+              paymentMode
           });
   
           const piId = newPi.id;
@@ -188,7 +190,8 @@ const transporter = nodemailer.createTransport({
         customerSoNo,
         customerCurrency,
         poValue,
-        notes
+        notes,
+        paymentMode
      
     } = req.body;
 
@@ -220,7 +223,8 @@ const transporter = nodemailer.createTransport({
             customerCurrency,
             poValue,
             addedById: userId,
-            notes
+            notes,
+            paymentMode
         });
 
         const piId = newPi.id;
@@ -343,7 +347,8 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
         customerSoNo,
         customerCurrency,
         poValue,
-        notes
+        notes,
+        paymentMode
     } = req.body;
 
     const userId = req.user.id;
@@ -374,6 +379,7 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
             customerCurrency,
             poValue,
             notes,
+            paymentMode,
             addedById: userId
         });
 
@@ -1063,7 +1069,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
 
 
 router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
-    const { url, kamId,supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes} = req.body;
+    const { url, kamId,supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes, paymentMode} = req.body;
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
         pi.url = url;
@@ -1082,6 +1088,7 @@ router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
         pi.customerPoNo=customerPoNo;
         pi.customerCurrency=customerCurrency;
         pi.poValue=poValue;
+        pi.paymentMode=paymentMode;
         pi.notes=notes
 
         await pi.save();
@@ -1143,7 +1150,7 @@ router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
 
 
 router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
-    const { url, kamId,supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes} = req.body;
+    const { url, kamId,supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes, paymentMode} = req.body;
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
         pi.url = url;
@@ -1162,6 +1169,7 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
         pi.customerPoNo=customerPoNo;
         pi.customerCurrency=customerCurrency;
         pi.poValue=poValue;
+        pi.paymentMode=paymentMode;
         pi.notes=notes;
 
         await pi.save();
@@ -1179,7 +1187,7 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
 });
 
 router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
-    const { url, kamId,supplierId, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId, customerPoNo,customerCurrency, poValue, notes} = req.body;
+    const { url, kamId,supplierId, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId, customerPoNo,customerCurrency, poValue,paymentMode, notes} = req.body;
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
         pi.url = url;
@@ -1196,6 +1204,7 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
         pi.customerPoNo=customerPoNo;
         pi.customerCurrency=customerCurrency;
         pi.poValue=poValue;
+        pi.paymentMode=paymentMode;
         pi.notes=notes
 
         await pi.save();
