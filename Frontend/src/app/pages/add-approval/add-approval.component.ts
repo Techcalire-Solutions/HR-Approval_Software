@@ -68,7 +68,7 @@ export class AddApprovalComponent {
     this.getRoleById(roleId)
     this.addDoc()
   }
-  
+
   public getCompany(): void {
     this.companyService.getCompany().subscribe((companies: any) =>{
       this.companies = companies
@@ -99,7 +99,7 @@ export class AddApprovalComponent {
       if(this.roleName === 'Accountant') this.ma = true;
       if(this.roleName === 'Team Lead') this.sp = true;
     })
-    
+
   }
 
   kamSub!: Subscription;
@@ -167,7 +167,7 @@ export class AddApprovalComponent {
 
   removeData(index: number) {
     const formGroup = this.doc().at(index).value;
-  
+
     if (formGroup.url !== null) {
       this.invoiceService.deleteUploadByurl(formGroup.url).subscribe({
         next: (response) => {
@@ -181,14 +181,14 @@ export class AddApprovalComponent {
       this.doc().removeAt(index)
     }
   }
-  
+
   imageUploaded: boolean
   isImageUploaded(): boolean {
     const controls = this.piForm.get('url')as FormArray;
     let i = controls.length - 1;
     if (this.imageUrl[i]) {
       console.log(this.imageUrl[i]);
-      
+
       return true;
     }else return false;
   }
@@ -210,7 +210,7 @@ export class AddApprovalComponent {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('name', name);
-        
+
         this.uploadSub = this.invoiceService.uploadInvoice(formData).subscribe({
             next: (invoice) => {
                 this.doc().at(i).get('url')?.setValue(invoice.fileUrl);
@@ -253,31 +253,62 @@ export class AddApprovalComponent {
 
     return result;
   }
+submit : Subscription
 
-  submit!: Subscription;
-  onSubmit(){
-    if(this.roleName=='Sales Executive'){
-      console.log(this.piForm.getRawValue());
-      this.submit = this.invoiceService.addPI(this.piForm.getRawValue()).subscribe((invoice: any) =>{
-        console.log(invoice);
-        
-        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('login/viewApproval?isSubmitted=true')
-      });
-    } else if(this.roleName=='Key Account Manager'){
-      this.submit = this.invoiceService.addPIByKAM(this.piForm.getRawValue()).subscribe((invoice: any) =>{
-        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('login/viewApproval?isSubmitted=true')
-      });
-    }
-    else if(this.roleName=='Manager'){
-      this.submit = this.invoiceService.addPIByAM(this.piForm.getRawValue()).subscribe((invoice: any) =>{
-        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Uploaded succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('login/viewApproval?isSubmitted=true')
-      });
-    }
+onSubmit() {
+  console.log('Submitting Invoice Data:', this.piForm.getRawValue()); // Log form data
 
+  let submitMethod;
+
+  // Determine the submission method based on the role
+  if (this.roleName === 'Sales Executive') {
+      submitMethod = this.invoiceService.addPI(this.piForm.getRawValue());
+  } else if (this.roleName === 'Key Account Manager') {
+      submitMethod = this.invoiceService.addPIByKAM(this.piForm.getRawValue());
+  } else if (this.roleName === 'Manager') {
+      submitMethod = this.invoiceService.addPIByAM(this.piForm.getRawValue());
   }
+
+  // Check if a valid method was found
+  if (submitMethod) {
+      this.submit = submitMethod.subscribe({
+          next: (invoice: any) => {
+              console.log('Invoice Submission Response:', invoice); // Log the response for debugging
+
+              // Make sure invoice has a piNo field
+              const piNo = invoice?.piNo; // Accessing piNo correctly with optional chaining
+
+              if (piNo) {
+                  this.snackBar.open(`Proforma Invoice ${piNo} uploaded successfully...`, "", { duration: 3000 });
+                  this.router.navigateByUrl('login/viewApproval?isSubmitted=true');
+              } else {
+                  console.error('Response does not contain piNo:', invoice);
+                  this.snackBar.open('Failed to upload the invoice. Please try again.', "", { duration: 3000 });
+              }
+          },
+          error: (err) => {
+              console.error('Error occurred during invoice submission:', err);
+
+              // Check if the error has a specific message
+              const errorMessage = err?.error?.message || 'An error occurred while uploading the invoice.';
+
+              // Log the error response
+              console.error('Backend error response:', err);
+
+              // Display the error message
+              this.snackBar.open(`Error: ${errorMessage}`, "", { duration: 3000 });
+          }
+      });
+  } else {
+      console.error('No valid role found for invoice submission.');
+      this.snackBar.open('Invalid role for invoice submission.', "", { duration: 3000 });
+  }
+}
+
+
+
+
+
 
   onDeleteImage(i: number){
     this.invoiceService.deleteUploadByurl(this.imageUrl[i]).subscribe(data=>{
