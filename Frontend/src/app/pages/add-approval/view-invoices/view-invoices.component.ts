@@ -184,15 +184,15 @@ export class ViewInvoicesComponent {
     console.log(this.pi);
 
     let data = {
-      EntryNo : 'E-002',
+      EntryNo : this.pi.piNo,
       Purpose: this.pi.purpose,
-      SupplierName: this.pi.supplierName,
+      SupplierName: this.pi.suppliers.companyName,
       SupplierPONo: this.pi.supplierPoNo,
       SupplierSONo: this.pi.supplierSoNo,
       SupplierPrice: `${this.pi.supplierPrice} ${this.pi.supplierCurrency}`,
       CustomerPoNo : this.pi.customerPoNo,
       CustomerSoNo : this.pi.customerSoNo,
-      CustomerName : this.pi.customerName,
+      CustomerName : this.pi.customers?.companyName|| '',
       SellingPrice: `${this.pi.poValue} ${this.pi.customerCurrency}`,
       SalesPerson: this.pi.salesPerson.name,
       KAM : this.pi.kam.name,
@@ -203,11 +203,12 @@ export class ViewInvoicesComponent {
       url: this.pi.url.map((u: any) => `URL: https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${u.url}, Remarks: ${u.remarks}`).join(' | '),
       CreatedAt : this.pi.createdAt,
     }
+    console.log(data);
+
     this.invoiceService.excelExport(data).subscribe(result => {
       console.log(result);
     });
   }
-
 
 }
 

@@ -49,11 +49,16 @@ export const routes: Routes = [
         data: { breadcrumb: 'Add Approval' }, canActivate: [AuthGuard]
       },
       {
+        path: 'viewexcel',
+        loadComponent: () => import('./add-approval/view-excel/view-excel.component').then(c => c.ViewExcelComponent),
+        canActivate: [AuthGuard], data: { breadcrumb: 'View Excel' },
+      },
+      {
         path: 'viewApproval',
         loadComponent: () => import('./add-approval/view-approval/view-approval.component').then(c => c.ViewApprovalComponent),
         data: { breadcrumb: 'View Approval' }, canActivate: [AuthGuard]
       },
-      
+
       {
         path: 'approvalReport',
         loadComponent: () => import('./add-approval/approval-report/approval-report.component').then(c => c.ApprovalReportComponent),
@@ -84,7 +89,7 @@ export const routes: Routes = [
       },
       {
         path: 'company',
-        
+
         data: { breadcrumb: 'Company' },
         // canActivate: [AuthGuard],
         children: [
@@ -101,7 +106,7 @@ export const routes: Routes = [
           }
         ]
       }
-      
+
 
     ]
   }
