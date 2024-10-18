@@ -64,6 +64,7 @@
         </mat-form-field>
 
         @if(kamb){
+
           <mat-form-field class="full-width" appearance="outline">
             <mat-label>Manager</mat-label>
             <mat-select placeholder="" formControlName="amId">
@@ -101,7 +102,7 @@
               {{item.companyName}}
             </mat-option>
           }
-          
+
 
 
               </mat-select>
@@ -144,29 +145,55 @@
 </ng-container>
 
 }
-@if(sp){
-  <mat-form-field class="full-width" appearance="outline">
-    <mat-label>Key Account Manager</mat-label>
-    <mat-select placeholder="" formControlName="kamId">
-    @for(item of kam; track $index){
-      <mat-option [value]="item.id">
-        {{item.name}}
-      </mat-option>
-    }
-    </mat-select>
-  </mat-form-field>
+@if(sp) {
+  <!-- Show Account Manager dropdown if payment mode is Credit Card -->
+  @if(piForm.get('paymentMode')?.value === 'CreditCard') {
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>Account Manager</mat-label>
+      <mat-select placeholder="" formControlName="amId">
+        <mat-option value="">None</mat-option>
+        @for(item of AMList; track $index) {
+          <mat-option [value]="item.id">
+            {{item.name}}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+
+  <!-- Show Key Account Manager dropdown if payment mode is not Credit Card -->
+  @if(piForm.get('paymentMode')?.value !== 'CreditCard') {
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>Key Account Manager</mat-label>
+      <mat-select placeholder="" formControlName="kamId">
+        @for(item of kam; track $index) {
+          <mat-option [value]="item.id">
+            {{item.name}}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
 }
+
+
+
 <mat-form-field appearance="outline">
   <mat-label>Notes</mat-label>
   <input matInput placeholder="" formControlName="notes" >
-</mat-form-field>  
+</mat-form-field>
+
+
 <mat-form-field appearance="outline">
   <mat-label>Payment Mode</mat-label>
-  <mat-select formControlName="paymentMode">
-    <mat-option value="creditcard">Credit Card</mat-option>
-    <mat-option value="wiretransfer">Wire Transfer</mat-option>
+  <mat-select formControlName="paymentMode" (selectionChange)="onPaymentModeChange()">
+    <mat-option value="CreditCard">Credit Card</mat-option>
+    <mat-option value="WireTransfer">Wire Transfer</mat-option>
   </mat-select>
 </mat-form-field>
+
+
+
 
 
 </form>
