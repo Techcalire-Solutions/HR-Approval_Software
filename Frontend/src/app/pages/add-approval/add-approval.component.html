@@ -49,14 +49,15 @@
               <mat-option value="AED">AED</mat-option>
           </mat-select>
       </mat-form-field>
-        <mat-form-field appearance="outline">
+        <mat-form-field  appearance="outline">
           <mat-label>Supplier Price</mat-label>
-          <input matInput placeholder="Enter Supplier Price" formControlName="supplierPrice">
+          <input type="number" matInput placeholder="Enter Supplier Price" formControlName="supplierPrice">
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Purpose</mat-label>
           <mat-select placeholder="Select Purpose" formControlName="purpose">
+            <!-- <mat-option value="">None</mat-option> Option for unselection -->
             <mat-option value="Stock">Stock</mat-option>
             <mat-option value="Customer">Customer</mat-option>
           </mat-select>
@@ -66,6 +67,7 @@
           <mat-form-field class="full-width" appearance="outline">
             <mat-label>Manager</mat-label>
             <mat-select placeholder="" formControlName="amId">
+              <mat-option value="">None</mat-option> <!-- Option for unselection -->
             @for(item of AMList; track $index){
               <mat-option [value]="item.id">
                 {{item.name}}
@@ -79,6 +81,7 @@
           <mat-form-field class="full-width" appearance="outline">
             <mat-label>Accountant</mat-label>
             <mat-select placeholder="" formControlName="accountantId">
+              <mat-option value="">None</mat-option> <!-- Option for unselection -->
             @for(item of AccountantList; track $index){
               <mat-option [value]="item.id">
                 {{item.name}}
@@ -91,13 +94,14 @@
 @if(piForm.get('purpose')?.value === 'Customer'){
   <ng-container>
     <mat-form-field appearance="outline">
-
+      <mat-option value="">None</mat-option> <!-- Option for unselection -->
         <mat-select placeholder="Choose Customer Name" formControlName="customerId">
           @for(item of customerCompanies; track $index){
             <mat-option [value]="item.id">
               {{item.companyName}}
             </mat-option>
           }
+          
 
 
               </mat-select>
@@ -120,9 +124,9 @@
       </mat-select>
   </mat-form-field>
 
-            <mat-form-field appearance="outline">
+            <mat-form-field  appearance="outline">
               <mat-label>CustomerPO Value</mat-label>
-              <input matInput placeholder="Enter PO Value" formControlName="poValue">
+              <input type="number" matInput placeholder="Enter PO Value" formControlName="poValue">
             </mat-form-field>
             <!-- @if(editStatus){
           <mat-form-field appearance="outline">
@@ -159,8 +163,8 @@
 <mat-form-field appearance="outline">
   <mat-label>Payment Mode</mat-label>
   <mat-select formControlName="paymentMode">
-    <mat-option value="creditcard">Credit Card</mat-option>
-    <mat-option value="wiretransfer">Wire Transfer</mat-option>
+    <mat-option value="CreditCard">Credit Card</mat-option>
+    <mat-option value="WireTransfer">Wire Transfer</mat-option>
   </mat-select>
 </mat-form-field>
 
