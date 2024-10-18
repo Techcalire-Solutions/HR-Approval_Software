@@ -21,6 +21,7 @@
                         {{ item.name }}
                       </mat-option>
                     }
+                    <mat-option value="">None</mat-option> <!-- Option for unselection -->
                   </mat-select>
                 </mat-form-field>
               </div>
@@ -30,6 +31,7 @@
 
                   <mat-label>Status</mat-label>
                   <mat-select (selectionChange)="getStatus($event)">
+                    <mat-option value="">None</mat-option> <!-- Option for unselection -->
                       <mat-option value="GENERATED">Generated</mat-option>
                       <mat-option value="KAM VERIFIED">KAM Verified</mat-option>
                       <mat-option value="KAM REJECTED">KAM Rejected</mat-option>
