@@ -22,20 +22,20 @@ export class ViewExcelComponent implements OnInit {
   excelUrl: SafeResourceUrl;
   datePipe = inject(DatePipe);
   ngOnInit(): void {
-    let currentDate = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
-    this.getExcel(currentDate)
+    this.newDate = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
+    this.getExcel(this.newDate)
   }
 
+  newDate: any
   onDateChange(event: any): void {
     const selectedDate = event.value;
     console.log(selectedDate);
-    let newDate = this.datePipe.transform(selectedDate, 'yyyy-MM-dd');
-    this.getExcel(newDate)
+    this.newDate = this.datePipe.transform(selectedDate, 'yyyy-MM-dd');
+    this.getExcel(this.newDate)
   }
 
   getExcel(date: any){
     const fileUrl = `https://view.officeapps.live.com/op/embed.aspx?src=https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/PaymentExcel/${date}.xlsx`;
-
     this.excelUrl = this.sanitizeUrl(fileUrl);
   }
 
@@ -46,7 +46,7 @@ export class ViewExcelComponent implements OnInit {
   private sanitizer = inject(DomSanitizer);
 
   async downloadExcel(): Promise<void> {
-    const fileUrl = 'https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/PaymentExcel/2024-10-17.xlsx'; // Your file URL
+    const fileUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/PaymentExcel/${this.newDate}.xlsx`; // Your file URL
     try {
       const response = await fetch(fileUrl);
 

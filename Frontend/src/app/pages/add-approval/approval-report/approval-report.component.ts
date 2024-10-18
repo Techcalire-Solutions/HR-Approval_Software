@@ -18,9 +18,6 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 import { SafePipe } from "../view-invoices/safe.pipe";
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
-import { BankReceiptDialogueComponent } from '../view-approval/bank-receipt-dialogue/bank-receipt-dialogue.component';
-import { VerificationDialogueComponent } from '../view-approval/verification-dialogue/verification-dialogue.component';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -29,22 +26,13 @@ import { User } from '../../../common/interfaces/user';
 import { UsersService } from '@services/users.service';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, NativeDateAdapter } from '@angular/material/core';
+import { MatChipsModule } from '@angular/material/chips';
 @Component({
   selector: 'app-approval-report',
   standalone: true,
-  imports: [ CommonModule, RouterModule, MatDatepickerModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatCardModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatInputModule,
-    MatProgressBarModule,
-    MatProgressSpinnerModule, SafePipe,
-    MatPaginatorModule,
-    MatDividerModule],
+  imports: [ CommonModule, RouterModule, MatDatepickerModule, ReactiveFormsModule,  MatFormFieldModule, MatCardModule, MatToolbarModule,
+    MatIconModule, MatButtonModule, MatSelectModule, MatInputModule, MatProgressBarModule, MatProgressSpinnerModule, SafePipe,
+    MatPaginatorModule, MatDividerModule, MatChipsModule],
   templateUrl: './approval-report.component.html',
   styleUrl: './approval-report.component.scss',
   providers: [
@@ -71,52 +59,19 @@ export class ApprovalReportComponent {
   }
 
   ngOnDestroy(): void {
-    this.invoiceSubscriptions?.unsubscribe();
-    this.querySub?.unsubscribe();
+    this.usersSub?.unsubscribe();
+    this.invoiceSub?.unsubscribe();
   }
 
   user: number;
   isSubmitted: boolean = false;
-  querySub!: Subscription;
   ngOnInit() {
     this.getUsers()
     this.getByFilter()
   }
   invoices: any[] = [];
-  invoiceSubscriptions!: Subscription;
-  submittingForm: boolean = false;
-  editButtonStatus: boolean = false;
-  getInvoices() {
-    let invoice!: PerformaInvoice[];
-
-    let apiCall;
-    apiCall = this.invoiceService.getPIByAdmin(this.status, this.filterValue, this.currentPage, this.pageSize);
-    
-    if (apiCall) {
-      this.invoiceSubscriptions = apiCall.subscribe((res: any) => {
-        invoice = res.items;
-        this.totalItems = res.count;
-        
-        if (invoice) {
-          invoice.forEach((mainObj: any) => {
-            const matchingStatus = mainObj.performaInvoiceStatuses.find(
-              (statusObj: any) => statusObj.status === mainObj.status
-            );
-            if (matchingStatus) {
-              mainObj.remarks = matchingStatus.remarks;
-            }
-          });
-
-          this.invoices = invoice;
-        }
-
-        this.submittingForm = false;
-      }, (error: any) => {
-        this.submittingForm = false;
-      });
-    }
-  }
-
+  invoiceSub!: Subscription;
+  totalItems = 0;
   getByFilter(){
     let data = {
       invoices: this.invoices, 
@@ -125,11 +80,10 @@ export class ApprovalReportComponent {
       status: this.status ? this.status : null,  
       date: this.date ? this.date : null
     };
-    console.log(data);
     
-    this.invoiceService.getAdminReports(data).subscribe(res=>{
+    this.invoiceSub = this.invoiceService.getAdminReports(data).subscribe(res=>{
       this.invoices = res;
-      console.log(this.invoices);
+      this.totalItems = res.length;
     })
   }
 
@@ -141,7 +95,6 @@ export class ApprovalReportComponent {
   filterValue: string = '';
   applyFilter(event: Event): void {
     this.filterValue = (event.target as HTMLInputElement).value.trim()
-    console.log(this.filterValue);
     
     this.getByFilter()
   }
@@ -156,28 +109,17 @@ export class ApprovalReportComponent {
   addedBy: number
   getAdded(id: number){
     this.addedBy = id;
-    console.log(this.addedBy);
     
     this.getByFilter()
   }
 
-  filteredUsers: User[] = []; // Property to hold filtered users
+  filteredUsers: User[] = [];
   usersSub!: Subscription;
   Users: User[] = [];
   getUsers() {
     this.usersSub = this.userService.getUser().subscribe(res => {
       this.Users = res;
     });
-  }
-
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  pageSize = 10;
-  currentPage = 1;
-  totalItems = 0;
-  onPageChange(event: PageEvent): void {
-    this.currentPage = event.pageIndex + 1;
-    this.pageSize = event.pageSize;
-    this.getInvoices();
   }
 
 }
