@@ -48,17 +48,19 @@ export class UpdatePIComponent {
     kamId: <any>[],
     amId:  <any>[],
     accountantId:  <any>[],
-    supplierName: ['', Validators.required],
+    supplierId: ['', Validators.required],
     supplierPoNo: ['', Validators.required],
     supplierSoNo:[''],
     supplierCurrency:['Dollar'],
     supplierPrice: ['', Validators.required],
     purpose: ['', Validators.required],
-    customerName: [''],
+    customerId: [''],
     customerPoNo: [''],
     customerSoNo:[''],
     customerCurrency:['Dollar'],
-    poValue: ['']
+    poValue: [''],
+    notes:[],
+    paymentMode:['']
   });
 
   doc(): FormArray {
@@ -247,13 +249,17 @@ export class UpdatePIComponent {
         kamId: inv.kamId,
         amId: inv.amId,
         accountantId: inv.accountantId,
-        supplierName: inv.supplierName,
+        supplierId: inv.suppliers.companyName,
+        supplierSoNo: inv.supplierSoNo,
         supplierPoNo: inv.supplierPoNo,
         supplierPrice: inv.supplierPrice,
         purpose: inv.purpose,
-        customerName: inv.customerName,
+        customerId: inv.customers.companyName,
         customerPoNo: inv.customerPoNo,
-        poValue: inv.poValue
+        customerSoNo: inv.customerSoNo,
+        poValue: inv.poValue,
+        notes: inv.notes,
+        paymentMode: inv.paymentMode
       });
       console.log(pi);
 
