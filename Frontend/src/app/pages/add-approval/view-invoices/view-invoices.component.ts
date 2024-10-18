@@ -56,6 +56,16 @@ export class ViewInvoicesComponent {
       `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
     );
   }
+  
+  formatRemarks(remarks: string | null | undefined): string {
+    if (!remarks) return ''; // Handle null or undefined values gracefully
+  
+    const urlRegex = /(https?:\/\/[^\s]+)/g; // Regex to match URLs
+    return remarks.replace(urlRegex, (url) => 
+      `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+    );
+  }
+  
   ngOnInit(): void {
     let id = this.route.snapshot.params['id'];
 

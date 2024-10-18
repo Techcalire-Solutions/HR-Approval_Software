@@ -146,7 +146,10 @@
                 @for(row of status;  track $index){
                   <tr>
                     <td>{{row.status}}</td>
-                    <td>{{row.remarks}}</td>
+                    <td>
+          
+                      <span [innerHTML]="formatRemarks(row.remarks)"></span>
+                    </td>
                     <td>{{row.date | date: 'dd/MM/yyyy'}}</td>
                   </tr>
                 }

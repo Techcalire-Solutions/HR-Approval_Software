@@ -6,7 +6,7 @@ const PerformaInvoiceStatus = sequelize.define('performaInvoiceStatus',{
     performaInvoiceId : {type : DataTypes.INTEGER, allowNull : false},
     status : {type : DataTypes.STRING},
     date : {type : DataTypes.DATE},
-    remarks : {type : DataTypes.STRING},
+    remarks : {type : DataTypes.TEXT},
     count: {type : DataTypes.INTEGER, defaultValue : 1}
 },
 {
