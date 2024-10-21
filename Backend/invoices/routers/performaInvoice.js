@@ -949,7 +949,7 @@ router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
     let { url, kamId,supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, 
         customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes, paymentMode, amId} = req.body;
     kamId = kamId === '' ? null : kamId;
-    amId = amId === '' ? null : accountantId;
+    amId = amId === '' ? null : amId;
     customerId = customerId === '' ? null : customerId;
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
