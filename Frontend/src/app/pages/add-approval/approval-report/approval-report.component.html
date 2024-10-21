@@ -54,7 +54,7 @@
             
           </div>
         </mat-toolbar>
-
+  
         <div class="table-container">
           <table>
             <thead>
@@ -78,6 +78,10 @@
                   <td [attr.data-label]="'Status'">{{invoice.status}}_{{invoice.count}}</td>
                 </tr>
               }
+              <tr class="total-count-row">
+                <td [colSpan]="4" style="text-align: center;">Total Count</td>
+                <td [colSpan]="2" style="text-align: center;">{{totalItems}}</td>
+              </tr>
               @if(invoices.length === 0){
                 <tr>
                   <td [colSpan]="6" style="text-align: center;">No records found</td>
