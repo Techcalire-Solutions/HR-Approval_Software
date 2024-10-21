@@ -30,15 +30,14 @@ export class ViewExcelComponent implements OnInit {
   newDate: any
   onDateChange(event: any): void {
     const selectedDate = event.value;
-    console.log(selectedDate);
     this.newDate = this.datePipe.transform(selectedDate, 'yyyy-MM-dd');
-    console.log(this.newDate);
-    
     this.getExcel(this.newDate)
   }
 
   getExcel(date: any) {
-    const rawFileUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/PaymentExcel/${date}.xlsx`;
+    const rawFileUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/PaymentExcel/${date}.xlsx?cache-bust=${new Date().getTime()}`;
+
+    // const rawFileUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/PaymentExcel/${date}.xlsx`;
     const fileUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(rawFileUrl)}`;
     this.excelUrl = this.sanitizeUrl(fileUrl);
   }

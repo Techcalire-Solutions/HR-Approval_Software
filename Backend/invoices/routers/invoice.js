@@ -159,7 +159,7 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
 
 router.post('/excelupload', async (req, res) => {
   const jsonData = req.body;
-  
+  const piNo = jsonData.EntryNo;
   const currentDate = new Date().toISOString().split('T')[0];
   const fileName = `PaymentExcel/${currentDate}.xlsx`; 
   const bucketName = process.env.AWS_BUCKET_NAME;
@@ -179,6 +179,13 @@ router.post('/excelupload', async (req, res) => {
       const sheetName = existingWorkbook.SheetNames[0];
       const worksheet = existingWorkbook.Sheets[sheetName];
       const existingData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
+
+      const piNoExists = existingData.some(row => row.includes(piNo)); // Adjust this based on the structure of your Excel rows
+      
+      if (piNoExists) {
+          return res.send({ message: 'The EntrNo already exists in the Excel file.' });
+      }
+
 
       // Append new data
       const updatedData = [...existingData, ...dataToAppend];
