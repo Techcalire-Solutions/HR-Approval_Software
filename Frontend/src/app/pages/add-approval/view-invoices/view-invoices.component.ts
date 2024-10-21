@@ -1,13 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
 import { InvoiceService } from '@services/invoice.service';
 import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
 import { PerformaInvoice } from '../../../common/interfaces/performaInvoice';
 import { VerificationDialogueComponent } from '../view-approval/verification-dialogue/verification-dialogue.component';
-import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { SafePipe } from './safe.pipe';
@@ -16,9 +14,10 @@ import { PerformaInvoiceStatus } from '../../../common/interfaces/performa-invoi
 import { MatTableModule } from '@angular/material/table';
 import { BankReceiptDialogueComponent } from '../view-approval/bank-receipt-dialogue/bank-receipt-dialogue.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule, DatePipe, UpperCasePipe } from '@angular/common';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
+import { ReactiveFormsModule } from '@angular/forms';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-view-invoices',
@@ -107,8 +106,6 @@ export class ViewInvoicesComponent {
   getPiById(id: number){
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
       this.pi = pi.pi;
-      console.log(pi);
-
       this.piNo = pi.pi.piNo;
 
       this.signedUrl= pi.signedUrl
@@ -232,9 +229,7 @@ export class ViewInvoicesComponent {
           // Route to the next component if the export is successful
           this.router.navigateByUrl('/login/viewexcel');
         } else {
-          // Handle unexpected responses
-          console.error('Unexpected response:', result);
-          alert('Unexpected response from server. Please check the logs.');
+          alert(result.message);
         }
       },
       error: (error) => {

@@ -1,14 +1,10 @@
 import { Component, inject, ViewEncapsulation } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DomSanitizer } from '@angular/platform-browser';
-import { Router, ActivatedRoute } from '@angular/router';
 import { InvoiceService } from '@services/invoice.service';
 import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { SafePipe } from '../view-invoices/safe.pipe';
-import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -19,6 +15,10 @@ import { User } from '../../../common/interfaces/user';
 import { MatIconModule } from '@angular/material/icon';
 import { Company } from '../../../common/interfaces/company';
 import { CompanyService } from '@services/company.service';
+import { ReactiveFormsModule, FormBuilder, Validators, FormArray, FormGroup } from '@angular/forms';
+import { DomSanitizer } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
+
 @Component({
   selector: 'app-update-pi',
   standalone: true,
@@ -34,8 +34,11 @@ export class UpdatePIComponent {
   loginService = inject(LoginService)
   fb=inject(FormBuilder)
   snackBar=inject(MatSnackBar)
-  router=inject(Router)
-  route=inject(ActivatedRoute)
+  router= inject(Router)
+
+  route= inject(ActivatedRoute)
+
+  // ...
   sanitizer=inject(DomSanitizer)
   companyService=inject(CompanyService)
 
@@ -112,17 +115,6 @@ export class UpdatePIComponent {
       this.doc().removeAt(index)
     }
   }
-
-  // imageUploaded: boolean
-  // isImageUploaded(): boolean {
-  //   const controls = this.piForm.get('url')as FormArray;
-  //   console.log(controls.length);
-  //   let i = controls.length - 1;
-  //   if (this.imageUrl[i]) {
-  //     return true;
-  //   }else return false;
-  // }
-
 
   id!: number;
   ngOnInit(): void {
@@ -256,8 +248,6 @@ export class UpdatePIComponent {
       let inv = pi.pi;
       this.piNo = inv.piNo
       let remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
-console.log('payment mode', inv.paymentMode);
-
       this.piForm.patchValue({
         piNo: inv.piNo,
         status: inv.status,
@@ -291,8 +281,8 @@ console.log('payment mode', inv.paymentMode);
 
   onDeleteUploadedImage(i: number){
     this.invoiceService.deleteUploaded(this.route.snapshot.params['id'], i).subscribe(data=>{
-      window.location.reload()
       this.snackBar.open("Document is deleted successfully...","" ,{duration:3000})
+      this.isImageUploaded()
     });
   }
 
@@ -307,6 +297,9 @@ console.log('payment mode', inv.paymentMode);
   imageUploaded: boolean
   isImageUploaded(): boolean {
     const controls = this.piForm.get('url')as FormArray;
+    console.log(controls);
+    
+    if( controls.length === 0) {return true;}
     let i = controls.length - 1;
     if (this.imageUrl[i] || this.newImageUrl[i]) {
       return true;
