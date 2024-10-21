@@ -282,6 +282,8 @@ console.log('payment mode', inv.paymentMode);
         this.addDoc(pi.pi.url[index])
       }
       if (inv.url) {
+        console.log('preview', inv.url);
+        
         this.imageUrl = pi.signedUrl;
       }
     });
