@@ -149,7 +149,7 @@ export class UpdatePIComponent {
   kamSub!: Subscription;
   kam: User[] = [];
   getKAM(){
-    this.kamSub = this.loginService.getUserByRole(2).subscribe(user =>{
+    this.kamSub = this.loginService.getUserByRoleName('Key Account Manager').subscribe(user =>{
       this.kam = user;
     });
   }
@@ -209,7 +209,7 @@ export class UpdatePIComponent {
   amSub!: Subscription;
   AMList: User[] = [];
   getAM(){
-    this.amSub = this.loginService.getUserByRole(3).subscribe(user =>{
+    this.amSub = this.loginService.getUserByRoleName('Manager').subscribe(user =>{
       this.AMList = user;
     });
   }
@@ -217,7 +217,7 @@ export class UpdatePIComponent {
   accountantSub!: Subscription;
   AccountantList: User[] = [];
   getAccountants(){
-    this.accountantSub = this.loginService.getUserByRole(4).subscribe(user =>{
+    this.accountantSub = this.loginService.getUserByRoleName('Accountant').subscribe(user =>{
       this.AccountantList = user;
     });
   }
@@ -245,6 +245,14 @@ export class UpdatePIComponent {
         this.router.navigateByUrl('login/viewApproval')
       });
     }
+    else if(this.roleName=='Administrator'||this.roleName=='Super Administrator'){
+      console.log('hiiii... ');
+      
+      this.submit = this.invoiceService.updatePIByAdminSuperAdmin(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
+        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
+        this.router.navigateByUrl('login/viewApproval')
+      });
+    }
   }
 
   piSub!: Subscription;
@@ -261,6 +269,7 @@ export class UpdatePIComponent {
       console.log('supplier', inv.suppliers.companyName,);
       
       let remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
+console.log('payment mode', inv.paymentMode);
 
       this.piForm.patchValue({
         piNo: inv.piNo,

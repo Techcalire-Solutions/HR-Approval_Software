@@ -105,15 +105,16 @@ export class AddApprovalComponent {
 
   kamSub!: Subscription;
   kam: User[] = [];
-  getKAM(){
-    this.kamSub = this.loginService.getUserByRole(2).subscribe(user =>{
-      this.kam = user;
-    });
+  getKAM() {
+    this.kamSub = this.loginService.getUserByRoleName('Key Account Manager')
+      .subscribe(users => {
+        this.kam = users;
+      });
   }
   amSub!: Subscription;
   AMList: User[] = [];
   getAM(){
-    this.amSub = this.loginService.getUserByRole(3).subscribe(user =>{
+    this.amSub = this.loginService.getUserByRoleName('Manager').subscribe(user =>{
       this.AMList = user;
     });
   }
@@ -121,7 +122,7 @@ export class AddApprovalComponent {
   accountantSub!: Subscription;
   AccountantList: User[] = [];
   getAccountants(){
-    this.accountantSub = this.loginService.getUserByRole(4).subscribe(user =>{
+    this.accountantSub = this.loginService.getUserByRoleName('Accountant').subscribe(user =>{
       this.AccountantList = user;
     });
   }

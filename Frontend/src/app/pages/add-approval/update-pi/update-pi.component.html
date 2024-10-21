@@ -60,8 +60,8 @@
           </mat-select>
       </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Supplier Price $</mat-label>
-          <input matInput placeholder="Enter Supplier Cost" formControlName="supplierPrice">
+          <mat-label>Supplier Price</mat-label>
+          <input type="number" matInput placeholder="Enter Supplier Cost" formControlName="supplierPrice">
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
@@ -138,8 +138,8 @@
           </mat-form-field>
           
             <mat-form-field appearance="outline">
-              <mat-label>CustomerPO Value $</mat-label>
-              <input matInput placeholder="Enter PO Value" formControlName="poValue">
+              <mat-label>CustomerPO Value</mat-label>
+              <input type="number" matInput placeholder="Enter PO Value" formControlName="poValue">
             </mat-form-field>
          
           </ng-container>
@@ -151,8 +151,8 @@
         <mat-form-field appearance="outline">
           <mat-label>Payment Mode</mat-label>
           <mat-select formControlName="paymentMode">
-            <mat-option value="creditcard">Credit Card</mat-option>
-            <mat-option value="wiretransfer">Wire Transfer</mat-option>
+            <mat-option value="CreditCard">Credit Card</mat-option>
+            <mat-option value="WireTransfer">Wire Transfer</mat-option>
           </mat-select>
         </mat-form-field>
         @if(sp){
