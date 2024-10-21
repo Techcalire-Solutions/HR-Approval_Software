@@ -17,13 +17,14 @@ import { MatTableModule } from '@angular/material/table';
 import { BankReceiptDialogueComponent } from '../view-approval/bank-receipt-dialogue/bank-receipt-dialogue.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';
-import { DatePipe, UpperCasePipe } from '@angular/common';
+import { CommonModule, DatePipe, UpperCasePipe } from '@angular/common';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-view-invoices',
   standalone: true,
   imports: [
+    CommonModule,
     RouterModule, MatTabGroup, MatTabsModule,
     MatTableModule,
     MatCardModule,
@@ -48,6 +49,23 @@ export class ViewInvoicesComponent {
 
 
   userId: number
+
+  formatNotes(notes: string): string {
+    const urlRegex = /(https?:\/\/[^\s]+)/g; // Regex to match URLs
+    return notes.replace(urlRegex, (url) => 
+      `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+    );
+  }
+  
+  formatRemarks(remarks: string | null | undefined): string {
+    if (!remarks) return ''; // Handle null or undefined values gracefully
+  
+    const urlRegex = /(https?:\/\/[^\s]+)/g; // Regex to match URLs
+    return remarks.replace(urlRegex, (url) => 
+      `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+    );
+  }
+  
   ngOnInit(): void {
     let id = this.route.snapshot.params['id'];
 

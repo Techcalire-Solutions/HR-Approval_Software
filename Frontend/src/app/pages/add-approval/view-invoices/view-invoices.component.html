@@ -45,7 +45,12 @@
         <tr>
           <td><strong>Purpose:</strong> {{ pi.purpose }}</td>
           <td><strong>Payment mode:</strong> {{ pi.paymentMode }}</td>
-          <td><strong>Notes:</strong> {{ pi.notes }}</td>
+          <td>
+            <strong>Notes:</strong>
+            <span [innerHTML]="formatNotes(pi.notes)"></span>
+          </td>
+          
+          
         </tr>
         <tr>
   @if(pi.customers?.companyName){
@@ -141,7 +146,10 @@
                 @for(row of status;  track $index){
                   <tr>
                     <td>{{row.status}}</td>
-                    <td>{{row.remarks}}</td>
+                    <td>
+          
+                      <span [innerHTML]="formatRemarks(row.remarks)"></span>
+                    </td>
                     <td>{{row.date | date: 'dd/MM/yyyy'}}</td>
                   </tr>
                 }
