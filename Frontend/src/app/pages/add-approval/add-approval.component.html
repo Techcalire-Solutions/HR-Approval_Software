@@ -151,17 +151,34 @@
         }
 
         @if(am){
-          <mat-form-field class="full-width" appearance="outline">
-            <mat-label>Accountant</mat-label>
-            <mat-select placeholder="" formControlName="accountantId">
-              
-            @for(item of AccountantList; track $index){
-              <mat-option [value]="item.id">
-                {{item.name}}
-              </mat-option>
-            }
-            </mat-select>
-          </mat-form-field>
+          @if(piForm.get('paymentMode')?.value === 'CreditCard') {
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Key account Manager</mat-label>
+              <mat-select placeholder="" formControlName="kamId">
+                <mat-option value="">None</mat-option>
+                @for(item of kam; track $index) {
+                  <mat-option [value]="item.id">
+                    {{item.name}}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+
+          <!-- Show Key Account Manager dropdown if payment mode is not Credit Card -->
+          @if(piForm.get('paymentMode')?.value !== 'CreditCard') {
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Accountant</mat-label>
+              <mat-select placeholder="" formControlName="accountantId">
+                
+              @for(item of AccountantList; track $index){
+                <mat-option [value]="item.id">
+                  {{item.name}}
+                </mat-option>
+              }
+              </mat-select>
+            </mat-form-field>
+          }
         }
         <mat-form-field appearance="outline">
           <mat-label>Notes</mat-label>

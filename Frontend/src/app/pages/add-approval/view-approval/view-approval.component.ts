@@ -145,7 +145,6 @@ export class ViewApprovalComponent {
       this.invoiceSubscriptions = apiCall.subscribe((res: any) => {
         invoice = res.items;
         this.totalItems = res.count;
-        console.log(invoice);
         
         if (invoice) {
           invoice.forEach((mainObj: any) => {
@@ -181,13 +180,14 @@ export class ViewApprovalComponent {
                     editButtonStatus: true
                   };
               }else if(invoice[i].addedBy.role.roleName === 'Key Account Manager' &&
-                (invoice[i].status === 'KAM VERIFIED' || invoice[i].status === 'AM REJECTED') ){
+                (invoice[i].status === 'KAM VERIFIED' || invoice[i].status === 'AM REJECTED' || invoice[i].status === 'INITIATED') ){
                   this.invoices[i] = {
                     ...this.invoices[i],
                     editButtonStatus: true
                   };
               }else if(invoice[i].addedBy.role.roleName === 'Manager' &&
-                (invoice[i].status === 'AM VERIFIED') ){
+                (invoice[i].status === 'AM VERIFIED' ||  invoice[i].status === 'AM APPROVED') ){
+
                   this.invoices[i] = {
                     ...this.invoices[i],
                     editButtonStatus: true

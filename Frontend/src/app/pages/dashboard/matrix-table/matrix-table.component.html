@@ -15,49 +15,55 @@
               </tr>
           </thead>
           <tbody>
-              <tr *ngFor="let item of invoices;">
-                  <!-- Entry Number (with clickable link) -->
-                  <td class="project" (click)="openInvoice(item.id)" style="cursor: pointer; text-decoration: underline; color: #007bff; transition: color 0.3s;" (mouseenter)="onMouseEnter($event)" (mouseleave)="onMouseLeave($event)">
+              <tr *ngFor="let item of invoices">
+                  <td class="project" (click)="openInvoice(item.id)" style="cursor: pointer; text-decoration: underline; color: #007bff; transition: color 0.3s;" 
+                  (mouseenter)="onMouseEnter($event)" (mouseleave)="onMouseLeave($event)">
                       {{ item.piNo }}
                   </td>
       
-                  <!-- Count -->
                   <td class="project" style="background-color: white; color: rgb(6, 49, 105);">
                       {{ item.count }}
                   </td>
       
-                  <!-- Payment Mode -->
                   <td class="project" style="background-color: white; color: rgb(6, 49, 105);">
                       {{ item.paymentMode }}
                   </td>
       
-                  <!-- SP Column Logic -->
-                  <td class="check" *ngIf="item.status === 'GENERATED' || item.status === 'INITIATED'; else crossCell">
+                  <td class="check" *ngIf="item.status === 'GENERATED' || item.status === 'INITIATED' || item.status === 'KAM VERIFIED' ||
+                   item.status === 'AM VERIFIED' || item.status === 'AM APPROVED' || item.status === 'BANK SLIP ISSUED' || item.status === 'CARD PAYMENT SUCCESS';
+                   else spCrossCell">
                       <span>&#10003;</span>
                   </td>
-                  <ng-template #crossCell>
+                  <ng-template #spCrossCell>
                       <td class="cross">
                           <span>&#10007;</span>
                       </td>
                   </ng-template>
       
                   <!-- KAM Column Logic -->
-                  <td class="check" *ngIf="item.status === 'KAM VERIFIED' || item.status === 'CARD PAYMENT SUCCESS'; else kamCrossCell">
+                  <td class="check" *ngIf="item.status === 'KAM VERIFIED' || item.status === 'AM VERIFIED' || 
+                  item.status === 'BANK SLIP ISSUED' || item.status === 'CARD PAYMENT SUCCESS'; else kamCrossCell">
                       <span>&#10003;</span>
                   </td>
+                  <td class="cross" *ngIf="item.status === 'KAM REJECTED'">
+                    <span>&#10007;</span>
+                  </td>
                   <ng-template #kamCrossCell>
-                      <td class="cross">
-                          <span>&#10007;</span>
+                      <td>
+                          <span>-</span>
                       </td>
                   </ng-template>
       
                   <!-- AM Column Logic -->
-                  <td class="check" *ngIf="item.status === 'AM VERIFIED' || item.status === 'BANK SLIP ISSUED' || item.status === 'AM APPROVED'; else amCrossCell">
+                  <td class="check" *ngIf="item.status === 'AM VERIFIED' || item.status === 'AM APPROVED' || item.status === 'BANK SLIP ISSUED'|| item.status === 'CARD PAYMENT SUCCESS'; else amCrossCell">
                       <span>&#10003;</span>
                   </td>
+                  <td class="cross" *ngIf="item.status === 'AM REJECTED'">
+                    <span>&#10007;</span>
+                  </td>
                   <ng-template #amCrossCell>
-                      <td class="cross">
-                          <span>&#10007;</span>
+                      <td>
+                          <span>-</span>
                       </td>
                   </ng-template>
       
@@ -65,12 +71,13 @@
                   <td class="check" *ngIf="item.status === 'BANK SLIP ISSUED'">
                       <span>&#10003;</span>
                   </td>
-                  <td class="cross" *ngIf="item.status !== 'BANK SLIP ISSUED'">
-                      <span>&#10007;</span>
+                  <td *ngIf="item.status !== 'BANK SLIP ISSUED'">
+                      <span>-</span>
                   </td>
               </tr>
           </tbody>
       </table>
+      
       
         <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
         (page)="onPageChanged($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">

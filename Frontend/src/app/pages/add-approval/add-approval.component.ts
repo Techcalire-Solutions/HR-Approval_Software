@@ -255,8 +255,6 @@ export class AddApprovalComponent {
   submit : Subscription
   onSubmit() {
     let submitMethod;
-    console.log(this.piForm.getRawValue());
-    
     if (this.roleName === 'Sales Executive') {
         submitMethod = this.invoiceService.addPI(this.piForm.getRawValue());
     } else if (this.roleName === 'Key Account Manager') {
@@ -266,38 +264,24 @@ export class AddApprovalComponent {
     }
 
     if (submitMethod) {
-      console.log(submitMethod);
-      
         this.submit = submitMethod.subscribe({
             next: (invoice: any) => {
-                console.log('Invoice Submission Response:', invoice);
-
-
                 const piNo = invoice?.piNo;
 
                 if (piNo) {
                     this.snackBar.open(`Proforma Invoice ${piNo} uploaded successfully...`, "", { duration: 3000 });
                     this.router.navigateByUrl('login/viewApproval?isSubmitted=true');
                 } else {
-                    console.error('Response does not contain piNo:', invoice);
                     this.snackBar.open('Failed to upload the invoice. Please try again.', "", { duration: 3000 });
                 }
             },
             error: (err) => {
-                console.error('Error occurred during invoice submission:', err);
-
-
                 const errorMessage = err?.error?.message || 'An error occurred while uploading the invoice.';
-
-
-                console.error('Backend error response:', err);
 
                 // Display the error message
                 this.snackBar.open(`Error: ${errorMessage}`, "", { duration: 3000 });
             }
         });
-    } else {
-        console.error('No valid role found for invoice submission.');
         this.snackBar.open('Invalid role for invoice submission.', "", { duration: 3000 });
     }
   }

@@ -24,7 +24,7 @@ const transporter = nodemailer.createTransport({
     }
   });
 
-  router.post('/save', authenticateToken, async (req, res) => {
+router.post('/save', authenticateToken, async (req, res) => {
     let { piNo, url, kamId, amId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, customerId,
         customerPoNo, customerSoNo, customerCurrency, poValue, notes, paymentMode } = req.body;
 
@@ -74,7 +74,6 @@ const transporter = nodemailer.createTransport({
             message: 'Proforma Invoice saved successfully'
         });
     } catch (error) {
-        console.error('Error saving proforma invoice:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -85,6 +84,7 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
         customerId, customerPoNo, customerSoNo, customerCurrency, poValue,  notes,  paymentMode } = req.body;
 
     const userId = req.user.id;
+        
     try {
         if(amId==null){
             return res.send('Please Select Manager to be assigned');
@@ -92,6 +92,12 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
         
     } catch (error) {
         res.send(error.message)
+    }
+    let status;
+    if(paymentMode === 'CreditCard'){
+        status = 'INITIATED'
+    } else {
+        status = 'KAM VERIFIED'
     }
 
     try {
@@ -102,7 +108,7 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
         }
 
 
-        const newPi = await PerformaInvoice.create({ piNo, url, status: 'KAM VERIFIED', kamId: userId, amId, supplierId,
+        const newPi = await PerformaInvoice.create({ piNo, url, status: status, kamId: userId, amId, supplierId,
             supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, customerId, customerPoNo, customerSoNo,
             customerCurrency, poValue, addedById: userId, notes, paymentMode
         });
@@ -110,7 +116,7 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
         const piId = newPi.id;
         const piStatus = await PerformaInvoiceStatus.create({
             performaInvoiceId: piId,
-            status: 'KAM VERIFIED',
+            status: status,
             date: new Date(),
         });
 
@@ -124,8 +130,6 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
 
         const am = await User.findOne({ where: { id: amId } });
         const amEmail = am ? am.email : null;
-        console.log("AM Email Address:", amEmail);
-
         const attachments = [];
   
 
@@ -152,7 +156,6 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
                     contentType: s3File.ContentType 
                 });
             } catch (error) {
-                console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error);
                 continue; 
             }
         }
@@ -183,16 +186,12 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
             attachments: attachments 
         };
 
-        console.log('Mail options:', mailOptions);  
         if (amEmail) {
             try {
                 const emailResponse = await transporter.sendMail(mailOptions);
-                console.log('Email sent successfully to:', amEmail, 'Response:', emailResponse);
             } catch (error) {
-                console.error('Error sending email:', error);
             }
         } else {
-            console.log('No AM email found');
         }
         
         
@@ -204,38 +203,31 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
             message: 'Proforma Invoice saved successfully' 
         });
     } catch (error) {
-        console.error('Error saving proforma invoice:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-  
 
 router.post('/saveByAM', authenticateToken, async (req, res) => {
-    const {  piNo, url, accountantId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose,
+    let {  piNo, url, accountantId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose,
         customerId, customerPoNo, customerSoNo, customerCurrency, poValue, notes, paymentMode, kamId } = req.body;
 
     const userId = req.user.id;
+    kamId = kamId === '' ? null : kamId;
+    accountantId = accountantId === '' ? null : accountantId;
+    customerId = customerId === '' ? null : customerId;
+    
+    let status;
     if(paymentMode === 'CreditCard'){
-        try {
-            if(kamId === null || kamId === ''){
-                return res.send('Please Select Key Account Manager');
-            }
-            
-        } catch (error) {
-            res.send(error.message)
+        if(kamId == null){
+            return res.send('Please Select key Account Manager');
         }
-    
-    }else{
-        try {
-            if(accountantId==null){
-                return res.send('Please Select accountant to be assigned');
-            }
-            
-        } catch (error) {
-            res.send(error.message)
+        status = 'AM APPROVED';
+    } else {
+        if(accountantId == null){
+            return res.send('Please Select Accountant');
         }
-    
+        status = 'AM VERIFIED'
     }
 
     try {
@@ -245,7 +237,7 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
             return res.status(400).json({ error: 'Invoice is already saved' });
         }
 
-        const newPi = await PerformaInvoice.create({ kamId, piNo,  url, accountantId, status: 'AM VERIFIED', amId: userId,
+        const newPi = await PerformaInvoice.create({ kamId, piNo,  url, accountantId, status: status, amId: userId,
             supplierId,  supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, customerId,
             customerSoNo, customerPoNo,  customerCurrency, poValue, notes, paymentMode, addedById: userId
         });
@@ -253,7 +245,7 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
         const piId = newPi.id;
         const piStatus = await PerformaInvoiceStatus.create({
             performaInvoiceId: piId,
-            status: 'AM VERIFIED',
+            status: status,
             date: new Date(),
         });
 
@@ -305,7 +297,6 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
                     contentType: s3File.ContentType 
                 });
             } catch (error) {
-                console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error);
                 continue; 
             }
         }
@@ -338,7 +329,6 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
       
         if (accountantEmail) {
             await transporter.sendMail(mailOptions);
-            console.log('Email sent successfully to:', accountantEmail);
         } else {
             console.log('No KAM email found');
         }
@@ -350,12 +340,9 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
             message: 'Proforma Invoice saved successfully' 
         });
     } catch (error) {
-        console.error('Error saving proforma invoice:', error);
         res.status(500).json({ error: error.message });
     }
 });
-
-
 
 
 router.get('/find', authenticateToken, async(req, res) => {
@@ -436,13 +423,10 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
                 }
               ]
     })
-        console.log(pi.url.length);
-        
         let signedUrl = [];
         if (pi.url.length > 0) {
             for(let i = 0; i < pi.url.length; i++) {
                 const fileUrl = pi.url[i];
-                console.log(fileUrl);
                 
                 const key = fileUrl.url.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
                 
@@ -480,7 +464,6 @@ router.get('/findbysp', authenticateToken, async (req, res) => {
     const userId = req.user.id;
     // Initialize the where clause
     let where = { salesPersonId: userId };
-    console.log(status,"statusstatusstatusstatusstatus");
     
     if (status !== '' && status !== 'undefined' && status !== 'REJECTED' && status !== 'BANK SLIP ISSUED') {
         where.status = status;
@@ -584,11 +567,13 @@ router.get('/findbkam', authenticateToken, async(req, res) => {
     
     let where = { kamId: user };
 
-    if (status !== '' && status !== 'undefined' && status !== 'REJECTED' && status !== 'GENERATED') {
+    if (status !== '' && status !== 'undefined' && status !== 'REJECTED' && status !== 'GENERATED' && status != 'BANK SLIP ISSUED') {
         where.status = status;
     } else if (status === 'GENERATED') {
         where.status = { [Op.or]: ['GENERATED', 'AM APPROVED'] };
-    } else if (status === 'REJECTED') {
+    } else if (status === 'BANK SLIP ISSUED') {
+        where.status = { [Op.or]: ['BANK SLIP ISSUED', 'CARD PAYMENT SUCCESS'] };
+    }else if (status === 'REJECTED') {
         where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
     }
     
@@ -650,15 +635,16 @@ router.get('/findbkam', authenticateToken, async(req, res) => {
 
 router.get('/findbyam', authenticateToken, async(req, res) => {
     let status = req.query.status;
-    console.log(status);
     
     let user = req.user.id;
     
     let where = { amId: user };
 
-    if (status !== '' && status !== 'undefined' && status !== 'REJECTED' && status != 'KAM VERIFIED') {
+    if (status !== '' && status !== 'undefined' && status !== 'REJECTED' && status != 'KAM VERIFIED' && status != 'BANK SLIP ISSUED') {
         where.status = status;
-    } else if (status === 'KAM VERIFIED') {
+    } else if (status === 'BANK SLIP ISSUED') {
+        where.status = { [Op.or]: ['BANK SLIP ISSUED', 'CARD PAYMENT SUCCESS'] };
+    }else if (status === 'KAM VERIFIED') {
         where.status = { [Op.or]: ['KAM VERIFIED', 'INITIATED'] };
     } else if (status === 'REJECTED') {
         where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
@@ -727,8 +713,10 @@ router.get('/findbyma', authenticateToken, async(req, res) => {
 
     let where = { accountantId: user };
 
-    if (status !== '' && status !== 'undefined' && status !== 'REJECTED') {
+    if (status !== '' && status !== 'undefined' && status !== 'REJECTED' && status != 'BANK SLIP ISSUED') {
         where.status = status;
+    } else if (status === 'BANK SLIP ISSUED') {
+        where.status = { [Op.or]: ['BANK SLIP ISSUED', 'CARD PAYMENT SUCCESS'] };
     } else if (status === 'REJECTED') {
         where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
     }
@@ -790,7 +778,6 @@ router.get('/findbyma', authenticateToken, async(req, res) => {
         res.send(error.message)
     }
 })
-
 
 
 router.get('/findbyadmin', authenticateToken, async (req, res) => {
@@ -862,11 +849,9 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
 });
 
 
-
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
     const { bankSlip, status } = req.body;
     try {
-        console.log(status);
         let newStat;
         if(status === 'AM APPROVED'){ newStat = 'CARD PAYMENT SUCCESS'}
         else if(status === 'AM VERIFIED'){ newStat = 'BANK SLIP ISSUED'}
@@ -961,11 +946,16 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
 
 
 router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
-    const { url, kamId,supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes, paymentMode} = req.body;
+    let { url, kamId,supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, 
+        customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes, paymentMode, amId} = req.body;
+    kamId = kamId === '' ? null : kamId;
+    amId = amId === '' ? null : accountantId;
+    customerId = customerId === '' ? null : customerId;
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
         pi.url = url;
         pi.kamId = kamId;
+        pi.amId = amId;
         let count = pi.count + 1;
         pi.count = count;
         pi.status = `GENERATED`;
@@ -1032,7 +1022,6 @@ router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
                       contentType: s3File.ContentType 
                   });
               } catch (error) {
-                  console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error);
                   continue; 
               }
           }
@@ -1072,10 +1061,17 @@ router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
     }
 });
 
-
-
 router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
-    const { url, kamId,amId,supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes, paymentMode} = req.body;
+    let { url, kamId, amId, supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes, paymentMode} = req.body;
+    kamId = kamId === '' ? null : kamId;
+    amId = amId === '' ? null : amId;
+    customerId = customerId === '' ? null : customerId;
+    let status;
+    if(paymentMode === 'CreditCard'){
+        status = 'INITIATED'
+    } else {
+        status = 'KAM VERIFIED'
+    }
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
         pi.url = url;
@@ -1083,7 +1079,7 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
         pi.amId=amId;
         let count = pi.count + 1;
         pi.count = count;
-        pi.status = `KAM VERIFIED`;
+        pi.status = status;
         pi.supplierId=supplierId;
         pi.supplierPoNo=supplierPoNo;
         pi.supplierSoNo=supplierSoNo;
@@ -1103,7 +1099,7 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
         const piId = pi.id;
         
         const piStatus = new PerformaInvoiceStatus({
-            performaInvoiceId: piId, status: 'KAM VERIFIED', date: new Date(), count: count
+            performaInvoiceId: piId, status: status, date: new Date(), count: count
         })
         await piStatus.save();
 
@@ -1146,7 +1142,6 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
                       contentType: s3File.ContentType 
                   });
               } catch (error) {
-                  console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error);
                   continue; 
               }
           }
@@ -1188,15 +1183,32 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
 
 
 router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
-    const { url, kamId,accountantId,supplierId, supplierSoNo,supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId, customerPoNo,customerSoNo,customerCurrency, poValue,paymentMode, notes} = req.body;
+    let { url, kamId, accountantId, supplierId, supplierSoNo,supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId, customerPoNo,customerSoNo,customerCurrency, poValue,paymentMode, notes} = req.body;
+    
     try {
+        kamId = kamId === '' ? null : kamId;
+        accountantId = accountantId === '' ? null : accountantId;
+        customerId = customerId === '' ? null : customerId;
+
+        let status;
+        if(paymentMode === 'CreditCard'){
+            if(kamId == null){
+                return res.send('Please Select key Account Manager');
+            }
+            status = 'AM APPROVED';
+        } else {
+            if(accountantId == null){
+                return res.send('Please Select Accountant');
+            }
+            status = 'AM VERIFIED'
+        }
         const pi = await PerformaInvoice.findByPk(req.params.id);
         pi.url = url;
         pi.kamId = kamId;
         pi.accountantId = accountantId;
         let count = pi.count + 1;
         pi.count = count;
-        pi.status = `AM VERIFIED`;
+        pi.status = status;
         pi.supplierId=supplierId;
         pi.supplierPoNo=supplierPoNo;
         pi.supplierSoNo=supplierSoNo;
@@ -1221,78 +1233,78 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
         await piStatus.save();
 
         
-        const acc = await User.findOne({ where: { id: accountantId } });
-        if (!accountantId) {
-            return res.status(404).send({ message: 'AM user not found.' });
-        }
-        const accountantEmail = acc.email;
+        // const acc = await User.findOne({ where: { id: accountantId } });
+        // if (!accountantId) {
+        //     return res.status(404).send({ message: 'AM user not found.' });
+        // }
+        // const accountantEmail = acc.email;
 
-        const supplier = await Company.findOne({ where: { id: supplierId } });
-        const customer = await Company.findOne({ where: { id: customerId } });
+        // const supplier = await Company.findOne({ where: { id: supplierId } });
+        // const customer = await Company.findOne({ where: { id: customerId } });
 
-         const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
-          const customerName = customer ? customer.companyName : 'Unknown Customer';
+        //  const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
+        //   const customerName = customer ? customer.companyName : 'Unknown Customer';
 
    
-          const attachments = [];
+        //   const attachments = [];
   
 
-          for (const fileObj of url) {
-              const actualUrl = fileObj.url || fileObj.file;
-              if (!actualUrl) continue;
+        //   for (const fileObj of url) {
+        //       const actualUrl = fileObj.url || fileObj.file;
+        //       if (!actualUrl) continue;
   
-              const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+        //       const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
   
-              const params = {
-                  Bucket: process.env.AWS_BUCKET_NAME,
-                  Key: fileKey,
-              };
+        //       const params = {
+        //           Bucket: process.env.AWS_BUCKET_NAME,
+        //           Key: fileKey,
+        //       };
   
-              try {
+        //       try {
         
-                  const s3File = await s3.getObject(params).promise();
-                  const fileBuffer = s3File.Body;
+        //           const s3File = await s3.getObject(params).promise();
+        //           const fileBuffer = s3File.Body;
   
           
-                  attachments.push({
-                      filename: actualUrl.split('/').pop(),
-                      content: fileBuffer, 
-                      contentType: s3File.ContentType 
-                  });
-              } catch (error) {
-                  console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error);
-                  continue; 
-              }
-          }
+        //           attachments.push({
+        //               filename: actualUrl.split('/').pop(),
+        //               content: fileBuffer, 
+        //               contentType: s3File.ContentType 
+        //           });
+    //           } catch (error) {
+    //               console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error);
+    //               continue; 
+    //           }
+    //       }
 
      
-        const mailOptions = {
-            from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
-            to: accountantEmail, 
-            subject: `Proforma Invoice Updated - ${pi.piNo}`,
-            html: `
-            <p>Proforma Invoice has been updated by <strong>${req.user.name}</strong></p>
-            <p><strong>Entry Number:</strong> ${pi.piNo}</p>
-            <p><strong>Supplier Name:</strong> ${supplierName}</p>
-            <p><strong>Supplier PO No:</strong> ${supplierPoNo}</p>
-            <p><strong>Supplier SO No:</strong> ${supplierSoNo}</p>
-            <p><strong>Status:</strong> ${pi.status}</p>
-            ${purpose === 'Stock' 
-                ? `<p><strong>Purpose:</strong> Stock</p>` 
-                : `<p><strong>Purpose:</strong> Customer</p>
-                   <p><strong>Customer Name:</strong> ${customerName}</p>
-                   <p><strong>Customer PO No:</strong> ${customerPoNo}</p>
-                   <p><strong>Customer SO No:</strong> ${customerSoNo}</p>`
-            }
-                <p><strong>Payment mode:</strong> ${pi.paymentMode}</p>
-            <p><strong>Notes:</strong> ${pi.notes}</p>
-            <p>Please find the attached documents related to this Proforma Invoice.</p>
-        `,
-        attachments: attachments 
-    };
+    //     const mailOptions = {
+    //         from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+    //         to: accountantEmail, 
+    //         subject: `Proforma Invoice Updated - ${pi.piNo}`,
+    //         html: `
+    //         <p>Proforma Invoice has been updated by <strong>${req.user.name}</strong></p>
+    //         <p><strong>Entry Number:</strong> ${pi.piNo}</p>
+    //         <p><strong>Supplier Name:</strong> ${supplierName}</p>
+    //         <p><strong>Supplier PO No:</strong> ${supplierPoNo}</p>
+    //         <p><strong>Supplier SO No:</strong> ${supplierSoNo}</p>
+    //         <p><strong>Status:</strong> ${pi.status}</p>
+    //         ${purpose === 'Stock' 
+    //             ? `<p><strong>Purpose:</strong> Stock</p>` 
+    //             : `<p><strong>Purpose:</strong> Customer</p>
+    //                <p><strong>Customer Name:</strong> ${customerName}</p>
+    //                <p><strong>Customer PO No:</strong> ${customerPoNo}</p>
+    //                <p><strong>Customer SO No:</strong> ${customerSoNo}</p>`
+    //         }
+    //             <p><strong>Payment mode:</strong> ${pi.paymentMode}</p>
+    //         <p><strong>Notes:</strong> ${pi.notes}</p>
+    //         <p>Please find the attached documents related to this Proforma Invoice.</p>
+    //     `,
+    //     attachments: attachments 
+    // };
 
         
-        await transporter.sendMail(mailOptions);
+    //     await transporter.sendMail(mailOptions);
 
         res.json({ p: pi, status: piStatus})
     } catch (error) {
@@ -1428,8 +1440,6 @@ router.patch('/getforadminreport', authenticateToken, async (req, res) => {
     }
 
     if (date) {
-        console.log(date);
-    
         invoices = invoices.filter(invoice => {
             // Convert both dates to local date strings (ignoring time and time zones)
             const invoiceDate = new Date(invoice.createdAt).toLocaleDateString('en-IN'); // 'en-CA' returns YYYY-MM-DD format
@@ -1437,8 +1447,6 @@ router.patch('/getforadminreport', authenticateToken, async (req, res) => {
             
             return invoiceDate === filterDate;
         });
-    
-        console.log(invoices);
     }
     
     res.send(invoices);

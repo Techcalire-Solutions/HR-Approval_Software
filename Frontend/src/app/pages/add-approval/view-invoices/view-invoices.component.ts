@@ -95,12 +95,12 @@ export class ViewInvoicesComponent {
 
       this.signedUrl= pi.signedUrl
 
-      if( this.pi.status === 'GENERATED' && this.roleName === 'Key Account Manager' ){
+      if( (this.pi.status === 'GENERATED' || this.pi.status === 'AM APPROVED') && this.roleName === 'Key Account Manager' ){
         this.pi = {
           ...this.pi,
           approveButtonStatus: true
         };
-      }else if( this.pi.status === 'KAM VERIFIED' && this.roleName === 'Manager'){
+      }else if( (this.pi.status === 'INITIATED' || this.pi.status === 'KAM VERIFIED' )&& this.roleName === 'Manager' ){
         this.pi = {
           ...this.pi,
           approveButtonStatus: true
@@ -130,15 +130,13 @@ export class ViewInvoicesComponent {
     let status = this.pi.status;
     let sp;
     if(this.pi.salesPersonId!=null)  sp = this.pi.salesPerson?.name;
-    else sp=this.pi.kam?.name;
+    else sp = this.pi.kam?.name;
 
 
     if(status === 'GENERATED' && value === 'approved') status = 'KAM VERIFIED';
     else if(status === 'GENERATED' && value === 'rejected') status = 'KAM REJECTED';
     else if(status === 'KAM VERIFIED' && value === 'approved') status = 'AM VERIFIED';
     else if(status === 'KAM VERIFIED' && value === 'rejected') status = 'AM REJECTED';
-    // else if(status === 'AM VERIFIED' ) return this.addBankSlip(this.pi.id, this.piNo)
-
 
     const dialogRef = this.dialog.open(VerificationDialogueComponent, {
       data: { invoiceNo: this.piNo, status: status, sp: sp }
