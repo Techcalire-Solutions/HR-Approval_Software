@@ -84,18 +84,24 @@
                         </button>
                       }
                      
-                      @if(!sp && pageStatus && !admin && !teamLead){
-                      <button mat-raised-button class="approve-button"
-                        (click)="verified('approved', invoice.piNo, invoice.salesPerson?.name, invoice.id)"> APPROVE
-                      </button>
-                      <button mat-raised-button class="reject-button"
-                        (click)="verified('rejected', invoice.piNo, invoice.salesPerson ? invoice.salesPerson.name : invoice.kam?.name, invoice.id)">
-                        REJECT
-                      </button>
-                    }
+                      @if(!sp && pageStatus && !admin && !teamLead && invoice.status != 'AM APPROVED'){
+                        <button mat-raised-button class="approve-button"
+                          (click)="verified('approved', invoice.piNo, invoice.salesPerson?.name, invoice.id, invoice.status)"> APPROVE
+                        </button>
+                        <button mat-raised-button class="reject-button"
+                          (click)="verified('rejected', invoice.piNo, invoice.salesPerson ? invoice.salesPerson.name : invoice.kam?.name, invoice.id, invoice.status)">
+                          REJECT
+                        </button>
+                      }
                       @if(!sp && ma){
                         <button mat-raised-button class="add-bank-slip-button"
-                        (click)="addBankSlip(invoice.piNo, invoice.id)">      {{ invoice.status === 'BANK SLIP ISSUED' ? 'Edit Wireslip' : 'Wireslip' }}
+                        (click)="addBankSlip(invoice.piNo, invoice.id, invoice.status)"> {{ invoice.status === 'BANK SLIP ISSUED' ? 'Edit Wireslip' : 'Wireslip' }}
+                      </button>
+                      }
+
+                      @if(kam && invoice.status === 'AM APPROVED'){
+                        <button mat-raised-button class="add-bank-slip-button"
+                        (click)="addBankSlip(invoice.piNo, invoice.id, invoice.status)"> ATTACH
                       </button>
                       }
                      

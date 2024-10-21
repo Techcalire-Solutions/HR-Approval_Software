@@ -70,7 +70,6 @@ export class UpdatePIComponent {
   public getSuppliers(): void {
     this.companyService.getSuppliers().subscribe((suppliers: any) =>{
       this.supplierCompanies = suppliers;
-      console.log('supplierCompanies',this.supplierCompanies);
       
     });
   }
@@ -91,8 +90,6 @@ export class UpdatePIComponent {
   }
 
   newDoc(initialValue?: any): FormGroup {
-    console.log(initialValue);
-
     return this.fb.group({
       url: [initialValue?initialValue.url : '', Validators.required],
       remarks: [initialValue?initialValue.remarks : ''],
@@ -162,7 +159,6 @@ export class UpdatePIComponent {
 
     const input = event.target as HTMLInputElement;
     let file: any = input.files?.[0];
-    console.log(file.type.split('/')[1]);
 
     this.fileType[i] = file.type.split('/')[1]
     if (file) {
@@ -174,7 +170,6 @@ export class UpdatePIComponent {
 
         this.uploadSub = this.invoiceService.uploadInvoice(formData).subscribe({
             next: (invoice) => {
-              console.log(invoice);
 
                 this.doc().at(i).get('url')?.setValue(invoice.fileUrl);
                 this.newImageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${invoice.fileUrl}`;
@@ -224,11 +219,7 @@ export class UpdatePIComponent {
   submit!: Subscription;
   onUpdate(){
     if(this.roleName=='Sales Executive'){
-      console.log(this.piForm.getRawValue());
-
       this.submit = this.invoiceService.updatePIBySE(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-        console.log(invoice);
-
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
         this.router.navigateByUrl('login/viewApproval')
       });
@@ -254,12 +245,8 @@ export class UpdatePIComponent {
   patchdata(id: number) {
     this.editStatus = true;
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
-      console.log(pi);
-
       let inv = pi.pi;
       this.piNo = inv.piNo
-      console.log('supplier', inv.suppliers.companyName,);
-      
       let remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
 
       this.piForm.patchValue({
@@ -281,7 +268,6 @@ export class UpdatePIComponent {
         notes: inv.notes,
         paymentMode: inv.paymentMode
       });
-      console.log(pi);
 
       for (let index = 0; index < pi.signedUrl.length; index++) {
         this.addDoc(pi.pi.url[index])
@@ -314,5 +300,10 @@ export class UpdatePIComponent {
     if (this.imageUrl[i] || this.newImageUrl[i]) {
       return true;
     }else return false;
+  }
+
+  onPaymentModeChange() {
+    this.piForm.get('kamId')?.setValue("")
+    this.piForm.get('accountantId')?.setValue("")
   }
 }

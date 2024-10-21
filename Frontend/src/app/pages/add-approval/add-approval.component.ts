@@ -42,7 +42,6 @@ export class AddApprovalComponent {
   sanitizer=inject(DomSanitizer)
   fb=inject(FormBuilder)
 
-
   ngOnDestroy(): void {
     this.invSub?.unsubscribe();
     this.uploadSub?.unsubscribe();
@@ -138,13 +137,13 @@ export class AddApprovalComponent {
     supplierPoNo: ['', Validators.required],
     supplierSoNo:[''],
     supplierCurrency:['Dollar'],
-    supplierPrice: ['', Validators.required],
+    supplierPrice: [, Validators.required],
     purpose: ['', Validators.required],
     customerId: <any>[],
     customerPoNo: [''],
     customerSoNo:[''],
     customerCurrency:['Dollar'],
-    poValue: [''],
+    poValue: [],
     notes:[''],
     paymentMode: ['WireTransfer']
   });
@@ -169,7 +168,6 @@ export class AddApprovalComponent {
 
   removeData(index: number) {
     const formGroup = this.doc().at(index).value;
-
     if (formGroup.url !== null) {
       this.invoiceService.deleteUploadByurl(formGroup.url).subscribe({
         next: (response) => {
@@ -189,8 +187,6 @@ export class AddApprovalComponent {
     const controls = this.piForm.get('url')as FormArray;
     let i = controls.length - 1;
     if (this.imageUrl[i]) {
-      console.log(this.imageUrl[i]);
-
       return true;
     }else return false;
   }
@@ -255,57 +251,40 @@ export class AddApprovalComponent {
 
     return result;
   }
-submit : Subscription
 
-onSubmit() {
-  console.log('Submitting Invoice Data:', this.piForm.getRawValue());
+  submit : Subscription
+  onSubmit() {
+    let submitMethod;
+    if (this.roleName === 'Sales Executive') {
+        submitMethod = this.invoiceService.addPI(this.piForm.getRawValue());
+    } else if (this.roleName === 'Key Account Manager') {
+        submitMethod = this.invoiceService.addPIByKAM(this.piForm.getRawValue());
+    } else if (this.roleName === 'Manager') {
+        submitMethod = this.invoiceService.addPIByAM(this.piForm.getRawValue());
+    }
 
-  let submitMethod;
+    if (submitMethod) {
+        this.submit = submitMethod.subscribe({
+            next: (invoice: any) => {
+                const piNo = invoice?.piNo;
 
+                if (piNo) {
+                    this.snackBar.open(`Proforma Invoice ${piNo} uploaded successfully...`, "", { duration: 3000 });
+                    this.router.navigateByUrl('login/viewApproval?isSubmitted=true');
+                } else {
+                    this.snackBar.open('Failed to upload the invoice. Please try again.', "", { duration: 3000 });
+                }
+            },
+            error: (err) => {
+                const errorMessage = err?.error?.message || 'An error occurred while uploading the invoice.';
 
-  if (this.roleName === 'Sales Executive') {
-      submitMethod = this.invoiceService.addPI(this.piForm.getRawValue());
-  } else if (this.roleName === 'Key Account Manager') {
-      submitMethod = this.invoiceService.addPIByKAM(this.piForm.getRawValue());
-  } else if (this.roleName === 'Manager') {
-      submitMethod = this.invoiceService.addPIByAM(this.piForm.getRawValue());
+                // Display the error message
+                this.snackBar.open(`Error: ${errorMessage}`, "", { duration: 3000 });
+            }
+        });
+        this.snackBar.open('Invalid role for invoice submission.', "", { duration: 3000 });
+    }
   }
-
-
-  if (submitMethod) {
-      this.submit = submitMethod.subscribe({
-          next: (invoice: any) => {
-              console.log('Invoice Submission Response:', invoice);
-
-
-              const piNo = invoice?.piNo;
-
-              if (piNo) {
-                  this.snackBar.open(`Proforma Invoice ${piNo} uploaded successfully...`, "", { duration: 3000 });
-                  this.router.navigateByUrl('login/viewApproval?isSubmitted=true');
-              } else {
-                  console.error('Response does not contain piNo:', invoice);
-                  this.snackBar.open('Failed to upload the invoice. Please try again.', "", { duration: 3000 });
-              }
-          },
-          error: (err) => {
-              console.error('Error occurred during invoice submission:', err);
-
-
-              const errorMessage = err?.error?.message || 'An error occurred while uploading the invoice.';
-
-
-              console.error('Backend error response:', err);
-
-              // Display the error message
-              this.snackBar.open(`Error: ${errorMessage}`, "", { duration: 3000 });
-          }
-      });
-  } else {
-      console.error('No valid role found for invoice submission.');
-      this.snackBar.open('Invalid role for invoice submission.', "", { duration: 3000 });
-  }
-}
 
 
 
@@ -324,7 +303,8 @@ onSubmit() {
     return this.piForm.get('paymentMode')?.value === 'CreditCard';
   }
   onPaymentModeChange() {
-    // This method can be used for any additional logic if needed
+    this.piForm.get('kamId')?.setValue("")
+    this.piForm.get('amId')?.setValue("")
   }
 
 }

@@ -11,8 +11,8 @@ const PerformaInvoice = sequelize.define('performaInvoice',{
     bankSlip : {type : DataTypes.STRING},
     status: {type : DataTypes.STRING, defaultValue: 'Generated'},
     salesPersonId :{type : DataTypes.INTEGER },
-    kamId : {type : DataTypes.INTEGER},
-    amId: {type : DataTypes.INTEGER},
+    kamId : {type : DataTypes.INTEGER, allowNull : true},
+    amId: {type : DataTypes.INTEGER, allowNull : true},
     accountantId : {type : DataTypes.INTEGER},
     count: {type : DataTypes.INTEGER, defaultValue: 1},
 
@@ -22,7 +22,7 @@ const PerformaInvoice = sequelize.define('performaInvoice',{
     supplierCurrency: { type: DataTypes.STRING },
     supplierPrice: { type: DataTypes.STRING },
     
-    customerId: { type: DataTypes.INTEGER},
+    customerId: { type: DataTypes.INTEGER, allowNull : true},
     customerSoNo: { type: DataTypes.STRING },
     customerPoNo: { type: DataTypes.STRING },
     customerCurrency: { type: DataTypes.STRING },
