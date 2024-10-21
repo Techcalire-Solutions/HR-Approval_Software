@@ -32,7 +32,8 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
   piSub!: Subscription;
   getPi(){
     this.piSub = this.invoiceServices.getDashboardPI(this.searchText, this.currentPage, this.pageSize).subscribe((invoice: any) => {
-
+      console.log(invoice);
+      
       this.invoices = invoice.items
       this.totalItems = invoice.count;
     });

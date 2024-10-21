@@ -4,8 +4,6 @@ const Role = require('../users/models/role');
 const holidayData = require('./holiday.json');
 const Holiday = require("../leave/models/holiday");
 
-
-
 async function syncModel() {
    
   await sequelize.sync({alter: true})

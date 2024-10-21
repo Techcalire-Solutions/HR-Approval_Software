@@ -24,189 +24,65 @@ const transporter = nodemailer.createTransport({
     }
   });
 
+  router.post('/save', authenticateToken, async (req, res) => {
+    let { piNo, url, kamId, amId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, customerId,
+        customerPoNo, customerSoNo, customerCurrency, poValue, notes, paymentMode } = req.body;
 
-  
+    const userId = req.user.id;
+    let status;
 
-router.post('/save', authenticateToken, async (req, res) => {
-      const {
-          piNo,
-          url,  
-          kamId,
-          supplierId,
-          supplierSoNo,
-          supplierPoNo,
-          supplierCurrency,
-          supplierPrice,
-          purpose,
-          customerId,
-          customerPoNo,
-          customerSoNo,
-          customerCurrency,
-          poValue,
-          notes,
-          paymentMode
-      } = req.body;
+    kamId = kamId === '' ? null : kamId;
+    amId = amId === '' ? null : amId;
+    customerId = customerId === '' ? null : customerId;
+    
 
-
-
-      const userId = req.user.id;
-      try {
-        if(kamId==null){
+    if(paymentMode === 'CreditCard'){
+        if(amId == null){
+            return res.send('Please Select Manager');
+        }
+        status = 'INITIATED'
+    } else {
+        if(kamId == null){
             return res.send('Please Select Key Account Manager');
         }
-        
-    } catch (error) {
-        res.send(error.message)
+        status = 'GENERATED'
     }
-  
 
-  
-      try {
-          // Check if the invoice already exists
-          const existingInvoice = await PerformaInvoice.findOne({ where: { piNo: piNo } });
-          if (existingInvoice) {
-              return res.status(400).json({ error: 'Invoice is already saved' });
-          }
-  
-          // Save the new Proforma Invoice
-          const newPi = await PerformaInvoice.create({
-              piNo,
-              url,
-              status: 'GENERATED',
-              salesPersonId: userId,
-              kamId,
-              supplierId,
-              supplierSoNo,
-              supplierPoNo,
-              supplierCurrency,
-              supplierPrice,
-              purpose,
-              customerId,
-              customerPoNo,
-              customerSoNo,
-              customerCurrency,
-              poValue,
-              addedById: userId,
-              notes,
-              paymentMode
-          });
-  
-          const piId = newPi.id;
-          const piStatus = await PerformaInvoiceStatus.create({
-              performaInvoiceId: piId,
-              status: 'GENERATED',
-              date: new Date(),
-          });
+    try {
+        const existingInvoice = await PerformaInvoice.findOne({ where: { piNo } });
+        if (existingInvoice) {
+            return res.status(400).json({ error: 'Invoice is already saved' });
+        }
 
-          const supplier = await Company.findOne({ where: { id: supplierId } });
-          const customer = await Company.findOne({ where: { id: customerId } });
-
-           const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
-            const customerName = customer ? customer.companyName : 'Unknown Customer';
-
-  
-          const kam = await User.findOne({ where: { id: kamId } });
-          const kamEmail = kam ? kam.email : null;
-  
-
-          const attachments = [];
-  
-
-          for (const fileObj of url) {
-              const actualUrl = fileObj.url || fileObj.file;
-              if (!actualUrl) continue;
-  
-              const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-  
-              const params = {
-                  Bucket: process.env.AWS_BUCKET_NAME,
-                  Key: fileKey,
-              };
-  
-              try {
+        const newPi = await PerformaInvoice.create({
+            piNo, url, status: status, salesPersonId: userId, kamId, supplierId,
+            amId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose,
+            customerId, customerPoNo, customerSoNo, customerCurrency, poValue, addedById: userId,
+            notes, paymentMode
+        });
         
-                  const s3File = await s3.getObject(params).promise();
-                  const fileBuffer = s3File.Body;
-  
-          
-                  attachments.push({
-                      filename: actualUrl.split('/').pop(),
-                      content: fileBuffer, 
-                      contentType: s3File.ContentType 
-                  });
-              } catch (error) {
-                  console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error);
-                  continue; 
-              }
-          }
-  
-         
-          const mailOptions = {
-            from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
-            to: kamEmail,
-            subject: `New Proforma Invoice Generated - ${piNo}`,
-            html: `
-                <p>A new Proforma Invoice has been generated by <strong>${req.user.name}</strong></p>
-                <p><strong>Entry Number:</strong> ${piNo}</p>
-                <p><strong>Supplier Name:</strong> ${supplierName}</p>
-                <p><strong>Supplier PO No:</strong> ${supplierPoNo}</p>
-                <p><strong>Supplier SO No:</strong> ${supplierSoNo}</p>
-                <p><strong>Status:</strong> ${newPi.status}</p>
-                ${purpose === 'Stock' 
-                    ? `<p><strong>Purpose:</strong> Stock</p>` 
-                    : `<p><strong>Purpose:</strong> Customer</p>
-                       <p><strong>Customer Name:</strong> ${customerName}</p>
-                       <p><strong>Customer PO No:</strong> ${customerPoNo}</p>
-                       <p><strong>Customer SO No:</strong> ${customerSoNo}</p>`
-                }
-                    <p><strong>Payment mode:</strong> ${newPi.paymentMode}</p>
-                <p><strong>Notes:</strong> ${newPi.notes}</p>
-                <p>Please find the attached documents related to this Proforma Invoice.</p>
-            `,
-            attachments: attachments 
-        };
+        const piId = newPi.id;
+        const piStatus = await PerformaInvoiceStatus.create({
+            performaInvoiceId: piId,
+            status: status,
+            date: new Date(),
+        });
         
-          if (kamEmail) {
-              await transporter.sendMail(mailOptions);
-              console.log('Email sent successfully to:', kamEmail);
-          } else {
-              console.log('No KAM email found');
-          }
-  
-      
-          res.json({
-              piNo: newPi.piNo,          
-              status: piStatus.status,   
-              message: 'Proforma Invoice saved successfully' 
-          });
-      } catch (error) {
-          console.error('Error saving proforma invoice:', error);
-          res.status(500).json({ error: error.message });
-      }
-  });
-
+        res.json({
+            piNo: newPi.piNo,
+            status: newPi.status,
+            message: 'Proforma Invoice saved successfully'
+        });
+    } catch (error) {
+        console.error('Error saving proforma invoice:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
   
 router.post('/saveByKAM', authenticateToken, async (req, res) => {
-    const {
-        piNo,
-        url,  
-        amId,
-        supplierId,
-        supplierSoNo,
-        supplierPoNo,
-        supplierCurrency,
-        supplierPrice,
-        purpose,
-        customerId,
-        customerPoNo,
-        customerSoNo,
-        customerCurrency,
-        poValue,
-        notes,
-        paymentMode
-     
-    } = req.body;
+    const { piNo, url, amId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose,
+        customerId, customerPoNo, customerSoNo, customerCurrency, poValue,  notes,  paymentMode } = req.body;
 
     const userId = req.user.id;
     try {
@@ -225,27 +101,10 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
             return res.status(400).json({ error: 'Invoice is already saved' });
         }
 
-  
-        const newPi = await PerformaInvoice.create({
-            piNo,
-            url,
-            status: 'KAM VERIFIED',
-            kamId: userId,
-            amId,
-            supplierId,
-            supplierSoNo,
-            supplierPoNo,
-            supplierCurrency,
-            supplierPrice,
-            purpose,
-            customerId,
-            customerPoNo,
-            customerSoNo,
-            customerCurrency,
-            poValue,
-            addedById: userId,
-            notes,
-            paymentMode
+
+        const newPi = await PerformaInvoice.create({ piNo, url, status: 'KAM VERIFIED', kamId: userId, amId, supplierId,
+            supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, customerId, customerPoNo, customerSoNo,
+            customerCurrency, poValue, addedById: userId, notes, paymentMode
         });
 
         const piId = newPi.id;
@@ -353,34 +212,30 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
   
 
 router.post('/saveByAM', authenticateToken, async (req, res) => {
-    const {
-        piNo,
-        url,
-        accountantId,
-        supplierId,
-        supplierSoNo,
-        supplierPoNo,
-        supplierCurrency,
-        supplierPrice,
-        purpose,
-        customerId,
-        customerPoNo,
-        customerSoNo,
-        customerCurrency,
-        poValue,
-        notes,
-        paymentMode
-    } = req.body;
+    const {  piNo, url, accountantId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose,
+        customerId, customerPoNo, customerSoNo, customerCurrency, poValue, notes, paymentMode, kamId } = req.body;
 
     const userId = req.user.id;
-
-    try {
-        if(accountantId==null){
-            return res.send('Please Select accountant to be assigned');
+    if(paymentMode === 'CreditCard'){
+        try {
+            if(kamId === null || kamId === ''){
+                return res.send('Please Select Key Account Manager');
+            }
+            
+        } catch (error) {
+            res.send(error.message)
         }
-        
-    } catch (error) {
-        res.send(error.message)
+    
+    }else{
+        try {
+            if(accountantId==null){
+                return res.send('Please Select accountant to be assigned');
+            }
+            
+        } catch (error) {
+            res.send(error.message)
+        }
+    
     }
 
     try {
@@ -390,26 +245,9 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
             return res.status(400).json({ error: 'Invoice is already saved' });
         }
 
-        const newPi = await PerformaInvoice.create({
-            piNo,
-            url,
-            accountantId,
-            status: 'AM VERIFIED',
-            amId: userId,
-            supplierId,
-            supplierSoNo,
-            supplierPoNo,
-            supplierCurrency,
-            supplierPrice,
-            purpose,
-            customerId,
-            customerSoNo,
-            customerPoNo,
-            customerCurrency,
-            poValue,
-            notes,
-            paymentMode,
-            addedById: userId
+        const newPi = await PerformaInvoice.create({ kamId, piNo,  url, accountantId, status: 'AM VERIFIED', amId: userId,
+            supplierId,  supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, customerId,
+            customerSoNo, customerPoNo,  customerCurrency, poValue, notes, paymentMode, addedById: userId
         });
 
         const piId = newPi.id;
@@ -425,15 +263,21 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
          const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
           const customerName = customer ? customer.companyName : 'Unknown Customer';
 
-       
-           const accountant = await User.findOne({ where: { id: accountantId } });
-           if (!accountant) {
-               return res.status(404).json({ error: 'Accountant not found' });
-           }
-   
-           const accountantEmail = accountant.email;
-  
-   
+        let accountantEmail;
+          if(paymentMode === 'CreditCard'){
+            const kam = await User.findOne({ where: { id: kamId } });
+            if (!kam) {
+                return res.status(404).json({ error: 'Key Account Manager not found' });
+            }
+            accountantEmail = kam.email
+          }else{
+            const accountant = await User.findOne({ where: { id: accountantId } });
+            if (!accountant) {
+                return res.status(404).json({ error: 'Accountant not found' });
+            }
+    
+            accountantEmail = accountant.email;
+          }
 
         const attachments = [];
 
@@ -636,9 +480,12 @@ router.get('/findbysp', authenticateToken, async (req, res) => {
     const userId = req.user.id;
     // Initialize the where clause
     let where = { salesPersonId: userId };
-
-    if (status !== '' && status !== 'undefined' && status !== 'REJECTED') {
+    console.log(status,"statusstatusstatusstatusstatus");
+    
+    if (status !== '' && status !== 'undefined' && status !== 'REJECTED' && status !== 'BANK SLIP ISSUED') {
         where.status = status;
+    } else if (status === 'BANK SLIP ISSUED') {
+        where.status = { [Op.or]: ['BANK SLIP ISSUED', 'CARD PAYMENT SUCCESS'] };
     } else if (status === 'REJECTED') {
         where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
     }
@@ -737,8 +584,10 @@ router.get('/findbkam', authenticateToken, async(req, res) => {
     
     let where = { kamId: user };
 
-    if (status !== '' && status !== 'undefined' && status !== 'REJECTED') {
+    if (status !== '' && status !== 'undefined' && status !== 'REJECTED' && status !== 'GENERATED') {
         where.status = status;
+    } else if (status === 'GENERATED') {
+        where.status = { [Op.or]: ['GENERATED', 'AM APPROVED'] };
     } else if (status === 'REJECTED') {
         where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
     }
@@ -801,12 +650,16 @@ router.get('/findbkam', authenticateToken, async(req, res) => {
 
 router.get('/findbyam', authenticateToken, async(req, res) => {
     let status = req.query.status;
+    console.log(status);
+    
     let user = req.user.id;
     
     let where = { amId: user };
 
-    if (status !== '' && status !== 'undefined' && status !== 'REJECTED') {
+    if (status !== '' && status !== 'undefined' && status !== 'REJECTED' && status != 'KAM VERIFIED') {
         where.status = status;
+    } else if (status === 'KAM VERIFIED') {
+        where.status = { [Op.or]: ['KAM VERIFIED', 'INITIATED'] };
     } else if (status === 'REJECTED') {
         where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
     }
@@ -1011,23 +864,27 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
 
 
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
-    const { bankSlip } = req.body;
+    const { bankSlip, status } = req.body;
     try {
+        console.log(status);
+        let newStat;
+        if(status === 'AM APPROVED'){ newStat = 'CARD PAYMENT SUCCESS'}
+        else if(status === 'AM VERIFIED'){ newStat = 'BANK SLIP ISSUED'}
         const pi = await PerformaInvoice.findByPk(req.params.id);
         
         if (!pi) {
             return res.status(404).json({ message: 'Proforma invoice not found' });
         }
 
-     
+
         pi.bankSlip = bankSlip;
-        pi.status = 'BANK SLIP ISSUED';
+        pi.status = newStat;
         await pi.save();
 
   
         const piStatus = new PerformaInvoiceStatus({
             performaInvoiceId: pi.id, 
-            status: 'BANK SLIP ISSUED', 
+            status: newStat, 
             date: new Date(),
         });
         await piStatus.save();

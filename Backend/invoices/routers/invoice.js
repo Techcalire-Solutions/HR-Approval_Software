@@ -182,6 +182,8 @@ router.post('/excelupload', async (req, res) => {
 
       // Append new data
       const updatedData = [...existingData, ...dataToAppend];
+      console.log(updatedData, "updatedupdated");
+      
       const newWorksheet = xlsx.utils.aoa_to_sheet(updatedData);
       existingWorkbook.Sheets[sheetName] = newWorksheet;
 

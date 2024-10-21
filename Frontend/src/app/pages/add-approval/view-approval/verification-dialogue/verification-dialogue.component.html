@@ -24,7 +24,6 @@
                     {{item.name}}
                   </mat-option>
                 }
-  
               </mat-select>
             </mat-form-field>
           }
@@ -37,8 +36,20 @@
                   <mat-option [value]="item.id">
                     {{item.name}}
                   </mat-option>
+                }              
+              </mat-select>
+            </mat-form-field>
+          }
+
+          @if(status === 'AM APPROVED'){
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Key Accoungt Manager</mat-label>
+              <mat-select placeholder="" formControlName="kamId" (selectionChange)="onSelectionChange()">
+                @for(item of kam; track $index){
+                  <mat-option [value]="item.id">
+                    {{item.name}}
+                  </mat-option>
                 }
-               
               </mat-select>
             </mat-form-field>
           }

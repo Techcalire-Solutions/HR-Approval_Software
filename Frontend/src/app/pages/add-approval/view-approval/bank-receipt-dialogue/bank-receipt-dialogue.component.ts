@@ -39,10 +39,13 @@ export class BankReceiptDialogueComponent {
   piNo!: string;
   ngOnInit(): void {
     this.piNo = this.dialogData.invoiceNo;
+    console.log(this.dialogData.status);
+    
   }
 
   piForm = this.fb.group({
-    bankSlip: ['', Validators.required]
+    bankSlip: ['', Validators.required],
+    status: [this.dialogData.status]
   });
 
   @ViewChild('form') form!: ElementRef<HTMLFormElement>;

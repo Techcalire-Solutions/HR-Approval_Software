@@ -24,6 +24,7 @@ export class ViewExcelComponent implements OnInit {
   ngOnInit(): void {
     this.newDate = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
     this.getExcel(this.newDate)
+    console.log(this.newDate);
   }
 
   newDate: any
@@ -31,14 +32,17 @@ export class ViewExcelComponent implements OnInit {
     const selectedDate = event.value;
     console.log(selectedDate);
     this.newDate = this.datePipe.transform(selectedDate, 'yyyy-MM-dd');
+    console.log(this.newDate);
+    
     this.getExcel(this.newDate)
   }
 
-  getExcel(date: any){
-    const fileUrl = `https://view.officeapps.live.com/op/embed.aspx?src=https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/PaymentExcel/${date}.xlsx`;
+  getExcel(date: any) {
+    const rawFileUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/PaymentExcel/${date}.xlsx`;
+    const fileUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(rawFileUrl)}`;
     this.excelUrl = this.sanitizeUrl(fileUrl);
   }
-
+  
   sanitizeUrl(url: string): SafeResourceUrl {
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
@@ -65,10 +69,9 @@ export class ViewExcelComponent implements OnInit {
       link.href = url;
 
       // Set the filename and file type
-      link.download = 'PaymentExcel_2024-10-17.xlsx'; // Ensure the filename ends with .xlsx
+      link.download = 'PaymentExcel_2024-10-17.xlsx'; 
       document.body.appendChild(link);
 
-      // Programmatically click the link to trigger the download
       link.click();
 
       // Clean up

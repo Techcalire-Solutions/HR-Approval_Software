@@ -34,6 +34,7 @@ export class VerificationDialogueComponent {
 
    form = this.fb.group({
     remarks: [''],
+    kamId: [],
     amId: [],
     accountantId: [],
     spId: [''],
@@ -45,10 +46,10 @@ export class VerificationDialogueComponent {
     this.invoiceNo = this.dialogData.invoiceNo;
     this.status = this.dialogData.status;
 
-
     this.form.get('spId')?.setValue(this.dialogData.sp)
     if(this.status == 'KAM VERIFIED') this.getAm()
     if(this.status == 'AM VERIFIED') this.getMa()
+    if(this.status == 'AM APPROVED') this.getKam()
 
   if(this.status === 'AM REJECTED' || this.status === 'KAM REJECTED') this.isSelectionMade=true;
   }
@@ -66,6 +67,7 @@ export class VerificationDialogueComponent {
     let data = {
       value: true,
       remarks: this.form.get('remarks')?.value,
+      kamId:  this.form.get('kamId')?.value,
       amId:  this.form.get('amId')?.value,
       accountantId: this.form.get('accountantId')?.value
     }
@@ -76,12 +78,17 @@ export class VerificationDialogueComponent {
   am: User[] = [];
   getAm() {
     this.userSub = this.loginService.getUserByRole(3).subscribe(data => {
-
       this.am = data;
-      });
-
+    });
   }
 
+  kamSub!: Subscription;
+  kam: User[] = [];
+  getKam() {
+    this.userSub = this.loginService.getUserByRole(2).subscribe(data => {
+      this.kam = data;
+    });
+  }
 
   getMa(){
     this.userSub = this.loginService.getUserByRole(4).subscribe(data => {
