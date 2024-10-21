@@ -113,7 +113,7 @@ export class ViewInvoicesComponent {
 
       this.signedUrl= pi.signedUrl
 
-      if( (this.pi.status === 'GENERATED' || this.pi.status === 'AM APPROVED') && this.roleName === 'Key Account Manager' ){
+      if( (this.pi.status === 'GENERATED' ) && this.roleName === 'Key Account Manager' ){
         this.pi = {
           ...this.pi,
           approveButtonStatus: true
@@ -144,20 +144,22 @@ export class ViewInvoicesComponent {
     this.getPiById(this.route.snapshot.params['id'])
   }
   submittingForm: boolean = false;
-  verified(value: string){
+  verifiedSub: Subscription
+  verified(value: string, piNo: string, sp: string, id: number, stat: string){
+    console.log(stat);
+    
+    console.log(sp);
     let status = this.pi.status;
-    let sp;
-    if(this.pi.salesPersonId!=null)  sp = this.pi.salesPerson?.name;
-    else sp = this.pi.kam?.name;
-
-
+    this.submittingForm = true;
+    if(stat === 'INITIATED' && value === 'approved') status = 'AM APPROVED';
+    else if(stat === 'INITIATED' && value === 'rejected') status = 'AM REJECTED';
     if(status === 'GENERATED' && value === 'approved') status = 'KAM VERIFIED';
     else if(status === 'GENERATED' && value === 'rejected') status = 'KAM REJECTED';
     else if(status === 'KAM VERIFIED' && value === 'approved') status = 'AM VERIFIED';
     else if(status === 'KAM VERIFIED' && value === 'rejected') status = 'AM REJECTED';
 
     const dialogRef = this.dialog.open(VerificationDialogueComponent, {
-      data: { invoiceNo: this.piNo, status: status, sp: sp }
+      data: { invoiceNo: piNo, status: status, sp: sp }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -165,31 +167,31 @@ export class ViewInvoicesComponent {
         this.submittingForm = true;
         let data = {
           status: status,
-          performaInvoiceId: this.pi.id,
+          performaInvoiceId: id,
           remarks: result.remarks,
+          kamId: result.kamId,
           amId: result.amId,
           accountantId: result.accountantId
         }
 
-
-        this.invoiceService.updatePIStatus(data).subscribe(result => {
-
-
-          this.snackBar.open(`Invoice ${this.piNo} updated to ${status}...`,"" ,{duration:3000})
-
-          this.router.navigateByUrl('/login/viewApproval')
+        this.verifiedSub = this.invoiceService.updatePIStatus(data).subscribe(result => {
+          this.submittingForm = false;
+          this.getPiById(id)
+          this.snackBar.open(`Invoice ${piNo} updated to ${status}...`,"" ,{duration:3000})
+          this.router.navigateByUrl('login/viewApproval')
         });
       }
     })
   }
 
-  addBankSlip(piNo: string, id: number){
+  addBankSlip(piNo: string, id: number, status: string){
     const dialogRef = this.dialog.open(BankReceiptDialogueComponent, {
-      data: { invoiceNo: piNo, id: id }
+      data: { invoiceNo: piNo, id: id, status: status }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if(result){
+        this.getPiById(id)
         this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
       }
     })

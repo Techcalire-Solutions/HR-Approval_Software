@@ -1063,9 +1063,8 @@ router.patch('/updateBySE/:id', authenticateToken, async(req, res) => {
 
 router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
     let { url, kamId, amId, supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes, paymentMode} = req.body;
-    kamId = kamId === '' ? null : kamId;
-    amId = amId === '' ? null : amId;
-    customerId = customerId === '' ? null : customerId;
+    console.log(req.body);
+    
     let status;
     if(paymentMode === 'CreditCard'){
         status = 'INITIATED'
@@ -1074,6 +1073,9 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
     }
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
+        kamId = kamId === '' ? pi.kamId : kamId;
+        amId = amId === '' ? pi.amId : amId;
+        customerId = customerId === '' ? null : customerId;
         pi.url = url;
         pi.kamId = kamId;
         pi.amId=amId;
@@ -1184,12 +1186,8 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
 
 router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
     let { url, kamId, accountantId, supplierId, supplierSoNo,supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId, customerPoNo,customerSoNo,customerCurrency, poValue,paymentMode, notes} = req.body;
-    
-    try {
-        kamId = kamId === '' ? null : kamId;
-        accountantId = accountantId === '' ? null : accountantId;
-        customerId = customerId === '' ? null : customerId;
 
+    try {
         let status;
         if(paymentMode === 'CreditCard'){
             if(kamId == null){
@@ -1203,6 +1201,11 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
             status = 'AM VERIFIED'
         }
         const pi = await PerformaInvoice.findByPk(req.params.id);
+
+        kamId = kamId === '' ? pi.kamId : kamId;
+        accountantId = accountantId === '' ? pi.accountantId : accountantId;
+        customerId = customerId === '' ? null : customerId;
+
         pi.url = url;
         pi.kamId = kamId;
         pi.accountantId = accountantId;

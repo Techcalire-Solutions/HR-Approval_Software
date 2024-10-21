@@ -302,6 +302,7 @@ export class ViewApprovalComponent {
   verifiedSub: Subscription;
   verified(value: string, piNo: string, sp: string, id: number, stat: string){
     let status = this.status;
+    console.log(sp);
     
     this.submittingForm = true;
     if(stat === 'INITIATED' && value === 'approved') status = 'AM APPROVED';
