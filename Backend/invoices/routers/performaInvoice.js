@@ -1311,7 +1311,89 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
         res.send(error.message)
     }
 });
+router.patch('/updatePIByAdminSuperAdmin/:id', authenticateToken, async(req, res) => {
+    const { url, kamId,accountantId,supplierId, supplierSoNo,supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId, customerPoNo,customerSoNo,customerCurrency, poValue,paymentMode, notes} = req.body;
+    try {
+        const pi = await PerformaInvoice.findByPk(req.params.id);
+        pi.url = url;
+        pi.kamId = kamId;
+        pi.accountantId = accountantId;
+        let count = pi.count + 1;
+        pi.count = count;
+        // pi.status = `AM VERIFIED`;
+        pi.supplierId=supplierId;
+        pi.supplierPoNo=supplierPoNo;
+        pi.supplierSoNo=supplierSoNo;
+        pi.supplierCurrency=supplierCurrency;
+        pi.supplierPrice=supplierPrice;
+        pi.purpose=purpose;
+        pi.customerId=customerId;
+        pi.customerPoNo=customerPoNo;
+        pi.customerSoNo=customerSoNo;
+        pi.customerCurrency=customerCurrency;
+        pi.poValue=poValue;
+        pi.paymentMode=paymentMode;
+        pi.notes=notes
 
+        await pi.save();
+
+        const piId = pi.id;
+        
+        const piStatus = new PerformaInvoiceStatus({
+            performaInvoiceId: piId, date: new Date(), count: count
+        })
+        await piStatus.save();
+
+        
+        // const acc = await User.findOne({ where: { id: accountantId } });
+        // if (!accountantId) {
+        //     return res.status(404).send({ message: 'AM user not found.' });
+        // }
+        // const accountantEmail = acc.email;
+
+        const supplier = await Company.findOne({ where: { id: supplierId } });
+        const customer = await Company.findOne({ where: { id: customerId } });
+
+         const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
+          const customerName = customer ? customer.companyName : 'Unknown Customer';
+
+   
+          const attachments = [];
+  
+
+          for (const fileObj of url) {
+              const actualUrl = fileObj.url || fileObj.file;
+              if (!actualUrl) continue;
+  
+              const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+  
+              const params = {
+                  Bucket: process.env.AWS_BUCKET_NAME,
+                  Key: fileKey,
+              };
+  
+              try {
+        
+                  const s3File = await s3.getObject(params).promise();
+                  const fileBuffer = s3File.Body;
+  
+          
+                  attachments.push({
+                      filename: actualUrl.split('/').pop(),
+                      content: fileBuffer, 
+                      contentType: s3File.ContentType 
+                  });
+              } catch (error) {
+                  console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error);
+                  continue; 
+              }
+          }
+
+        res.json({ p: pi, status: piStatus})
+    } catch (error) {
+        res.send(error.message)
+    }
+});
 
 
 

@@ -259,6 +259,21 @@ router.get('/findbyrole/:id', async (req, res) => {
     res.send(error.message)
   }
 })
+router.get('/findbyroleName/:roleName', async (req, res) => {
+  try {
+    const users = await User.findAll({
+      include: {
+        model: Role,
+        where: { roleName: req.params.roleName } 
+     
+      }
+    });
+
+    res.send(users);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
 
 router.get('/getdirectors', async (req, res) => {
   try {
