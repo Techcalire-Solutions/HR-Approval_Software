@@ -210,8 +210,10 @@ export class ViewInvoicesComponent {
       CustomerSoNo: this.pi.customerSoNo,
       CustomerName: this.pi.customers?.companyName || '',
       SellingPrice: `${this.pi.poValue} ${this.pi.customerCurrency}`,
-      SalesPerson: this.pi.salesPerson.name,
-      KAM: this.pi.kam.name,
+      SalesPerson: this.pi.salesPerson?.name  || '',
+
+      KAM: this.pi.kam?.name  || '',
+
       ManagerName: this.pi.am.name,
       AccountantName: this.pi.accountant.name,
       AddedBy: this.pi.addedBy.name,
