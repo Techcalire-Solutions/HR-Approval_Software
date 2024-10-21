@@ -22,23 +22,27 @@ export class ViewExcelComponent implements OnInit {
   excelUrl: SafeResourceUrl;
   datePipe = inject(DatePipe);
   ngOnInit(): void {
-    let currentDate = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
-    this.getExcel(currentDate)
+    this.newDate = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
+    this.getExcel(this.newDate)
+    console.log(this.newDate);
   }
 
+  newDate: any
   onDateChange(event: any): void {
     const selectedDate = event.value;
     console.log(selectedDate);
-    let newDate = this.datePipe.transform(selectedDate, 'yyyy-MM-dd');
-    this.getExcel(newDate)
+    this.newDate = this.datePipe.transform(selectedDate, 'yyyy-MM-dd');
+    console.log(this.newDate);
+    
+    this.getExcel(this.newDate)
   }
 
-  getExcel(date: any){
-    const fileUrl = `https://view.officeapps.live.com/op/embed.aspx?src=https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/PaymentExcel/${date}.xlsx`;
-
+  getExcel(date: any) {
+    const rawFileUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/PaymentExcel/${date}.xlsx`;
+    const fileUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(rawFileUrl)}`;
     this.excelUrl = this.sanitizeUrl(fileUrl);
   }
-
+  
   sanitizeUrl(url: string): SafeResourceUrl {
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
@@ -46,7 +50,7 @@ export class ViewExcelComponent implements OnInit {
   private sanitizer = inject(DomSanitizer);
 
   async downloadExcel(): Promise<void> {
-    const fileUrl = 'https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/PaymentExcel/2024-10-17.xlsx'; // Your file URL
+    const fileUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/PaymentExcel/${this.newDate}.xlsx`; // Your file URL
     try {
       const response = await fetch(fileUrl);
 
@@ -65,10 +69,9 @@ export class ViewExcelComponent implements OnInit {
       link.href = url;
 
       // Set the filename and file type
-      link.download = 'PaymentExcel_2024-10-17.xlsx'; // Ensure the filename ends with .xlsx
+      link.download = 'PaymentExcel_2024-10-17.xlsx'; 
       document.body.appendChild(link);
 
-      // Programmatically click the link to trigger the download
       link.click();
 
       // Clean up

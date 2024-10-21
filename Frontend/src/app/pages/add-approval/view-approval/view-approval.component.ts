@@ -61,7 +61,6 @@ export class ViewApprovalComponent {
   ngOnInit() {
     this.querySub = this.route.queryParams.subscribe(params => {
       this.isSubmitted = params['isSubmitted'] === 'true'; 
-      console.log(this.isSubmitted);
     });
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
@@ -175,19 +174,20 @@ export class ViewApprovalComponent {
 
             if(invoice[i].addedById === this.user){
               if(invoice[i].addedBy.role.roleName === 'Sales Executive' &&
-                (invoice[i].status === 'GENERATED' || invoice[i].status === 'KAM REJECTED' || invoice[i].status === 'AM REJECTED') ){
+                (invoice[i].status === 'GENERATED' || invoice[i].status === 'KAM REJECTED' || invoice[i].status === 'AM REJECTED' || invoice[i].status === 'INITIATED') ){
                   this.invoices[i] = {
                     ...this.invoices[i],
                     editButtonStatus: true
                   };
               }else if(invoice[i].addedBy.role.roleName === 'Key Account Manager' &&
-                (invoice[i].status === 'KAM VERIFIED' || invoice[i].status === 'AM REJECTED') ){
+                (invoice[i].status === 'KAM VERIFIED' || invoice[i].status === 'AM REJECTED' || invoice[i].status === 'INITIATED') ){
                   this.invoices[i] = {
                     ...this.invoices[i],
                     editButtonStatus: true
                   };
               }else if(invoice[i].addedBy.role.roleName === 'Manager' &&
-                (invoice[i].status === 'AM VERIFIED') ){
+                (invoice[i].status === 'AM VERIFIED' ||  invoice[i].status === 'AM APPROVED') ){
+
                   this.invoices[i] = {
                     ...this.invoices[i],
                     editButtonStatus: true
@@ -300,14 +300,16 @@ export class ViewApprovalComponent {
   }
 
   verifiedSub: Subscription;
-  verified(value: string, piNo: string, sp: string, id: number){
+  verified(value: string, piNo: string, sp: string, id: number, stat: string){
     let status = this.status;
+    
     this.submittingForm = true;
+    if(stat === 'INITIATED' && value === 'approved') status = 'AM APPROVED';
+    else if(status === 'INITIATED' && value === 'rejected') status = 'AM REJECTED';
     if(status === 'GENERATED' && value === 'approved') status = 'KAM VERIFIED';
     else if(status === 'GENERATED' && value === 'rejected') status = 'KAM REJECTED';
     else if(status === 'KAM VERIFIED' && value === 'approved') status = 'AM VERIFIED';
     else if(status === 'KAM VERIFIED' && value === 'rejected') status = 'AM REJECTED';
-    // else if(status === 'AM VERIFIED' ) return this.addBankSlip(this.pi.id, this.piNo)
 
     const dialogRef = this.dialog.open(VerificationDialogueComponent, {
       data: { invoiceNo: piNo, status: status, sp: sp }
@@ -320,6 +322,7 @@ export class ViewApprovalComponent {
           status: status,
           performaInvoiceId: id,
           remarks: result.remarks,
+          kamId: result.kamId,
           amId: result.amId,
           accountantId: result.accountantId
         }
@@ -334,9 +337,9 @@ export class ViewApprovalComponent {
     })
   }
 
-  addBankSlip(piNo: string, id: number){
+  addBankSlip(piNo: string, id: number, status: string){
     const dialogRef = this.dialog.open(BankReceiptDialogueComponent, {
-      data: { invoiceNo: piNo, id: id }
+      data: { invoiceNo: piNo, id: id, status: status }
     });
 
     dialogRef.afterClosed().subscribe(result => {
