@@ -89,7 +89,7 @@
                           (click)="verified('approved', invoice.piNo, invoice.salesPerson?.name, invoice.id, invoice.status)"> APPROVE
                         </button>
                         <button mat-raised-button class="reject-button"
-                          (click)="verified('rejected', invoice.piNo, invoice.salesPerson ? invoice.salesPerson.name : invoice.kam?.name, invoice.id, invoice.status)">
+                          (click)="verified('rejected', invoice.piNo, invoice.addedBy.name, invoice.id, invoice.status)">
                           REJECT
                         </button>
                       }

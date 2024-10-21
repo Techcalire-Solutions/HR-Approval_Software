@@ -89,23 +89,29 @@
     </mat-tab-group>
 
     <mat-card-actions>
-      @if(pi.approveButtonStatus){
-        <button mat-button class="approve-button" (click)="verified('approved')">
+      @if(pi.approveButtonStatus) {
+        <button mat-button class="approve-button" (click)="verified('approved', pi.piNo, pi.salesPerson?.name, pi.id, pi.status)">
           APPROVE
         </button>
 
         <!-- Reject Button -->
-        <button mat-raised-button class="reject-button" (click)="verified('rejected')">
+        <button mat-raised-button class="reject-button" (click)="verified('rejected', pi.piNo, pi.addedBy.name, pi.id, pi.status)">
           REJECT
         </button>
       }
     </mat-card-actions>
   @if((ma && pi.status !== 'BANK SLIP ISSUED') || (admin && pi.status !== 'BANK SLIP ISSUED')){
     <mat-card-actions>
-      <button mat-raised-button type="button" class="btn btn-success" (click)="addBankSlip(piNo, pi.id)">
+      <button mat-raised-button type="button" class="btn btn-success" (click)="addBankSlip(piNo, pi.id, pi.status)">
         <mat-icon style="font-size: 25px;">task_alt</mat-icon>ADD WIRESLIP
       </button>
     </mat-card-actions>
+  }
+
+  @if(kam && pi.status === 'AM APPROVED'){
+    <button mat-raised-button class="add-bank-slip-button"
+    (click)="addBankSlip(pi.piNo, pi.id, pi.status)"> ATTACH
+    </button>
   }
 
     <mat-card>

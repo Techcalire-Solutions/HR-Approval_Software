@@ -28,7 +28,7 @@
                   <td class="project" style="background-color: white; color: rgb(6, 49, 105);">
                       {{ item.paymentMode }}
                   </td>
-      
+                  
                   <td class="check" *ngIf="item.status === 'GENERATED' || item.status === 'INITIATED' || item.status === 'KAM VERIFIED' ||
                    item.status === 'AM VERIFIED' || item.status === 'AM APPROVED' || item.status === 'BANK SLIP ISSUED' || item.status === 'CARD PAYMENT SUCCESS';
                    else spCrossCell">
