@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { DeleteDialogueComponent } from './delete-dialogue.component';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 describe('DeleteDialogueComponent', () => {
   let component: DeleteDialogueComponent;
@@ -8,9 +8,12 @@ describe('DeleteDialogueComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DeleteDialogueComponent ]
-    })
-    .compileComponents();
+      imports: [DeleteDialogueComponent], // Since it's standalone, use imports
+      providers: [
+        { provide: MatDialogRef, useValue: {} }, // Mock MatDialogRef
+        { provide: MAT_DIALOG_DATA, useValue: {} }, // Optional: Mock dialog data if used
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DeleteDialogueComponent);
     component = fixture.componentInstance;
