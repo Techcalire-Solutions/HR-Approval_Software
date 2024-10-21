@@ -51,12 +51,12 @@ export class VerificationDialogueComponent {
     if(this.status == 'AM VERIFIED') this.getMa()
     if(this.status == 'AM APPROVED') this.getKam()
 
-  if(this.status === 'AM REJECTED' || this.status === 'KAM REJECTED') this.isSelectionMade=true;
+    if(this.status === 'AM REJECTED' || this.status === 'KAM REJECTED') this.isSelectionMade=true;
   }
 
   isSelectionMade: any = false;
   onSelectionChange() {
-  this.isSelectionMade = this.form.get('amId')?.valid || this.form.get('accountantId')?.valid;
+    this.isSelectionMade = this.form.get('amId')?.valid || this.form.get('accountantId')?.valid;
   }
 
   onCancelClick(): void {
