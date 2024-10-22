@@ -29,21 +29,9 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
     return item?.performaInvoiceStatuses?.some((status: any) => statusesArray.includes(status.status));
   }
 
-  // isRejected(item: any): boolean {
-  //   return this.checkStatus(item, 'REJECTED');
-  // }
-
   isGenerated(item: any, status: string | string[]): boolean {
     return this.checkStatus(item, status);
   }
-
-  // isKamVerified(item: any): boolean {
-  //   return this.checkStatus(item, 'KAM VERIFIED');
-  // }
-
-  // isAccountantVerified(item: any): boolean {
-  //   return this.checkStatus(item, 'ACCOUNTANT VERIFIED');
-  // }
 
   invoices: PerformaInvoice[] = [];
   piSub!: Subscription;
@@ -58,13 +46,11 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
   wtpiSub!: Subscription;
   getWTPi(){
     this.wtpiSub = this.invoiceServices.getDashboardWTPI(this.searchText, this.wtCurrentPage, this.wtPageSize).subscribe((invoice: any) => {
-      console.log(invoice);
-      
+
       this.wtInvoices = invoice.items
       this.wtTotalItems = invoice.count;
     });
   }
-
 
   public searchText!: string;
   search(){
@@ -72,7 +58,8 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
   }
 
   ngOnDestroy(): void {
-    this.piSub?.unsubscribe()
+    this.piSub?.unsubscribe();
+    this.wtpiSub?.unsubscribe();
   }
 
   pageSize = 5;
