@@ -966,28 +966,32 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
     const { bankSlip, status } = req.body;
     try {
         let newStat;
-        if(status === 'AM APPROVED'){ newStat = 'CARD PAYMENT SUCCESS'}
-        else if(status === 'AM VERIFIED'){ newStat = 'BANK SLIP ISSUED'}
+        if (status === 'AM APPROVED') {
+            newStat = 'CARD PAYMENT SUCCESS';
+        } else if (status === 'AM VERIFIED') {
+            newStat = 'BANK SLIP ISSUED';
+        }
+
         const pi = await PerformaInvoice.findByPk(req.params.id);
-        
+
         if (!pi) {
             return res.status(404).json({ message: 'Proforma invoice not found' });
         }
 
-
+        // Update the bank slip and status
         pi.bankSlip = bankSlip;
         pi.status = newStat;
         await pi.save();
 
-  
+        // Create a new status entry
         const piStatus = new PerformaInvoiceStatus({
-            performaInvoiceId: pi.id, 
-            status: newStat, 
+            performaInvoiceId: pi.id,
+            status: newStat,
             date: new Date(),
         });
         await piStatus.save();
 
-      
+        // Fetch users for notification
         const users = await User.findAll({
             where: {
                 [Op.or]: [
@@ -1000,59 +1004,72 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             }
         });
 
-       
+        // Find relevant users
         const am = users.find(user => user.id === pi.amId);
-
-        const accountant = users.find(user=>user.id===pi.accountantId)
+        const accountant = users.find(user => user.id === pi.accountantId);
         const otherEmails = users
             .filter(user => user.id !== pi.accountantId)
             .map(user => user.email)
             .join(',');
-       
-       
 
         if (!am) {
             return res.status(404).json({ message: 'Account Manager not found' });
         }
 
-     
+        // Fetch the bank slip from S3
         const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
         const params = {
             Bucket: process.env.AWS_BUCKET_NAME,
             Key: fileKey,
         };
 
-       
         const s3File = await s3.getObject(params).promise();
         const fileBuffer = s3File.Body;
-   
-        const mailOptions = {
-            from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
-            to:otherEmails,
-            subject: `Bank Slip Uploaded for Invoice - ${pi.piNo}`,
-            html: `
-                <p>A bank slip has been uploaded for proforma invoice ID: <strong>${pi.piNo}</strong>.</p>
+
+        // Prepare dynamic email body based on the new status
+        let emailSubject = `Bank Slip Uploaded for Invoice - ${pi.piNo}`;
+        let emailBody = `
+            <p>A bank slip has been uploaded for proforma invoice ID: <strong>${pi.piNo}</strong>.</p>
+            <br>
+            <p>Please review the bank slip at your earliest convenience.</p>
+            <br>
+            <p>Thank you!</p>
+        `;
+
+        // Special handling if the status is 'CARD PAYMENT SUCCESS'
+        if (newStat === 'CARD PAYMENT SUCCESS') {
+            emailSubject = `Card Payment Success for Invoice - ${pi.piNo}`;
+            emailBody = `
+                <p>Card payment has been successfully processed for proforma invoice ID: <strong>${pi.piNo}</strong>.</p>
                 <br>
-                <p>Please review the bank slip at your earliest convenience.</p>
+                <p>Please review the  slip at your earliest convenience.</p>
                 <br>
                 <p>Thank you!</p>
-            `,
+            `;
+        }
+
+        // Prepare mail options
+        const mailOptions = {
+            from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+            to: otherEmails,
+            subject: emailSubject,
+            html: emailBody,
             attachments: [
                 {
                     filename: bankSlip.split('/').pop(),
-                    content: fileBuffer, 
-                    contentType: s3File.ContentType 
+                    content: fileBuffer,
+                    contentType: s3File.ContentType
                 }
             ]
         };
-        
-        
+
         // Send the email
         await transporter.sendMail(mailOptions);
 
         // Send response
         res.json({ p: pi, status: piStatus, users });
     } catch (error) {
+        console.error('Error:', error.message);
         res.status(500).send(error.message);
     }
 });

@@ -14,7 +14,7 @@
 
       <form action="#" #form class="form">
         <input type="file" class="file-input" hidden #fileInput>
-        <p>Click to Upload Bank Slip</p>
+        <p>{{dialogContent}}</p>
       </form>
       <section class="progress-area" #progressArea>
         @if(file){
@@ -28,8 +28,8 @@
                @if(!uploadComplete){
                 <span class="name">{{file.name}} . Uploaded</span>
                }
-                
-              
+
+
               </div>
             </div>
           </li>
