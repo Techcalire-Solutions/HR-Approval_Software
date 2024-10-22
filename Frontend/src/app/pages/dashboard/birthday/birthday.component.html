@@ -1,14 +1,17 @@
-<mat-card>
-  <div class="birthday-container">
-    <h2>🎉 Birthdays 🎉</h2><br>
-    <div class="card-container">
-        @for (employee of birthdaysThisMonth; track $index) {
-            <div class="card">
-                <h4><a style="color: blue;">{{ employee.user.name }}</a> - Birthday: {{ employee.dateOfBirth | date: 'MMMM d, y' }}</h4>
-                <!--  - Age: {{ employee.age }} -->
-            </div>
-        }
+@if (birthdaysThisMonth.length > 0) {
+  <mat-card>
+    <div class="birthday-container">
+      <h2>🎉 Birthdays 🎉</h2><br>
+      <div class="card-container">
+          @for (employee of birthdaysThisMonth; track $index) {
+              <div class="card">
+                  <h4><a style="color: blue;">{{ employee.user.name }}</a> - Birthday: {{ employee.dateOfBirth | date: 'MMMM d, y' }}</h4>
+                  <!--  - Age: {{ employee.age }} -->
+              </div>
+          }
+      </div>
     </div>
-  </div>
-</mat-card>
+  </mat-card>
+}
+
 
