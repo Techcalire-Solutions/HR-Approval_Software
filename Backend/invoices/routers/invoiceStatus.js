@@ -43,7 +43,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         });
         await newStatus.save();
 
-      
         pi.status = status;
         if (kamId != null) pi.kamId = kamId;
         if (amId != null) pi.amId = amId;
@@ -51,7 +50,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         await pi.save();
         console.log(pi);
         
-     
         const [salesPerson, kam, am, accountant] = await Promise.all([
             User.findOne({ where: { id: pi.salesPersonId } }),
             User.findOne({ where: { id: pi.kamId } }),
@@ -59,88 +57,157 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
             User.findOne({ where: { id: accountantId } }),
         ]);
 
-        // console.log('Retrieved users:', { salesPerson, kam, am, accountant });
+        const salesPersonEmail = salesPerson ? salesPerson.email : null;
+        const kamEmail = kam ? kam.email : null;
+        const accountantEmail = accountant ? accountant.email : null;
+        const amEmail = am ? am.email : null;
 
-        // const salesPersonEmail = salesPerson ? salesPerson.email : null;
-        // const kamEmail = kam ? kam.email : null;
-        // const accountantEmail = accountant ? accountant.email : null;
-        // const amEmail = am ? am.email : null;
+        let emailSubject = `Proforma Invoice Status Update - ${pi.piNo}`;
+        let emailText = `The status of the Proforma Invoice ${pi.piNo} has been updated to ${status}.\n\n` +
+                        `Remarks: ${remarks}\n` +
+                        `Please check the details for further information.`;
 
-        // let emailSubject = `Proforma Invoice Status Update - ${pi.id}`;
-        // let emailText = `The status of the Proforma Invoice ${pi.id} has been updated to ${status}.\n\n` +
-        //                 `Remarks: ${remarks}\n` +
-        //                 `Please check the details for further information.`;
+        let toEmail = null;
 
-        // let toEmail = null;
+        switch (status) {
+            case 'AM APPROVED':
+                emailText = `The Proforma Invoice ${pi.piNo} has been approved by AM.\n\n` + emailText;
+                toEmail = kamEmail; // Send to selected KAM
+                break;
+            case 'INITIATED':
+                emailText = `The Proforma Invoice ${pi.piNo} has been initiated.\n\n` + emailText;
+                toEmail = amEmail; // Send to AM
+                break;
+            case 'KAM VERIFIED':
+                emailText = `Great news! The Proforma Invoice ${pi.piNo} has been verified by KAM.\n\n` + emailText;
+                toEmail = [salesPersonEmail, amEmail].filter(Boolean).join(', '); 
+                break;
+            case 'AM VERIFIED':
+                emailText = `The Proforma Invoice ${pi.piNo} has been successfully verified by AM.\n\n` + emailText;
+                toEmail = [accountantEmail, kamEmail].filter(Boolean).join(', '); 
+                break;
+            case 'KAM REJECTED':
+                emailText = `The Proforma Invoice ${pi.piNo} has been rejected by KAM.\n\nRemarks: ${remarks}\n` +
+                             `Please review the invoice and take necessary actions.`;
+                toEmail = salesPersonEmail; 
+                break;
+            case 'AM REJECTED':
+                emailText = `The Proforma Invoice ${pi.piNo} has been rejected by AM.\n\nRemarks: ${remarks}\n` +
+                             `Please review the remarks and take necessary actions.`;
+                if (pi.addedById === pi.salesPersonId) {
+                    toEmail = salesPersonEmail;
+                } else if (pi.addedById === pi.kamId) {
+                    toEmail = kamEmail; 
+                }
+                break;
+            default:
+                return res.status(400).send('Invalid status update.');
+        }
 
-      
-        // switch (status) {
-        //     case 'KAM VERIFIED':
-        //         emailText = `Great news! The Proforma Invoice ${pi.id} has been verified by KAM.\n\n` + emailText;
-        //         toEmail = [salesPersonEmail, amEmail].filter(Boolean).join(', '); 
-        //         break;
-        //     case 'AM VERIFIED':
-        //         emailText = `The Proforma Invoice ${pi.id} has been successfully verified by AM.\n\n` + emailText;
-        //         toEmail = [accountantEmail, kamEmail].filter(Boolean).join(', '); 
-        //         break;
-        //     case 'KAM REJECTED':
-        //         emailText = `The Proforma Invoice ${pi.id} has been rejected by KAM.\n\nRemarks: ${remarks}\n` +
-        //                      `Please review the invoice and take necessary actions.`;
-        //         toEmail = salesPersonEmail; 
-        //         break;
-        //     case 'AM REJECTED':
-        //         emailText = `The Proforma Invoice ${pi.id} has been rejected by AM.\n\nRemarks: ${remarks}\n` +
-        //                      `Please review the remarks and take necessary actions.`;
-        
-            
-        //         if (pi.addedById === pi.salesPersonId) {
-        //             toEmail = salesPersonEmail;
-        //         } else if (pi.addedById === pi.kamId) {
-        //             toEmail = kamEmail; 
-        //         }
-        //         break;
-        //     default:
-        //         return res.status(400).send('Invalid status update.');
-        // }
-        
+        const attachmentUrl = pi.url[0].url; 
+        const attachmentFileKey = attachmentUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
 
-      
-        // const attachmentUrl = pi.url[0].url; 
-        // const attachmentFileKey = attachmentUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+        const attachmentParams = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: attachmentFileKey,
+        };
 
-        // const attachmentParams = {
-        //     Bucket: process.env.AWS_BUCKET_NAME,
-        //     Key: attachmentFileKey,
-        // };
+        console.log('Fetching attachment:', attachmentParams);
 
-        // console.log('Fetching attachment:', attachmentParams);
+        const attachmentS3File = await s3.getObject(attachmentParams).promise();
 
-        // const attachmentS3File = await s3.getObject(attachmentParams).promise();
+        const mailOptions = {
+            from: `${req.user.name} <${req.user.email}>`,
+            to: toEmail,
+            subject: emailSubject,
+            text: emailText,
+            attachments: [
+                {
+                    filename: attachmentFileKey.split('/').pop(), 
+                    content: attachmentS3File.Body,
+                    contentType: attachmentS3File.ContentType,
+                },
+            ],
+        };
 
-        // const mailOptions = {
-        //     from: `${req.user.name} <${req.user.email}>`,
-        //     to: toEmail,
-        //     subject: emailSubject,
-        //     text: emailText,
-        //     attachments: [
-        //         {
-        //             filename: attachmentFileKey.split('/').pop(), 
-        //             content: attachmentS3File.Body,
-        //             contentType: attachmentS3File.ContentType,
-        //         },
-        //     ],
-        // };
-
-        // if (toEmail) {
-        //     await transporter.sendMail(mailOptions);
-        //     console.log('Email sent successfully to:', toEmail);
-        // }
+        if (toEmail) {
+            await transporter.sendMail(mailOptions);
+            console.log('Email sent successfully to:', toEmail);
+        }
 
         res.json({ pi, status: newStatus });
     } catch (error) {
         console.error('Error updating status and sending email:', error.message);
         console.error('Detailed error stack:', error.stack);
         res.status(500).send('Internal Server Error');
+    }
+});
+
+router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
+    let { url, kamId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, 
+        customerId, customerSoNo, customerPoNo, customerCurrency, poValue, notes, paymentMode, amId } = req.body;
+
+    // Set kamId, amId, and customerId to null if they are empty
+    kamId = kamId === '' ? null : kamId;
+    amId = amId === '' ? null : amId;
+    customerId = customerId === '' ? null : customerId;
+
+    try {
+        const pi = await PerformaInvoice.findByPk(req.params.id);
+        if (!pi) {
+            return res.status(404).send({ message: 'Proforma Invoice not found.' });
+        }
+
+        // Update the Proforma Invoice fields
+        pi.url = url;
+        pi.kamId = kamId;
+        pi.amId = amId;
+        pi.count = pi.count + 1; // Increment the count
+        pi.status = `GENERATED`;
+        pi.supplierSoNo = supplierSoNo;
+        pi.supplierId = supplierId;
+        pi.supplierPoNo = supplierPoNo;
+        pi.supplierCurrency = supplierCurrency;
+        pi.supplierPrice = supplierPrice;
+        pi.purpose = purpose;
+        pi.customerId = customerId;
+        pi.customerSoNo = customerSoNo;
+        pi.customerPoNo = customerPoNo;
+        pi.customerCurrency = customerCurrency;
+        pi.poValue = poValue;
+        pi.paymentMode = paymentMode;
+        pi.notes = notes;
+
+        await pi.save();
+
+        const piId = pi.id;
+
+        const piStatus = new PerformaInvoiceStatus({
+            performaInvoiceId: piId, status: 'GENERATED', date: new Date(), count: pi.count
+        });
+        await piStatus.save();
+
+        // Fetch KAM and AM emails only if IDs are provided
+        const kam = kamId ? await User.findOne({ where: { id: kamId } }) : null;
+        const am = amId ? await User.findOne({ where: { id: amId } }) : null;
+
+        const kamEmail = kam ? kam.email : null;
+        const amEmail = am ? am.email : null;
+
+        const supplier = await Company.findOne({ where: { id: supplierId } });
+        const customer = await Company.findOne({ where: { id: customerId } });
+
+        const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
+        const customerName = customer ? customer.companyName : 'Unknown Customer';
+
+
+
+
+
+        res.json({ p: pi, status: piStatus });
+    } catch (error) {
+        console.error('Error updating Proforma Invoice:', error.message);
+        res.status(500).send(error.message);
     }
 });
 
