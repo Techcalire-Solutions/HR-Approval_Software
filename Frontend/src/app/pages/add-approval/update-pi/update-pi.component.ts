@@ -30,20 +30,30 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class UpdatePIComponent {
   url = environment.apiUrl;
+  
   invoiceService =inject(InvoiceService)
   loginService = inject(LoginService)
   fb=inject(FormBuilder)
   snackBar=inject(MatSnackBar)
   router= inject(Router)
-
   route= inject(ActivatedRoute)
 
-  // ...
   sanitizer=inject(DomSanitizer)
   companyService=inject(CompanyService)
 
   ngOnDestroy(): void {
     this.uploadSub?.unsubscribe();
+    this.submit?.unsubscribe();
+    this.deleteImageSub?.unsubscribe();
+    this.deleteSub?.unsubscribe();
+    this.piSub?.unsubscribe();
+    this.kamSub?.unsubscribe();
+    this.amSub?.unsubscribe();
+    this.accountantSub?.unsubscribe();
+    this.companySub?.unsubscribe();
+    this.customerSub?.unsubscribe();
+    this.deleteUploadSub?.unsubscribe();
+    this.roleSub?.unsubscribe();
   }
 
   piForm = this.fb.group({
@@ -68,16 +78,19 @@ export class UpdatePIComponent {
     notes:[],
     paymentMode:['']
   });
+
   public supplierCompanies: Company[] | null;
   public customerCompanies: Company[] | null;
+  companySub!: Subscription;
   public getSuppliers(): void {
-    this.companyService.getSuppliers().subscribe((suppliers: any) =>{
+    this.companySub = this.companyService.getSuppliers().subscribe((suppliers: any) =>{
       this.supplierCompanies = suppliers;
-      
     });
   }
+
+  customerSub!: Subscription;
   public getCustomers(): void {
-    this.companyService.getCustomers().subscribe((customers: any) =>{
+    this.customerSub = this.companyService.getCustomers().subscribe((customers: any) =>{
       this.customerCompanies = customers
     });
   }
@@ -99,15 +112,12 @@ export class UpdatePIComponent {
     });
   }
 
+  deleteUploadSub!: Subscription;
   removeData(index: number) {
     const formGroup = this.doc().at(index).value;
-    console.log(formGroup);
-    
     if (formGroup.url !== null) {
-      this.invoiceService.deleteUploadByurl(formGroup.url).subscribe({
+      this.deleteUploadSub = this.invoiceService.deleteUploadByurl(formGroup.url).subscribe({
         next: (response) => {
-          console.log(response);
-          // Clear the url field
           const control = this.doc().at(index).get('url');
           if (control) {
             control.setValue('');
@@ -157,7 +167,6 @@ export class UpdatePIComponent {
   imageUrl: any[] = [];
   newImageUrl: any[] = [];
   onFileSelected(event: Event, i: number): void {
-
     const input = event.target as HTMLInputElement;
     let file: any = input.files?.[0];
 
@@ -171,7 +180,6 @@ export class UpdatePIComponent {
 
         this.uploadSub = this.invoiceService.uploadInvoice(formData).subscribe({
             next: (invoice) => {
-
                 this.doc().at(i).get('url')?.setValue(invoice.fileUrl);
                 this.newImageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${invoice.fileUrl}`;
             }
@@ -232,17 +240,12 @@ export class UpdatePIComponent {
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
         this.router.navigateByUrl('login/viewApproval')
       });
-    }
-
-    else if(this.roleName=='Manager'){
+    }else if(this.roleName=='Manager'){
       this.submit = this.invoiceService.updatePIByAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
         this.router.navigateByUrl('login/viewApproval')
       });
-    }
-    else if(this.roleName=='Administrator'||this.roleName=='Super Administrator'){
-      console.log('hiiii... ');
-      
+    } else if(this.roleName=='Administrator'||this.roleName=='Super Administrator'){
       this.submit = this.invoiceService.updatePIByAdminSuperAdmin(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
         this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
         this.router.navigateByUrl('login/viewApproval')
@@ -284,22 +287,22 @@ export class UpdatePIComponent {
         this.addDoc(pi.pi.url[index])
       }
       if (inv.url) {
-        console.log('preview', inv.url);
-        
         this.imageUrl = pi.signedUrl;
       }
     });
   }
 
+  deleteSub!: Subscription;
   onDeleteUploadedImage(i: number){
-    this.invoiceService.deleteUploaded(this.route.snapshot.params['id'], i).subscribe(data=>{
+    this.deleteSub = this.invoiceService.deleteUploaded(this.route.snapshot.params['id'], i).subscribe(data=>{
       this.snackBar.open("Document is deleted successfully...","" ,{duration:3000})
       this.isImageUploaded()
     });
   }
 
+  deleteImageSub!: Subscription;
   onDeleteImage(i: number){
-    this.invoiceService.deleteUploadByurl(this.newImageUrl[i]).subscribe(data=>{
+    this.deleteImageSub = this.invoiceService.deleteUploadByurl(this.newImageUrl[i]).subscribe(data=>{
       this.newImageUrl[i] = ''
         this.doc().at(i).get('docUrl')?.setValue('');
       this.snackBar.open("Document is deleted successfully...","" ,{duration:3000})

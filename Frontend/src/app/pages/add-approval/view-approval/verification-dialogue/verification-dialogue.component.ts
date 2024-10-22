@@ -1,4 +1,4 @@
-import { Component, inject, Inject, Optional } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { LoginService } from '@services/login.service';
@@ -8,7 +8,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
-import { CommonModule } from '@angular/common';
 import { User } from '../../../../common/interfaces/user';
 import { MatCardModule } from '@angular/material/card';
 @Component({
@@ -25,7 +24,9 @@ import { MatCardModule } from '@angular/material/card';
 })
 export class VerificationDialogueComponent {
   ngOnDestroy(): void {
+    this.userSub?.unsubscribe();
   }
+  
   loginService=inject(LoginService)
   fb=inject(FormBuilder)
   dialog=inject(MatDialog)
@@ -78,7 +79,6 @@ export class VerificationDialogueComponent {
   am: User[] = [];
   getAm() {
     this.userSub = this.loginService.getUserByRoleName('Manager').subscribe(data => {
-
       this.am = data;
     });
   }

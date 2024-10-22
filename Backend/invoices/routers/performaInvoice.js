@@ -1112,11 +1112,28 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
         pi.notes = notes;
 
         await pi.save();
+
+        const piId = pi.id;
+        
+        const piStatus = new PerformaInvoiceStatus({
+            performaInvoiceId: piId, status: 'GENERATED', date: new Date(), count: count
+        })
+        await piStatus.save();
+
+      
+    //     const kam = await User.findOne({ where: { id: kamId } });
+    //     if (!kam) {
+    //         return res.status(404).send({ message: 'KAM user not found.' });
+    //     }
+    //     const kamEmail = kam.email;
+
+    //     const supplier = await Company.findOne({ where: { id: supplierId } });
+    //     const customer = await Company.findOne({ where: { id: customerId } });
         const supplier = await Company.findOne({ where: { id: supplierId } });
         const customer = await Company.findOne({ where: { id: customerId } });
 
-         const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
-          const customerName = customer ? customer.companyName : 'Unknown Customer';
+    //      const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
+    //       const customerName = customer ? customer.companyName : 'Unknown Customer';
 
         // Retrieve KAM and AM emails based on their IDs
         const kamEmail = kamId ? (await User.findOne({ where: { id: kamId } })).email : null;

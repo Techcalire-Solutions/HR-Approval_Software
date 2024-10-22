@@ -1,7 +1,4 @@
 
-
-
-
 <mat-card>
   <mat-toolbar class="table-header">
     <div class="row" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
@@ -11,7 +8,6 @@
       <button mat-raised-button color="primary" onClick="history.back()">
         <mat-icon>close</mat-icon>
       </button>
-
     </div>
   </mat-toolbar>
 
@@ -49,7 +45,8 @@
               <mat-option value="Dollar">Dollar</mat-option>
               <mat-option value="AED">AED</mat-option>
           </mat-select>
-      </mat-form-field>
+        </mat-form-field>
+        
         <mat-form-field appearance="outline">
           <mat-label>Supplier Price</mat-label>
           <input type="number" matInput placeholder="Enter Supplier Cost" formControlName="supplierPrice">
@@ -108,13 +105,11 @@
             <mat-option value="WireTransfer">Wire Transfer</mat-option>
           </mat-select>
         </mat-form-field>
-        @if(sp ||admin) {
-          <!-- Show Account Manager dropdown if payment mode is Credit Card -->
+        @if(sp || admin) {
           @if(piForm.get('paymentMode')?.value === 'CreditCard') {
             <mat-form-field class="full-width" appearance="outline">
               <mat-label>Authorize Manager</mat-label>
               <mat-select placeholder="" formControlName="amId">
-                <!-- <mat-option value="">None</mat-option> -->
                 @for(item of AMList; track $index) {
                   <mat-option [value]="item.id">
                     {{item.name}}
@@ -124,7 +119,6 @@
             </mat-form-field>
           }
 
-          <!-- Show Key Account Manager dropdown if payment mode is not Credit Card -->
           @if(piForm.get('paymentMode')?.value !== 'CreditCard') {
             <mat-form-field class="full-width" appearance="outline">
               <mat-label>Key Account Manager</mat-label>
@@ -151,12 +145,12 @@
             </mat-select>
           </mat-form-field>
         }
+
         @if(am){
           @if(piForm.get('paymentMode')?.value === 'CreditCard') {
             <mat-form-field class="full-width" appearance="outline">
               <mat-label>Key account Manager</mat-label>
               <mat-select placeholder="" formControlName="kamId">
-                <!-- <mat-option value="">None</mat-option> -->
                 @for(item of kam; track $index) {
                   <mat-option [value]="item.id">
                     {{item.name}}
@@ -210,12 +204,6 @@
                   <div class="col">
                     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
                       <iframe [src]="imageUrl[i].url | safe"></iframe>
-                      <!-- @if(fileType[i] === 'pdf'){
-                        rrrrrrr
-
-                      }@else {
-                        <img [src]="imageUrl[i].url" alt="Image" title="Image" height="100" width="100" class="clickable-image" />
-                      } -->
                       <mat-icon style="color: red;" (click)="onDeleteUploadedImage(i)">delete</mat-icon>
                     </div>
                   </div>
