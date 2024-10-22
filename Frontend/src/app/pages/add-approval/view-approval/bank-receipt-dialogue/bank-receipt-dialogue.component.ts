@@ -34,13 +34,12 @@ export class BankReceiptDialogueComponent {
 
   ngOnDestroy(): void {
     this.uploadSub?.unsubscribe();
+    this.submit?.unsubscribe();
   }
 
   piNo!: string;
   ngOnInit(): void {
     this.piNo = this.dialogData.invoiceNo;
-    console.log(this.dialogData.status);
-    
   }
 
   piForm = this.fb.group({

@@ -1,8 +1,7 @@
-import { Component, EventEmitter, HostListener, inject, Input, Output, ViewChild } from '@angular/core';
+import { Component, inject, Input, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Sort } from '@angular/material/sort';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InvoiceService } from '@services/invoice.service';
 import { LoginService } from '@services/login.service';
@@ -12,7 +11,6 @@ import { VerificationDialogueComponent } from './verification-dialogue/verificat
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
 import { MatDividerModule } from '@angular/material/divider';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -53,6 +51,8 @@ export class ViewApprovalComponent {
     this.invoiceSubscriptions?.unsubscribe();
     this.querySub?.unsubscribe();
     this.verifiedSub?.unsubscribe();
+    this.dialogSub?.unsubscribe();
+    this.deleteSub?.unsubscribe();
   }
 
   user: number;
@@ -164,7 +164,6 @@ export class ViewApprovalComponent {
             let invoiceAM = this.invoices[i]?.amId;
             let invoiceMA = this.invoices[i]?.accountantId;
 
-            // Check if the current user matches any role in the invoice
             if (this.user === invoiceSP || this.user === invoiceKAM || this.user === invoiceAM || this.user === invoiceMA) {
               this.invoices[i] = {
                 ...this.invoices[i],
@@ -201,7 +200,6 @@ export class ViewApprovalComponent {
             }
           }
         }
-
         this.submittingForm = false;
       }, (error: any) => {
         this.submittingForm = false;
@@ -260,7 +258,6 @@ export class ViewApprovalComponent {
         this.getInvoices()
 
       }
-
     }else if(this.roleName === 'Manager') {
       if(status === 'pending'){
         this.pageStatus = true;
@@ -278,9 +275,7 @@ export class ViewApprovalComponent {
         this.pageStatus = false;
          this.status = ''
         this.getInvoices()
-
       }
-
     }else if(this.roleName === 'Accountant') {
       if(status === 'pending'){
         this.pageStatus = false;
@@ -295,15 +290,13 @@ export class ViewApprovalComponent {
         this.status = ''
         this.getInvoices()
       }
-
     }
   }
 
   verifiedSub: Subscription;
+  dialogSub!: Subscription;
   verified(value: string, piNo: string, sp: string, id: number, stat: string){
     let status = this.status;
-    console.log(sp);
-    
     this.submittingForm = true;
     if(stat === 'INITIATED' && value === 'approved') status = 'AM APPROVED';
     else if(status === 'INITIATED' && value === 'rejected') status = 'AM REJECTED';
@@ -316,7 +309,7 @@ export class ViewApprovalComponent {
       data: { invoiceNo: piNo, status: status, sp: sp }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    this.dialogSub = dialogRef.afterClosed().subscribe(result => {
       if(result){
         this.submittingForm = true;
         let data = {
@@ -343,22 +336,23 @@ export class ViewApprovalComponent {
       data: { invoiceNo: piNo, id: id, status: status }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    this.dialogSub = dialogRef.afterClosed().subscribe(result => {
       if(result){
         this.getInvoices()
         this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
       }
     })
   }
+  
+  deleteSub!: Subscription;
   deleteFunction(id: number){
     const dialogRef = this.dialog.open(DeleteDialogueComponent, {
       width: '320px',
       data: {}
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    this.dialogSub = dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
-
         this.invoiceService.deleteInvoice(id).subscribe((res)=>{
           this._snackbar.open("PI deleted successfully...","" ,{duration:3000})
           this.getInvoices()

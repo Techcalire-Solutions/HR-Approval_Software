@@ -11,12 +11,11 @@
 
     <div class="col">
       <mat-card-header>
-
         <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon"
           class="d-block mr-0 ml-auto" onClick="history.back()" style="margin-left: auto;">
           <mat-icon>exit_to_app</mat-icon>
         </button>
-        @if (pi.status === 'BANK SLIP ISSUED') {
+        @if ((pi.status === 'BANK SLIP ISSUED' || pi.status === 'CARD PAYMENT SUCCESS') && ma) {
           <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon"
             class="d-block mr-0 ml-auto" (click)="makeExcel()" style="margin-left: 5px;">
             <mat-icon>sim_card_download</mat-icon>

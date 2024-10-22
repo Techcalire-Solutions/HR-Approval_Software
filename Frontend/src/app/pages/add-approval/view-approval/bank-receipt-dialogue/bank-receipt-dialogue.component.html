@@ -1,47 +1,30 @@
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Upload</title>
-  </head>
 
-  <body>
-  <mat-toolbar color="primary">
+<mat-toolbar color="primary"> <span>PROFORMA INVOICE: {{piNo}}</span> </mat-toolbar>
+<div class="wrapper">
+  <form action="#" #form class="form">
+    <input type="file" class="file-input" hidden #fileInput>
+    <p>Click to Upload Bank Slip</p>
+  </form>
 
-              <span>PROFORMA INVOICE: {{piNo}}</span>
-            </mat-toolbar>
-    <div class="wrapper">
+  <section class="progress-area" #progressArea>
+    @if(file){
+      <li class="row">
+        <div class="content">
+          <div class="details">
+            @if(uploadComplete){
+              <span class="name">{{file.name}} . Uploading</span>
+              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+            }
+            @if(!uploadComplete){
+            <span class="name">{{file.name}} . Uploaded</span>
+            }
+          </div>
+        </div>
+      </li>
+    }
+  </section>
 
-      <form action="#" #form class="form">
-        <input type="file" class="file-input" hidden #fileInput>
-        <p>Click to Upload Bank Slip</p>
-      </form>
-      <section class="progress-area" #progressArea>
-        @if(file){
-          <li class="row">
-            <div class="content">
-              <div class="details">
-                @if(uploadComplete){
-                  <span class="name">{{file.name}} . Uploading</span>
-                  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-                }
-               @if(!uploadComplete){
-                <span class="name">{{file.name}} . Uploaded</span>
-               }
-                
-              
-              </div>
-            </div>
-          </li>
-
-        }
-
-      </section>
-
-      <button  mat-raised-button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid">Save</button>
-
-
-      <button class="cancel-button" (click)="onCancelClick()">Cancel</button>
-    </div>
-  </body>
-</html>
+  <button  mat-raised-button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid">Save</button>
+  <button class="cancel-button" (click)="onCancelClick()">Cancel</button>
+</div>
+  
