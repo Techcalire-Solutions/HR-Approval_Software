@@ -72,11 +72,11 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         switch (status) {
             case 'AM APPROVED':
                 emailText = `The Proforma Invoice ${pi.piNo} has been approved by AM.\n\n` + emailText;
-                toEmail = kamEmail; // Send to selected KAM
+                toEmail = kamEmail; 
                 break;
             case 'INITIATED':
                 emailText = `The Proforma Invoice ${pi.piNo} has been initiated.\n\n` + emailText;
-                toEmail = amEmail; // Send to AM
+                toEmail = amEmail; 
                 break;
             case 'KAM VERIFIED':
                 emailText = `Great news! The Proforma Invoice ${pi.piNo} has been verified by KAM.\n\n` + emailText;
@@ -143,73 +143,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
     }
 });
 
-router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
-    let { url, kamId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, 
-        customerId, customerSoNo, customerPoNo, customerCurrency, poValue, notes, paymentMode, amId } = req.body;
 
-    // Set kamId, amId, and customerId to null if they are empty
-    kamId = kamId === '' ? null : kamId;
-    amId = amId === '' ? null : amId;
-    customerId = customerId === '' ? null : customerId;
-
-    try {
-        const pi = await PerformaInvoice.findByPk(req.params.id);
-        if (!pi) {
-            return res.status(404).send({ message: 'Proforma Invoice not found.' });
-        }
-
-        // Update the Proforma Invoice fields
-        pi.url = url;
-        pi.kamId = kamId;
-        pi.amId = amId;
-        pi.count = pi.count + 1; // Increment the count
-        pi.status = `GENERATED`;
-        pi.supplierSoNo = supplierSoNo;
-        pi.supplierId = supplierId;
-        pi.supplierPoNo = supplierPoNo;
-        pi.supplierCurrency = supplierCurrency;
-        pi.supplierPrice = supplierPrice;
-        pi.purpose = purpose;
-        pi.customerId = customerId;
-        pi.customerSoNo = customerSoNo;
-        pi.customerPoNo = customerPoNo;
-        pi.customerCurrency = customerCurrency;
-        pi.poValue = poValue;
-        pi.paymentMode = paymentMode;
-        pi.notes = notes;
-
-        await pi.save();
-
-        const piId = pi.id;
-
-        const piStatus = new PerformaInvoiceStatus({
-            performaInvoiceId: piId, status: 'GENERATED', date: new Date(), count: pi.count
-        });
-        await piStatus.save();
-
-        // Fetch KAM and AM emails only if IDs are provided
-        const kam = kamId ? await User.findOne({ where: { id: kamId } }) : null;
-        const am = amId ? await User.findOne({ where: { id: amId } }) : null;
-
-        const kamEmail = kam ? kam.email : null;
-        const amEmail = am ? am.email : null;
-
-        const supplier = await Company.findOne({ where: { id: supplierId } });
-        const customer = await Company.findOne({ where: { id: customerId } });
-
-        const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
-        const customerName = customer ? customer.companyName : 'Unknown Customer';
-
-
-
-
-
-        res.json({ p: pi, status: piStatus });
-    } catch (error) {
-        console.error('Error updating Proforma Invoice:', error.message);
-        res.status(500).send(error.message);
-    }
-});
 
 router.post('/updatestatustobankslip', authenticateToken, async (req, res) => {
     const { performaInvoiceId, status } = req.body;
