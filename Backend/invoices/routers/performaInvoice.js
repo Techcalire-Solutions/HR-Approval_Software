@@ -1210,9 +1210,6 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
     }
 });
 
-
-
-
 router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
     let { url, kamId, amId, supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes, paymentMode} = req.body;
     console.log(req.body);
