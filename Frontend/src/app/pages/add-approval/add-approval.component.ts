@@ -1,10 +1,10 @@
-import { Component, inject } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, ElementRef, inject, ViewChild } from '@angular/core';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router, ActivatedRoute } from '@angular/router';
 import { LoginService } from '@services/login.service';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { InvoiceService } from '@services/invoice.service';
 import { PerformaInvoice } from '../../common/interfaces/performaInvoice';
@@ -22,11 +22,12 @@ import { SafePipe } from "./view-invoices/safe.pipe";
 import { Company } from '../../common/interfaces/company';
 import { CompanyService } from '@services/company.service';
 import { CommonModule } from '@angular/common';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
 @Component({
   selector: 'app-add-approval',
   standalone: true,
   imports: [ ReactiveFormsModule, MatFormFieldModule,  MatCardModule,  MatToolbarModule, MatIconModule,  MatButtonModule,
-    MatSelectModule, MatInputModule, SafePipe,CommonModule],
+    MatSelectModule, MatInputModule, SafePipe,CommonModule, MatAutocompleteModule],
   templateUrl: './add-approval.component.html',
   styleUrl: './add-approval.component.scss'
 })
@@ -41,21 +42,35 @@ export class AddApprovalComponent {
   dialog=inject(MatDialog)
   sanitizer=inject(DomSanitizer)
   fb=inject(FormBuilder)
+  @ViewChild('input') input: ElementRef<HTMLInputElement>;
+  myControl = new FormControl('');
 
+  filteredOptions: any[]=[]
+
+  filter(value: string | null): void {
+    const filterValue = value ? value.toLowerCase() : ''; // Handle null case
+    if (!this.supplierCompanies.length) return; // Guard clause
+    this.filteredOptions = this.supplierCompanies.filter(option =>
+      option.companyName.toLowerCase().includes(filterValue)
+    );
+  }
   ngOnDestroy(): void {
     this.invSub?.unsubscribe();
     this.uploadSub?.unsubscribe();
     this.submit?.unsubscribe();
   }
 
-  id!: number;
-  public companies: Company[] | null;
-  public supplierCompanies: Company[] | null;
-  public customerCompanies: Company[] | null;
+  constructor(){
+    this.getSuppliers()
+  }
+
   ngOnInit(): void {
     this.getCompany();
-    this.getSuppliers()
+    this.getSuppliers();
+    this.myControl.valueChanges.subscribe(value => this.filter(value));
     this.getCustomers()
+    // this.filteredOptions = this.supplierCompanies?.slice();
+
     this.generateInvoiceNumber()
     this.getKAM();
     this.getAM();
@@ -68,17 +83,47 @@ export class AddApprovalComponent {
     this.getRoleById(roleId)
     this.addDoc()
   }
-
+  id!: number;
+  public companies: Company[] | null;
+  // public supplierCompanies: Company[] | null;
+  supplierCompanies: Company[] = []; // This should be populated via getSuppliers()
+  public customerCompanies: Company[] | null;
   public getCompany(): void {
     this.companyService.getCompany().subscribe((companies: any) =>{
       this.companies = companies
     });
   }
-   public getSuppliers(): void {
-    this.companyService.getSuppliers().subscribe((suppliers: any) =>{
-      this.supplierCompanies = suppliers
-    });
+
+  supplierCompanies$: Observable<any[]>; // Observable for suppliers
+  
+//   public getSuppliers(): void {
+//     this.companyService.getSuppliers().subscribe((suppliers: any) => {
+//         this.supplierCompanies = suppliers;
+//         this.filteredOptions = this.supplierCompanies.slice();
+       
+//         console.log('this.supplierCompaniesthis.supplierCompanies', this.supplierCompanies);
+//     });
+// }
+public getSuppliers(): void {
+  this.supplierCompanies$ = this.companyService.getSuppliers(); // Assign the observable directly
+  this.supplierCompanies$.subscribe(suppliers => {
+    this.supplierCompanies = suppliers; // Store the suppliers in a local variable
+    console.log('Supplier companies loaded', this.supplierCompanies);
+  });
+}
+displayFn(id: number | null): string {
+  console.log('Selected ID', id);
+
+  if (!this.supplierCompanies || id === null) {
+    console.log('Supplier Companies not loaded or ID is null');
+    return ''; // Return an empty string if supplierCompanies is not loaded or id is null
   }
+
+  const company = this.supplierCompanies.find(c => c.id === id);
+  return company ? company.companyName : ''; // Return the company name or empty string
+}
+
+
   public getCustomers(): void {
     this.companyService.getCustomers().subscribe((customers: any) =>{
       this.customerCompanies = customers
@@ -268,6 +313,7 @@ export class AddApprovalComponent {
         this.submit = submitMethod.subscribe({
             next: (invoice: any) => {
                 const piNo = invoice?.piNo;
+console.log(invoice,'invoiceinvoice');
 
                 if (piNo) {
                     this.snackBar.open(`Proforma Invoice ${piNo} uploaded successfully...`, "", { duration: 3000 });
