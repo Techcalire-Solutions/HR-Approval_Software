@@ -101,20 +101,29 @@ export class UpdatePIComponent {
 
   removeData(index: number) {
     const formGroup = this.doc().at(index).value;
-
+    console.log(formGroup);
+    
     if (formGroup.url !== null) {
       this.invoiceService.deleteUploadByurl(formGroup.url).subscribe({
         next: (response) => {
-          this.doc().removeAt(index)
+          console.log(response);
+          // Clear the url field
+          const control = this.doc().at(index).get('url');
+          if (control) {
+            control.setValue('');
+            this.newImageUrl[index] = '';
+          }
+          this.doc().removeAt(index);
         },
         error: (error) => {
           console.error('Error during update:', error);
         }
       });
     } else {
-      this.doc().removeAt(index)
+      this.doc().removeAt(index);
     }
   }
+  
 
   id!: number;
   ngOnInit(): void {
@@ -182,6 +191,7 @@ export class UpdatePIComponent {
   kamb: boolean = false;
   am: boolean = false;
   ma: boolean = false;
+  admin: boolean =false;
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;
@@ -190,6 +200,8 @@ export class UpdatePIComponent {
       if(this.roleName === 'Manager') this.am = true;
       if(this.roleName === 'Accountant') this.ma = true;
       if(this.roleName === 'Team Lead') this.sp = true;
+      if(this.roleName === 'Administrator'||this.roleName === 'Super Administrator') this.admin = true;
+      
     })
   }
 
@@ -297,7 +309,6 @@ export class UpdatePIComponent {
   imageUploaded: boolean
   isImageUploaded(): boolean {
     const controls = this.piForm.get('url')as FormArray;
-    console.log(controls);
     
     if( controls.length === 0) {return true;}
     let i = controls.length - 1;

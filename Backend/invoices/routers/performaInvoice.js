@@ -1556,19 +1556,20 @@ router.delete('/:id', async(req,res)=>{
     
 })
 
-router.get('/dashboard', authenticateToken, async (req, res) => {
+router.get('/dashboard/cc', authenticateToken, async (req, res) => {
     let status = req.query.status;
     
-    let where = {};
+    let where = { paymentMode: 'CreditCard' };
 
-    if (status != '' && status != 'undefined') {
+    if (status && status !== 'undefined') {
         where.status = status;
     }
-    let admin = await Role.findOne({ where: {roleName: 'Administrator'}})
-    let adminId =  admin.id;
 
-    let superadmin = await Role.findOne({ where: {roleName: 'Super Administrator'}})
-    let superadminId =  superadmin.id;
+    let admin = await Role.findOne({ where: {roleName: 'Administrator'}});
+    let adminId = admin.id;
+
+    let superadmin = await Role.findOne({ where: {roleName: 'Super Administrator'}});
+    let superadminId = superadmin.id;
 
     if (req.user.roleId !== adminId && req.user.roleId !== superadminId) {
         const userId = req.user.id;
@@ -1581,7 +1582,7 @@ router.get('/dashboard', authenticateToken, async (req, res) => {
     }
 
     let limit, offset;
-    if (req.query.pageSize && req.query.page && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
+    if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
         limit = parseInt(req.query.pageSize, 10);
         offset = (parseInt(req.query.page, 10) - 1) * limit;
     }
@@ -1602,7 +1603,7 @@ router.get('/dashboard', authenticateToken, async (req, res) => {
         
         const totalCount = await PerformaInvoice.count({ where: where });
 
-        if (req.query.pageSize && req.query.page && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
+        if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
             const response = {
                 count: totalCount,
                 items: pi
@@ -1612,7 +1613,68 @@ router.get('/dashboard', authenticateToken, async (req, res) => {
             res.send(pi);
         }
     } catch (error) {
-        res.send(error.message);
+        res.status(500).send({ error: error.message });
+    }
+});
+
+router.get('/dashboard/wt', authenticateToken, async (req, res) => {
+    let status = req.query.status;
+    
+    let where = { paymentMode: 'WireTransfer' };
+
+    if (status && status !== 'undefined') {
+        where.status = status;
+    }
+
+    let admin = await Role.findOne({ where: {roleName: 'Administrator'}});
+    let adminId = admin.id;
+
+    let superadmin = await Role.findOne({ where: {roleName: 'Super Administrator'}});
+    let superadminId = superadmin.id;
+
+    if (req.user.roleId !== adminId && req.user.roleId !== superadminId) {
+        const userId = req.user.id;
+        where[Op.or] = [
+            { salesPersonId: userId },
+            { kamId: userId },
+            { amId: userId },
+            { accountantId: userId }
+        ];
+    }
+
+    let limit, offset;
+    if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+        limit = parseInt(req.query.pageSize, 10);
+        offset = (parseInt(req.query.page, 10) - 1) * limit;
+    }
+
+    try {
+        const pi = await PerformaInvoice.findAll({
+            where: where,
+            limit,
+            offset,
+            order: [['id', 'DESC']],
+            include: [
+                { model: PerformaInvoiceStatus },
+                { model: User, as: 'salesPerson', attributes: ['name'] },
+                { model: User, as: 'kam', attributes: ['name'] },
+                { model: User, as: 'am', attributes: ['name'] }
+            ]
+        });
+        
+        const totalCount = await PerformaInvoice.count({ where: where });
+
+        if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+            const response = {
+                count: totalCount,
+                items: pi
+            };
+            res.json(response);
+        } else {
+            res.send(pi);
+        }
+    } catch (error) {
+        res.status(500).send({ error: error.message });
     }
 });
 
