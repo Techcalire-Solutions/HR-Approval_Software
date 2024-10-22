@@ -1074,9 +1074,6 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
     }
 });
 
-
-
-
 router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
     let { url, kamId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, 
         customerId, customerSoNo, customerPoNo, customerCurrency, poValue, notes, paymentMode, amId } = req.body;
@@ -1091,11 +1088,11 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
             return res.status(404).send({ message: 'Proforma Invoice not found.' });
         }
 
-        // Update Proforma Invoice fields
         pi.url = url;
         pi.kamId = kamId;
         pi.amId = amId;
-        pi.count += 1; // Increment the count
+        let count = pi.count + 1;
+        pi.count = count;
         pi.status = 'GENERATED';
         pi.supplierSoNo = supplierSoNo;
         pi.supplierId = supplierId;
