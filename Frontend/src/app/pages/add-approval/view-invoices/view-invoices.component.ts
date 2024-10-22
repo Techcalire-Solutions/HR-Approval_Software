@@ -1,10 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { InvoiceService } from '@services/invoice.service';
 import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
-import { PerformaInvoice } from '../../../common/interfaces/performaInvoice';
 import { VerificationDialogueComponent } from '../view-approval/verification-dialogue/verification-dialogue.component';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -36,7 +35,12 @@ import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 })
 export class ViewInvoicesComponent {
   ngOnDestroy(): void {
-
+    this.roleSub?.unsubscribe();
+    this.piSub?.unsubscribe();
+    this.statusSub?.unsubscribe();
+    this.dialogSub?.unsubscribe();
+    this.verifiedSub?.unsubscribe();
+    this.excelSub?.unsubscribe();
   }
   invoiceService=inject(InvoiceService)
   loginService=inject(LoginService)
@@ -44,9 +48,6 @@ export class ViewInvoicesComponent {
   router=inject(Router)
   route=inject(ActivatedRoute)
   dialog=inject(MatDialog)
-
-
-
   userId: number
 
   formatNotes(notes: string): string {
@@ -122,7 +123,6 @@ export class ViewInvoicesComponent {
         };
       }
       if(pi.pi.bankSlip != null) this.bankSlip = pi.bankSlip;
-      console.log(this.bankSlip);
 
       this.getPiStatusByPiId(id)
     });
@@ -140,12 +140,11 @@ export class ViewInvoicesComponent {
     this.filterValue = (event.target as HTMLInputElement).value.trim()
     this.getPiById(this.route.snapshot.params['id'])
   }
+
+  dialogSub!: Subscription;
   submittingForm: boolean = false;
   verifiedSub: Subscription
   verified(value: string, piNo: string, sp: string, id: number, stat: string){
-    console.log(stat);
-    
-    console.log(sp);
     let status = this.pi.status;
     this.submittingForm = true;
     if(stat === 'INITIATED' && value === 'approved') status = 'AM APPROVED';
@@ -159,7 +158,7 @@ export class ViewInvoicesComponent {
       data: { invoiceNo: piNo, status: status, sp: sp }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    this.dialogSub = dialogRef.afterClosed().subscribe(result => {
       if(result){
         this.submittingForm = true;
         let data = {
@@ -186,7 +185,7 @@ export class ViewInvoicesComponent {
       data: { invoiceNo: piNo, id: id, status: status }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    this.dialogSub = dialogRef.afterClosed().subscribe(result => {
       if(result){
         this.getPiById(id)
         this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
@@ -195,6 +194,7 @@ export class ViewInvoicesComponent {
   }
 
   fileName: string = '';
+  excelSub!: Subscription;
   makeExcel() {
     let data = {
       EntryNo: this.pi.piNo,
@@ -219,23 +219,15 @@ export class ViewInvoicesComponent {
       CreatedAt: this.pi.createdAt,
     };
   
-    this.invoiceService.excelExport(data).subscribe({
+    this.excelSub = this.invoiceService.excelExport(data).subscribe({
       next: (result: any) => {
-        // Check if the result indicates success
-        console.log('Excel export successful:', result);
-  
-        // Example of checking the response message
         if (result && result.message === "Excel file saved successfully.") {
-          // Route to the next component if the export is successful
           this.router.navigateByUrl('/login/viewexcel');
         } else {
           alert(result.message);
         }
       },
       error: (error) => {
-        // Log detailed error information
-        console.error('Excel export failed:', error);
-  
         if (error.error) {
           console.error(`Error Body: ${JSON.stringify(error.error)}`);
         }

@@ -24,7 +24,6 @@ export class ViewExcelComponent implements OnInit {
   ngOnInit(): void {
     this.newDate = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
     this.getExcel(this.newDate)
-    console.log(this.newDate);
   }
 
   newDate: any
