@@ -182,6 +182,7 @@ export class UpdatePIComponent {
   kamb: boolean = false;
   am: boolean = false;
   ma: boolean = false;
+  admin: boolean =false;
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;
@@ -190,6 +191,8 @@ export class UpdatePIComponent {
       if(this.roleName === 'Manager') this.am = true;
       if(this.roleName === 'Accountant') this.ma = true;
       if(this.roleName === 'Team Lead') this.sp = true;
+      if(this.roleName === 'Administrator'||this.roleName === 'Super Administrator') this.admin = true;
+      
     })
   }
 
