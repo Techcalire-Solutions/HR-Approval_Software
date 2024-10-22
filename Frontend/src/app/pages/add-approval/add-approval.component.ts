@@ -43,17 +43,11 @@ export class AddApprovalComponent {
   dialog=inject(MatDialog)
   sanitizer=inject(DomSanitizer)
   fb=inject(FormBuilder)
-  @ViewChild('input') input: ElementRef<HTMLInputElement>;
-  myControl = new FormControl('');
 
   ngOnDestroy(): void {
     this.invSub?.unsubscribe();
     this.uploadSub?.unsubscribe();
     this.submit?.unsubscribe();
-  }
-
-  constructor(){
-    this.getSuppliers()
   }
 
   ngOnInit(): void {
@@ -73,13 +67,6 @@ export class AddApprovalComponent {
     this.addDoc()
   }
 
-  private _filter(value: string): Company[] {
-    const filterValue = value.toLowerCase();
-    console.log(filterValue);
-    
-    return this.supplierCompanies.filter(option => option.companyName.toLowerCase().includes(filterValue));
-  }
-
   id!: number;
   public companies: Company[] | null;
   supplierCompanies: Company[] = []; 
@@ -90,19 +77,16 @@ export class AddApprovalComponent {
     });
   }
 
-  supplierCompanies$: Observable<any[]>; // Observable for suppliers
   public filteredOptions: any[] = [];
   public getSuppliers(): void {
     this.companyService.getSuppliers().subscribe((suppliers: any) => {
       this.supplierCompanies = suppliers;
-      this.filteredOptions = this.supplierCompanies.slice(); // Initialize filtered options with all suppliers
-      console.log('Supplier companies loaded:', this.supplierCompanies);
+      this.filteredOptions = this.supplierCompanies
     });
   }
   
   search(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
-    
     this.filteredOptions = this.supplierCompanies.filter(option => 
       option.companyName.replace(/\s+/g, '').toLowerCase().includes(filterValue)
     );
@@ -127,6 +111,7 @@ export class AddApprovalComponent {
       this.customerCompanies = customers
     });
   }
+
   roleSub!: Subscription;
   roleName!: string;
   sp: boolean = false;
@@ -350,6 +335,7 @@ console.log(invoice,'invoiceinvoice');
   onPaymentModeChange() {
     this.piForm.get('kamId')?.setValue("")
     this.piForm.get('amId')?.setValue("")
+    this.piForm.get('accountantId')?.setValue("")
   }
 
 }
