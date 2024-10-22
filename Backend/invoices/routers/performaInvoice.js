@@ -14,9 +14,6 @@ const Team = require('../../users/models/team');
 const Company = require('../models/company');
 const Supplier = require('../../invoices/routers/company')
 
-
-
-
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -1076,13 +1073,25 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
         if (!pi) {
             return res.status(404).send({ message: 'Proforma Invoice not found.' });
         }
+        let status;
+        if(paymentMode === 'CreditCard'){
+            if(amId == null){
+                return res.send('Please Select Manager');
+            }
+            status = 'INITIATED'
+        } else {
+            if(kamId == null){
+                return res.send('Please Select Key Account Manager');
+            }
+            status = 'GENERATED'
+        }
 
         pi.url = url;
         pi.kamId = kamId;
         pi.amId = amId;
         let count = pi.count + 1;
         pi.count = count;
-        pi.status = 'GENERATED';
+        pi.status = status;
         pi.supplierSoNo = supplierSoNo;
         pi.supplierId = supplierId;
         pi.supplierPoNo = supplierPoNo;
@@ -1102,7 +1111,7 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
         const piId = pi.id;
         
         const piStatus = new PerformaInvoiceStatus({
-            performaInvoiceId: piId, status: 'GENERATED', date: new Date(), count: count
+            performaInvoiceId: piId, status: status, date: new Date(), count: count
         })
         await piStatus.save();
 
