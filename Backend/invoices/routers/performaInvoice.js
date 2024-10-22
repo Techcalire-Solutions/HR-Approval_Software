@@ -1487,7 +1487,7 @@ router.get('/dashboard/cc', authenticateToken, async (req, res) => {
 router.get('/dashboard/wt', authenticateToken, async (req, res) => {
     let status = req.query.status;
     
-    let where = { paymentMode: 'CreditCard' };
+    let where = { paymentMode: 'WireTransfer' };
 
     if (status && status !== 'undefined') {
         where.status = status;
