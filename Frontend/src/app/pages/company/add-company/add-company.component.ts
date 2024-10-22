@@ -1,7 +1,7 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
 import { LeaveType } from '../../../common/interfaces/leaveType';
@@ -50,36 +50,33 @@ export class AddCompanyComponent {
   _snackBar=inject(MatSnackBar)
   dialog=inject(MatDialog)
   router=inject(Router)
+  dialogRef = inject(MatDialogRef<AddCompanyComponent>)
 
   companyForm = this.formBuilder.group({
     companyName: ['', Validators.required],
     code: [''],
-  contactPerson: [''],
-  designation:[''],
-  email:[''],
-  website: [''],
-  phoneNumber: [''],
-  address1: [''],
-  address2: [''],
-  city: [''],
-  country: [''],
-  state: [''],
-  zipcode: [''],
-  linkedIn: [''],
-  remarks: [''],
-  customer: [false],
-  supplier: [false],
+    contactPerson: [''],
+    designation:[''],
+    email:[''],
+    website: [''],
+    phoneNumber: [''],
+    address1: [''],
+    address2: [''],
+    city: [''],
+    country: [''],
+    state: [''],
+    zipcode: [''],
+    linkedIn: [''],
+    remarks: [''],
+    customer: [false],
+    supplier: [false],
   });
 
   navigation = this.router.getCurrentNavigation();
   company = this.navigation?.extras.state?.['company'];
   ngOnInit(){
- 
-   
     if (this.company) {
-      console.log('Received Company:', this.company);
       this.patchCompany(this.company);
-     
     }
     const token: any = localStorage.getItem('token');
     let user = JSON.parse(token);
@@ -118,42 +115,40 @@ export class AddCompanyComponent {
     this.companyForm.patchValue({
       companyName: this.company.companyName,
       code: this.company?.code,
-  contactPerson: this.company?.contactPerson,
-  designation:this.company?.designation,
-  email:this.company?.email,
-  website: this.company?.website,
-  phoneNumber: this.company?.phoneNumber,
-  address1: this.company?.address1,
-  address2: this.company?.address2,
-  city:this.company?.city,
-  country: this.company?.country,
-  state: this.company?.state,
-  zipcode: this.company?.zipcode,
-  linkedIn: this.company?.linkedIn,
-  remarks: this.company?.remarks,
-  customer: this.company?.customer,
-  supplier: this.company?.supplier,
-
+      contactPerson: this.company?.contactPerson,
+      designation:this.company?.designation,
+      email:this.company?.email,
+      website: this.company?.website,
+      phoneNumber: this.company?.phoneNumber,
+      address1: this.company?.address1,
+      address2: this.company?.address2,
+      city:this.company?.city,
+      country: this.company?.country,
+      state: this.company?.state,
+      zipcode: this.company?.zipcode,
+      linkedIn: this.company?.linkedIn,
+      remarks: this.company?.remarks,
+      customer: this.company?.customer,
+      supplier: this.company?.supplier,
     })
   }
   close(): void {
-    
+    this.dialogRef.close()
   }
   onSubmit(){
     if(this.company){
       this.companyService.updateCompany(this.company.id, this.companyForm.getRawValue()).subscribe(data => {
-        // this.dialogRef.close()
+        this.dialogRef.close()
         this._snackBar.open("Company updated succesfully...","" ,{duration:1000})
         this.getCompany();
         this.router.navigateByUrl('/login/company')
       });
     }else{
       this.companyService.addCompany(this.companyForm.getRawValue()).subscribe((res)=>{
-        // this.dialogRef.close();
+        this.dialogRef.close();
         this._snackBar.open("Company added successfully...","" ,{duration:3000})
         this.router.navigateByUrl('/login/company')
       })
-    // }
-  }
+    }
   }
 }
