@@ -283,7 +283,6 @@ export class AddApprovalComponent {
                 this.snackBar.open(`Error: ${errorMessage}`, "", { duration: 3000 });
             }
         });
-        this.snackBar.open('Invalid role for invoice submission.', "", { duration: 3000 });
     }
   }
 
