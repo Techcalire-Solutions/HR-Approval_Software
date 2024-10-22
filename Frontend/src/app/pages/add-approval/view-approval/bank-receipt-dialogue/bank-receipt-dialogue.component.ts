@@ -24,6 +24,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
   styleUrl: './bank-receipt-dialogue.component.scss'
 })
 export class BankReceiptDialogueComponent {
+  public dialogContent: string;
+
   invoiceService=inject(InvoiceService)
   fb=inject(FormBuilder)
   snackBar=inject(MatSnackBar)
@@ -34,13 +36,18 @@ export class BankReceiptDialogueComponent {
 
   ngOnDestroy(): void {
     this.uploadSub?.unsubscribe();
-    this.submit?.unsubscribe();
   }
 
   piNo!: string;
   ngOnInit(): void {
     this.piNo = this.dialogData.invoiceNo;
+    if (this.dialogData.status === 'AM APPROVED') {
+      this.dialogContent = 'Upload the credit card payment slip';
+    } else {
+      this.dialogContent = 'Upload the bank slip';
+    }
   }
+
 
   piForm = this.fb.group({
     bankSlip: ['', Validators.required],
