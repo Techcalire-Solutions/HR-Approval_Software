@@ -25,8 +25,6 @@ const transporter = nodemailer.createTransport({
     }
   });
 
-
-
 router.post('/save', authenticateToken, async (req, res) => {
     let { piNo, url, kamId, amId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, customerId,
         customerPoNo, customerSoNo, customerCurrency, poValue, notes, paymentMode } = req.body;
@@ -193,8 +191,6 @@ router.post('/save', authenticateToken, async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-
-
   
 router.post('/saveByKAM', authenticateToken, async (req, res) => {
     const { piNo, url, amId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose,
@@ -324,8 +320,6 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
     }
 });
 
-
-
 router.post('/saveByAM', authenticateToken, async (req, res) => {
     let { piNo, url, accountantId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose,
         customerId, customerPoNo, customerSoNo, customerCurrency, poValue, notes, paymentMode, kamId } = req.body;
@@ -451,11 +445,6 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-
-
-
-
-
 
 router.get('/find', authenticateToken, async(req, res) => {
     let status = req.query.status;
@@ -892,7 +881,6 @@ router.get('/findbyma', authenticateToken, async(req, res) => {
     }
 })
 
-
 router.get('/findbyadmin', authenticateToken, async (req, res) => {
     let status = req.query.status;
     
@@ -960,7 +948,6 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
         res.status(500).send(error.message);
     }
 });
-
 
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
     const { bankSlip, status } = req.body;
@@ -1204,10 +1191,6 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
     }
 });
 
-
-
-
-
 router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
     let { url, kamId, amId, supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes, paymentMode} = req.body;
     console.log(req.body);
@@ -1329,7 +1312,6 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
         res.send(error.message)
     }
 });
-
 
 router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
     let { url, kamId, accountantId, supplierId, supplierSoNo,supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId, customerPoNo,customerSoNo,customerCurrency, poValue,paymentMode, notes} = req.body;
@@ -1461,6 +1443,7 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
         res.send(error.message)
     }
 });
+
 router.patch('/updatePIByAdminSuperAdmin/:id', authenticateToken, async(req, res) => {
     const { url, kamId,accountantId,supplierId, supplierSoNo,supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId, customerPoNo,customerSoNo,customerCurrency, poValue,paymentMode, notes} = req.body;
     try {
@@ -1544,9 +1527,6 @@ router.patch('/updatePIByAdminSuperAdmin/:id', authenticateToken, async(req, res
         res.send(error.message)
     }
 });
-
-
-
 
 router.delete('/:id', async(req,res)=>{
     try {

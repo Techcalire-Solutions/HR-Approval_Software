@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router, ActivatedRoute } from '@angular/router';
 import { LoginService } from '@services/login.service';
-import { Observable, Subscription } from 'rxjs';
+import { map, Observable, startWith, Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { InvoiceService } from '@services/invoice.service';
 import { PerformaInvoice } from '../../common/interfaces/performaInvoice';
@@ -23,6 +23,7 @@ import { Company } from '../../common/interfaces/company';
 import { CompanyService } from '@services/company.service';
 import { CommonModule } from '@angular/common';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import { AddCompanyComponent } from '../company/add-company/add-company.component';
 @Component({
   selector: 'app-add-approval',
   standalone: true,
@@ -45,15 +46,6 @@ export class AddApprovalComponent {
   @ViewChild('input') input: ElementRef<HTMLInputElement>;
   myControl = new FormControl('');
 
-  filteredOptions: any[]=[]
-
-  filter(value: string | null): void {
-    const filterValue = value ? value.toLowerCase() : ''; // Handle null case
-    if (!this.supplierCompanies.length) return; // Guard clause
-    this.filteredOptions = this.supplierCompanies.filter(option =>
-      option.companyName.toLowerCase().includes(filterValue)
-    );
-  }
   ngOnDestroy(): void {
     this.invSub?.unsubscribe();
     this.uploadSub?.unsubscribe();
@@ -67,10 +59,7 @@ export class AddApprovalComponent {
   ngOnInit(): void {
     this.getCompany();
     this.getSuppliers();
-    this.myControl.valueChanges.subscribe(value => this.filter(value));
     this.getCustomers()
-    // this.filteredOptions = this.supplierCompanies?.slice();
-
     this.generateInvoiceNumber()
     this.getKAM();
     this.getAM();
@@ -83,10 +72,17 @@ export class AddApprovalComponent {
     this.getRoleById(roleId)
     this.addDoc()
   }
+
+  private _filter(value: string): Company[] {
+    const filterValue = value.toLowerCase();
+    console.log(filterValue);
+    
+    return this.supplierCompanies.filter(option => option.companyName.toLowerCase().includes(filterValue));
+  }
+
   id!: number;
   public companies: Company[] | null;
-  // public supplierCompanies: Company[] | null;
-  supplierCompanies: Company[] = []; // This should be populated via getSuppliers()
+  supplierCompanies: Company[] = []; 
   public customerCompanies: Company[] | null;
   public getCompany(): void {
     this.companyService.getCompany().subscribe((companies: any) =>{
@@ -95,34 +91,36 @@ export class AddApprovalComponent {
   }
 
   supplierCompanies$: Observable<any[]>; // Observable for suppliers
+  public filteredOptions: any[] = [];
+  public getSuppliers(): void {
+    this.companyService.getSuppliers().subscribe((suppliers: any) => {
+      this.supplierCompanies = suppliers;
+      this.filteredOptions = this.supplierCompanies.slice(); // Initialize filtered options with all suppliers
+      console.log('Supplier companies loaded:', this.supplierCompanies);
+    });
+  }
   
-//   public getSuppliers(): void {
-//     this.companyService.getSuppliers().subscribe((suppliers: any) => {
-//         this.supplierCompanies = suppliers;
-//         this.filteredOptions = this.supplierCompanies.slice();
-       
-//         console.log('this.supplierCompaniesthis.supplierCompanies', this.supplierCompanies);
-//     });
-// }
-public getSuppliers(): void {
-  this.supplierCompanies$ = this.companyService.getSuppliers(); // Assign the observable directly
-  this.supplierCompanies$.subscribe(suppliers => {
-    this.supplierCompanies = suppliers; // Store the suppliers in a local variable
-    console.log('Supplier companies loaded', this.supplierCompanies);
-  });
-}
-displayFn(id: number | null): string {
-  console.log('Selected ID', id);
-
-  if (!this.supplierCompanies || id === null) {
-    console.log('Supplier Companies not loaded or ID is null');
-    return ''; // Return an empty string if supplierCompanies is not loaded or id is null
+  search(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
+    
+    this.filteredOptions = this.supplierCompanies.filter(option => 
+      option.companyName.replace(/\s+/g, '').toLowerCase().includes(filterValue)
+    );
   }
 
-  const company = this.supplierCompanies.find(c => c.id === id);
-  return company ? company.companyName : ''; // Return the company name or empty string
-}
+  patch(selectedSuggestion: any) {
+    this.piForm.patchValue({ supplierId: selectedSuggestion.id, supplierName: selectedSuggestion.companyName });
+  }
 
+  add(){
+    const dialogRef = this.dialog.open(AddCompanyComponent, {
+      data: {status : 'true'}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      this.getSuppliers()
+    })
+  }
 
   public getCustomers(): void {
     this.companyService.getCustomers().subscribe((customers: any) =>{
@@ -180,6 +178,7 @@ displayFn(id: number | null): string {
     amId:  <any>[],
     accountantId:  <any>[],
     supplierId: <any>[],
+    supplierName: [''],
     supplierPoNo: ['', Validators.required],
     supplierSoNo:[''],
     supplierCurrency:['Dollar'],

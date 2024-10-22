@@ -21,28 +21,19 @@
         </mat-form-field>
         <!-- Control value: {{myControl.value || 'empty'}} -->
 
-        @if(supplierCompanies$) {
-          <mat-form-field appearance="outline">
-            <mat-label>Supplier Name</mat-label>
-            <input 
-              #input 
-              matInput 
-              type="text" 
-              placeholder="Pick one"
-              [formControl]="myControl"
-              [matAutocomplete]="auto"
-              (input)="filter(myControl.value)"
-              (focus)="filter(myControl.value)"
-            >
-            
-            <mat-autocomplete 
-              #auto="matAutocomplete" 
-              [displayWith]="displayFn"
-            >
-              <mat-option *ngFor="let option of filteredOptions" [value]="option.id">
-                {{ option.companyName }}
+        @if(supplierCompanies) {
+          <mat-form-field class="full-width" appearance="outline" >
+            <input matInput placeholder="Select Supplier" formControlName="supplierName" [matAutocomplete]="auto" (keyup)="search($event)">
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value)">
+              <mat-option *ngFor="let suggestion of filteredOptions" [value]="suggestion">
+                {{ suggestion.companyName }}
+              </mat-option>
+              <mat-option *ngIf="filteredOptions.length === 0" [value]="'add'">
+                <mat-icon style="font-size: 25px; color: rgb(35, 35, 247);" (click)="add()">playlist_add</mat-icon>
+                ADD NEW
               </mat-option>
             </mat-autocomplete>
+            
           </mat-form-field>
         }
 
