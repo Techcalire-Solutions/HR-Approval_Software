@@ -28,8 +28,8 @@
               <mat-option *ngFor="let suggestion of filteredOptions" [value]="suggestion">
                 {{ suggestion.companyName }}
               </mat-option>
-              <mat-option *ngIf="filteredOptions.length === 0" [value]="'add'">
-                <mat-icon style="font-size: 25px; color: rgb(35, 35, 247);" (click)="add()">playlist_add</mat-icon>
+              <mat-option *ngIf="filteredOptions.length === 0" [value]="'add'" (click)="add()">
+                <mat-icon style="font-size: 25px; color: rgb(35, 35, 247);">playlist_add</mat-icon>
                 ADD NEW
               </mat-option>
             </mat-autocomplete>
