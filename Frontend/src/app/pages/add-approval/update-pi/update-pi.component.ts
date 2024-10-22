@@ -121,6 +121,7 @@ export class UpdatePIComponent {
           const control = this.doc().at(index).get('url');
           if (control) {
             control.setValue('');
+            this.imageUrl[index] = '';
             this.newImageUrl[index] = '';
           }
           this.doc().removeAt(index);
@@ -295,6 +296,8 @@ export class UpdatePIComponent {
   deleteSub!: Subscription;
   onDeleteUploadedImage(i: number){
     this.deleteSub = this.invoiceService.deleteUploaded(this.route.snapshot.params['id'], i).subscribe(data=>{
+      this.newImageUrl[i] = '';
+      this.imageUrl[i] = '';
       this.snackBar.open("Document is deleted successfully...","" ,{duration:3000})
       this.isImageUploaded()
     });

@@ -19,8 +19,30 @@
           <mat-label>InvoiceNo</mat-label>
           <input matInput placeholder="" formControlName="piNo" readonly="true">
         </mat-form-field>
+        <!-- Control value: {{myControl.value || 'empty'}} -->
 
-        <mat-form-field appearance="outline">
+        @if(supplierCompanies) {
+          <mat-form-field class="full-width" appearance="outline" >
+            <input matInput placeholder="Select Supplier" formControlName="supplierName" [matAutocomplete]="auto" (keyup)="search($event)">
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value)">
+              <mat-option *ngFor="let suggestion of filteredOptions" [value]="suggestion">
+                {{ suggestion.companyName }}
+              </mat-option>
+              <mat-option *ngIf="filteredOptions.length === 0" [value]="'add'">
+                <mat-icon style="font-size: 25px; color: rgb(35, 35, 247);" (click)="add()">playlist_add</mat-icon>
+                ADD NEW
+              </mat-option>
+            </mat-autocomplete>
+            
+          </mat-form-field>
+        }
+
+
+        
+        
+   
+        
+        <!-- <mat-form-field appearance="outline">
           <mat-select placeholder="Choose Supplier Name" formControlName="supplierId">
             @for(item of supplierCompanies; track $index){
               <mat-option [value]="item.id">
@@ -28,7 +50,7 @@
               </mat-option>
             }
           </mat-select>
-        </mat-form-field>
+        </mat-form-field> -->
 
         <mat-form-field appearance="outline">
           <mat-label>Supplier SO#</mat-label>
