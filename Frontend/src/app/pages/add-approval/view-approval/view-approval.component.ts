@@ -127,6 +127,8 @@ export class ViewApprovalComponent {
 
     let apiCall;
     if (this.roleName === 'Sales Executive') {
+      console.log(this.status,"statusstatusstatusstatusstatus");
+      
       apiCall = this.invoiceService.getPIBySP(this.status, this.filterValue, this.currentPage, this.pageSize);
     }else if (this.roleName === 'Team Lead') {
       apiCall = this.invoiceService.getPIBySP(this.status, this.filterValue, this.currentPage, this.pageSize);

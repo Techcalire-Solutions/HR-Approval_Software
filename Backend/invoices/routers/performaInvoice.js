@@ -500,7 +500,6 @@ router.get('/find', authenticateToken, async(req, res) => {
 
 router.get('/findbyid/:id', authenticateToken, async(req, res) => {
     try {
-        // Create S3 upload parameters
     
         const pi = await PerformaInvoice.findByPk(req.params.id, {
             include:[
@@ -565,8 +564,10 @@ router.get('/findbysp', authenticateToken, async (req, res) => {
     // Initialize the where clause
     let where = { salesPersonId: userId };
     
-    if (status !== '' && status !== 'undefined' && status !== 'REJECTED' && status !== 'BANK SLIP ISSUED') {
+    if (status !== '' && status !== 'undefined' && status !== 'REJECTED' && status !== 'BANK SLIP ISSUED' && status !== 'GENERATED') {
         where.status = status;
+    }  else if (status === 'GENERATED') {
+        where.status = { [Op.or]: ['GENERATED', 'INITIATED'] };
     } else if (status === 'BANK SLIP ISSUED') {
         where.status = { [Op.or]: ['BANK SLIP ISSUED', 'CARD PAYMENT SUCCESS'] };
     } else if (status === 'REJECTED') {
@@ -1117,9 +1118,6 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
             performaInvoiceId: piId, status: status, date: new Date(), count: count
         })
         await piStatus.save();
-
-
-        // res.json({ p: pi });
 
         res.json({
             piNo: pi.piNo,
