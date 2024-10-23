@@ -22,6 +22,19 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
   ngOnInit(): void {
     this.getCCPi();
     this.getWTPi();
+
+    const token: any = localStorage.getItem('token')
+    let user = JSON.parse(token)
+    let roleId = user.role
+    this.getRoleById(roleId)
+  }
+
+  roleSub!: Subscription;
+  roleName!: string;
+  getRoleById(id: number){
+    this.roleSub = this.invoiceServices.getRoleById(id).subscribe(role => {
+      this.roleName = role.roleName;
+    })
   }
 
   checkStatus(item: any, statusesToCheck: string | string[]): boolean {
@@ -46,7 +59,6 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
   wtpiSub!: Subscription;
   getWTPi(){
     this.wtpiSub = this.invoiceServices.getDashboardWTPI(this.searchText, this.wtCurrentPage, this.wtPageSize).subscribe((invoice: any) => {
-
       this.wtInvoices = invoice.items
       this.wtTotalItems = invoice.count;
     });
@@ -60,6 +72,7 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
   ngOnDestroy(): void {
     this.piSub?.unsubscribe();
     this.wtpiSub?.unsubscribe();
+    this.roleSub?.unsubscribe();
   }
 
   pageSize = 5;

@@ -559,6 +559,7 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
 
 router.get('/findbysp', authenticateToken, async (req, res) => {
     const status = req.query.status;
+    console.log(status);
     
     const userId = req.user.id;
     // Initialize the where clause
@@ -571,7 +572,7 @@ router.get('/findbysp', authenticateToken, async (req, res) => {
     } else if (status === 'BANK SLIP ISSUED') {
         where.status = { [Op.or]: ['BANK SLIP ISSUED', 'CARD PAYMENT SUCCESS'] };
     } else if (status === 'REJECTED') {
-        where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
+        where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED', 'AM DECLINED'] };
     }
     
     if (req.query.search !== '' && req.query.search !== 'undefined') {
@@ -1329,7 +1330,6 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
     }
 });
 
-
 router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
     let { url, kamId, accountantId, supplierId, supplierSoNo,supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId, 
         customerPoNo,customerSoNo,customerCurrency, poValue,paymentMode, notes} = req.body;
@@ -1550,7 +1550,11 @@ router.patch('/updatePIByAdminSuperAdmin/:id', authenticateToken, async(req, res
               }
           }
 
-        res.json({ p: pi, status: piStatus})
+          res.json({
+            piNo: pi.piNo,
+            res: pi,
+            message: 'Proforma Invoice updated successfully'
+        });
     } catch (error) {
         res.send(error.message)
     }
@@ -1753,6 +1757,59 @@ router.patch('/getforadminreport', authenticateToken, async (req, res) => {
     
     res.send(invoices);
 });
+
+router.get('/findcount', authenticateToken, async (req, res) => {
+    try {
+        const statuses = [
+            'GENERATED',
+            'INITIATED',
+            'KAM VERIFIED',
+            'AM VERIFIED',
+            'AM APPROVED',
+            'KAM REJECTED',
+            'AM REJECTED',
+            'AM DECLINED',
+            'BANK SLIP ISSUED',
+            'CARD PAYMENT SUCCESS',
+        ];
+
+        const counts = {};
+        statuses.forEach(status => {
+            counts[status] = 0; 
+        });
+        const userId = req.user.id;
+
+        // Fetch invoice counts for each status
+        const invoiceCounts = await PerformaInvoice.findAll({
+            where: {
+                status: {[Op.or]: statuses}, addedById: userId
+            },
+            attributes: ['status', [sequelize.fn('COUNT', sequelize.col('status')), 'count']],
+            group: ['status']
+        });
+        console.log(invoiceCounts);
+        
+        // Populate the counts object with results from the query
+        invoiceCounts.forEach(invoice => {
+            counts[invoice.status] = invoice.get('count');
+        });
+
+        const formattedCounts = {};
+        for (const [key, value] of Object.entries(counts)) {
+            const formattedKey = key.replace(/ /g, '_'); // Replace spaces with underscores
+            formattedCounts[formattedKey] = value;
+        }
+
+        // Send the response with counts for each status
+        res.json({
+            counts: formattedCounts
+        });
+    } catch (error) {
+        console.error('Error fetching invoice counts:', error);
+        res.status(500).json({ error: 'An error occurred while fetching the invoice counts.' });
+    }
+});
+
 
 
 module.exports = router;
