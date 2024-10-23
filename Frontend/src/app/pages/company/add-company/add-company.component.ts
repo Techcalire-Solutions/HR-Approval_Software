@@ -50,8 +50,8 @@ export class AddCompanyComponent {
   _snackBar=inject(MatSnackBar)
   dialog=inject(MatDialog)
   router=inject(Router)
-  dialogRef = inject(MatDialogRef<AddCompanyComponent>)
-  dialogData = inject(MAT_DIALOG_DATA);
+  dialogRef = inject(MatDialogRef<AddCompanyComponent>, { optional: true })
+  dialogData = inject(MAT_DIALOG_DATA, { optional: true });
 
   companyForm = this.formBuilder.group({
     companyName: ['', Validators.required],
@@ -141,19 +141,20 @@ export class AddCompanyComponent {
     })
   }
   close(): void {
-    this.dialogRef.close()
+    this.dialogRef?.close()
+    history.back();
   }
   onSubmit(){
     if(this.company){
       this.companyService.updateCompany(this.company.id, this.companyForm.getRawValue()).subscribe(data => {
-        this.dialogRef.close()
+        this.dialogRef?.close()
         this._snackBar.open("Company updated succesfully...","" ,{duration:1000})
         this.getCompany();
         this.router.navigateByUrl('/login/company')
       });
     }else{
       this.companyService.addCompany(this.companyForm.getRawValue()).subscribe((res)=>{
-        this.dialogRef.close();
+        this.dialogRef?.close();
         this._snackBar.open("Company added successfully...","" ,{duration:3000})
         this.router.navigateByUrl('/login/company')
       })

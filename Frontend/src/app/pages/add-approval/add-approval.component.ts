@@ -314,18 +314,11 @@ export class AddApprovalComponent {
             },
             error: (err) => {
                 const errorMessage = err?.error?.message || 'An error occurred while uploading the invoice.';
-
-                // Display the error message
                 this.snackBar.open(`Error: ${errorMessage}`, "", { duration: 3000 });
             }
         });
     }
   }
-
-
-
-
-
 
   onDeleteImage(i: number){
     this.invoiceService.deleteUploadByurl(this.imageUrl[i]).subscribe(data=>{
