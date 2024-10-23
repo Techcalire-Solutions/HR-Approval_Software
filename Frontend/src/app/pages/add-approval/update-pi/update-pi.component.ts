@@ -343,7 +343,10 @@ export class UpdatePIComponent {
   }
 
   onPaymentModeChange() {
+    console.log("kkkkkkkkkkkkk");
+    
     this.piForm.get('kamId')?.setValue("")
+    this.piForm.get('amId')?.setValue("")
     this.piForm.get('accountantId')?.setValue("")
   }
 }
