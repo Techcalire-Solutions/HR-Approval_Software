@@ -22,8 +22,6 @@ const transporter = nodemailer.createTransport({
     }
   });
 
-
-
   router.post('/save', authenticateToken, async (req, res) => {
     let { piNo, url, kamId, amId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, customerId,
         customerPoNo, customerSoNo, customerCurrency, poValue, notes, paymentMode } = req.body;
@@ -95,7 +93,6 @@ const transporter = nodemailer.createTransport({
                 continue;
             }
         }
-
 
         const kam = paymentMode === 'WireTransfer' ? await User.findOne({ where: { id: kamId } }) : null;
         const am = paymentMode === 'CreditCard' ? await User.findOne({ where: { id: amId } }) : null;
@@ -1759,7 +1756,13 @@ router.patch('/getforadminreport', authenticateToken, async (req, res) => {
 });
 
 router.get('/findcount', authenticateToken, async (req, res) => {
+    const userId = req.user.id;
+    let roleName;
+    
     try {
+        let user = await User.findByPk(userId);
+        let role = await Role.findByPk(user.roleId);
+        roleName = role.roleName;
         const statuses = [
             'GENERATED',
             'INITIATED',
@@ -1775,32 +1778,39 @@ router.get('/findcount', authenticateToken, async (req, res) => {
 
         const counts = {};
         statuses.forEach(status => {
-            counts[status] = 0; 
+            counts[status] = 0;
         });
-        const userId = req.user.id;
 
-        // Fetch invoice counts for each status
+        let whereCondition = { status: { [Op.or]: statuses } };
+
+        if (roleName === 'Sales Executive' || roleName === 'Team Lead') {
+            whereCondition.salesPersonId = userId;
+        } else if (roleName === 'Key Account Manager') {
+            whereCondition.kamId = userId;
+        } else if (roleName === 'Manager') {
+            whereCondition.amId = userId;
+        } else if (roleName === 'Accountant') {
+            whereCondition.amId = userId;
+        } else {
+            whereCondition = {};
+        }
+
         const invoiceCounts = await PerformaInvoice.findAll({
-            where: {
-                status: {[Op.or]: statuses}, addedById: userId
-            },
+            where: whereCondition,
             attributes: ['status', [sequelize.fn('COUNT', sequelize.col('status')), 'count']],
             group: ['status']
         });
-        console.log(invoiceCounts);
-        
-        // Populate the counts object with results from the query
+
         invoiceCounts.forEach(invoice => {
             counts[invoice.status] = invoice.get('count');
         });
 
         const formattedCounts = {};
         for (const [key, value] of Object.entries(counts)) {
-            const formattedKey = key.replace(/ /g, '_'); // Replace spaces with underscores
+            const formattedKey = key.replace(/ /g, '_'); 
             formattedCounts[formattedKey] = value;
         }
 
-        // Send the response with counts for each status
         res.json({
             counts: formattedCounts
         });
@@ -1809,6 +1819,7 @@ router.get('/findcount', authenticateToken, async (req, res) => {
         res.status(500).json({ error: 'An error occurred while fetching the invoice counts.' });
     }
 });
+
 
 
 
