@@ -1,0 +1,126 @@
+ <ng-container *ngIf="company">
+
+    <mat-card class="example-card">
+      <div class="row">
+        <div class="col">
+          <mat-card-header>
+            <mat-card-title>COMPANY INFORMATION</mat-card-title>
+          </mat-card-header>
+        </div>
+        <div class="col">
+          <mat-card-header>
+            <button mat-mini-fab color="primary" aria-label="Example icon button with a home icon"
+              class="d-block mr-0 ml-auto" onclick="history.back()">
+              <mat-icon>exit_to_app</mat-icon>
+            </button>
+          </mat-card-header>
+        </div>
+      </div>
+  
+      <mat-card-content>
+        <mat-card class="example-card">
+        <div class="row">
+          <div class="col">
+            <mat-list>
+              <mat-list-item>
+                <h4>&nbsp;&nbsp;&nbsp;&nbsp; Name :&nbsp; &nbsp;<span style="font-weight: normal;">{{company.companyName}}</span></h4>
+            </mat-list-item>
+  
+  
+            <!-- <mat-list>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;Customer : {{company.customer | titlecase}}</h4>
+            </mat-list>
+  
+  
+            <mat-list>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;Supplier :{{company.supplier | titlecase}}</h4>
+            </mat-list> -->
+            <mat-list-item>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;Contact Person :<span style="font-weight: normal;">{{company.contactPerson}}</span></h4>
+            </mat-list-item>
+            <mat-list-item>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;Designation :<span style="font-weight: normal;">{{company.designation}}</span></h4>
+            </mat-list-item>
+            <mat-list-item>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;Email :<span style="font-weight: normal;"> {{company.email}}</span></h4>
+            </mat-list-item>
+            <mat-list-item>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;Website : <span style="font-weight: normal;">{{company.website}}</span></h4>
+            </mat-list-item>
+            <mat-list-item>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;Phone Number : <span style="font-weight: normal;">{{company.phoneNumber}}</span></h4>
+            </mat-list-item>
+          </mat-list>
+          </div>
+          <div class="col">
+          <mat-list>
+  
+  
+            <mat-list-item>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;Address 1:<span style="font-weight: normal;"> {{company.address1}}</span></h4>
+            </mat-list-item>
+            <mat-list-item>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;Address 2: <span style="font-weight: normal;">{{company.address2}}</span></h4>
+            </mat-list-item>
+            <mat-list-item>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;City: <span style="font-weight: normal;">{{company.city}}</span></h4>
+            </mat-list-item>
+            <mat-list-item>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;State: <span style="font-weight: normal;">{{company.state}}</span></h4>
+            </mat-list-item>
+            <mat-list-item>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;Country:<span style="font-weight: normal;"> {{company.country}}</span></h4>
+            </mat-list-item>
+            <mat-list-item>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;Zipcode: <span style="font-weight: normal;">{{company.zipcode}}</span></h4>
+            </mat-list-item>
+          
+            <!-- <mat-list-item>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;DHL A/c No: <span style="font-weight: normal;">{{company.zipcode}}</span></h4>
+            </mat-list-item> -->
+          </mat-list>
+          </div>
+          <div class="col">
+          <mat-list>
+  
+  
+            <mat-list-item>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;LinkedIn:<span style="font-weight: normal;">{{company.linkedIn}}</span> </h4>
+            </mat-list-item>
+            <mat-list-item>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;Remarks:<span style="font-weight: normal;"> {{company.remarks}}</span></h4>
+            </mat-list-item>
+            <mat-list-item>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;Code:<span style="font-weight: normal;">  {{company.code}}</span></h4>
+            </mat-list-item>
+            <mat-list-item>
+                <h4>&nbsp;&nbsp;&nbsp;&nbsp;Supplier: 
+                  <span style="font-weight: normal;">
+                    {{ company.supplier ? 'Yes' : 'No' }}
+                  </span>
+                </h4>
+              </mat-list-item>
+              
+              <mat-list-item>
+                <h4>&nbsp;&nbsp;&nbsp;&nbsp;Customer: 
+                  <span style="font-weight: normal;">
+                    {{ company.customer ? 'Yes' : 'No' }}
+                  </span>
+                </h4>
+              </mat-list-item>
+              
+
+            <!-- <mat-list-item>
+              <h4>&nbsp;&nbsp;&nbsp;&nbsp;FedEx A/c No.:<span style="font-weight: normal;">  {{company.team.teamName}}</span></h4>
+            </mat-list-item> -->
+          </mat-list>
+          </div>
+        </div>
+      </mat-card>
+
+  
+
+  
+      </mat-card-content>
+    </mat-card>
+  </ng-container>

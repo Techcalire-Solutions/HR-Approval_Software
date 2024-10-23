@@ -103,6 +103,12 @@ export const routes: Routes = [
             loadComponent: () => import('./company/add-company/add-company.component').then(c => c.AddCompanyComponent),
             data: { breadcrumb: 'Manage Company' },
             canActivate: [AuthGuard]
+          },
+          {
+            path: 'viewCompany/:id',
+            loadComponent: () => import('./company/company-detailed/company-detailed.component').then(c => c.CompanyDetailedComponent),
+            data: { breadcrumb: 'View Company' },
+            canActivate: [AuthGuard]
           }
         ]
       }

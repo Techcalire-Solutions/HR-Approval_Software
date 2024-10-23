@@ -88,6 +88,11 @@ export class CompanyComponent {
 
 //  })
   }
+goToCompany(companyId: number) {
+  console.log('companyId', companyId);
+  
+    this.router.navigate(['/login/company/viewCompany/', companyId.toString()]);
+  }
   pageSize = 10;
   currentPage = 1;
   totalItems = 0;
