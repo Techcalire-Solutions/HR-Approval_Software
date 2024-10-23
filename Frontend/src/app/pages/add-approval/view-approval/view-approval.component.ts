@@ -299,7 +299,7 @@ export class ViewApprovalComponent {
     let status = this.status;
     this.submittingForm = true;
     if(stat === 'INITIATED' && value === 'approved') status = 'AM APPROVED';
-    else if(status === 'INITIATED' && value === 'rejected') status = 'AM REJECTED';
+    else if(stat === 'INITIATED' && value === 'rejected') status = 'AM DECLINED';
     if(status === 'GENERATED' && value === 'approved') status = 'KAM VERIFIED';
     else if(status === 'GENERATED' && value === 'rejected') status = 'KAM REJECTED';
     else if(status === 'KAM VERIFIED' && value === 'approved') status = 'AM VERIFIED';
