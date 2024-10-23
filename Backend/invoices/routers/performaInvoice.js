@@ -1331,8 +1331,9 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
 
 
 router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
-    let { url, kamId, accountantId, supplierId, supplierSoNo,supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId, customerPoNo,customerSoNo,customerCurrency, poValue,paymentMode, notes} = req.body;
-
+    let { url, kamId, accountantId, supplierId, supplierSoNo,supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId, 
+        customerPoNo,customerSoNo,customerCurrency, poValue,paymentMode, notes} = req.body;
+        
     try {
         let status;
         let recipient;
@@ -1352,8 +1353,8 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
         }
         const pi = await PerformaInvoice.findByPk(req.params.id);
 
-        kamId = kamId === '' ? pi.kamId : kamId;
-        accountantId = accountantId === '' ? pi.accountantId : accountantId;
+        kamId = kamId === '' ? null : kamId;
+        accountantId = accountantId === '' ? null : accountantId;
         customerId = customerId === '' ? null : customerId;
 
         pi.url = url;
@@ -1375,7 +1376,7 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
         pi.poValue=poValue;
         pi.paymentMode=paymentMode;
         pi.notes=notes
-
+        
         await pi.save();
 
         const piId = pi.id;
@@ -1467,7 +1468,7 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
 
 } catch (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
+    res.json({ error: error.message });
 }
 });
 
