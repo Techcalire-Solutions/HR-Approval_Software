@@ -49,6 +49,11 @@ export const routes: Routes = [
         data: { breadcrumb: 'Add Approval' }, canActivate: [AuthGuard]
       },
       {
+        path: 'expenses',
+        loadComponent: () => import('./add-approval/expense/expense.component').then(c => c.ExpenseComponent),
+        canActivate: [AuthGuard], data: { breadcrumb: 'Expense' },
+      },
+      {
         path: 'viewexcel',
         loadComponent: () => import('./add-approval/view-excel/view-excel.component').then(c => c.ViewExcelComponent),
         canActivate: [AuthGuard], data: { breadcrumb: 'View Excel' },

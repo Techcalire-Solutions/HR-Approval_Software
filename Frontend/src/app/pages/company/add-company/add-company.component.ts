@@ -147,16 +147,18 @@ export class AddCompanyComponent {
   onSubmit(){
     if(this.company){
       this.companyService.updateCompany(this.company.id, this.companyForm.getRawValue()).subscribe(data => {
-        this.dialogRef?.close()
+        if (this.dialogRef) this.dialogRef.close();
+        else  this.router.navigateByUrl('/login/company');
+        
         this._snackBar.open("Company updated succesfully...","" ,{duration:1000})
         this.getCompany();
         this.router.navigateByUrl('/login/company')
       });
     }else{
       this.companyService.addCompany(this.companyForm.getRawValue()).subscribe((res)=>{
-        this.dialogRef?.close();
+        if (this.dialogRef) this.dialogRef.close();
+        else  this.router.navigateByUrl('/login/company');
         this._snackBar.open("Company added successfully...","" ,{duration:3000})
-        this.router.navigateByUrl('/login/company')
       })
     }
   }

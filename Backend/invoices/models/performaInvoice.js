@@ -5,7 +5,6 @@ const Company = require('../../invoices/models/company');
 
 const PerformaInvoice = sequelize.define('performaInvoice',{
     piNo : {type : DataTypes.STRING, allowNull : false},
-    filename : {type : DataTypes.STRING},
     url: { type: DataTypes.ARRAY(DataTypes.JSON), allowNull: true },
     // url : {type : DataTypes.ARRAY(DataTypes.STRING)},
     bankSlip : {type : DataTypes.STRING},
