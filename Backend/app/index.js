@@ -60,7 +60,6 @@ app.use('/company', company);
 app.use('/invoices/uploads', express.static(path.join(__dirname, '../invoices/uploads')));
 app.use('/users/userImages', express.static(path.join(__dirname, '../users/userImages')));
 
-
 const leave = require('../leave/routers/leave');
 const leaveType = require('../leave/routers/leaveType');
 const userLeave = require('../leave/routers/userLeave');
@@ -70,6 +69,9 @@ app.use('/userLeave', userLeave);
 
 const announcements = require('../announcements/router/announcement');
 app.use('/announcements', announcements)
+
+const expense = require('../invoices/routers/expense');
+app.use('/expense', expense);
 
 app.get('/export', async(req,res)=> {
     try {

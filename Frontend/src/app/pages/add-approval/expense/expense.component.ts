@@ -7,6 +7,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Subscription } from 'rxjs';
 import { SafePipe } from "../view-invoices/safe.pipe";
+import { InvoiceService } from '@services/invoice.service';
+import { ExpensesService } from '@services/expenses.service';
+import { Expense } from '../../../common/interfaces/expense';
 
 @Component({
   selector: 'app-expense',
@@ -20,6 +23,9 @@ export class ExpenseComponent implements OnInit{
     this.addDoc()
   }
   private fb = inject(FormBuilder)
+  private invoiceService = inject(InvoiceService);
+  private expenseService = inject(ExpensesService);
+
   expenseForm = this.fb.group({
     exNo: ['', Validators.required],
     expenseType: ['', Validators.required],
@@ -100,6 +106,39 @@ export class ExpenseComponent implements OnInit{
       url: [initialValue?initialValue.docUrl : '', Validators.required],
       remarks: [initialValue?initialValue.docUrl : ''],
     });
+  }
+
+  invSub!: Subscription;
+  prefix: string = '';
+  ivNum: string = '';
+  // generateInvoiceNumber() {
+  //   this.invSub = this.expenseService.getExpense().subscribe((res: Expense[]) => {
+  //     if (res.length > 0) {
+  //       const maxId = res.reduce((prevMax, inv) => {
+  //         const idNumber = parseInt(inv.piNo.replace(/\D/g, ''), 10);
+  //         this.prefix = this.extractLetters(inv.piNo);
+  //         return !isNaN(idNumber) && idNumber > prevMax ? idNumber : prevMax;
+  //       }, 0);
+
+  //       let nextId = maxId + 1;
+  //       const paddedId = `${this.prefix}${nextId.toString().padStart(3, "0")}`;
+  //       this.ivNum = paddedId;
+  //     } else {
+  //       let nextId = 1;
+  //       let prefix = "E-";
+  //       const paddedId = `${prefix}${nextId.toString().padStart(3, "0")}`;
+  //       this.ivNum = paddedId;
+  //     }
+
+  //     this.piForm.get('piNo')?.setValue(this.ivNum);
+  //   });
+  // }
+
+  extractLetters(input: string): string {
+    var extractedChars = input.match(/[A-Za-z-]/g);
+    var result = extractedChars ? extractedChars.join('') : '';
+
+    return result;
   }
 
   onSubmit(){

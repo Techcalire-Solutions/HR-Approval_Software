@@ -22,18 +22,18 @@ const Expense = sequelize.define('expense',{
     timestamps : true
 })
 
-User.hasMany(Expense, { as: 'user', foreignKey: 'userId', onUpdate: 'CASCADE' });
-Expense.belongsTo(User, { as: 'user', foreignKey: 'userId' });
+// User.hasMany(Expense, { as: 'user', foreignKey: 'userId', onUpdate: 'CASCADE' });
+// Expense.belongsTo(User, { as: 'user', foreignKey: 'userId' });
 
-User.hasMany(Expense, { as: 'kam', foreignKey: 'kamId', onUpdate: 'CASCADE' });
-Expense.belongsTo(User, { as: 'kam', foreignKey: 'kamId' });
+// User.hasMany(Expense, { as: 'kam', foreignKey: 'kamId', onUpdate: 'CASCADE' });
+// Expense.belongsTo(User, { as: 'kam', foreignKey: 'kamId' });
 
-User.hasMany(Expense, { as: 'am', foreignKey: 'amId', onUpdate: 'CASCADE' });
-Expense.belongsTo(User, { as: 'am', foreignKey: 'amId' });
+// User.hasMany(Expense, { as: 'am', foreignKey: 'amId', onUpdate: 'CASCADE' });
+// Expense.belongsTo(User, { as: 'am', foreignKey: 'amId' });
 
 
-User.hasMany(Expense ,{as: 'accountant', foreignKey : 'accountantId', onUpdate : 'CASCADE'})
-Expense.belongsTo(User,{as: 'accountant', foreignKey : 'accountantId'})
+// User.hasMany(Expense ,{as: 'accountant', foreignKey : 'accountantId', onUpdate : 'CASCADE'})
+// Expense.belongsTo(User,{as: 'accountant', foreignKey : 'accountantId'})
 
 
 Expense.sync({ alter: true }).then(() => {
