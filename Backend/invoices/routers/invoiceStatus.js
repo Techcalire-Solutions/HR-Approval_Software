@@ -47,7 +47,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         if (amId != null) pi.amId = amId;
         if (accountantId != null) pi.accountantId = accountantId;
         await pi.save();
-        console.log(pi);
         
         // const [salesPerson, kam, am, accountant] = await Promise.all([
         //     User.findOne({ where: { id: pi.salesPersonId } }),
