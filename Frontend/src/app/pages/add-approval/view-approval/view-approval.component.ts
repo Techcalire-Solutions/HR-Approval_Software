@@ -173,7 +173,8 @@ export class ViewApprovalComponent {
 
             if(invoice[i].addedById === this.user){
               if(invoice[i].addedBy.role.roleName === 'Sales Executive' &&
-                (invoice[i].status === 'GENERATED' || invoice[i].status === 'KAM REJECTED' || invoice[i].status === 'AM REJECTED' || invoice[i].status === 'INITIATED') ){
+                (invoice[i].status === 'GENERATED' || invoice[i].status === 'KAM REJECTED' || invoice[i].status === 'AM REJECTED' || 
+                  invoice[i].status === 'INITIATED'|| invoice[i].status === 'AM DECLINED' ) ){
                   this.invoices[i] = {
                     ...this.invoices[i],
                     editButtonStatus: true
