@@ -23,12 +23,12 @@
 
         @if(supplierCompanies) {
           <mat-form-field class="full-width" appearance="outline" >
-            <input matInput placeholder="Select Supplier" formControlName="supplierName" [matAutocomplete]="auto" (keyup)="search($event)">
-            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value)">
+            <input matInput placeholder="Select Supplier" formControlName="supplierName" [matAutocomplete]="auto" (keyup)="search($event,'sup')">
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value,'sup')">
               <mat-option *ngFor="let suggestion of filteredOptions" [value]="suggestion">
                 {{ suggestion.companyName }}
               </mat-option>
-              <mat-option *ngIf="filteredOptions.length === 0" [value]="'add'" (click)="add()">
+              <mat-option *ngIf="filteredOptions.length === 0" [value]="'add'" (click)="add('sup')">
                 <mat-icon style="font-size: 25px; color: rgb(35, 35, 247);">playlist_add</mat-icon>
                 ADD NEW
               </mat-option>
@@ -36,21 +36,6 @@
             
           </mat-form-field>
         }
-
-
-        
-        
-   
-        
-        <!-- <mat-form-field appearance="outline">
-          <mat-select placeholder="Choose Supplier Name" formControlName="supplierId">
-            @for(item of supplierCompanies; track $index){
-              <mat-option [value]="item.id">
-                {{item.companyName}}
-              </mat-option>
-            }
-          </mat-select>
-        </mat-form-field> -->
 
         <mat-form-field appearance="outline">
           <mat-label>Supplier SO#</mat-label>
@@ -86,15 +71,21 @@
 
         @if(piForm.get('purpose')?.value === 'Customer'){
           <ng-container>
-            <mat-form-field appearance="outline">
-                <mat-select placeholder="Choose Customer Name" formControlName="customerId">
-                  @for(item of customerCompanies; track $index){
-                    <mat-option [value]="item.id">
-                      {{item.companyName}}
-                    </mat-option>
-                  }
-                </mat-select>
-            </mat-form-field>
+            @if(customerCompanies) {
+              <mat-form-field class="full-width" appearance="outline" >
+                <input matInput placeholder="Select Customer" formControlName="customerName" [matAutocomplete]="auto" (keyup)="search($event,'cust')">
+                <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value,'cust')">
+                  <mat-option *ngFor="let suggestion of filteredCustomers" [value]="suggestion">
+                    {{ suggestion.companyName }}
+                  </mat-option>
+                  <mat-option *ngIf="filteredCustomers.length === 0" [value]="'add'" (click)="add('cust')">
+                    <mat-icon style="font-size: 25px; color: rgb(35, 35, 247);">playlist_add</mat-icon>
+                    ADD NEW
+                  </mat-option>
+                </mat-autocomplete>
+                
+              </mat-form-field>
+            }
 
             <mat-form-field appearance="outline">
               <mat-label>Customer PO#</mat-label>
