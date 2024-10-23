@@ -106,7 +106,6 @@ users:User;
       {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        // item.title === 'Team' ||
         (item.title === 'Approval Uploads' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5)||
         (item.title === 'Reports' && !item.parentId) ||
@@ -123,6 +122,7 @@ users:User;
         item.title === 'Dashboard' ||
         (item.title === 'Approval Uploads' && !item.parentId) ||
         (item.title === 'Add' && item.parentId === 5) ||
+        (item.title === 'Expense' && item.parentId === 5) ||
         (item.title === 'View' && item.parentId === 5) ||
         (item.title === 'Leave' && !item.parentId)||
         (item.title === 'Apply Leave' && item.parentId === 8) ||
