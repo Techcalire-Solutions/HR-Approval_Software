@@ -30,7 +30,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class UpdatePIComponent {
   url = environment.apiUrl;
-  
+
   invoiceService =inject(InvoiceService)
   loginService = inject(LoginService)
   fb=inject(FormBuilder)
@@ -43,7 +43,7 @@ export class UpdatePIComponent {
 
   ngOnDestroy(): void {
     this.uploadSub?.unsubscribe();
-    this.submit?.unsubscribe();
+    this.upload?.unsubscribe();
     this.deleteImageSub?.unsubscribe();
     this.deleteSub?.unsubscribe();
     this.piSub?.unsubscribe();
@@ -134,7 +134,7 @@ export class UpdatePIComponent {
       this.doc().removeAt(index);
     }
   }
-  
+
 
   id!: number;
   ngOnInit(): void {
@@ -210,7 +210,7 @@ export class UpdatePIComponent {
       if(this.roleName === 'Accountant') this.ma = true;
       if(this.roleName === 'Team Lead') this.sp = true;
       if(this.roleName === 'Administrator'||this.roleName === 'Super Administrator') this.admin = true;
-      
+
     })
   }
 
@@ -229,30 +229,49 @@ export class UpdatePIComponent {
       this.AccountantList = user;
     });
   }
-  submit!: Subscription;
-  onUpdate(){
-    if(this.roleName=='Sales Executive'){
-      this.submit = this.invoiceService.updatePIBySE(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('login/viewApproval')
-      });
-    }else if(this.roleName=='Key Account Manager'){
-      this.submit = this.invoiceService.updatePIByKAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('login/viewApproval')
-      });
-    }else if(this.roleName=='Manager'){
-      this.submit = this.invoiceService.updatePIByAM(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('login/viewApproval')
-      });
-    } else if(this.roleName=='Administrator'||this.roleName=='Super Administrator'){
-      this.submit = this.invoiceService.updatePIByAdminSuperAdmin(this.piForm.getRawValue(), this.id).subscribe((invoice: any) =>{
-        this.snackBar.open(`Performa Invoice ${invoice.p.piNo} Updated succesfully...`,"" ,{duration:3000})
-        this.router.navigateByUrl('login/viewApproval')
-      });
-    }
+
+
+  upload!: Subscription;
+
+  onUpdate() {
+      let updateMethod;
+
+      if (this.roleName === 'Sales Executive') {
+        updateMethod = this.invoiceService.updatePIBySE(this.piForm.getRawValue(), this.id);
+      } else if (this.roleName === 'Key Account Manager') {
+        updateMethod = this.invoiceService.updatePIByKAM(this.piForm.getRawValue(), this.id);
+      } else if (this.roleName === 'Manager') {
+        updateMethod = this.invoiceService.updatePIByAM(this.piForm.getRawValue(), this.id);
+      } else if (this.roleName === 'Administrator' || this.roleName === 'Super Administrator') {
+        updateMethod = this.invoiceService.updatePIByAdminSuperAdmin(this.piForm.getRawValue(), this.id);
+      }
+
+      if (updateMethod) {
+          if (this.upload) {
+              this.upload.unsubscribe();
+          }
+
+
+          this.upload = updateMethod.subscribe({
+              next: (invoice: any) => {
+                console.log(invoice)
+                  const piNo = invoice?.piNo;
+
+                  if (piNo) {
+                      this.snackBar.open(`Proforma Invoice ${piNo} Updated successfully...`, "", { duration: 3000 });
+                      this.router.navigateByUrl('login/viewApproval');
+                  } else {
+                      this.snackBar.open('Failed to update the invoice. Please try again.', "", { duration: 3000 });
+                  }
+              },
+              error: (err) => {
+                  const errorMessage = err?.error?.message || 'An error occurred while updating the invoice. Please try again.';
+                  this.snackBar.open(`Error: ${errorMessage}`, "", { duration: 3000 });
+              }
+          });
+      }
   }
+
 
   piSub!: Subscription;
   editStatus: boolean = false;
@@ -315,7 +334,7 @@ export class UpdatePIComponent {
   imageUploaded: boolean
   isImageUploaded(): boolean {
     const controls = this.piForm.get('url')as FormArray;
-    
+
     if( controls.length === 0) {return true;}
     let i = controls.length - 1;
     if (this.imageUrl[i] || this.newImageUrl[i]) {
