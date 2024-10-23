@@ -52,20 +52,20 @@ export class ViewInvoicesComponent {
 
   formatNotes(notes: string): string {
     const urlRegex = /(https?:\/\/[^\s]+)/g; // Regex to match URLs
-    return notes.replace(urlRegex, (url) =>
+    return notes.replace(urlRegex, (url) => 
       `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
     );
   }
-
+  
   formatRemarks(remarks: string | null | undefined): string {
     if (!remarks) return ''; // Handle null or undefined values gracefully
-
+  
     const urlRegex = /(https?:\/\/[^\s]+)/g; // Regex to match URLs
-    return remarks.replace(urlRegex, (url) =>
+    return remarks.replace(urlRegex, (url) => 
       `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
     );
   }
-
+  
   ngOnInit(): void {
     let id = this.route.snapshot.params['id'];
 
@@ -133,7 +133,6 @@ export class ViewInvoicesComponent {
   getPiStatusByPiId(id: number){
     this.statusSub = this.invoiceService.getPIStatusByPIId(id, this.filterValue).subscribe(status => {
       this.status = status;
-      console.log(this.status)
     });
   }
 
@@ -219,7 +218,7 @@ export class ViewInvoicesComponent {
       url: this.pi.url.map((u: any) => `URL: https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${u.url}, Remarks: ${u.remarks}`).join(' | '),
       CreatedAt: this.pi.createdAt,
     };
-
+  
     this.excelSub = this.invoiceService.excelExport(data).subscribe({
       next: (result: any) => {
         if (result && result.message === "Excel file saved successfully.") {
@@ -232,14 +231,14 @@ export class ViewInvoicesComponent {
         if (error.error) {
           console.error(`Error Body: ${JSON.stringify(error.error)}`);
         }
-
+  
         alert('There was an error exporting the Excel file. Please check the logs.');
       }
     });
   }
-
-
-
+  
+  
+  
 
 }
 
