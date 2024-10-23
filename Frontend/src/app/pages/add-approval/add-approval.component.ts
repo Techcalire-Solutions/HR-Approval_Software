@@ -51,7 +51,6 @@ export class AddApprovalComponent {
   }
 
   ngOnInit(): void {
-    this.getCompany();
     this.getSuppliers();
     this.getCustomers()
     this.generateInvoiceNumber()
@@ -68,15 +67,8 @@ export class AddApprovalComponent {
   }
 
   id!: number;
-  public companies: Company[] | null;
   supplierCompanies: Company[] = []; 
-  public customerCompanies: Company[] | null;
-  public getCompany(): void {
-    this.companyService.getCompany().subscribe((companies: any) =>{
-      this.companies = companies
-    });
-  }
-
+  public customerCompanies: Company[] = [];
   public filteredOptions: any[] = [];
   public getSuppliers(): void {
     this.companyService.getSuppliers().subscribe((suppliers: any) => {
@@ -85,20 +77,29 @@ export class AddApprovalComponent {
     });
   }
   
-  search(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
-    this.filteredOptions = this.supplierCompanies.filter(option => 
-      option.companyName.replace(/\s+/g, '').toLowerCase().includes(filterValue)
-    );
+  filteredCustomers: Company[] = [];
+  search(event: Event, type: string) {
+    if(type === 'sup'){
+      const filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
+      this.filteredOptions = this.supplierCompanies.filter(option => 
+        option.companyName.replace(/\s+/g, '').toLowerCase().includes(filterValue)
+      );
+    }else if(type === 'cust'){
+      const filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
+      this.filteredCustomers = this.customerCompanies.filter(option => 
+        option.companyName.replace(/\s+/g, '').toLowerCase().includes(filterValue)
+      );
+    }
   }
 
-  patch(selectedSuggestion: any) {
-    this.piForm.patchValue({ supplierId: selectedSuggestion.id, supplierName: selectedSuggestion.companyName });
+  patch(selectedSuggestion: any, type: string) {
+    if(type === 'sup') this.piForm.patchValue({ supplierId: selectedSuggestion.id, supplierName: selectedSuggestion.companyName });
+    else if(type === 'cust')  this.piForm.patchValue({ customerId: selectedSuggestion.id, customerName: selectedSuggestion.company});
   }
 
-  add(){
+  add(type: string){
     const dialogRef = this.dialog.open(AddCompanyComponent, {
-      data: {status : 'true'}
+      data: {type : type}
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -109,6 +110,7 @@ export class AddApprovalComponent {
   public getCustomers(): void {
     this.companyService.getCustomers().subscribe((customers: any) =>{
       this.customerCompanies = customers
+      this.filteredCustomers = this.customerCompanies;
     });
   }
 
@@ -170,6 +172,7 @@ export class AddApprovalComponent {
     supplierPrice: [, Validators.required],
     purpose: ['', Validators.required],
     customerId: <any>[],
+    customerName: [''],
     customerPoNo: [''],
     customerSoNo:[''],
     customerCurrency:['Dollar'],
@@ -274,7 +277,6 @@ export class AddApprovalComponent {
     });
   }
 
-
   extractLetters(input: string): string {
     var extractedChars = input.match(/[A-Za-z-]/g);
     var result = extractedChars ? extractedChars.join('') : '';
@@ -297,7 +299,6 @@ export class AddApprovalComponent {
         this.submit = submitMethod.subscribe({
             next: (invoice: any) => {
                 const piNo = invoice?.piNo;
-console.log(invoice,'invoiceinvoice');
 
                 if (piNo) {
                     this.snackBar.open(`Proforma Invoice ${piNo} uploaded successfully...`, "", { duration: 3000 });

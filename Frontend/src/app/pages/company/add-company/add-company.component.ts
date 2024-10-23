@@ -1,7 +1,7 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
 import { LeaveType } from '../../../common/interfaces/leaveType';
@@ -51,6 +51,7 @@ export class AddCompanyComponent {
   dialog=inject(MatDialog)
   router=inject(Router)
   dialogRef = inject(MatDialogRef<AddCompanyComponent>)
+  dialogData = inject(MAT_DIALOG_DATA);
 
   companyForm = this.formBuilder.group({
     companyName: ['', Validators.required],
@@ -81,6 +82,10 @@ export class AddCompanyComponent {
     const token: any = localStorage.getItem('token');
     let user = JSON.parse(token);
     this.getCompany()
+    if(this.dialogData){
+      if(this.dialogData.type === 'sup') this.companyForm.get('supplier')?.setValue(true);
+      else if(this.dialogData.type === 'cust') this.companyForm.get('customer')?.setValue(true);
+    }
   }
 
   leaveTypes: LeaveType[] = [];
