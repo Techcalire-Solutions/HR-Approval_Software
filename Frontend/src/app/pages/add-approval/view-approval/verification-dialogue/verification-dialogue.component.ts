@@ -46,13 +46,14 @@ export class VerificationDialogueComponent {
   ngOnInit(): void {
     this.invoiceNo = this.dialogData.invoiceNo;
     this.status = this.dialogData.status;
-
+    console.log(this.status);
+    
     this.form.get('spId')?.setValue(this.dialogData.sp)
     if(this.status == 'KAM VERIFIED') this.getAm()
     if(this.status == 'AM VERIFIED') this.getMa()
     if(this.status == 'AM APPROVED') this.getKam()
 
-    if(this.status === 'AM REJECTED' || this.status === 'KAM REJECTED') this.isSelectionMade=true;
+    if(this.status === 'AM REJECTED' || this.status === 'KAM REJECTED' || this.status === 'AM DECLINED') this.isSelectionMade=true;
   }
 
   isSelectionMade: any = false;
