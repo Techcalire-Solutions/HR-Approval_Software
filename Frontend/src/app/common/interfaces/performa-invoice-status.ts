@@ -6,6 +6,7 @@ export interface PerformaInvoiceStatus {
   status : string;
   date : Date
   remarks : string;
+  count:string;
 
   performaInvoice: PerformaInvoice;
 }
