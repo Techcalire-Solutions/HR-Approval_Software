@@ -184,6 +184,7 @@ router.get('/findbypi', authenticateToken, async (req, res) => {
             };
           }
         const piStatus = await PerformaInvoiceStatus.findAll({
+            order:[['id','DESC']],
             where: whereClause
         })
         res.send(piStatus);
