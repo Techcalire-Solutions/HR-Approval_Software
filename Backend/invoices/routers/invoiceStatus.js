@@ -22,9 +22,12 @@ const transporter = nodemailer.createTransport({
 
 router.post('/updatestatus', authenticateToken, async (req, res) => {
     const { performaInvoiceId, remarks, amId, accountantId, status, kamId } = req.body;
+    console.log(req.body, "bodyyyyyyyyyyyy");
     
     try {
         const pi = await PerformaInvoice.findByPk(performaInvoiceId);
+        console.log(pi,"piiiiiiiiiiii");
+        
         if (!pi) {
             return res.status(404).send('Proforma Invoice not found.');
         }
@@ -40,6 +43,8 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
             date: new Date(),
             remarks,
         });
+        console.log(newStatus,"newStatussssssssss");
+        
         await newStatus.save();
 
         pi.status = status;
@@ -47,7 +52,8 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         if (amId != null) pi.amId = amId;
         if (accountantId != null) pi.accountantId = accountantId;
         await pi.save();
-
+        console.log(pi,"after piiiiiiiiiiiiiiiiiii");
+        
         res.json({ pi, status: newStatus });
 
         const [salesPerson, kam, am, accountant] = await Promise.all([
@@ -86,18 +92,18 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                 emailText = `The Proforma Invoice ${pi.piNo} has been successfully verified by AM.\n\n` + emailText;
                 toEmail = [accountantEmail, kamEmail].filter(Boolean).join(', '); 
                 break;
-                case 'AM DECLINED':
-                  emailText = `The Proforma Invoice ${pi.piNo} has been  declined AM.\n\nRemarks: ${remarks}\n` +
-                               `Please review the invoice and take necessary actions.`;
-                   if(pi.addedById === pi.salesPersonId){
+            case 'AM DECLINED':
+                emailText = `The Proforma Invoice ${pi.piNo} has been  declined AM.\n\nRemarks: ${remarks}\n` +
+                            `Please review the invoice and take necessary actions.`;
+                if(pi.addedById === pi.salesPersonId){
                     toEmail=salesPersonEmail;
-                   } else if(pi.addedById === pi.kamId){
+                } else if(pi.addedById === pi.kamId){
                     toEmail=kamEmail;
-                   }       
-                 if (!toEmail) {
-                  console.error('No valid email found for AM DECLINED status. Sales Person Email:', salesPersonEmail, 'KAM Email:', kamEmail);
-              }
-                  break;
+                }       
+                if (!toEmail) {
+                    console.error('No valid email found for AM DECLINED status. Sales Person Email:', salesPersonEmail, 'KAM Email:', kamEmail);
+                }
+                break;
 
             case 'AM REJECTED':
                 emailText = `The Proforma Invoice ${pi.piNo} has been rejected by AM.\n\nRemarks: ${remarks}\n` +
@@ -106,6 +112,16 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                     toEmail = salesPersonEmail;
                 } else if (pi.addedById === pi.kamId) {
                     toEmail = kamEmail; 
+                }
+    
+                break;
+            case 'KAM REJECTED':
+                emailText = `The Proforma Invoice ${pi.piNo} has been rejected by AM.\n\nRemarks: ${remarks}\n` +
+                                `Please review the remarks and take necessary actions.`;
+                if (pi.addedById === pi.salesPersonId) {
+                    toEmail = salesPersonEmail;
+                } else if (pi.addedById === pi.kamId) {
+                    toEmail = amEmail; 
                 }
     
                 break;
