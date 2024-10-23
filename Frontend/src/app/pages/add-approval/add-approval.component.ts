@@ -77,17 +77,20 @@ export class AddApprovalComponent {
     });
   }
   
+  filterValue: string;
   filteredCustomers: Company[] = [];
   search(event: Event, type: string) {
     if(type === 'sup'){
-      const filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
+      this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
       this.filteredOptions = this.supplierCompanies.filter(option => 
-        option.companyName.replace(/\s+/g, '').toLowerCase().includes(filterValue)
+        option.companyName.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
+        option.code.toString().replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
       );
     }else if(type === 'cust'){
-      const filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
+      this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
       this.filteredCustomers = this.customerCompanies.filter(option => 
-        option.companyName.replace(/\s+/g, '').toLowerCase().includes(filterValue)
+        option.companyName.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
+        option.code.toString().replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
       );
     }
   }
@@ -98,8 +101,10 @@ export class AddApprovalComponent {
   }
 
   add(type: string){
+    console.log(this.filterValue);
+    let name = this.filterValue;
     const dialogRef = this.dialog.open(AddCompanyComponent, {
-      data: {type : type}
+      data: {type : type, name: name}
     });
 
     dialogRef.afterClosed().subscribe(result => {

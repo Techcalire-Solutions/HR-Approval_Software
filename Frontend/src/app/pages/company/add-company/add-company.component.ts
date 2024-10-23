@@ -83,6 +83,9 @@ export class AddCompanyComponent {
     let user = JSON.parse(token);
     this.getCompany()
     if(this.dialogData){
+      console.log(this.dialogData);
+      
+      this.companyForm.get('companyName')?.setValue(this.dialogData.name);
       if(this.dialogData.type === 'sup') this.companyForm.get('supplier')?.setValue(true);
       else if(this.dialogData.type === 'cust') this.companyForm.get('customer')?.setValue(true);
     }
