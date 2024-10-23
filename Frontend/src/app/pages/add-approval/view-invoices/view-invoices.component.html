@@ -4,13 +4,14 @@
     <div class="col">
       <mat-card-header>
         <mat-card-title>
-          PROFORMA INVOICE: {{ piNo | uppercase }}
+          PROFORMA INVOICE: {{ piNo | uppercase }} 
         </mat-card-title>
       </mat-card-header>
     </div>
 
     <div class="col">
       <mat-card-header>
+        <a style="color: black; font-style: italic; margin-left: auto;">added by: {{pi.addedBy.name}}</a>
         <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon"
           class="d-block mr-0 ml-auto" onClick="history.back()" style="margin-left: auto;">
           <mat-icon>exit_to_app</mat-icon>

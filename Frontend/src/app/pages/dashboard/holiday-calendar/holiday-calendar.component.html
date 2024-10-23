@@ -3,7 +3,7 @@
     <ul>
         @for (item of holidays; track $index; let i = $index) {
             <li [ngStyle]="{'color': item.comboAdded ? 'red' : 'black'}">
-                {{ item.date }} - {{ item.name }}
+                {{ item.date | date: 'dd-MM-yyyy' }} - {{ item.name }}
                 @if(roleName === 'HR Administrator' || roleName === 'Super Administrator'){
                     <ng-container>
                         <mat-icon (click)="openCompoOff(item.id)">add_task</mat-icon>
