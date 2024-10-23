@@ -48,8 +48,8 @@
             <strong>Notes:</strong>
             <span [innerHTML]="formatNotes(pi.notes)"></span>
           </td>
-          
-          
+
+
         </tr>
         <tr>
   @if(pi.customers?.companyName){
@@ -150,12 +150,13 @@
               <tbody>
                 @for(row of status;  track $index){
                   <tr>
-                    <td>{{row.status}}</td>
+                    <td>{{row.status}} {{row.count}}</td>
+
                     <td>
-          
+
                       <span [innerHTML]="formatRemarks(row.remarks)"></span>
                     </td>
-                    <td>{{row.date | date: 'dd/MM/yyyy'}}</td>
+              <td>{{row.date | date: 'dd/MM/yyyy'}}</td>
                   </tr>
                 }
 
