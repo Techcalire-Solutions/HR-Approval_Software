@@ -1,0 +1,40 @@
+.expense-form-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px;
+}
+
+.expense-form {
+  width: 100%;
+  max-width: 600px;
+}
+
+mat-card {
+  padding: 20px;
+}
+
+mat-card-title {
+  font-size: 24px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.flex-item {
+  flex: 1;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
