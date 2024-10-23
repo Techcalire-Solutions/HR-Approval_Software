@@ -13,7 +13,7 @@ const PerformaInvoice = sequelize.define('performaInvoice',{
     salesPersonId :{type : DataTypes.INTEGER },
     kamId : {type : DataTypes.INTEGER, allowNull : true},
     amId: {type : DataTypes.INTEGER, allowNull : true},
-    accountantId : {type : DataTypes.INTEGER},
+    accountantId : {type : DataTypes.INTEGER, allowNull : true},
     count: {type : DataTypes.INTEGER, defaultValue: 1},
 
     supplierId: { type: DataTypes.INTEGER},
