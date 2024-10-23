@@ -47,93 +47,105 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         if (amId != null) pi.amId = amId;
         if (accountantId != null) pi.accountantId = accountantId;
         await pi.save();
-        
-        // const [salesPerson, kam, am, accountant] = await Promise.all([
-        //     User.findOne({ where: { id: pi.salesPersonId } }),
-        //     User.findOne({ where: { id: pi.kamId } }),
-        //     User.findOne({ where: { id: amId } }),
-        //     User.findOne({ where: { id: accountantId } }),
-        // ]);
-
-        // const salesPersonEmail = salesPerson ? salesPerson.email : null;
-        // const kamEmail = kam ? kam.email : null;
-        // const accountantEmail = accountant ? accountant.email : null;
-        // const amEmail = am ? am.email : null;
-
-        // let emailSubject = `Proforma Invoice Status Update - ${pi.piNo}`;
-        // let emailText = `The status of the Proforma Invoice ${pi.piNo} has been updated to ${status}.\n\n` +
-        //                 `Remarks: ${remarks}\n` +
-        //                 `Please check the details for further information.`;
-
-        // let toEmail = null;
-
-        // switch (status) {
-        //     case 'AM APPROVED':
-        //         emailText = `The Proforma Invoice ${pi.piNo} has been approved by AM.\n\n` + emailText;
-        //         toEmail = kamEmail; 
-        //         break;
-        //     case 'INITIATED':
-        //         emailText = `The Proforma Invoice ${pi.piNo} has been initiated.\n\n` + emailText;
-        //         toEmail = amEmail; 
-        //         break;
-        //     case 'KAM VERIFIED':
-        //         emailText = `Great news! The Proforma Invoice ${pi.piNo} has been verified by KAM.\n\n` + emailText;
-        //         toEmail = [salesPersonEmail, amEmail].filter(Boolean).join(', '); 
-        //         break;
-        //     case 'AM VERIFIED':
-        //         emailText = `The Proforma Invoice ${pi.piNo} has been successfully verified by AM.\n\n` + emailText;
-        //         toEmail = [accountantEmail, kamEmail].filter(Boolean).join(', '); 
-        //         break;
-        //     case 'KAM REJECTED':
-        //         emailText = `The Proforma Invoice ${pi.piNo} has been rejected by KAM.\n\nRemarks: ${remarks}\n` +
-        //                      `Please review the invoice and take necessary actions.`;
-        //         toEmail = salesPersonEmail; 
-        //         break;
-        //     case 'AM REJECTED':
-        //         emailText = `The Proforma Invoice ${pi.piNo} has been rejected by AM.\n\nRemarks: ${remarks}\n` +
-        //                      `Please review the remarks and take necessary actions.`;
-        //         if (pi.addedById === pi.salesPersonId) {
-        //             toEmail = salesPersonEmail;
-        //         } else if (pi.addedById === pi.kamId) {
-        //             toEmail = kamEmail; 
-        //         }
-        //         break;
-        //     default:
-        //         return res.status(400).send('Invalid status update.');
-        // }
-
-        // const attachmentUrl = pi.url[0].url; 
-        // const attachmentFileKey = attachmentUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-
-        // const attachmentParams = {
-        //     Bucket: process.env.AWS_BUCKET_NAME,
-        //     Key: attachmentFileKey,
-        // };
-
-        // console.log('Fetching attachment:', attachmentParams);
-
-        // const attachmentS3File = await s3.getObject(attachmentParams).promise();
-
-        // const mailOptions = {
-        //     from: `${req.user.name} <${req.user.email}>`,
-        //     to: toEmail,
-        //     subject: emailSubject,
-        //     text: emailText,
-        //     attachments: [
-        //         {
-        //             filename: attachmentFileKey.split('/').pop(), 
-        //             content: attachmentS3File.Body,
-        //             contentType: attachmentS3File.ContentType,
-        //         },
-        //     ],
-        // };
-
-        // if (toEmail) {
-        //     await transporter.sendMail(mailOptions);
-        //     console.log('Email sent successfully to:', toEmail);
-        // }
+        console.log(pi);
 
         res.json({ pi, status: newStatus });
+
+        const [salesPerson, kam, am, accountant] = await Promise.all([
+            User.findOne({ where: { id: pi.salesPersonId } }),
+            User.findOne({ where: { id: pi.kamId } }),
+            User.findOne({ where: { id: amId } }),
+            User.findOne({ where: { id: accountantId } }),
+        ]);
+
+        const salesPersonEmail = salesPerson ? salesPerson.email : null;
+        const kamEmail = kam ? kam.email : null;
+        const accountantEmail = accountant ? accountant.email : null;
+        const amEmail = am ? am.email : null;
+
+        let emailSubject = `Proforma Invoice Status Update - ${pi.piNo}`;
+        let emailText = `The status of the Proforma Invoice ${pi.piNo} has been updated to ${status}.\n\n` +
+                        `Remarks: ${remarks}\n` +
+                        `Please check the details for further information.`;
+
+        let toEmail = null;
+
+        switch (status) {
+            case 'AM APPROVED':
+                emailText = `The Proforma Invoice ${pi.piNo} has been approved by AM.\n\n` + emailText;
+                toEmail = kamEmail; 
+                break;
+            case 'INITIATED':
+                emailText = `The Proforma Invoice ${pi.piNo} has been initiated.\n\n` + emailText;
+                toEmail = amEmail; 
+                break;
+            case 'KAM VERIFIED':
+                emailText = `Great news! The Proforma Invoice ${pi.piNo} has been verified by KAM.\n\n` + emailText;
+                toEmail = [salesPersonEmail, amEmail].filter(Boolean).join(', '); 
+                break;
+            case 'AM VERIFIED':
+                emailText = `The Proforma Invoice ${pi.piNo} has been successfully verified by AM.\n\n` + emailText;
+                toEmail = [accountantEmail, kamEmail].filter(Boolean).join(', '); 
+                break;
+                case 'AM DECLINED':
+                  emailText = `The Proforma Invoice ${pi.piNo} has been  declined AM.\n\nRemarks: ${remarks}\n` +
+                               `Please review the invoice and take necessary actions.`;
+                   if(pi.addedById === pi.salesPersonId){
+                    toEmail=salesPersonEmail;
+                   } else if(pi.addedById === pi.kamId){
+                    toEmail=kamEmail;
+                   }       
+                 if (!toEmail) {
+                  console.error('No valid email found for AM DECLINED status. Sales Person Email:', salesPersonEmail, 'KAM Email:', kamEmail);
+              }
+                  break;
+
+            case 'AM REJECTED':
+                emailText = `The Proforma Invoice ${pi.piNo} has been rejected by AM.\n\nRemarks: ${remarks}\n` +
+                             `Please review the remarks and take necessary actions.`;
+                if (pi.addedById === pi.salesPersonId) {
+                    toEmail = salesPersonEmail;
+                } else if (pi.addedById === pi.kamId) {
+                    toEmail = kamEmail; 
+                }
+    
+                break;
+            default:
+                return res.send('Invalid status update.');
+        }
+
+        const attachmentUrl = pi.url[0].url; 
+        const attachmentFileKey = attachmentUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+
+        const attachmentParams = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: attachmentFileKey,
+        };
+
+        console.log('Fetching attachment:', attachmentParams);
+
+        const attachmentS3File = await s3.getObject(attachmentParams).promise();
+
+        const mailOptions = {
+            from: `${req.user.name} <${req.user.email}>`,
+            to: toEmail,
+            subject: emailSubject,
+            text: emailText,
+            attachments: [
+                {
+                    filename: attachmentFileKey.split('/').pop(), 
+                    content: attachmentS3File.Body,
+                    contentType: attachmentS3File.ContentType,
+                },
+            ],
+        };
+
+        if (toEmail) {
+            await transporter.sendMail(mailOptions);
+            console.log('Email sent successfully to:', toEmail);
+        }
+
+    
     } catch (error) {
         console.error('Error updating status and sending email:', error.message);
         console.error('Detailed error stack:', error.stack);
