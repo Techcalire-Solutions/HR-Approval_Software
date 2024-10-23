@@ -1550,7 +1550,11 @@ router.patch('/updatePIByAdminSuperAdmin/:id', authenticateToken, async(req, res
               }
           }
 
-        res.json({ p: pi, status: piStatus})
+          res.json({
+            piNo: pi.piNo,
+            res: pi,
+            message: 'Proforma Invoice updated successfully'
+        });
     } catch (error) {
         res.send(error.message)
     }
