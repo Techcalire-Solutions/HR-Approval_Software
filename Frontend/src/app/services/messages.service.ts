@@ -1,7 +1,13 @@
-import {Injectable} from '@angular/core'
+import {inject, Injectable} from '@angular/core'
+import { environment } from '../../environments/environment';
+import { HttpClient } from '@angular/common/http';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class MessagesService {
+private apiUrl = environment.apiUrl;
+http = inject(HttpClient)
 
     private messages = [
         {
@@ -39,9 +45,9 @@ export class MessagesService {
             text: 'Wrap the dropdown\'s trigger and the dropdown menu within .dropdown, or...',
             time: '1 week ago'
         }
-    ];   
+    ];
 
-    private files = [        
+    private files = [
         {
             text:'gradus.zip',
             size: '~6.2 MB',
@@ -87,7 +93,7 @@ export class MessagesService {
             title: 'Meeting with Bruno',
             text: 'Fusce ut condimentum velit, quis egestas eros. Quisque sed condimentum neque.',
             color: 'danger'
-        },       
+        },
         {
             day: '15',
             month: 'May',
@@ -128,6 +134,6 @@ export class MessagesService {
 
     public getMeetings():Array<Object> {
         return this.meetings;
-    }   
+    }
 
 }
