@@ -47,7 +47,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         if (amId != null) pi.amId = amId;
         if (accountantId != null) pi.accountantId = accountantId;
         await pi.save();
-        console.log(pi);
 
         res.json({ pi, status: newStatus });
 
