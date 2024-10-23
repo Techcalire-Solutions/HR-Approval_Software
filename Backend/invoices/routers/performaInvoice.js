@@ -963,12 +963,11 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'Proforma invoice not found' });
         }
 
-        // Update the bank slip and status
+   
         pi.bankSlip = bankSlip;
         pi.status = newStat;
         await pi.save();
 
-        // Create a new status entry
         const piStatus = new PerformaInvoiceStatus({
             performaInvoiceId: pi.id,
             status: newStat,
@@ -976,7 +975,9 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         });
         await piStatus.save();
 
-        // Fetch users for notification
+        
+
+      
         const users = await User.findAll({
             where: {
                 [Op.or]: [
@@ -989,19 +990,14 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             }
         });
 
-        // Find relevant users
-        const am = users.find(user => user.id === pi.amId);
-        const accountant = users.find(user => user.id === pi.accountantId);
+    
+
         const otherEmails = users
             .filter(user => user.id !== pi.accountantId)
             .map(user => user.email)
             .join(',');
 
-        if (!am) {
-            return res.status(404).json({ message: 'Account Manager not found' });
-        }
 
-        // Fetch the bank slip from S3
         const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
         const params = {
             Bucket: process.env.AWS_BUCKET_NAME,
@@ -1011,7 +1007,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         const s3File = await s3.getObject(params).promise();
         const fileBuffer = s3File.Body;
 
-        // Prepare dynamic email body based on the new status
+
         let emailSubject = `Bank Slip Uploaded for Invoice - ${pi.piNo}`;
         let emailBody = `
             <p>A bank slip has been uploaded for proforma invoice ID: <strong>${pi.piNo}</strong>.</p>
@@ -1021,7 +1017,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             <p>Thank you!</p>
         `;
 
-        // Special handling if the status is 'CARD PAYMENT SUCCESS'
+    
         if (newStat === 'CARD PAYMENT SUCCESS') {
             emailSubject = `Card Payment Success for Invoice - ${pi.piNo}`;
             emailBody = `
@@ -1033,7 +1029,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             `;
         }
 
-        // Prepare mail options
+
         const mailOptions = {
             from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
             to: otherEmails,
@@ -1048,10 +1044,10 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             ]
         };
 
-        // Send the email
+
         await transporter.sendMail(mailOptions);
 
-        // Send response
+   
         res.json({ p: pi, status: piStatus, users });
     } catch (error) {
         console.error('Error:', error.message);
