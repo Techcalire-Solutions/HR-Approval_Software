@@ -74,19 +74,18 @@ export class CompanyComponent {
   public searchText: string;
   public page:any;
   public settings: Settings;
-  constructor( private _snackbar: MatSnackBar,public settingsService: SettingsService,
-              public dialog: MatDialog,
-              public companyService: CompanyService){
-    this.settings = this.settingsService.settings;
-  }
+  _snackbar=inject(MatSnackBar)
+  settingsService=inject(SettingsService)
+  dialog=inject(MatDialog)
+  companyService=inject(CompanyService)
+
+
+  
   dataSource : Company[]=[]
   ngOnInit() {
+    this.settings = this.settingsService.settings;
     this.getCompany();
 
-//     this.companyService.getCompany(this.searchText, this.currentPage, this.pageSize).subscribe((res)=>{
-//       this.dataSource = res;
-
-//  })
   }
 goToCompany(companyId: number) {
   console.log('companyId', companyId);
@@ -102,7 +101,6 @@ goToCompany(companyId: number) {
     this.getCompany();
   }
 
-  // public searchText!: string;
   search(event: Event){
     this.searchText = (event.target as HTMLInputElement).value.trim()
     this.getCompany()
@@ -119,7 +117,7 @@ goToCompany(companyId: number) {
   }
 
   applyFilter(filterValue: string) {
-    // this.dataSource.filter = filterValue.trim().toLowerCase();
+
   }
   public addTeam(user:User){
     this.companyService.addCompany(user).subscribe(user => this.getCompany());
@@ -131,16 +129,6 @@ goToCompany(companyId: number) {
     });
   }
 
-  // public onPageChanged(event: any){
-  //   this.page = event;
-  //   // this.getTeam();
-  //   if(this.settings.fixedHeader){
-  //       document.getElementById('main-content')!.scrollTop = 0;
-  //   }
-  //   else{
-  //       document.getElementsByClassName('mat-drawer-content')[0].scrollTop = 0;
-  //   }
-  // }
 
 
   delete!: Subscription;
