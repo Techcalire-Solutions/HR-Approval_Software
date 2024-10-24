@@ -36,7 +36,7 @@
                                 </ng-container>
                             }@else{ <td>-</td> }
     
-                            @if (isGenerated(item, 'KAM REJECTED') && (item.status != 'GENERATED' && item.status != 'INITIATED')) {
+                            @if (isGenerated(item, 'KAM REJECTED') && item.status === 'KAM REJECTED') {
                                 <ng-container>
                                     <td class="cross"><span>&#10007;</span></td>
                                 </ng-container>
@@ -48,8 +48,7 @@
                                 </ng-container>
                             }@else {<td>-</td>}
             
-                            @if (isGenerated(item, 'AM REJECTED') && (item.status != 'GENERATED' && item.status != 'KAM VERIFIED'
-                             && item.status != 'INITIATED'&& item.status != 'KAM APPROVED'))
+                            @if (isGenerated(item, 'AM REJECTED') && item.status === 'AM REJECTED')
  {
                                 <ng-container>
                                     <td class="cross"><span>&#10007;</span></td>
@@ -113,8 +112,7 @@
                             }@else{
                                 <td>-</td>
                             }
-            
-                            @if (isGenerated(item, 'AM DECLINED')&& (item.status != 'GENERATED' && item.status != 'INITIATED')) {
+                            @if (isGenerated(item, 'AM DECLINED') && item.status ===  'AM DECLINED') {
                                 <ng-container>
                                     <td class="cross"><span>&#10007;</span></td>
                                 </ng-container>
