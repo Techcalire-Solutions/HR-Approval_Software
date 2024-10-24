@@ -11,9 +11,9 @@ import { MatCardModule } from '@angular/material/card';
 import { PipesModule } from '../pipes/pipes.module';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { LeaveService } from '@services/leave.service';
-import { Holidays } from '../../common/interfaces/holidays';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
-
+import { CommonModule } from '@angular/common';
+import { TimeAgoPipe } from '../pipes/time-ago.pipe';
 
 @Component({
   selector: 'app-messages',
@@ -27,27 +27,132 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
     MatProgressBarModule,
     MatMenuModule,
     NgScrollbarModule,
-    PipesModule
+    PipesModule,
+    CommonModule,
+    TimeAgoPipe
   ],
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.scss'],
   encapsulation: ViewEncapsulation.None,
-  providers: [ MessagesService ]
+  providers: [MessagesService]
 })
 export class MessagesComponent implements OnInit {
   @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
-  public selectedTab:number=1;
-  public messages:Array<any>;
-  public files:Array<any>;
-  public meetings:Array<any>;
-  constructor(private messagesService:MessagesService) {
+  public selectedTab: number = 1;
+  public messages: Array<any>;
+  public files: Array<any>;
+  public meetings: Array<any>;
+  holidays: any[] = [];
+
+  leaveService = inject(LeaveService);
+  userId: number;
+  unreadCount: number = 0;
+  notifications: any[] = [];
+  previousNotificationIds: Set<string> = new Set();
+  notifiedUnreadIds: Set<string> = new Set();
+  private audioContext: AudioContext;
+  holidaySub!: Subscription;
+
+  constructor(private messagesService: MessagesService) {
     this.messages = messagesService.getMessages();
     this.files = messagesService.getFiles();
     this.meetings = messagesService.getMeetings();
   }
-  leaveService = inject(LeaveService)
 
   ngOnInit() {
+    this.initializeComponent()
+
+  }
+
+   initializeComponent(){
+    const token: any = localStorage.getItem('token');
+    let user = JSON.parse(token);
+    this.userId = user.id;
+    this.getNotificationsForUser();
+   }
+
+  updateUnreadCount() {
+    this.unreadCount = this.notifications.filter(notification => !notification.isRead).length;
+  }
+
+  markAsRead(notificationId: string) {
+    this.messagesService.markAsRead(notificationId).subscribe(
+      () => {
+        this.getNotificationsForUser();
+      },
+      (error) => {
+        console.error('Error marking notification as read', error);
+      }
+    );
+  }
+
+  getNotificationsForUser() {
+    this.messagesService.getUserNotifications(this.userId).subscribe(
+      (data: any) => {
+        this.notifications = data.notifications || [];
+        this.checkForNewNotifications(data);
+        this.updateUnreadCount();
+      },
+      (error) => {
+        console.error('Error fetching notifications:', error);
+      }
+    );
+  }
+
+  checkForNewNotifications(newNotifications: any) {
+    const extractedNotifications = newNotifications.notifications || [];
+    if (!Array.isArray(extractedNotifications) || !Array.isArray(this.notifications)) {
+      console.error('Invalid notifications:', extractedNotifications, this.notifications);
+      return;
+    }
+
+
+    const unreadNotifications = extractedNotifications.filter(n => !n.isRead && !this.notifiedUnreadIds.has(n.id));
+    if (unreadNotifications.length > 0) {
+      this.playBeepSound();
+      this.notifyUser(unreadNotifications.length);
+      unreadNotifications.forEach(n => this.notifiedUnreadIds.add(n.id));
+    } else {
+
+    }
+    this.previousNotificationIds = new Set(extractedNotifications.map(n => n.id));
+  }
+
+
+  playBeepSound() {
+    if (!this.audioContext) {
+      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    if (this.audioContext.state === 'suspended') {
+      this.audioContext.resume();
+    }
+    const oscillator = this.audioContext.createOscillator();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(440, this.audioContext.currentTime);
+    oscillator.connect(this.audioContext.destination);
+    oscillator.start();
+    oscillator.stop(this.audioContext.currentTime + 0.5);
+  }
+
+  
+
+  notifyUser(unreadCount: number) {
+    if (Notification.permission === 'granted') {
+      const notification = new Notification('New Notification', {
+        body: `${unreadCount} new message${unreadCount > 1 ? 's' : ''} received.`,
+        icon: 'assets/icons/notification.png',
+      });
+
+      notification.onclick = () => {
+        window.focus();
+      };
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          this.notifyUser(unreadCount);
+        }
+      });
+    }
   }
 
   openMessagesMenu() {
@@ -55,46 +160,18 @@ export class MessagesComponent implements OnInit {
     this.selectedTab = 0;
   }
 
-  onMouseLeave(){
+  onMouseLeave() {
     this.trigger.closeMenu();
   }
 
-  stopClickPropagate(event: any){
+  stopClickPropagate(event: any) {
     event.stopPropagation();
     event.preventDefault();
   }
 
-
-  //-----------------------
-
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-
-
-  public searchText!: string;
-  search(event: Event){
-    this.searchText = (event.target as HTMLInputElement).value.trim()
-    this.getHolidaysForYear()
+  handleMessageClick(message: any) {
+    if (!message.isRead) {
+      this.markAsRead(message.id);
+    }
   }
-
-  
-  pageSize = 5;
-  currentPage = 1;
-  totalItems: number;
-  onPageChange(event: PageEvent): void {
-    this.currentPage = event.pageIndex + 1;
-    this.pageSize = event.pageSize;
-    this.getHolidaysForYear();
-  }
-
-  holidaySub!: Subscription;
-  holidays: Holidays[] = [];
-  getHolidaysForYear(): void {
-    this.holidaySub = this.leaveService.getHolidays(this.searchText, this.currentPage, this.pageSize).subscribe((res: any) => {
-      console.log(res);
-
-      this.holidays = res.items
-      this.totalItems = res.count;
-    })
-  }
-
 }
