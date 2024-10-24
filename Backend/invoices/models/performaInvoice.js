@@ -31,7 +31,7 @@ const PerformaInvoice = sequelize.define('performaInvoice',{
 
     purpose: { type: DataTypes.STRING },
     addedById: { type: DataTypes.INTEGER },
-    notes:  { type: DataTypes.STRING }
+    notes:  { type: DataTypes.TEXT }
 },
 
 {
