@@ -1,0 +1,85 @@
+<div class="expense-form-container">
+    <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="expense-form" enctype="multipart/form-data">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Expense</mat-card-title>
+        </mat-card-header>
+  
+        <mat-card-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="flex-item">
+              <mat-label>Expense No</mat-label>
+              <input matInput type="text" formControlName="exNo" required />
+              <!-- <mat-error *ngIf="expenseForm.controls['exNo'].hasError('required')">Expense No is required</mat-error> -->
+            </mat-form-field>
+  
+            <mat-form-field appearance="outline" class="flex-item">
+              <mat-label>Expense Type</mat-label>
+              <input matInput type="text" formControlName="expenseType" required />
+              <!-- <mat-error *ngIf="expenseForm.controls['expenseType'].hasError('required')">Expense Type is required</mat-error> -->
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Notes</mat-label>
+            <textarea matInput rows="4" formControlName="notes"></textarea>
+          </mat-form-field>
+  
+          <mat-form-field appearance="outline" disabled>
+            <mat-label>Status</mat-label>
+            <input matInput type="text" formControlName="status" readonly />
+          </mat-form-field>
+        </mat-card-content>
+
+        <mat-card-content>
+            <div formArrayName="url">
+                @for (uploadForm of doc().controls; track $index; let i = $index;) {
+                  <div [formGroupName]="i" class="form-instance">
+                    <div class="form-row" style="margin-top: 20px;">
+                      <div class="col">
+                        <mat-form-field class="w-100" appearance="outline">
+                          <mat-label>Document Remarks</mat-label>
+                          <input matInput formControlName="remarks">
+                        </mat-form-field>
+                      </div>
+      
+                      @if(!imageUrl[i]){
+                        <div class="col">
+                          <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">
+                          <mat-icon (click)="fileInput.click()">cloud_upload</mat-icon>
+                          <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
+                        </div>
+                      }
+                      @else{
+                        <div class="col">
+                          <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+                            @if(fileType[i] === 'pdf'){
+                              <iframe [src]="imageUrl[i] | safe" width="100%" height="300px"></iframe>
+                            }@else {
+                              <img [src]="imageUrl[i]" alt="Image" title="Image" height="100" width="100" class="clickable-image" />
+                            }
+                            <mat-icon style="color: red;" (click)="onDeleteImage(i)">delete</mat-icon>
+                          </div>
+                        </div>
+                      }
+                      <button mat-icon-button color="warn" (click)="removeData(i)">
+                        <mat-icon>remove_circle</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                }
+                <button mat-raised-button color="primary" (click)="addDoc()" [disabled]="!isImageUploaded()">New Doc</button>
+              </div>
+        </mat-card-content>
+  
+        <mat-card-actions>
+          <button mat-raised-button color="primary" type="submit" [disabled]="!expenseForm.valid">Submit</button>
+        </mat-card-actions>
+      </mat-card>
+    </form>
+
+    <!-- <form [formGroup]="expenseForm" enctype="multipart/form-data">
+
+    </form> -->
+  </div>
+  
