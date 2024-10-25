@@ -1,3 +1,4 @@
+import { ExpenseStatus } from "./expense-status"
 import { User } from "./user"
 
 export interface Expense {
@@ -18,4 +19,6 @@ export interface Expense {
     user: User
     manager: User
     ma: User
+
+    expenseStatuses: ExpenseStatus[];
 }

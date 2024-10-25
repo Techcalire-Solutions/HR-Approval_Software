@@ -12,10 +12,10 @@ export const verticalMenuItems = [
   new Menu(4, 'Team', '/login/team', null, 'groups', null, false, 0),
 
   new Menu(5, 'Approval Uploads', '', null, 'upload_file', null, true, 0),
-  new Menu(6, 'Add', '/login/addApproval', null, 'add_circle', null, false, 5),
+  new Menu(6, 'Add', '/login/viewApproval/addapproval', null, 'add_circle', null, false, 5),
   new Menu(6, 'Expense', '/login/viewApproval/expenses', null, 'payments', null, false, 5),
   new Menu(7, 'View', '/login/viewApproval', null, 'visibility', null, false, 5),
-  new Menu(7, 'Excel', '/login/viewexcel', null, 'backup_table', null, false, 5),
+  new Menu(7, 'Excel', '/login/viewApproval/viewexcel', null, 'backup_table', null, false, 5),
 
   new Menu(8, 'Leave', '', null, 'date_range', null, true, 0),
 
@@ -29,7 +29,7 @@ export const verticalMenuItems = [
 
 
   new Menu(13, 'Payroll', '', null, 'upload_file', null, true, 0),
-  new Menu(14, 'Process Payroll', '/login/addApproval', null, 'add_circle', null, false, 13),
+  new Menu(14, 'Process Payroll', '/login/addapproval', null, 'add_circle', null, false, 13),
   new Menu(15, 'Salary Statement', '/login/viewApproval', null, 'visibility', null, false, 13),
   new Menu(16, 'Payslip', '/login/viewApproval', null, 'visibility', null, false, 13),
   new Menu(17, 'YTD Reports', '/login/viewApproval', null, 'visibility', null, false, 13),
@@ -38,7 +38,7 @@ export const verticalMenuItems = [
   new Menu(20, 'Events Calender', '/login/employee-leave/events', null, 'visibility', null, false, 8),
   // new Menu(21, 'Reports', '/login/leave/reports', null, 'visibility', null, false, 8),
   new Menu(21, 'Reports', '', null, 'assessment', null, true, 0),
-  new Menu(22, 'Approval Report', '/login/approvalReport', null, 'visibility', null, false, 21),
+  new Menu(22, 'Approval Report', '/login/viewApproval/approvalReport', null, 'visibility', null, false, 21),
   new Menu(23, 'Employee Report', '/login/employee-leave/balance', null, 'visibility', null, false, 21),
   new Menu(24, 'Leave Report', '/login/employee-leave/balance', null, 'visibility', null, false, 21),
 

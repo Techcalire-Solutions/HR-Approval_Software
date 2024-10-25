@@ -10,6 +10,8 @@ import { SafePipe } from "../view-invoices/safe.pipe";
 import { ExpensesService } from '@services/expenses.service';
 import { Expense } from '../../../common/interfaces/expense';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute } from '@angular/router';
+import { InvoiceService } from '@services/invoice.service';
 
 @Component({
   selector: 'app-expense',
@@ -19,10 +21,19 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrl: './expense.component.scss'
 })
 export class ExpenseComponent implements OnInit{
+  id: number;
+  private route = inject(ActivatedRoute);
   ngOnInit(): void {
+    this.id = this.route.snapshot.params['id'];
+    if(this.id){
+      this.patchdata(this.id);
+    }
     this.addDoc();
     this.generateInvoiceNumber();
   }
+
+
+
   private fb = inject(FormBuilder)
   private expenseService = inject(ExpensesService);
   private snackBar = inject(MatSnackBar);

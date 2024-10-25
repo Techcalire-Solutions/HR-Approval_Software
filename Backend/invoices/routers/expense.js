@@ -302,4 +302,212 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
   }
 });
 
+router.get('/findbyid/:id', authenticateToken, async(req, res) => {
+  try {
+  
+      const pi = await Expense.findByPk(req.params.id, {
+          include:[
+              { model: ExpenseStatus },
+              { model: User, attributes: ['name'] },
+              { model: User, as: 'manager', attributes: ['name'] },
+              { model: User, as: 'ma', attributes: ['name'] }
+            ]
+  })
+      let signedUrl = [];
+      if (pi.url.length > 0) {
+          for(let i = 0; i < pi.url.length; i++) {
+              const fileUrl = pi.url[i];
+              
+              const key = fileUrl.url.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+              
+              const params = {
+                  Bucket: process.env.AWS_BUCKET_NAME,
+                  Key: key, 
+                  Expires: 60,
+                };
+              
+                signedUrl[i] ={ url: s3.getSignedUrl('getObject', params), remarks: fileUrl.remarks}
+          }
+      }
+      let bankSlipUrl = '';
+      if(pi.bankSlip){
+          const bankSlip = pi.bankSlip;
+          const bankKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+          
+          const bankParams = {
+              Bucket: process.env.AWS_BUCKET_NAME,
+              Key: bankKey, // Ensure pi.url has the correct value
+              Expires: 60, // URL expires in 60 seconds
+            };
+        
+            bankSlipUrl = s3.getSignedUrl('getObject', bankParams);
+      }
+    
+      res.json({ pi: pi, signedUrl: signedUrl, bankSlip: bankSlipUrl });
+  } catch (error) {
+      res.send(error.message)
+    }
+})
+
+router.delete('/filedelete', authenticateToken, async (req, res) => {
+  console.log(req.query);
+  
+  let id = req.query.id;
+  let index = req.query.index;
+  let fileKey;
+  let t;
+
+  try {
+    t = await sequelize.transaction();
+
+    let result = await Expense.findByPk(id, { transaction: t });
+
+    if (!result || !result.url || !result.url[index]) {
+      return res.status(404).send({ message: 'File or index not found' });
+    }
+
+    fileKey = result.url[index].url;
+
+    result.url.splice(index, 1); 
+
+    result.setDataValue('url', result.url);
+    result.changed('url', true);
+
+    await result.save({ transaction: t });
+
+    await t.commit();
+
+    result = await Expense.findByPk(id);
+
+    // Set S3 delete parameters
+    const deleteParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileKey.replace('https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/', '')
+    };
+
+    // Delete the file from S3
+    await s3.deleteObject(deleteParams).promise();
+
+    res.send({ message: 'File deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting file from S3 or database:', error);
+
+    // Rollback the transaction if it was created and an error occurs
+    if (t) await t.rollback();
+
+    res.status(500).send({ message: error.message });
+  }
+});
+
+router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
+    key = req.query.key;
+    fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+    try {
+      if (!fileKey) {
+        return res.send({ message: 'No file key provided' });
+      }
+
+      // Set S3 delete parameters
+      const deleteParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileKey
+      };
+
+      // Delete the file from S3
+      await s3.deleteObject(deleteParams).promise();
+
+      res.status(200).send({ message: 'File deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting file from S3:', error);
+      res.status(500).send({ message: error.message });
+    }
+});
+
+router.patch('/update/:id', authenticateToken, async (req, res) => {
+  let { url, amId, notes, expenseType } = req.body;
+
+  try {
+      const pi = await Expense.findByPk(req.params.id);
+      if (!pi) {
+          return res.status(404).send({ message: 'Expense not found.' });
+      }
+      let status;
+
+      pi.url = url;
+      pi.amId = amId;
+      let count = pi.count + 1;
+      pi.count = count;
+      pi.notes = notes;
+      pi.expenseType = expenseType;
+
+      await pi.save();
+
+      const piId = pi.id;
+      
+      const piStatus = new ExpenseStatus({
+          expenseId: piId, status: status, date: new Date(), count: count
+      })
+      await piStatus.save();
+
+      res.json({
+          piNo: pi.piNo,
+          status: piStatus.status,
+          res: pi,
+          message: 'Expense updated successfully'
+      });
+
+        
+      //  const recipientUser = await User.findOne({ where: { id: amId } });
+      //  const recipientEmail = recipientUser ? recipientUser.email : null;
+
+  
+      // const attachments = [];
+      // for (const fileObj of url) {
+      //     const actualUrl = fileObj.url || fileObj.file;
+      //     if (!actualUrl) continue;
+
+      //     const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+
+      //     const params = {
+      //         Bucket: process.env.AWS_BUCKET_NAME,
+      //         Key: fileKey,
+      //     };
+
+      //     try {
+      //         const s3File = await s3.getObject(params).promise();
+      //         const fileBuffer = s3File.Body;
+
+      //         attachments.push({
+      //             filename: actualUrl.split('/').pop(),
+      //             content: fileBuffer,
+      //             contentType: s3File.ContentType 
+      //         });
+      //     } catch (error) {
+      //         continue; 
+      //     }
+      // }
+
+      // const mailOptions = {
+      //     from: `Expense <${process.env.EMAIL_USER}>`,
+      //     to: recipientEmail, 
+      //     subject: `Expense Updated - ${pi.exNo}`,
+      //     html: `
+      //         <p>Expense has been updated by <strong>${req.user.name}</strong></p>
+      //         <p><strong>Entry Number:</strong> ${pi.exNo}</p>
+      //         <p><strong>Status:</strong> ${pi.status}</p>
+      //         <p><strong>Notes:</strong> ${pi.notes}</p>
+      //         <p><strong>Notes:</strong> ${pi.expenseType}</p>
+      //         <p>Please find the attached documents related to this Expense.</p>
+      //     `,
+      //     attachments: attachments 
+      // };
+
+    
+      // await transporter.sendMail(mailOptions);
+
+
+  } catch (error) {
+      res.send(error.message);
+  }
+});
 module.exports = router;

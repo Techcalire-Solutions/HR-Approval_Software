@@ -2,8 +2,11 @@
     <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="expense-form" enctype="multipart/form-data">
       <mat-card>
         <mat-card-header>
-          <mat-card-title>Expense</mat-card-title>
-        </mat-card-header>
+          <mat-card-title>
+            @if(editStatus){Update}
+            Expense
+          </mat-card-title>
+        </mat-card-header><br>
   
         <mat-card-content>
           <div class="form-row">
@@ -55,14 +58,22 @@
                         </mat-form-field>
                       </div>
       
-                      @if(!imageUrl[i]){
+                      @if(!imageUrl[i] && !savedImageUrl[i]){
                         <div class="col">
                           <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">
-                          <mat-icon (click)="fileInput.click()">cloud_upload</mat-icon>
+                          <mat-icon class="file-upload-icon" (click)="fileInput.click()">cloud_upload</mat-icon>
                           <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
                         </div>
                       }
-                      @else{
+                      @else if(!imageUrl[i] && savedImageUrl[i]){
+                        <div class="col">
+                          <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+                            <iframe [src]="savedImageUrl[i].url | safe"></iframe>
+                            <mat-icon style="color: red;" (click)="onDeleteUploadedImage(i)">delete</mat-icon>
+                          </div>
+                        </div>
+                      } @else if(imageUrl[i] && !savedImageUrl[i]){
+                        ppppppppppppp
                         <div class="col">
                           <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
                             @if(fileType[i] === 'pdf'){
@@ -74,18 +85,25 @@
                           </div>
                         </div>
                       }
-                      <button mat-icon-button color="warn" (click)="removeData(i)">
-                        <mat-icon>remove_circle</mat-icon>
-                      </button>
+                      @if (!imageUrl[i]) {
+                        <button mat-icon-button color="warn" type="button" (click)="removeData(i)">
+                          <mat-icon>remove_circle</mat-icon>
+                        </button>
+                      }
                     </div>
                   </div>
                 }
-                <button mat-raised-button color="primary" (click)="addDoc()" [disabled]="!isImageUploaded()">New Doc</button>
+                <!--  -->
+                <button mat-raised-button color="primary" (click)="addDoc()" type="button"
+                [disabled]="!isImageUploaded()">New Doc</button>
               </div>
         </mat-card-content>
   
         <mat-card-actions>
-          <button mat-raised-button color="primary" type="submit" [disabled]="!expenseForm.valid">Submit</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="!expenseForm.valid">
+            @if(editStatus){ Update }
+            @else { Submit }
+          </button>
         </mat-card-actions>
       </mat-card>
     </form>

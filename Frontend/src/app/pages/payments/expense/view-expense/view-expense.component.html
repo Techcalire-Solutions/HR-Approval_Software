@@ -55,11 +55,11 @@
                           REJECT
                         </button>
                       }
-                      <!-- @if(!data.sp && data.ma){ -->
+                      @if(data?.ma && invoice.status !== 'PaymentCompeletd'){
                         <button mat-raised-button class="add-bank-slip-button"
                         (click)="addBankSlip(invoice.exNo, invoice.id, invoice.status)"> {{ invoice.status === 'BANK SLIP ISSUED' ? 'Edit Wireslip' : 'Wireslip' }}
                       </button>
-                      <!-- } -->
+                      }
 
                       <!-- @if(data.kam && invoice.status === 'AM APPROVED'){
                         <button mat-raised-button class="add-bank-slip-button"

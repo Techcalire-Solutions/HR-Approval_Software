@@ -36,4 +36,19 @@ export class ExpensesService {
     return this.http.patch(this.url + '/expense/bankslip/' + id, data);
   }
 
+  getExpenseById(id: number): Observable<Expense>{
+    return this.http.get<Expense>(this.url + '/expense/findbyid/'+id);
+  }
+
+  deleteUploaded(id: number, i: number, key?: string) {
+    return this.http.delete(`${this.url}/expense/filedelete?id=${id}&index=${i}&key=${key}`);
+  }
+
+  deleteUploadByurl(key: string) {
+    return this.http.delete(`${this.url}/expense/filedeletebyurl/?key=${key}`);
+  }
+
+  updateExpense(data: any, id: number){
+    return this.http.patch(this.url + '/expense/update/'+ id, data);
+  }
 }
