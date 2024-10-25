@@ -22,12 +22,9 @@ const transporter = nodemailer.createTransport({
 
 router.post('/updatestatus', authenticateToken, async (req, res) => {
     const { performaInvoiceId, remarks, amId, accountantId, status, kamId } = req.body;
-    console.log(req.body, "bodyyyyyyyyyyyy");
     
     try {
         const pi = await PerformaInvoice.findByPk(performaInvoiceId);
-        console.log(pi,"piiiiiiiiiiii");
-        
         if (!pi) {
             return res.status(404).send('Proforma Invoice not found.');
         }
@@ -43,7 +40,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
             date: new Date(),
             remarks,
         });
-        console.log(newStatus,"newStatussssssssss");
         
         await newStatus.save();
 
@@ -52,7 +48,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         if (amId != null) pi.amId = amId;
         if (accountantId != null) pi.accountantId = accountantId;
         await pi.save();
-        console.log(pi,"after piiiiiiiiiiiiiiiiiii");
         
         res.json({ pi, status: newStatus });
 

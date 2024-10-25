@@ -12,15 +12,14 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
     if (!req.file) {
       return res.status(400).send({ message: 'No file uploaded' });
     }
-    const sanitizedFileName = req.file.originalname.replace(/[^a-zA-Z0-9]/g, '_');
+    const sanitizedFileName = req.body.name || req.file.originalname.replace(/[^a-zA-Z0-9]/g, '_');
 
-    // Create S3 upload parameters
     const params = {
       Bucket: process.env.AWS_BUCKET_NAME,
-      Key: `invoices/${Date.now()}_${sanitizedFileName}`, // File path with sanitized name
+      Key: `invoices/${Date.now()}_${sanitizedFileName}`, 
       Body: req.file.buffer,
       ContentType: req.file.mimetype,
-      ACL: 'public-read' // Optional: make file publicly accessible
+      ACL: 'public-read' 
     };
 
     // Upload the file to S3

@@ -6,15 +6,21 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Subscription } from 'rxjs';
-import { SafePipe } from "../view-invoices/safe.pipe";
 import { ExpensesService } from '@services/expenses.service';
 import { Expense } from '../../../common/interfaces/expense';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { SafePipe } from '../../add-approval/view-invoices/safe.pipe';
+import { User } from '../../../common/interfaces/user';
+import { LoginService } from '@services/login.service';
+import { MatOptionModule } from '@angular/material/core';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-expense',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatCardModule, MatButtonModule, MatIconModule, SafePipe],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatCardModule, MatButtonModule, MatIconModule, SafePipe,
+    MatOptionModule, MatSelectModule
+  ],
   templateUrl: './expense.component.html',
   styleUrl: './expense.component.scss'
 })
@@ -22,17 +28,20 @@ export class ExpenseComponent implements OnInit{
   ngOnInit(): void {
     this.addDoc();
     this.generateInvoiceNumber();
+    this.getAM()
   }
   private fb = inject(FormBuilder)
   private expenseService = inject(ExpensesService);
   private snackBar = inject(MatSnackBar);
+  private loginService = inject(LoginService);
   
   expenseForm = this.fb.group({
     exNo: ['', Validators.required],
     expenseType: ['', Validators.required],
     notes: [''],
     url: this.fb.array([]),
-    status: [{ value: 'Generated', disabled: true }]
+    status: [{ value: 'Generated', disabled: true }],
+    amId: []
   });
 
   fileType: any[] = [];
@@ -151,4 +160,13 @@ export class ExpenseComponent implements OnInit{
       // this.router.navigate(['/view-invoices']);
     })
   }
+
+  amSub!: Subscription;
+  AMList: User[] = [];
+  getAM(){
+    this.amSub = this.loginService.getUserByRoleName('Manager').subscribe(user =>{
+      this.AMList = user;
+    });
+  }
+
 }

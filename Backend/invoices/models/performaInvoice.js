@@ -6,7 +6,6 @@ const Company = require('../../invoices/models/company');
 const PerformaInvoice = sequelize.define('performaInvoice',{
     piNo : {type : DataTypes.STRING, allowNull : false},
     url: { type: DataTypes.ARRAY(DataTypes.JSON), allowNull: true },
-    // url : {type : DataTypes.ARRAY(DataTypes.STRING)},
     bankSlip : {type : DataTypes.STRING},
     status: {type : DataTypes.STRING, defaultValue: 'Generated'},
     salesPersonId :{type : DataTypes.INTEGER },
@@ -67,6 +66,7 @@ PerformaInvoice.belongsTo(Company, {as: 'customers',foreignKey: 'customerId',onU
 
 
 PerformaInvoice.sync({ alter: true }).then(() => {
+
     console.log('Tables synced successfully.');
 }).catch(err => {
     console.error('Error syncing tables:', err);
