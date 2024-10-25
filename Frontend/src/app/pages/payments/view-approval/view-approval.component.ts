@@ -176,6 +176,7 @@ export class ViewApprovalComponent {
   filterValue!: string;
   applyFilter(event: Event): void {
     this.filterValue = (event.target as HTMLInputElement).value.trim()
+    
     this.getInvoices()
   }
 

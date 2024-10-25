@@ -25,9 +25,11 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
 
 
  private expenseService = inject(ExpensesService);
-  applyFilter(event: Event){
-
-  }
+ filterValue: string;
+ applyFilter(event: Event): void {
+  this.filterValue = (event.target as HTMLInputElement).value.trim()
+  this.getExpenses()
+}
 
   data: any;
   loadData(data: any) {

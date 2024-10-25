@@ -226,7 +226,6 @@ export class ExpenseComponent implements OnInit{
   submit!: Subscription;
   private router = inject(Router);
   onSubmit(){
-    console.log(this.expenseForm.getRawValue());
     if(this.editStatus){
       this.submit = this.expenseService.updateExpense(this.expenseForm.getRawValue(), this.id).subscribe(res =>{
         console.log(res);
