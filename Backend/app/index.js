@@ -29,6 +29,9 @@ app.use('/role', role);
 const holiday = require('../leave/routers/holiday');
 app.use('/holidays', holiday);
 
+const notification = require('../invoices/routers/notification')
+app.use('/notification',notification)
+
 
 // app.use(cors({
 //     origin: 'https://approval.techclaire.com', 
