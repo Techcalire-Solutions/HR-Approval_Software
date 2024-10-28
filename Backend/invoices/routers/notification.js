@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const Notification = require('../models/notification')
-const User = require('../../users/models/user')
 
 
 

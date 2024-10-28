@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {Op, fn, col, where} = require('sequelize');
+const {Op} = require('sequelize');
 const authenticateToken = require('../../middleware/authorization');
 const PerformaInvoiceStatus = require('../models/invoiceStatus');
 const PerformaInvoice = require('../models/performaInvoice');
@@ -29,6 +29,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
     try {
        
         const pi = await PerformaInvoice.findByPk(performaInvoiceId);
+        
         if (!pi) {
             return res.status(404).send('Proforma Invoice not found.');
         }
