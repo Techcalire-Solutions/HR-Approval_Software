@@ -109,7 +109,8 @@ users:User;
         (item.title === 'Approval Uploads' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5)||
         (item.title === 'Reports' && !item.parentId) ||
-        (item.title === 'Approval Report' && item.parentId === 21)
+        (item.title === 'Approval Report' && item.parentId === 21)||
+        (item.title === 'Expense' && !item.parentId)
 
       );
     } else if (
