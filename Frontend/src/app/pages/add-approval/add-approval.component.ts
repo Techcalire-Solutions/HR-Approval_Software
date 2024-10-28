@@ -222,12 +222,19 @@ export class AddApprovalComponent {
 
   imageUploaded: boolean
   isImageUploaded(): boolean {
-    const controls = this.piForm.get('url')as FormArray;
-    let i = controls.length - 1;
-    if (this.imageUrl[i]) {
+    const controls = this.piForm.get('url') as FormArray;
+    
+    // Return true if there are no controls in the FormArray
+    if (controls.length === 0) {
       return true;
-    }else return false;
+    }
+  
+    const lastIndex = controls.length - 1;
+    
+    // Check if there is an image URL for the last index
+    return this.imageUrl[lastIndex] ? true : false;
   }
+  
 
   files: File[] = [];
   uploadProgress: number[] = [];

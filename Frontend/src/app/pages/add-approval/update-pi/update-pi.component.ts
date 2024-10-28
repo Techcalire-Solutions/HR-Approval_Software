@@ -235,7 +235,6 @@ export class UpdatePIComponent {
 
   onUpdate() {
       let updateMethod;
-
       if (this.roleName === 'Sales Executive') {
         updateMethod = this.invoiceService.updatePIBySE(this.piForm.getRawValue(), this.id);
       } else if (this.roleName === 'Key Account Manager') {
@@ -333,14 +332,19 @@ export class UpdatePIComponent {
 
   imageUploaded: boolean
   isImageUploaded(): boolean {
-    const controls = this.piForm.get('url')as FormArray;
-
-    if( controls.length === 0) {return true;}
-    let i = controls.length - 1;
-    if (this.imageUrl[i] || this.newImageUrl[i]) {
+    const controls = this.piForm.get('url') as FormArray;
+    
+    // Return true if there are no controls in the FormArray
+    if (controls.length === 0) {
       return true;
-    }else return false;
+    }
+  
+    const lastIndex = controls.length - 1;
+    
+    // Check if there is an image URL for the last index
+    return this.imageUrl[lastIndex] ? true : false;
   }
+  
 
   onPaymentModeChange() {
     this.piForm.get('kamId')?.setValue("")

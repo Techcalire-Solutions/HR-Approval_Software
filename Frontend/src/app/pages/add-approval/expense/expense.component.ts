@@ -7,9 +7,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Subscription } from 'rxjs';
 import { SafePipe } from "../view-invoices/safe.pipe";
-import { InvoiceService } from '@services/invoice.service';
 import { ExpensesService } from '@services/expenses.service';
 import { Expense } from '../../../common/interfaces/expense';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute } from '@angular/router';
+import { InvoiceService } from '@services/invoice.service';
 
 @Component({
   selector: 'app-expense',
@@ -19,13 +21,23 @@ import { Expense } from '../../../common/interfaces/expense';
   styleUrl: './expense.component.scss'
 })
 export class ExpenseComponent implements OnInit{
+  id: number;
+  private route = inject(ActivatedRoute);
   ngOnInit(): void {
-    this.addDoc()
+    this.id = this.route.snapshot.params['id'];
+    if(this.id){
+      this.patchdata(this.id);
+    }
+    this.addDoc();
+    this.generateInvoiceNumber();
   }
-  private fb = inject(FormBuilder)
-  private invoiceService = inject(InvoiceService);
-  private expenseService = inject(ExpensesService);
 
+
+
+  private fb = inject(FormBuilder)
+  private expenseService = inject(ExpensesService);
+  private snackBar = inject(MatSnackBar);
+  
   expenseForm = this.fb.group({
     exNo: ['', Validators.required],
     expenseType: ['', Validators.required],
@@ -42,18 +54,18 @@ export class ExpenseComponent implements OnInit{
     let file: any = input.files?.[0];
     this.fileType[i] = file.type.split('/')[1]
     if (file) {
-        // let inv = this.ivNum;
-        // const name = `${inv}_${i}`;
+        let inv = this.ivNum;
+        const name = `${inv}_${i}`;
         const formData = new FormData();
         formData.append('file', file);
-        // formData.append('name', name);
+        formData.append('name', name);
 
-        // this.uploadSub = this.invoiceService.uploadInvoice(formData).subscribe({
-        //     next: (invoice) => {
-        //         this.doc().at(i).get('url')?.setValue(invoice.fileUrl);
-        //         this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${invoice.fileUrl}`;
-        //     }
-        // });
+        this.uploadSub = this.expenseService.uploadExpense(formData).subscribe({
+            next: (invoice) => {
+                this.doc().at(i).get('url')?.setValue(invoice.fileUrl);
+                this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${invoice.fileUrl}`;
+            }
+        });
     }
   }
 
@@ -111,28 +123,28 @@ export class ExpenseComponent implements OnInit{
   invSub!: Subscription;
   prefix: string = '';
   ivNum: string = '';
-  // generateInvoiceNumber() {
-  //   this.invSub = this.expenseService.getExpense().subscribe((res: Expense[]) => {
-  //     if (res.length > 0) {
-  //       const maxId = res.reduce((prevMax, inv) => {
-  //         const idNumber = parseInt(inv.piNo.replace(/\D/g, ''), 10);
-  //         this.prefix = this.extractLetters(inv.piNo);
-  //         return !isNaN(idNumber) && idNumber > prevMax ? idNumber : prevMax;
-  //       }, 0);
+  generateInvoiceNumber() {
+    this.invSub = this.expenseService.getExpense().subscribe((res: Expense[]) => {
+      if (res.length > 0) {
+        const maxId = res.reduce((prevMax, inv) => {
+          const idNumber = parseInt(inv.exNo.replace(/\D/g, ''), 10);
+          this.prefix = this.extractLetters(inv.exNo);
+          return !isNaN(idNumber) && idNumber > prevMax ? idNumber : prevMax;
+        }, 0);
 
-  //       let nextId = maxId + 1;
-  //       const paddedId = `${this.prefix}${nextId.toString().padStart(3, "0")}`;
-  //       this.ivNum = paddedId;
-  //     } else {
-  //       let nextId = 1;
-  //       let prefix = "E-";
-  //       const paddedId = `${prefix}${nextId.toString().padStart(3, "0")}`;
-  //       this.ivNum = paddedId;
-  //     }
+        let nextId = maxId + 1;
+        const paddedId = `${this.prefix}${nextId.toString().padStart(3, "0")}`;
+        this.ivNum = paddedId;
+      } else {
+        let nextId = 1;
+        let prefix = "REQ-";
+        const paddedId = `${prefix}${nextId.toString().padStart(3, "0")}`;
+        this.ivNum = paddedId;
+      }
 
-  //     this.piForm.get('piNo')?.setValue(this.ivNum);
-  //   });
-  // }
+      this.expenseForm.get('exNo')?.setValue(this.ivNum);
+    });
+  }
 
   extractLetters(input: string): string {
     var extractedChars = input.match(/[A-Za-z-]/g);
@@ -141,7 +153,13 @@ export class ExpenseComponent implements OnInit{
     return result;
   }
 
+  submit!: Subscription;
   onSubmit(){
-
+    console.log(this.expenseForm.getRawValue());
+    this.submit = this.expenseService.addExpense(this.expenseForm.getRawValue()).subscribe(res =>{
+      console.log(res);
+      this.snackBar.open("Expense added succesfully...","" ,{duration:3000})
+      // this.router.navigate(['/view-invoices']);
+    })
   }
 }

@@ -9,11 +9,10 @@ const Expense = sequelize.define('expense',{
     bankSlip : {type : DataTypes.STRING},
     status: {type : DataTypes.STRING, defaultValue: 'Generated'},
     userId :{type : DataTypes.INTEGER },
-    kamId : {type : DataTypes.INTEGER, allowNull : true},
     amId: {type : DataTypes.INTEGER, allowNull : true},
     accountantId : {type : DataTypes.INTEGER, allowNull : true},
     count: {type : DataTypes.INTEGER, defaultValue: 1},
-    notes:  { type: DataTypes.STRING },
+    notes:  { type: DataTypes.TEXT },
     expenseType: {type : DataTypes.STRING}
 },
 
@@ -22,18 +21,15 @@ const Expense = sequelize.define('expense',{
     timestamps : true
 })
 
-// User.hasMany(Expense, { as: 'user', foreignKey: 'userId', onUpdate: 'CASCADE' });
-// Expense.belongsTo(User, { as: 'user', foreignKey: 'userId' });
+User.hasMany(Expense, { foreignKey: 'userId', onUpdate: 'CASCADE' });
+Expense.belongsTo(User, { foreignKey: 'userId' });
 
-// User.hasMany(Expense, { as: 'kam', foreignKey: 'kamId', onUpdate: 'CASCADE' });
-// Expense.belongsTo(User, { as: 'kam', foreignKey: 'kamId' });
-
-// User.hasMany(Expense, { as: 'am', foreignKey: 'amId', onUpdate: 'CASCADE' });
-// Expense.belongsTo(User, { as: 'am', foreignKey: 'amId' });
+User.hasMany(Expense, { as: 'manager', foreignKey: 'amId', onUpdate: 'CASCADE' });
+Expense.belongsTo(User, { as: 'manager', foreignKey: 'amId' });
 
 
-// User.hasMany(Expense ,{as: 'accountant', foreignKey : 'accountantId', onUpdate : 'CASCADE'})
-// Expense.belongsTo(User,{as: 'accountant', foreignKey : 'accountantId'})
+User.hasMany(Expense ,{as: 'ma', foreignKey : 'accountantId', onUpdate : 'CASCADE'})
+Expense.belongsTo(User,{as: 'ma', foreignKey : 'accountantId'})
 
 
 Expense.sync({ alter: true }).then(() => {

@@ -1,4 +1,4 @@
-import { Component, inject, Input, ViewChild } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -27,7 +27,8 @@ import { CommonModule } from '@angular/common';
     RouterModule, MatCardModule,MatDialogModule, CommonModule
   ],
   templateUrl: './view-approval.component.html',
-  styleUrl: './view-approval.component.scss'
+  styleUrl: './view-approval.component.scss',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ViewApprovalComponent {
   _snackbar = inject(MatSnackBar)
@@ -59,6 +60,8 @@ export class ViewApprovalComponent {
   isSubmitted: boolean = false;
   querySub!: Subscription;
   ngOnInit() {
+    console.log(this.data);
+    
     this.querySub = this.route.queryParams.subscribe(params => {
       this.isSubmitted = params['isSubmitted'] === 'true'; 
     });
@@ -226,6 +229,10 @@ export class ViewApprovalComponent {
 
   pageStatus: boolean = true;
   onStepSelectionChange(status: string) {
+    if(status === 'expenses'){
+      // this.router.navigate(['login/expenses/view']);
+    return;
+    }
     if(this.roleName === 'Sales Executive'){
       if(status === 'assigned'){
         this.status = 'REJECTED';
@@ -364,5 +371,7 @@ export class ViewApprovalComponent {
       }
     });
   }
+
+  @Input() data: string;
 }
 

@@ -1,0 +1,94 @@
+<div class="page-container" fxLayout="column" fxLayoutAlign="space-between stretch">
+  <div fxLayout="column" fxLayoutAlign="space-between stretch" class="components-container">
+    <mat-card fxFlex>
+      <div fxFlex class="table-component-holder mat-elevation-z4">
+        <mat-toolbar class="table-header">
+          <div class="row" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="col">
+              
+            </div>
+            <div class="col" style="text-align: right;">
+              <div class="input-group">
+                <input type="search" placeholder="Search Data by Entry No..." (keyup)="applyFilter($event)">
+              </div>
+            </div>
+          </div>
+        </mat-toolbar>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">EntryNo</th>
+                <th scope="col">Sales Executive</th>
+                <th scope="col">KAM</th>
+                <th scope="col">Manager</th>
+                <th scope="col">Accountant</th>
+                <th scope="col">Status</th>
+                <th scope="col">Manage</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for(invoice of invoices;let i=$index; track $index){
+                <tr [routerLink]="['/login/viewInvoices/', invoice.id]" >
+                  <td [attr.data-label]="'InvoiceNo'">{{invoice.piNo || '-'}}</td>
+                  <td [attr.data-label]="'SP'">{{invoice.salesPerson?.name || '-'}}</td>
+                  <td [attr.data-label]="'KAM'">{{invoice.kam?.name || '-'}}</td>
+                  <td [attr.data-label]="'AM'">{{invoice.am?.name || '-'}}</td>
+                  <td [attr.data-label]="'MA'">{{invoice.accountant?.name}}</td>
+                  <td [attr.data-label]="'Status'">{{invoice.status}}_{{invoice.count}}</td>
+  
+  
+                  <td (click)="$event.stopPropagation()">
+                    <div class="action-icons">
+                      @if(data.admin || invoice.editButtonStatus){
+                        <button class="update-button" [routerLink]="['/login/viewApproval/updatePI', invoice.id]">Update
+                        </button>
+                        <button class="delete-button" (click)="deleteFunction(invoice.id)">Delete
+                        </button>
+                      }
+                      @if(!data.sp && data.pageStatus && !data.admin && !data.teamLead && invoice.status != 'AM APPROVED'){
+                        <button mat-raised-button class="approve-button"
+                          (click)="verified('approved', invoice.piNo, invoice.salesPerson?.name, invoice.id, invoice.status)"> APPROVE
+                        </button>
+                        <button mat-raised-button class="reject-button"
+                          (click)="verified('rejected', invoice.piNo, invoice.addedBy.name, invoice.id, invoice.status)">
+                          REJECT
+                        </button>
+                      }
+                      @if(!data.sp && data.ma){
+                        <button mat-raised-button class="add-bank-slip-button"
+                        (click)="addBankSlip(invoice.piNo, invoice.id, invoice.status)"> {{ invoice.status === 'BANK SLIP ISSUED' ? 'Edit Wireslip' : 'Wireslip' }}
+                      </button>
+                      }
+
+                      @if(data.kam && invoice.status === 'AM APPROVED'){
+                        <button mat-raised-button class="add-bank-slip-button"
+                        (click)="addBankSlip(invoice.piNo, invoice.id, invoice.status)"> ATTACH
+                      </button>
+                      }
+                     
+                    </div>
+                  </td>
+                </tr>
+              }
+              @if(invoices.length === 0){
+                <tr>
+                  <td [colSpan]="7" style="text-align: center;">No records found</td>
+                </tr>
+              }
+             
+            </tbody>
+          </table>
+
+          <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
+            (page)="onPageChange($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
+          </mat-paginator>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+
+  <mat-divider></mat-divider>
+
+</div>

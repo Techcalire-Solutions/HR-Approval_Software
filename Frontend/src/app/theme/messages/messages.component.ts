@@ -11,7 +11,6 @@ import { MatCardModule } from '@angular/material/card';
 import { PipesModule } from '../pipes/pipes.module';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { LeaveService } from '@services/leave.service';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { CommonModule } from '@angular/common';
 import { TimeAgoPipe } from '../pipes/time-ago.pipe';
 
@@ -51,20 +50,17 @@ export class MessagesComponent implements OnInit {
   previousNotificationIds: Set<string> = new Set();
   notifiedUnreadIds: Set<string> = new Set();
   private audioContext: AudioContext;
-  holidaySub!: Subscription;
+  messagesService = inject(MessagesService)
 
-  constructor(private messagesService: MessagesService) {
-    this.messages = messagesService.getMessages();
-    this.files = messagesService.getFiles();
-    this.meetings = messagesService.getMeetings();
-  }
 
   ngOnInit() {
     this.initializeComponent()
-
   }
 
    initializeComponent(){
+    this.messages = this.messagesService.getMessages();
+    this.files = this.messagesService.getFiles();
+    this.meetings = this.messagesService.getMeetings();
     const token: any = localStorage.getItem('token');
     let user = JSON.parse(token);
     this.userId = user.id;
@@ -75,8 +71,9 @@ export class MessagesComponent implements OnInit {
     this.unreadCount = this.notifications.filter(notification => !notification.isRead).length;
   }
 
+  markReadSub :Subscription
   markAsRead(notificationId: string) {
-    this.messagesService.markAsRead(notificationId).subscribe(
+   this.markReadSub = this.messagesService.markAsRead(notificationId).subscribe(
       () => {
         this.getNotificationsForUser();
       },
@@ -86,8 +83,10 @@ export class MessagesComponent implements OnInit {
     );
   }
 
+
+  messageNotfiSub:Subscription
   getNotificationsForUser() {
-    this.messagesService.getUserNotifications(this.userId).subscribe(
+   this.messageNotfiSub =  this.messagesService.getUserNotifications(this.userId).subscribe(
       (data: any) => {
         this.notifications = data.notifications || [];
         this.checkForNewNotifications(data);
@@ -134,7 +133,7 @@ export class MessagesComponent implements OnInit {
     oscillator.stop(this.audioContext.currentTime + 0.5);
   }
 
-  
+
 
   notifyUser(unreadCount: number) {
     if (Notification.permission === 'granted') {
@@ -174,4 +173,10 @@ export class MessagesComponent implements OnInit {
       this.markAsRead(message.id);
     }
   }
+
+  ngOnDestroy(){
+    if(this.markReadSub) this.markReadSub.unsubscribe();
+    if(this.messageNotfiSub) this.messageNotfiSub.unsubscribe();
+  }
 }
+
