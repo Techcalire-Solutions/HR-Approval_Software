@@ -1,0 +1,61 @@
+<table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <!-- <th>Code</th>
+        <th>LOP Count</th>
+        <th>LOP Amount</th> -->
+        <!-- <th>Basic</th>
+        <th>HRA</th>
+        <th>CA</th>
+        <th>LTA</th>
+        <th>Special Allowance</th>
+        <th>PF</th>
+        <th>Insurance</th>
+        <th>Gratuity</th>
+        <th>Monthly Total</th> -->
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let employee of allEmployeesPayroll">
+        <td>{{ employee.userId }}</td>
+        <!-- <td>
+          <input type="text" [value]="employee.code" (input)="onCodeChange($event, employee)" />
+        </td> -->
+        <!-- <td>
+          <input type="number" [value]="employee.lopCount" (input)="onLopCountChange($event, employee)" />
+        </td>
+        <td>
+          <input type="number" [value]="employee.lopAmount" (input)="onLopAmountChange($event, employee)" />
+        </td> -->
+        <!-- <td>
+          <input type="number" [value]="employee.basic" (input)="onBasicChange($event, employee)" />
+        </td>
+        <td>
+          <input type="number" [value]="employee.hra" (input)="onHraChange($event, employee)" />
+        </td>
+        <td>
+          <input type="number" [value]="employee.ca" (input)="onCaChange($event, employee)" />
+        </td>
+        <td>
+          <input type="number" [value]="employee.lta" (input)="onLtaChange($event, employee)" />
+        </td>
+        <td>
+          <input type="number" [value]="employee.specialAllowance" (input)="onSpecialAllowanceChange($event, employee)" />
+        </td>
+        <td>
+          <input type="number" [value]="employee.pf" (input)="onPfChange($event, employee)" />
+        </td>
+        <td>
+          <input type="number" [value]="employee.insurance" (input)="onInsuranceChange($event, employee)" />
+        </td>
+        <td>
+          <input type="number" [value]="employee.gratuity" (input)="onGratuityChange($event, employee)" />
+        </td>
+        <td>
+          {{ employee.monthlyTotal || 0 }}
+        </td> -->
+      </tr>
+    </tbody>
+  </table>
+  <button mat-raised-button class="custom-button" (click)="saveData()">Save</button>

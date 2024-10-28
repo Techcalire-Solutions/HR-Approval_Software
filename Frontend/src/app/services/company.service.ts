@@ -19,6 +19,9 @@ export class CompanyService {
   getCompany(filterValue?: string, page?: number, pagesize?:number): Observable<Company[]> {
     return this.http.get<Company[]>(`${this.apiUrl}/company/find?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
   }
+  getCompanyInfo(id: any) {
+    return this.http.get(this.apiUrl + "/company/" + id);
+  }
   getSuppliers(): Observable<any> {
     return this.http.get(`${this.apiUrl}/company/suppliers`);
   }

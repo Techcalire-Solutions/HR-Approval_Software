@@ -28,16 +28,18 @@
         <section class="table__body">
           <table>
             <thead>
-              <tr>
+              
+                <tr >
                 <th> Name </th>
                 <th> Supplier </th>
                 <th> Customer </th>
                 <th> Manage </th>
               </tr>
+            
             </thead>
             <tbody>
               @for(company of companies; track $index){
-              <tr>
+              <tr (click)="goToCompany(company.id)" style="cursor: pointer;">
                
                  
                

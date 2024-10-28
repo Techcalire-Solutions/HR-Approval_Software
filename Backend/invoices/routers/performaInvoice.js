@@ -1785,7 +1785,7 @@ router.get('/findcount', authenticateToken, async (req, res) => {
         } else if (roleName === 'Manager') {
             whereCondition.amId = userId;
         } else if (roleName === 'Accountant') {
-            whereCondition.amId = userId;
+            whereCondition.accountantId = userId;
         } else {
             whereCondition = {};
         }
@@ -1795,7 +1795,8 @@ router.get('/findcount', authenticateToken, async (req, res) => {
             attributes: ['status', [sequelize.fn('COUNT', sequelize.col('status')), 'count']],
             group: ['status']
         });
-
+        console.log(invoiceCounts,"invoiceCountsinvoiceCountsinvoiceCountsinvoiceCountsinvoiceCountsinvoiceCounts");
+        
         invoiceCounts.forEach(invoice => {
             counts[invoice.status] = invoice.get('count');
         });

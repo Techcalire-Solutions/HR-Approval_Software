@@ -352,4 +352,25 @@ router.get("/getsuppliersforparts/:partid/:companyid", async (req, res) => {
     res.send({ error: error.message});
   }
 });
+
+router.get("/:id", async (req, res) => {
+  try {
+    const companyId = req.params.id;
+    console.log('companyId:', companyId);
+
+    const company = await Company.findOne({ where: { id: companyId } });
+    console.log('company:', company);
+
+    if (!company) {
+      return res.status(404).json({ error: "Company not found" });
+    }
+
+    // Send the company data as the response
+    res.json(company);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 module.exports = router;
