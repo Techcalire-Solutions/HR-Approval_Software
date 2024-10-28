@@ -14,8 +14,8 @@
             </div>
           </div>
         </mat-toolbar>
-
         <div class="table-container">
+          {{data?.admin}}
           <table>
             <thead>
               <tr>
@@ -75,7 +75,7 @@
                   
                   <td (click)="$event.stopPropagation()">
                     <div class="action-icons">
-
+                      <!-- && invoice.status === 'Generated' -->
                       @if(data?.admin || (data?.sp && invoice.status === 'Generated')){
                         <button class="update-button" [routerLink]="['/login/viewApproval/expenses', invoice.id]">Update </button>
                         <button class="delete-button" (click)="deleteFunction(invoice.id)">Delete
@@ -115,9 +115,9 @@
             </tbody>
           </table>
 
-          <!-- <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
+          <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
             (page)="onPageChange($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
-          </mat-paginator> -->
+          </mat-paginator>
         </div>
       </div>
     </mat-card>

@@ -46,6 +46,8 @@ export class PaymentsComponent implements OnInit{
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;
+      console.log(this.roleName);
+      
       if(!this.isSubmitted){
         if(this.roleName === 'Sales Executive') { 
           this.status = 'GENERATED'; this.sp = true; this.header = 'REJECTED'; this.pendingHeader='GENERATED'
@@ -59,7 +61,7 @@ export class PaymentsComponent implements OnInit{
         if(this.roleName === 'Accountant') { 
           this.status = 'AM VERIFIED'; this.ma = true; this.pendingHeader='VERIFIED'
         }
-        if(this.roleName === 'Administrator' || this.roleName === 'Super Administrator') { this.admin = true }
+        if(this.roleName === 'Administrator' || this.roleName === 'Super Administrator') { this.admin = true, this.status = '' }
         if(this.roleName === 'Team Lead') { this.teamLead = true }
       }else{
         this.status = '';
@@ -199,6 +201,24 @@ export class PaymentsComponent implements OnInit{
             break;
         } 
         break;
+
+        case 'Administrator':
+          case 'Super Administrator':
+            switch (event) {
+              case 0:
+                this.data.status = '';
+                this.data.pageStatus = true;
+                break;
+              case 1:
+                this.data.status = '';
+                this.data.pageStatus = false;
+                break;
+              default:
+                this.data.status = '';
+                this.data.pageStatus = false;
+                break;
+            }
+            break;
         default:
           switch (event) {
             case 0:
@@ -228,6 +248,13 @@ export class PaymentsComponent implements OnInit{
         console.error("Expense component not found.");
       }
     }else if (event === 3 && this.viewExpenseComponent.length > 0 && this.roleName === 'Accountant') {
+      const activeComponent = this.viewExpenseComponent.toArray()[0]; // or correct index if it's not 0
+      if (activeComponent) {
+        activeComponent.loadData(this.data);
+      } else {
+        console.error("Expense component not found.");
+      }
+    } else if (event === 0 && this.viewExpenseComponent.length > 0 && (this.roleName === 'Administrator' || this.roleName === 'Super Administrator')) {
       const activeComponent = this.viewExpenseComponent.toArray()[0]; // or correct index if it's not 0
       if (activeComponent) {
         activeComponent.loadData(this.data);

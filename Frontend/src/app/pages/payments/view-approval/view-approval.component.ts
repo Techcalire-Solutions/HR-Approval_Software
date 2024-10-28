@@ -252,7 +252,7 @@ export class ViewApprovalComponent {
 
     this.dialogSub = dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
-        this.invoiceService.deleteInvoice(id).subscribe((res)=>{
+        this.deleteSub = this.invoiceService.deleteInvoice(id).subscribe((res)=>{
           this._snackbar.open("PI deleted successfully...","" ,{duration:3000})
           this.getInvoices()
         },(error=>{

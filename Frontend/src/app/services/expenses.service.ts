@@ -51,4 +51,8 @@ export class ExpensesService {
   updateExpense(data: any, id: number){
     return this.http.patch(this.url + '/expense/update/'+ id, data);
   }
+
+  deleteExpense(id: number) {
+    return this.http.delete(`${this.url}/expense/${id}`);
+  }
 }

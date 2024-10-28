@@ -61,7 +61,9 @@ router.get('/findbyuser', authenticateToken, async (req, res) => {
       condition.amId = user;
     } else if (roleName === 'Accountant') {
       condition.accountantId = user;
-    } else {
+    } else if (roleName === 'Administrator' || roleName === 'Super Administrator') {
+      condition = {};
+    }else {
       condition.userId = user;
     }
 
@@ -81,8 +83,15 @@ router.get('/findbyuser', authenticateToken, async (req, res) => {
       ];
     }
 
+    let limit; 
+    let offset; 
+    if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+        limit = parseInt(req.query.pageSize, 10);
+        offset = (parseInt(req.query.page, 10) - 1) * limit;
+    }
+
     const expenses = await Expense.findAll({
-      where: where,
+      where: where, limit, offset,
       include: [  
         {model: User, attributes: ['name']},
         {model: User, as: 'manager', attributes: ['name']},
@@ -90,7 +99,17 @@ router.get('/findbyuser', authenticateToken, async (req, res) => {
       ]
     });
 
-    res.send(expenses);
+    const totalCount = await Expense.count({ where: where });
+
+    if (req.query.page && req.query.pageSize && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+      const response = {
+          count: totalCount,
+          items: expenses,
+      };
+      res.json(response);
+  } else {
+      res.send(expenses);
+  }
   } catch (error) {
     res.send(error.message);
   }
@@ -528,4 +547,27 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
       res.send(error.message);
   }
 });
+
+router.delete('/:id', async(req,res)=>{
+  try {
+
+      const result = await Expense.destroy({
+          where: { id: req.params.id },
+          force: true,
+      });
+
+      if (result === 0) {
+          return res.status(404).json({
+            status: "fail",
+            message: "Expense with that ID not found",
+          });
+        }
+    
+        res.json();
+      }  catch (error) {
+      res.send({error: error.message})
+  }
+  
+})
+
 module.exports = router;

@@ -1,21 +1,26 @@
 <mat-tab-group class="horizontal-tabs" (selectedTabChange)="onTabChange($event.index)">
-  <mat-tab>
-    <mat-card style="margin-top: 20px;">
+  @if(roleName !=='Administrator'  && roleName !== 'Super Administrator'){
+    <mat-tab>
+      <mat-card style="margin-top: 20px;">
+        <ng-template mat-tab-label>
+          {{pendingHeader}}
+        </ng-template>
+        <app-view-approval #viewApproval></app-view-approval>
+      </mat-card>
+    </mat-tab>
+  }
+
+  @if (roleName !== 'Administrator' && roleName !== 'Super Administrator') {
+    <mat-tab>
       <ng-template mat-tab-label>
-        {{pendingHeader}}
+        COMPLETED
       </ng-template>
       <app-view-approval #viewApproval></app-view-approval>
-    </mat-card>
-  </mat-tab>
+    </mat-tab>  
+  }
 
-  <mat-tab>
-    <ng-template mat-tab-label>
-      COMPLETED
-    </ng-template>
-    <app-view-approval #viewApproval></app-view-approval>
-  </mat-tab>
 
-  @if (roleName !== 'Accountant') {
+  @if (roleName !== 'Accountant' && roleName !== 'Administrator'  && roleName !== 'Super Administrator'){
     <mat-tab>
       <ng-template mat-tab-label>
         {{header}}
