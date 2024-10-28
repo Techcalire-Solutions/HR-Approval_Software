@@ -5,9 +5,6 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { Router, ActivatedRoute } from '@angular/router';
 import { LoginService } from '@services/login.service';
 import { map, Observable, startWith, Subscription } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { InvoiceService } from '@services/invoice.service';
-import { PerformaInvoice } from '../../common/interfaces/performaInvoice';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
@@ -17,18 +14,21 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialog } from '@angular/material/dialog';
-import { User } from '../../common/interfaces/user';
-import { SafePipe } from "./view-invoices/safe.pipe";
-import { Company } from '../../common/interfaces/company';
 import { CompanyService } from '@services/company.service';
 import { CommonModule } from '@angular/common';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
-import { AddCompanyComponent } from '../company/add-company/add-company.component';
+import { SafePipe } from '../../../common/safe.pipe';
+import { InvoiceService } from '@services/invoice.service';
+import { environment } from '../../../../environments/environment';
+import { Company } from '../../../common/interfaces/company';
+import { PerformaInvoice } from '../../../common/interfaces/performaInvoice';
+import { User } from '../../../common/interfaces/user';
+import { AddCompanyComponent } from '../../company/add-company/add-company.component';
 @Component({
   selector: 'app-add-approval',
   standalone: true,
-  imports: [ ReactiveFormsModule, MatFormFieldModule,  MatCardModule,  MatToolbarModule, MatIconModule,  MatButtonModule,
-    MatSelectModule, MatInputModule, SafePipe,CommonModule, MatAutocompleteModule],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatCardModule, MatToolbarModule, MatIconModule, MatButtonModule,
+    MatSelectModule, MatInputModule, SafePipe, CommonModule, MatAutocompleteModule],
   templateUrl: './add-approval.component.html',
   styleUrl: './add-approval.component.scss'
 })
@@ -222,19 +222,12 @@ export class AddApprovalComponent {
 
   imageUploaded: boolean
   isImageUploaded(): boolean {
-    const controls = this.piForm.get('url') as FormArray;
-    
-    // Return true if there are no controls in the FormArray
-    if (controls.length === 0) {
+    const controls = this.piForm.get('url')as FormArray;
+    let i = controls.length - 1;
+    if (this.imageUrl[i]) {
       return true;
-    }
-  
-    const lastIndex = controls.length - 1;
-    
-    // Check if there is an image URL for the last index
-    return this.imageUrl[lastIndex] ? true : false;
+    }else return false;
   }
-  
 
   files: File[] = [];
   uploadProgress: number[] = [];

@@ -190,7 +190,6 @@ router.patch('/statusupdate/:id', async (req, res) => {
 })
 
 
-// Route to get a user by ID
 router.get('/findone/:id', async (req, res) => {
   let id = req.params.id;
   

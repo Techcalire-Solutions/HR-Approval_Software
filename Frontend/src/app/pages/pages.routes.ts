@@ -43,43 +43,43 @@ export const routes: Routes = [
         loadChildren: () => import('./employee-leave/employee-leave.routes').then(c => c.routes),
         data: { breadcrumb: 'VIEW LEAVES' }, canActivate: [AuthGuard]
       },
-      {
-        path: 'addApproval',
-        loadComponent: () => import('./add-approval/add-approval.component').then(c => c.AddApprovalComponent),
-        data: { breadcrumb: 'Add Approval' }, canActivate: [AuthGuard]
-      },
-      {
-        path: 'expenses',
-        loadComponent: () => import('./add-approval/expense/expense.component').then(c => c.ExpenseComponent),
-        canActivate: [AuthGuard], data: { breadcrumb: 'Expense' },
-      },
-      {
-        path: 'viewexcel',
-        loadComponent: () => import('./add-approval/view-excel/view-excel.component').then(c => c.ViewExcelComponent),
-        canActivate: [AuthGuard], data: { breadcrumb: 'View Excel' },
-      },
+      // {
+      //   path: 'addApproval',
+      //   loadComponent: () => import('./add-approval/add-approval.component').then(c => c.AddApprovalComponent),
+      //   data: { breadcrumb: 'Add Approval' }, canActivate: [AuthGuard]
+      // },
+
+      // {
+      //   path: 'viewexcel',
+      //   loadComponent: () => import('./add-approval/view-excel/view-excel.component').then(c => c.ViewExcelComponent),
+      //   canActivate: [AuthGuard], data: { breadcrumb: 'View Excel' },
+      // },
+      // {
+      //   path: 'viewApproval',
+      //   loadComponent: () => import('./add-approval/view-approval/view-approval.component').then(c => c.ViewApprovalComponent),
+      //   data: { breadcrumb: 'View Approval' }, canActivate: [AuthGuard]
+      // },
       {
         path: 'viewApproval',
-        loadComponent: () => import('./add-approval/view-approval/view-approval.component').then(c => c.ViewApprovalComponent),
-        data: { breadcrumb: 'View Approval' }, canActivate: [AuthGuard]
+        loadChildren: () => import('./payments/payment.routes').then(c => c.routes),
+        data: { breadcrumb: 'Payments' }, canActivate: [AuthGuard]
       },
-
-      {
-        path: 'approvalReport',
-        loadComponent: () => import('./add-approval/approval-report/approval-report.component').then(c => c.ApprovalReportComponent),
-        data: { breadcrumb: 'Approval Report' }, canActivate: [AuthGuard]
-      },
+      // {
+      //   path: 'approvalReport',
+      //   loadComponent: () => import('./add-approval/approval-report/approval-report.component').then(c => c.ApprovalReportComponent),
+      //   data: { breadcrumb: 'Approval Report' }, canActivate: [AuthGuard]
+      // },
 
       {
         path: 'viewInvoices/:id',
         loadComponent: () => import('./add-approval/view-invoices/view-invoices.component').then(c => c.ViewInvoicesComponent),
         data: { breadcrumb: 'View Invoices' }, canActivate: [AuthGuard]
       },
-      {
-        path: 'updatePI/:id',
-        loadComponent: () => import('./add-approval/update-pi/update-pi.component').then(c => c.UpdatePIComponent),
-        data: { breadcrumb: 'Update PI' }, canActivate: [AuthGuard]
-      },
+      // {
+      //   path: 'updatePI/:id',
+      //   loadComponent: () => import('./add-approval/update-pi/update-pi.component').then(c => c.UpdatePIComponent),
+      //   data: { breadcrumb: 'Update PI' }, canActivate: [AuthGuard]
+      // },
 
 
       {

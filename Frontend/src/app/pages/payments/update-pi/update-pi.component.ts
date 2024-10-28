@@ -4,7 +4,6 @@ import { InvoiceService } from '@services/invoice.service';
 import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { SafePipe } from '../view-invoices/safe.pipe';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -18,6 +17,7 @@ import { CompanyService } from '@services/company.service';
 import { ReactiveFormsModule, FormBuilder, Validators, FormArray, FormGroup } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { SafePipe } from '../../../common/safe.pipe';
 
 @Component({
   selector: 'app-update-pi',
@@ -235,6 +235,7 @@ export class UpdatePIComponent {
 
   onUpdate() {
       let updateMethod;
+
       if (this.roleName === 'Sales Executive') {
         updateMethod = this.invoiceService.updatePIBySE(this.piForm.getRawValue(), this.id);
       } else if (this.roleName === 'Key Account Manager') {
@@ -332,19 +333,14 @@ export class UpdatePIComponent {
 
   imageUploaded: boolean
   isImageUploaded(): boolean {
-    const controls = this.piForm.get('url') as FormArray;
-    
-    // Return true if there are no controls in the FormArray
-    if (controls.length === 0) {
+    const controls = this.piForm.get('url')as FormArray;
+
+    if( controls.length === 0) {return true;}
+    let i = controls.length - 1;
+    if (this.imageUrl[i] || this.newImageUrl[i]) {
       return true;
-    }
-  
-    const lastIndex = controls.length - 1;
-    
-    // Check if there is an image URL for the last index
-    return this.imageUrl[lastIndex] ? true : false;
+    }else return false;
   }
-  
 
   onPaymentModeChange() {
     this.piForm.get('kamId')?.setValue("")

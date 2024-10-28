@@ -25,12 +25,10 @@ const transporter = nodemailer.createTransport({
 
 router.post('/updatestatus', authenticateToken, async (req, res) => {
     const { performaInvoiceId, remarks, amId, accountantId, status, kamId } = req.body;
-
+    
     try {
        
         const pi = await PerformaInvoice.findByPk(performaInvoiceId);
-        console.log(pi,"piiiiiiiiiiii");
-        
         if (!pi) {
             return res.status(404).send('Proforma Invoice not found.');
         }
@@ -48,7 +46,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
             date: new Date(),
             remarks,
         });
-        console.log(newStatus,"newStatussssssssss");
         
         await newStatus.save();
 
