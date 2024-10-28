@@ -36,7 +36,9 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   roleName: string;
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
-      this.roleName = role.roleName;  
+      this.roleName = role.roleName; 
+      console.log(this.roleName);
+       
     })
   }
 
@@ -105,7 +107,7 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
         this.verifiedSub = this.expenseService.updateStatus(data).subscribe(result => {
           this.getExpenses()
           this.snackBar.open(`Expense ${piNo} updated to ${status}...`,"" ,{duration:3000})
-          this.router.navigateByUrl('login/viewApproval')
+          this.router.navigateByUrl('login/viewApproval/view')
         });
       }
     })

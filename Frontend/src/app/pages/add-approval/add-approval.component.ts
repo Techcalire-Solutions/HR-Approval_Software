@@ -314,7 +314,7 @@ export class AddApprovalComponent {
 
                 if (piNo) {
                     this.snackBar.open(`Proforma Invoice ${piNo} uploaded successfully...`, "", { duration: 3000 });
-                    this.router.navigateByUrl('login/viewApproval?isSubmitted=true');
+                    this.router.navigateByUrl('login/viewApproval/view?isSubmitted=true');
                 } else {
                     this.snackBar.open('Failed to upload the invoice. Please try again.', "", { duration: 3000 });
                 }
