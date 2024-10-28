@@ -1,12 +1,25 @@
 <div class="expense-form-container">
     <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="expense-form" enctype="multipart/form-data">
       <mat-card>
-        <mat-card-header>
-          <mat-card-title>
-            @if(editStatus){Update}
-            Expense
-          </mat-card-title>
-        </mat-card-header><br>
+        <div class="row">
+          <div class="col">
+            <mat-card-header>
+              <mat-card-title>
+                EXPENSE
+              </mat-card-title>
+            </mat-card-header>
+          </div>
+      
+          <div class="col">
+            <mat-card-header>
+              <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon"
+                class="d-block mr-0 ml-auto" onClick="history.back()" style="margin-left: auto;">
+                <mat-icon>exit_to_app</mat-icon>
+              </button>
+            </mat-card-header>
+          </div>
+        </div><br>
+
   
         <mat-card-content>
           <div class="form-row">
