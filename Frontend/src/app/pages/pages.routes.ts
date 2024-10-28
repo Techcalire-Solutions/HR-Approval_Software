@@ -65,8 +65,7 @@ export const routes: Routes = [
       },
       {
         path: 'viewApproval',
-        loadChildren: () => import('./payments/payment.routes').then(c => c.routes),
-        data: { breadcrumb: 'Payments' }, canActivate: [AuthGuard]
+        loadChildren: () => import('./payments/payment.routes').then(c => c.routes),canActivate: [AuthGuard]
       },
       // {
       //   path: 'approvalReport',

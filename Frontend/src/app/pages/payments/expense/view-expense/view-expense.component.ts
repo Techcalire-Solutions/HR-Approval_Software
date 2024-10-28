@@ -25,7 +25,6 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
     this.getExpenses();
   }
 
-
   private expenseService = inject(ExpensesService);
   filterValue: string = '';
   applyFilter(event: Event): void {
@@ -44,8 +43,9 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   }
 
   data: any;
-  loadData(data: any) {
-    console.log("loadData called with:", data);  
+  isFlow: boolean = false;
+  loadData(data: any) { 
+    this.isFlow = true;
     if (!data) {
       console.error("No data available for this tab.");
       return;

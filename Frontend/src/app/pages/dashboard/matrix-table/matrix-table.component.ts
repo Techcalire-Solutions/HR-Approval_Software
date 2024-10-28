@@ -96,7 +96,7 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
   }
 
   openInvoice(id: number){
-    this.router.navigateByUrl('/login/viewInvoices/' + id);
+    this.router.navigateByUrl('/login/viewApproval/viewinvoices/' + id);
   }
 
   onMouseEnter(event: MouseEvent): void {
