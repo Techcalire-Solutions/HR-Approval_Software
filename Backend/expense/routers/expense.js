@@ -11,7 +11,7 @@ const { Op, where } = require('sequelize');
 const sequelize = require('../../utils/db');
 const nodemailer = require('nodemailer');
 
-router.post('/save', authenticateToken, async(req, res) => {
+router.post('/save', authenticateToken, async (req, res) => {
   const userId = req.user.id;
   let status;
   try {
@@ -194,8 +194,10 @@ router.get('/findbyuser', authenticateToken, async (req, res) => {
         {model: User, attributes: ['name']},
         {model: User, as: 'manager', attributes: ['name']},
         {model: User, as: 'ma', attributes: ['name']},
-      ]
+      ],
+      order: [['id', 'DESC']],
     });
+
 
     const totalCount = await Expense.count({ where: where });
 
@@ -247,66 +249,83 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
     }
 });
 
+
+
 router.post('/updatestatus', authenticateToken, async (req, res) => {
   const { expenseId, remarks, accountantId, status } = req.body;
-  
+
   try {
-      const ex = await Expense.findByPk(expenseId);
-      if (!ex) {
-          return res.send('Expense not found.');
+   
+      if (!expenseId || !status) {
+          return res.status(400).send('Expense ID and status are required.');
       }
 
-      if (!Array.isArray(ex.url) || ex.url.length === 0) {
+
+
+      const expense = await Expense.findByPk(expenseId);
+      if (!expense) {
+          return res.status(404).send('Expense not found.');
+      }
+
+
+      if (!Array.isArray(expense.url) || expense.url.length === 0) {
           return res.status(404).send('Expense does not have an associated file or the URL is invalid.');
       }
- 
+
+  
       const newStatus = new ExpenseStatus({ expenseId, status, date: new Date(), remarks });
-      
       await newStatus.save();
 
-      ex.status = status;
-      if (accountantId != null) ex.accountantId = accountantId;
-      await ex.save();
-      
-      res.json({ ex, status: newStatus });
+      expense.status = status;
+      if (accountantId != null) expense.accountantId = accountantId;
+      await expense.save();
 
+  
       const [user, accountant] = await Promise.all([
-          User.findOne({ where: { id: ex.userId } }),
-          User.findOne({ where: { id: accountantId } }),
+          User.findOne({ where: { id: expense.userId } }),
+          accountantId ? User.findOne({ where: { id: accountantId } }) : null 
       ]);
+      const transporter = nodemailer.createTransport({
+        service: 'gmail', 
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+        },
+    });
+
 
       const userEmail = user ? user.email : null;
       const accountantEmail = accountant ? accountant.email : null;
 
-      let emailSubject = `Proforma Invoice Status Update - ${ex.exNo}`;
-      let emailText = `The status of the Proforma Invoice ${ex.exNo} has been updated to ${status}.\n\n` +
+      let emailSubject = `Expense Claim Update - ${expense.exNo}`;
+      let emailText = `The status of the expense claim ${expense.exNo} has been updated to ${status}.\n\n` +
                       `Remarks: ${remarks}\n` +
                       `Please check the details for further information.`;
 
       let toEmail = null;
 
+
+
+
       switch (status) {
-          case 'AM VERIFIED':
-              emailText = `The Proforma Invoice ${ex.exNo} has been successfully verified by AM.\n\n` + emailText;
-              toEmail = [accountantEmail, userEmail].filter(Boolean).join(', '); 
+          case 'AM Verified':
+              emailText = `The expense claim ${expense.exNo} has been approved.\n\n` + emailText;
+              toEmail = accountantEmail
               break;
 
-          case 'AM REJECTED':
-              emailText = `The Proforma Invoice ${ex.exNo} has been rejected by AM.\n\nRemarks: ${remarks}\n` +
+          case 'AM Rejected':
+              emailText = `The expense claim ${expense.exNo} has been rejected.\n\nRemarks: ${remarks}\n` +
                            `Please review the remarks and take necessary actions.`;
               toEmail = userEmail;
-              // if (pi.addedById === pi.salesPersonId) {
-              //     toEmail = salesPersonEmail;
-              // } else if (pi.addedById === pi.kamId) {
-              //     toEmail = kamEmail; 
-              // }
-  
               break;
+
           default:
-              return res.send('Invalid status update.');
+              console.error('Invalid status received:', status); 
+              return res.status(400).send(`Invalid status update: "${status}" received.`);
       }
 
-      const attachmentUrl = ex.url[0].url; 
+ 
+      const attachmentUrl = expense.url[0].url;
       const attachmentFileKey = attachmentUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
 
       const attachmentParams = {
@@ -323,22 +342,27 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
           text: emailText,
           attachments: [
               {
-                  filename: attachmentFileKey.split('/').pop(), 
+                  filename: attachmentFileKey.split('/').pop(),
                   content: attachmentS3File.Body,
                   contentType: attachmentS3File.ContentType,
               },
           ],
       };
-
       if (toEmail) {
           await transporter.sendMail(mailOptions);
       }
 
-  
+
+      res.json({ expense, status: newStatus });
+
   } catch (error) {
+      console.error('Error updating expense claim status:', error); 
       res.status(500).send('Internal Server Error');
   }
 });
+
+
+
 
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
   const { bankSlip } = req.body;
