@@ -174,7 +174,7 @@ export class ViewInvoicesComponent {
           this.submittingForm = false;
           this.getPiById(id)
           this.snackBar.open(`Invoice ${piNo} updated to ${status}...`,"" ,{duration:3000})
-          this.router.navigateByUrl('login/viewApproval')
+          this.router.navigateByUrl('login/viewApproval/view')
         });
       }
     })
@@ -222,7 +222,7 @@ export class ViewInvoicesComponent {
     this.excelSub = this.invoiceService.excelExport(data).subscribe({
       next: (result: any) => {
         if (result && result.message === "Excel file saved successfully.") {
-          this.router.navigateByUrl('/login/viewexcel');
+          this.router.navigateByUrl('/login/viewexcel/view');
         } else {
           alert(result.message);
         }
