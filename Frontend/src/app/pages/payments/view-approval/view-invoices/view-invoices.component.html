@@ -1,0 +1,175 @@
+
+@if(pi){
+  <div class="row">
+    <div class="col">
+      <mat-card-header>
+        <mat-card-title>
+          PROFORMA INVOICE: {{ piNo | uppercase }} 
+        </mat-card-title>
+      </mat-card-header>
+    </div>
+
+    <div class="col">
+      <mat-card-header>
+        <a style="color: black; font-style: italic; margin-left: auto;">added by: {{pi.addedBy.name}}</a>
+        <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon"
+          class="d-block mr-0 ml-auto" onClick="history.back()" style="margin-left: auto;">
+          <mat-icon>exit_to_app</mat-icon>
+        </button>
+        @if ((pi.status === 'BANK SLIP ISSUED' || pi.status === 'CARD PAYMENT SUCCESS') && ma) {
+          <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon"
+            class="d-block mr-0 ml-auto" (click)="makeExcel()" style="margin-left: 5px;">
+            <mat-icon>sim_card_download</mat-icon>
+          </button>
+        }
+      </mat-card-header>
+    </div>
+  </div>
+
+  <mat-card>
+
+    <table class="table table-bordered">
+      <tbody>
+        <tr>
+
+          <td><strong>Supplier Name:</strong> {{ pi.suppliers.companyName }}</td>
+          <td><strong>Supplier PO No:</strong> {{ pi.supplierPoNo }}</td>
+          <td><strong>Supplier SO No:</strong> {{ pi.supplierSoNo }}</td>
+          <td>
+            <strong>Supplier Price:</strong>
+            <span style="color: green;">
+              {{ pi.supplierCurrency === 'Dollar' ? '$' : pi.supplierCurrency }} {{ pi.supplierPrice }}
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Purpose:</strong> {{ pi.purpose }}</td>
+          <td><strong>Payment mode:</strong> {{ pi.paymentMode }}</td>
+          <td colspan="2">
+            <strong>Notes:</strong>
+            <span [innerHTML]="formatNotes(pi.notes)"></span>
+        </td>
+
+
+        </tr>
+        <tr>
+  @if(pi.customers?.companyName){
+    <td><strong>Customer Name:</strong> {{ pi.customers.companyName }}</td>
+    <td><strong>Customer SO No:</strong> {{ pi.customerSoNo }}</td>
+    <td><strong>Customer PO No:</strong> {{ pi.customerPoNo }}</td>
+    <td>
+      <strong>Customer PO Value:</strong>
+      <span style="color: green;">
+        {{ pi.customerCurrency === 'Dollar' ? '$' : pi.customerCurrency }} {{ pi.poValue }}
+      </span>
+    </td>
+  }
+
+
+        </tr>
+      </tbody>
+    </table>
+
+    <mat-tab-group>
+      @for (url of signedUrl; let i = $index; track $index) {
+        <mat-tab [label]="'Document ' + (i + 1)">
+          <div class="pdf-container">
+            <iframe [src]="url.url | safe" width="100%" height="600px"></iframe>
+          </div>
+          <a>remarks: {{url.remarks}}</a>
+        </mat-tab>
+      }
+      @if(bankSlip){
+        <mat-tab label="WireSlip">
+          <div class="pdf-container">
+            <iframe [src]="bankSlip | safe" width="100%"></iframe>
+          </div>
+        </mat-tab>
+      }
+    </mat-tab-group>
+
+    <mat-card-actions>
+      @if(pi.approveButtonStatus) {
+        <button mat-button class="approve-button" (click)="verified('approved', pi.piNo, pi.salesPerson?.name, pi.id, pi.status)">
+          APPROVE
+        </button>
+
+        <!-- Reject Button -->
+        <button mat-raised-button class="reject-button" (click)="verified('rejected', pi.piNo, pi.addedBy.name, pi.id, pi.status)">
+          REJECT
+        </button>
+      }
+    </mat-card-actions>
+  @if((ma && pi.status !== 'BANK SLIP ISSUED') || (admin && pi.status !== 'BANK SLIP ISSUED')){
+    <mat-card-actions>
+      <button mat-raised-button type="button" class="btn btn-success" (click)="addBankSlip(piNo, pi.id, pi.status)">
+        <mat-icon style="font-size: 25px;">task_alt</mat-icon>ADD WIRESLIP
+      </button>
+    </mat-card-actions>
+  }
+
+  @if(kam && pi.status === 'AM APPROVED'){
+    <button mat-raised-button class="add-bank-slip-button"
+    (click)="addBankSlip(pi.piNo, pi.id, pi.status)"> ATTACH
+    </button>
+  }
+
+    <mat-card>
+      <!DOCTYPE html>
+      <html lang="en">
+
+      <head>
+
+      </head>
+
+      <body>
+
+        <main class="table" id="customers_table">
+          <section class="table__header">
+            <div class="row">
+              <div class="col">
+                <h4>STATUS</h4>
+              </div>
+
+              <div class="col" style="margin-top: 0;">
+                <div class="input-group">
+                  <input type="search" placeholder="Search Data by status..." (keyup)="applyFilter($event)">
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="table__body">
+            <table>
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Remarks</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for(row of status;  track $index){
+                  <tr>
+                    <td>{{row.status}} {{row.count}}</td>
+
+                    <td>
+
+                      <span [innerHTML]="formatRemarks(row.remarks)"></span>
+                    </td>
+              <td>{{row.date | date: 'dd/MM/yyyy'}}</td>
+                  </tr>
+                }
+
+              </tbody>
+            </table>
+          </section>
+        </main>
+      </body>
+
+      </html>
+
+    </mat-card>
+  </mat-card>
+}
+

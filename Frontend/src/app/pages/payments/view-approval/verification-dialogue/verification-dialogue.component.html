@@ -1,0 +1,76 @@
+
+<mat-card>
+  <div class="custom-dialog">
+    <h1 class="dialog-title">Change Status</h1>
+
+    <mat-card-content>
+      <div class="dialog-content">
+        Are you sure you are changing the invoice {{invoiceNo}} to {{status}} status?
+      </div>
+
+      <div >
+        <form [formGroup]="form">
+          <mat-form-field appearance="outline">
+            <mat-label>Notes</mat-label>
+            <input matInput placeholder="" formControlName="remarks">
+          </mat-form-field>
+
+          @if(status === 'KAM VERIFIED'){
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Authorizer Manager</mat-label>
+              <mat-select placeholder="" formControlName="amId" (selectionChange)="onSelectionChange()">
+                @for(item of am; track $index){
+                  <mat-option [value]="item.id">
+                    {{item.name}}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+
+          @if(status === 'AM VERIFIED' || status === 'AM Verified'){
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Accountant</mat-label>
+              <mat-select placeholder="" formControlName="accountantId" (selectionChange)="onSelectionChange()">
+                @for(item of am; track $index){
+                  <mat-option [value]="item.id">
+                    {{item.name}}
+                  </mat-option>
+                }              
+              </mat-select>
+            </mat-form-field>
+          }
+
+          @if(status === 'AM APPROVED'){
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Key Accoungt Manager</mat-label>
+              <mat-select placeholder="" formControlName="kamId" (selectionChange)="onSelectionChange()">
+                @for(item of kam; track $index){
+                  <mat-option [value]="item.id">
+                    {{item.name}}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+         
+          @if(status === 'AM REJECTED' || status === 'KAM REJECTED' || status === 'AM DECLINED' ){
+            <mat-form-field appearance="outline">
+              <mat-label>Maker</mat-label>
+              <input matInput placeholder="" formControlName="spId" readonly>
+            </mat-form-field>
+          }
+        </form>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <div class="dialog-actions">
+        <button class="cancel-button" (click)="onCancelClick()">No</button>
+        <button class="confirm-button" [disabled]="!isSelectionMade" (click)="onConfirmClick()">Yes</button>
+      </div>
+    </mat-card-actions>
+  </div>
+</mat-card>
+
+

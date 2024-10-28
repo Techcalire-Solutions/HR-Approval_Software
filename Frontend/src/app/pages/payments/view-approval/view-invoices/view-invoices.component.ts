@@ -4,19 +4,19 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { InvoiceService } from '@services/invoice.service';
 import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
-import { VerificationDialogueComponent } from '../view-approval/verification-dialogue/verification-dialogue.component';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { SafePipe } from './safe.pipe';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { PerformaInvoiceStatus } from '../../../common/interfaces/performa-invoice-status';
-import { MatTableModule } from '@angular/material/table';
-import { BankReceiptDialogueComponent } from '../view-approval/bank-receipt-dialogue/bank-receipt-dialogue.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { CommonModule, DatePipe, UpperCasePipe } from '@angular/common';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTableModule } from '@angular/material/table';
+import { PerformaInvoiceStatus } from '../../../../common/interfaces/performa-invoice-status';
+import { BankReceiptDialogueComponent } from '../bank-receipt-dialogue/bank-receipt-dialogue.component';
+import { VerificationDialogueComponent } from '../verification-dialogue/verification-dialogue.component';
+import { SafePipe } from '../../../../common/safe.pipe';
 
 @Component({
   selector: 'app-view-invoices',
@@ -222,7 +222,7 @@ export class ViewInvoicesComponent {
     this.excelSub = this.invoiceService.excelExport(data).subscribe({
       next: (result: any) => {
         if (result && result.message === "Excel file saved successfully.") {
-          this.router.navigateByUrl('/login/viewApproval/viewexcel');
+          this.router.navigateByUrl('/login/viewexcel');
         } else {
           alert(result.message);
         }

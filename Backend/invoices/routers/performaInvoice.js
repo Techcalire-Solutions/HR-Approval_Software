@@ -12,7 +12,9 @@ const nodemailer = require('nodemailer');
 const TeamMember = require('../../users/models/teamMember');
 const Team = require('../../users/models/team');
 const Company = require('../models/company');
-const Supplier = require('../../invoices/routers/company')
+const Supplier = require('../../invoices/routers/company');
+const Expense = require('../models/expense');
+const ExpenseStatus = require('../models/expenseStatus');
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -89,7 +91,6 @@ const transporter = nodemailer.createTransport({
                     contentType: s3File.ContentType
                 });
             } catch (error) {
-                console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error);
                 continue;
             }
         }
@@ -145,7 +146,6 @@ const transporter = nodemailer.createTransport({
             };
 
             await transporter.sendMail(mailOptions);
-            console.log('Email sent successfully to AM:', amEmail);
         } else if (paymentMode === 'WireTransfer') {
 
             mailOptions = {
@@ -173,7 +173,6 @@ const transporter = nodemailer.createTransport({
             };
 
             await transporter.sendMail(mailOptions);
-            console.log('Email sent successfully to KAM:', kamEmail);
         }
 
         res.json({
@@ -182,7 +181,6 @@ const transporter = nodemailer.createTransport({
             message: 'Proforma Invoice saved successfully'
         });
     } catch (error) {
-        console.error('Error saving Proforma Invoice:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -263,7 +261,6 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
                contentType: s3File.ContentType,
            });
        } catch (error) {
-           console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error);
            continue; 
        }
    }
@@ -296,7 +293,6 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
 
    if (amEmail) {
        await transporter.sendMail(mailOptions);
-       console.log('Email sent successfully to:', amEmail);
    } else {
        console.log('No AM email found');
    }
@@ -556,8 +552,6 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
 
 router.get('/findbysp', authenticateToken, async (req, res) => {
     const status = req.query.status;
-    console.log(status);
-    
     const userId = req.user.id;
     // Initialize the where clause
     let where = { salesPersonId: userId };
@@ -688,7 +682,7 @@ router.get('/findbkam', authenticateToken, async(req, res) => {
             )
         ];
     }  
-
+    
     let limit; 
     let offset; 
     if (req.query.pageSize !== '' && req.query.page !== '' && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined' ) {
@@ -948,112 +942,121 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
 
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
     const { bankSlip, status } = req.body;
+    
     try {
         let newStat;
+        let statusArray;
+        let pi;
+
         if (status === 'AM APPROVED') {
             newStat = 'CARD PAYMENT SUCCESS';
+            pi = await PerformaInvoice.findByPk(req.params.id);
+            const performaInvoiceId  = req.params.id
+            if (!pi) {
+                return res.status(404).json({ message: 'Invoice not found' }); 
+            }
+            statusArray = new PerformaInvoiceStatus({ performaInvoiceId , status, date: new Date() });
+            await statusArray.save() 
         } else if (status === 'AM VERIFIED') {
             newStat = 'BANK SLIP ISSUED';
+            pi = await PerformaInvoice.findByPk(req.params.id);
+            const performaInvoiceId  = req.params.id
+            if (!pi) {
+                return res.status(404).json({ message: 'Invoice not found' }); 
+            }
+            statusArray = new PerformaInvoiceStatus({ performaInvoiceId , status, date: new Date() });
+            await statusArray.save() 
+        } else if (status === 'AM Verified') {
+            newStat = 'PaymentCompleted';
+
+            pi = await Expense.findByPk(req.params.id);
+            const expenseId = req.params.id
+            if (!pi) {
+                return res.status(404).json({ message: 'Invoice not found' });
+            }
+            statusArray = new ExpenseStatus({ expenseId, status, date: new Date(), });
+            await statusArray.save() 
         }
 
-        const pi = await PerformaInvoice.findByPk(req.params.id);
-
-        if (!pi) {
-            return res.status(404).json({ message: 'Proforma invoice not found' });
-        }
-
-   
         pi.bankSlip = bankSlip;
         pi.status = newStat;
         await pi.save();
-
-        const piStatus = new PerformaInvoiceStatus({
-            performaInvoiceId: pi.id,
-            status: newStat,
-            date: new Date(),
-        });
-        await piStatus.save();
-
-        
-
       
-        const users = await User.findAll({
-            where: {
-                [Op.or]: [
-                    { id: pi.salesPersonId },
-                    { id: pi.kamId },
-                    { id: pi.amId },
-                    { id: pi.accountantId },
-                    { id: pi.addedById }
-                ]
-            }
-        });
+        // const users = await User.findAll({
+        //     where: {
+        //         [Op.or]: [
+        //             { id: pi.salesPersonId },
+        //             { id: pi.kamId },
+        //             { id: pi.amId },
+        //             { id: pi.accountantId },
+        //             { id: pi.addedById }
+        //         ]
+        //     }
+        // });
 
     
 
-        const otherEmails = users
-            .filter(user => user.id !== pi.accountantId)
-            .map(user => user.email)
-            .join(',');
+        // const otherEmails = users
+        //     .filter(user => user.id !== pi.accountantId)
+        //     .map(user => user.email)
+        //     .join(',');
 
 
-        const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-        const params = {
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: fileKey,
-        };
+        // const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+        // const params = {
+        //     Bucket: process.env.AWS_BUCKET_NAME,
+        //     Key: fileKey,
+        // };
 
-        const s3File = await s3.getObject(params).promise();
-        const fileBuffer = s3File.Body;
+        // const s3File = await s3.getObject(params).promise();
+        // const fileBuffer = s3File.Body;
 
 
-        let emailSubject = `Bank Slip Uploaded for Invoice - ${pi.piNo}`;
-        let emailBody = `
-            <p>A bank slip has been uploaded for proforma invoice ID: <strong>${pi.piNo}</strong>.</p>
-            <br>
-            <p>Please review the bank slip at your earliest convenience.</p>
-            <br>
-            <p>Thank you!</p>
-        `;
+        // let emailSubject = `Bank Slip Uploaded for Invoice - ${pi.piNo}`;
+        // let emailBody = `
+        //     <p>A bank slip has been uploaded for proforma invoice ID: <strong>${pi.piNo}</strong>.</p>
+        //     <br>
+        //     <p>Please review the bank slip at your earliest convenience.</p>
+        //     <br>
+        //     <p>Thank you!</p>
+        // `;
 
     
-        if (newStat === 'CARD PAYMENT SUCCESS') {
-            emailSubject = `Card Payment Success for Invoice - ${pi.piNo}`;
-            emailBody = `
-                <p>Card payment has been successfully processed for proforma invoice ID: <strong>${pi.piNo}</strong>.</p>
-                <br>
-                <p>Please review the  slip at your earliest convenience.</p>
-                <br>
-                <p>Thank you!</p>
-            `;
-        }
+        // if (newStat === 'CARD PAYMENT SUCCESS') {
+        //     emailSubject = `Card Payment Success for Invoice - ${pi.piNo}`;
+        //     emailBody = `
+        //         <p>Card payment has been successfully processed for proforma invoice ID: <strong>${pi.piNo}</strong>.</p>
+        //         <br>
+        //         <p>Please review the  slip at your earliest convenience.</p>
+        //         <br>
+        //         <p>Thank you!</p>
+        //     `;
+        // }
 
 
-        const mailOptions = {
-            from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
-            to: otherEmails,
-            subject: emailSubject,
-            html: emailBody,
-            attachments: [
-                {
-                    filename: bankSlip.split('/').pop(),
-                    content: fileBuffer,
-                    contentType: s3File.ContentType
-                }
-            ]
-        };
+        // const mailOptions = {
+        //     from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+        //     to: otherEmails,
+        //     subject: emailSubject,
+        //     html: emailBody,
+        //     attachments: [
+        //         {
+        //             filename: bankSlip.split('/').pop(),
+        //             content: fileBuffer,
+        //             contentType: s3File.ContentType
+        //         }
+        //     ]
+        // };
 
 
-        await transporter.sendMail(mailOptions);
+        // await transporter.sendMail(mailOptions);
 
    
-        res.json({ p: pi, status: piStatus, users });
+        res.json({ p: pi, status: status });
     } catch (error) {
-        console.error('Error:', error.message);
-        res.status(500).send(error.message);
+        res.send(error.message);
     }
 });
-
 
 router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
     let { url, kamId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, 
@@ -1155,7 +1158,6 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
                     contentType: s3File.ContentType 
                 });
             } catch (error) {
-                console.error('Error fetching file from S3:', error.message);
                 continue; 
             }
         }
@@ -1187,18 +1189,15 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
 
       
         await transporter.sendMail(mailOptions);
-        console.log('Email sent to:', recipientEmail); 
 
 
     } catch (error) {
-        console.error('Error updating Proforma Invoice:', error.message);
-        res.status(500).send(error.message);
+        res.send(error.message);
     }
 });
 
 router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
     let { url, kamId, amId, supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes, paymentMode} = req.body;
-    console.log(req.body);
     
     let status;
     if(paymentMode === 'CreditCard'){
@@ -1424,7 +1423,6 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
                 contentType: s3File.ContentType,
             });
         } catch (error) {
-            console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error);
             continue;
         }
     }
@@ -1458,13 +1456,11 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
 
     if (recipientEmail) {
         await transporter.sendMail(mailOptions);
-        console.log('Email sent successfully to:', recipientEmail);
     } else {
         console.log('No recipient email found');
     }
 
 } catch (error) {
-    console.error(error);
     res.json({ error: error.message });
 }
 });
@@ -1542,7 +1538,6 @@ router.patch('/updatePIByAdminSuperAdmin/:id', authenticateToken, async(req, res
                       contentType: s3File.ContentType 
                   });
               } catch (error) {
-                  console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error);
                   continue; 
               }
           }
@@ -1815,7 +1810,6 @@ router.get('/findcount', authenticateToken, async (req, res) => {
             counts: formattedCounts
         });
     } catch (error) {
-        console.error('Error fetching invoice counts:', error);
         res.status(500).json({ error: 'An error occurred while fetching the invoice counts.' });
     }
 });

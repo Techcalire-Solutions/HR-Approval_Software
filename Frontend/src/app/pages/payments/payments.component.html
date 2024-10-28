@@ -1,0 +1,49 @@
+<mat-tab-group class="horizontal-tabs" (selectedTabChange)="onTabChange($event.index)">
+  @if(roleName !=='Administrator'  && roleName !== 'Super Administrator'){
+    <mat-tab>
+      <mat-card style="margin-top: 20px;">
+        <ng-template mat-tab-label>
+          {{pendingHeader}}
+        </ng-template>
+        <app-view-approval #viewApproval></app-view-approval>
+      </mat-card>
+    </mat-tab>
+  }
+
+  @if (roleName !== 'Administrator' && roleName !== 'Super Administrator') {
+    <mat-tab>
+      <ng-template mat-tab-label>
+        COMPLETED
+      </ng-template>
+      <app-view-approval #viewApproval></app-view-approval>
+    </mat-tab>  
+  }
+
+
+  @if (roleName !== 'Accountant' && roleName !== 'Administrator'  && roleName !== 'Super Administrator'){
+    <mat-tab>
+      <ng-template mat-tab-label>
+        {{header}}
+      </ng-template>
+      <app-view-approval #viewApproval></app-view-approval>
+    </mat-tab>
+  }
+
+
+  <mat-tab>
+    <ng-template mat-tab-label>
+      ALL
+    </ng-template>
+    <app-view-approval #viewApproval></app-view-approval>
+  </mat-tab>
+
+  @if (roleName !== 'Key Account Manager') {
+    <mat-tab>
+      <ng-template mat-tab-label>
+        EXPENSES
+      </ng-template>
+      <app-view-expense #viewExpense></app-view-expense>
+    </mat-tab>
+  }
+
+</mat-tab-group>

@@ -25,7 +25,7 @@ const transporter = nodemailer.createTransport({
 
 router.post('/updatestatus', authenticateToken, async (req, res) => {
     const { performaInvoiceId, remarks, amId, accountantId, status, kamId } = req.body;
-
+    
     try {
        
         const pi = await PerformaInvoice.findByPk(performaInvoiceId);

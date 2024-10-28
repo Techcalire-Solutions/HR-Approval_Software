@@ -1,25 +1,26 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, SimpleChanges, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { InvoiceService } from '@services/invoice.service';
 import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
 import { PerformaInvoice } from '../../../common/interfaces/performaInvoice';
-import { VerificationDialogueComponent } from './verification-dialogue/verification-dialogue.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatDividerModule } from '@angular/material/divider';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
-import { BankReceiptDialogueComponent } from './bank-receipt-dialogue/bank-receipt-dialogue.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { InvoiceService } from '@services/invoice.service';
+import { VerificationDialogueComponent } from './verification-dialogue/verification-dialogue.component';
+import { BankReceiptDialogueComponent } from './bank-receipt-dialogue/bank-receipt-dialogue.component';
+
 @Component({
   selector: 'app-view-approval',
   standalone: true,
@@ -28,27 +29,25 @@ import { CommonModule } from '@angular/common';
   ],
   templateUrl: './view-approval.component.html',
   styleUrl: './view-approval.component.scss',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ViewApprovalComponent {
   _snackbar = inject(MatSnackBar)
-  invoiceService = inject(InvoiceService)
+  private invoiceService = inject(InvoiceService)
   loginService = inject(LoginService)
   dialog = inject(MatDialog)
   router = inject(Router)
   snackBar = inject(MatSnackBar)
   route = inject(ActivatedRoute)
+  @Input() data: any;
+  private cd = inject(ChangeDetectorRef)
 
   @Input() status: string = '';
 
-  selectedTab: string = '';
   header: string = 'Invoices';
-  onTabClick(tabName: string) {
-    this.selectedTab = tabName;
-  }
 
   ngOnDestroy(): void {
-    this.roleSub?.unsubscribe();
     this.invoiceSubscriptions?.unsubscribe();
     this.querySub?.unsubscribe();
     this.verifiedSub?.unsubscribe();
@@ -60,91 +59,53 @@ export class ViewApprovalComponent {
   isSubmitted: boolean = false;
   querySub!: Subscription;
   ngOnInit() {
-    console.log(this.data);
-    
-    this.querySub = this.route.queryParams.subscribe(params => {
-      this.isSubmitted = params['isSubmitted'] === 'true'; 
-    });
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
     this.user = user.id;
-    let roleId = user.role
-    this.getRoleById(roleId)
+    this.querySub = this.route.queryParams.subscribe(params => {
+      this.isSubmitted = params['isSubmitted'] === 'true'; 
+    });
   }
 
-  roleSub!: Subscription;
-  roleName!: string;
-  sp: boolean = false;
-  kam: boolean = false;
-  am: boolean = false;
-  ma: boolean = false;
-  admin: boolean = false;
-  teamLead: boolean = false;
-  pendingHeader : string = '';
-  getRoleById(id: number){
-    this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
-      this.roleName = role.roleName;
-      if(!this.isSubmitted){
-        if(this.roleName === 'Sales Executive') { 
-          this.status = 'GENERATED'; this.sp = true; this.header = 'REJECTED'; this.pendingHeader='GENERATED'
-         }
-        if(this.roleName === 'Key Account Manager') { 
-          this.status = 'GENERATED'; this.kam = true; this.header = 'AM REJECTED'; this.pendingHeader='GENERATED'
-        }
-        if(this.roleName === 'Manager') { 
-          this.status = 'KAM VERIFIED'; this.am = true; this.header = 'REJECTED'; this.pendingHeader='VERIFIED'
-        }
-        if(this.roleName === 'Accountant') { 
-          this.status = 'AM VERIFIED'; this.ma = true; this.pendingHeader='VERIFIED'
-        }
-        if(this.roleName === 'Administrator' || this.roleName === 'Super Administrator') { this.admin = true }
-        if(this.roleName === 'Team Lead') { this.teamLead = true }
-      }else{
-        this.status = '';
-        this.selectedTab = 'invoice';
-        this.pageStatus = false;
-        if(this.roleName === 'Sales Executive') { 
-          this.sp = true; this.header = 'REJECTED'; this.pendingHeader='GENERATED'
-         }
-        if(this.roleName === 'Key Account Manager') { 
-          this.kam = true; this.header = 'AM REJECTED'; this.pendingHeader='GENERATED'
-        }
-        if(this.roleName === 'Manager') { 
-          this.am = true; this.header = 'REJECTED'; this.pendingHeader='VERIFIED'
-        }
-        if(this.roleName === 'Accountant') { 
-          this.ma = true; this.pendingHeader='VERIFIED'
-        }
-      }
-
-      this.getInvoices();
-    })
+  loadData(data: any) {
+    console.log("loadData called with:", data);  // Add this for debugging
+    if (!data) {
+      console.error("No data available for this tab.");
+      return;
+    }
+    this.data = data;
+    this.getInvoices();
   }
-
+  
   invoices: any[] = [];
   invoiceSubscriptions!: Subscription;
   submittingForm: boolean = false;
   editButtonStatus: boolean = false;
+  pageStatus: boolean = true;
   getInvoices() {
     let invoice!: PerformaInvoice[];
-
+    
     let apiCall;
-    if (this.roleName === 'Sales Executive') {
-      apiCall = this.invoiceService.getPIBySP(this.status, this.filterValue, this.currentPage, this.pageSize);
-    }else if (this.roleName === 'Team Lead') {
-      apiCall = this.invoiceService.getPIBySP(this.status, this.filterValue, this.currentPage, this.pageSize);
-    }  else if (this.roleName === 'Key Account Manager') {
-      apiCall = this.invoiceService.getPIByKAM(this.status, this.filterValue, this.currentPage, this.pageSize);
-    } else if (this.roleName === 'Manager') {
-      apiCall = this.invoiceService.getPIByAM(this.status, this.filterValue, this.currentPage, this.pageSize);
-    } else if (this.roleName === 'Accountant') {
+    if (this.data.roleName === 'Sales Executive') {
+      apiCall = this.invoiceService.getPIBySP(this.data.status, this.filterValue, this.currentPage, this.pageSize);
+    }else if (this.data.roleName === 'Team Lead') {
+      apiCall = this.invoiceService.getPIBySP(this.data.status, this.filterValue, this.currentPage, this.pageSize);
+    }  else if (this.data.roleName === 'Key Account Manager') {
+      apiCall = this.invoiceService.getPIByKAM(this.data.status, this.filterValue, this.currentPage, this.pageSize);
+    } else if (this.data.roleName === 'Manager') {
+      apiCall = this.invoiceService.getPIByAM(this.data.status, this.filterValue, this.currentPage, this.pageSize);
+    } else if (this.data.roleName === 'Accountant') {
       this.pageStatus = false
-      apiCall = this.invoiceService.getPIByMA(this.status, this.filterValue, this.currentPage, this.pageSize);
-    }else if (this.roleName === 'Administrator' || this.roleName === 'Super Administrator') {
-      apiCall = this.invoiceService.getPIByAdmin(this.status, this.filterValue, this.currentPage, this.pageSize);
+      apiCall = this.invoiceService.getPIByMA(this.data.status, this.filterValue, this.currentPage, this.pageSize);
+    }else if (this.data.roleName === 'Administrator' || this.data.roleName === 'Super Administrator') {
+      apiCall = this.invoiceService.getPIByAdmin(this.data.status, this.filterValue, this.currentPage, this.pageSize);
     }
 
     if (apiCall) {
+      if (this.invoiceSubscriptions) {
+        this.invoiceSubscriptions.unsubscribe(); 
+      }
+  
       this.invoiceSubscriptions = apiCall.subscribe((res: any) => {
         invoice = res.items;
         this.totalItems = res.count;
@@ -159,7 +120,7 @@ export class ViewApprovalComponent {
             }
           });
 
-          this.invoices = invoice;
+          this.invoices = [...invoice]; 
           
           for (let i = 0; i < this.invoices.length; i++) {
             let invoiceSP = this.invoices[i]?.salesPersonId;
@@ -205,6 +166,7 @@ export class ViewApprovalComponent {
           }
         }
         this.submittingForm = false;
+        this.cd.detectChanges();
       }, (error: any) => {
         this.submittingForm = false;
       });
@@ -214,6 +176,7 @@ export class ViewApprovalComponent {
   filterValue!: string;
   applyFilter(event: Event): void {
     this.filterValue = (event.target as HTMLInputElement).value.trim()
+    
     this.getInvoices()
   }
 
@@ -227,84 +190,12 @@ export class ViewApprovalComponent {
     this.getInvoices();
   }
 
-  pageStatus: boolean = true;
-  onStepSelectionChange(status: string) {
-    if(status === 'expenses'){
-      // this.router.navigate(['login/expenses/view']);
-    return;
-    }
-    if(this.roleName === 'Sales Executive'){
-      if(status === 'assigned'){
-        this.status = 'REJECTED';
-        this.getInvoices();
-      }else if(status === 'pending'){
-        this.status = 'GENERATED';
-        this.getInvoices()
-      }else if(status === 'completed'){
-        this.status = 'BANK SLIP ISSUED';
-        this.getInvoices()
-      }else if(status === 'all'){
-        this.status = '';
-        this.getInvoices()
-      }
-    }else if(this.roleName === 'Key Account Manager') {
-      if(status === 'pending'){
-        this.pageStatus = true;
-        this.status = 'GENERATED'
-        this.getInvoices()
-      }else if(status === 'assigned'){
-        this.pageStatus = false;
-        this.status = 'AM REJECTED'
-        this.getInvoices()
-      }else if(status === 'completed'){
-        this.pageStatus = false;
-        this.status = 'BANK SLIP ISSUED';
-        this.getInvoices()
-      }else if(status === 'all'){
-        this.pageStatus = false;
-        this.status = '';
-        this.getInvoices()
-
-      }
-    }else if(this.roleName === 'Manager') {
-      if(status === 'pending'){
-        this.pageStatus = true;
-        this.status = 'KAM VERIFIED';
-        this.getInvoices()
-      }else if(status === 'assigned'){
-        this.pageStatus = false;
-        this.status = 'REJECTED'
-        this.getInvoices()
-      }else if(status === 'completed'){
-        this.pageStatus = false;
-        this.status = "BANK SLIP ISSUED"
-        this.getInvoices()
-      }else if(status === 'all'){
-        this.pageStatus = false;
-         this.status = ''
-        this.getInvoices()
-      }
-    }else if(this.roleName === 'Accountant') {
-      if(status === 'pending'){
-        this.pageStatus = false;
-        this.status = 'AM VERIFIED'
-        this.getInvoices()
-      }else if(status === 'completed'){
-        this.pageStatus = false;
-        this.status = 'BANK SLIP ISSUED'
-        this.getInvoices()
-      }else if(status === 'all'){
-        this.pageStatus = false;
-        this.status = ''
-        this.getInvoices()
-      }
-    }
-  }
-
   verifiedSub: Subscription;
   dialogSub!: Subscription;
   verified(value: string, piNo: string, sp: string, id: number, stat: string){
-    let status = this.status;
+    let status = this.data.status;
+    console.log(status);
+    
     this.submittingForm = true;
     if(stat === 'INITIATED' && value === 'approved') status = 'AM APPROVED';
     else if(stat === 'INITIATED' && value === 'rejected') status = 'AM DECLINED';
@@ -361,7 +252,7 @@ export class ViewApprovalComponent {
 
     this.dialogSub = dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
-        this.invoiceService.deleteInvoice(id).subscribe((res)=>{
+        this.deleteSub = this.invoiceService.deleteInvoice(id).subscribe((res)=>{
           this._snackbar.open("PI deleted successfully...","" ,{duration:3000})
           this.getInvoices()
         },(error=>{
@@ -372,6 +263,5 @@ export class ViewApprovalComponent {
     });
   }
 
-  @Input() data: string;
 }
 

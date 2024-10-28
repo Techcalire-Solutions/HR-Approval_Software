@@ -1,13 +1,24 @@
+import { ExpenseStatus } from "./expense-status"
+import { User } from "./user"
+
 export interface Expense {
+    id: number
+    piNo: string
     exNo : string
-    url: any
+    url: string
     bankSlip : string
     status: string
-    userId: number
-    kamId: number
-    amId: number
-    accountantId : number
     count: number
     notes:  string
     expenseType: string
+
+    userId: number
+    amId: number
+    accountantId : number
+
+    user: User
+    manager: User
+    ma: User
+
+    expenseStatuses: ExpenseStatus[];
 }
