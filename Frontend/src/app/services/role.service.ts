@@ -26,7 +26,7 @@ export class RoleService {
   }
 
   public getRoleById(id: number): Observable<Role>{
-    return this.http.get<Role>(this.apiUrl + '/role/'+id);
+    return this.http.get<Role>(this.apiUrl + '/role/findbyid/'+id);
   }
 
   deleteRole(id: number) {
