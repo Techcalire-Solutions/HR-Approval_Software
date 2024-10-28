@@ -1058,7 +1058,6 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
     }
 });
 
-
 router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
     let { url, kamId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, 
         customerId, customerSoNo, customerPoNo, customerCurrency, poValue, notes, paymentMode, amId } = req.body;

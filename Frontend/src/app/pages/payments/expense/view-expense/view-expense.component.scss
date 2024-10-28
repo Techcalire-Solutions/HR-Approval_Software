@@ -365,3 +365,19 @@
     background-color: #c82333; /* Darker red on hover */
   }
   
+  .status-generated {
+    color: #2196F3; /* Blue for 'Generated' */
+  }
+  
+  .status-am-verified {
+    color: #4CAF50; /* Green for 'AM Verified' */
+  }
+  
+  .status-payment-completed {
+    color: #9E9E9E; /* Gray for 'PaymentCompleted' */
+  }
+  
+  .status-am-rejected {
+    color: #F44336; /* Red for 'AM Rejected' */
+  }
+  

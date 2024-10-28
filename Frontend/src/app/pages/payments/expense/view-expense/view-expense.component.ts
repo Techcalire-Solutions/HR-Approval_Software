@@ -1,6 +1,6 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ExpensesService } from '@services/expenses.service';
 import { Expense } from '../../../../common/interfaces/expense';
@@ -10,11 +10,12 @@ import { VerificationDialogueComponent } from '../../view-approval/verification-
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BankReceiptDialogueComponent } from '../../view-approval/bank-receipt-dialogue/bank-receipt-dialogue.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-view-expense',
   standalone: true,
-  imports: [MatCardModule, MatToolbarModule, MatPaginatorModule, RouterModule],
+  imports: [MatCardModule, MatToolbarModule, MatPaginatorModule, RouterModule, CommonModule],
   templateUrl: './view-expense.component.html',
   styleUrl: './view-expense.component.scss'
 })
@@ -24,12 +25,22 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   }
 
 
- private expenseService = inject(ExpensesService);
- filterValue: string;
- applyFilter(event: Event): void {
-  this.filterValue = (event.target as HTMLInputElement).value.trim()
-  this.getExpenses()
-}
+  private expenseService = inject(ExpensesService);
+  filterValue: string = '';
+  applyFilter(event: Event): void {
+    this.filterValue = (event.target as HTMLInputElement).value.trim()
+    this.getExpenses()
+  }
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  pageSize = 10;
+  currentPage = 1;
+  totalItems = 0;
+  onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.getExpenses();
+  }
 
   data: any;
   loadData(data: any) {
@@ -45,7 +56,7 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   expenses: Expense[] = [];
   expenseSub!: Subscription;
   getExpenses(){
-    this.expenseSub = this.expenseService.getExpenseByUser().subscribe((expenses) => {
+    this.expenseSub = this.expenseService.getExpenseByUser(this.filterValue, this.currentPage, this.pageSize).subscribe((expenses) => {
       console.log(expenses);
       
       this.expenses = expenses;

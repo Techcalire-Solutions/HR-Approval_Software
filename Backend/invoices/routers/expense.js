@@ -7,6 +7,8 @@ const s3 = require('../../utils/s3bucket');
 const Role = require("../../users/models/role");
 const User = require("../../users/models/user");
 const ExpenseStatus = require("../models/expenseStatus");
+const { Op, where } = require('sequelize');
+const sequelize = require('../../utils/db');
 
 router.post('/save', authenticateToken, async(req, res) => {
   const userId = req.user.id;
@@ -63,8 +65,24 @@ router.get('/findbyuser', authenticateToken, async (req, res) => {
       condition.userId = user;
     }
 
+    const where = { ...condition }; 
+
+    if (req.query.search && req.query.search !== 'undefined') {
+      const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+      
+      where[Op.or] = [
+        ...(where[Op.or] || []),
+        sequelize.where(
+          sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('exNo'), ' ', '')),
+          {
+            [Op.like]: `%${searchTerm}%`
+          }
+        )
+      ];
+    }
+
     const expenses = await Expense.findAll({
-      where: condition,
+      where: where,
       include: [  
         {model: User, attributes: ['name']},
         {model: User, as: 'manager', attributes: ['name']},

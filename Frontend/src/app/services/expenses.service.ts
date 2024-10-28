@@ -20,8 +20,8 @@ export class ExpensesService {
     return this.http.get<Expense[]>(this.url + '/expense/find');
   }
 
-  getExpenseByUser(): Observable<Expense[]>{
-    return this.http.get<Expense[]>(this.url + '/expense/findbyuser');
+  getExpenseByUser(search?: string, currentPage?:number, pageSize?:number): Observable<Expense[]>{
+    return this.http.get<Expense[]>(this.url + `/expense/findbyuser/?search=${search}&page=${currentPage}&pageSize=${pageSize}`);
   }
 
   updateStatus(data: any){

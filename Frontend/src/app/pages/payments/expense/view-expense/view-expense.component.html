@@ -32,16 +32,51 @@
                 <!-- [routerLink]="['/login/viewInvoices/', invoice.id]"  -->
            
                 <tr >
-                  <td [attr.data-label]="'InvoiceNo'">{{invoice.exNo || '-'}}</td>
-                  <td [attr.data-label]="'SP'">{{invoice.user?.name || '-'}}</td>
-                  <td [attr.data-label]="'AM'">{{invoice.manager?.name || '-'}}</td>
-                  <td [attr.data-label]="'MA'">{{invoice.ma?.name}}</td>
-                  <td [attr.data-label]="'Status'">{{invoice.status}}_{{invoice.count}}</td>
+                  <td [attr.data-label]="'InvoiceNo'"
+                  [ngClass]="{
+                    'status-generated': invoice.status === 'Generated',
+                    'status-am-verified': invoice.status === 'AM Verified',
+                    'status-payment-completed': invoice.status === 'PaymentCompleted',
+                    'status-am-rejected': invoice.status === 'AM Rejected'
+                  }"
+              >{{invoice.exNo || '-'}}</td>
+                  <td [attr.data-label]="'SP'"
+                  [ngClass]="{
+                    'status-generated': invoice.status === 'Generated',
+                    'status-am-verified': invoice.status === 'AM Verified',
+                    'status-payment-completed': invoice.status === 'PaymentCompleted',
+                    'status-am-rejected': invoice.status === 'AM Rejected'
+                  }"
+              >{{invoice.user?.name || '-'}}</td>
+                  <td [attr.data-label]="'AM'"
+                  [ngClass]="{
+                    'status-generated': invoice.status === 'Generated',
+                    'status-am-verified': invoice.status === 'AM Verified',
+                    'status-payment-completed': invoice.status === 'PaymentCompleted',
+                    'status-am-rejected': invoice.status === 'AM Rejected'
+                  }"
+              >{{invoice.manager?.name || '-'}}</td>
+                  <td [attr.data-label]="'MA'"
+                  [ngClass]="{
+                    'status-generated': invoice.status === 'Generated',
+                    'status-am-verified': invoice.status === 'AM Verified',
+                    'status-payment-completed': invoice.status === 'PaymentCompleted',
+                    'status-am-rejected': invoice.status === 'AM Rejected'
+                  }"
+              >{{invoice.ma?.name}}</td>
+                  <td [attr.data-label]="'Status'"
+                  [ngClass]="{
+                    'status-generated': invoice.status === 'Generated',
+                    'status-am-verified': invoice.status === 'AM Verified',
+                    'status-payment-completed': invoice.status === 'PaymentCompleted',
+                    'status-am-rejected': invoice.status === 'AM Rejected'
+                  }"
+              >{{invoice.status}}_{{invoice.count}}</td>
                   
                   <td (click)="$event.stopPropagation()">
                     <div class="action-icons">
 
-                      @if(data?.admin || data?.sp){
+                      @if(data?.admin || (data?.sp && invoice.status === 'Generated')){
                         <button class="update-button" [routerLink]="['/login/viewApproval/expenses', invoice.id]">Update </button>
                         <button class="delete-button" (click)="deleteFunction(invoice.id)">Delete
                         </button>
@@ -73,7 +108,7 @@
               }
               @if(expenses.length === 0){
                 <tr>
-                  <td [colSpan]="7" style="text-align: center;">No records found</td>
+                  <td [colSpan]="6" style="text-align: center;">No records found</td>
                 </tr>
               }
              
