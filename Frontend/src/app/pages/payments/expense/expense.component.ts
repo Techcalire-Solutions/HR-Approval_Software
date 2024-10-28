@@ -32,10 +32,7 @@ export class ExpenseComponent implements OnInit{
 
   expenseTypes: string[] = ['Travel', 'Food', 'Celebration', 'Electricity', 'Wifi'];
   ngOnInit(): void {
-
     this.id = this.route.snapshot.params['id'];
-    console.log(this.id);
-
     if(this.id){
       this.patchdata(this.id);
     }else{
@@ -68,8 +65,6 @@ export class ExpenseComponent implements OnInit{
   patchdata(id: number) {
     this.editStatus = true;
     this.piSub = this.expenseService.getExpenseById(id).subscribe((pi: any) => {
-      console.log(pi);
-      
       let inv: Expense = pi.pi;
       this.piNo = inv.exNo
       this.expenseForm.patchValue({
@@ -85,8 +80,7 @@ export class ExpenseComponent implements OnInit{
       }
       if (inv.url) {
         this.savedImageUrl = pi.signedUrl;
-        console.log(this.imageUrl);
-        
+        console.log(this.savedImageUrl);
       }
     });
   }
@@ -230,15 +224,13 @@ export class ExpenseComponent implements OnInit{
   onSubmit(){
     if(this.editStatus){
       this.submit = this.expenseService.updateExpense(this.expenseForm.getRawValue(), this.id).subscribe(res =>{
-        console.log(res);
         this.snackBar.open("Expense updated succesfully...","" ,{duration:3000})
-        history.back()
+        this.router.navigateByUrl('login/viewApproval/viewexpenses');
       })
     }else{
       this.submit = this.expenseService.addExpense(this.expenseForm.getRawValue()).subscribe(res =>{
-        console.log(res);
         this.snackBar.open("Expense added succesfully...","" ,{duration:3000})
-        history.back()
+        this.router.navigateByUrl('login/viewApproval/viewexpenses');
       })
     }
 
