@@ -13,6 +13,9 @@ const TeamMember = require('../../users/models/teamMember');
 const Team = require('../../users/models/team');
 const Company = require('../models/company');
 const Supplier = require('../../invoices/routers/company');
+const Expense = require('../../expense/models/expense')
+const ExpenseStatus  = require('../../expense/models/expenseStatus')
+
 
 
 const transporter = nodemailer.createTransport({
@@ -939,7 +942,7 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
     }
 });
 
-router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
+router.patch('/1bankslip/:id', authenticateToken, async (req, res) => {
     const { bankSlip, status } = req.body;
     
     try {
@@ -981,74 +984,8 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         pi.status = newStat;
         await pi.save();
       
-        // const users = await User.findAll({
-        //     where: {
-        //         [Op.or]: [
-        //             { id: pi.salesPersonId },
-        //             { id: pi.kamId },
-        //             { id: pi.amId },
-        //             { id: pi.accountantId },
-        //             { id: pi.addedById }
-        //         ]
-        //     }
-        // });
 
-    
-
-        // const otherEmails = users
-        //     .filter(user => user.id !== pi.accountantId)
-        //     .map(user => user.email)
-        //     .join(',');
-
-
-        // const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-        // const params = {
-        //     Bucket: process.env.AWS_BUCKET_NAME,
-        //     Key: fileKey,
-        // };
-
-        // const s3File = await s3.getObject(params).promise();
-        // const fileBuffer = s3File.Body;
-
-
-        // let emailSubject = `Bank Slip Uploaded for Invoice - ${pi.piNo}`;
-        // let emailBody = `
-        //     <p>A bank slip has been uploaded for proforma invoice ID: <strong>${pi.piNo}</strong>.</p>
-        //     <br>
-        //     <p>Please review the bank slip at your earliest convenience.</p>
-        //     <br>
-        //     <p>Thank you!</p>
-        // `;
-
-    
-        // if (newStat === 'CARD PAYMENT SUCCESS') {
-        //     emailSubject = `Card Payment Success for Invoice - ${pi.piNo}`;
-        //     emailBody = `
-        //         <p>Card payment has been successfully processed for proforma invoice ID: <strong>${pi.piNo}</strong>.</p>
-        //         <br>
-        //         <p>Please review the  slip at your earliest convenience.</p>
-        //         <br>
-        //         <p>Thank you!</p>
-        //     `;
-        // }
-
-
-        // const mailOptions = {
-        //     from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
-        //     to: otherEmails,
-        //     subject: emailSubject,
-        //     html: emailBody,
-        //     attachments: [
-        //         {
-        //             filename: bankSlip.split('/').pop(),
-        //             content: fileBuffer,
-        //             contentType: s3File.ContentType
-        //         }
-        //     ]
-        // };
-
-
-        // await transporter.sendMail(mailOptions);
+      
 
    
         res.json({ p: pi, status: status });
@@ -1056,6 +993,308 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         res.send(error.message);
     }
 });
+
+router.patch('/1bankslip/:id', authenticateToken, async (req, res) => {
+    const { bankSlip, status } = req.body;
+
+    try {
+        let newStat;
+        let statusArray;
+        let pi;
+
+        // Fetch the Proforma Invoice
+        pi = await PerformaInvoice.findByPk(req.params.id);
+        if (!pi) {
+            return res.status(404).json({ message: 'Invoice not found' });
+        }
+
+        // Update status based on the provided status
+        if (status === 'AM APPROVED') {
+            newStat = 'CARD PAYMENT SUCCESS';
+            const performaInvoiceId = req.params.id;
+            statusArray = new PerformaInvoiceStatus({ performaInvoiceId, status, date: new Date() });
+            await statusArray.save();
+        } else if (status === 'AM VERIFIED') {
+            newStat = 'BANK SLIP ISSUED';
+            const performaInvoiceId = req.params.id;
+            statusArray = new PerformaInvoiceStatus({ performaInvoiceId, status, date: new Date() });
+            await statusArray.save();
+        } else if (status === 'AM Verified') {
+            newStat = 'PaymentCompleted';
+            const expenseId = req.params.id;
+            const expense = await Expense.findByPk(expenseId);
+            if (!expense) {
+                return res.status(404).json({ message: 'Expense not found' });
+            }
+            statusArray = new ExpenseStatus({ expenseId, status, date: new Date() });
+            await statusArray.save();
+        } else {
+            return res.status(400).json({ message: 'Invalid status provided' });
+        }
+
+        // Update the Proforma Invoice with bankSlip and status
+        pi.bankSlip = bankSlip;
+        pi.status = newStat;
+        await pi.save();
+
+        // Prepare email details
+        const emailSubject = `Update on Bank Slip for Invoice ID: ${pi.piNo}`;
+        const emailBody = `
+            <p>The status for the bank slip associated with proforma invoice ID: <strong>${pi.piNo}</strong> has been updated to: <strong>${newStat}</strong>.</p>
+            <br>
+            <p>Please review the details at your earliest convenience.</p>
+            <br>
+            <p>Thank you!</p>
+        `;
+
+        // Fetch users associated with the Proforma Invoice
+        const users = await User.findAll({
+            where: {
+                [Op.or]: [
+                    { id: pi.salesPersonId },
+                    { id: pi.kamId },
+                    { id: pi.amId },
+                    { id: pi.accountantId },
+                    { id: pi.addedById },
+                ],
+            },
+        });
+
+        // Collect emails excluding the accountant
+        const otherEmails = users
+            .filter(user => user.id !== pi.accountantId)
+            .map(user => user.email)
+            .join(',');
+
+        // Prepare mail options
+        const mailOptions = {
+            from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+            to: otherEmails,
+            subject: emailSubject,
+            html: emailBody,
+        };
+
+        // Send the email
+        await transporter.sendMail(mailOptions);
+
+        // Respond with updated Proforma Invoice and status
+        res.json({ p: pi, status: status });
+    } catch (error) {
+        console.error(error); // Log the error for debugging
+        res.status(500).send({ message: error.message }); // Send a 500 response with the error message
+    }
+});
+
+router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
+    const { bankSlip, status } = req.body;
+    
+    try {
+        let newStat;
+        let statusArray;
+        let pi;
+        let recipientEmails = [];
+
+      
+        if (status === 'AM APPROVED') {
+            newStat = 'CARD PAYMENT SUCCESS';
+            pi = await PerformaInvoice.findByPk(req.params.id);
+            const performaInvoiceId = req.params.id;
+            if (!pi) {
+                return res.status(404).json({ message: 'Invoice not found' });
+            }
+            statusArray = new PerformaInvoiceStatus({ performaInvoiceId, status, date: new Date() });
+            await statusArray.save();
+
+     
+            const users = await User.findAll({
+                where: {
+                    [Op.or]: [
+                        { id: pi.salesPersonId },
+                        { id: pi.kamId },
+                        { id: pi.amId },
+                        { id: pi.accountantId },
+                        { id: pi.addedById }
+                    ]
+                }
+            });
+     
+        const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+        const params = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: fileKey,
+        };
+
+        const s3File = await s3.getObject(params).promise();
+        const fileBuffer = s3File.Body;
+
+            recipientEmails = users
+                .filter(user => user.id !== pi.accountantId)
+                .map(user => user.email);
+
+
+            const emailSubject = `Card Payment Success for Invoice - ${pi.piNo}`;
+            const emailBody = `
+                <p>Card payment has been successfully processed for proforma invoice ID: <strong>${pi.piNo}</strong>.</p>
+                <br>
+                <p>Please review the details at your earliest convenience.</p>
+                <br>
+                <p>Thank you!</p>
+            `;
+
+       
+            const mailOptions = {
+                from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+                to: recipientEmails.length > 0 ? recipientEmails.join(',') : process.env.DEFAULT_EMAIL,
+                subject: emailSubject,
+                html: emailBody,
+                attachments: [
+                    {
+                        filename: bankSlip.split('/').pop(),
+                        content: fileBuffer,
+                        contentType: s3File.ContentType
+                    }
+                ]
+            };
+
+
+            if (recipientEmails.length > 0) {
+                await transporter.sendMail(mailOptions);
+                console.log('Card Payment Success email sent successfully.');
+            } else {
+                console.error('No recipients defined for Card Payment Success. Email not sent.');
+            }
+
+        } else if (status === 'AM VERIFIED') {
+            newStat = 'BANK SLIP ISSUED';
+            pi = await PerformaInvoice.findByPk(req.params.id);
+            const performaInvoiceId = req.params.id;
+            if (!pi) {
+                return res.status(404).json({ message: 'Invoice not found' });
+            }
+            statusArray = new PerformaInvoiceStatus({ performaInvoiceId, status, date: new Date() });
+            await statusArray.save();
+
+            const users = await User.findAll({
+                where: {
+                    [Op.or]: [
+                        { id: pi.salesPersonId },
+                        { id: pi.kamId },
+                        { id: pi.amId },
+                        { id: pi.accountantId },
+                        { id: pi.addedById }
+                    ]
+                }
+            });
+
+            const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+            const params = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: fileKey,
+            };
+    
+            const s3File = await s3.getObject(params).promise();
+            const fileBuffer = s3File.Body;
+      
+            recipientEmails = users
+                .filter(user => user.id !== pi.accountantId)
+                .map(user => user.email);
+
+
+            const emailSubject = `Bank Slip Issued for Invoice - ${pi.piNo}`;
+            const emailBody = `
+                <p>A bank slip has been issued for proforma invoice ID: <strong>${pi.piNo}</strong>.</p>
+                <br>
+                <p>Please review the bank slip at your earliest convenience.</p>
+                <br>
+                <p>Thank you!</p>
+            `;
+
+            const mailOptions = {
+                from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+                to: recipientEmails.length > 0 ? recipientEmails.join(',') : process.env.DEFAULT_EMAIL,
+                subject: emailSubject,
+                html: emailBody,
+                attachments: [
+                    {
+                        filename: bankSlip.split('/').pop(),
+                        content: fileBuffer,
+                        contentType: s3File.ContentType
+                    }
+                ]
+            };
+
+
+            if (recipientEmails.length > 0) {
+                await transporter.sendMail(mailOptions);
+                console.log('Bank Slip Issued email sent successfully.');
+            } else {
+                console.error('No recipients defined for Bank Slip Issued. Email not sent.');
+            }
+
+        } else if (status === 'AM Verified') {
+            newStat = 'PaymentCompleted';
+
+
+            pi = await Expense.findByPk(req.params.id);
+            if (!pi) {
+                return res.status(404).json({ message: 'Expense not found' });
+            }
+            const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+            const params = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: fileKey,
+            };
+    
+            const s3File = await s3.getObject(params).promise();
+            const fileBuffer = s3File.Body;
+            const addedByUser = await User.findByPk(pi.userId);
+            if (addedByUser) {
+                recipientEmails.push(addedByUser.email);
+            }
+            const emailSubject = `Payment Completed for Invoice - ${pi.exNo}`;
+            const emailBody = `
+                <p>Payment has been successfully processed for proforma invoice ID: <strong>${pi.exNo}</strong>.</p>
+                <br>
+                <p>Please review the details at your earliest convenience.</p>
+                <br>
+                <p>Thank you!</p>
+            `;
+            const mailOptions = {
+                from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+                to: recipientEmails.length > 0 ? recipientEmails.join(',') : process.env.DEFAULT_EMAIL,
+                subject: emailSubject,
+                html: emailBody,
+                attachments: [
+                    {
+                        filename: bankSlip.split('/').pop(),
+                        content: fileBuffer,
+                        contentType: s3File.ContentType
+                    }
+                ]
+            };
+
+     
+            if (recipientEmails.length > 0) {
+                await transporter.sendMail(mailOptions);
+                console.log('Payment Completed email sent successfully.');
+            } else {
+                console.error('No recipients defined for Payment Completed. Email not sent.');
+            }
+        }
+
+     
+        pi.bankSlip = bankSlip;
+        pi.status = newStat;
+        await pi.save();
+      
+        res.json({ p: pi, status: status });
+    } catch (error) {
+        console.error(error); 
+        res.status(500).send({ message: error.message }); 
+    }
+});
+
+
 
 router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
     let { url, kamId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, 
