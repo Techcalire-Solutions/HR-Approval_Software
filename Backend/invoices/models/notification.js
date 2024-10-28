@@ -39,4 +39,5 @@ Notification.sync({ alter: true }).then(() => {
     console.error('Error syncing notification table:', err);
 });
 
+
 module.exports = Notification;
