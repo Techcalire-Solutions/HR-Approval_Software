@@ -30,7 +30,7 @@
             </thead>
             <tbody>
               @for(invoice of invoices;let i=$index; track $index){
-                <tr [routerLink]="['/login/viewInvoices/', invoice.id]" >
+                <tr [routerLink]="['/login/viewApproval/viewinvoices/', invoice.id]" >
                   <td [attr.data-label]="'InvoiceNo'">{{invoice.piNo || '-'}}</td>
                   <td [attr.data-label]="'SP'">{{invoice.salesPerson?.name || '-'}}</td>
                   <td [attr.data-label]="'KAM'">{{invoice.kam?.name || '-'}}</td>

@@ -18,9 +18,15 @@
   
             <mat-form-field appearance="outline" class="flex-item">
               <mat-label>Expense Type</mat-label>
-              <input matInput type="text" formControlName="expenseType" required />
-              <!-- <mat-error *ngIf="expenseForm.controls['expenseType'].hasError('required')">Expense Type is required</mat-error> -->
+              <mat-select formControlName="expenseType" required>
+                @for (type of expenseTypes; track $index) {
+                  <mat-option [value]="type">
+                    {{ type }}
+                  </mat-option>
+                }
+              </mat-select>
             </mat-form-field>
+            
 
             <mat-form-field class="flex-item" appearance="outline">
               <mat-label>Manager</mat-label>
@@ -73,7 +79,6 @@
                           </div>
                         </div>
                       } @else if(imageUrl[i] && !savedImageUrl[i]){
-                        ppppppppppppp
                         <div class="col">
                           <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
                             @if(fileType[i] === 'pdf'){
@@ -93,7 +98,6 @@
                     </div>
                   </div>
                 }
-                <!--  -->
                 <button mat-raised-button color="primary" (click)="addDoc()" type="button"
                 [disabled]="!isImageUploaded()">New Doc</button>
               </div>
@@ -107,9 +111,5 @@
         </mat-card-actions>
       </mat-card>
     </form>
-
-    <!-- <form [formGroup]="expenseForm" enctype="multipart/form-data">
-
-    </form> -->
   </div>
   

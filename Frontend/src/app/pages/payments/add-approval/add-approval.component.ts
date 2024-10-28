@@ -223,6 +223,7 @@ export class AddApprovalComponent {
   imageUploaded: boolean
   isImageUploaded(): boolean {
     const controls = this.piForm.get('url')as FormArray;
+    if( controls.length === 0) {return true}
     let i = controls.length - 1;
     if (this.imageUrl[i]) {
       return true;

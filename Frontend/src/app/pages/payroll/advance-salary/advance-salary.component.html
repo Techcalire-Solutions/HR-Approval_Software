@@ -25,7 +25,7 @@
         <!-- <section class="table__header">
             <h1>ROLES</h1>
         </section> -->
-        <section class="table__body">
+        <section class="table__body"><br>
           <table>
             <thead>
               <tr>
@@ -49,16 +49,17 @@
                 <td> {{ advanceSalary.createdAt | date: 'dd-MM-yyyy' }} </td>
 
 
-                <!-- Manage Column -->
                 <td>
-                  <button mat-menu-item (click)="openRoleDialog(advanceSalary)">
-                    <mat-icon>mode_edit</mat-icon>
-                  </button> &nbsp;
-                  <!-- Uncomment if delete is needed -->
-                  <button mat-menu-item (click)="deleteTeam(advanceSalary.id);">
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                  <div style="display: flex; gap: 8px;">
+                    <button mat-menu-item (click)="openRoleDialog(advanceSalary)">
+                      <mat-icon>mode_edit</mat-icon>
+                    </button>
+                    <button mat-menu-item (click)="deleteTeam(advanceSalary.id);">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
                 </td>
+                
               </tr>
             </tbody>
           </table>
