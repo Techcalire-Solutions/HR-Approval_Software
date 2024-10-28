@@ -109,7 +109,7 @@ export class MessagesComponent implements OnInit {
     const unreadNotifications = extractedNotifications.filter(n => !n.isRead && !this.notifiedUnreadIds.has(n.id));
     if (unreadNotifications.length > 0) {
       this.playBeepSound();
-      this.notifyUser(unreadNotifications.length);
+      // this.notifyUser(unreadNotifications.length);
       unreadNotifications.forEach(n => this.notifiedUnreadIds.add(n.id));
     } else {
 
