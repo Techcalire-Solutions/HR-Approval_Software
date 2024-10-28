@@ -76,6 +76,15 @@ app.use('/announcements', announcements)
 const expense = require('../invoices/routers/expense');
 app.use('/expense', expense);
 
+const payroll = require('../payroll/routers/payroll');
+app.use('/payroll', payroll);
+
+const advanceSalary = require('../payroll/routers/advanceSalary');
+app.use('/advanceSalary', advanceSalary);
+
+const monthlyPayroll = require('../payroll/routers/monthlyPayroll');
+app.use('/monthlyPayroll', monthlyPayroll);
+
 app.get('/export', async(req,res)=> {
     try {
         let workbook = new excelJs.Workbook()

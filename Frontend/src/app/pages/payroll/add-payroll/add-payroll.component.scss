@@ -65,4 +65,23 @@
   .payroll-summary p {
     margin: 10px 0;
   }
-  
+  /* Right-align the button */
+.save-button {
+  display: inline-block;
+  margin-top: 10px;
+  margin-left: auto;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  float: right; /* Aligns the button to the right */
+}
+
+/* Change background on hover */
+.save-button:hover {
+  background-color: #45a049;
+}

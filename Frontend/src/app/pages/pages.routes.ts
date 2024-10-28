@@ -44,6 +44,11 @@ export const routes: Routes = [
         data: { breadcrumb: 'VIEW LEAVES' }, canActivate: [AuthGuard]
       },
       {
+        path: 'advance-salary',
+        loadChildren: () => import('./payroll/payroll.routes').then(c => c.routes),
+        data: { breadcrumb: 'VIEW ADVANCE SALARY' }, canActivate: [AuthGuard]
+      },
+      {
         path: 'addApproval',
         loadComponent: () => import('./add-approval/add-approval.component').then(c => c.AddApprovalComponent),
         data: { breadcrumb: 'Add Approval' }, canActivate: [AuthGuard]
@@ -82,6 +87,7 @@ export const routes: Routes = [
       },
 
 
+
       {
         path: 'profile',
         loadChildren: () => import('./profile/profile.routes').then(p => p.routes),
@@ -91,6 +97,16 @@ export const routes: Routes = [
         path: 'team',
         loadComponent: () => import('./team/team.component').then(c => c.TeamComponent),
         data: { breadcrumb: 'Team' }, canActivate: [AuthGuard]
+      },
+      {
+        path: 'advanceSalary',
+        loadComponent: () => import('./payroll/advance-salary/advance-salary.component').then(c => c.AdvanceSalaryComponent),
+        data: { breadcrumb: 'Advance salary' }, canActivate: [AuthGuard]
+      },
+      {
+        path: 'process-monthly-payroll',
+        loadComponent: () => import('./payroll/process-monthly-payroll/process-monthly-payroll.component').then(c => c.ProcessMonthlyPayrollComponent),
+        data: { breadcrumb: 'PROCESS PAYROLL' }, canActivate: [AuthGuard]
       },
       {
         path: 'company',
