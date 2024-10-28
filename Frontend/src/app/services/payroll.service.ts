@@ -32,12 +32,16 @@ export class PayrollService {
     return this.http.post(this.apiUrl+"/advanceSalary", data);
   }
   updateAdvanceSalary(id: number, data: any): Observable<AdvanceSalary> {
-    return this.http.patch<AdvanceSalary>(`${this.apiUrl}/advanceSalary/` + id, data);
+    return this.http.patch<AdvanceSalary>(`${this.apiUrl}/advanceSalary/update/` + id, data);
   }
   deleteAdvanceSalary(id: number) {
     return this.http.delete(`${this.apiUrl}/advanceSalary/` +id);
   }
   getPayroll(): Observable<any> {
     return this.http.get(`${this.apiUrl}/payroll`);
+  }
+
+  getAdvanceSalaryByid(id: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/advanceSalary/findbyid/${id}`);
   }
 }
