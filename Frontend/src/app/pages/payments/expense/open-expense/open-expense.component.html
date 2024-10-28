@@ -33,7 +33,7 @@
             <td><strong>Type:</strong> {{ pi.expenseType }}</td>
             <td colspan="2">
               <strong>Notes:</strong>
-              <span [innerHTML]="formatNotes(pi.notes)"></span>
+              <span style="color: black;" [innerHTML]="formatNotes(pi.notes)"></span>
             </td>
           </tr>
         </tbody>
@@ -123,7 +123,6 @@
                       <td>{{row.status}} {{row.count}}</td>
   
                       <td>
-  
                         <span [innerHTML]="formatRemarks(row.remarks)"></span>
                       </td>
                       <td>{{row.date | date: 'dd/MM/yyyy'}}</td>
