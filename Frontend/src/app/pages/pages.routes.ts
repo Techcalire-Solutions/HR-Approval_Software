@@ -48,16 +48,16 @@ export const routes: Routes = [
         loadChildren: () => import('./payroll/payroll.routes').then(c => c.routes),
         data: { breadcrumb: 'VIEW ADVANCE SALARY' }, canActivate: [AuthGuard]
       },
-      {
-        path: 'addApproval',
-        loadComponent: () => import('./add-approval/add-approval.component').then(c => c.AddApprovalComponent),
-        data: { breadcrumb: 'Add Approval' }, canActivate: [AuthGuard]
-      },
-      {
-        path: 'expenses',
-        loadComponent: () => import('./add-approval/expense/expense.component').then(c => c.ExpenseComponent),
-        canActivate: [AuthGuard], data: { breadcrumb: 'Expense' },
-      },
+      // {
+      //   path: 'addApproval',
+      //   loadComponent: () => import('./add-approval/add-approval.component').then(c => c.AddApprovalComponent),
+      //   data: { breadcrumb: 'Add Approval' }, canActivate: [AuthGuard]
+      // },
+      // {
+      //   path: 'expenses',
+      //   loadComponent: () => import('./add-approval/expense/expense.component').then(c => c.ExpenseComponent),
+      //   canActivate: [AuthGuard], data: { breadcrumb: 'Expense' },
+      // },
       {
         path: 'viewexcel',
         loadComponent: () => import('./add-approval/view-excel/view-excel.component').then(c => c.ViewExcelComponent),
@@ -74,11 +74,11 @@ export const routes: Routes = [
       //   data: { breadcrumb: 'Approval Report' }, canActivate: [AuthGuard]
       // },
 
-      {
-        path: 'viewInvoices/:id',
-        loadComponent: () => import('./add-approval/view-invoices/view-invoices.component').then(c => c.ViewInvoicesComponent),
-        data: { breadcrumb: 'View Invoices' }, canActivate: [AuthGuard]
-      },
+      // {
+      //   path: 'viewInvoices/:id',
+      //   loadComponent: () => import('./add-approval/view-invoices/view-invoices.component').then(c => c.ViewInvoicesComponent),
+      //   data: { breadcrumb: 'View Invoices' }, canActivate: [AuthGuard]
+      // },
       // {
       //   path: 'updatePI/:id',
       //   loadComponent: () => import('./add-approval/update-pi/update-pi.component').then(c => c.UpdatePIComponent),
