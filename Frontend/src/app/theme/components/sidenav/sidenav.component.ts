@@ -123,6 +123,7 @@ users:User;
         item.title === 'Dashboard' ||
         (item.title === 'Approval Uploads' && !item.parentId) ||
         (item.title === 'Add' && item.parentId === 5) ||
+        (item.title === 'View' && item.parentId === 5)||
         (item.title === 'Expense' && !item.parentId) ||
         (item.title === 'Leave' && !item.parentId)||
         (item.title === 'Leave' && !item.parentId)||
