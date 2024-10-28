@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../../utils/db');
 const User = require('../../users/models/user');
 const Company = require('../../invoices/models/company');
-const Expense = require('./expense');
+const Expense = require('../models/expense');
 
 const ExpenseStatus = sequelize.define('expensestatus',{
     expenseId : {type : DataTypes.INTEGER, allowNull : false},

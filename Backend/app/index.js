@@ -73,7 +73,7 @@ app.use('/userLeave', userLeave);
 const announcements = require('../announcements/router/announcement');
 app.use('/announcements', announcements)
 
-const expense = require('../invoices/routers/expense');
+const expense = require('../expense/routers/expense');
 app.use('/expense', expense);
 
 app.get('/export', async(req,res)=> {
