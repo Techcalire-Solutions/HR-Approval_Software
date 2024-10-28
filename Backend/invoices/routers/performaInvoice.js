@@ -13,8 +13,7 @@ const TeamMember = require('../../users/models/teamMember');
 const Team = require('../../users/models/team');
 const Company = require('../models/company');
 const Supplier = require('../../invoices/routers/company');
-const Expense = require('../models/expense');
-const ExpenseStatus = require('../models/expenseStatus');
+
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',

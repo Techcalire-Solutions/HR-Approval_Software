@@ -6,9 +6,10 @@ const upload = require('../../utils/multer');
 const s3 = require('../../utils/s3bucket');
 const Role = require("../../users/models/role");
 const User = require("../../users/models/user");
-const ExpenseStatus = require("../models/expenseStatus");
+const ExpenseStatus = require("./expenseStatus");
 const { Op, where } = require('sequelize');
 const sequelize = require('../../utils/db');
+const nodemailer = require('nodemailer');
 
 router.post('/save', authenticateToken, async(req, res) => {
   const userId = req.user.id;
@@ -28,7 +29,83 @@ router.post('/save', authenticateToken, async(req, res) => {
             } catch (error) {
               res.send(error.message)
             }
+            const am = await User.findOne({ where: { id: amId } });
+            const amEmail = am ? am.email : null;
+    
+
+        const attachments = [];
+        for (const fileObj of url) {
+            const actualUrl = fileObj.url || fileObj.file;
+            if (!actualUrl) continue;
+
+            const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+            const params = { Bucket: process.env.AWS_BUCKET_NAME, Key: fileKey };
+
+            try {
+                const s3File = await s3.getObject(params).promise();
+                attachments.push({
+                    filename: actualUrl.split('/').pop(),
+                    content: s3File.Body,
+                    contentType: s3File.ContentType,
+                });
+            } catch (error) {
+                console.error("Error retrieving file from S3:", error);
+                continue;
+            }
+        }
+
+     
+        const transporter = nodemailer.createTransport({
+            service: 'gmail', 
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
+        });
+
+ 
+        const mailOptions = {
+            from: `Expense Management System <${process.env.EMAIL_USER}>`,
+            to: amEmail,
+            subject: `Expense Claim Request Submitted for Approval - Reference No: ${exNo}`,
+            html: `
+               <p>Dear Manager,</p>
+
+        <p>${req.user.name} has submitted an expense claim for your review and approval.</p>
+
+        <h3>Expense Claim Details:</h3>
+        <ul>
+            <li><strong>Reference Number:</strong> ${exNo}</li>
+            <li><strong>Status:</strong> ${status}</li>
+            <li><strong>Type:</strong> ${expenseType}</li>
+            <li><strong>Notes:</strong> ${notes}</li>
+            <li><strong>Submission Date:</strong> ${new Date().toLocaleDateString()}</li>
+        </ul>
+
+        <p>Please review the attached documents related to this expense claim to proceed with the approval process.</p>
+
+        <p>Thank you for your attention to this request.</p>
+
+        <p>Best Regards,<br>Expense Management System</p>
+    `,
+    attachments,
+        };
+
+    
+        if (amEmail) {
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    return res.status(500).json({ error: "Email sending failed." });
+                }
+                res.json(expense);
+            });
+        } else {
+            res.json(expense);
+        }
+
         res.json(expense);
+
+       
     } catch (error) {
         res.json({ error: error.message });
     }
