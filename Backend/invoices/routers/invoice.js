@@ -40,6 +40,66 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
     res.status(500).send({ message: error.message });
   }
 });
+// router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
+//   try {
+//     if (!req.file) {
+//       return res.status(400).send({ message: 'No file uploaded' });
+//     }
+
+//     const sanitizedFileName = req.body.name || req.file.originalname.replace(/[^a-zA-Z0-9]/g, '_');
+//     const key = `invoices/${Date.now()}_${sanitizedFileName}`;
+
+//     // Initialize multipart upload
+//     const createParams = {
+//       Bucket: process.env.AWS_BUCKET_NAME,
+//       Key: key,
+//       ContentType: req.file.mimetype,
+//       ACL: 'public-read'
+//     };
+//     const multipartUpload = await s3.createMultipartUpload(createParams).promise();
+//     const uploadId = multipartUpload.UploadId;
+    
+//     const partSize = 5 * 1024 * 1024; // 5MB per part
+//     const parts = [];
+//     let partNumber = 1;
+
+//     // Split the file into parts and upload each part
+//     for (let start = 0; start < req.file.buffer.length; start += partSize) {
+//       const end = Math.min(start + partSize, req.file.buffer.length);
+//       const partParams = {
+//         Bucket: process.env.AWS_BUCKET_NAME,
+//         Key: key,
+//         PartNumber: partNumber,
+//         UploadId: uploadId,
+//         Body: req.file.buffer.slice(start, end),
+//       };
+
+//       const uploadPart = await s3.uploadPart(partParams).promise();
+//       parts.push({ ETag: uploadPart.ETag, PartNumber: partNumber });
+//       partNumber++;
+//     }
+
+//     // Complete multipart upload
+//     const completeParams = {
+//       Bucket: process.env.AWS_BUCKET_NAME,
+//       Key: key,
+//       UploadId: uploadId,
+//       MultipartUpload: { Parts: parts },
+//     };
+//     const data = await s3.completeMultipartUpload(completeParams).promise();
+
+//     const fileUrl = data.Location || '';
+//     const fileKey = fileUrl.replace(`https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/`, '');
+
+//     res.status(200).send({
+//       message: 'File uploaded successfully',
+//       file: req.file,
+//       fileUrl: fileKey,
+//     });
+//   } catch (error) {
+//     res.send({ message: error.message });
+//   }
+// });
 
 router.post('/bankslipupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
