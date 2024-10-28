@@ -74,11 +74,7 @@ export const routes: Routes = [
       //   data: { breadcrumb: 'Approval Report' }, canActivate: [AuthGuard]
       // },
 
-      // {
-      //   path: 'viewInvoices/:id',
-      //   loadComponent: () => import('./add-approval/view-invoices/view-invoices.component').then(c => c.ViewInvoicesComponent),
-      //   data: { breadcrumb: 'View Invoices' }, canActivate: [AuthGuard]
-      // },
+
       // {
       //   path: 'updatePI/:id',
       //   loadComponent: () => import('./add-approval/update-pi/update-pi.component').then(c => c.UpdatePIComponent),
