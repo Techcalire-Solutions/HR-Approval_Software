@@ -20,15 +20,12 @@ import { UsersService } from '@services/users.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Settings, SettingsService } from '@services/settings.service';
-import { TeamService } from '@services/team.service';
 import { Subscription } from 'rxjs';
-import { Team } from '../../../common/interfaces/team';
-import { User } from '../../../common/interfaces/user';
-import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
 import { TeamDialogueComponent } from '../../team/team-dialogue/team-dialogue.component';
 import { AdvanceSalary } from '../../../common/interfaces/advanceSalary';
 import { PayrollService } from '@services/payroll.service';
 import { Router } from '@angular/router';
+import { AddAdvanceSalaryComponent } from './add-advance-salary/add-advance-salary.component';
 
 @Component({
   selector: 'app-advance-salary',
@@ -78,12 +75,10 @@ export class AdvanceSalaryComponent {
     this.getAdvanceSalary();
     this.payrollService.getAdvanceSalary().subscribe((res)=>{
       this.dataSource = res;
-
- })
+    })
   }
   openAddAdvanceLeave(){
-    this.router.navigate(['/login/advance-salary/add'])
-
+    this.router.navigate(['/login/payroll/advance-salary/add'])
   }
   
   public getAdvanceSalary(): void {
@@ -100,9 +95,11 @@ export class AdvanceSalaryComponent {
   //   this.teamService.addTeam(user).subscribe(user => this.getAdvanceSalary());
   // }
   
-  public openRoleDialog(user: any){
-    let dialogRef = this.dialog.open(TeamDialogueComponent, {
-      data: user
+  public openRoleDialog(salary: any){
+    console.log(salary);
+    
+    let dialogRef = this.dialog.open(AddAdvanceSalaryComponent, {
+      data: {salary: salary}
     });
     dialogRef.afterClosed().subscribe(user => {
       this.getAdvanceSalary()

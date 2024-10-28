@@ -1,8 +1,8 @@
 <h1 mat-dialog-title>
-    @if (company) {
-        <span>Edit</span>
+    @if (dialogData) {
+        <span>EDIT</span>
     } @else {
-        <span>Add</span>
+        <span>ADD</span>
     }
     ADVANCE SALARY
   </h1>
@@ -60,11 +60,11 @@
   <br>
   <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
     <button mat-raised-button color="primary" [disabled]="!advanceSalaryForm.valid" (click)="onSubmit()">
-        <!-- @if (leaveType) {
+        @if (editStatus) {
             Update
-        } @else { -->
+        } @else {
             Save
-        <!-- } -->
+        }
     </button> &nbsp;
     
     <button mat-raised-button color="warn" (click)="close()" type="button">Cancel</button>

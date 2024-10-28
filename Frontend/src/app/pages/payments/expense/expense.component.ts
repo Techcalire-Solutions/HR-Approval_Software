@@ -28,11 +28,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class ExpenseComponent implements OnInit{
   id: number;
   private route = inject(ActivatedRoute);
+
+
+  expenseTypes: string[] = ['Travel', 'Food', 'Celebration', 'Electricity', 'Wifi'];
   ngOnInit(): void {
-    
+
     this.id = this.route.snapshot.params['id'];
     console.log(this.id);
-    
+
     if(this.id){
       this.patchdata(this.id);
     }else{
@@ -42,6 +45,7 @@ export class ExpenseComponent implements OnInit{
 
     this.getAM()
   }
+
   private fb = inject(FormBuilder)
   private expenseService = inject(ExpensesService);
   private snackBar = inject(MatSnackBar);
@@ -165,14 +169,12 @@ export class ExpenseComponent implements OnInit{
   isImageUploaded(): boolean {
     const controls = this.expenseForm.get('url') as FormArray;
     
-    // Return true if there are no controls in the FormArray
     if (controls.length === 0) {
       return true;
     }
   
     const lastIndex = controls.length - 1;
     
-    // Check if there is an image URL for the last index
     return this.imageUrl[lastIndex] ? true : false;
   }
   
@@ -207,7 +209,7 @@ export class ExpenseComponent implements OnInit{
         this.ivNum = paddedId;
       } else {
         let nextId = 1;
-        let prefix = "REQ-";
+        let prefix = "EXP-";
         const paddedId = `${prefix}${nextId.toString().padStart(3, "0")}`;
         this.ivNum = paddedId;
       }

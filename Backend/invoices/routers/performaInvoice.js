@@ -53,7 +53,7 @@ const transporter = nodemailer.createTransport({
     try {
         const existingInvoice = await PerformaInvoice.findOne({ where: { piNo } });
         if (existingInvoice) {
-            return res.status(400).json({ error: 'Invoice is already saved' });
+            return res.json({ error: 'Invoice is already saved' });
         }
 
         const newPi = await PerformaInvoice.create({
