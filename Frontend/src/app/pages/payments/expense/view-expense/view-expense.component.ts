@@ -11,6 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BankReceiptDialogueComponent } from '../../view-approval/bank-receipt-dialogue/bank-receipt-dialogue.component';
 import { CommonModule } from '@angular/common';
+import { DeleteDialogueComponent } from '../../../../theme/components/delete-dialogue/delete-dialogue.component';
 
 @Component({
   selector: 'app-view-expense',
@@ -56,10 +57,9 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   expenses: Expense[] = [];
   expenseSub!: Subscription;
   getExpenses(){
-    this.expenseSub = this.expenseService.getExpenseByUser(this.filterValue, this.currentPage, this.pageSize).subscribe((expenses) => {
-      console.log(expenses);
-      
-      this.expenses = expenses;
+    this.expenseSub = this.expenseService.getExpenseByUser(this.filterValue, this.currentPage, this.pageSize).subscribe((expenses: any) => {
+      this.expenses = expenses.items;
+      this.totalItems = expenses.count;
     });
   }
 
@@ -111,9 +111,27 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
 
   ngOnDestroy(): void {
     this.expenseSub?.unsubscribe();
+    this.deleteSub?.unsubscribe();
+    this.dialogSub?.unsubscribe();
   }
 
+  deleteSub!: Subscription;
   deleteFunction(id: number){
+    const dialogRef = this.dialog.open(DeleteDialogueComponent, {
+      width: '320px',
+      data: {}
+    });
 
+    this.dialogSub = dialogRef.afterClosed().subscribe((result) => {
+      if (result === true) {
+        this.deleteSub = this.expenseService.deleteExpense(id).subscribe((res)=>{
+          this.snackBar.open("Expense deleted successfully...","" ,{duration:3000})
+          this.getExpenses()
+        },(error=>{
+
+          this.snackBar.open(error.error.message,"" ,{duration:3000})
+        }))
+      }
+    });
   }
 }
