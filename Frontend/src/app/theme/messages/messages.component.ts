@@ -134,7 +134,7 @@ export class MessagesComponent implements OnInit {
     oscillator.stop(this.audioContext.currentTime + 0.5);
   }
 
-  
+
 
   notifyUser(unreadCount: number) {
     if (Notification.permission === 'granted') {
@@ -173,5 +173,8 @@ export class MessagesComponent implements OnInit {
     if (!message.isRead) {
       this.markAsRead(message.id);
     }
+  }
+  ngOnDestroy(){
+
   }
 }
