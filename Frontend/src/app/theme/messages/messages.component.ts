@@ -126,11 +126,11 @@ export class MessagesComponent implements OnInit {
       this.audioContext.resume();
     }
     const oscillator = this.audioContext.createOscillator();
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(440, this.audioContext.currentTime);
-    oscillator.connect(this.audioContext.destination);
-    oscillator.start();
-    oscillator.stop(this.audioContext.currentTime + 0.5);
+    // oscillator.type = 'sine';
+    // oscillator.frequency.setValueAtTime(440, this.audioContext.currentTime);
+    // oscillator.connect(this.audioContext.destination);
+    // oscillator.start();
+    // oscillator.stop(this.audioContext.currentTime + 0.5);
   }
 
 
