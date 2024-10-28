@@ -20,7 +20,9 @@
             <thead>
               <tr>
                 <th scope="col">EntryNo</th>
-                <th scope="col">Sales Executive</th>
+                @if (isFlow) {
+                  <th scope="col">Employee</th>
+                }
                 <th scope="col">Manager</th>
                 <th scope="col">Accountant</th>
                 <th scope="col">Status</th>
@@ -29,9 +31,7 @@
             </thead>
             <tbody>
               @for(invoice of expenses; let i=$index; track $index){
-                <!-- [routerLink]="['/login/viewInvoices/', invoice.id]"  -->
-           
-                <tr >
+                <tr [routerLink]="['/login/viewApproval/openexpenses', invoice.id]">
                   <td [attr.data-label]="'InvoiceNo'"
                   [ngClass]="{
                     'status-generated': invoice.status === 'Generated',
@@ -40,21 +40,24 @@
                     'status-am-rejected': invoice.status === 'AM Rejected'
                   }"
               >{{invoice.exNo || '-'}}</td>
-                  <td [attr.data-label]="'SP'"
+              @if (isFlow) {
+                <td [attr.data-label]="'SP'"
                   [ngClass]="{
                     'status-generated': invoice.status === 'Generated',
                     'status-am-verified': invoice.status === 'AM Verified',
                     'status-payment-completed': invoice.status === 'PaymentCompleted',
                     'status-am-rejected': invoice.status === 'AM Rejected'
                   }"
-              >{{invoice.user?.name || '-'}}</td>
-                  <td [attr.data-label]="'AM'"
-                  [ngClass]="{
-                    'status-generated': invoice.status === 'Generated',
-                    'status-am-verified': invoice.status === 'AM Verified',
-                    'status-payment-completed': invoice.status === 'PaymentCompleted',
-                    'status-am-rejected': invoice.status === 'AM Rejected'
-                  }"
+                >{{invoice.user?.name || '-'}}</td>
+              }
+
+                <td [attr.data-label]="'AM'"
+                [ngClass]="{
+                  'status-generated': invoice.status === 'Generated',
+                  'status-am-verified': invoice.status === 'AM Verified',
+                  'status-payment-completed': invoice.status === 'PaymentCompleted',
+                  'status-am-rejected': invoice.status === 'AM Rejected'
+                }"
               >{{invoice.manager?.name || '-'}}</td>
                   <td [attr.data-label]="'MA'"
                   [ngClass]="{
@@ -75,8 +78,7 @@
                   
                   <td (click)="$event.stopPropagation()">
                     <div class="action-icons">
-                      <!-- && invoice.status === 'Generated' -->
-                      @if(data?.admin || (data?.sp && invoice.status === 'Generated')){
+                      @if(data?.admin || (!isFlow && invoice.status === 'Generated')){
                         <button class="update-button" [routerLink]="['/login/viewApproval/expenses', invoice.id]">Update </button>
                         <button class="delete-button" (click)="deleteFunction(invoice.id)">Delete
                         </button>
