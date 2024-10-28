@@ -174,7 +174,7 @@ export class ViewInvoicesComponent {
           this.submittingForm = false;
           this.getPiById(id)
           this.snackBar.open(`Invoice ${piNo} updated to ${status}...`,"" ,{duration:3000})
-          this.router.navigateByUrl('login/viewApproval')
+          this.router.navigateByUrl('login/viewApproval/view')
         });
       }
     })
