@@ -90,7 +90,7 @@ router.post('/save', authenticateToken, async (req, res) => {
                   console.error("Error sending email:", error);
                   return res.status(500).json({ error: "Email sending failed." });
               }
-              console.log("Email sent:", info.response);
+
               return res.json(expense);
           });
       } else {
@@ -102,7 +102,6 @@ router.post('/save', authenticateToken, async (req, res) => {
       res.json({ error: error.message });
   }
 });
-
 
 router.get('/find', authenticateToken, async(req, res) => {
     try {
