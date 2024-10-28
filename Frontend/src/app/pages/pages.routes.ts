@@ -43,22 +43,26 @@ export const routes: Routes = [
         loadChildren: () => import('./employee-leave/employee-leave.routes').then(c => c.routes),
         data: { breadcrumb: 'VIEW LEAVES' }, canActivate: [AuthGuard]
       },
+      {
+        path: 'advance-salary',
+        loadChildren: () => import('./payroll/payroll.routes').then(c => c.routes),
+        data: { breadcrumb: 'VIEW ADVANCE SALARY' }, canActivate: [AuthGuard]
+      },
       // {
       //   path: 'addApproval',
       //   loadComponent: () => import('./add-approval/add-approval.component').then(c => c.AddApprovalComponent),
       //   data: { breadcrumb: 'Add Approval' }, canActivate: [AuthGuard]
       // },
-
       // {
-      //   path: 'viewexcel',
-      //   loadComponent: () => import('./add-approval/view-excel/view-excel.component').then(c => c.ViewExcelComponent),
-      //   canActivate: [AuthGuard], data: { breadcrumb: 'View Excel' },
+      //   path: 'expenses',
+      //   loadComponent: () => import('./add-approval/expense/expense.component').then(c => c.ExpenseComponent),
+      //   canActivate: [AuthGuard], data: { breadcrumb: 'Expense' },
       // },
-      // {
-      //   path: 'viewApproval',
-      //   loadComponent: () => import('./add-approval/view-approval/view-approval.component').then(c => c.ViewApprovalComponent),
-      //   data: { breadcrumb: 'View Approval' }, canActivate: [AuthGuard]
-      // },
+      {
+        path: 'viewexcel',
+        loadComponent: () => import('./add-approval/view-excel/view-excel.component').then(c => c.ViewExcelComponent),
+        canActivate: [AuthGuard], data: { breadcrumb: 'View Excel' },
+      },
       {
         path: 'viewApproval',
         loadChildren: () => import('./payments/payment.routes').then(c => c.routes),
@@ -70,11 +74,11 @@ export const routes: Routes = [
       //   data: { breadcrumb: 'Approval Report' }, canActivate: [AuthGuard]
       // },
 
-      {
-        path: 'viewInvoices/:id',
-        loadComponent: () => import('./add-approval/view-invoices/view-invoices.component').then(c => c.ViewInvoicesComponent),
-        data: { breadcrumb: 'View Invoices' }, canActivate: [AuthGuard]
-      },
+      // {
+      //   path: 'viewInvoices/:id',
+      //   loadComponent: () => import('./add-approval/view-invoices/view-invoices.component').then(c => c.ViewInvoicesComponent),
+      //   data: { breadcrumb: 'View Invoices' }, canActivate: [AuthGuard]
+      // },
       // {
       //   path: 'updatePI/:id',
       //   loadComponent: () => import('./add-approval/update-pi/update-pi.component').then(c => c.UpdatePIComponent),
@@ -93,6 +97,16 @@ export const routes: Routes = [
         data: { breadcrumb: 'Team' }, canActivate: [AuthGuard]
       },
       {
+        path: 'advanceSalary',
+        loadComponent: () => import('./payroll/advance-salary/advance-salary.component').then(c => c.AdvanceSalaryComponent),
+        data: { breadcrumb: 'Advance salary' }, canActivate: [AuthGuard]
+      },
+      {
+        path: 'process-monthly-payroll',
+        loadComponent: () => import('./payroll/process-monthly-payroll/process-monthly-payroll.component').then(c => c.ProcessMonthlyPayrollComponent),
+        data: { breadcrumb: 'PROCESS PAYROLL' }, canActivate: [AuthGuard]
+      },
+      {
         path: 'company',
 
         data: { breadcrumb: 'Company' },
@@ -107,6 +121,12 @@ export const routes: Routes = [
             path: 'addCompany',
             loadComponent: () => import('./company/add-company/add-company.component').then(c => c.AddCompanyComponent),
             data: { breadcrumb: 'Manage Company' },
+            canActivate: [AuthGuard]
+          },
+          {
+            path: 'viewCompany/:id',
+            loadComponent: () => import('./company/company-detailed/company-detailed.component').then(c => c.CompanyDetailedComponent),
+            data: { breadcrumb: 'View Company' },
             canActivate: [AuthGuard]
           }
         ]

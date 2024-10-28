@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const Payroll = require("../models/payroll");
+const MonthlyPayroll = require("../models/monthlyPayroll");
 const { Op, where } = require('sequelize');
-
+const User = require('../../users/models/user');
 router.post("/", async (req, res) => {
   try {
-    console.log("payroll body" + req.body);
+    console.log("MonthlyPayroll body" + req.body);
     const {
         userId,
         basic,
@@ -23,17 +23,17 @@ router.post("/", async (req, res) => {
 
     } = req.body;
 
-    // const compExist = await Payroll.findOne({ 
+    // const compExist = await MonthlyPayroll.findOne({ 
     //   where: { companyName: companyName }
     // })
     // if(compExist){
     //   return res.status(500).json({
     //     status: "error",
-    //     message: 'There is already a payroll that exists under the same name.',
+    //     message: 'There is already a monthlyPayroll that exists under the same name.',
     //   });
     // }
 
-    const payroll = new Payroll({
+    const monthlyPayroll = new MonthlyPayroll({
         userId,
         basic,
         hra,
@@ -47,8 +47,8 @@ router.post("/", async (req, res) => {
         employeeContribution
 
     });
-    await payroll.save();
-    res.send(payroll)
+    await monthlyPayroll.save();
+    res.send(monthlyPayroll)
     
 
   } catch (error) {
@@ -58,13 +58,13 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const payroll = await Payroll.findAll({ 
-    //   include:[
-    //     { model: User, attributes: ['name','empNo']}
-    // ],
-    //   order: [['createdAt', 'DESC']],
+    const monthlyPayroll = await MonthlyPayroll.findAll({ 
+        include:[
+            { model: User, attributes: ['name','empNo']}
+        ],
+      // order: [['createdAt', 'DESC']],
     });
-    res.send(payroll);
+    res.send(monthlyPayroll);
   } catch (error) {}
 });
 
@@ -75,12 +75,12 @@ router.get("/:id", async (req, res) => {
     const userId = req.params.id;
     console.log('userId',userId);
     
-    const payroll = await Payroll.findOne({ where: { userId: userId },
+    const monthlyPayroll = await MonthlyPayroll.findOne({ where: { userId: userId },
      });
-    // if (!payroll) {
-    //   return res.status(404).json({ error: "Payroll not found" });
+    // if (!monthlyPayroll) {
+    //   return res.status(404).json({ error: "MonthlyPayroll not found" });
     // }
-    return res.status(200).json(payroll);
+    return res.status(200).json(monthlyPayroll);
   
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
@@ -104,24 +104,24 @@ router.patch("/:id", async (req, res) => {
         gratuity,
         employeeContribution
     } = req.body;
-    const payroll = await Payroll.findOne({ where: { id: companyId } });
-    if (!payroll) {
-      return res.status(404).json({ error: "Payroll not found" });
+    const monthlyPayroll = await MonthlyPayroll.findOne({ where: { id: companyId } });
+    if (!monthlyPayroll) {
+      return res.status(404).json({ error: "MonthlyPayroll not found" });
     }
-    payroll.userId = userId;
-    payroll.basic = basic;
-    payroll.hra = hra;
-    payroll.conveyanceAllowance = conveyanceAllowance;
-    payroll.lta = lta;
-    payroll.specialAllowance = specialAllowance;
-    payroll.grossSalary = grossSalary;
-    payroll.pf = pf;
-    payroll.insurance = insurance;
-    payroll.gratuity = gratuity;
-    payroll.employeeContribution = employeeContribution;
-    await payroll.save();
+    monthlyPayroll.userId = userId;
+    monthlyPayroll.basic = basic;
+    monthlyPayroll.hra = hra;
+    monthlyPayroll.conveyanceAllowance = conveyanceAllowance;
+    monthlyPayroll.lta = lta;
+    monthlyPayroll.specialAllowance = specialAllowance;
+    monthlyPayroll.grossSalary = grossSalary;
+    monthlyPayroll.pf = pf;
+    monthlyPayroll.insurance = insurance;
+    monthlyPayroll.gratuity = gratuity;
+    monthlyPayroll.employeeContribution = employeeContribution;
+    await monthlyPayroll.save();
 
-    res.json(payroll);
+    res.json(monthlyPayroll);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -175,7 +175,7 @@ router.get('/find', async (req, res) => {
       // }
     }
 
-    const payroll = await Payroll.findAll({
+    const monthlyPayroll = await MonthlyPayroll.findAll({
       order:['id'], limit, offset, where: whereClause
     })
 
@@ -185,15 +185,13 @@ router.get('/find', async (req, res) => {
     if (req.query.page != 'undefined' && req.query.pageSize != 'undefined') {
       const response = {
         count: totalCount,
-        items: payroll,
+        items: monthlyPayroll,
       };
 
       res.json(response);
     } else {
-      // const filteredRoles = role.filter(role => 
-      //   role.roleName !== 'Administrator' && role.roleName !== 'Super Administrator' && role.roleName !== 'HR Administrator'
-      // );
-      res.json(payroll);
+ 
+      res.json(monthlyPayroll);
     }
   } catch (error) {
     res.send(error.message);
@@ -204,7 +202,7 @@ router.get('/find', async (req, res) => {
 router.delete('/:id', async(req,res)=>{
   try {
 
-      const result = await Payroll.destroy({
+      const result = await MonthlyPayroll.destroy({
           where: { id: req.params.id },
           force: true,
       });
@@ -212,7 +210,7 @@ router.delete('/:id', async(req,res)=>{
       if (result === 0) {
           return res.status(404).json({
             status: "fail",
-            message: "Payroll with that ID not found",
+            message: "MonthlyPayroll with that ID not found",
           });
         }
     
@@ -226,11 +224,11 @@ router.delete('/:id', async(req,res)=>{
 router.get("/getsuppliers/:id", async (req, res) => {
   try {
     const companyId = req.params.id;
-    const payroll = await Company.findAll({
+    const monthlyPayroll = await Company.findAll({
       where: {supplier: true, id: { [Op.ne]: companyId }}, 
     });
 
-    res.send(payroll);
+    res.send(monthlyPayroll);
       
   } catch (error) {
     res.send({ error: error.message});
@@ -241,12 +239,12 @@ router.get("/getsuppliersforparts/:partid/:companyid", async (req, res) => {
   try {
     const companyId = req.params.companyid;
     const partId = req.params.partid
-    const payroll = await Company.findAll({
+    const monthlyPayroll = await Company.findAll({
       include : [ { model: PartSupplier, as: 'partSupplier'}],
       where: {supplier: true, id: { [Op.ne]: companyId }, '$partSupplier.partId$': partId},
     });
 
-    res.send(payroll);
+    res.send(monthlyPayroll);
       
   } catch (error) {
     res.send({ error: error.message});
@@ -258,15 +256,15 @@ router.get("/:id", async (req, res) => {
     const companyId = req.params.id;
     console.log('companyId:', companyId);
 
-    const payroll = await Company.findOne({ where: { id: companyId } });
-    console.log('payroll:', payroll);
+    const monthlyPayroll = await Company.findOne({ where: { id: companyId } });
+    console.log('monthlyPayroll:', monthlyPayroll);
 
-    if (!payroll) {
+    if (!monthlyPayroll) {
       return res.status(404).json({ error: "Company not found" });
     }
 
-    // Send the payroll data as the response
-    res.json(payroll);
+    // Send the monthlyPayroll data as the response
+    res.json(monthlyPayroll);
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: "Internal Server Error" });

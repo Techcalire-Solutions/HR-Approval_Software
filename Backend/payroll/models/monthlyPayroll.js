@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../utils/db');
 const User = require('../../users/models/user');
-const Payroll = sequelize.define('payroll', {
+const MonthlyPayroll = sequelize.define('monthlyPayroll', {
   userId: { type: DataTypes.INTEGER },
 
   basic: { type: DataTypes.DECIMAL(10, 2) },
@@ -20,13 +20,13 @@ const Payroll = sequelize.define('payroll', {
   timestamps: true,
 });
 
-Payroll.sync({ alter: true })
+MonthlyPayroll.sync({ alter: true })
   .then(() => {
     console.log('Tables synced successfully.');
   })
   .catch(err => {
     console.error('Error syncing tables:', err);
   });
-  User.hasMany(Payroll, {foreignKey: 'userId', onUpdate: 'CASCADE' });
-  Payroll.belongsTo(User, {foreignKey: 'userId' });
-module.exports = Payroll;
+  User.hasMany(MonthlyPayroll, {foreignKey: 'userId', onUpdate: 'CASCADE' });
+  MonthlyPayroll.belongsTo(User, {foreignKey: 'userId' });
+module.exports = MonthlyPayroll;

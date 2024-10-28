@@ -1,0 +1,25 @@
+/* employee-input-table.component.css */
+.table-container {
+    margin: 20px;
+  }
+  table {
+    width: 100%;
+  }
+  th.mat-header-cell {
+    background: #f5f5f5;
+  }
+  .custom-button {
+    background-color: #4CAF50; /* Custom background color */
+    color: white; /* Text color */
+    font-size: 12px; /* Font size */
+    padding: 10px 10px; /* Padding */
+    border-radius: 5px; /* Rounded corners */
+    
+    transition: background-color 0.3s; /* Transition effect */
+  }
+  
+  /* Add a hover effect */
+  .custom-button:hover {
+    background-color: #45a049; /* Darker green on hover */
+  }
+  
