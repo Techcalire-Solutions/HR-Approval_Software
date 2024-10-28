@@ -103,7 +103,6 @@ router.post('/save', authenticateToken, async (req, res) => {
   }
 });
 
-
 router.get('/find', authenticateToken, async(req, res) => {
     try {
         const expense = await Expense.findAll({})
