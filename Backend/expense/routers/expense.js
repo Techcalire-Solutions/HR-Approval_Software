@@ -165,8 +165,10 @@ router.get('/findbyuser', authenticateToken, async (req, res) => {
         {model: User, attributes: ['name']},
         {model: User, as: 'manager', attributes: ['name']},
         {model: User, as: 'ma', attributes: ['name']},
-      ]
+      ],
+      order: [['id', 'DESC']],
     });
+
 
     const totalCount = await Expense.count({ where: where });
 
