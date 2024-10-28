@@ -40,17 +40,29 @@
               </mat-select>
             </mat-form-field>
             
-
-            <mat-form-field class="flex-item" appearance="outline">
-              <mat-label>Manager</mat-label>
-              <mat-select placeholder="" formControlName="amId">
-              @for(item of AMList; track $index){
-                <mat-option [value]="item.id">
-                  {{item.name}}
-                </mat-option>
-              }
-              </mat-select>
-            </mat-form-field>
+            @if (roleName === 'Manager') {
+              <mat-form-field class="flex-item" appearance="outline">
+                <mat-label>Accountatnt</mat-label>
+                <mat-select placeholder="" formControlName="accountantId">
+                @for(item of AMList; track $index){
+                  <mat-option [value]="item.id">
+                    {{item.name}}
+                  </mat-option>
+                }
+                </mat-select>
+              </mat-form-field>
+            }@else {
+              <mat-form-field class="flex-item" appearance="outline">
+                <mat-label>Manager</mat-label>
+                <mat-select placeholder="" formControlName="amId">
+                @for(item of AMList; track $index){
+                  <mat-option [value]="item.id">
+                    {{item.name}}
+                  </mat-option>
+                }
+                </mat-select>
+              </mat-form-field>
+            }
           </div>
 
 
