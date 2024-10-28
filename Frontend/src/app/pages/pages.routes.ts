@@ -44,9 +44,9 @@ export const routes: Routes = [
         data: { breadcrumb: 'VIEW LEAVES' }, canActivate: [AuthGuard]
       },
       {
-        path: 'advance-salary',
+        path: 'payroll',
         loadChildren: () => import('./payroll/payroll.routes').then(c => c.routes),
-        data: { breadcrumb: 'VIEW ADVANCE SALARY' }, canActivate: [AuthGuard]
+        data: { breadcrumb: 'Payroll' }, canActivate: [AuthGuard]
       },
       // {
       //   path: 'addApproval',
