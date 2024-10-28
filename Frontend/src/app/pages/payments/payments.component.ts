@@ -45,9 +45,7 @@ export class PaymentsComponent implements OnInit{
   pendingHeader : string = '';
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
-      this.roleName = role.roleName;
-      console.log(this.roleName);
-      
+      this.roleName = role.roleName;  
       if(!this.isSubmitted){
         if(this.roleName === 'Sales Executive') { 
           this.status = 'GENERATED'; this.sp = true; this.header = 'REJECTED'; this.pendingHeader='GENERATED'

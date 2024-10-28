@@ -15,6 +15,7 @@ import { LoginService } from '@services/login.service';
 import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
+import { RoleService } from '@services/role.service';
 
 @Component({
   selector: 'app-expense',
@@ -28,6 +29,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class ExpenseComponent implements OnInit{
   id: number;
   private route = inject(ActivatedRoute);
+  private roleService = inject(RoleService);
 
 
   expenseTypes: string[] = ['Travel', 'Food', 'Celebration', 'Electricity', 'Wifi'];
@@ -39,8 +41,19 @@ export class ExpenseComponent implements OnInit{
       this.addDoc();
       this.generateInvoiceNumber();
     }
+    const token: any = localStorage.getItem('token')
+    let user = JSON.parse(token)
+    
+    this.getRoleById(user.role)
+  }
 
-    this.getAM()
+  roleSub!: Subscription;
+  roleName: string;
+  getRoleById(id: number){
+    this.roleSub = this.roleService.getRoleById(id).subscribe(role => {
+      this.roleName = role.roleName; 
+      this.getAM() 
+    })
   }
 
   private fb = inject(FormBuilder)
@@ -54,7 +67,8 @@ export class ExpenseComponent implements OnInit{
     notes: [''],
     url: this.fb.array([]),
     status: [{ value: 'Generated', disabled: true }],
-    amId: <any>[]
+    amId: <any>[],
+    accountantId: <any>[]
   });
 
   piSub!: Subscription;
@@ -72,7 +86,8 @@ export class ExpenseComponent implements OnInit{
         status: inv.status,
         amId: inv.amId,
         notes: inv.notes,
-        expenseType: inv.expenseType
+        expenseType: inv.expenseType,
+        accountantId: inv.accountantId
       });
 
       for (let index = 0; index < pi.signedUrl.length; index++) {
@@ -80,7 +95,6 @@ export class ExpenseComponent implements OnInit{
       }
       if (inv.url) {
         this.savedImageUrl = pi.signedUrl;
-        console.log(this.savedImageUrl);
       }
     });
   }
@@ -228,7 +242,11 @@ export class ExpenseComponent implements OnInit{
         this.router.navigateByUrl('login/viewApproval/viewexpenses');
       })
     }else{
+      console.log(this.expenseForm.getRawValue());
+      
       this.submit = this.expenseService.addExpense(this.expenseForm.getRawValue()).subscribe(res =>{
+        console.log(res);
+        
         this.snackBar.open("Expense added succesfully...","" ,{duration:3000})
         this.router.navigateByUrl('login/viewApproval/viewexpenses');
       })
@@ -239,9 +257,14 @@ export class ExpenseComponent implements OnInit{
   amSub!: Subscription;
   AMList: User[] = [];
   getAM(){
-    this.amSub = this.loginService.getUserByRoleName('Manager').subscribe(user =>{
+    let role;
+    if(this.roleName === 'Manager'){
+      role = 'Accountant'
+    }else{
+      role = 'Manager'
+    }
+    this.amSub = this.loginService.getUserByRoleName(role).subscribe(user =>{
       this.AMList = user;
     });
   }
-
 }

@@ -12,6 +12,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { BankReceiptDialogueComponent } from '../../view-approval/bank-receipt-dialogue/bank-receipt-dialogue.component';
 import { CommonModule } from '@angular/common';
 import { DeleteDialogueComponent } from '../../../../theme/components/delete-dialogue/delete-dialogue.component';
+import { InvoiceService } from '@services/invoice.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -21,8 +22,22 @@ import { DeleteDialogueComponent } from '../../../../theme/components/delete-dia
   styleUrl: './view-expense.component.scss'
 })
 export class ViewExpenseComponent implements OnInit, OnDestroy{
+  private invoiceService = inject(InvoiceService)
   ngOnInit(): void {
     this.getExpenses();
+
+    const token: any = localStorage.getItem('token')
+    let user = JSON.parse(token)
+    
+    this.getRoleById(user.role)
+  }
+
+  roleSub!: Subscription;
+  roleName: string;
+  getRoleById(id: number){
+    this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
+      this.roleName = role.roleName;  
+    })
   }
 
   private expenseService = inject(ExpensesService);
