@@ -59,12 +59,12 @@
   
       <mat-card-actions>
         @if(pi.approveButtonStatus) {
-          <button mat-button class="approve-button" (click)="verified('approved', pi.piNo, pi.salesPerson?.name, pi.id, pi.status)">
+          <button mat-button class="approve-button" (click)="verified('approved', pi.exNo, pi.user.name, pi.id, pi.status)">
             APPROVE
           </button>
   
           <!-- Reject Button -->
-          <button mat-raised-button class="reject-button" (click)="verified('rejected', pi.piNo, pi.addedBy.name, pi.id, pi.status)">
+          <button mat-raised-button class="reject-button" (click)="verified('rejected', pi.exNo, pi.user.name, pi.id, pi.status)">
             REJECT
           </button>
         }

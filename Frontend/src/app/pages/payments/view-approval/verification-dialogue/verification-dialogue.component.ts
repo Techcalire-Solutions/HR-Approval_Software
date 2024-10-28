@@ -52,7 +52,8 @@ export class VerificationDialogueComponent {
     if(this.status == 'AM VERIFIED'||this.status == 'AM Verified') this.getMa()
     if(this.status == 'AM APPROVED') this.getKam()
 
-    if(this.status === 'AM REJECTED' || this.status === 'KAM REJECTED' || this.status === 'AM DECLINED') this.isSelectionMade=true;
+    if(this.status === 'AM REJECTED' || this.status === 'KAM REJECTED' || this.status === 'AM DECLINED' || this.status === 'AM Rejected') 
+      this.isSelectionMade=true;
   }
 
   isSelectionMade: any = false;
