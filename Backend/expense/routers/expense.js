@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Expense = require('../models/expense');
+const Expense = require('../models/expense')
 const authenticateToken = require("../../middleware/authorization");
 const upload = require('../../utils/multer');
 const s3 = require('../../utils/s3bucket');
