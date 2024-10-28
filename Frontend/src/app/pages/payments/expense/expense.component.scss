@@ -37,3 +37,17 @@ mat-card-actions {
   justify-content: center;
   margin-top: 20px;
 }
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.col {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.col:last-child {
+  margin-right: 0;
+}

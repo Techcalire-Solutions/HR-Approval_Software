@@ -13,11 +13,12 @@ export const verticalMenuItems = [
 
   new Menu(5, 'Approval Uploads', '', null, 'upload_file', null, true, 0),
   new Menu(6, 'Add', '/login/viewApproval/addapproval', null, 'add_circle', null, false, 5),
-  // new Menu(6, 'Expense', '/login/viewApproval/expenses', null, 'payments', null, false, 5),
-  new Menu(7, 'View', '/login/viewApproval', null, 'visibility', null, false, 5),
+  new Menu(7, 'View', '/login/viewApproval/view', null, 'visibility', null, false, 5),
   new Menu(25, 'Excel', '/login/viewApproval/viewexcel', null, 'backup_table', null, false, 5),
 
-  new Menu(26, 'Expense', '/login/viewApproval/expenses', null, 'payments', null, false, 0),
+  new Menu(26, 'Expense', '', null, 'payments', null, true, 0),
+  new Menu(27, 'Add', '/login/viewApproval/expenses', null, 'add_circle', null, false, 26),
+  new Menu(28, 'View', '/login/viewApproval/viewexpenses', null, 'visibility', null, false, 26),
 
   new Menu(8, 'Leave', '', null, 'date_range', null, true, 0),
 
