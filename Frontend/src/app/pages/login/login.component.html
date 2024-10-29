@@ -24,7 +24,7 @@
         <input type="submit" value="Login" class="btn solid" />
         <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
       </form>
-      <form [formGroup]="signUpForm" class="sign-up-form" (ngSubmit)="onSignUp()">
+      <!-- <form [formGroup]="signUpForm" class="sign-up-form" (ngSubmit)="onSignUp()">
         <h2 class="title">Sign up</h2>
         <div class="input-field">
           <i class="fas fa-user"></i>
@@ -39,7 +39,7 @@
           <input type="password" placeholder="Password" formControlName="password" />
         </div>
         <input type="submit" class="btn" value="Sign up" />
-      </form>
+      </form> -->
     </div>
   </div>
 
