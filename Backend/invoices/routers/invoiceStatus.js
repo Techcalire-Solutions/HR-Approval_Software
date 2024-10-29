@@ -10,7 +10,8 @@ const User = require('../../users/models/user')
 const nodemailer = require('nodemailer');
 const s3 = require('../../utils/s3bucket');
 const multer = require('multer');
-const Notification = require('../models/notification')
+const Notification = require('../models/notification');
+const UserPosition = require('../../users/models/userPosition');
 
 
 const transporter = nodemailer.createTransport({
@@ -60,16 +61,16 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         console.log(pi);
       
         const [salesPerson, kam, am, accountant] = await Promise.all([
-            User.findOne({ where: { id: pi.salesPersonId } }),
-            User.findOne({ where: { id: kamId } }),
-            User.findOne({ where: { id: amId } }),
-            User.findOne({ where: { id: accountantId } }),
+            UserPosition.findOne({ where: { id: pi.salesPersonId } }),
+            UserPosition.findOne({ where: { id: kamId } }),
+            UserPosition.findOne({ where: { id: amId } }),
+            UserPosition.findOne({ where: { id: accountantId } }),
         ]);
 
-        const salesPersonEmail = salesPerson ? salesPerson.email : null;
-        const kamEmail = kam ? kam.email : null;
-        const accountantEmail = accountant ? accountant.email : null;
-        const amEmail = am ? am.email : null;
+        const salesPersonEmail = salesPerson ? salesPerson.projectMailId : null;
+        const kamEmail = kam ? kam.projectMailId : null;
+        const accountantEmail = accountant ? accountant.projectMailId : null;
+        const amEmail = am ? am.projectMailId : null;
 
         let toEmail = null;
         let notificationMessage = '';
@@ -89,8 +90,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                 toEmail = [salesPersonEmail, amEmail].filter(Boolean).join(', ');
                 break;
             case 'KAM REJECTED':
-                notificationMessage = `The Proforma Invoice ${pi.piNo} has been rejected by KAM.\n\nRemarks: ${remarks}\n` +
-                                 `Please review the invoice and take necessary actions.`;
+                notificationMessage = `The Proforma Invoice ${pi.piNo} has been rejected by KAM.` ;
                     toEmail = salesPersonEmail; 
                     break;
             case 'AM VERIFIED':
@@ -98,11 +98,11 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                 toEmail = [accountantEmail, kamEmail].filter(Boolean).join(', ');
                 break;
             case 'AM DECLINED':
-                notificationMessage = `The Proforma Invoice ${pi.piNo} has been declined by AM. Remarks: ${remarks}`;
+                notificationMessage = `The Proforma Invoice ${pi.piNo} has been declined by AM.`;
                 toEmail = pi.addedById === pi.salesPersonId ? salesPersonEmail : kamEmail;
                 break;
             case 'AM REJECTED':
-                notificationMessage = `The Proforma Invoice ${pi.piNo} has been rejected by AM. Remarks: ${remarks}`;
+                notificationMessage = `The Proforma Invoice ${pi.piNo} has been rejected by AM.`;
                 toEmail = pi.addedById === pi.salesPersonId ? salesPersonEmail : kamEmail;
                 break;
             default:
