@@ -30,23 +30,23 @@ router.post('/save', authenticateToken, async (req, res) => {
       status = 'Generated';
     }
   } catch (error) {
-    return res.status(500).send(error.message); // Return a 500 error response
+    return res.send(error.message); // Return a 500 error response
   }
 
-  const { exNo, url, bankSlip, amId, accountantId, count, notes, expenseType } = req.body;
+  const { exNo, url, bankSlip, amId, accountantId, count, notes, totalAmount, currency } = req.body;
+
+  try {
+    const expeExists = await Expense.findOne({ where: {exNo: exNo}})
+    if(expeExists){
+      return res.send("Expense is already saved");
+    }
+  } catch (error) {
+    res.send(error.message)
+  }
 
   try {
     const expense = await Expense.create({
-      exNo,
-      url,
-      bankSlip,
-      status,
-      userId,
-      amId: amId ? amId : userId,
-      accountantId,
-      count,
-      notes,
-      expenseType
+      exNo, url, bankSlip, status, userId, amId: amId ? amId : userId, accountantId, count, notes, totalAmount, currency
     });
 
     const expenseId = expense.id;
@@ -106,7 +106,7 @@ router.post('/save', authenticateToken, async (req, res) => {
         <ul>
           <li><strong>Reference Number:</strong> ${exNo}</li>
           <li><strong>Status:</strong> ${status}</li>
-          <li><strong>Type:</strong> ${expenseType}</li>
+          <li><strong>Amount:</strong> ${totalAmount} ${currency}</li>
           <li><strong>Notes:</strong> ${notes}</li>
           <li><strong>Submission Date:</strong> ${new Date().toLocaleDateString()}</li>
         </ul>

@@ -21,7 +21,6 @@ Expense.hasMany(ExpenseStatus, { foreignKey: 'expenseId', onUpdate: 'CASCADE' })
 ExpenseStatus.belongsTo(Expense, { foreignKey: 'expenseId' });
 
 
-
 ExpenseStatus.sync({ alter: true }).then(() => {
     console.log('Tables synced successfully.');
 }).catch(err => {
