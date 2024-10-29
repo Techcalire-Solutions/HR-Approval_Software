@@ -11,7 +11,7 @@ export const verticalMenuItems = [
 
   new Menu(4, 'Team', '/login/team', null, 'groups', null, false, 0),
 
-  new Menu(5, 'Approval Uploads', '', null, 'upload_file', null, true, 0),
+  new Menu(5, 'Payment Flow', '', null, 'upload_file', null, true, 0),
   new Menu(6, 'Add', '/login/viewApproval/addapproval', null, 'add_circle', null, false, 5),
   new Menu(7, 'View', '/login/viewApproval/view', null, 'visibility', null, false, 5),
   new Menu(25, 'Excel', '/login/viewApproval/viewexcel', null, 'backup_table', null, false, 5),
