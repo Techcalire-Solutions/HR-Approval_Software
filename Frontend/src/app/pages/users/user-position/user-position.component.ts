@@ -68,7 +68,8 @@ export class UserPositionComponent implements OnDestroy {
           office  : data.office,
           salary : data.salary,
           probationPeriod: data.probationPeriod,
-          officialMailId: data.officialMailId
+          officialMailId: data.officialMailId,
+          projectMailId: data.projectMailId
         })
       }
     })
