@@ -16,7 +16,7 @@ const LeaveType = require('../../leave/models/leaveType');
 const UserPersonal = require('../models/userPersonal');
 
 router.post('/add', async (req, res) => {
-  const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId, empNo } = req.body;
+  const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId, empNo, director } = req.body;
 
   try {
     // Check if user exists by email/role or empNo/role
@@ -36,7 +36,7 @@ router.post('/add', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-      name, empNo, email, phoneNumber, password: hashedPassword, roleId, status, userImage, url, teamId
+      name, empNo, email, phoneNumber, password: hashedPassword, roleId, status, userImage, url, teamId, director
     });
 
     // Verify the team exists
