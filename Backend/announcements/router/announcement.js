@@ -6,6 +6,7 @@ const upload = require('../../utils/multer');
 const s3 = require('../../utils/s3bucket');
 const nodemailer = require('nodemailer');
 const User = require('../../users/models/user');
+const UserPosition = require('../../users/models/userPosition')
 
 
 const transporter = nodemailer.createTransport({
@@ -28,7 +29,11 @@ router.post('/add', authenticateToken, async (req, res) => {
       },
     });
 
-    const userEmails = users.map(user => user.email).filter(email => email);
+    const userPosition = await UserPosition.findAll({
+
+    })
+
+    const userEmails = userPosition.map(userPosition => userPosition.officialMailId).filter(officialMailId => officialMailId);
 
     if (userEmails.length === 0) {
       return res.send("No recipients defined.");
