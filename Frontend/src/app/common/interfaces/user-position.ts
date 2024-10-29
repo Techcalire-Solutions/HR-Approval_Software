@@ -11,4 +11,5 @@ export interface UserPosition {
   salary : string
   probationPeriod : number
   officialMailId: string
+  projectMailId: string
 }
