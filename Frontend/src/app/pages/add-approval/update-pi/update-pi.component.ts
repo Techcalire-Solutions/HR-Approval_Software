@@ -232,7 +232,6 @@ export class UpdatePIComponent {
 
 
   upload!: Subscription;
-
   onUpdate() {
       let updateMethod;
       if (this.roleName === 'Sales Executive') {
@@ -249,8 +248,6 @@ export class UpdatePIComponent {
           if (this.upload) {
               this.upload.unsubscribe();
           }
-
-
           this.upload = updateMethod.subscribe({
               next: (invoice: any) => {
                 console.log(invoice)
@@ -258,7 +255,7 @@ export class UpdatePIComponent {
 
                   if (piNo) {
                       this.snackBar.open(`Proforma Invoice ${piNo} Updated successfully...`, "", { duration: 3000 });
-                      this.router.navigateByUrl('login/viewApproval');
+                      this.router.navigateByUrl('login/viewApproval/view');
                   } else {
                       this.snackBar.open('Failed to update the invoice. Please try again.', "", { duration: 3000 });
                   }

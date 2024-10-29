@@ -97,7 +97,7 @@ export class AddApprovalComponent {
 
   patch(selectedSuggestion: any, type: string) {
     if(type === 'sup') this.piForm.patchValue({ supplierId: selectedSuggestion.id, supplierName: selectedSuggestion.companyName });
-    else if(type === 'cust')  this.piForm.patchValue({ customerId: selectedSuggestion.id, customerName: selectedSuggestion.company});
+    else if(type === 'cust')  this.piForm.patchValue({ customerId: selectedSuggestion.id, customerName: selectedSuggestion.companyName});
   }
 
   add(type: string){

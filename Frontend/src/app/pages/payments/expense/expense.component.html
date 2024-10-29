@@ -5,7 +5,7 @@
           <div class="col">
             <mat-card-header>
               <mat-card-title>
-                EXPENSE
+                EXPENSE MANAGEMENT
               </mat-card-title>
             </mat-card-header>
           </div>
@@ -28,16 +28,18 @@
               <input matInput type="text" formControlName="exNo" required />
               <!-- <mat-error *ngIf="expenseForm.controls['exNo'].hasError('required')">Expense No is required</mat-error> -->
             </mat-form-field>
-  
+
             <mat-form-field appearance="outline" class="flex-item">
-              <mat-label>Expense Type</mat-label>
-              <mat-select formControlName="expenseType" required>
-                @for (type of expenseTypes; track $index) {
-                  <mat-option [value]="type">
-                    {{ type }}
-                  </mat-option>
-                }
+              <mat-label>Currency</mat-label>
+              <mat-select formControlName="currency">
+                  <mat-option value="Dollar">Dollar</mat-option>
+                  <mat-option value="AED">AED</mat-option>
               </mat-select>
+            </mat-form-field>
+
+            <mat-form-field  appearance="outline" class="flex-item">
+              <mat-label>Amount</mat-label>
+              <input type="number" matInput placeholder="Enter Amount" formControlName="totalAmount">
             </mat-form-field>
             
             @if (roleName === 'Manager') {

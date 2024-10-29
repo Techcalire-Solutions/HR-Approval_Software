@@ -10,7 +10,8 @@ export interface Expense {
     status: string
     count: number
     notes:  string
-    expenseType: string
+    currency: string,
+    totalAmount: number
 
     userId: number
     amId: number

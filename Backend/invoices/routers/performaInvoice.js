@@ -27,7 +27,7 @@ const transporter = nodemailer.createTransport({
     }
   });
 
-  router.post('/save', authenticateToken, async (req, res) => {
+router.post('/save', authenticateToken, async (req, res) => {
     let { piNo, url, kamId, amId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, customerId,
         customerPoNo, customerSoNo, customerCurrency, poValue, notes, paymentMode } = req.body;
 
@@ -1210,8 +1210,6 @@ if (accountant) {
         res.status(500).send({ message: error.message }); 
     }
 });
-
-
 
 router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
     let { url, kamId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, 

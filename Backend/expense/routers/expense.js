@@ -30,23 +30,23 @@ router.post('/save', authenticateToken, async (req, res) => {
       status = 'Generated';
     }
   } catch (error) {
-    return res.status(500).send(error.message); // Return a 500 error response
+    return res.send(error.message); // Return a 500 error response
   }
 
-  const { exNo, url, bankSlip, amId, accountantId, count, notes, expenseType } = req.body;
+  const { exNo, url, bankSlip, amId, accountantId, count, notes, totalAmount, currency } = req.body;
+
+  try {
+    const expeExists = await Expense.findOne({ where: {exNo: exNo}})
+    if(expeExists){
+      return res.send("Expense is already saved");
+    }
+  } catch (error) {
+    res.send(error.message)
+  }
 
   try {
     const expense = await Expense.create({
-      exNo,
-      url,
-      bankSlip,
-      status,
-      userId,
-      amId: amId ? amId : userId,
-      accountantId,
-      count,
-      notes,
-      expenseType
+      exNo, url, bankSlip, status, userId, amId: amId ? amId : userId, accountantId, count, notes, totalAmount, currency
     });
 
     const expenseId = expense.id;
@@ -106,7 +106,7 @@ router.post('/save', authenticateToken, async (req, res) => {
         <ul>
           <li><strong>Reference Number:</strong> ${exNo}</li>
           <li><strong>Status:</strong> ${status}</li>
-          <li><strong>Type:</strong> ${expenseType}</li>
+          <li><strong>Amount:</strong> ${totalAmount} ${currency}</li>
           <li><strong>Notes:</strong> ${notes}</li>
           <li><strong>Submission Date:</strong> ${new Date().toLocaleDateString()}</li>
         </ul>
@@ -275,8 +275,6 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
     }
 });
 
-
-
 router.post('/updatestatus', authenticateToken, async (req, res) => {
   const { expenseId, remarks, accountantId, status } = req.body;
 
@@ -285,8 +283,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
       if (!expenseId || !status) {
           return res.status(400).send('Expense ID and status are required.');
       }
-
-
 
       const expense = await Expense.findByPk(expenseId);
       if (!expense) {
@@ -386,9 +382,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
       res.status(500).send('Internal Server Error');
   }
 });
-
-
-
 
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
   const { bankSlip } = req.body;
@@ -608,7 +601,7 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
 });
 
 router.patch('/update/:id', authenticateToken, async (req, res) => {
-  let { url, amId, notes, expenseType } = req.body;
+  let { url, amId, notes, currency, totalAmount } = req.body;
 
   try {
       const pi = await Expense.findByPk(req.params.id);
@@ -622,7 +615,8 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
       let count = pi.count + 1;
       pi.count = count;
       pi.notes = notes;
-      pi.expenseType = expenseType;
+      pi.currency = currency;
+      pi.totalAmount = totalAmount;
 
       await pi.save();
 

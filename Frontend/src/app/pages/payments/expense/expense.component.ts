@@ -31,8 +31,6 @@ export class ExpenseComponent implements OnInit{
   private route = inject(ActivatedRoute);
   private roleService = inject(RoleService);
 
-
-  expenseTypes: string[] = ['Travel', 'Food', 'Celebration', 'Electricity', 'Wifi'];
   ngOnInit(): void {
     this.id = this.route.snapshot.params['id'];
     if(this.id){
@@ -63,12 +61,13 @@ export class ExpenseComponent implements OnInit{
   
   expenseForm = this.fb.group({
     exNo: ['', Validators.required],
-    expenseType: ['', Validators.required],
     notes: [''],
     url: this.fb.array([]),
     status: [{ value: 'Generated', disabled: true }],
     amId: <any>[],
-    accountantId: <any>[]
+    accountantId: <any>[],
+    currency: <any>[],
+    totalAmount: <any>[]
   });
 
   piSub!: Subscription;
@@ -86,8 +85,9 @@ export class ExpenseComponent implements OnInit{
         status: inv.status,
         amId: inv.amId,
         notes: inv.notes,
-        expenseType: inv.expenseType,
-        accountantId: inv.accountantId
+        accountantId: inv.accountantId,
+        totalAmount: inv.totalAmount,
+        currency: inv.currency
       });
 
       for (let index = 0; index < pi.signedUrl.length; index++) {
