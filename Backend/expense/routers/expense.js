@@ -275,8 +275,6 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
     }
 });
 
-
-
 router.post('/updatestatus', authenticateToken, async (req, res) => {
   const { expenseId, remarks, accountantId, status } = req.body;
 
@@ -285,8 +283,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
       if (!expenseId || !status) {
           return res.status(400).send('Expense ID and status are required.');
       }
-
-
 
       const expense = await Expense.findByPk(expenseId);
       if (!expense) {
@@ -386,9 +382,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
       res.status(500).send('Internal Server Error');
   }
 });
-
-
-
 
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
   const { bankSlip } = req.body;
@@ -608,7 +601,7 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
 });
 
 router.patch('/update/:id', authenticateToken, async (req, res) => {
-  let { url, amId, notes, expenseType } = req.body;
+  let { url, amId, notes, currency, totalAmount } = req.body;
 
   try {
       const pi = await Expense.findByPk(req.params.id);
@@ -622,7 +615,8 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
       let count = pi.count + 1;
       pi.count = count;
       pi.notes = notes;
-      pi.expenseType = expenseType;
+      pi.currency = currency;
+      pi.totalAmount = totalAmount;
 
       await pi.save();
 
