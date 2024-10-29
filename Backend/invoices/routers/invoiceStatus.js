@@ -94,7 +94,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                     toEmail = salesPersonEmail; 
                     break;
             case 'AM VERIFIED':
-                notificationMessage = `The Proforma Invoice ${pi.piNo} has been successfully verified by AM.`;
+                notificationMessage = `The Proforma Invoice ${pi.piNo} has been verified by AM.`;
                 toEmail = [accountantEmail, kamEmail].filter(Boolean).join(', ');
                 break;
             case 'AM DECLINED':
@@ -115,24 +115,65 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         ));
 
         
-        const attachmentUrl = pi.url[0].url;
-        const attachmentFileKey = attachmentUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-        const attachmentParams = { Bucket: process.env.AWS_BUCKET_NAME, Key: attachmentFileKey };
+if (!Array.isArray(pi.url) || pi.url.length === 0) {
+    console.error('Invalid or missing URL:', pi.url);
+    return res.status(404).send('Proforma Invoice does not have an associated file or the URL is invalid.');
+}
+const attachments = [];
 
-        console.log('Fetching attachment:', attachmentParams);
-        const attachmentS3File = await s3.getObject(attachmentParams).promise();
+for (const fileObj of pi.url) {
+
+    const actualUrl = typeof fileObj === 'string' ? fileObj : fileObj.url;
+
+ 
+    if (!actualUrl || typeof actualUrl !== 'string') {
+        console.warn('Skipping invalid URL:', fileObj);
+        continue;
+    }
+
+    const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+
+    const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileKey,
+    };
+
+    try {
+        const s3File = await s3.getObject(params).promise();
+        attachments.push({
+            filename: actualUrl.split('/').pop(),
+            content: s3File.Body,
+            contentType: s3File.ContentType
+        });
+    } catch (error) {
+        console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error.message);
+        continue; 
+    }
+}
 
       
         const mailOptions = {
             from: `${req.user.name} <${req.user.email}>`,
             to: toEmail,
-            subject: `Proforma Invoice Status Update - ${pi.piNo}`,
-            text: `${notificationMessage}\n\nRemarks: ${remarks}\nPlease check the details for further information.`,
-            attachments: [{
-                filename: attachmentFileKey.split('/').pop(),
-                content: attachmentS3File.Body,
-                contentType: attachmentS3File.ContentType,
-            }],
+            subject: notificationMessage,
+            html: `
+            <p><strong>Entry Number:</strong> ${pi.piNo}</p>
+            <p><strong>Supplier Name:</strong> ${pi.supplierName}</p>
+            <p><strong>Supplier PO No:</strong> ${pi.supplierPoNo}</p>
+            <p><strong>Supplier SO No:</strong> ${pi.supplierSoNo}</p>
+            <p><strong>Status:</strong> ${newStatus.status}</p>
+            <p><strong>Payment Mode:</strong> ${pi.paymentMode}</p>
+            ${pi.purpose === 'Stock' 
+                ? `<p><strong>Purpose:</strong> Stock</p>` 
+                : `<p><strong>Purpose:</strong> Customer</p>
+                   <p><strong>Customer Name:</strong> ${pi.customerName}</p>
+                   <p><strong>Customer PO No:</strong> ${pi.customerPoNo}</p>
+                   <p><strong>Customer SO No:</strong> ${pi.customerSoNo}</p>`
+            }
+            <p><strong>Notes:</strong> ${pi.notes}</p>
+            <p>Please find the attached documents related to this Proforma Invoice.</p>
+        `,
+        attachments: attachments
         };
 
    
@@ -149,6 +190,8 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+
 
 
 router.post('/updatestatustobankslip', authenticateToken, async (req, res) => {
