@@ -78,22 +78,23 @@
                   <td (click)="$event.stopPropagation()">
                     <div class="action-icons">
                       @if(data?.admin || 
-                        (!isFlow && roleName === 'Manager' && invoice.status === 'AM Verified')||
-                        (!isFlow && invoice.status === 'AM Verified')){
+                        (!isFlow && roleName === 'Manager' && invoice.status === 'AM Verified') ||
+                        (!isFlow && invoice.status === 'AM Verified' && roleName !== 'Sales Executive') || 
+                        invoice.status === 'AM Rejected' || invoice.status === 'Generated'){
                         <button class="update-button" [routerLink]="['/login/viewApproval/expenses', invoice.id]">Update </button>
                         <button class="delete-button" (click)="deleteFunction(invoice.id)">Delete
                         </button>
                       }
                       @if(data?.am && invoice.status === 'Generated'){
                         <button mat-raised-button class="approve-button"
-                          (click)="verified('approved', invoice.piNo, invoice.user.name, invoice.id, invoice.status)"> APPROVE
+                          (click)="verified('approved', invoice.exNo, invoice.user.name, invoice.id, invoice.status)"> APPROVE
                         </button>
                         <button mat-raised-button class="reject-button"
-                          (click)="verified('rejected', invoice.piNo, invoice.user.name, invoice.id, invoice.status)">
+                          (click)="verified('rejected', invoice.exNo, invoice.user.name, invoice.id, invoice.status)">
                           REJECT
                         </button>
                       }
-                      @if(data?.ma && invoice.status !== 'PaymentCompeletd'){
+                      @if(data?.ma && invoice.status != 'PaymentCompleted'){
                         <button mat-raised-button class="add-bank-slip-button"
                         (click)="addBankSlip(invoice.exNo, invoice.id, invoice.status)"> {{ invoice.status === 'BANK SLIP ISSUED' ? 'Edit Wireslip' : 'Wireslip' }}
                       </button>

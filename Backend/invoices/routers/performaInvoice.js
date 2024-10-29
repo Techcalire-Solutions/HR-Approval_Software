@@ -27,7 +27,7 @@ const transporter = nodemailer.createTransport({
     }
   });
 
-  router.post('/save', authenticateToken, async (req, res) => {
+router.post('/save', authenticateToken, async (req, res) => {
     let { piNo, url, kamId, amId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, customerId,
         customerPoNo, customerSoNo, customerCurrency, poValue, notes, paymentMode } = req.body;
 
@@ -957,32 +957,6 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
 });
 
 
-// Function to find the accountant's email
-// Function to find the accountant's email from the User table based on accountantId
-const findAccountantEmail = async (accountantId) => {
-    if (!accountantId) {
-        console.log("Accountant ID is null.");
-        return null; // Return null if the accountantId is not provided
-    }
-
-    try {
-        // Assuming User table has the necessary records
-        const accountant = await User.findOne({ where: { id: accountantId } });
-        if (accountant) {
-            console.log("Found Accountant:", accountant); // Log the accountant details
-            return accountant.email; // Return the email if found
-        } else {
-            console.log("Accountant Not Found for ID:", accountantId); // Log if accountant is not found
-            return null; // Return null if no accountant is found
-        }
-    } catch (error) {
-        console.error("Error fetching accountant email:", error); // Log any error
-        return null; // Return null in case of error
-    }
-};
-
-
-
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
     const { bankSlip, status } = req.body;
     
@@ -1210,8 +1184,6 @@ if (accountant) {
         res.status(500).send({ message: error.message }); 
     }
 });
-
-
 
 router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
     let { url, kamId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, 

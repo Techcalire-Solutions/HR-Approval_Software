@@ -11,6 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { VerificationDialogueComponent } from '../../view-approval/verification-dialogue/verification-dialogue.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BankReceiptDialogueComponent } from '../../view-approval/bank-receipt-dialogue/bank-receipt-dialogue.component';
+import { RoleService } from '@services/role.service';
 
 @Component({
   selector: 'app-open-expense',
@@ -30,11 +31,11 @@ export class OpenExpenseComponent {
   }
 
   private expenseService = inject(ExpensesService)
-  // loginService=inject(LoginService)
   private snackBar = inject(MatSnackBar)
   private router = inject(Router)
   private route=inject(ActivatedRoute)
   private dialog=inject(MatDialog)
+  private roleService = inject(RoleService);
   userId: number
 
   formatNotes(notes: string): string {
@@ -61,7 +62,7 @@ export class OpenExpenseComponent {
     this.userId = user.id;
 
     let roleId = user.role
-    this.getPiById(id)
+    // this.getPiById(id)
     this.getRoleById(roleId, id)
   }
 
@@ -74,17 +75,17 @@ export class OpenExpenseComponent {
   admin: boolean = false;
   teamLead: boolean = false;
   getRoleById(id: number, piId: number){
-    // this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
-    //   this.roleName = role.roleName;
-    //   this.getPiById(piId)
+    this.roleSub = this.roleService.getRoleById(id).subscribe(role => {
+      this.roleName = role.roleName;
+      this.getPiById(piId)
 
-    //   if(this.roleName === 'Sales Executive') this.sp = true;
-    //   if(this.roleName === 'Key Account Manager') this.kam = true;
-    //   if(this.roleName === 'Manager') this.am = true;
-    //   if(this.roleName === 'Accountant') this.ma = true;
-    //   if(this.roleName === 'Administrator') { this.admin = true }
-    //   if(this.roleName === 'Team Lead') { this.teamLead = true }
-    // })
+      if(this.roleName === 'Sales Executive') this.sp = true;
+      if(this.roleName === 'Key Account Manager') this.kam = true;
+      if(this.roleName === 'Manager') this.am = true;
+      if(this.roleName === 'Accountant') this.ma = true;
+      if(this.roleName === 'Administrator') { this.admin = true }
+      if(this.roleName === 'Team Lead') { this.teamLead = true }
+    })
   }
   
   piSub!: Subscription;
@@ -101,19 +102,15 @@ export class OpenExpenseComponent {
       this.piNo = pi.pi.exNo;
 
       this.signedUrl= pi.signedUrl
-
-      // if( (this.pi.status === 'GENERATED' ) && this.roleName === 'Key Account Manager' ){
-      //   this.pi = {
-      //     ...this.pi,
-      //     approveButtonStatus: true
-      //   };
-      // }else if( (this.pi.status === 'INITIATED' || this.pi.status === 'KAM VERIFIED' )&& this.roleName === 'Manager' ){
-      //   this.pi = {
-      //     ...this.pi,
-      //     approveButtonStatus: true
-      //   };
-      // }
-      // if(pi.pi.bankSlip != null) this.bankSlip = pi.bankSlip;
+      
+      if(this.pi.status === 'Generated' && this.roleName === 'Manager' ){
+        this.pi = {
+          ...this.pi,
+          approveButtonStatus: true
+        };
+        
+      }
+      if(pi.pi.bankSlip != null) this.bankSlip = pi.bankSlip;
 
       this.getPiStatusByPiId(id)
     });
@@ -132,44 +129,36 @@ export class OpenExpenseComponent {
     this.getPiById(this.route.snapshot.params['id'])
   }
 
+  verifiedSub: Subscription;
   dialogSub!: Subscription;
-  submittingForm: boolean = false;
-  verifiedSub: Subscription
   verified(value: string, piNo: string, sp: string, id: number, stat: string){
-    let status = this.pi.status;
-    this.submittingForm = true;
-    if(stat === 'INITIATED' && value === 'approved') status = 'AM APPROVED';
-    else if(stat === 'INITIATED' && value === 'rejected') status = 'AM REJECTED';
-    if(status === 'GENERATED' && value === 'approved') status = 'KAM VERIFIED';
-    else if(status === 'GENERATED' && value === 'rejected') status = 'KAM REJECTED';
-    else if(status === 'KAM VERIFIED' && value === 'approved') status = 'AM VERIFIED';
-    else if(status === 'KAM VERIFIED' && value === 'rejected') status = 'AM REJECTED';
-
+    let status = stat;
+    
+    if(status === 'Generated' && value === 'approved') status = 'AM Verified';
+    else if(status === 'Generated' && value === 'rejected') status = 'AM Rejected';
+    
     const dialogRef = this.dialog.open(VerificationDialogueComponent, {
       data: { invoiceNo: piNo, status: status, sp: sp }
     });
 
     this.dialogSub = dialogRef.afterClosed().subscribe(result => {
       if(result){
-        this.submittingForm = true;
         let data = {
           status: status,
-          performaInvoiceId: id,
+          expenseId: id,
           remarks: result.remarks,
-          kamId: result.kamId,
-          amId: result.amId,
           accountantId: result.accountantId
         }
 
         this.verifiedSub = this.expenseService.updateStatus(data).subscribe(result => {
-          this.submittingForm = false;
           this.getPiById(id)
-          this.snackBar.open(`Invoice ${piNo} updated to ${status}...`,"" ,{duration:3000})
-          this.router.navigateByUrl('login/viewApproval')
+          this.snackBar.open(`Expense ${piNo} updated to ${status}...`,"" ,{duration:3000})
+          this.router.navigateByUrl('login/viewApproval/view')
         });
       }
     })
   }
+
 
   addBankSlip(piNo: string, id: number, status: string){
     const dialogRef = this.dialog.open(BankReceiptDialogueComponent, {

@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes, STRING } = require('sequelize');
 const sequelize = require('../../utils/db');
 const User = require('../../users/models/user');
 const Company = require('../../invoices/models/company');
@@ -13,7 +13,8 @@ const Expense = sequelize.define('expense',{
     accountantId : {type : DataTypes.INTEGER, allowNull : true},
     count: {type : DataTypes.INTEGER, defaultValue: 1},
     notes:  { type: DataTypes.TEXT },
-    expenseType: {type : DataTypes.STRING}
+    totalAmount: {type : DataTypes.FLOAT, allowNull : false},
+    currency: {type : STRING, allowNull : false}
 },
 
 {
