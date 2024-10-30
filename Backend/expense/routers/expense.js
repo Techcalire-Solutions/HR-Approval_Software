@@ -217,7 +217,10 @@ router.get('/findbyuser', authenticateToken, async (req, res) => {
     const expenses = await Expense.findAll({
       where: where, limit, offset,
       include: [  
-        {model: User, attributes: ['name']},
+        {model: ExpenseStatus},
+        {model: User, attributes: ['name'], include: [
+          {model: Role, attributes: ['roleName']}
+        ]},
         {model: User, as: 'manager', attributes: ['name']},
         {model: User, as: 'ma', attributes: ['name']},
       ],
