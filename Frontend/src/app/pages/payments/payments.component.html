@@ -37,7 +37,7 @@
     <app-view-approval #viewApproval></app-view-approval>
   </mat-tab>
 
-  @if (roleName === 'Manager' || roleName === 'Accountant') {
+  @if (roleName === 'Manager' || roleName === 'Accountant' || roleName === 'Administrator' || roleName === 'Super Administrator') {
     <mat-tab>
       <ng-template mat-tab-label>
         EXPENSES
