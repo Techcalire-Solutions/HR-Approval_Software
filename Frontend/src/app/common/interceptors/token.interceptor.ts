@@ -32,7 +32,6 @@ export class TokenInterceptor implements HttpInterceptor {
           }
         }
         return throwError(()=>{
-
           alert(err.error.text)
         })
       })

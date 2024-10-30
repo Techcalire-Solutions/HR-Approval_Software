@@ -5,6 +5,7 @@ const Role = sequelize.define('role',{
     roleName : {type : DataTypes.STRING, allowNull : false},
     abbreviation:{type : DataTypes.STRING, allowNull : false},
     status : {type : DataTypes.BOOLEAN, defaultValue : true},
+    department : {type : DataTypes.STRING}
 },
 {
     freezeTableName: true,
