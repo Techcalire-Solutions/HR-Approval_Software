@@ -222,7 +222,7 @@ export class ViewInvoicesComponent {
     this.excelSub = this.invoiceService.excelExport(data).subscribe({
       next: (result: any) => {
         if (result && result.message === "Excel file saved successfully.") {
-          this.router.navigateByUrl('/login/viewApproval/viewexcel/view');
+          this.router.navigateByUrl('/login/viewApproval/viewexcel');
         } else {
           alert(result.message);
         }
