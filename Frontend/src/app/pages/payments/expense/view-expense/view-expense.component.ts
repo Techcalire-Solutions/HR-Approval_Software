@@ -23,13 +23,14 @@ import { InvoiceService } from '@services/invoice.service';
 })
 export class ViewExpenseComponent implements OnInit, OnDestroy{
   private invoiceService = inject(InvoiceService)
+  userId: number;
   ngOnInit(): void {
-    this.getExpenses();
-
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
-    
+    this.userId =  user.id
+
     this.getRoleById(user.role)
+    this.getExpenses(user.id);
   }
 
   roleSub!: Subscription;
@@ -37,8 +38,7 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName; 
-      console.log(this.roleName);
-       
+  
     })
   }
 
@@ -46,7 +46,7 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   filterValue: string = '';
   applyFilter(event: Event): void {
     this.filterValue = (event.target as HTMLInputElement).value.trim()
-    this.getExpenses()
+    this.getExpenses(this.userId)
   }
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -56,7 +56,7 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   onPageChange(event: PageEvent): void {
     this.currentPage = event.pageIndex + 1;
     this.pageSize = event.pageSize;
-    this.getExpenses();
+    this.getExpenses(this.userId);
   }
 
   data: any;
@@ -68,15 +68,73 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
       return;
     }
     this.data = data;
-    this.getExpenses();
+    this.getExpenses(this.userId);
   }
 
-  expenses: Expense[] = [];
+  expenses: any[] = [];
   expenseSub!: Subscription;
-  getExpenses(){
+  getExpenses(userId: number){
     this.expenseSub = this.expenseService.getExpenseByUser(this.filterValue, this.currentPage, this.pageSize).subscribe((expenses: any) => {
       this.expenses = expenses.items;
       this.totalItems = expenses.count;
+      if (this.expenses) {
+        console.log(this.expenses);
+        
+        // this.expenses.forEach((mainObj: any) => {
+        //   console.log(mainObj);
+          
+        //   const matchingStatus = mainObj.expensestatuses.find(
+        //     (statusObj: any) => statusObj.status === mainObj.status
+        //   );
+        //   if (matchingStatus) {
+        //     mainObj.remarks = matchingStatus.remarks;
+        //   }
+        // });
+
+        this.expenses = [...this.expenses]; 
+        
+        for (let i = 0; i < this.expenses.length; i++) {
+          let invoiceUser = this.expenses[i]?.userId;
+          let invoiceAM = this.expenses[i]?.amId;
+          let invoiceMA = this.expenses[i]?.accountantId;
+
+          if (userId === invoiceUser || userId === invoiceAM  || userId === invoiceMA) {
+            this.expenses[i] = {
+              ...this.expenses[i],
+              userStatus: true
+            };
+          }
+          console.log(this.expenses[i]);
+          
+          if(this.expenses[i].userId === userId){
+            console.log(this.expenses[i].userId, userId);
+            
+            if(this.expenses[i].user.role.roleName != 'Manager' &&
+              (this.expenses[i].status === 'Generated'|| this.expenses[i].status === 'AM Rejected') ){
+                console.log(expenses[i]);
+                
+                this.expenses[i] = {
+                  ...this.expenses[i],
+                  editButtonStatus: true
+                };
+            }else if(this.expenses[i].user.role.roleName === 'Manager' &&
+              (this.expenses[i].status === 'AM Verfied') ){
+
+                this.expenses[i] = {
+                  ...this.expenses[i],
+                  editButtonStatus: true
+                };
+            }else{
+              this.expenses[i] = {
+                ...this.expenses[i],
+                editButtonStatus: false
+              };
+            }
+            console.log(this.expenses[i]);
+            
+          }
+        }
+      }
     });
   }
 
@@ -105,7 +163,7 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
         }
 
         this.verifiedSub = this.expenseService.updateStatus(data).subscribe(result => {
-          this.getExpenses()
+          this.getExpenses(this.userId)
           this.snackBar.open(`Expense ${piNo} updated to ${status}...`,"" ,{duration:3000})
           this.router.navigateByUrl('login/viewApproval/view')
         });
@@ -120,7 +178,7 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
 
     this.dialogSub = dialogRef.afterClosed().subscribe(result => {
       if(result){
-        this.getExpenses();
+        this.getExpenses(this.userId);
         this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
       }
     })
@@ -143,7 +201,7 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
       if (result === true) {
         this.deleteSub = this.expenseService.deleteExpense(id).subscribe((res)=>{
           this.snackBar.open("Expense deleted successfully...","" ,{duration:3000})
-          this.getExpenses()
+          this.getExpenses(this.userId)
         },(error=>{
 
           this.snackBar.open(error.error.message,"" ,{duration:3000})
