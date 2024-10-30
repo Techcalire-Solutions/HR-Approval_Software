@@ -38,6 +38,8 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName; 
+      console.log(this.roleName);
+      
     })
   }
 
@@ -85,13 +87,26 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
           let invoiceUser = this.expenses[i]?.userId;
           let invoiceAM = this.expenses[i]?.amId;
           let invoiceMA = this.expenses[i]?.accountantId;
-
-          if (userId === invoiceUser || userId === invoiceAM  || userId === invoiceMA) {
+          console.log(this.expenses[i]);
+          
+          
+            
+          if(this.roleName === 'Administrator' || this.roleName === 'Super Administrator'){
+            console.log("Super Administrator");
+            
+            this.expenses[i] = {
+              ...this.expenses[i],
+              editButtonStatus: true
+            };
+            console.log(expenses[i]);
+            
+          }else if (userId === invoiceUser || userId === invoiceAM  || userId === invoiceMA) {
             this.expenses[i] = {
               ...this.expenses[i],
               userStatus: true
             };
           }
+          console.log(this.roleName);
           
           if(this.expenses[i].userId === userId){
             
