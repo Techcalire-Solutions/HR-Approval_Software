@@ -256,7 +256,7 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
    const customerName = customer ? customer.companyName : 'Unknown Customer';
 
 
-   const am = await UserPosition.findOne({ where: { id: amId } });
+   const am = await UserPosition.findOne({ where: { userId: amId } });
    const amEmail = am ? am.projectMailId : null;
 
    const attachments = [];
@@ -384,13 +384,13 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
         const customerName = customer ? customer.companyName : 'Unknown Customer';
 
         if (paymentMode === 'CreditCard') {
-            const kam = await UserPosition.findOne({ where: { id: kamId } });
+            const kam = await UserPosition.findOne({ where: { userId: kamId } });
             if (!kam) {
                 return res.status(404).json({ error: 'Key Account Manager not found' });
             }
             recipientEmail = kam.projectMailId; 
         } else {
-            const accountant = await UserPosition.findOne({ where: { id: accountantId } });
+            const accountant = await UserPosition.findOne({ where: { userId: accountantId } });
             if (!accountant) {
                 return res.status(404).json({ error: 'Accountant not found' });
             }
