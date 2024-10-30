@@ -17,12 +17,13 @@ import { PerformaInvoiceStatus } from '../../../../common/interfaces/performa-in
 import { BankReceiptDialogueComponent } from '../bank-receipt-dialogue/bank-receipt-dialogue.component';
 import { VerificationDialogueComponent } from '../verification-dialogue/verification-dialogue.component';
 import { SafePipe } from '../../../../common/safe.pipe';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-view-invoices',
   standalone: true,
   imports: [
-    CommonModule,
+    CommonModule, MatButtonModule,
     RouterModule, MatTabGroup, MatTabsModule,
     MatTableModule,
     MatCardModule,

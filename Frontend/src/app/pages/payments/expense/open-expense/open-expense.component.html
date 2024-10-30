@@ -52,7 +52,7 @@
         @if(bankSlip){
           <mat-tab label="WireSlip">
             <div class="pdf-container">
-              <iframe [src]="bankSlip | safe" width="100%"></iframe>
+              <iframe [src]="bankSlip | safe" width="100%" height="600px"></iframe>
             </div>
           </mat-tab>
         }
@@ -78,11 +78,11 @@
       </mat-card-actions>
     }
   
-    @if(kam && pi.status === 'AM APPROVED'){
+    <!-- @if((ma && pi.status !== 'BANK SLIP ISSUED') || (admin && pi.status !== 'BANK SLIP ISSUED')){
       <button mat-raised-button class="add-bank-slip-button"
       (click)="addBankSlip(pi.piNo, pi.id, pi.status)"> ATTACH
       </button>
-    }
+    } -->
   
       <mat-card>
         <!DOCTYPE html>
