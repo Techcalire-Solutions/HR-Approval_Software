@@ -87,13 +87,8 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
           let invoiceUser = this.expenses[i]?.userId;
           let invoiceAM = this.expenses[i]?.amId;
           let invoiceMA = this.expenses[i]?.accountantId;
-          console.log(this.expenses[i]);
-          
-          
             
           if(this.roleName === 'Administrator' || this.roleName === 'Super Administrator'){
-            console.log("Super Administrator");
-            
             this.expenses[i] = {
               ...this.expenses[i],
               editButtonStatus: true
@@ -106,10 +101,7 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
               userStatus: true
             };
           }
-          console.log(this.roleName);
-          
           if(this.expenses[i].userId === userId){
-            
             if(this.expenses[i].user.role.roleName != 'Manager' &&
               (this.expenses[i].status === 'Generated'|| this.expenses[i].status === 'AM Rejected') ){
                 this.expenses[i] = {
@@ -117,8 +109,7 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
                   editButtonStatus: true
                 };
             }else if(this.expenses[i].user.role.roleName === 'Manager' &&
-              (this.expenses[i].status === 'AM Verfied') ){
-
+              (this.expenses[i].status === 'AM Verified') ){
                 this.expenses[i] = {
                   ...this.expenses[i],
                   editButtonStatus: true
