@@ -318,10 +318,6 @@ export class AddApprovalComponent {
                 } else {
                     this.snackBar.open('Failed to upload the invoice. Please try again.', "", { duration: 3000 });
                 }
-            },
-            error: (err) => {
-                const errorMessage = err?.error?.message || 'An error occurred while uploading the invoice.';
-                this.snackBar.open(`Error: ${errorMessage}`, "", { duration: 3000 });
             }
         });
     }
