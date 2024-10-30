@@ -1,4 +1,20 @@
-<!-- <app-leave-count-cards></app-leave-count-cards> -->
+<div class="row">
+  @for(leave of userLeaves; track $index) {
+    <div class="col">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-subtitle>{{leave.leaveType.leaveTypeName}}</mat-card-subtitle>
+          <mat-chip-set style="margin-left: auto;">
+            <mat-chip color="warn" highlighted="true" class="info-chip">
+              <mat-icon class="icon-sm">numbers</mat-icon>
+              @if(leave.noOfDays != 0){  {{leave.leaveBalance}} -  } {{leave.takenLeaves}} @if(leave.noOfDays != 0){/{{leave.noOfDays}}} 
+            </mat-chip>
+          </mat-chip-set>
+        </mat-card-header>
+      </mat-card>
+    </div>
+  }
+</div><br>
 
 <mat-card class="leave-card">
   <mat-card-content class="form-wrapper">
@@ -7,7 +23,7 @@
 
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Employee</mat-label>
-          <mat-select formControlName="userId" placeholder="Select Employee" required>
+          <mat-select formControlName="userId" placeholder="Select Employee" required #id (selectionChange)="checkProbationStatus(id.value)">
               @for(item of Users; track $index){
                 @if(item.name !== 'HR Admin' && item.name !== 'Approval Admin' && item.name !== 'Super Admin'){
                   <mat-option [value]="item.id">
@@ -24,9 +40,12 @@
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Leave Type</mat-label>
           <mat-select formControlName="leaveTypeId" placeholder="Select leave type" required>
-            <mat-option *ngFor="let leaveType of leaveTypes" [value]="leaveType.id">
-              {{ leaveType.leaveTypeName }}
-            </mat-option>
+            @for(leaveType of leaveTypes; track $index){
+              <mat-option [value]="leaveType.id">
+                {{ leaveType.leaveTypeName }}
+              </mat-option>
+            }
+           
           </mat-select>
         </mat-form-field>
 
@@ -60,34 +79,42 @@
         </mat-form-field>
 </div>
 
-      <div *ngIf="isSickLeaveAndMoreThanThreeDays()" class="upload-container" (click)="fileInput.click()">
-        Upload Image:
-        <input type="file" hidden #fileInput (change)="uploadFile($event)">
-        <span class="material-icons clickable-icon" [ngClass]="{'file-selected': isFileSelected}" style="margin-left: 10px;">cloud_upload</span>
-        <span *ngIf="fileName" style="margin-left: 10px;">{{ fileName }}</span>
-        <div *ngIf="!isFileSelected" style="color: red;">
-          File upload is mandatory for sick leave exceeding 3 days.
-        </div>
+@if(isSickLeaveAndMoreThanThreeDays()){
+  <div class="upload-container" (click)="fileInput.click()">
+    Upload Image:
+    <input type="file" hidden #fileInput (change)="uploadFile($event)">
+    <mat-icon class="clickable-icon" [ngClass]="{'file-selected': isFileSelected}" style="margin-left: 10px;">cloud_upload</mat-icon>
+    
+    @if(fileName){
+      <span style="margin-left: 10px;">{{ fileName }}</span>
+    }
+    @if(!isFileSelected){
+      <div style="color: red;">
+        File upload is mandatory for sick leave exceeding 3 days.
       </div>
-
-
+    }
+   
+  </div>
+}
+      
+      
 <br>
-
-
-
       <div formArrayName="leaveDates">
-        <div *ngFor="let leaveDate of leaveDates.controls; let i = index" [formGroupName]="i" class="leave-session-card">
-          <mat-card>
-            <mat-card-title>{{ leaveDate.get('date')?.value | date:'dd-MM-yyyy' }}</mat-card-title>
+        @for(leaveDate of leaveDates.controls;let i = $index; track $index ){
+          <div [formGroupName]="i" class="leave-session-card">
+            <mat-card>
+              <mat-card-title>{{ leaveDate.get('date')?.value | date:'dd-MM-yyyy' }}</mat-card-title>
+  
+              <mat-checkbox [checked]="leaveDate.get('session1')?.value" (change)="onSessionChange(i, 'session1')">
+                Session 1
+              </mat-checkbox>
+              <mat-checkbox [checked]="leaveDate.get('session2')?.value" (change)="onSessionChange(i, 'session2')">
+                Session 2
+              </mat-checkbox>
+            </mat-card>
+          </div>
+        }
 
-            <mat-checkbox [checked]="leaveDate.get('session1')?.value" (change)="onSessionChange(i, 'session1')">
-              Session 1
-            </mat-checkbox>
-            <mat-checkbox [checked]="leaveDate.get('session2')?.value" (change)="onSessionChange(i, 'session2')">
-              Session 2
-            </mat-checkbox>
-          </mat-card>
-        </div>
       </div>
 
       <br>
@@ -95,9 +122,9 @@
       type="submit"
       color="primary"
       class="submit-btn"
-      [disabled]="!leaveRequestForm.valid || isLoading || (isSickLeaveAndMoreThanThreeDays() && !isFileSelected)">
-{{ isEditMode ? 'Update' : 'Apply' }} Leave
-</button>
+      [disabled]="!leaveRequestForm.valid || (isSickLeaveAndMoreThanThreeDays() && !isFileSelected)">
+        {{ isEditMode ? 'Update' : 'Apply' }} Leave
+      </button>
 
     </form>
   </mat-card-content>

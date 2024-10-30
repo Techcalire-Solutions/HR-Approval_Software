@@ -10,7 +10,8 @@ import { AdminCardComponent } from "./admin-card/admin-card.component";
 import { BirthdayComponent } from "./birthday/birthday.component";
 import { JoiningDayComponent } from "./joining-day/joining-day.component";
 import { ProbationDueComponent } from "./probation-due/probation-due.component";
-
+import { HolidayCalendarComponent } from "./holiday-calendar/holiday-calendar.component";
+import { LeaveRequestsNotificationComponent } from './leave-requests-notification/leave-requests-notification.component';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -23,7 +24,9 @@ import { ProbationDueComponent } from "./probation-due/probation-due.component";
     AdminCardComponent,
     BirthdayComponent,
     JoiningDayComponent,
-    ProbationDueComponent
+    ProbationDueComponent,
+    HolidayCalendarComponent,
+    LeaveRequestsNotificationComponent,
 ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -43,7 +46,6 @@ ngOnInit(){
 roleSub!: Subscription;
   roleName!: string;
   hradmin: boolean = false;
-
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;
@@ -51,7 +53,6 @@ roleSub!: Subscription;
       if(this.roleName === 'HR Administrator' ||this.roleName==='HR') {
         this.hradmin = true;
       }
-
     })
   }
 }

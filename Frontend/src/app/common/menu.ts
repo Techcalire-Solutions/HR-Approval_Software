@@ -11,29 +11,42 @@ export const verticalMenuItems = [
 
   new Menu(4, 'Team', '/login/team', null, 'groups', null, false, 0),
 
-  new Menu(5, 'Approval Uploads', '', null, 'upload_file', null, true, 0),
-  new Menu(6, 'Add', '/login/addApproval', null, 'add_circle', null, false, 5),
-  new Menu(7, 'View', '/login/viewApproval', null, 'visibility', null, false, 5),
+  new Menu(5, 'Payment Flow', '', null, 'upload_file', null, true, 0),
+  new Menu(6, 'Add', '/login/viewApproval/addapproval', null, 'add_circle', null, false, 5),
+  new Menu(7, 'View', '/login/viewApproval/view', null, 'visibility', null, false, 5),
+  new Menu(25, 'Excel', '/login/viewApproval/viewexcel', null, 'backup_table', null, false, 5),
+
+  new Menu(26, 'Expense', '', null, 'payments', null, true, 0),
+  new Menu(27, 'Add', '/login/viewApproval/expenses', null, 'add_circle', null, false, 26),
+  new Menu(28, 'View', '/login/viewApproval/viewexpenses', null, 'visibility', null, false, 26),
 
   new Menu(8, 'Leave', '', null, 'date_range', null, true, 0),
 
   new Menu(9, 'Calendar', '/login/admin-leave', null,'event_available', null, false, 8),
   new Menu(21, 'View', '/login/admin-leave/view-leave-request', null,'edit_calendar', null, false, 8),
-  new Menu(10, 'Emergency', '/login/admin-leave/applyEmergencyleave', null, 'event_note', null, false, 8),
+  new Menu(10, 'Emergency', '/login/admin-leave/apply-emergency-leave', null, 'event_note', null, false, 8),
+  
 
 
   new Menu(11, 'Apply Leave', '/login/employee-leave', null, 'visibility', null, false, 8),
-  new Menu(12, 'Leave Balance', '/login/employee-leave/leaverequest', null, 'visibility', null, false, 8),
+  new Menu(12, 'Leave Balance', '/login/employee-leave/balance', null, 'visibility', null, false, 8),
 
 
   new Menu(13, 'Payroll', '', null, 'upload_file', null, true, 0),
-  new Menu(14, 'Process Payroll', '/login/addApproval', null, 'add_circle', null, false, 13),
+  new Menu(25, 'Advance Salary', '/login/payroll/advance-salary', null, 'add_circle', null, false, 13),
+  new Menu(14, 'Process Payroll', '/login/process-monthly-payroll', null, 'add_circle', null, false, 13),
   new Menu(15, 'Salary Statement', '/login/viewApproval', null, 'visibility', null, false, 13),
-  new Menu(16, 'Payslip', '/login/viewApproval', null, 'visibility', null, false, 13),
+  new Menu(16, 'Payslip', '/login/advance-salary', null, 'visibility', null, false, 13),
   new Menu(17, 'YTD Reports', '/login/viewApproval', null, 'visibility', null, false, 13),
   new Menu(17, 'Pay Details', '/login/viewApproval', null, 'visibility', null, false, 13),
   new Menu(18, 'User leave', '/login/userLeave', null, 'visibility', null, false, 8),
-  new Menu(20, 'Events Calender', '/login/leave/events', null, 'visibility', null, false, 8),
+  new Menu(20, 'Events Calender', '/login/employee-leave/events', null, 'visibility', null, false, 8),
+  // new Menu(21, 'Reports', '/login/leave/reports', null, 'visibility', null, false, 8),
+  new Menu(21, 'Reports', '', null, 'assessment', null, true, 0),
+  new Menu(22, 'Approval Report', '/login/viewApproval/approvalReport', null, 'visibility', null, false, 21),
+  new Menu(23, 'Employee Report', '/login/employee-leave/balance', null, 'visibility', null, false, 21),
+  new Menu(24, 'Leave Report', '/login/employee-leave/balance', null, 'visibility', null, false, 21),
+  new Menu(24, 'Expense Report', '/login/viewApproval/expenses', null, 'visibility', null, false, 21),
 
 ];
 

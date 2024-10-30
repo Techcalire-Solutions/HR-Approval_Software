@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, inject, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Settings, SettingsService } from '../services/settings.service';
@@ -14,14 +14,14 @@ import { NgScrollbarModule } from 'ngx-scrollbar';
 import { SidenavComponent } from '../theme/components/sidenav/sidenav.component';
 import { FullScreenComponent } from '../theme/components/fullscreen/fullscreen.component';
 import { ApplicationsComponent } from '../theme/components/applications/applications.component';
-import { MessagesComponent } from '../theme/components/messages/messages.component';
 import { UserMenuComponent } from '../theme/components/user-menu/user-menu.component';
 import { HorizontalMenuComponent } from '../theme/components/menu/horizontal-menu/horizontal-menu.component';
 import { BreadcrumbComponent } from '../theme/components/breadcrumb/breadcrumb.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AnnouncementsComponent } from "./announcements/announcements.component";
-import { Announcement } from '../common/interfaces/announcement';
 import { AnnouncementsService } from '@services/announcements.service';
+import { MessagesComponent } from '../theme/messages/messages.component';
+
 @Component({
   selector: 'app-pages',
   standalone: true,
@@ -40,11 +40,12 @@ import { AnnouncementsService } from '@services/announcements.service';
     SidenavComponent,
     FullScreenComponent,
     ApplicationsComponent,
-    MessagesComponent,
     UserMenuComponent,
     HorizontalMenuComponent,
     BreadcrumbComponent,
-    AnnouncementsComponent
+    AnnouncementsComponent,
+    MessagesComponent
+
 ],
   templateUrl: './pages.component.html',
   styleUrl: './pages.component.scss'

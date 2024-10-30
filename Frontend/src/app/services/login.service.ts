@@ -42,6 +42,10 @@ export class LoginService {
   getUserByRole(id: number):Observable<User[]>{
     return this._http.get<User[]>(this.url + '/user/findbyrole/'+id)
   }
+  getUserByRoleName(roleName: string): Observable<User[]> {
+    return this._http.get<User[]>(`${this.url}/user/findbyroleName/${roleName}`);
+  }
+  
   getJWTToken() {
     return localStorage.getItem(this.JWT_TOKEN);
 

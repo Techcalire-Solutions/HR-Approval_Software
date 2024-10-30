@@ -4,41 +4,15 @@ const LeaveType = require('../models/leaveType');
 const User = require('../../users/models/user');
 
 const Leave = sequelize.define('Leave', {
-  userId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  leaveTypeId: {
-    type: DataTypes.INTEGER,
-    allowNull: true, 
-  },
-  startDate: {
-    type: DataTypes.DATE,
-    allowNull: true,
-  },
-  endDate: {
-    type: DataTypes.DATE,
-    allowNull: true,
-  },
-  noOfDays: {
-    type: DataTypes.FLOAT,
-  },
-  notes: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  status: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  session1: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false, 
-  },
-  session2: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false, 
-  },
+  userId: {type: DataTypes.INTEGER, allowNull: false},
+  leaveTypeId: {type: DataTypes.INTEGER,allowNull: true},
+  startDate: {type: DataTypes.DATE, allowNull: true},
+  endDate: {type: DataTypes.DATE,allowNull: true},
+  noOfDays: {type: DataTypes.FLOAT},
+  notes: {type: DataTypes.STRING, allowNull: true},
+  status: {type: DataTypes.STRING,allowNull: true},
+  session1: {type: DataTypes.BOOLEAN, defaultValue: false},
+  session2: {type: DataTypes.BOOLEAN, defaultValue: false },
   fileUrl: { 
     type: DataTypes.STRING
    },
@@ -52,12 +26,14 @@ const Leave = sequelize.define('Leave', {
   timestamps: true, 
 });
 
+//------------------------------LEAVE ASSOCIATIONS-----------------------------------------------
 
 LeaveType.hasMany(Leave, { foreignKey: 'leaveTypeId', onUpdate: 'CASCADE' });
 Leave.belongsTo(LeaveType);
 
-User.hasMany(Leave, { foreignKey: 'userId', onUpdate: 'CASCADE' });
-Leave.belongsTo(User);
+Leave.belongsTo(LeaveType, { foreignKey: 'leaveTypeId' });
+
+Leave.belongsTo(User, { foreignKey: 'userId' });
 
 
 

@@ -13,8 +13,11 @@ const LeaveType = require('../models/leaveType')
     timestamps : true
  })
 
+ LeaveType.hasMany(UserLeave, { foreignKey: 'leaveTypeId', onUpdate: 'CASCADE' });
+ UserLeave.belongsTo(LeaveType);
+ 
 
- UserLeave.sync({alter:true})
+ UserLeave.sync({force:true})
 .then(()=>console.log)
 
 module.exports = UserLeave

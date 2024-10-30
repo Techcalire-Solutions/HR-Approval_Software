@@ -16,18 +16,15 @@
         </mat-form-field>
     </form>
 
+
     <div fxLayout="row" fxLayoutAlign="space-between center">
         <mat-button-toggle-group #viewType="matButtonToggleGroup" appearance="legacy" value="grid" hideSingleSelectionIndicator="true">
             <mat-button-toggle value="grid">
                 <mat-icon>view_module</mat-icon>
             </mat-button-toggle>
-            <mat-button-toggle value="list">
-                <mat-icon>view_list</mat-icon>
-            </mat-button-toggle>
         </mat-button-toggle-group>
     </div>
 </div>
-
 @if (viewType.value == 'grid') {
     <div fxLayout="row wrap">
         @for (user of users; track user.id) {
@@ -72,6 +69,10 @@
                             <button mat-menu-item (click)="resignEmployee(user.id, user.empNo);">
                                 <mat-icon>low_priority</mat-icon>
                                 <span>Separation</span>
+                            </button>
+                            <button mat-menu-item (click)="openAssets(user.id, user.empNo);">
+                                <mat-icon>devices</mat-icon>
+                                <span>Assets</span>
                             </button>
                             @if(user.url){
                                 <button mat-menu-item (click)="deleteImage(user.id);">

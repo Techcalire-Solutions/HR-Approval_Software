@@ -30,8 +30,10 @@
     "angular-in-memory-web-api": "0.18.0",
     "date-fns": "3.6.0",
     "dragula": "3.7.3",
+    "gapi-client": "^0.0.3",
     "leaflet-map": "0.2.1",
     "material-icons": "1.13.12",
+    "ng2-dragula": "^5.1.0",
     "ngx-pagination": "6.0.3",
     "ngx-quill": "26.0.1",
     "ngx-scrollbar": "15.0.0",
@@ -39,6 +41,7 @@
     "roboto-fontface": "0.10.0",
     "rxjs": "7.8.1",
     "tslib": "2.6.3",
+    "xlsx": "^0.18.5",
     "zone.js": "0.14.7"
   },
   "devDependencies": {

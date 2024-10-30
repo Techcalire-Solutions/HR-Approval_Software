@@ -1,0 +1,53 @@
+.expense-form-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px;
+}
+
+.expense-form {
+  width: 100%;
+}
+
+mat-card {
+  padding: 20px;
+}
+
+mat-card-title {
+  font-size: 24px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.flex-item {
+  flex: 1;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.col {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.col:last-child {
+  margin-right: 0;
+}

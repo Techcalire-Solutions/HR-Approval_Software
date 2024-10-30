@@ -2,12 +2,12 @@
 
 <mat-card>
   <mat-toolbar class="table-header">
-    <div class="row" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+    <div class="row">
       <div class="col">
         <h1>UPLOAD</h1>
       </div>
-      <div class="col" style="margin-left: auto; margin-right: 5px;" onClick="history.back()">
-        <span class="material-icons">exit_to_app</span>
+      <div class="col" style="margin-left: 90%;" onClick="history.back()">
+        <mat-icon>exit_to_app</mat-icon>
       </div>
     </div>
   </mat-toolbar>
@@ -18,25 +18,46 @@
         <mat-form-field appearance="outline">
           <mat-label>InvoiceNo</mat-label>
           <input matInput placeholder="" formControlName="piNo" readonly="true">
-        </mat-form-field> <mat-form-field appearance="outline">
-          <mat-label>Supplier Name</mat-label>
-          <input matInput placeholder="Enter Supplier Name" formControlName="supplierName">
+        </mat-form-field>
+        <!-- Control value: {{myControl.value || 'empty'}} -->
+
+        @if(supplierCompanies) {
+          <mat-form-field class="full-width" appearance="outline" >
+            <input matInput placeholder="Select Supplier" formControlName="supplierName" [matAutocomplete]="auto" (keyup)="search($event,'sup')">
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value,'sup')">
+              <mat-option *ngFor="let suggestion of filteredOptions" [value]="suggestion">
+                {{ suggestion.companyName }}
+              </mat-option>
+              <mat-option *ngIf="filteredOptions.length === 0" [value]="'add'" (click)="add('sup')">
+                <mat-icon style="font-size: 25px; color: rgb(35, 35, 247);">playlist_add</mat-icon>
+                ADD NEW
+              </mat-option>
+            </mat-autocomplete>
+            
+          </mat-form-field>
+        }
+
+        <mat-form-field appearance="outline">
+          <mat-label>Supplier SO#</mat-label>
+          <input matInput placeholder="Enter Supplier SO#" formControlName="supplierSoNo">
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Supplier PO#</mat-label>
+          <mat-label>Our PO#</mat-label>
           <input matInput placeholder="Enter Supplier PO#" formControlName="supplierPoNo">
         </mat-form-field>
+
         <mat-form-field appearance="outline">
           <mat-label>Supplier Currency</mat-label>
           <mat-select formControlName="supplierCurrency">
               <mat-option value="Dollar">Dollar</mat-option>
               <mat-option value="AED">AED</mat-option>
           </mat-select>
-      </mat-form-field>
-        <mat-form-field appearance="outline">
+        </mat-form-field>
+
+        <mat-form-field  appearance="outline">
           <mat-label>Supplier Price</mat-label>
-          <input matInput placeholder="Enter Supplier Price" formControlName="supplierPrice">
+          <input type="number" matInput placeholder="Enter Supplier Price" formControlName="supplierPrice">
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
@@ -46,176 +67,182 @@
             <mat-option value="Customer">Customer</mat-option>
           </mat-select>
         </mat-form-field>
-        <mat-form-field *ngIf="sp" class="full-width" appearance="outline">
-          <mat-label>Key Account Manager</mat-label>
-          <mat-select placeholder="" formControlName="kamId">
-            <!-- <mat-form-field class="full-width">
-              <div class="row">
-                <input matInput (input)="filterRole($event)" placeholder="Search">
-              </div>
-            </mat-form-field> -->
-            <mat-option *ngFor="let item of kam" [value]="item.id">
-              {{item.name}}
-            </mat-option>
-            <!-- <mat-option *ngIf="kam.length === 0" [value]="'add'">
-              <span class="material-icons" style="font-size: 25px; color: rgb(0, 128, 55);" (click)="addRole()">playlist_add</span>
-            </mat-option> -->
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field *ngIf="kamb" class="full-width" appearance="outline">
-          <mat-label>Manager</mat-label>
-          <mat-select placeholder="" formControlName="amId">
-            <!-- <mat-form-field class="full-width">
-              <div class="row">
-                <input matInput (input)="filterRole($event)" placeholder="Search">
-              </div>
-            </mat-form-field> -->
-            <mat-option *ngFor="let item of AMList" [value]="item.id">
-              {{item.name}}
-            </mat-option>
-            <!-- <mat-option *ngIf="kam.length === 0" [value]="'add'">
-              <span class="material-icons" style="font-size: 25px; color: rgb(0, 128, 55);" (click)="addRole()">playlist_add</span>
-            </mat-option> -->
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field *ngIf="am" class="full-width" appearance="outline">
-          <mat-label>Accountant</mat-label>
-          <mat-select placeholder="" formControlName="accountantId">
-            <!-- <mat-form-field class="full-width">
-              <div class="row">
-                <input matInput (input)="filterRole($event)" placeholder="Search">
-              </div>
-            </mat-form-field> -->
-            <mat-option *ngFor="let item of AccountantList" [value]="item.id">
-              {{item.name}}
-            </mat-option>
-            <!-- <mat-option *ngIf="kam.length === 0" [value]="'add'">
-              <span class="material-icons" style="font-size: 25px; color: rgb(0, 128, 55);" (click)="addRole()">playlist_add</span>
-            </mat-option> -->
-          </mat-select>
-        </mat-form-field>
-
-        <!-- Conditional Fields -->
-        <ng-container *ngIf="piForm.get('purpose')?.value === 'Customer'">
-          <mat-form-field appearance="outline">
-            <mat-label>Customer Name</mat-label>
-            <input matInput placeholder="Enter Customer Name" formControlName="customerName">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Customer PO#</mat-label>
-            <input matInput placeholder="Enter Customer PO#" formControlName="customerPoNo">
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Customer Currency</mat-label>
-            <mat-select formControlName="customerCurrency">
-                <mat-option value="Dollar">Dollar</mat-option>
-                <mat-option value="AED">AED</mat-option>
-            </mat-select>
-        </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>CustomerPO Value</mat-label>
-            <input matInput placeholder="Enter PO Value" formControlName="poValue">
-          </mat-form-field>
-
-        <mat-form-field appearance="outline" *ngIf="editStatus">
-          <mat-label>Status</mat-label>
-          <input matInput placeholder="" formControlName="status">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" *ngIf="editStatus">
-          <mat-label>Remarks</mat-label>
-          <input matInput placeholder="" formControlName="remarks" >
-        </mat-form-field>
 
 
-<!--
-      <mat-icon *ngIf="imageUrl" style="font-size: 25px;" (click)="clearFileInput()">delete</mat-icon> -->
+        @if(piForm.get('purpose')?.value === 'Customer'){
+          <ng-container>
+            @if(customerCompanies) {
+              <mat-form-field class="full-width" appearance="outline" >
+                <input matInput placeholder="Select Customer" formControlName="customerName" [matAutocomplete]="auto" (keyup)="search($event,'cust')">
+                <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value,'cust')">
+                  <mat-option *ngFor="let suggestion of filteredCustomers" [value]="suggestion">
+                    {{ suggestion.companyName }}
+                  </mat-option>
+                  <mat-option *ngIf="filteredCustomers.length === 0" [value]="'add'" (click)="add('cust')">
+                    <mat-icon style="font-size: 25px; color: rgb(35, 35, 247);">playlist_add</mat-icon>
+                    ADD NEW
+                  </mat-option>
+                </mat-autocomplete>
+                
+              </mat-form-field>
+            }
 
-      <!-- <form #form class="form">
-        <ng-container *ngIf="imageUrl && imageUrl != ''; else noImageTemplate">
-          <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
-          <img [src]="imageUrl" alt="Image" title="Image" height="300" width="300" (click)="fileInput.click()" />
-        </ng-container>
+            <mat-form-field appearance="outline">
+              <mat-label>Customer PO#</mat-label>
+              <input matInput placeholder="Enter Customer PO#" formControlName="customerPoNo">
+            </mat-form-field>
 
-        <ng-template #noImageTemplate>
-          <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
-          <span class="material-icons" (click)="fileInput.click()">cloud_upload</span>
-          <p (click)="fileInput.click()">Browse file to upload</p>
-        </ng-template>
-      </form> -->
-</ng-container>
-</form>
-      <form #form class="form">
-        <!-- <ng-container *ngIf="imageUrl && fileType != 'pdf'; else fileTemplate">
-          <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
-          <img [src]="imageUrl" alt="Image" title="Image" height="300" width="300" (click)="fileInput.click()" />
-        </ng-container>
+            <mat-form-field appearance="outline">
+              <mat-label>Our Customer SO#</mat-label>
+              <input matInput placeholder="Enter Customer SO#" formControlName="customerSoNo">
+            </mat-form-field>
 
+            <mat-form-field appearance="outline">
+              <mat-label>Customer Currency</mat-label>
+              <mat-select formControlName="customerCurrency">
+                  <mat-option value="Dollar">Dollar</mat-option>
+                  <mat-option value="AED">AED</mat-option>
+              </mat-select>
+            </mat-form-field>
 
-          <--- PDF Preview -->
-        <!-- <ng-template #fileTemplate>
-          <ng-container *ngIf="safeUrl && fileType === 'pdf'; else noFileTemplate">
-            <object [data]="safeUrl" type="application/pdf" width="300" height="300">
-              <p style="margin-left: 20px;">Your browser does not support PDFs. <a [href]="safeUrl" target="_blank">Download the PDF</a></p>
-            </object>
+            <mat-form-field  appearance="outline">
+              <mat-label>CustomerPO Value</mat-label>
+              <input type="number" matInput placeholder="Enter PO Value" formControlName="poValue">
+            </mat-form-field>
           </ng-container>
-        </ng-template>
+        }
 
-        <ng-template #noFileTemplate> </ng-template>
-
-        <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
-        <span class="material-icons" (click)="fileInput.click()">cloud_upload</span>
-        <p (click)="fileInput.click()">Browse file to upload</p> -->
-
-        @if(!imageUrl){
-          <div class="col">
-            <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
-            <span class="material-icons file-upload-icon" (click)="fileInput.click()">cloud_upload</span>
-            <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
-          </div>
-      }
-      @else{
-      <div class="col">
-          <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
-          @if(fileType === 'pdf'){
-              <iframe [src]="imageUrl | safe" width="100%" height="300px"></iframe>
-          }@else {
-              <img [src]="imageUrl" alt="Image" title="Image" height="300px" class="clickable-image" />
+        <mat-form-field appearance="outline">
+          <mat-label>Payment Mode</mat-label>
+          <mat-select formControlName="paymentMode" (selectionChange)="onPaymentModeChange()">
+            <mat-option value="CreditCard">Credit Card</mat-option>
+            <mat-option value="WireTransfer">Wire Transfer</mat-option>
+          </mat-select>
+        </mat-form-field>
+        @if(sp) {
+          <!-- Show Account Manager dropdown if payment mode is Credit Card -->
+          @if(piForm.get('paymentMode')?.value === 'CreditCard') {
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Authorize Manager</mat-label>
+              <mat-select placeholder="" formControlName="amId">
+                <!-- <mat-option value="">None</mat-option> -->
+                @for(item of AMList; track $index) {
+                  <mat-option [value]="item.id">
+                    {{item.name}}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
           }
 
-          <mat-icon style="color: red;" (click)="onDeleteImage()">delete</mat-icon>
-          </div>
-      </div>
-      } 
+          <!-- Show Key Account Manager dropdown if payment mode is not Credit Card -->
+          @if(piForm.get('paymentMode')?.value !== 'CreditCard') {
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Key Account Manager</mat-label>
+              <mat-select placeholder="" formControlName="kamId">
+                @for(item of kam; track $index) {
+                  <mat-option [value]="item.id">
+                    {{item.name}}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+        }
+
+        @if(kamb){
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Manager</mat-label>
+            <mat-select placeholder="" formControlName="amId">
+            @for(item of AMList; track $index){
+              <mat-option [value]="item.id">
+                {{item.name}}
+              </mat-option>
+            }
+            </mat-select>
+          </mat-form-field>
+        }
+
+        @if(am){
+          @if(piForm.get('paymentMode')?.value === 'CreditCard') {
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Key account Manager</mat-label>
+              <mat-select placeholder="" formControlName="kamId">
+                <!-- <mat-option value="">None</mat-option> -->
+                @for(item of kam; track $index) {
+                  <mat-option [value]="item.id">
+                    {{item.name}}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+
+          <!-- Show Key Account Manager dropdown if payment mode is not Credit Card -->
+          @if(piForm.get('paymentMode')?.value !== 'CreditCard') {
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Accountant</mat-label>
+              <mat-select placeholder="" formControlName="accountantId">
+                
+              @for(item of AccountantList; track $index){
+                <mat-option [value]="item.id">
+                  {{item.name}}
+                </mat-option>
+              }
+              </mat-select>
+            </mat-form-field>
+          }
+        }
+        <mat-form-field appearance="outline">
+          <mat-label>Notes</mat-label>
+          <input matInput placeholder="" formControlName="notes" >
+        </mat-form-field>
+
       </form>
+      <form [formGroup]="piForm" enctype="multipart/form-data">
+        <div formArrayName="url">
+          @for (uploadForm of doc().controls; track $index; let i = $index;) {
+            <div [formGroupName]="i" class="form-instance">
+              <div class="row" style="margin-top: 20px;">
+                <div class="col">
+                  <mat-form-field class="w-100" appearance="outline">
+                    <mat-label>Document Remarks</mat-label>
+                    <input matInput formControlName="remarks">
+                  </mat-form-field>
+                </div>
 
-
-
-      <section class="progress-area" *ngIf="file" style="width:90%">
-        <li class="row">
-          <!-- <span class="material-icons">file_copy</span> -->
-          <div class="content" >
-            <div class="details">
-              <span class="name">{{ file.name }} - {{ uploadComplete ? 'Uploaded' : 'Uploading' }}</span>
-              <mat-progress-bar *ngIf="!uploadComplete" mode="indeterminate"></mat-progress-bar>
+                @if(!imageUrl[i]){
+                  <div class="col">
+                    <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">
+                    <mat-icon (click)="fileInput.click()">cloud_upload</mat-icon>
+                    <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
+                  </div>
+                }
+                @else{
+                  <div class="col">
+                    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+                      @if(fileType[i] === 'pdf'){
+                        <iframe [src]="imageUrl[i] | safe" width="100%" height="300px"></iframe>
+                      }@else {
+                        <img [src]="imageUrl[i]" alt="Image" title="Image" height="100" width="100" class="clickable-image" />
+                      }
+                      <mat-icon style="color: red;" (click)="onDeleteImage(i)">delete</mat-icon>
+                    </div>
+                  </div>
+                }
+                <button mat-icon-button color="warn" (click)="removeData(i)">
+                  <mat-icon>remove_circle</mat-icon>
+                </button>
+              </div>
             </div>
-          </div>
-        </li>
-      </section>
-
-<BR>
-
-      <button mat-raised-button type="button" color="primary" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid" *ngIf="!editStatus">
-        <!-- <span class="material-icons button-style" style="font-size: 25px;">save</span> -->
-        SAVE
-      </button>
-      <!-- <button mat-raised-button type="button" class="btn btn-success" (click)="onUpdate()" [disabled]="!piForm.valid" *ngIf="editStatus">
-        <span class="material-icons" style="font-size: 25px;">save</span>
-      </button> -->
+          }
+          <button mat-raised-button color="primary" (click)="addDoc()" [disabled]="!isImageUploaded()" >New Doc</button>
+        </div>
+      </form>
+      <br>
+      <button mat-raised-button type="button" color="primary" class="btn btn-success"
+        (click)="onSubmit()"  [disabled]="!piForm.valid || !isImageUploaded()"> SAVE
+      </button>
     </div>
   </mat-card-content>
 </mat-card>

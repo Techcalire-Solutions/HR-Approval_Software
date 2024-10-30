@@ -8,7 +8,7 @@ router.post('/', async (req, res) => {
     try {
         const { empNo, password } = req.body;
         
-        const user = await User.findOne({ where: { empNo: empNo } });
+        const user = await User.findOne({ where: { empNo: empNo,  separated: false} });
         
         if (!user) {
             return res.json({ message: 'User not found' });
@@ -33,7 +33,7 @@ router.post('/', async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({ message: 'Internal server error' });
+        res.json({ message: error.message });
     }
 });
 

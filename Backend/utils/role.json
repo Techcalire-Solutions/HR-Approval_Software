@@ -1,0 +1,14 @@
+[
+    {"roleName": "OPERATIONS MANAGER", "abbreviation": "OM"}, 
+    {"roleName": "KEY ACCOUNT MANAGER", "abbreviation": "KAM"}, 
+    {"roleName": "FINANCE MANAGER", "abbreviation": "FM"}, 
+    {"roleName": "SENIOR SALES ASSOCIATE", "abbreviation": "SSA"}, 
+    {"roleName": "TEAM LEAD", "abbreviation": "TL"}, 
+    {"roleName": "GRAPHIC DESIGNER", "abbreviation": "GD"}, 
+    {"roleName": "LOGISTICS COORDINATOR", "abbreviation": "LC"}, 
+    {"roleName": "SALES ASSOCIATE", "abbreviation": "SA"}, 
+    {"roleName": "HR & ADMINISTRATION MANAGER", "abbreviation": "HR"}, 
+    {"roleName": "ACCOUNTS EXECUTIVE", "abbreviation": "AE"}, 
+    {"roleName": "SEO SPECIALIST", "abbreviation": "SS"}, 
+    {"roleName": "SOFTWARE ENGINEER", "abbreviation": "SE"}
+]

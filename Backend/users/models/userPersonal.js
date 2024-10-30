@@ -19,17 +19,11 @@ const UserPersonal = sequelize.define('userPersonal', {
   spouseName: { type: DataTypes.STRING },
   referredBy: { type: DataTypes.STRING },
   reportingMangerId: { type: DataTypes.INTEGER }
-
 },
 {
   freezeTableName: true,
   timestamps: true
 });
-
-// In your models setup file
-// User.hasMany(UserPersonal, { foreignKey: 'userId', as: 'personalDetails' });
-// UserPersonal.belongsTo(User, { foreignKey: 'reportingManagerId', as: 'reportingManager' });
-
 
 User.hasMany(UserPersonal, { foreignKey: 'userId', onUpdate: 'CASCADE' });
 UserPersonal.belongsTo(User, { foreignKey: 'userId' });

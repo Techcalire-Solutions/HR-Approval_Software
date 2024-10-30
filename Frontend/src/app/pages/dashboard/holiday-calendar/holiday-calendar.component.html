@@ -1,0 +1,20 @@
+<mat-card>
+    <h2>Upcoming Holidays</h2>
+    <ul>
+        @for (item of holidays; track $index; let i = $index) {
+            <li [ngStyle]="{'color': item.comboAdded ? 'red' : 'black'}">
+                {{ item.date | date: 'dd-MM-yyyy' }} - {{ item.name }}
+                @if(roleName === 'HR Administrator' || roleName === 'Super Administrator'){
+                    <ng-container>
+                        <mat-icon (click)="openCompoOff(item.id)">add_task</mat-icon>
+                        </ng-container>
+                }
+            </li>
+        }
+
+      </ul>
+      
+    <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
+        (page)="onPageChange($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
+   </mat-paginator>
+</mat-card>

@@ -14,9 +14,10 @@ const s3 = require('../../utils/s3bucket');
 const UserLeave = require('../../leave/models/userLeave');
 const LeaveType = require('../../leave/models/leaveType');
 const UserPersonal = require('../models/userPersonal');
+const UserPosition = require('../models/userPosition');
 
 router.post('/add', async (req, res) => {
-  const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId, empNo } = req.body;
+  const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId, empNo, director } = req.body;
 
   try {
     // Check if user exists by email/role or empNo/role
@@ -36,7 +37,7 @@ router.post('/add', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-      name, empNo, email, phoneNumber, password: hashedPassword, roleId, status, userImage, url, teamId
+      name, empNo, email, phoneNumber, password: hashedPassword, roleId, status, userImage, url, teamId, director
     });
 
     // Verify the team exists
@@ -56,7 +57,7 @@ router.post('/add', async (req, res) => {
     }
 
   } catch (error) {
-    res.send('Server error');
+    res.send(error.message);
   }
 });
 
@@ -129,7 +130,8 @@ router.get('/find/', async (req, res) => {
       limit,
       offset
     });
-
+    console.log(users);
+    
     let totalCount;
     totalCount = await User.count();
 
@@ -188,7 +190,7 @@ router.patch('/statusupdate/:id', async (req, res) => {
   }
 })
 
-// Route to get a user by ID
+
 router.get('/findone/:id', async (req, res) => {
   let id = req.params.id;
   
@@ -257,6 +259,21 @@ router.get('/findbyrole/:id', async (req, res) => {
     res.send(error.message)
   }
 })
+router.get('/findbyroleName/:roleName', async (req, res) => {
+  try {
+    const users = await User.findAll({
+      include: {
+        model: Role,
+        where: { roleName: req.params.roleName } 
+     
+      }
+    });
+
+    res.send(users);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
 
 router.get('/getdirectors', async (req, res) => {
   try {
@@ -411,6 +428,13 @@ router.patch('/resetpassword/:id', async (req, res) => {
 router.get('/underprobation', async (req, res) => {
   try {
     const user = await User.findAll({
+      include: [
+        {
+          model: Role,
+          attributes: ['id', 'roleName']
+        },
+
+      ],
       where: { isTemporary: true }
     })
     res.send(user);
@@ -440,6 +464,15 @@ router.get('/confirmemployee/:id', async (req, res) => {
       if(!up){
         return res.send(`Personal data is not added for the employee ${result.name}`)
       }
+
+      let post = await UserPosition.findOne({
+        where: { userId: req.params.id}
+      })
+      if(!post){
+        return res.send(`Position data is not added for the employee ${result.name}`)
+      }
+      post.probationNote = req.query.note;
+      await post.save();
       
       if (!result) {
           return res.json({ message: "Employee not found" });
@@ -486,8 +519,8 @@ router.get('/resignemployee/:id', async (req, res) => {
           return res.json({ message: "Employee not found" });
       }
 
-      result.separated = true;
-      result.status = false;
+      result.separated = !result.separated;
+      result.status = !result.separated;
       await result.save();
       res.json({ message: "Employee Separetd" });
   } catch (error) {

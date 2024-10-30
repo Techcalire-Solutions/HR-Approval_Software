@@ -20,4 +20,13 @@ import { TokenInterceptor } from './common/interceptors/token.interceptor';
 export class AppComponent {
   settingsService = inject(SettingsService);
   settings: Settings = this.settingsService.settings;
+
+  ngAfterViewInit(){
+    
+    setTimeout(() => {
+      console.log(this.settings);
+      
+      this.settings.loadingSpinner = false; 
+    });  
+  }
 }

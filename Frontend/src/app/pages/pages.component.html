@@ -34,9 +34,9 @@
                             </div>
                         }
                         <button mat-icon-button class="full-screen" (click)="openTree()">
-                            <mat-icon>account_tree</mat-icon>
+                            <mat-icon class="invert-icon">account_tree</mat-icon>
                         </button>
-                        
+
                         <div fxLayout="row" fxLayoutAlign="start center" fxShow="false" fxShow.gt-xs class="search-bar">
                             <form method="get" fxLayout="row" fxLayoutAlign="start center">
                                 <input type="text" placeholder="Type to search..." class="mat-elevation-z3"  [class.show]="toggleSearchBar">
@@ -55,8 +55,8 @@
                         <!-- <app-flags-menu fxShow="false" fxShow.gt-sm></app-flags-menu> -->
                         <app-fullscreen></app-fullscreen>
 
-                        <!-- <app-applications fxShow="false" fxShow.gt-sm></app-applications> -->
-                        <!-- <app-messages fxShow="false" fxShow.gt-xs></app-messages> -->
+                        <app-applications fxShow="false" fxShow.gt-sm></app-applications>
+                        <app-messages fxShow="false" fxShow.gt-xs></app-messages>
                         <!-- <app-user-menu></app-user-menu> -->
                     </div>
                 </div>

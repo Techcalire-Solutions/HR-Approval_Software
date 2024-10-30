@@ -1,0 +1,46 @@
+<button mat-icon-button [matMenuTriggerFor]="messagesMenu" (click)="openMessagesMenu()">
+  <mat-icon>notifications</mat-icon>
+
+  @if (unreadCount > 0) {
+    <span style="color: red; font-weight: bold; font-size: 0.75em; position: relative; top: -8px; left: -6px;">{{unreadCount}}</span>
+
+
+
+  }
+</button>
+
+<mat-menu #messagesMenu="matMenu" [overlapTrigger]="false" class="toolbar-dropdown-menu messages">
+      <mat-tab-group backgroundColor="primary" (click)="stopClickPropagate($event)" [selectedIndex]="selectedTab">
+          <mat-tab>
+              <ng-template mat-tab-label>
+                  <mat-icon>message</mat-icon>&nbsp;&nbsp;Messages
+              </ng-template>
+              <mat-card class="content">
+                  <ng-scrollbar pointerEventsMethod="scrollbar">
+                      <div fxLayout="column" fxLayoutAlign="none">
+                          @for (message of notifications; track message) {
+                              <button mat-button (click)="markAsRead(message.id)">
+                                  <!-- <img src="{{ ( message.image || (message.name | profilePicture)) }}" width="50"> -->
+                                  <div fxLayout="column" fxLayoutAlign="none" class="w-100">
+                                      <div fxLayout="row" fxLayoutAlign="space-between start">
+                                        <span class="name">{{ message.name }}</span>
+                                          <span class="info"><mat-icon>access_time</mat-icon>     {{ message.createdAt | timeAgo }}</span>
+                                      </div>
+                                      <span class="text muted-text">{{message.message}}</span>
+                                  </div>
+                                  <mat-icon
+                                  style="color: blue; cursor: pointer;"
+                                  (click)="markAsRead(message.id)"
+                                  aria-label="Mark as read">
+                                  mark_email_read
+                                </mat-icon>
+                              </button>
+                          }
+                      </div>
+                  </ng-scrollbar>
+              </mat-card>
+          </mat-tab>
+          <mat-tab>
+          </mat-tab>
+      </mat-tab-group>
+</mat-menu>

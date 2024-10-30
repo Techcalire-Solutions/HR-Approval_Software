@@ -23,14 +23,13 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxPaginationModule } from 'ngx-pagination';
-
-import { ActivatedRoute, Router } from '@angular/router';
 import { LeaveService } from '@services/leave.service';
-import { DomSanitizer } from '@angular/platform-browser';
-import { CamelCasePipe } from '../../common/camel-case.pipe';
+import { CamelCasePipe } from '../../theme/pipes/camel-case.pipe';
 import { PipesModule } from '../../theme/pipes/pipes.module';
 import { UserDialogComponent } from '../users/user-dialog/user-dialog.component';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
+import { Router } from '@angular/router';
+import { LeaveGraphsComponent } from './leave-graphs/leave-graphs.component';
 
 @Component({
   selector: 'app-employee-leave',
@@ -55,7 +54,8 @@ import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/
     UserDialogComponent,
     CommonModule,
     MatPaginatorModule,
-    CamelCasePipe
+    CamelCasePipe,
+    LeaveGraphsComponent
   ],
   providers: [
     { provide: DateAdapter, useClass: NativeDateAdapter },
@@ -77,7 +77,6 @@ export class EmployeeLeaveComponent {
 
 userId:number
   ngOnInit(){
-    
     this.getLeaveByUser()
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
@@ -100,11 +99,8 @@ leaves:any[]=[]
   leaveSub :Subscription
   private getLeaveByUser(): void {
     if (!this.userId) return;
-
     this.leaveSub = this.leaveService.getLeavesByUser(this.userId, this.searchText, this.currentPage, this.pageSize).subscribe(
       (res: any) => {
-        console.log(res)
-
         this.leaves = res.items;
         this.totalItems = res.count;
       },
@@ -141,13 +137,13 @@ leaves:any[]=[]
 
 
   editLeave(item:any) {
-    this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item.id } });
+ this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item.id } });
   }
 
 
 
 delete!: Subscription;
-deleteLeave(id: number){
+deleteLeaveStableFunction(id: number){
     let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
     dialogRef.afterClosed().subscribe(res => {
       if(res){
@@ -157,6 +153,45 @@ deleteLeave(id: number){
         });
       }
     });
+    this.leaves = this.leaves.filter(item => item.id !== id);
+  }
+
+
+  hasValidSessions(leaveDates: any[]): boolean {
+    return leaveDates.some(date => date.session1 || date.session2);
+  }
+
+
+  deleteLeave(id: number): void {
+    let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+    dialogRef.afterClosed().subscribe((res) => {
+      if (res) {
+        this.delete = this.leaveService.deleteLeave(id).subscribe({
+          next: (response) => {
+            const leaveItem = this.leaves.find(leave => leave.id === id);
+            if (leaveItem?.fileUrl) {
+              this.leaveService.deleteUploadByurl(leaveItem.fileUrl).subscribe({
+                next: () => {
+                  this.snackBar.open('Leave request and file deleted successfully!', 'Close', { duration: 3000 });
+                },
+                error: () => {
+                  this.snackBar.open('Leave request deleted, but file deletion failed!', 'Close', { duration: 3000 });
+                }
+              });
+            } else {
+              this.snackBar.open('Leave request deleted successfully, but no file was associated.', 'Close', { duration: 3000 });
+            }
+
+            this.getLeaveByUser();
+          },
+          error: (error) => {
+            this.snackBar.open('Error deleting leave request!', 'Close', { duration: 3000 });
+          }
+        });
+      }
+    });
+
+    this.leaves = this.leaves.filter(item => item.id !== id);
   }
 
 

@@ -14,15 +14,8 @@ export class InvoiceService {
 
   constructor(private _http:HttpClient) { }
 
-  uploadInvoice(file: any): Observable<any> {
-    if (file instanceof File) {
-      const formData = new FormData();
-      formData.append("file", file, file.name);
-      return this._http.post(this.url + '/invoice/fileupload', formData);
-    } else {
-      // Handle the case where 'file' is not a File object
-      return throwError("Invalid file type");
-    }
+  uploadInvoice(formData: FormData): Observable<any> {
+    return this._http.post(this.url + '/invoice/fileupload', formData);
   }
 
   uploadBankSlip(file: any): Observable<any> {
@@ -36,8 +29,8 @@ export class InvoiceService {
     }
   }
 
-  deleteUploaded(id: number, key?: string) {
-    return this._http.delete(`${this.url}/invoice/filedelete?id=${id}&key=${key}`);
+  deleteUploaded(id: number, i: number, key?: string) {
+    return this._http.delete(`${this.url}/invoice/filedelete?id=${id}&index=${i}&key=${key}`);
   }
 
   deleteUploadByurl(key: string) {
@@ -88,8 +81,12 @@ export class InvoiceService {
     return this._http.post(this.url + '/performaInvoice/saveByAM', data);
   }
 
-  getDashboardPI(status?: string, currentPage?: number, pageSize?: number): Observable<any[]>{
-    return this._http.get<any[]>(this.url + `/performaInvoice/dashboard/?status=${status}&page=${currentPage}&pageSize=${pageSize}`);
+  getDashboardCCPI(status?: string, currentPage?: number, pageSize?: number): Observable<any[]>{
+    return this._http.get<any[]>(this.url + `/performaInvoice/dashboard/cc/?status=${status}&page=${currentPage}&pageSize=${pageSize}`);
+  }
+
+  getDashboardWTPI(status?: string, currentPage?: number, pageSize?: number): Observable<any[]>{
+    return this._http.get<any[]>(this.url + `/performaInvoice/dashboard/wt/?status=${status}&page=${currentPage}&pageSize=${pageSize}`);
   }
 
 
@@ -104,9 +101,16 @@ export class InvoiceService {
   updatePIByAM(data: any, id: number){
     return this._http.patch(this.url + '/performaInvoice/updateByAM/'+ id, data);
   }
+  updatePIByAdminSuperAdmin(data: any, id: number){
+    return this._http.patch(this.url + '/performaInvoice/updatePIByAdminSuperAdmin/'+ id, data);
+  }
 
   getPIById(id: number): Observable<any>{
     return this._http.get<any>(this.url + '/performaInvoice/findbyid/'+id);
+  }
+
+  getPICount(): Observable<any>{
+    return this._http.get<any>(this.url + '/performaInvoice/findcount/');
   }
 
   getPIStatusByPIId(id: number, search: string): Observable<PerformaInvoiceStatus[]>{
@@ -128,7 +132,18 @@ export class InvoiceService {
     return this._http.get<Role[]>(this.url + `/role/find/?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
   }
   getRoleById(id: number): Observable<Role>{
-    return this._http.get<Role>(this.url + '/role/'+id);
+    return this._http.get<Role>(this.url + '/role/findbyid/'+id);
   }
 
+  getAdminReports(data: any){
+    return this._http.patch<any[]>(this.url + '/performaInvoice/getforadminreport', data);
+  }
+
+  excelExport(data: any){
+    return this._http.post<any[]>(this.url + '/invoice/excelupload', data);
+  }
+
+  getexcel(){
+    return this._http.get(this.url + '/invoice/getexcel', { responseType: 'arraybuffer' });
+  }
 }

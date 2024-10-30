@@ -1,23 +1,38 @@
 <div class="table-container">
   <table class="styled-table">
     <thead>
-        <tr>
-            <th class="wide-header">Probation</th>
-            <th class="narrow-header"></th>
-        </tr>
+      <tr>
+        <th class="wide-header">Probation</th>
+        <th class="narrow-header"></th>
+      </tr>
     </thead>
     <tbody>
-      @for (temp of probEmp; track $index) {
+      @for (temp of probEmp; track $index; let i = $index) {
         <tr>
           <td class="wide-cell">{{ temp.name }}</td>
-          <td class="narrow-cell" style="width: 30px;" (click)="confirmEmployee(temp.id, temp.empNo)">
-            <mat-icon>arrow_forward</mat-icon>
+          <td class="narrow-cell">
+            
+            @if(selectedEmployeeId !== temp.id){
+              <mat-icon class="clickable-icon"  (click)="onConfirmClick(temp.id)">
+                arrow_forward
+              </mat-icon>
+            }
+  
+            @if(selectedEmployeeId === temp.id){
+              <div class="note-entry">
+                <mat-form-field appearance="outline" class="note-input">
+                  <mat-label>Add a note</mat-label>
+                  <input matInput [(ngModel)]="note" placeholder="Enter note" />
+                </mat-form-field>
+                <button mat-button color="primary" (click)="confirmEmployee(temp.id, temp.empNo, note)">Confirm</button>
+                <button mat-button color="warn" (click)="cancelNote()">Cancel</button>
+              </div>
+            }
           </td>
-      </tr>
+        </tr>
       }
-
     </tbody>
-</table>
+  </table>
   
   <table class="styled-table">
       <thead>

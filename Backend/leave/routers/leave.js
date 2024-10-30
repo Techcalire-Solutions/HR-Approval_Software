@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+const router =  express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const Leave = require('../models/leave');
 const UserLeave = require('../models/userLeave');
@@ -9,9 +9,12 @@ const LeaveType = require('../models/leaveType')
  const { Op } = require('sequelize');
  const sequelize = require('../../utils/db');
  const Role = require('../../users/models/role')
- const s3 = require('../../utils/s3bucket');
  const upload = require('../../utils/leaveDocumentMulter');
+ const s3 = require('../../utils/s3bucket');
+ const UserPersonal = require('../../users/models/userPersonal');
+ const UserPosition = require('../../users/models/userPosition')
 
+ 
 //-----------------------------------Mail code-------------------------------------------------------
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -22,49 +25,104 @@ const transporter = nodemailer.createTransport({
 });
 
 
-//-------------------------------------Find HR Mail-----------------------------------------------------
+//-------------------------------------Find HR Mail and Reporting manager mail-----------------------------------------------------
 async function getHREmail() {
-
+  // Fetch the HR Administrator role
   const hrAdminRole = await Role.findOne({ where: { roleName: 'HR Administrator' } });
   if (!hrAdminRole) {
     throw new Error('HR Admin role not found');
   }
 
-
+  // Fetch the HR Administrator user using the role ID
   const hrAdminUser = await User.findOne({ where: { roleId: hrAdminRole.id, status: true } });
   if (!hrAdminUser) {
     throw new Error('HR Admin user not found');
   }
 
-  return hrAdminUser.email; 
+  // Fetch the user position for the HR Administrator user
+  const userPosition = await UserPosition.findOne({ where: { userId: hrAdminUser.id } });
+  if (!userPosition) {
+    throw new Error('User position not found for HR Admin');
+  }
+
+  // Return the email from the user position table
+  return userPosition.officialMailId; 
 }
+
+
+async function getReportingManagerEmailForUser(userId) {
+  try {
+    // Fetch the user's personal information to get the reporting manager ID
+    const userPersonal = await UserPersonal.findOne({
+      where: { userId },
+      attributes: ['reportingMangerId'],
+    });
+
+    if (!userPersonal) {
+      return `User with id ${userId} not found`;
+    }
+
+    const reportingMangerId = userPersonal.reportingMangerId;
+    if (!reportingMangerId) {
+      return `No reporting manager found for userId ${userId}`;
+    }
+
+    // Fetch the reporting manager's user position to get the official email
+    const reportingManagerPosition = await UserPosition.findOne({
+      where: { userId: reportingMangerId },
+      attributes: ['officialMailId'],  // Assuming the column name is officialEmail
+    });
+
+    if (reportingManagerPosition) {
+      return reportingManagerPosition.officialMailId;  
+    } else {
+      return `Reporting manager position not found for reportingMangerId ${reportingMangerId}`;
+    }
+  } catch (error) {
+    console.error('Error fetching reporting manager email:', error);
+    return 'Error fetching reporting manager email';
+  }
+}
+
+
+
+
 
 //-------------------------------------Mail sending function------------------------------------------
 async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates) {
   const hrAdminEmail = await getHREmail();
+  const reportingManagerEmail = await getReportingManagerEmailForUser(user.id);
 
-  // Ensure leaveDates is valid
+
   if (!Array.isArray(leaveDates)) {
     throw new Error('leaveDates must be an array');
   }
 
+   const formattedStartDate = new Date(new Date(startDate).setDate(new Date(startDate).getDate() + 1))
+  .toISOString()
+  .split('T')[0];
+   const formattedEndDate = new Date(new Date(endDate).setDate(new Date(endDate).getDate() + 1))
+  .toISOString()
+  .split('T')[0];
+
+
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: process.env.EMAIL_USER,
-    cc: hrAdminEmail,
-    subject: 'New Leave Request Submitted',
+    to: reportingManagerEmail,
+    cc:  hrAdminEmail,
+    subject: `New Leave Request Submitted by ${user.name}`,
     text: `A new leave request has been submitted:
     - Username: ${user.name}
     - Leave Type: ${leaveType.leaveTypeName}
-    - Start Date: ${startDate}
-    - End Date: ${endDate}
+    - Start Date: ${formattedStartDate}
+    - End Date: ${formattedEndDate}
     - Notes: ${notes}
     - Number of Days: ${noOfDays}
     - Leave Dates: ${leaveDates.map(item => {
         const sessionString = [
           item.session1 ? 'session1' : '',
           item.session2 ? 'session2' : ''
-        ].filter(Boolean).join(', '); // Only include sessions that are true
+        ].filter(Boolean).join(', '); 
         return `${item.date} (${sessionString || 'No sessions selected'})`;
       }).join(', ')}` 
   };
@@ -72,223 +130,381 @@ async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDa
   return transporter.sendMail(mailOptions);
 }
 
-//-----------------------------------Calculating Leave Days-------------------------------------------
+
+async function sendLeaveUpdatedEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates) {
+  const hrAdminEmail = await getHREmail();
+  const reportingManagerEmail = await getReportingManagerEmailForUser(user.id);
+
+  if (!Array.isArray(leaveDates)) {
+    throw new Error('leaveDates must be an array');
+  }
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: process.env.EMAIL_USER,
+    cc: [hrAdminEmail, reportingManagerEmail],
+    subject: 'Leave Request Updated',
+    text: `A leave request has been updated:
+    - Username: ${user.name}
+    - Leave Type: ${leaveType.leaveTypeName}
+    - Start Date: ${startDate}
+    - End Date: ${endDate}
+    - Notes: ${notes || 'No additional notes provided'}
+    - Number of Days: ${noOfDays}
+    - Leave Dates: ${leaveDates.map(item => {
+      const sessionString = [
+        item.session1 ? 'session1' : '',
+        item.session2 ? 'session2' : ''
+      ].filter(Boolean).join(', ');
+      return `${item.date} (${sessionString || 'No sessions selected'})`;
+    }).join(', ')}
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Leave update email sent successfully');
+  } catch (error) {
+    console.error('Error sending leave update email:', error);
+  }
+}
 
 
-// Utility functions to calculate leave days and split dates
+
+//-----------------------------------ASYNC FUNCTIONS-----------POST API-------------------------------------------------------------
+
 function calculateLeaveDays(leaveDates) {
-  let leaveDays = 0;
+  let totalDays = 0;
 
   leaveDates.forEach(date => {
     if (date.session1 && date.session2) {
-      leaveDays += 1; // Full day leave
+      totalDays += 1;  
     } else if (date.session1 || date.session2) {
-      leaveDays += 0.5; // Half-day leave
+      totalDays += 0.5;  
     }
   });
 
-  return leaveDays;
+  return totalDays;
 }
+
 
 function splitLeaveDates(leaveDates, availableLeaveDays) {
   let leaveDatesApplied = [];
   let lopDates = [];
-  let appliedDays = 0;
+  let appliedDays = 0;  
 
   for (let date of leaveDates) {
-    // Calculate days for each date based on session1 and session2
     let daysForDate = 0;
-    if (date.session1 && date.session2) {
-      daysForDate = 1; // Full day
-    } else if (date.session1 || date.session2) {
-      daysForDate = 0.5; // Half-day
-    }
 
-    // If we still have available leave balance, apply it as leave
+  
+
+
+    if (date.session1) daysForDate += 0.5;
+    if (date.session2) daysForDate += 0.5;
+
+
+
+
     if (appliedDays + daysForDate <= availableLeaveDays) {
-      leaveDatesApplied.push(date);
+      leaveDatesApplied.push(date); 
       appliedDays += daysForDate;
     } else {
-      lopDates.push(date); // Otherwise, treat it as LOP
+   
+      let remainingDays = daysForDate - (availableLeaveDays - appliedDays);
+
+  
+      if (availableLeaveDays - appliedDays > 0) {
+   
+        if (date.session1 && availableLeaveDays - appliedDays >= 0.5) {
+          leaveDatesApplied.push({ date: date.date, session1: true, session2: false });
+          appliedDays += 0.5;
+        } else if (date.session2 && availableLeaveDays - appliedDays >= 0.5) {
+          leaveDatesApplied.push({ date: date.date, session1: false, session2: true });
+          appliedDays += 0.5;
+        }
+      }
+
+
+      if (remainingDays > 0) {
+        lopDates.push({ date: date.date, session1: date.session1, session2: date.session2 });
+      }
     }
   }
+
+
 
   return { leaveDatesApplied, lopDates };
 }
 
-// POST Leave Request Route
-router.post('/',authenticateToken, async (req, res) => {
+
+
+
+router.post('/', authenticateToken, async (req, res) => {
+  const { leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
+  const userId = req.user.id;
+
+  if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  const user = await User.findByPk(userId);
+
   try {
-    const {  leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
-    const userId = req.user.id;
 
-    // Step 1: Ensure leaveTypeId exists
-    if (!leaveTypeId) {
-      return res.status(400).json({ message: "Leave type is required." });
-    }
 
-    // Step 2: Calculate the number of leave days based on session1 and session2 flags
-    let totalLeaveDays = 0;
-    leaveDates.forEach(date => {
-      if (date.session1) {
-        totalLeaveDays += 0.5; // For a half-day (session 1)
-      }
-      if (date.session2) {
-        totalLeaveDays += 0.5; // For a half-day (session 2)
-      }
-    });
+    const noOfDays = calculateLeaveDays(leaveDates);
 
-    // Step 3: Fetch the user's leave record for the given leave type
-    let userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId } });
 
-    if (!userLeave) {
-      // If the user does not have a leave record for this leave type, fallback to LOP
-      const lopLeaveType = await LeaveType.findOne({ where: { leaveTypeName: 'LOP' } });
-      if (lopLeaveType) {
-        // Use the LOP leave type ID if found
-        userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId: lopLeaveType.leaveTypeId } });
-      }
+    const leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
+    if (!leaveType) return res.status(404).json({ message: 'Leave type not found' });
 
-      if (!userLeave) {
-        // If the user does not have any leave record for LOP, create a new record for LOP
-        userLeave = await UserLeave.create({
-          userId,
-          leaveTypeId: lopLeaveType.leaveTypeId,
-          leaveBalance: 0, // Set initial balance for LOP
-          takenLeaves: 0,
-          noOfDays: 0,
-          leaveDays: 0,
-        });
-      }
-    }
-
-    // Step 4: Check if the user has enough leave balance (for the leave type or LOP)
-    const leaveBalance = userLeave.leaveBalance;
-    let lopDays = 0;
-
-    if (leaveBalance < totalLeaveDays) {
-      // If leave balance is insufficient, calculate LOP
-      lopDays = totalLeaveDays - leaveBalance;
-      totalLeaveDays = leaveBalance; // Apply leave balance first
-    }
-
-    // Step 5: Update the leave balance and taken leaves (apply leave balance first)
-    await UserLeave.update(
-      {
-        leaveBalance: leaveBalance - totalLeaveDays, // Deduct leave balance for available leave
-        takenLeaves: userLeave.takenLeaves + totalLeaveDays, // Increment taken leaves
-      },
-      { where: { userId, leaveTypeId: userLeave.leaveTypeId } }
-    );
-
-    // Step 6: If there are LOP days, handle them
-    if (lopDays > 0) {
-      const lopLeaveType = await LeaveType.findOne({ where: { leaveTypeName: 'LOP' } });
-
-      if (!lopLeaveType) {
-        return res.status(400).json({ message: "LOP leave type not found." });
-      }
-
-      // Fetch or create a LOP leave record for this user
-      let userLopLeave = await UserLeave.findOne({
-        where: { userId, leaveTypeId: lopLeaveType.leaveTypeId }
+    if (leaveType.leaveTypeName === 'LOP') {
+      await Leave.create({
+        userId,
+        leaveTypeId: leaveType.id,
+        startDate,
+        endDate,
+        noOfDays,
+        notes,
+        fileUrl,
+        status: 'Requested',
+        leaveDates
       });
 
-      if (!userLopLeave) {
-        userLopLeave = await UserLeave.create({
-          userId,
-          leaveTypeId: lopLeaveType.leaveTypeId,
-          leaveBalance: 0, // Set initial balance for LOP
-          takenLeaves: 0,
-          noOfDays: 0,
-          leaveDays: 0,
-        });
-      }
+      sendLeaveEmail(user,leaveType,startDate,endDate,notes,noOfDays,leaveDates)
 
-      // Update LOP leave record with the LOP days
-      await UserLeave.update(
-        {
-          leaveBalance: userLopLeave.leaveBalance - lopDays, // Deduct LOP balance
-          takenLeaves: userLopLeave.takenLeaves + lopDays, // Increment taken LOP leaves
-        },
-        { where: { userId, leaveTypeId: userLopLeave.leaveTypeId } }
-      );
+      return res.json({
+        message: 'Leave request submitted successfully as LOP.',
+        leaveDatesApplied: leaveDates,
+        lopDates: leaveDates 
+      });
     }
 
-    // Step 7: Create a new leave record for this leave request
-    const newLeaveRecord = await UserLeave.create({
-      userId,
-      leaveTypeId: userLeave.leaveTypeId,
-      startDate,
-      endDate,
-      notes,
-      fileUrl,
-      noOfDays: totalLeaveDays, // Record applied leave days
-      takenLeaves: totalLeaveDays, // Record applied leave taken
-      leaveBalance: leaveBalance - totalLeaveDays, // Updated leave balance after deduction
-    });
+    const userLeaves = await UserLeave.findAll({ where: { userId } });
+    const userLeave = userLeaves.find(leave => leave.leaveTypeId === leaveType.id);
 
-    // Step 8: Return updated leave balance including LOP if applicable
-    const leaveCounts = await getLeaveCounts(userId); // Fetch current leave counts
+    if(!userLeave){
+      return res.json({
+          message: `You do not have ${leaveType.leaveTypeName} leave allotted.`
+      });
+    }
 
-    return res.json({
-      message: "Leave request created successfully",
-      leaveCounts // Send updated leave counts
-    });
+    let leaveBalance = userLeave.leaveBalance;
+
+    if (leaveBalance === 0 && leaveType.leaveTypeName !== 'LOP') {
+      return res.json({
+        message: `Your ${leaveType.leaveTypeName} balance is 0. No leave will be applied.`,
+      });
+    }
+
+    if (leaveBalance < noOfDays) {
+      const availableLeaveDays = leaveBalance; 
+      const lopDays = noOfDays - availableLeaveDays;
+    
+      const { leaveDatesApplied, lopDates } = splitLeaveDates(leaveDates, availableLeaveDays);
+
+    
+
+
+      await Leave.create({
+        userId,
+        leaveTypeId: leaveType.id,
+        startDate,
+        endDate,
+        noOfDays: availableLeaveDays, 
+        notes,
+        fileUrl,
+        status: 'requested',
+        leaveDates: leaveDatesApplied 
+      });
+
+      sendLeaveEmail(user,leaveType,startDate,endDate,notes,noOfDays,leaveDates)
+
+      return res.json({
+        message: `${availableLeaveDays} days applied as ${leaveType.leaveTypeName}. ${lopDays} days are beyond balance; apply for LOP separately.`,
+        leaveDatesApplied,
+        lopDates: lopDates || [] 
+      });
+    } else {
+      await Leave.create({
+        userId,
+        leaveTypeId: leaveType.id,
+        startDate,
+        endDate,
+        noOfDays,
+        notes,
+        fileUrl,
+        status: 'requested',
+        leaveDates 
+      });
+      
+
+
+
+      sendLeaveEmail(user,leaveType,startDate,endDate,notes,noOfDays,leaveDates)
+
+      return res.json({
+        message: 'Leave request successful.',
+        leaveDatesApplied: leaveDates,
+        lopDates: [] ,
+        startDate: startDate,  // Directly using user-provided startDate
+        endDate: endDate
+      });
+
+    }
+    
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Error processing leave request", error: error.message });
+    console.error('Error in leave request submission:', error.message);
+    res.status(500).json({ message: error.message });
   }
 });
 
-// Function to fetch leave counts for the user, including LOP
-async function getLeaveCounts(userId) {
-  const leaveCounts = await UserLeave.findAll({
-    where: { userId },
-    include: [
-      {
-        model: LeaveType,
-        as: 'leaveType', // Use the alias here as defined in the association
-        attributes: ['leaveTypeName'],
+
+
+//------------------------------------------------Emergency leave-----------------------------
+
+router.post('/emergencyLeave', authenticateToken, async (req, res) => {
+  const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
+
+  if (!userId || !leaveTypeId || !startDate || !endDate || !leaveDates) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  let userLeave;
+  let leaveType;
+  try {
+    leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
+    if (!leaveType) return res.status(404).json({ message: 'Leave type not found' });
+  } catch (error) {
+    res.send(error.message)
+  }
+
+  const noOfDays = calculateLeaveDays(leaveDates);
+  try {
+    userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId } });
+
+    
+    if(userLeave){
+
+      
+      if(leaveType.leaveTypeName === 'LOP' || userLeave.leaveBalance >= noOfDays){
+        if(userLeave.noOfDays) { userLeave.leaveBalance -= noOfDays; }
+        userLeave.takenLeaves += noOfDays;
+        await userLeave.save();
+      }else{
+        return res.send("Exceeds the balance allotted leave days")
       }
-    ],
-  });
+    }else{
+      userLeave = await UserLeave.create({
+        userId,
+        leaveTypeId: leaveTypeId,
+        takenLeaves: noOfDays,
+      });
 
-  return leaveCounts.map(leave => ({
-    leaveTypeId: leave.leaveTypeId,
-    leaveTypeName: leave.leaveType.leaveTypeName, // Access using alias
-    leaveBalance: leave.leaveBalance,
-    takenLeaves: leave.takenLeaves,
-    noOfDays: leave.noOfDays,
-    leaveDays: leave.leaveDays || 0, // Adjust this field if necessary
-  }));
-}
+      
+    }
+    let leave;
+    try {
+      leave = await Leave.create({ userId, leaveTypeId: leaveType.id, startDate, endDate, noOfDays, notes, fileUrl, status: 'AdminApproved', leaveDates });
+    } catch (error) {
+      res.send(error.message)
+    }
+    res.json({userLeave, leave})
+  } catch (error) {
+    res.send(error.message)
+  }
+});
 
+router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) => {
+  
+  const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
 
+  if (!userId || !leaveTypeId || !startDate || !endDate || !leaveDates) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  let userLeave;
+  let leaveType;
+  try {
+    leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
+    if (!leaveType) return res.status(404).json({ message: 'Leave type not found' });
+  } catch (error) {
+    res.send(error.message)
+  }
+
+  const noOfDays = calculateLeaveDays(leaveDates);
+
+  let leave;
+  try {
+    leave = await Leave.findByPk(req.params.id)
+    addedDays = leave.noOfDays
+
+    try {
+      userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId } });
+  
+      if(userLeave){
+        userLeave.noOfDays += addedDays;
+        userLeave.leaveBalance += addedDays;
+        await userLeave.save();
+        if(leaveType.leaveTypeName === 'LOP' || userLeave.leaveBalance >= noOfDays){
+          if(userLeave.noOfDays) { userLeave.leaveBalance -= noOfDays; }
+          userLeave.takenLeaves += noOfDays;
+          await userLeave.save();
+        }else{
+          return res.send("Exceeds the balance allotted leave days")
+        }
+      }else{
+        userLeave = await UserLeave.create({
+          userId,
+          leaveTypeId: leaveTypeId,
+          takenLeaves: noOfDays,
+        });
+      }
+    } catch (error) {
+      res.send(error.message)
+    }
+
+    leave.userId = userId
+    leave.noOfDays = noOfDays
+    leave.startDate = startDate, 
+    leave.endDate = endDate, 
+    leave.noOfDays = noOfDays,
+    leave.notes = notes,
+    leave.fileUrl = fileUrl, 
+    leave.leaveDates = leaveDates
+
+    await leave.save();
+    res.json({leave, userLeave})
+  } catch (error) {
+    res.send(error.message)
+  }
+
+});
 
 //-------------------------GET LEAVE BY USER ID-------------------------------------------------
 router.get('/user/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
 
+
+
     const user = await User.findByPk(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Initialize where clause for filtering
     let whereClause = {
       userId: userId,
     };
     let limit;
     let offset;
 
-    // Handle pagination parameters
+
     if (req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
       limit = req.query.pageSize;
       offset = (req.query.page - 1) * req.query.pageSize;
 
-      // Handle search functionality
+ 
       if (req.query.search && req.query.search !== 'undefined') {
         const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
         whereClause = {
@@ -297,11 +513,12 @@ router.get('/user/:userId', async (req, res) => {
               sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('status'), ' ', '')),
               { [Op.like]: `%${searchTerm}%` }
             ),
-          ],
+      
+          ]
         };
       }
     } else {
-      // Handle search when pagination is not provided
+
       if (req.query.search && req.query.search !== 'undefined') {
         const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
         whereClause = {
@@ -310,61 +527,46 @@ router.get('/user/:userId', async (req, res) => {
               sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('status'), ' ', '')),
               { [Op.like]: `%${searchTerm}%` }
             ),
+            
           ],
-          status: true,
+          status: true
         };
       } else {
         whereClause = { status: true };
       }
     }
 
-    // Fetch the leave records from the database
+   
     const leave = await Leave.findAll({
-      order: [['id', 'DESC']],  // Ordering records by ID
+      order: [['id', 'DESC']], 
       limit,
       offset,
-      where: whereClause,
+      where: whereClause, 
       include: [
         {
-          model: LeaveType,
-          attributes: ['id', 'leaveTypeName'],
-        },
-      ],
+          model: LeaveType, 
+          attributes: ['id', 'leaveTypeName'], 
+        }
+      ]
     });
 
-    // Calculate the noOfDays for each leave entry based on sessions
-    leave.forEach(leaveItem => {
-      let totalDays = 0;
-      leaveItem.leaveDates.forEach(leaveDate => {
-        // Full day if both session1 and session2 are selected
-        if (leaveDate.session1 && leaveDate.session2) {
-          totalDays += 1;
-        }
-        // Half-day if only one session (session1 or session2) is selected
-        else if (leaveDate.session1 || leaveDate.session2) {
-          totalDays += 0.5;
-        }
-      });
 
-      // Update noOfDays for the leave entry
-      leaveItem.noOfDays = totalDays;
-    });
-
-    // Get the total count of leaves matching the where clause
     const totalCount = await Leave.count({ where: whereClause });
 
-    // Return paginated or full leave records depending on request
-    const response = req.query.page !== 'undefined' && req.query.pageSize !== 'undefined'
-      ? { count: totalCount, items: leave }
-      : leave;
+    if (req.query.page !== 'undefined' && req.query.pageSize !== 'undefined') {
+      const response = {
+        count: totalCount,
+        items: leave,
+      };
+      res.json(response);
+    } else {
 
-    res.json(response);
+      res.json(leave);
+    }
   } catch (error) {
-    console.error('Error in fetching leave records:', error.message);
-    res.status(500).json({ message: error.message });
+    res.send(error.message);
   }
 });
-
 
 
 //--------------------------------File upload--------------------------------------------------------
@@ -403,77 +605,83 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
 
 //--------------------------------- Approve leave API-----------------------------------------------
 
-
 router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
   const leaveId = req.params.id;
 
   try {
-    // Find the leave by its ID
     const leave = await Leave.findByPk(leaveId);
 
-    // Check if leave exists
     if (!leave) {
       return res.status(404).send({ message: 'Leave request not found' });
     }
 
-    // Fetch the leave type to check if it's LOP
-    const leaveType = await LeaveType.findOne({ where: { id: leave.leaveTypeId } });
+    const leaveType = await LeaveType.findOne({
+      where: { id: leave.leaveTypeId }
+    });
 
     if (!leaveType) {
       return res.status(404).send({ message: 'Leave type not found' });
     }
 
-    // If leave type is not LOP, check the user's leave balance
-    let userLeave;
-    if (leaveType.leaveTypeName !== 'LOP') {
-      // Find user leave balance for the requested leave type
-      userLeave = await UserLeave.findOne({
-        where: {
-          userId: leave.userId,
-          leaveTypeId: leave.leaveTypeId
-        }
-      });
 
-      if (!userLeave) {
-        return res.status(404).send({ message: 'Leave balance not found for the user.' });
+    const userLeave = await UserLeave.findOne({
+      where: {
+        userId: leave.userId,
+        leaveTypeId: leave.leaveTypeId 
       }
-
-      // Calculate the total number of requested leave days
-      let requestedDays = leave.noOfDays;
-
-      // Check if leave balance is sufficient
-      if (userLeave.leaveBalance < requestedDays) {
-        return res.status(400).send({
-          message: `Insufficient leave balance. You only have ${userLeave.leaveBalance} days left.`
-        });
-      }
-
-      // Update leave balance (deduct the requested days from the user's balance)
-      userLeave.leaveBalance -= requestedDays;
-      await userLeave.save();
-    }
-
-    // Update leave status to 'Approved'
-    leave.status = 'approved';
-    await leave.save(); // Save the updated leave
-
-    // Send success response
-    res.send({
-      message: 'Leave approved successfully',
-      leave,
-      remainingLeaveBalance: leaveType.leaveTypeName === 'LOP' ? 'Unlimited' : userLeave?.leaveBalance
     });
 
+
+    if (!userLeave && leaveType.leaveTypeName !== 'LOP') {
+      return res.status(404).send({ message: 'User leave record not found' });
+    }
+
+
+    if (leaveType.leaveTypeName === 'LOP') {
+     
+      leave.status = 'Approved';
+      await leave.save();
+
+
+      if (!userLeave) {
+ 
+        await UserLeave.create({
+          userId: leave.userId,
+          leaveTypeId: leave.leaveTypeId,
+          noOfDays: 0, 
+          takenLeaves: leave.noOfDays 
+        });
+      } else {
+     
+        userLeave.takenLeaves += leave.noOfDays;
+        await userLeave.save();
+      }
+
+      return res.send({ message: 'Leave approved successfully as LOP', leave });
+    }
+
+
+    if (userLeave.leaveBalance < leave.noOfDays) {
+
+      return res.json({
+        message: 'Insufficient leave balance'
+      })
+    }
+
+
+    leave.status = 'Approved';
+    await leave.save();
+
+  
+    userLeave.leaveBalance -= leave.noOfDays;
+    userLeave.takenLeaves += leave.noOfDays; 
+    await userLeave.save();
+
+    res.send({ message: 'Leave approved successfully', leave });
   } catch (error) {
-    // Handle errors
     res.status(500).send({ message: 'An error occurred while approving the leave', error: error.message });
   }
 });
-
-
-
-
-
 
 //------------------------------------Reject----------------------------------------------
 
@@ -517,7 +725,9 @@ router.get('/:id', async (req, res) => {
 });
 
 
-//--------------------------------Update Leave-----------------------------------------------------
+//-------------------------------------- UPDATE API---------------------------------------------------
+
+
 router.patch('/:id', authenticateToken, async (req, res) => {
   try {
     const { leaveDates, notes, leaveTypeId } = req.body;
@@ -525,50 +735,127 @@ router.patch('/:id', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'leaveDates are required to update leave' });
     }
 
-    const leave = await Leave.findByPk(req.params.id);
+    const leave = await Leave.findByPk(req.params.id, {
+      include: [User],
+    });
+
     if (!leave) {
       return res.status(404).json({ message: `Leave not found with id=${req.params.id}` });
     }
 
-    const userLeave = await UserLeave.findOne({
-      where: { userId: leave.userId, leaveTypeId }
+    const leaveType = await LeaveType.findOne({
+      where: { id: leaveTypeId },
     });
 
-    if (!userLeave) {
-      return res.status(404).json({ message: 'User leave mapping not found' });
+    if (!leaveType) {
+      return res.status(404).json({ message: 'Leave type not found' });
     }
 
-    const noOfDays = calculateLeaveDays(leaveDates);
+    console.log('User ID:', leave.userId);
+    console.log('Leave Type ID:', leaveTypeId);
 
-   
+    let userLeave;
+
+    // Check UserLeave mapping for regular leave types
+    if (leaveType.leaveTypeName !== 'LOP') {
+      userLeave = await UserLeave.findOne({
+        where: { userId: leave.userId, leaveTypeId },
+      });
+
+      console.log('User Leave Mapping:', userLeave);
+
+      if (!userLeave) {
+        return res.status(404).json({ message: 'User leave mapping not found' });
+      }
+    }
+
+    const filteredLeaveDates = leaveDates.filter(leaveDate =>
+      leaveDate.session1 || leaveDate.session2
+    );
+
+    if (filteredLeaveDates.length === 0) {
+      await leave.destroy();
+      return res.json({ message: 'Leave record deleted as no valid sessions were provided.' });
+    }
+
+    const noOfDays = calculateLeaveDays(filteredLeaveDates);
+
+    // Handle LOP case
+    if (leaveType.leaveTypeName === 'LOP') {
+      leave.leaveDates = filteredLeaveDates;
+      leave.notes = notes || leave.notes;
+      leave.noOfDays = noOfDays;
+
+      await leave.save();
+
+      const startDate = leave.leaveDates[0].date;
+      const endDate = leave.leaveDates[leave.leaveDates.length - 1].date;
+
+      await sendLeaveUpdatedEmail(
+        leave.user,
+        leaveType,
+        startDate,
+        endDate,
+        notes,
+        noOfDays,
+        filteredLeaveDates
+      );
+
+      return res.json({
+        message: 'Leave updated successfully (LOP)',
+        leave: {
+          userId: leave.userId,
+          leaveTypeId,
+          leaveDates: filteredLeaveDates,
+          noOfDays,
+          notes: leave.notes,
+        },
+      });
+    }
+
+    // Check for leave balance for regular leave types
     if (userLeave.leaveBalance < noOfDays) {
-      return res.status(400).json({ message: 'Not enough leave balance for this update' });
+      return res.json({ message: 'Not enough leave balance for this update' });
     }
 
-  
-    leave.leaveDates = leaveDates;
-    leave.notes = notes || leave.notes; 
+    // Update the leave record
+    leave.leaveDates = filteredLeaveDates;
+    leave.notes = notes || leave.notes;
     leave.noOfDays = noOfDays;
 
     await leave.save();
 
-   
-    userLeave.takenLeaves += noOfDays - leave.noOfDays;
-    userLeave.leaveBalance -= (noOfDays - leave.noOfDays); 
+    const previousNoOfDays = leave.noOfDays;
+    userLeave.takenLeaves += noOfDays - previousNoOfDays;
+    userLeave.leaveBalance -= (noOfDays - previousNoOfDays);
     await userLeave.save();
+
+    const startDate = leave.leaveDates[0].date;
+    const endDate = leave.leaveDates[leave.leaveDates.length - 1].date;
+
+    await sendLeaveUpdatedEmail(
+      leave.user,
+      leaveType,
+      startDate,
+      endDate,
+      notes,
+      noOfDays,
+      filteredLeaveDates
+    );
 
     res.json({
       message: 'Leave updated successfully',
       leave: {
         userId: leave.userId,
         leaveTypeId,
-        leaveDates,
+        leaveDates: filteredLeaveDates,
         noOfDays,
         notes: leave.notes,
       },
     });
   } catch (error) {
-    res.send(error.message)
+    console.error('Error updating leave:', error);
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -584,36 +871,254 @@ router.delete('/:id', async (req, res) => {
 });
 
 
-//----------------------------Get Leaves-----------------------------
+//------------------------------------------Get Leaves-------------------------------------------------------------
 router.get('/', async (req, res) => {
-  
   try {
-    // Fetch all leave requests along with leave type name and user name
+    // Initialize the where clause and pagination variables
+    let whereClause = {};
+    let limit;
+    let offset;
+
+    // Check if both pageSize and page are provided in the query params
+    if (typeof req.query.pageSize !== 'undefined' && typeof req.query.page !== 'undefined') {
+      limit = parseInt(req.query.pageSize, 10); // Convert pageSize to an integer
+      offset = (parseInt(req.query.page, 10) - 1) * limit; // Calculate offset based on page number and pageSize
+
+      // Check if search query is present
+      if (req.query.search && req.query.search.trim() !== '') {
+        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+        whereClause = {
+          [Op.or]: [
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('Leave.status'), ' ', '')),
+              { [Op.like]: `%${searchTerm}%` }
+            ),
+          ]
+        };
+      }
+    } else {
+      // If no pagination, apply the search term and default to active status only
+      if (req.query.search && req.query.search.trim() !== '') {
+        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+        whereClause = {
+          [Op.or]: [
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('Leave.status'), ' ', '')),
+              { [Op.like]: `%${searchTerm}%` }
+            ),
+          ],
+          // Change this line if status is a string in the database
+          status: 'true' // Change to 'false' if you want to include inactive statuses
+        };
+      } else {
+        whereClause = { status: 'true' }; // Default to 'true' if no search term
+      }
+    }
+
+    // Query the database for leave records based on whereClause, pagination, and include relations
     const leave = await Leave.findAll({
+      order: [['id', 'DESC']], // Order by ID in descending order
+      limit, // Pagination limit
+      offset, // Pagination offset
+      where: whereClause,
       include: [
         {
-          model: LeaveType, 
-          attributes: ['leaveTypeName'] // Ensure correct casing or field name
+          model: LeaveType,
+          attributes: ['id', 'leaveTypeName'], // Include leave type details
         },
         {
-          model: User, // Assuming User is correctly related to Leave
-          attributes: ['name'] // Ensure the 'name' field exists in the User model
+          model: User,
+          attributes: ['name'] // Include user name
         }
       ]
     });
-    
-    if (leave.length > 0) {
-      res.json({leave: leave, res: true});
+
+    // Get the total count of leave records that match the whereClause
+    const totalCount = await Leave.count({ where: whereClause });
+
+    // If pagination is applied, return both count and leave items
+    if (typeof req.query.page !== 'undefined' && typeof req.query.pageSize !== 'undefined') {
+      const response = {
+        count: totalCount,
+        items: leave,
+      };
+      res.json(response);
     } else {
-      res.json({ message: "No leave records found.", res: false });
+      // If no pagination, return the leave records directly
+      res.json(leave);
     }
   } catch (error) {
-    // Log the error and return a 500 status with the error message
-    console.error('Error fetching leave records:', error.message);
-    res.status(500).json({ message: 'An error occurred while fetching leave records.', error: error.message });
+    // Catch and send any errors encountered during the request
+    res.status(500).send(error.message);
   }
 });
 
+//--------------------------------------------File delete------------------------------------------------------
+router.delete('/filedelete', authenticateToken, async (req, res) => {
+  let id = req.query.id;
+  try {
+    try {
+        let result = await Leave.findByPk(id);
+        fileKey = result.url  ;
+        result.url   = '';
+        await result.save();
+    } catch (error) {
+      res.send(error.message)
+    }
+    let key;
+    if (!fileKey) {
+      key = req.query.key;
+      
+      fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+    }
+
+    // Set S3 delete parameters
+    const deleteParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileKey
+    };
+
+    // Delete the file from S3
+    await s3.deleteObject(deleteParams).promise();
+
+    res.status(200).send({ message: 'File deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting file from S3:', error);
+    res.status(500).send({ message: error.message });
+  }
+});
+
+
+router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
+    key = req.query.key;
+    fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+    try {
+      if (!fileKey) {
+        return res.send({ message: 'No file key provided' });
+      }
+
+      // Set S3 delete parameters
+      const deleteParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileKey
+      };
+
+      // Delete the file from S3
+      await s3.deleteObject(deleteParams).promise();
+
+      res.status(200).send({ message: 'File deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting file from S3:', error);
+      res.status(500).send({ message: error.message });
+    }
+});
+
+
+//-------------------------------------------Get leaves pagination------------------------------------------------------
+router.get('/', async (req, res) => {
+  try {
+    // Initialize the where clause and pagination variables
+    let whereClause = {};
+    let limit;
+    let offset;
+
+    // Check if both pageSize and page are provided in the query params
+    if (typeof req.query.pageSize !== 'undefined' && typeof req.query.page !== 'undefined') {
+      limit = parseInt(req.query.pageSize, 10); // Convert pageSize to an integer
+      offset = (parseInt(req.query.page, 10) - 1) * limit; // Calculate offset based on page number and pageSize
+
+      // Check if search query is present
+      if (req.query.search && req.query.search.trim() !== '') {
+        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+        whereClause = {
+          [Op.or]: [
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('Leave.status'), ' ', '')),
+              { [Op.like]: `%${searchTerm}%` }
+            ),
+          ]
+        };
+      }
+    } else {
+      // If no pagination, apply the search term and default to active status only
+      if (req.query.search && req.query.search.trim() !== '') {
+        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+        whereClause = {
+          [Op.or]: [
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('Leave.status'), ' ', '')),
+              { [Op.like]: `%${searchTerm}%` }
+            ),
+          ],
+          // Change this line if status is a string in the database
+          status: 'true' // Change to 'false' if you want to include inactive statuses
+        };
+      } else {
+        whereClause = { status: 'true' }; // Default to 'true' if no search term
+      }
+    }
+
+    // Query the database for leave records based on whereClause, pagination, and include relations
+    const leave = await Leave.findAll({
+      order: [['id', 'DESC']], // Order by ID in descending order
+      limit, // Pagination limit
+      offset, // Pagination offset
+      where: whereClause,
+      include: [
+        {
+          model: LeaveType,
+          attributes: ['id', 'leaveTypeName'], // Include leave type details
+        },
+        {
+          model: User,
+          attributes: ['name'] // Include user name
+        }
+      ]
+    });
+
+    // Get the total count of leave records that match the whereClause
+    const totalCount = await Leave.count({ where: whereClause });
+
+    // If pagination is applied, return both count and leave items
+    if (typeof req.query.page !== 'undefined' && typeof req.query.pageSize !== 'undefined') {
+      const response = {
+        count: totalCount,
+        items: leave,
+      };
+      res.json(response);
+    } else {
+      // If no pagination, return the leave records directly
+      res.json(leave);
+    }
+  } catch (error) {
+    // Catch and send any errors encountered during the request
+    res.status(500).send(error.message);
+  }
+});
+
+
+//--------------------------------------------Get leaves ---------------------------------------------------------------------
+router.get('/all/totalleaves', authenticateToken, async (req, res) => {
+  try {
+    const leaves = await Leave.findAll({
+      include: [
+        {
+          model: LeaveType,
+          attributes: ['id', 'leaveTypeName'], // Include leave type details
+        },
+        {
+          model: User,
+          attributes: ['name'] // Include user name
+        }
+      ]
+    });
+
+    res.status(200).json(leaves); // Send the response as JSON
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    res.status(500).json({ error: 'An error occurred while retrieving leaves' }); // Send an error response
+  }
+});
 
 
 

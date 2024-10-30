@@ -1,0 +1,20 @@
+<div id="confirmationModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-confirm">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Updation</h4>
+              <button type="button" class="back-icon" aria-label="Back" (click)="onBack()">
+                  <mat-icon>arrow_back</mat-icon>
+              </button>
+          </div>
+          <div class="modal-body text-center" >
+              <i class="material-icons" style="font-size: 25px; color: #60c7c1;"  *ngIf="showOkButton">check_circle</i>
+              <p>{{ message }}</p>
+          </div>
+          <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-secondary" (click)="onCancel()" data-dismiss="modal">Cancel Request</button>
+              <button type="button" *ngIf="showOkButton" class="btn btn-primary" (click)="onOk()">Update</button>
+          </div>
+      </div>
+  </div>
+</div>

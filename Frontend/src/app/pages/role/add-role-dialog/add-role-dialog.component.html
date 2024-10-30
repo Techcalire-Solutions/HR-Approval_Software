@@ -1,21 +1,21 @@
 <h1 mat-dialog-title>
-  @if (role) {
+  @if (editStatus) {
       <span>Edit</span>
   } @else {
       <span>ADD</span>
   }
-   ROLE
+   DESIGNATION
 </h1>
 <div mat-dialog-content>
   <form [formGroup]="form" class="user-form">
     <div fxLayout="column" class="form-field-outer">
       <br>
       <mat-form-field class="w-100" appearance="outline">
-          <mat-label> Role Name </mat-label>
+          <mat-label> Designation Name </mat-label>
           <input matInput formControlName="roleName" required>
           <mat-error>
               @if (form.controls['roleName'].hasError('required')) {
-                 Role name is required
+                 Designation name is required
               }
           </mat-error>
       </mat-form-field>
@@ -33,6 +33,20 @@
         </mat-error>
       </mat-form-field>
 
+      <mat-form-field class="w-100" appearance="outline">
+        <mat-label>Department</mat-label>
+        <mat-select formControlName="department">
+          <mat-option value="Operation">Operation</mat-option>
+          <mat-option value="Sales">Sales</mat-option>
+          <mat-option value="Finance">Finance</mat-option>
+          <mat-option value="Designing">Designing</mat-option>
+          <mat-option value="Logistics">Logistics</mat-option>
+          <mat-option value="Sales">HR</mat-option>
+          <mat-option value="Marketing">Marketing</mat-option>
+          <mat-option value="Software">Software</mat-option>
+        </mat-select>
+      </mat-form-field>
+
       <!-- <div class="col center-align" style="align-content: center;">
         <mat-slide-toggle formControlName="status">Status</mat-slide-toggle>
       </div> -->
@@ -41,7 +55,7 @@
 </div>
 <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
   <button mat-raised-button color="primary" [mat-dialog-close]="form.value" [disabled]="!form.valid" (click)="onSubmit()">
-      @if (role) {
+      @if (editStatus) {
           Update
       } @else {
           Save

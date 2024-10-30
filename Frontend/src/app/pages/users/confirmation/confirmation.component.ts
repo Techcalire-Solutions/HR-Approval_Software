@@ -3,19 +3,24 @@ import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
 import { User } from '../../../common/interfaces/user';
 import { MatIconModule } from '@angular/material/icon';
-import { CommonModule } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { UserLeaveComponent } from '../../admin-leave/user-leave/user-leave.component';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-confirmation',
   standalone: true,
-  imports: [MatIconModule, CommonModule],
+  imports: [MatIconModule, FormsModule, MatFormFieldModule, MatButtonModule, MatInputModule],
   templateUrl: './confirmation.component.html',
   styleUrl: './confirmation.component.scss'
 })
 export class ConfirmationComponent implements OnInit, OnDestroy{
+  selectedEmployeeId: number | null = null;
+  note: string = '';
   ngOnInit(): void {
     this.getProbationEmployees();
     this.getPermanentEmployees();
@@ -26,7 +31,7 @@ export class ConfirmationComponent implements OnInit, OnDestroy{
   probEmp: User[] = [];
   getProbationEmployees(){
     this.probStaffSub = this.userService.getProbationEmployees().subscribe((data) => {
-      this.probEmp = data;
+      this.probEmp = data.filter(emp => emp.role.roleName !== 'Administrator' && emp.role.roleName !== 'HR Administrator' && emp.role.roleName !== 'Super Administrator');
     });
   }
 
@@ -38,10 +43,20 @@ export class ConfirmationComponent implements OnInit, OnDestroy{
     });
   }
 
+  onConfirmClick(id: number) {
+    this.selectedEmployeeId = id;
+    this.note = ''; // Clear previous note input
+  }
+
+  cancelNote() {
+    this.selectedEmployeeId = null;
+    this.note = '';
+  }
+
   snackBar = inject(MatSnackBar)
   confirmSub!: Subscription;
-  confirmEmployee(id: number, name: string){
-    this.confirmSub = this.userService.confirmEmployee(id).subscribe(res =>{
+  confirmEmployee(id: number, name: string, note: string){
+    this.confirmSub = this.userService.confirmEmployee(id, note).subscribe(res =>{
       this.snackBar.open(`${name} is confirmed`,"" ,{duration:3000})
       this.getProbationEmployees();
       this.getPermanentEmployees();
@@ -49,11 +64,13 @@ export class ConfirmationComponent implements OnInit, OnDestroy{
   }
 
   dialog = inject(MatDialog);
+  dialodSub!: Subscription;
   updateUserLeave(id: number, name: string){
       const dialogRef = this.dialog.open(UserLeaveComponent, {
         width: '450px',
         data: {id: id, name: name}
-      });dialogRef.afterClosed().subscribe((result) => {
+      });
+      this.dialodSub = dialogRef.afterClosed().subscribe((result) => {
 
       })
   }
@@ -62,5 +79,6 @@ export class ConfirmationComponent implements OnInit, OnDestroy{
     this.confirmSub?.unsubscribe();
     this.permanentStaffSub?.unsubscribe();
     this.probStaffSub?.unsubscribe();
+    this.dialodSub?.unsubscribe();
   }
 }

@@ -1,0 +1,94 @@
+.example-card {
+    width: 80%;
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
+    padding : 10px;
+     
+  }
+  //
+  .mat-list{
+    padding: 10px;
+    list-style-type: none;
+    background-color: #ccc;
+    display: inline-block;
+   
+    text-align: left;
+  }
+  h4{
+    text-align: left;
+    font-weight: bold;
+  }
+  ///
+  .row {
+    display: flex;
+    justify-content: space-around
+  }
+  
+  .info-row {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 8px;
+  }
+  
+  .info-key {
+    font-weight: bold;
+    font-size: 14px;
+  }
+  
+  .info-value {
+    font-weight: normal;
+    font-size: 12px;
+  }
+  
+  /* Style for the Shipping Details Table */
+  .shipping-details-table {
+    margin-top: 20px;
+  }
+  
+  .shipping-details-table table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #ccc;
+    background-color: #fff;
+  }
+  
+  .shipping-details-table th, .shipping-details-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .shipping-details-table th {
+    background-color: #f2f2f2;
+  }
+  
+  /* Style for the Banking Details Table */
+  .banking-details-table {
+    margin-top: 20px;
+  }
+  
+  .banking-details-table table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #ccc;
+    background-color: #fff;
+  }
+  
+  .banking-details-table th, .banking-details-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .banking-details-table th {
+    background-color: #f2f2f2;
+  }
+  .row {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .col {
+    flex: 1;
+    margin-right: 20px;
+  }

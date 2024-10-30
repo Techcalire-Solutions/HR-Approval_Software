@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, Inject, inject } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -6,6 +6,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoginService } from '@services/login.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ResetPasswordComponent } from '../users/reset-password/reset-password.component';
+import { MatIconModule } from '@angular/material/icon';
+import { Settings, SettingsService } from '@services/settings.service';
 
 @Component({
   standalone: true,
@@ -13,31 +15,23 @@ import { ResetPasswordComponent } from '../users/reset-password/reset-password.c
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
   imports: [
-    CommonModule,
+    CommonModule, MatIconModule,
     ReactiveFormsModule
-  ]
+  ],
+  providers: [SettingsService],
 })
 export class LoginComponent {
   isSignUpMode = false;
   errorMessage: string | null = null;
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private loginService = inject(LoginService);
+  private snackBar = inject(MatSnackBar);
 
   loginForm = this.fb.group({
     empNo: ['', Validators.required],
     password: ['', Validators.required]
   });
-
-  signUpForm = this.fb.group({
-    username: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required]
-  });
-
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private loginService: LoginService,
-    private snackBar: MatSnackBar
-  ) {}
 
   toggleSignUpMode(isSignUp: boolean = true): void {
     this.isSignUpMode = isSignUp;
@@ -83,22 +77,6 @@ export class LoginComponent {
     });dialogRef.afterClosed().subscribe((result) => {
 
     })
-  }
-
-
-
-  onSignUp(): void {
-    if (this.signUpForm.invalid) {
-      this.snackBar.open('Please fill in all fields correctly.', 'Close', {
-        duration: 3000,
-      });
-      return;
-    }
-
-    // Handle sign-up logic here
-    this.snackBar.open('Sign-up functionality is not implemented yet.', 'Close', {
-      duration: 3000,
-    });
   }
 
   setCurrentUser(user: any): void {

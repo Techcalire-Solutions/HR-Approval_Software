@@ -14,27 +14,30 @@
 
       <form action="#" #form class="form">
         <input type="file" class="file-input" hidden #fileInput>
-        <!-- <span class="material-icons">cloud_upload</span> -->
-        <p>Click to Upload Bank Slip</p>
+        <p>{{dialogContent}}</p>
       </form>
       <section class="progress-area" #progressArea>
-        <li class="row" *ngIf="file">
-          <!-- <span class="material-icons">file_copy</span> -->
-          <div class="content">
-            <div class="details">
-              <span class="name" *ngIf="uploadComplete">{{file.name}} . Uploading</span>
-              <mat-progress-bar mode="indeterminate" *ngIf="uploadComplete"></mat-progress-bar>
-              <span *ngIf="!uploadComplete" class="name">{{file.name}} . Uploaded</span>
-              <!-- <span class=percent">${fileLoaded}%</span> -->
+        @if(file){
+          <li class="row">
+            <div class="content">
+              <div class="details">
+                @if(uploadComplete){
+                  <span class="name">{{file.name}} . Uploading</span>
+                  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                }
+               @if(!uploadComplete){
+                <span class="name">{{file.name}} . Uploaded</span>
+               }
+
+
+              </div>
             </div>
-          </div>
-        </li>
+          </li>
+
+        }
+
       </section>
 
-      <button  mat-raised-button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid">Save</button>
-
-
-      <button class="cancel-button" (click)="onCancelClick()">Cancel</button>
-    </div>
-  </body>
-</html>
+  <button  mat-raised-button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid">Save</button>
+  <button class="cancel-button" (click)="onCancelClick()">Cancel</button>
+</div>

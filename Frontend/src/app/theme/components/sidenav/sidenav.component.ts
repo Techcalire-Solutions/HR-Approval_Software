@@ -106,9 +106,11 @@ users:User;
       {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        item.title === 'Team' ||
-        (item.title === 'Approval Uploads' && !item.parentId) ||
-        (item.title === 'View' && item.parentId === 5)
+        (item.title === 'Payment Flow' && !item.parentId) ||
+        (item.title === 'View' && item.parentId === 5)||
+        (item.title === 'Reports' && !item.parentId) ||
+        (item.title === 'Approval Report' && item.parentId === 21)||
+        (item.title === 'Expense Report' && item.parentId=== 21)
 
       );
     } else if (
@@ -119,9 +121,13 @@ users:User;
     ) {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        (item.title === 'Approval Uploads' && !item.parentId) ||
+        (item.title === 'Payment Flow' && !item.parentId) ||
+        (item.title === 'View' && item.parentId === 5)||
         (item.title === 'Add' && item.parentId === 5) ||
-        (item.title === 'View' && item.parentId === 5) ||
+        (item.title === 'Expense' && !item.parentId) ||
+        (item.title === 'Add' && item.parentId === 26) ||
+        (item.title === 'View' && item.parentId === 26)||
+        (item.title === 'Leave' && !item.parentId)||
         (item.title === 'Leave' && !item.parentId)||
         (item.title === 'Apply Leave' && item.parentId === 8) ||
         // (item.title === 'Leave Balance' && item.parentId === 8)||
@@ -132,32 +138,47 @@ users:User;
       );
     }
 
+
+
     else if (
       role === 'Accountant'
     ) {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        (item.title === 'Approval Uploads' && !item.parentId) ||
-        (item.title === 'View' && item.parentId === 5)
-        // (item.title === 'Leave' && !item.parentId) ||
-        // (item.title === 'Apply leave' && item.parentId === 8) ||
-        // (item.title === 'Leave Balance' && item.parentId === 8) ||
-        // (item.title === 'Payroll' && !item.parentId) ||
-        // (item.title === 'Payslip' && item.parentId === 13) ||
-        // (item.title === 'Pay Details' && item.parentId === 13)
+        (item.title === 'Payment Flow' && !item.parentId) ||
+        (item.title === 'View' && item.parentId === 5) ||
+        (item.title === 'Excel' && item.parentId === 5) ||
+        
+        (item.title === 'Expense' && !item.parentId) ||
+        (item.title === 'Add' && item.parentId === 26) ||
+        (item.title === 'View' && item.parentId === 26)||
+
+        (item.title === 'Leave' && !item.parentId)||
+        (item.title === 'Apply Leave' && item.parentId === 8) ||
+        (item.title === 'Leave Balance' && item.parentId === 8)||
+        (item.title === 'Payroll' && !item.parentId) ||
+        (item.title === 'Advance Salary' && item.parentId === 13) ||
+        (item.title === 'Payslip' && item.parentId === 13) ||
+        (item.title === 'Pay Details' && item.parentId === 13)
 
       );
     }
-    else if (role === 'HR') {
+    else if (role === 'HR'||role==='IT') {
 
       this.filteredMenuItems = allMenuItems.filter(item =>
-        item.title === 'Dashboard'
-        // (item.title === 'Leave' && !item.parentId) ||
-        // (item.title === 'Apply leave' && item.parentId === 8) ||
-        // (item.title === 'Leave Balance' && item.parentId === 8) ||
-        // (item.title === 'Payroll' && !item.parentId) ||
-        // (item.title === 'Payslip' && item.parentId === 13) ||
-        // (item.title === 'Pay Details' && item.parentId === 13)
+        item.title === 'Dashboard' ||
+        (item.title === 'Expense' && !item.parentId) ||
+        (item.title === 'Add' && item.parentId === 26) ||
+        (item.title === 'View' && item.parentId === 26)||
+        
+        (item.title === 'Leave' && !item.parentId) ||
+        (item.title === 'Leave' && !item.parentId)||
+        (item.title === 'Apply Leave' && item.parentId === 8) ||
+        (item.title === 'Leave Balance' && item.parentId === 8)||
+        (item.title === 'Payroll' && !item.parentId) ||
+        (item.title === 'Advance Salary' && item.parentId === 13) ||
+        (item.title === 'Payslip' && item.parentId === 13) ||
+        (item.title === 'Pay Details' && item.parentId === 13)
       );
 
     }
@@ -165,42 +186,49 @@ users:User;
     else if (role === 'HR Administrator') {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        item.title === 'Role' ||
+        // item.title === 'Role' ||
         (item.title === 'Employee' && !item.parentId) ||
         (item.title === 'Directory' && item.parentId === 3) ||
         (item.title === 'Confirmation' && item.parentId === 3) ||
-        item.title === 'Team'
-        // (item.title === 'Leave' && !item.parentId) ||
-        // (item.title === 'Calendar View' && item.parentId === 8) ||
-        // (item.title === 'View Request' && item.parentId === 8) ||
-        // (item.title === 'User Leave' && item.parentId === 8) ||
-        // (item.title === 'Emergency Leave' && item.parentId === 8) ||
-        // (item.title === 'Payroll' && !item.parentId) ||
-        // (item.title === 'Process Payroll' && item.parentId === 13) ||
-        // (item.title === 'Salary Statement' && item.parentId === 13) ||
-        // (item.title === 'YTD Reports' && item.parentId === 13)
+        // item.title === 'Team' ||
+        (item.title === 'Leave' && !item.parentId) ||
+        (item.title === 'Calendar' && item.parentId === 8) ||
+        (item.title === 'View' && item.parentId === 8) ||
+        (item.title === 'User Leave' && item.parentId === 8) ||
+        (item.title === 'Emergency' && item.parentId === 8) ||
+        (item.title === 'Payroll' && !item.parentId) ||
+        (item.title === 'Advance Salary' && item.parentId === 13) ||
+        (item.title === 'Process Payroll' && item.parentId === 13) ||
+        (item.title === 'Salary Statement' && item.parentId === 13) ||
+        (item.title === 'YTD Reports' && item.parentId === 13)
       );
     }
     else if (role === 'Super Administrator') {
 
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        item.title === 'Role' ||
+        // item.title === 'Role' ||
         (item.title === 'Employee' && !item.parentId) ||
         (item.title === 'Directory' && item.parentId === 3) ||
         (item.title === 'Confirmation' && item.parentId === 3) ||
-        item.title === 'Team' ||
-        (item.title === 'Approval Uploads' && !item.parentId) ||
+        // item.title === 'Team' ||
+        (item.title === 'Payment Flow' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5) ||
         (item.title === 'Leave' && !item.parentId) ||
         (item.title === 'Calendar' && item.parentId === 8) ||
         (item.title === 'View' && item.parentId === 8) ||
         (item.title === 'User Leave' && item.parentId === 8) ||
         (item.title === 'Emergency' && item.parentId === 8) ||
-        // (item.title === 'Payroll' && !item.parentId) ||
+        (item.title === 'Payroll' && !item.parentId) || 
+        (item.title === 'Advance Salary' && item.parentId === 13) ||
         (item.title === 'Process Payroll' && item.parentId === 13) ||
         (item.title === 'Salary Statement' && item.parentId === 13) ||
-        (item.title === 'YTD Reports' && item.parentId === 13)
+        (item.title === 'YTD Reports' && item.parentId === 13)||
+        (item.title === 'Reports' && !item.parentId) ||
+        (item.title === 'Approval Report' && item.parentId === 21) ||
+        (item.title === 'Leave Report' && item.parentId === 21)||
+        (item.title === 'Expense Report' && item.parentId === 21)
+
       );
 
     }

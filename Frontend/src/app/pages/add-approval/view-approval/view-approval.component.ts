@@ -1,8 +1,7 @@
-import { Component, EventEmitter, HostListener, inject, Input, Output, ViewChild } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Sort } from '@angular/material/sort';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InvoiceService } from '@services/invoice.service';
 import { LoginService } from '@services/login.service';
@@ -12,7 +11,6 @@ import { VerificationDialogueComponent } from './verification-dialogue/verificat
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
 import { MatDividerModule } from '@angular/material/divider';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -29,7 +27,8 @@ import { CommonModule } from '@angular/common';
     RouterModule, MatCardModule,MatDialogModule, CommonModule
   ],
   templateUrl: './view-approval.component.html',
-  styleUrl: './view-approval.component.scss'
+  styleUrl: './view-approval.component.scss',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ViewApprovalComponent {
   _snackbar = inject(MatSnackBar)
@@ -53,15 +52,18 @@ export class ViewApprovalComponent {
     this.invoiceSubscriptions?.unsubscribe();
     this.querySub?.unsubscribe();
     this.verifiedSub?.unsubscribe();
+    this.dialogSub?.unsubscribe();
+    this.deleteSub?.unsubscribe();
   }
 
   user: number;
   isSubmitted: boolean = false;
   querySub!: Subscription;
   ngOnInit() {
+    console.log(this.data);
+    
     this.querySub = this.route.queryParams.subscribe(params => {
       this.isSubmitted = params['isSubmitted'] === 'true'; 
-      console.log(this.isSubmitted);
     });
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
@@ -138,7 +140,7 @@ export class ViewApprovalComponent {
     } else if (this.roleName === 'Accountant') {
       this.pageStatus = false
       apiCall = this.invoiceService.getPIByMA(this.status, this.filterValue, this.currentPage, this.pageSize);
-    }else if (this.roleName === 'Administrator') {
+    }else if (this.roleName === 'Administrator' || this.roleName === 'Super Administrator') {
       apiCall = this.invoiceService.getPIByAdmin(this.status, this.filterValue, this.currentPage, this.pageSize);
     }
 
@@ -146,7 +148,6 @@ export class ViewApprovalComponent {
       this.invoiceSubscriptions = apiCall.subscribe((res: any) => {
         invoice = res.items;
         this.totalItems = res.count;
-        console.log(invoice);
         
         if (invoice) {
           invoice.forEach((mainObj: any) => {
@@ -159,7 +160,6 @@ export class ViewApprovalComponent {
           });
 
           this.invoices = invoice;
-          console.log(this.invoices);
           
           for (let i = 0; i < this.invoices.length; i++) {
             let invoiceSP = this.invoices[i]?.salesPersonId;
@@ -167,7 +167,6 @@ export class ViewApprovalComponent {
             let invoiceAM = this.invoices[i]?.amId;
             let invoiceMA = this.invoices[i]?.accountantId;
 
-            // Check if the current user matches any role in the invoice
             if (this.user === invoiceSP || this.user === invoiceKAM || this.user === invoiceAM || this.user === invoiceMA) {
               this.invoices[i] = {
                 ...this.invoices[i],
@@ -177,19 +176,21 @@ export class ViewApprovalComponent {
 
             if(invoice[i].addedById === this.user){
               if(invoice[i].addedBy.role.roleName === 'Sales Executive' &&
-                (invoice[i].status === 'GENERATED' || invoice[i].status === 'KAM REJECTED' || invoice[i].status === 'AM REJECTED') ){
+                (invoice[i].status === 'GENERATED' || invoice[i].status === 'KAM REJECTED' || invoice[i].status === 'AM REJECTED' || 
+                  invoice[i].status === 'INITIATED'|| invoice[i].status === 'AM DECLINED' ) ){
                   this.invoices[i] = {
                     ...this.invoices[i],
                     editButtonStatus: true
                   };
               }else if(invoice[i].addedBy.role.roleName === 'Key Account Manager' &&
-                (invoice[i].status === 'KAM VERIFIED' || invoice[i].status === 'AM REJECTED') ){
+                (invoice[i].status === 'KAM VERIFIED' || invoice[i].status === 'AM REJECTED' || invoice[i].status === 'INITIATED') ){
                   this.invoices[i] = {
                     ...this.invoices[i],
                     editButtonStatus: true
                   };
               }else if(invoice[i].addedBy.role.roleName === 'Manager' &&
-                (invoice[i].status === 'AM VERIFIED') ){
+                (invoice[i].status === 'AM VERIFIED' ||  invoice[i].status === 'AM APPROVED') ){
+
                   this.invoices[i] = {
                     ...this.invoices[i],
                     editButtonStatus: true
@@ -203,7 +204,6 @@ export class ViewApprovalComponent {
             }
           }
         }
-
         this.submittingForm = false;
       }, (error: any) => {
         this.submittingForm = false;
@@ -229,6 +229,10 @@ export class ViewApprovalComponent {
 
   pageStatus: boolean = true;
   onStepSelectionChange(status: string) {
+    if(status === 'expenses'){
+      // this.router.navigate(['login/expenses/view']);
+    return;
+    }
     if(this.roleName === 'Sales Executive'){
       if(status === 'assigned'){
         this.status = 'REJECTED';
@@ -262,7 +266,6 @@ export class ViewApprovalComponent {
         this.getInvoices()
 
       }
-
     }else if(this.roleName === 'Manager') {
       if(status === 'pending'){
         this.pageStatus = true;
@@ -280,9 +283,7 @@ export class ViewApprovalComponent {
         this.pageStatus = false;
          this.status = ''
         this.getInvoices()
-
       }
-
     }else if(this.roleName === 'Accountant') {
       if(status === 'pending'){
         this.pageStatus = false;
@@ -297,31 +298,33 @@ export class ViewApprovalComponent {
         this.status = ''
         this.getInvoices()
       }
-
     }
   }
 
   verifiedSub: Subscription;
-  verified(value: string, piNo: string, sp: string, id: number){
+  dialogSub!: Subscription;
+  verified(value: string, piNo: string, sp: string, id: number, stat: string){
     let status = this.status;
     this.submittingForm = true;
+    if(stat === 'INITIATED' && value === 'approved') status = 'AM APPROVED';
+    else if(stat === 'INITIATED' && value === 'rejected') status = 'AM DECLINED';
     if(status === 'GENERATED' && value === 'approved') status = 'KAM VERIFIED';
     else if(status === 'GENERATED' && value === 'rejected') status = 'KAM REJECTED';
     else if(status === 'KAM VERIFIED' && value === 'approved') status = 'AM VERIFIED';
     else if(status === 'KAM VERIFIED' && value === 'rejected') status = 'AM REJECTED';
-    // else if(status === 'AM VERIFIED' ) return this.addBankSlip(this.pi.id, this.piNo)
 
     const dialogRef = this.dialog.open(VerificationDialogueComponent, {
       data: { invoiceNo: piNo, status: status, sp: sp }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    this.dialogSub = dialogRef.afterClosed().subscribe(result => {
       if(result){
         this.submittingForm = true;
         let data = {
           status: status,
           performaInvoiceId: id,
           remarks: result.remarks,
+          kamId: result.kamId,
           amId: result.amId,
           accountantId: result.accountantId
         }
@@ -330,33 +333,34 @@ export class ViewApprovalComponent {
           this.submittingForm = false;
           this.getInvoices()
           this.snackBar.open(`Invoice ${piNo} updated to ${status}...`,"" ,{duration:3000})
-          this.router.navigateByUrl('login/viewApproval')
+          this.router.navigateByUrl('login/viewApproval/view')
         });
       }
     })
   }
 
-  addBankSlip(piNo: string, id: number){
+  addBankSlip(piNo: string, id: number, status: string){
     const dialogRef = this.dialog.open(BankReceiptDialogueComponent, {
-      data: { invoiceNo: piNo, id: id }
+      data: { invoiceNo: piNo, id: id, status: status }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    this.dialogSub = dialogRef.afterClosed().subscribe(result => {
       if(result){
         this.getInvoices()
         this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
       }
     })
   }
+  
+  deleteSub!: Subscription;
   deleteFunction(id: number){
     const dialogRef = this.dialog.open(DeleteDialogueComponent, {
       width: '320px',
       data: {}
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    this.dialogSub = dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
-
         this.invoiceService.deleteInvoice(id).subscribe((res)=>{
           this._snackbar.open("PI deleted successfully...","" ,{duration:3000})
           this.getInvoices()
@@ -367,5 +371,7 @@ export class ViewApprovalComponent {
       }
     });
   }
+
+  @Input() data: string;
 }
 

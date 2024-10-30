@@ -5,7 +5,8 @@ const UserAccount = require('../models/userAccount');
 const UserPosition = require('../models/userPosition');
 
 router.post('/add', authenticateToken, async (req, res) => {
-  const { userId, division, costCentre, grade, designation, location, department, office, salary, probationPeriod, officialMailId }  = req.body;
+  const { userId, division, costCentre, grade, designation, location, department, office, salary, probationPeriod, 
+    officialMailId, projectMailId }  = req.body;
   try {
     try {
       const userExist = await UserPosition.findOne({
@@ -19,7 +20,7 @@ router.post('/add', authenticateToken, async (req, res) => {
     } 
     
     const user = new UserPosition({ userId, division, costCentre, grade, designation, location, department, office, salary, 
-      probationPeriod, officialMailId });
+      probationPeriod, officialMailId, projectMailId });
     await user.save();
     
     res.send(user);
@@ -39,7 +40,7 @@ router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
 });
 
 router.patch('/update/:id', async(req,res)=>{
-  const { division, costCentre, grade, designation, location, department, office, salary, probationPeriod } = req.body
+  const { division, costCentre, grade, designation, location, department, office, salary, probationPeriod, projectMailId } = req.body
   try {
     let result = await UserPosition.findByPk(req.params.id);
     result.division = division;
@@ -51,6 +52,7 @@ router.patch('/update/:id', async(req,res)=>{
     result.office = office;
     result.salary = salary;
     result.probationPeriod = probationPeriod;
+    result.projectMailId = projectMailId;
 
     await result.save();
     res.send(result);

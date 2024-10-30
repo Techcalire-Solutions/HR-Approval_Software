@@ -26,6 +26,12 @@ const team = require('../users/routers/team');
 const teamMember = require('../users/routers/teamMember');
 app.use('/role', role);
 
+const holiday = require('../leave/routers/holiday');
+app.use('/holidays', holiday);
+
+const notification = require('../invoices/routers/notification')
+app.use('/notification',notification)
+
 
 // app.use(cors({
 //     origin: 'https://approval.techclaire.com', 
@@ -51,9 +57,11 @@ app.use('/invoice', invoice);
 app.use('/performaInvoice', pi);
 app.use('/invoiceStatus', piStatus);
 
+const company = require('../invoices/routers/company');
+app.use('/company', company);
+
 app.use('/invoices/uploads', express.static(path.join(__dirname, '../invoices/uploads')));
 app.use('/users/userImages', express.static(path.join(__dirname, '../users/userImages')));
-
 
 const leave = require('../leave/routers/leave');
 const leaveType = require('../leave/routers/leaveType');
@@ -65,9 +73,39 @@ app.use('/userLeave', userLeave);
 const announcements = require('../announcements/router/announcement');
 app.use('/announcements', announcements)
 
+const expense = require('../expense/routers/expense');
+app.use('/expense', expense);
+
+const payroll = require('../payroll/routers/payroll');
+app.use('/payroll', payroll);
+
+const advanceSalary = require('../payroll/routers/advanceSalary');
+app.use('/advanceSalary', advanceSalary);
+
+const monthlyPayroll = require('../payroll/routers/monthlyPayroll');
+app.use('/monthlyPayroll', monthlyPayroll);
+
+app.get('/export', async(req,res)=> {
+    try {
+        let workbook = new excelJs.Workbook()
+        const sheet = workbook.addWorksheet("books")
+        sheet.columns = [
+            { header: 'ID', key: 'id', width: 10 },
+            { header: 'Title', key: 'title', width: 32 },
+            { header: 'Author', key: 'author', width: 32 },
+            { header: 'Published Date', key: 'publishedDate', width: 25 }
+        ]
+        let object = JSON.parse(fs.readFileSync('data.json', 'utf8') )
+        object.books.map((value, ids) => {
+            sheet.addRow();
+        })
+
+    } catch (error) {
+        req.setEncoding(error.message)
+    }
+})
 
 const port = process.env.PORT || 8000;
-
 app.listen(port, () => {
     console.log(`server started on port ${port}`);
 })
