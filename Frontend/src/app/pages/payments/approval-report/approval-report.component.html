@@ -44,10 +44,13 @@
 
               <div class="col">
                 <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>Date</mat-label>
-                  <input matInput [matDatepicker]="startDatePicker" placeholder="Date" (dateChange)="onDateChange($event)">
-                  <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
-                  <mat-datepicker #startDatePicker></mat-datepicker>
+                  <mat-label>Date Range</mat-label>
+                  <mat-date-range-input [rangePicker]="dateRangePicker">
+                    <input matStartDate placeholder="Start date">
+                    <input matEndDate placeholder="End date">
+                  </mat-date-range-input>
+                  <mat-datepicker-toggle matSuffix [for]="dateRangePicker"></mat-datepicker-toggle>
+                  <mat-date-range-picker #dateRangePicker></mat-date-range-picker>
                 </mat-form-field>
               </div>
             </div>
