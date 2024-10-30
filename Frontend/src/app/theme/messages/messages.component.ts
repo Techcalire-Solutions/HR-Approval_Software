@@ -89,6 +89,7 @@ export class MessagesComponent implements OnInit {
    this.messageNotfiSub =  this.messagesService.getUserNotifications(this.userId).subscribe(
       (data: any) => {
         this.notifications = data.notifications || [];
+        console.log(this.notifications)
         this.checkForNewNotifications(data);
         this.updateUnreadCount();
       },
