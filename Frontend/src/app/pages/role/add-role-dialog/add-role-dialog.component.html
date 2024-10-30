@@ -1,5 +1,5 @@
 <h1 mat-dialog-title>
-  @if (role) {
+  @if (editStatus) {
       <span>Edit</span>
   } @else {
       <span>ADD</span>
@@ -41,7 +41,7 @@
 </div>
 <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
   <button mat-raised-button color="primary" [mat-dialog-close]="form.value" [disabled]="!form.valid" (click)="onSubmit()">
-      @if (role) {
+      @if (editStatus) {
           Update
       } @else {
           Save
