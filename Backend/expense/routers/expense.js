@@ -171,8 +171,6 @@ router.get('/findbyuser', authenticateToken, async (req, res) => {
   let user = req.user.id;
   let roleId = req.user.roleId;
   let flow = req.query.isFLow;
-  console.log(flow,"pppppppppppppppppp");
-  
   let roleName;
   try {
     let role = await Role.findByPk(roleId)
@@ -182,12 +180,16 @@ router.get('/findbyuser', authenticateToken, async (req, res) => {
   }
   try {
     let condition = {};
-
-    if (roleName === 'Manager' && flow === true) {
+    console.log(roleName, flow,"OOOOOOOOOOOOOOOOOOo");
+    
+    if (roleName === 'Manager' && flow === "true") {
+      console.log(flow,"pppppppppppppppppp");
+      
       condition.amId = user;
-    } else if (roleName === 'Accountant'&& flow === true) {
+    } else if (roleName === 'Accountant'&& flow === "true") {
+      console.log(flow,"pppppppppppppppppp");
       condition.accountantId = user;
-    } else if (roleName === 'Administrator' || roleName === 'Super Administrator'&& flow === true) {
+    } else if (roleName === 'Administrator' || roleName === 'Super Administrator'&& flow === "true") {
       condition = {};
     }else {
       condition.userId = user;
