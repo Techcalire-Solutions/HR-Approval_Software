@@ -109,7 +109,7 @@
               }
               @if(expenses.length === 0){
                 <tr>
-                  <td [colSpan]="6" style="text-align: center;">No records found</td>
+                  <td [attr.colspan]="isFlow ? 6 : 5" style="text-align: center;">No records found</td>
                 </tr>
               }
              
