@@ -51,7 +51,21 @@ router.post('/save', authenticateToken, async (req, res) => {
         }
         status = 'GENERATED'
     }
+    
+    const kam = paymentMode === 'WireTransfer' ? await UserPosition.findOne({ where: { userId: kamId } }) : null;
+    const am = paymentMode === 'CreditCard' ? await UserPosition.findOne({ where: { userId: amId } }) : null;
 
+    const kamEmail = kam ? kam.projectMailId : null; 
+    const amEmail = am ? am.projectMailId : null;  
+
+    if (paymentMode === 'WireTransfer' && !kamEmail) {
+        return res.send('Please set KAM project email ID');
+    }
+    console.log('amidamid',amEmail);
+
+    if (paymentMode === 'CreditCard' && !amEmail) {
+        return res.send('Please set AM project email ID');
+    }
     try {
         const existingInvoice = await PerformaInvoice.findOne({ where: { piNo } });
         if (existingInvoice) {
@@ -99,19 +113,8 @@ router.post('/save', authenticateToken, async (req, res) => {
             }
         }
 
-        const kam = paymentMode === 'WireTransfer' ? await UserPosition.findOne({ where: { id: kamId } }) : null;
-        const am = paymentMode === 'CreditCard' ? await UserPosition.findOne({ where: { id: amId } }) : null;
 
-        const kamEmail = kam ? kam.projectMailId : null; 
-        const amEmail = am ? am.aprojectMailId : null;  
-        
-        if (paymentMode === 'WireTransfer' && !kamEmail) {
-            return res.status(400).json({ error: 'KAM email not found' });
-        }
 
-        if (paymentMode === 'CreditCard' && !amEmail) {
-            return res.status(400).json({ error: 'AM email not found' });
-        }
 
         const notificationMessage = status === 'INITIATED' 
         ? `A new Proforma Invoice ${piNo} has been initiated by ${req.user.name}.`
