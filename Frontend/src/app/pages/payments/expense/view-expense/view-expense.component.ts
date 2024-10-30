@@ -38,7 +38,6 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName; 
-  
     })
   }
 
@@ -74,22 +73,11 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   expenses: any[] = [];
   expenseSub!: Subscription;
   getExpenses(userId: number){
-    this.expenseSub = this.expenseService.getExpenseByUser(this.filterValue, this.currentPage, this.pageSize).subscribe((expenses: any) => {
+    this.expenseSub = this.expenseService.getExpenseByUser(this.filterValue, this.currentPage, this.pageSize, this.isFlow)
+    .subscribe((expenses: any) => {
       this.expenses = expenses.items;
       this.totalItems = expenses.count;
       if (this.expenses) {
-        console.log(this.expenses);
-        
-        // this.expenses.forEach((mainObj: any) => {
-        //   console.log(mainObj);
-          
-        //   const matchingStatus = mainObj.expensestatuses.find(
-        //     (statusObj: any) => statusObj.status === mainObj.status
-        //   );
-        //   if (matchingStatus) {
-        //     mainObj.remarks = matchingStatus.remarks;
-        //   }
-        // });
 
         this.expenses = [...this.expenses]; 
         
@@ -104,15 +92,11 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
               userStatus: true
             };
           }
-          console.log(this.expenses[i]);
           
           if(this.expenses[i].userId === userId){
-            console.log(this.expenses[i].userId, userId);
             
             if(this.expenses[i].user.role.roleName != 'Manager' &&
               (this.expenses[i].status === 'Generated'|| this.expenses[i].status === 'AM Rejected') ){
-                console.log(expenses[i]);
-                
                 this.expenses[i] = {
                   ...this.expenses[i],
                   editButtonStatus: true
@@ -130,7 +114,6 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
                 editButtonStatus: false
               };
             }
-            console.log(this.expenses[i]);
             
           }
         }

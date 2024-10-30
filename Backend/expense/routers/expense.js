@@ -170,6 +170,8 @@ router.get('/find', authenticateToken, async(req, res) => {
 router.get('/findbyuser', authenticateToken, async (req, res) => {
   let user = req.user.id;
   let roleId = req.user.roleId;
+  let flow = req.query.isFLow;
+  console.log(flow,"pppppppppppppppppp");
   
   let roleName;
   try {
@@ -181,11 +183,11 @@ router.get('/findbyuser', authenticateToken, async (req, res) => {
   try {
     let condition = {};
 
-    if (roleName === 'Manager') {
+    if (roleName === 'Manager' && flow === true) {
       condition.amId = user;
-    } else if (roleName === 'Accountant') {
+    } else if (roleName === 'Accountant'&& flow === true) {
       condition.accountantId = user;
-    } else if (roleName === 'Administrator' || roleName === 'Super Administrator') {
+    } else if (roleName === 'Administrator' || roleName === 'Super Administrator'&& flow === true) {
       condition = {};
     }else {
       condition.userId = user;
