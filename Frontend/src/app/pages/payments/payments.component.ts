@@ -237,7 +237,6 @@ export class PaymentsComponent implements OnInit{
           }
           break;
     }
-    console.log(event);
     if (event === 4 && this.viewExpenseComponent.length > 0 ) {
       const activeComponent = this.viewExpenseComponent.toArray()[0]; // or correct index if it's not 0
       if (activeComponent) {
@@ -252,8 +251,15 @@ export class PaymentsComponent implements OnInit{
       } else {
         console.error("Expense component not found.");
       }
-    } else if (event === 0 && this.viewExpenseComponent.length > 0 && (this.roleName === 'Administrator' || this.roleName === 'Super Administrator')) {
-      const activeComponent = this.viewExpenseComponent.toArray()[0]; // or correct index if it's not 0
+    } else if (event === 0 && this.viewApprovalComponents.length > 0 && (this.roleName === 'Administrator' || this.roleName === 'Super Administrator')) {
+      const activeComponent = this.viewApprovalComponents.toArray()[0]; 
+      if (activeComponent) {
+        activeComponent.loadData(this.data);
+      } else {
+        console.error("Expense component not found.");
+      }
+    }  else if (event === 1 && this.viewExpenseComponent.length > 0 && (this.roleName === 'Administrator' || this.roleName === 'Super Administrator')) {
+      const activeComponent = this.viewExpenseComponent.toArray()[0]; 
       if (activeComponent) {
         activeComponent.loadData(this.data);
       } else {

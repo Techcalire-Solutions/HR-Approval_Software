@@ -203,7 +203,7 @@ users:User;
         (item.title === 'Directory' && item.parentId === 3) ||
         (item.title === 'Confirmation' && item.parentId === 3) ||
         // item.title === 'Team' ||
-        (item.title === 'Payment FLow' && !item.parentId) ||
+        (item.title === 'Payment Flow' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5) ||
         (item.title === 'Leave' && !item.parentId) ||
         (item.title === 'Calendar' && item.parentId === 8) ||
