@@ -30,7 +30,7 @@ router.post('/save', authenticateToken, async (req, res) => {
       status = 'Generated';
     }
   } catch (error) {
-    return res.send(error.message); // Return a 500 error response
+    return res.send(error.message); 
   }
 
   const { exNo, url, bankSlip, amId, accountantId, count, notes, totalAmount, currency } = req.body;
@@ -122,7 +122,7 @@ router.post('/save', authenticateToken, async (req, res) => {
         <ul>
           <li><strong>Reference Number:</strong> ${exNo}</li>
           <li><strong>Status:</strong> ${status}</li>
-          <li><strong>Type:</strong> ${expenseType}</li>
+          <li><strong>Amount:</strong> ${totalAmount} ${currency}</li>
           <li><strong>Notes:</strong> ${notes}</li>
           <li><strong>Submission Date:</strong> ${new Date().toLocaleDateString()}</li>
         </ul>
@@ -170,7 +170,7 @@ router.get('/find', authenticateToken, async(req, res) => {
 router.get('/findbyuser', authenticateToken, async (req, res) => {
   let user = req.user.id;
   let roleId = req.user.roleId;
-  
+  let flow = req.query.isFLow;
   let roleName;
   try {
     let role = await Role.findByPk(roleId)
@@ -180,12 +180,16 @@ router.get('/findbyuser', authenticateToken, async (req, res) => {
   }
   try {
     let condition = {};
-
-    if (roleName === 'Manager') {
+    console.log(roleName, flow,"OOOOOOOOOOOOOOOOOOo");
+    
+    if (roleName === 'Manager' && flow === "true") {
+      console.log(flow,"pppppppppppppppppp");
+      
       condition.amId = user;
-    } else if (roleName === 'Accountant') {
+    } else if (roleName === 'Accountant'&& flow === "true") {
+      console.log(flow,"pppppppppppppppppp");
       condition.accountantId = user;
-    } else if (roleName === 'Administrator' || roleName === 'Super Administrator') {
+    } else if (roleName === 'Administrator' || roleName === 'Super Administrator'&& flow === "true") {
       condition = {};
     }else {
       condition.userId = user;
@@ -217,7 +221,10 @@ router.get('/findbyuser', authenticateToken, async (req, res) => {
     const expenses = await Expense.findAll({
       where: where, limit, offset,
       include: [  
-        {model: User, attributes: ['name']},
+        {model: ExpenseStatus},
+        {model: User, attributes: ['name'], include: [
+          {model: Role, attributes: ['roleName']}
+        ]},
         {model: User, as: 'manager', attributes: ['name']},
         {model: User, as: 'ma', attributes: ['name']},
       ],

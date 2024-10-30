@@ -26,7 +26,7 @@ export class ExpenseComponent implements OnInit{
   ngOnInit(): void {
     this.id = this.route.snapshot.params['id'];
     if(this.id){
-      this.patchdata(this.id);
+      // this.patchdata(this.id);
     }
     this.addDoc();
     this.generateInvoiceNumber();

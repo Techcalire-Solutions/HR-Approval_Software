@@ -19,7 +19,6 @@ const UserPersonal = sequelize.define('userPersonal', {
   spouseName: { type: DataTypes.STRING },
   referredBy: { type: DataTypes.STRING },
   reportingMangerId: { type: DataTypes.INTEGER }
-
 },
 {
   freezeTableName: true,

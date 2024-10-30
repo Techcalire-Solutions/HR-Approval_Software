@@ -51,7 +51,21 @@ router.post('/save', authenticateToken, async (req, res) => {
         }
         status = 'GENERATED'
     }
+    
+    const kam = paymentMode === 'WireTransfer' ? await UserPosition.findOne({ where: { userId: kamId } }) : null;
+    const am = paymentMode === 'CreditCard' ? await UserPosition.findOne({ where: { userId: amId } }) : null;
 
+    const kamEmail = kam ? kam.projectMailId : null; 
+    const amEmail = am ? am.projectMailId : null;  
+
+    if (paymentMode === 'WireTransfer' && !kamEmail) {
+        return res.send('Please set KAM project email ID');
+    }
+    console.log('amidamid',amEmail);
+
+    if (paymentMode === 'CreditCard' && !amEmail) {
+        return res.send('Please set AM project email ID');
+    }
     try {
         const existingInvoice = await PerformaInvoice.findOne({ where: { piNo } });
         if (existingInvoice) {

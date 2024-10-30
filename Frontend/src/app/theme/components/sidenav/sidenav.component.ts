@@ -110,7 +110,7 @@ users:User;
         (item.title === 'View' && item.parentId === 5)||
         (item.title === 'Reports' && !item.parentId) ||
         (item.title === 'Approval Report' && item.parentId === 21)||
-        (item.title === 'Expense' && !item.parentId)
+        (item.title === 'Expense Report' && item.parentId=== 21)
 
       );
     } else if (
@@ -216,7 +216,10 @@ users:User;
         (item.title === 'Salary Statement' && item.parentId === 13) ||
         (item.title === 'YTD Reports' && item.parentId === 13)||
         (item.title === 'Reports' && !item.parentId) ||
-        (item.title === 'Approval Report' && item.parentId === 21)
+        (item.title === 'Approval Report' && item.parentId === 21) ||
+        (item.title === 'Leave Report' && item.parentId === 21)||
+        (item.title === 'Expense Report' && item.parentId === 21)
+
       );
 
     }
