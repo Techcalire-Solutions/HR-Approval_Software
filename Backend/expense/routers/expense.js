@@ -30,7 +30,7 @@ router.post('/save', authenticateToken, async (req, res) => {
       status = 'Generated';
     }
   } catch (error) {
-    return res.send(error.message); // Return a 500 error response
+    return res.send(error.message); 
   }
 
   const { exNo, url, bankSlip, amId, accountantId, count, notes, totalAmount, currency } = req.body;
@@ -122,7 +122,7 @@ router.post('/save', authenticateToken, async (req, res) => {
         <ul>
           <li><strong>Reference Number:</strong> ${exNo}</li>
           <li><strong>Status:</strong> ${status}</li>
-          <li><strong>Type:</strong> ${expenseType}</li>
+          <li><strong>Amount:</strong> ${totalAmount} ${currency}</li>
           <li><strong>Notes:</strong> ${notes}</li>
           <li><strong>Submission Date:</strong> ${new Date().toLocaleDateString()}</li>
         </ul>
