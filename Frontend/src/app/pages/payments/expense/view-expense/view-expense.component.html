@@ -77,10 +77,7 @@
                   
                   <td (click)="$event.stopPropagation()">
                     <div class="action-icons">
-                      @if(data?.admin || 
-                        (!isFlow && roleName === 'Manager' && invoice.status === 'AM Verified') ||
-                        (!isFlow && invoice.status === 'AM Verified' && roleName !== 'Sales Executive') || 
-                        invoice.status === 'AM Rejected' || invoice.status === 'Generated'){
+                      @if(invoice.editButtonStatus){
                         <button class="update-button" [routerLink]="['/login/viewApproval/expenses', invoice.id]">Update </button>
                         <button class="delete-button" (click)="deleteFunction(invoice.id)">Delete
                         </button>
@@ -112,7 +109,7 @@
               }
               @if(expenses.length === 0){
                 <tr>
-                  <td [colSpan]="6" style="text-align: center;">No records found</td>
+                  <td [attr.colspan]="isFlow ? 6 : 5" style="text-align: center;">No records found</td>
                 </tr>
               }
              

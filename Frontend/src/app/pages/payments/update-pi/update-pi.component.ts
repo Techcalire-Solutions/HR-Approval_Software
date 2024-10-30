@@ -259,7 +259,7 @@ export class UpdatePIComponent {
 
                   if (piNo) {
                       this.snackBar.open(`Proforma Invoice ${piNo} Updated successfully...`, "", { duration: 3000 });
-                      this.router.navigateByUrl('login/viewApproval');
+                      this.router.navigateByUrl('login/viewApproval/view');
                   } else {
                       this.snackBar.open('Failed to update the invoice. Please try again.', "", { duration: 3000 });
                   }
