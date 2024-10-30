@@ -307,19 +307,54 @@ router.post('/excelupload', async (req, res) => {
   }
 });
 
-router.get('/getexcel', authenticateToken, async (req, res) => {
-  try {
-    const currentDate = new Date().toISOString().split('T')[0];
-    const fileName = `PaymentExcel/${currentDate}.xlsx`; 
-    const params = {
-      Bucket: fileName,
-      Key: fileName
-    };
-    
-    return this.s3.getObject(params).promise();
-  } catch (error) {
-    res.send(error.message);
-  }
+router.post('/mergeExcelFiles', async (req, res) => {
+    const { startDate, endDate } = req.body;
+    const bucketName = process.env.AWS_BUCKET_NAME;
+    const prefix = 'PaymentExcel/';
+
+    try {
+        const listObjects = await s3.listObjectsV2({ Bucket: bucketName, Prefix: prefix }).promise();
+        const filteredKeys = listObjects.Contents
+            .filter(obj => {
+                const fileDate = new Date(obj.Key.split('/')[1].replace('.xlsx', ''));
+                return fileDate >= new Date(startDate) && fileDate <= new Date(endDate);
+            })
+            .map(obj => obj.Key);
+
+        let mergedData = [];
+
+        for (const key of filteredKeys) {
+            const fileData = await s3.getObject({ Bucket: bucketName, Key: key }).promise();
+            const workbook = xlsx.read(fileData.Body, { type: 'buffer' });
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            const sheetData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
+            
+            mergedData = mergedData.length ? mergedData.concat(sheetData.slice(1)) : sheetData;
+        }
+
+        const newWorkbook = xlsx.utils.book_new();
+        const newWorksheet = xlsx.utils.aoa_to_sheet(mergedData);
+        xlsx.utils.book_append_sheet(newWorkbook, newWorksheet, 'MergedData');
+
+        const mergedExcel = xlsx.write(newWorkbook, { bookType: 'xlsx', type: 'buffer' });
+
+        const mergedFileName = `MergedExcel/${startDate}_to_${endDate}.xlsx`;
+        const uploadParams = {
+            Bucket: bucketName,
+            Key: mergedFileName,
+            Body: mergedExcel,
+            ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ACL: 'public-read'
+        };
+
+        await s3.upload(uploadParams).promise();
+
+        return res.status(200).send({ message: 'Excel files merged and saved successfully.' });
+    } catch (error) {
+        console.error('Error merging Excel files:', error);
+        return res.status(500).send('An error occurred while merging the Excel files.');
+    }
 });
+
 
 module.exports = router;
