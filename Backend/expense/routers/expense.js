@@ -160,7 +160,7 @@ router.post('/save', authenticateToken, async (req, res) => {
       res.json(expense);
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.json({ error: error.message });
   }
 });
 
@@ -612,13 +612,32 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
 
 router.patch('/update/:id', authenticateToken, async (req, res) => {
   let { url, amId, notes, currency, totalAmount } = req.body;
+  const userId = req.user.id;
+  let status;
+  const user = await User.findByPk(userId, {
+    include: {
+      model: Role,
+      attributes: ['roleName']
+    }
+  });
+
+  if (user && user.role && user.role.roleName === 'Manager') {
+    status = 'AM Verified';
+    if(accountantId === null || accountantId === '' || accountantId === 'undefined'){
+      return res.send("Please select an account and submit again")
+    }
+  } else {
+    status = 'Generated';
+    if(amId === null || amId === '' || amId === 'undefined'){
+      return res.send("Please select a manager and submit again")
+    }
+  }
 
   try {
       const pi = await Expense.findByPk(req.params.id);
       if (!pi) {
           return res.status(404).send({ message: 'Expense not found.' });
       }
-      let status;
 
       pi.url = url;
       pi.amId = amId;

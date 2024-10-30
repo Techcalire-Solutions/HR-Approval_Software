@@ -238,6 +238,8 @@ export class ExpenseComponent implements OnInit{
   onSubmit(){
     if(this.editStatus){
       this.submit = this.expenseService.updateExpense(this.expenseForm.getRawValue(), this.id).subscribe(res =>{
+        console.log(res);
+        
         this.snackBar.open("Expense updated succesfully...","" ,{duration:3000})
         if(this.roleName === 'Super Administrator' || this.roleName === 'Administrator'){
           this.router.navigateByUrl('login/viewApproval/view');
