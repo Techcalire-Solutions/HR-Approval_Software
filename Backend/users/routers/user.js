@@ -14,6 +14,7 @@ const s3 = require('../../utils/s3bucket');
 const UserLeave = require('../../leave/models/userLeave');
 const LeaveType = require('../../leave/models/leaveType');
 const UserPersonal = require('../models/userPersonal');
+const UserPosition = require('../models/userPosition');
 
 router.post('/add', async (req, res) => {
   const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId, empNo, director } = req.body;
@@ -463,6 +464,15 @@ router.get('/confirmemployee/:id', async (req, res) => {
       if(!up){
         return res.send(`Personal data is not added for the employee ${result.name}`)
       }
+
+      let post = await UserPosition.findOne({
+        where: { userId: req.params.id}
+      })
+      if(!post){
+        return res.send(`Position data is not added for the employee ${result.name}`)
+      }
+      post.probationNote = req.query.note;
+      await post.save();
       
       if (!result) {
           return res.json({ message: "Employee not found" });

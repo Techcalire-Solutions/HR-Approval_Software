@@ -1,7 +1,7 @@
 import { UserDocumentsComponent } from './../user-documents/user-documents.component';
 import { Component, inject, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -30,6 +30,8 @@ import { Team } from '../../../common/interfaces/team';
 import { TeamService } from '@services/team.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { AddRoleDialogComponent } from '../../role/add-role-dialog/add-role-dialog.component';
 
 
 @Component({
@@ -38,7 +40,7 @@ import { MatSelectModule } from '@angular/material/select';
   imports: [ ReactiveFormsModule, FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule,  MatDatepickerModule,
     MatNativeDateModule, MatRadioModule, MatDialogModule,  MatButtonModule, MatCheckboxModule, DatePipe,  MatToolbarModule,
     PersonalDetailsComponent, UserPositionComponent, StatuatoryInfoComponent, UserAccountComponent, UserDocumentsComponent, MatCardModule,
-    MatOptionModule, MatSelectModule, CommonModule
+    MatOptionModule, MatSelectModule, CommonModule, MatAutocompleteModule
 ],
   templateUrl: './user-dialog.component.html',
   styleUrl: './user-dialog.component.scss'
@@ -72,26 +74,12 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       empNo: [''],
       url: [''],
-      name: [
-        null,
-        Validators.compose([Validators.required, Validators.minLength(3)])
-      ],
-      email: [
-        null,
-        Validators.compose([Validators.required, Validators.email])
-      ],
-      phoneNumber: [
-        null,
-        Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)])
-      ],
-      password: [
-        null,
-        Validators.compose([Validators.required, Validators.minLength(4)])
-      ],
-      roleId: [
-        null,
-        Validators.compose([Validators.required])
-      ],
+      name: [ null,  Validators.compose([Validators.required, Validators.minLength(3)]) ],
+      email: [ null, Validators.compose([Validators.required, Validators.email]) ],
+      phoneNumber: [ null,  Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)]) ],
+      password: [ null, Validators.compose([Validators.required, Validators.minLength(4)]) ],
+      roleId: [ null, Validators.compose([Validators.required]) ],
+      roleName: [],
       teamId: [ null ]
     })
 
@@ -179,9 +167,36 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
   roles:Role[]=[];
   roleSub!: Subscription;
+  public filteredOptions: any[] = [];
   getRoles(){
     this.roleSub = this.roleService.getRole().subscribe((res)=>{
       this.roles = res;
+      this.filteredOptions = this.roles;
+    })
+  }
+
+  filterValue: string;
+  search(event: Event, type: string) {
+    this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
+    this.filteredOptions = this.roles.filter(option => 
+      option.roleName.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
+      option.abbreviation.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
+    );
+  }
+
+  patch(selectedSuggestion: any) {
+    this.form.patchValue({ roleId: selectedSuggestion.id, roleName: selectedSuggestion.roleName });
+  }
+
+  private dialog = inject(MatDialog);
+  add(type: string){
+    let name = this.filterValue;
+    const dialogRef = this.dialog.open(AddRoleDialogComponent, {
+      data: {type : 'add', name: name}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      this.getRoles()
     })
   }
 

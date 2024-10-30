@@ -48,7 +48,7 @@ export class AddRoleDialogComponent {
   snackBar = inject(MatSnackBar);
 
   constructor(public dialogRef: MatDialogRef<AddRoleDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) public role: Role,
+              @Inject(MAT_DIALOG_DATA) public role: any,
               public fb: FormBuilder,private roleService:RoleService) {
     this.form = this.fb.group({
 
@@ -61,11 +61,16 @@ export class AddRoleDialogComponent {
 
   ngOnInit() {
     if (this.role) {
-      this.patchRole(this.role);
+      console.log(this.role);
+      if(this.role.type === 'add'){
+        this.form.patchValue({roleName: this.role.name})
+      }else this.patchRole(this.role);
     }
   }
 
+  editStatus: boolean = false;
   patchRole(role: any){
+    this.editStatus = true;
     this.form.patchValue({
       roleName: role.roleName,
       abbreviation: role.abbreviation
@@ -79,7 +84,7 @@ export class AddRoleDialogComponent {
   onSubmit(){
     console.log(this.role);
     
-    if(this.role){
+    if(this.editStatus){
       this.roleService.updateRole(this.role.id, this.form.getRawValue()).subscribe(data => {
         this.dialogRef.close()
         this.snackBar.open("Role updated succesfully...","" ,{duration:3000})
