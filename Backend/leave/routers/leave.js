@@ -12,7 +12,7 @@ const LeaveType = require('../models/leaveType')
  const upload = require('../../utils/leaveDocumentMulter');
  const s3 = require('../../utils/s3bucket');
  const UserPersonal = require('../../users/models/userPersonal');
-
+ const UserPosition = require('../../users/models/userPosition')
 
  
 //-----------------------------------Mail code-------------------------------------------------------
@@ -27,24 +27,32 @@ const transporter = nodemailer.createTransport({
 
 //-------------------------------------Find HR Mail and Reporting manager mail-----------------------------------------------------
 async function getHREmail() {
-
+  // Fetch the HR Administrator role
   const hrAdminRole = await Role.findOne({ where: { roleName: 'HR Administrator' } });
   if (!hrAdminRole) {
     throw new Error('HR Admin role not found');
   }
 
-
+  // Fetch the HR Administrator user using the role ID
   const hrAdminUser = await User.findOne({ where: { roleId: hrAdminRole.id, status: true } });
   if (!hrAdminUser) {
     throw new Error('HR Admin user not found');
   }
 
-  return hrAdminUser.email; 
+  // Fetch the user position for the HR Administrator user
+  const userPosition = await UserPosition.findOne({ where: { userId: hrAdminUser.id } });
+  if (!userPosition) {
+    throw new Error('User position not found for HR Admin');
+  }
+
+  // Return the email from the user position table
+  return userPosition.officialMailId; 
 }
+
 
 async function getReportingManagerEmailForUser(userId) {
   try {
-
+    // Fetch the user's personal information to get the reporting manager ID
     const userPersonal = await UserPersonal.findOne({
       where: { userId },
       attributes: ['reportingMangerId'],
@@ -54,28 +62,28 @@ async function getReportingManagerEmailForUser(userId) {
       return `User with id ${userId} not found`;
     }
 
-    
     const reportingMangerId = userPersonal.reportingMangerId;
     if (!reportingMangerId) {
       return `No reporting manager found for userId ${userId}`;
     }
 
-
-    const reportingManager = await User.findOne({
-      where: { id: reportingMangerId },
-      attributes: ['email'],  
+    // Fetch the reporting manager's user position to get the official email
+    const reportingManagerPosition = await UserPosition.findOne({
+      where: { userId: reportingMangerId },
+      attributes: ['officialMailId'],  // Assuming the column name is officialEmail
     });
 
-    if (reportingManager) {
-      return reportingManager.email;  
+    if (reportingManagerPosition) {
+      return reportingManagerPosition.officialMailId;  
     } else {
-      return `Reporting manager not found for reportingMangerId ${reportingMangerId}`;
+      return `Reporting manager position not found for reportingMangerId ${reportingMangerId}`;
     }
   } catch (error) {
     console.error('Error fetching reporting manager email:', error);
     return 'Error fetching reporting manager email';
   }
 }
+
 
 
 
@@ -90,16 +98,24 @@ async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDa
     throw new Error('leaveDates must be an array');
   }
 
+   const formattedStartDate = new Date(new Date(startDate).setDate(new Date(startDate).getDate() + 1))
+  .toISOString()
+  .split('T')[0];
+   const formattedEndDate = new Date(new Date(endDate).setDate(new Date(endDate).getDate() + 1))
+  .toISOString()
+  .split('T')[0];
+
+
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: process.env.EMAIL_USER,
-    cc:  [hrAdminEmail, reportingManagerEmail], 
-    subject: 'New Leave Request Submitted',
+    to: reportingManagerEmail,
+    cc:  hrAdminEmail,
+    subject: `New Leave Request Submitted by ${user.name}`,
     text: `A new leave request has been submitted:
     - Username: ${user.name}
     - Leave Type: ${leaveType.leaveTypeName}
-    - Start Date: ${startDate}
-    - End Date: ${endDate}
+    - Start Date: ${formattedStartDate}
+    - End Date: ${formattedEndDate}
     - Notes: ${notes}
     - Number of Days: ${noOfDays}
     - Leave Dates: ${leaveDates.map(item => {
@@ -321,14 +337,20 @@ router.post('/', authenticateToken, async (req, res) => {
         status: 'requested',
         leaveDates 
       });
+      
+
+
 
       sendLeaveEmail(user,leaveType,startDate,endDate,notes,noOfDays,leaveDates)
 
       return res.json({
         message: 'Leave request successful.',
         leaveDatesApplied: leaveDates,
-        lopDates: [] 
+        lopDates: [] ,
+        startDate: startDate,  // Directly using user-provided startDate
+        endDate: endDate
       });
+
     }
     
   } catch (error) {

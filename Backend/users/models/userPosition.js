@@ -14,6 +14,7 @@ const UserPosition = sequelize.define('userposition',{
     salary : {type : DataTypes.STRING},
     probationPeriod : {type : DataTypes.INTEGER, defaultValue : 3},
     officialMailId : {type : DataTypes.STRING},
+    projectMailId : {type : DataTypes.STRING},
 },
 {
     freezeTableName: true,

@@ -11,6 +11,7 @@
   
       <div class="col">
         <mat-card-header>
+          <a style="color: black; font-style: italic; margin-left: auto;">Added by: {{pi.user.name}}</a>
           <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon"
             class="d-block mr-0 ml-auto" onClick="history.back()" style="margin-left: auto;">
             <mat-icon>exit_to_app</mat-icon>
@@ -30,7 +31,7 @@
       <table class="table table-bordered">
         <tbody>
           <tr>
-            <td><strong>Type:</strong> {{ pi.expenseType }}</td>
+            <td><strong>Amount:</strong> {{ pi.totalAmount }} {{pi.currency}}</td>
             <td colspan="2">
               <strong>Notes:</strong>
               <span style="color: black;" [innerHTML]="formatNotes(pi.notes)"></span>
