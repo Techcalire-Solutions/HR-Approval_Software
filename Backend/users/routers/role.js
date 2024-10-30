@@ -7,12 +7,12 @@ const sequelize = require('../../utils/db');
 
 
 router.post('/', authenticateToken, async (req, res) => {
-  const { roleName, abbreviation, status } = req.body;
+  const { roleName, abbreviation, status, department } = req.body;
     try {
       let rrr = await Role.findAll({})
       console.log(rrr);
       
-          const role = new Role({roleName, abbreviation, status});
+          const role = new Role({roleName, abbreviation, status, department});
           await role.save();
           
           res.send(role);
@@ -152,9 +152,9 @@ router.patch('/:id', authenticateToken, async(req,res)=>{
   try {
     const roleId = parseInt(req.params.id, 10);
 
-    if ([1, 2, 3, 4, 5].includes(roleId)) {
-        return res.send("Role cannot be updated");
-    }
+    // if ([1, 2, 3, 4, 5].includes(roleId)) {
+    //     return res.send("Role cannot be updated");
+    // }
     Role.update(req.body, {
         where: { id: roleId }
     })

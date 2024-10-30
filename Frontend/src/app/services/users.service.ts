@@ -170,8 +170,8 @@ export class UsersService {
     return this.http.get<User[]>(this.apiUrl + '/user/confirmed')
   }
 
-  confirmEmployee(id: number): Observable<any> {
-    return this.http.get( this.apiUrl+'/user/confirmemployee/' + id);
+  confirmEmployee(id: number, note: string): Observable<any> {
+    return this.http.get( this.apiUrl+`/user/confirmemployee/${id}/?note=${note}`);
   }
 
   getBirthdays():Observable<UserPersonal[]>{

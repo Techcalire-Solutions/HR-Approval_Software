@@ -88,7 +88,21 @@
               </div>
 
               <div class="col">
-                <mat-form-field class="w-100" appearance="outline">
+                <mat-form-field class="w-100" appearance="outline" >
+                  <input matInput placeholder="Select Designation" formControlName="roleName" [matAutocomplete]="auto" (keyup)="search($event,'cust')">
+                  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value)">
+                    <mat-option *ngFor="let suggestion of filteredOptions" [value]="suggestion">
+                      {{ suggestion.roleName }}
+                    </mat-option>
+                    <mat-option *ngIf="filteredOptions.length === 0" [value]="'add'" (click)="add('cust')">
+                      <mat-icon style="font-size: 25px; color: rgb(35, 35, 247);">playlist_add</mat-icon>
+                      ADD NEW
+                    </mat-option>
+                  </mat-autocomplete>
+                  
+                </mat-form-field>
+
+                <!-- <mat-form-field class="w-100" appearance="outline">
                   <mat-label>Role</mat-label>
                   <mat-select formControlName="roleId" required>
                     @for(role of roles; track role){
@@ -102,7 +116,7 @@
                       Role is required
                     </mat-error>
                   }
-                </mat-form-field>
+                </mat-form-field> -->
               </div>
 
               <div class="col">
