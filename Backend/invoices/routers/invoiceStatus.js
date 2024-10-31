@@ -114,6 +114,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
             Notification.create({ userId: user.id, message: notificationMessage })
         ));
 
+
         
 if (!Array.isArray(pi.url) || pi.url.length === 0) {
     console.error('Invalid or missing URL:', pi.url);
