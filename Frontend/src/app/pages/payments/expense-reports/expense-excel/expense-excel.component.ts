@@ -1,24 +1,19 @@
+import { DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { DatePipe } from '@angular/common';
 import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
-import { InvoiceService } from '@services/invoice.service';
 import { ActivatedRoute } from '@angular/router';
-import { SafePipe } from '../../../../common/safe.pipe';
+import { InvoiceService } from '@services/invoice.service';
 
 @Component({
-  selector: 'app-view-excel-report',
+  selector: 'app-expense-excel',
   standalone: true,
-  imports: [SafePipe, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatButtonModule],
-  templateUrl: './view-excel-report.component.html',
-  styleUrl: './view-excel-report.component.scss',
+  imports: [MatButtonModule],
+  templateUrl: './expense-excel.component.html',
+  styleUrl: './expense-excel.component.scss',
   providers: [DatePipe]
 })
-export class ViewExcelReportComponent {
+export class ExpenseExcelComponent {
   private route = inject(ActivatedRoute);
   excelUrl: SafeResourceUrl;
   datePipe = inject(DatePipe);
@@ -29,7 +24,7 @@ export class ViewExcelReportComponent {
       this.getExcel(this.fileName)
     });
   }
-  
+
   getExcel(fileName: any) {
     const rawFileUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${fileName}`;
     const fileUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(rawFileUrl)}`;

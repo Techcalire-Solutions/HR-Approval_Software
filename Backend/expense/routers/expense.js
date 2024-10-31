@@ -12,6 +12,8 @@ const sequelize = require('../../utils/db');
 const nodemailer = require('nodemailer');
 const UserPosition = require('../../users/models/userPosition')
 const Notification = require('../../invoices/models/notification')
+const ExcelJS = require('exceljs');
+const ExcelLog = require('../../invoices/models/excelLog');
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -793,4 +795,127 @@ router.delete('/:id', async(req,res)=>{
   
 })
 
+router.patch('/getforadminreport', authenticateToken, async (req, res) => {
+  let invoices;
+  try {
+      invoices = await Expense.findAll({
+          include: [ 
+              { model: ExpenseStatus },
+              { model: User, attributes: ['name'] },
+              { model: User, as: 'manager', attributes: ['name'] },
+              { model: User, as: 'ma', attributes: ['name'] },
+          ]
+      });
+  } catch (error) {
+      return res.send(error.message);
+  }
+  
+  let { exNo, user, status, startDate, endDate } = req.body;
+  
+  if (exNo) {
+      const searchTerm = exNo.replace(/\s+/g, '').trim().toLowerCase();
+      invoices = invoices.filter(invoice => 
+          invoice.exNo.replace(/\s+/g, '').trim().toLowerCase().includes(searchTerm)
+      );
+  }
+
+
+  if (user) {
+      invoices = invoices.filter(invoice => invoice.userId === user);
+  }
+
+  if (status) {
+      if (status === 'Generated') {
+          invoices = invoices.filter(invoice => 
+              invoice.status === 'Generated'
+          );
+      }else if (status === 'AM Verified') {
+          invoices = invoices.filter(invoice => 
+              invoice.status === 'AM Verified'
+          );
+      }else if (status === 'PaymentCompleted') {
+          invoices = invoices.filter(invoice => 
+              invoice.status === 'PaymentCompleted'
+          );
+      }  else {
+          invoices = invoices.filter(invoice => invoice.status === status);
+      }
+  }
+
+  if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      invoices = invoices.filter(invoice => {
+          const invoiceDate = new Date(invoice.createdAt);
+          return invoiceDate >= start && invoiceDate <= end;
+      });
+  }
+  
+  res.send(invoices);
+});
+
+router.post('/download-excel', async (req, res) => {
+  const data = req.body.invoices;
+  const {exNo, user, status, startDate, endDate} = req.body;
+  try {
+    
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('My Data');
+    const currentDate = new Date().toISOString().split('T')[0];
+    const uniqueIdentifier = Date.now();  
+    const fileName = `ExcelReports/Expenses/${currentDate}_${uniqueIdentifier}.xlsx`; 
+    const bucketName = process.env.AWS_BUCKET_NAME;
+
+    worksheet.columns = [
+      { header: 'EX NO', key: 'exNo', width: 10 },
+      { header: 'Amount', key: 'amount', width: 15 },
+      { header: 'Status', key: 'status', width: 20 },
+      { header: 'AddedBy', key: 'addedBy', width: 20 },
+      { header: 'AM', key: 'amName', width: 10 },
+      { header: 'Accountant', key: 'accountant', width: 10 },
+      { header: 'Created Date', key: 'createdDate', width: 8 },
+      { header: 'Updated Date', key: 'updatedDate', width: 8 },
+      { header: 'Attachments', key: 'url', width: 100 },
+      { header: 'Wire Slip', key: 'bankSlip', width: 50 },
+      { header: 'Notes', key: 'notes', width: 50 },
+    ];
+
+    data.forEach(item => {
+      worksheet.addRow({
+        exNo: item.exNo,
+        amount: `${item.totalAmount} ${item.currency}`,
+        status: item.status,
+        addedBy: item.user.name,
+        amName: item.manager?.name,
+        accountant: item.ma?.name,
+        createdDate: item.createdAt,
+        updatedDate: item.updatedAt,
+        url: item.url ? item.url.map(entry => entry.url).join(', ') : '',
+        bankSlip: item.bankSlip,
+        notes: item.notes
+      });
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    const paramsUploadNew = {
+      Bucket: bucketName,
+      Key: fileName,
+      Body: buffer,
+      ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      ACL: 'public-read'
+    };
+
+    const excelLog = new ExcelLog ({ fromDate: startDate, toDate: endDate, status, userId: user, 
+      downloadedDate: currentDate, fileName: fileName, invoiceNo: exNo, type: 'Expense' });
+      await excelLog.save();
+    const result = await s3.upload(paramsUploadNew).promise();
+
+    res.send({ message: 'File uploaded successfully', name: fileName, excelLog: excelLog });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: error.message });
+  }
+});
 module.exports = router;

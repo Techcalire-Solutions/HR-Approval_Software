@@ -1906,7 +1906,8 @@ router.patch('/getforadminreport', authenticateToken, async (req, res) => {
                 { model: User, as: 'addedBy', attributes: ['name'] },
                 { model: User, as: 'salesPerson', attributes: ['name'] },
                 { model: User, as: 'kam', attributes: ['name'] },
-                { model: User, as: 'am', attributes: ['name'] }
+                { model: User, as: 'am', attributes: ['name'] },
+                { model: User, as: 'accountant', attributes: ['name'] }
             ]
         });
     } catch (error) {
