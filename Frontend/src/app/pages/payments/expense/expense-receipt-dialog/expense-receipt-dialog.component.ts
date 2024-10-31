@@ -1,29 +1,29 @@
-import { Component, ElementRef, inject, Inject, Optional, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
-import { InvoiceService } from '@services/invoice.service';
-import { Subscription } from 'rxjs';
-
-import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
-import { MatDividerModule } from '@angular/material/divider';
-import { RouterModule } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSortModule } from '@angular/material/sort';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { RouterModule, Router } from '@angular/router';
+import { InvoiceService } from '@services/invoice.service';
+import { Subscription } from 'rxjs';
+import { BankReceiptDialogueComponent } from '../../view-approval/bank-receipt-dialogue/bank-receipt-dialogue.component';
 
 @Component({
-  selector: 'app-bank-receipt-dialogue',
+  selector: 'app-expense-receipt-dialog',
   standalone: true,
-  imports: [  MatToolbarModule, MatProgressBarModule, MatIconModule, MatPaginatorModule, MatSortModule,
-    MatDividerModule, RouterModule, MatCardModule ],
-  templateUrl: './bank-receipt-dialogue.component.html',
-  styleUrl: './bank-receipt-dialogue.component.scss'
+  imports: [MatToolbarModule, MatProgressBarModule, MatIconModule, MatPaginatorModule, MatSortModule,
+    MatDividerModule, RouterModule, MatCardModule],
+  templateUrl: './expense-receipt-dialog.component.html',
+  styleUrl: './expense-receipt-dialog.component.scss'
 })
-export class BankReceiptDialogueComponent {
+export class ExpenseReceiptDialogComponent {
+
   public dialogContent: string;
 
   invoiceService=inject(InvoiceService)
@@ -47,7 +47,6 @@ export class BankReceiptDialogueComponent {
       this.dialogContent = 'Upload the bank slip';
     }
   }
-
 
   piForm = this.fb.group({
     bankSlip: ['', Validators.required],
@@ -95,9 +94,8 @@ export class BankReceiptDialogueComponent {
 
   submit!: Subscription;
   onSubmit() {
-    this.submit = this.invoiceService.addBankSlip(this.piForm.getRawValue(), this.dialogData.id).subscribe((invoice: any) =>{
+    this.submit = this.invoiceService.addExpenseBankSlip(this.piForm.getRawValue(), this.dialogData.id).subscribe((invoice: any) =>{
       this.dialogRef.close(true);
-      window.location.reload();
     });
 
   }
@@ -106,3 +104,4 @@ export class BankReceiptDialogueComponent {
     this.dialogRef.close();
   }
 }
+

@@ -9,13 +9,13 @@ import { Subscription } from 'rxjs';
 import { ExpensesService } from '@services/expenses.service';
 import { Expense } from '../../../common/interfaces/expense';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { SafePipe } from '../../add-approval/view-invoices/safe.pipe';
 import { User } from '../../../common/interfaces/user';
 import { LoginService } from '@services/login.service';
 import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoleService } from '@services/role.service';
+import { SafePipe } from '../../../common/safe.pipe';
 
 @Component({
   selector: 'app-expense',

@@ -1,51 +1,44 @@
-import { Component, inject, Input } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router, ActivatedRoute } from '@angular/router';
-import { LoginService } from '@services/login.service';
-import { Subscription } from 'rxjs';
-import { InvoiceService } from '@services/invoice.service';
-import { ReactiveFormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSelectChange, MatSelectModule } from '@angular/material/select';
-import { MatInputModule } from '@angular/material/input';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, MatOptionModule, NativeDateAdapter } from '@angular/material/core';
+import { MatDatepickerInputEvent, MatDatepickerModule, MatDatepickerToggle, MatDateRangeInput, MatDateRangePicker } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatDividerModule } from '@angular/material/divider';
-import { User } from '../../../common/interfaces/user';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSelectChange, MatSelectModule } from '@angular/material/select';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { LoginService } from '@services/login.service';
 import { UsersService } from '@services/users.service';
-import { MatDatepickerModule, MatDateRangeInput } from '@angular/material/datepicker';
-import { DateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, NativeDateAdapter } from '@angular/material/core';
-import { MatChipsModule } from '@angular/material/chips';
-import { SafePipe } from '../../../common/safe.pipe';
-import { MatDatepickerInputEvent } from '@angular/material/datepicker';
-import { HttpClient, HttpRequest } from '@angular/common/http';
+import { Subscription } from 'rxjs';
 import { PerformaInvoice } from '../../../common/interfaces/performaInvoice';
-
+import { User } from '../../../common/interfaces/user';
+import { ExpensesService } from '@services/expenses.service';
+import { Expense } from '../../../common/interfaces/expense';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { SafePipe } from '../../../common/safe.pipe';
 
 @Component({
-  selector: 'app-approval-report',
+  selector: 'app-expense-reports',
   standalone: true,
-  imports: [ CommonModule, RouterModule, MatDatepickerModule, ReactiveFormsModule,  MatFormFieldModule, MatCardModule, MatToolbarModule,
-    MatIconModule, MatButtonModule, MatSelectModule, MatInputModule, MatProgressBarModule, MatProgressSpinnerModule, SafePipe,
-    MatPaginatorModule, MatDividerModule, MatChipsModule, MatDateRangeInput],
-  templateUrl: './approval-report.component.html',
-  styleUrl: './approval-report.component.scss',
-  providers: [
+  imports: [CommonModule, RouterModule, MatDatepickerModule,  MatFormFieldModule, MatCardModule, MatToolbarModule,
+    MatIconModule, MatButtonModule, MatSelectModule, MatInputModule, SafePipe,
+    MatPaginatorModule, MatDividerModule, MatDateRangeInput],
+  templateUrl: './expense-reports.component.html',
+  styleUrl: './expense-reports.component.scss',
+    providers: [
     { provide: DateAdapter, useClass: NativeDateAdapter },
     { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
   ],
 })
-export class ApprovalReportComponent {
+export class ExpenseReportsComponent implements OnInit, OnDestroy{
   _snackbar = inject(MatSnackBar)
-  invoiceService = inject(InvoiceService)
+  expenseService = inject(ExpensesService)
   userService= inject(UsersService)
   loginService = inject(LoginService)
   dialog = inject(MatDialog)
@@ -72,20 +65,20 @@ export class ApprovalReportComponent {
     this.getUsers()
     this.getByFilter()
   }
-  invoices: PerformaInvoice[] = [];
+  invoices: Expense[] = [];
   invoiceSub!: Subscription;
   totalItems = 0;
   getByFilter(){
     let data = {
       invoices: this.invoices, 
-      invoiceNo: this.filterValue ? this.filterValue : '',
-      addedBy: this.addedBy ? this.addedBy : null,  
+      exNo: this.filterValue ? this.filterValue : '',
+      user: this.addedBy ? this.addedBy : null,  
       status: this.status ? this.status : null,  
       startDate: this.startDate ? this.startDate : null,
       endDate: this.endDate ? this.endDate : null
     };
     
-    this.invoiceSub = this.invoiceService.getAdminReports(data).subscribe(res=>{
+    this.invoiceSub = this.expenseService.getExpenseReports(data).subscribe(res=>{
       this.invoices = res;
       this.totalItems = res.length;
     })
@@ -145,7 +138,7 @@ export class ApprovalReportComponent {
     }
     console.log(data);
     
-    this.invoiceService.reportExport(data).subscribe((res:any)=>{
+    this.expenseService.reportExport(data).subscribe((res:any)=>{
       if (res.message === 'File uploaded successfully') {
         this.router.navigate(['login/viewApproval/approvalReport/excellog/openexcel'], { queryParams: { name: res.name } });
         this.snackBar.open('Excel File exported successfully...', '', { duration: 3000 });
@@ -153,6 +146,7 @@ export class ApprovalReportComponent {
     })
   }
 
+
+  
+
 }
-
-

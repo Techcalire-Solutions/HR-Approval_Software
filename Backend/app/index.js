@@ -53,9 +53,11 @@ app.use('/teamMember', teamMember);
 const invoice = require('../invoices/routers/invoice');
 const pi = require('../invoices/routers/performaInvoice');
 const piStatus = require('../invoices/routers/invoiceStatus');
+const excelLog = require('../invoices/routers/excelLog');
 app.use('/invoice', invoice);
 app.use('/performaInvoice', pi);
 app.use('/invoiceStatus', piStatus);
+app.use('/excelLog', excelLog);
 
 const company = require('../invoices/routers/company');
 app.use('/company', company);

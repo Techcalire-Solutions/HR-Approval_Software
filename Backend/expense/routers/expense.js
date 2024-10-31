@@ -10,7 +10,18 @@ const ExpenseStatus = require("../models/expenseStatus");
 const { Op, where } = require('sequelize');
 const sequelize = require('../../utils/db');
 const nodemailer = require('nodemailer');
+const UserPosition = require('../../users/models/userPosition')
+const Notification = require('../../invoices/models/notification')
+const ExcelJS = require('exceljs');
+const ExcelLog = require('../../invoices/models/excelLog');
 
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  }
+});
 
 router.post('/save', authenticateToken, async (req, res) => {
   const userId = req.user.id;
@@ -52,7 +63,8 @@ router.post('/save', authenticateToken, async (req, res) => {
 
   try {
     const expense = await Expense.create({
-      exNo, url, bankSlip, status, userId, amId: amId ? amId : userId, accountantId, count, notes, totalAmount, currency
+      exNo, url, bankSlip, status, userId, amId: amId ? amId : userId, accountantId, count, notes, totalAmount, currency,
+      addedById: userId,
     });
 
     const expenseId = expense.id;
@@ -64,13 +76,22 @@ router.post('/save', authenticateToken, async (req, res) => {
 
 
     let recipientEmail = null;
+    let notificationRecipientId = null ;
 
     if (status === 'Generated') {
-      const am = await User.findOne({ where: { id: amId } });
-      recipientEmail = am ? am.email : null;
+      const am = await UserPosition.findOne({ where: { userId: amId } });
+      recipientEmail = am ? am.projectMailId : null;
+      notificationRecipientId=amId
+      if(!recipientEmail){
+        return res.send("Project email is missing.\n Please inform the admin to add it")
+      }
     } else if (status === 'AM Verified') {
-      const accountant = await User.findOne({ where: { id: accountantId } });
-      recipientEmail = accountant ? accountant.email : null;
+      const accountant = await UserPosition.findOne({ where: { userId: accountantId } });
+      recipientEmail = accountant ? accountant.projectMailId : null;
+      notificationRecipientId=accountantId
+      if(!recipientEmail){
+        return res.send("Accoutant Project email is missing.\n Please inform the admin to add it")
+      }
     }
 
     const attachments = [];
@@ -94,13 +115,7 @@ router.post('/save', authenticateToken, async (req, res) => {
       }
     }
 
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+
 
     
     let emailHtml;
@@ -123,7 +138,7 @@ router.post('/save', authenticateToken, async (req, res) => {
     } else if (status === 'AM Verified') {
       emailHtml = `
         <p>Dear Accountant,</p>
-        <p>${req.user.name} has submitted an expense claim that has already been verified by a manager. No further approval is needed.</p>
+        <p>${req.user.name} has submitted an expense claim that has already been verified by a manager.</p>
         <h3>Expense Claim Details:</h3>
         <ul>
           <li><strong>Reference Number:</strong> ${exNo}</li>
@@ -141,24 +156,23 @@ router.post('/save', authenticateToken, async (req, res) => {
     const mailOptions = {
       from: `Expense Management System <${process.env.EMAIL_USER}>`,
       to: recipientEmail,
-      subject: `Expense Claim Request Submitted - Reference No: ${exNo}`,
+      subject: `Expense Claim Request Submitted - Reference No: ${exNo} / ${req.user.name}`,
       html: emailHtml,
       attachments,
     };
 
-    if (recipientEmail) {
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.error("Error sending email:", error);
-          return res.status(500).json({ error: "Email sending failed." });
-        }
-        console.log("Email sent:", info.response);
-        res.json(expense);
-      });
-    } else {
-      console.log('No recipient email found');
+    await transporter.sendMail(mailOptions);
+
+      await Notification.create({
+        userId: notificationRecipientId,
+        message: `New Expense claim Request Generated ${exNo}`,
+        isRead: false,
+    });
       res.json(expense);
-    }
+
+      
+
+    
   } catch (error) {
     res.json({ error: error.message });
   }
@@ -285,26 +299,24 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
     }
 });
 
+
 router.post('/updatestatus', authenticateToken, async (req, res) => {
   const { expenseId, remarks, accountantId, status } = req.body;
 
   try {
-   
       if (!expenseId || !status) {
-          return res.status(400).send('Expense ID and status are required.');
+          return res.send('Expense ID and status are required.');
       }
 
       const expense = await Expense.findByPk(expenseId);
       if (!expense) {
-          return res.status(404).send('Expense not found.');
+          return res.send('Expense not found.');
       }
-
 
       if (!Array.isArray(expense.url) || expense.url.length === 0) {
-          return res.status(404).send('Expense does not have an associated file or the URL is invalid.');
+          return res.send('Expense does not have an associated file or the URL is invalid.');
       }
 
-  
       const newStatus = new ExpenseStatus({ expenseId, status, date: new Date(), remarks });
       await newStatus.save();
 
@@ -312,51 +324,75 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
       if (accountantId != null) expense.accountantId = accountantId;
       await expense.save();
 
-  
-      const [user, accountant] = await Promise.all([
-          User.findOne({ where: { id: expense.userId } }),
-          accountantId ? User.findOne({ where: { id: accountantId } }) : null 
-      ]);
-      const transporter = nodemailer.createTransport({
-        service: 'gmail', 
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-        },
-    });
+      let recipientEmail = null;
+      let notificationRecipientId = null;
+      let recipientName =  null;
 
+      let notificationMessage = null;
+      let us = null;
+      let acc = null;
 
-      const userEmail = user ? user.email : null;
-      const accountantEmail = accountant ? accountant.email : null;
+      try {
+          us = await UserPosition.findOne({ where: { userId: expense.addedById } });
+          acc = accountantId ? await UserPosition.findOne({ where: { userId: accountantId } }) : null;
+
+          if (acc && acc.projectMailId) {
+              recipientEmail = acc.projectMailId;
+              recipientName = acc.user ? acc.user.name : 'Accountant';
+              notificationRecipientId = accountantId;
+              notificationMessage = `The expense claim ${expense.exNo} has been approved.`;
+              if(!recipientEmail){
+                return res.send("Accountant email is missing.\n Please inform the admin to add it")
+              }
+          } else if (us && us.projectMailId) {
+              recipientEmail = us.projectMailId;
+              recipientName = us.user ? us.user.name : 'User'; 
+              notificationRecipientId = expense.addedById;
+              notificationMessage = `The expense claim ${expense.exNo} has been rejected.`;
+              if(!recipientEmail){
+                return res.send("Project email is missing.\n Please inform the admin to add it")
+              }
+          }
+          if (!recipientEmail) {
+              return res.send('Recipient email not defined for this  action.');
+          }
+
+      } catch (error) {
+          return res.status(500).send(error.message);
+      }
 
       let emailSubject = `Expense Claim Update - ${expense.exNo}`;
-      let emailText = `The status of the expense claim ${expense.exNo} has been updated to ${status}.\n\n` +
-                      `Remarks: ${remarks}\n` +
-                      `Please check the details for further information.`;
+      let emailTextApproval =`Dear ${recipientName},\n\n` +
+      `We are pleased to inform you that the status of the expense claim ${expense.exNo} has been updated to ${status}.\n\n` +
+      `Remarks: ${remarks}\n\n` +
+      `Please find the claim details below:\n` +
+      `Expense No.: ${expense.exNo}\n` +
+      `Status: Approved\n\n` +
+      `Best regards,\n${req.user.name}\nApproval Management Team`;
 
-      let toEmail = null;
+      let emailTextRejected =`Dear ${recipientName},\n\n` +
+      `The status of your expense claim ${expense.exNo} has been updated to ${status}.\n\n` +
+      `Remarks: ${remarks}\n\n` +
+      `Please review the remarks and take necessary actions.\n` +
+      `Expense No.: ${expense.exNo}\n` +
+      `Status: Rejected\n\n` +
+      `For more information, feel free to reach out to the Approval Management Team.\n\n` +
+      `Best regards,\n${req.user.name}\nApproval Management Team`;
 
-
-
+      let emailText = '';
 
       switch (status) {
           case 'AM Verified':
-              emailText = `The expense claim ${expense.exNo} has been approved.\n\n` + emailText;
-              toEmail = accountantEmail
+              emailText = emailTextApproval;
               break;
-
           case 'AM Rejected':
-              emailText = `The expense claim ${expense.exNo} has been rejected.\n\nRemarks: ${remarks}\n` +
-                           `Please review the remarks and take necessary actions.`;
-              toEmail = userEmail;
+              emailText = emailTextRejected;
               break;
-
           default:
               console.error('Invalid status received:', status); 
               return res.status(400).send(`Invalid status update: "${status}" received.`);
       }
 
- 
       const attachmentUrl = expense.url[0].url;
       const attachmentFileKey = attachmentUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
 
@@ -369,7 +405,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
 
       const mailOptions = {
           from: `${req.user.name} <${req.user.email}>`,
-          to: toEmail,
+          to: recipientEmail,
           subject: emailSubject,
           text: emailText,
           attachments: [
@@ -380,10 +416,13 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
               },
           ],
       };
-      if (toEmail) {
-          await transporter.sendMail(mailOptions);
-      }
 
+      await transporter.sendMail(mailOptions);
+      await Notification.create({
+          userId: notificationRecipientId,
+          message: notificationMessage,
+          isRead: false,
+      });
 
       res.json({ expense, status: newStatus });
 
@@ -393,20 +432,22 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
   }
 });
 
+
+
+
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
   const { bankSlip } = req.body;
   try {
-      let newStat = 'PaymentCompleted'
-      
-      const ex = await Expense.findByPk(req.params.id);
+      let newStat = 'PaymentCompleted';
 
+      const ex = await Expense.findByPk(req.params.id);
       if (!ex) {
           return res.status(404).json({ message: 'Expense not found' });
       }
- 
+
       ex.bankSlip = bankSlip;
       ex.status = newStat;
-      await ez.save();
+      await ex.save();
 
       const status = new ExpenseStatus({
           expenseId: ex.id,
@@ -414,24 +455,28 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
           date: new Date(),
       });
       await status.save();
+      let recipientEmail = null;
+      let notificationRecipientId;
 
-      const users = await User.findAll({
-          where: {
-              [Op.or]: [
-                  { id: ex.userId },
-                  { id: ex.amId },
-                  { id: ex.accountantId }
-              ]
-          }
-      });
+      try {
+        const user = await UserPosition.findOne({ where: { userId: ex.userId } }); 
 
+        if (!user) {
+            return res.status(404).send("User not found.");
+        }
   
-
-      const otherEmails = users
-          .filter(user => user.id !== ex.accountantId)
-          .map(user => user.email)
-          .join(',');
-
+        recipientEmail = user.projectMailId;
+        notificationRecipientId = user.userId;
+  
+        if (!recipientEmail) {
+          return res.send("Recipient project mail not added.");
+        }
+    
+    } catch (error) {
+        console.error("Error fetching user or sending notification:", error);
+        return res.send(error.message);
+    }
+  
 
       const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
       const params = {
@@ -439,55 +484,68 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
           Key: fileKey,
       };
 
-      const s3File = await s3.getObject(params).promise();
-      const fileBuffer = s3File.Body;
-
-
-      let emailSubject = `Bank Slip Uploaded for Invoice - ${ex.exNo}`;
-      let emailBody = `
-          <p>A bank slip has been uploaded for proforma invoice ID: <strong>${ex.exNo}</strong>.</p>
-          <br>
-          <p>Please review the bank slip at your earliest convenience.</p>
-          <br>
-          <p>Thank you!</p>
-      `;
-
-  
-      if (newStat === 'CARD PAYMENT SUCCESS') {
-          emailSubject = `Card Payment Success for Invoice - ${ex.exNo}`;
-          emailBody = `
-              <p>Card payment has been successfully processed for proforma invoice ID: <strong>${ex.exNo}</strong>.</p>
-              <br>
-              <p>Please review the  slip at your earliest convenience.</p>
-              <br>
-              <p>Thank you!</p>
-          `;
+      let fileBuffer, contentType;
+      try {
+          const s3File = await s3.getObject(params).promise();
+          fileBuffer = s3File.Body;
+          contentType = s3File.ContentType;
+      } catch (s3Error) {
+          console.error('Failed to retrieve file from S3:', s3Error);
+          return res.status(500).json({ message: 'Error retrieving file from S3' });
       }
 
+      let emailSubject =` Expense Request Processed Successfully - ${ex.exNo}`;
+      let emailBody = `
+         <p>Dear Team,</p>
+
+                  <p>We are pleased to inform you that the expense request for Expense ID: <strong>${ex.exNo}</strong> has been successfully processed, and the bank slip is now attached for your reference.</p>
+
+                     <p>Please review the attached bank slip at your convenience.<br> Should you have any questions or require further details, feel free to reach out.</p>
+
+                     <br>
+                       <p>Thank you for your attention,</p>
+                     <p>Best regards,</p>
+
+                       <p>Finance Department</p>
+
+      `;
 
       const mailOptions = {
-          from: `Expense<${process.env.EMAIL_USER}>`,
-          to: otherEmails,
+          from: `Expense Management<${process.env.EMAIL_USER}>`,
+          to: recipientEmail,
           subject: emailSubject,
           html: emailBody,
           attachments: [
               {
                   filename: bankSlip.split('/').pop(),
                   content: fileBuffer,
-                  contentType: s3File.ContentType
+                  contentType: contentType
               }
           ]
       };
 
+      try {
+          await transporter.sendMail(mailOptions);
+          console.log('Email sent successfully');
+      } catch (mailError) {
+          console.error('Failed to send email:', mailError);
+          return res.status(500).json({ message: 'Error sending email' });
+      }
 
-      await transporter.sendMail(mailOptions);
+      await Notification.create({
+        userId: notificationRecipientId,
+        message: emailSubject,
+        isRead: false,
+    });
 
- 
-      res.json({ ex: ex, status: status, users });
+      res.json({ ex: ex, status: status});
   } catch (error) {
+      console.error('Error in processing request:', error);
       res.status(500).send(error.message);
   }
 });
+
+
 
 router.get('/findbyid/:id', authenticateToken, async(req, res) => {
   try {
@@ -523,8 +581,8 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
           
           const bankParams = {
               Bucket: process.env.AWS_BUCKET_NAME,
-              Key: bankKey, // Ensure pi.url has the correct value
-              Expires: 60, // URL expires in 60 seconds
+              Key: bankKey,
+              Expires: 60, 
             };
         
             bankSlipUrl = s3.getSignedUrl('getObject', bankParams);
@@ -610,6 +668,7 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
     }
 });
 
+
 router.patch('/update/:id', authenticateToken, async (req, res) => {
   let { url, amId, notes, currency, totalAmount } = req.body;
   const userId = req.user.id;
@@ -631,6 +690,23 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
     if(amId === null || amId === '' || amId === 'undefined'){
       return res.send("Please select a manager and submit again")
     }
+  }
+
+
+  let recipientEmail = null;
+  let notificationRecipientId = amId
+
+  try {
+    const am = await UserPosition.findOne({where:{userId:amId}})
+    recipientEmail = am ? am.projectMailId : null ;
+
+    if (!recipientEmail) { 
+        return res.send("AM project email is missing.\n Please inform the admin to add it.");
+    }
+    
+  } catch (error) {
+    res.send(error.message)
+    
   }
 
   try {
@@ -656,61 +732,69 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
       })
       await piStatus.save();
 
-      res.json({
-          piNo: pi.piNo,
-          status: piStatus.status,
-          res: pi,
-          message: 'Expense updated successfully'
-      });
 
-        
-      //  const recipientUser = await User.findOne({ where: { id: amId } });
-      //  const recipientEmail = recipientUser ? recipientUser.email : null;
+
+
+ 
 
   
-      // const attachments = [];
-      // for (const fileObj of url) {
-      //     const actualUrl = fileObj.url || fileObj.file;
-      //     if (!actualUrl) continue;
+      const attachments = [];
+      for (const fileObj of url) {
+          const actualUrl = fileObj.url || fileObj.file;
+          if (!actualUrl) continue;
 
-      //     const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+          const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
 
-      //     const params = {
-      //         Bucket: process.env.AWS_BUCKET_NAME,
-      //         Key: fileKey,
-      //     };
+          const params = {
+              Bucket: process.env.AWS_BUCKET_NAME,
+              Key: fileKey,
+          };
 
-      //     try {
-      //         const s3File = await s3.getObject(params).promise();
-      //         const fileBuffer = s3File.Body;
+          try {
+              const s3File = await s3.getObject(params).promise();
+              const fileBuffer = s3File.Body;
 
-      //         attachments.push({
-      //             filename: actualUrl.split('/').pop(),
-      //             content: fileBuffer,
-      //             contentType: s3File.ContentType 
-      //         });
-      //     } catch (error) {
-      //         continue; 
-      //     }
-      // }
+              attachments.push({
+                  filename: actualUrl.split('/').pop(),
+                  content: fileBuffer,
+                  contentType: s3File.ContentType 
+              });
+          } catch (error) {
+              continue; 
+          }
+      }
 
-      // const mailOptions = {
-      //     from: `Expense <${process.env.EMAIL_USER}>`,
-      //     to: recipientEmail, 
-      //     subject: `Expense Updated - ${pi.exNo}`,
-      //     html: `
-      //         <p>Expense has been updated by <strong>${req.user.name}</strong></p>
-      //         <p><strong>Entry Number:</strong> ${pi.exNo}</p>
-      //         <p><strong>Status:</strong> ${pi.status}</p>
-      //         <p><strong>Notes:</strong> ${pi.notes}</p>
-      //         <p><strong>Notes:</strong> ${pi.expenseType}</p>
-      //         <p>Please find the attached documents related to this Expense.</p>
-      //     `,
-      //     attachments: attachments 
-      // };
+      const mailOptions = {
+          from: `Expense <${process.env.EMAIL_USER}>`,
+          to: recipientEmail, 
+          subject: `Expense claim request Updated - ${pi.exNo} /${req.user.name} `,
+          html: `
+              <p>Expense has been updated by <strong>${req.user.name}</strong></p>
+              <p><strong>Entry Number:</strong> ${pi.exNo}</p>
+              <p><strong>Status:</strong> ${pi.status}</p>
+              <p><strong>Notes:</strong> ${pi.notes}</p>
+              <p><strong>Notes:</strong> ${pi.expenseType}</p>
+              <p>Please find the attached documents related to this Expense.</p>
+          `,
+          attachments: attachments 
+      };
 
     
-      // await transporter.sendMail(mailOptions);
+      await transporter.sendMail(mailOptions);
+
+      await Notification.create({
+        userId: notificationRecipientId,
+        message: `Expense claim request Updated - ${pi.exNo}/${req.user.name}`,
+        isRead: false,
+    });
+
+      res.json({
+        piNo: pi.piNo,
+        status: piStatus.status,
+        res: pi,
+        message: 'Expense updated successfully'
+    });
+
 
 
   } catch (error) {
@@ -740,4 +824,127 @@ router.delete('/:id', async(req,res)=>{
   
 })
 
+router.patch('/getforadminreport', authenticateToken, async (req, res) => {
+  let invoices;
+  try {
+      invoices = await Expense.findAll({
+          include: [ 
+              { model: ExpenseStatus },
+              { model: User, attributes: ['name'] },
+              { model: User, as: 'manager', attributes: ['name'] },
+              { model: User, as: 'ma', attributes: ['name'] },
+          ]
+      });
+  } catch (error) {
+      return res.send(error.message);
+  }
+  
+  let { exNo, user, status, startDate, endDate } = req.body;
+  
+  if (exNo) {
+      const searchTerm = exNo.replace(/\s+/g, '').trim().toLowerCase();
+      invoices = invoices.filter(invoice => 
+          invoice.exNo.replace(/\s+/g, '').trim().toLowerCase().includes(searchTerm)
+      );
+  }
+
+
+  if (user) {
+      invoices = invoices.filter(invoice => invoice.userId === user);
+  }
+
+  if (status) {
+      if (status === 'Generated') {
+          invoices = invoices.filter(invoice => 
+              invoice.status === 'Generated'
+          );
+      }else if (status === 'AM Verified') {
+          invoices = invoices.filter(invoice => 
+              invoice.status === 'AM Verified'
+          );
+      }else if (status === 'PaymentCompleted') {
+          invoices = invoices.filter(invoice => 
+              invoice.status === 'PaymentCompleted'
+          );
+      }  else {
+          invoices = invoices.filter(invoice => invoice.status === status);
+      }
+  }
+
+  if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      invoices = invoices.filter(invoice => {
+          const invoiceDate = new Date(invoice.createdAt);
+          return invoiceDate >= start && invoiceDate <= end;
+      });
+  }
+  
+  res.send(invoices);
+});
+
+router.post('/download-excel', async (req, res) => {
+  const data = req.body.invoices;
+  const {exNo, user, status, startDate, endDate} = req.body;
+  try {
+    
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('My Data');
+    const currentDate = new Date().toISOString().split('T')[0];
+    const uniqueIdentifier = Date.now();  
+    const fileName = `ExcelReports/Expenses/${currentDate}_${uniqueIdentifier}.xlsx`; 
+    const bucketName = process.env.AWS_BUCKET_NAME;
+
+    worksheet.columns = [
+      { header: 'EX NO', key: 'exNo', width: 10 },
+      { header: 'Amount', key: 'amount', width: 15 },
+      { header: 'Status', key: 'status', width: 20 },
+      { header: 'AddedBy', key: 'addedBy', width: 20 },
+      { header: 'AM', key: 'amName', width: 10 },
+      { header: 'Accountant', key: 'accountant', width: 10 },
+      { header: 'Created Date', key: 'createdDate', width: 8 },
+      { header: 'Updated Date', key: 'updatedDate', width: 8 },
+      { header: 'Attachments', key: 'url', width: 100 },
+      { header: 'Wire Slip', key: 'bankSlip', width: 50 },
+      { header: 'Notes', key: 'notes', width: 50 },
+    ];
+
+    data.forEach(item => {
+      worksheet.addRow({
+        exNo: item.exNo,
+        amount: `${item.totalAmount} ${item.currency}`,
+        status: item.status,
+        addedBy: item.user.name,
+        amName: item.manager?.name,
+        accountant: item.ma?.name,
+        createdDate: item.createdAt,
+        updatedDate: item.updatedAt,
+        url: item.url ? item.url.map(entry => entry.url).join(', ') : '',
+        bankSlip: item.bankSlip,
+        notes: item.notes
+      });
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    const paramsUploadNew = {
+      Bucket: bucketName,
+      Key: fileName,
+      Body: buffer,
+      ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      ACL: 'public-read'
+    };
+
+    const excelLog = new ExcelLog ({ fromDate: startDate, toDate: endDate, status, userId: user, 
+      downloadedDate: currentDate, fileName: fileName, invoiceNo: exNo, type: 'Expense' });
+      await excelLog.save();
+    const result = await s3.upload(paramsUploadNew).promise();
+
+    res.send({ message: 'File uploaded successfully', name: fileName, excelLog: excelLog });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: error.message });
+  }
+});
 module.exports = router;

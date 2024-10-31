@@ -6,6 +6,9 @@ const authenticateToken = require('../../middleware/authorization');
 const s3 = require('../../utils/s3bucket');
 const sequelize = require('../../utils/db');
 const xlsx = require('xlsx');
+const ExcelJS = require('exceljs');
+const path = require('path');
+const ExcelLog = require('../models/excelLog');
 
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
@@ -40,66 +43,6 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
     res.status(500).send({ message: error.message });
   }
 });
-// router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
-//   try {
-//     if (!req.file) {
-//       return res.status(400).send({ message: 'No file uploaded' });
-//     }
-
-//     const sanitizedFileName = req.body.name || req.file.originalname.replace(/[^a-zA-Z0-9]/g, '_');
-//     const key = `invoices/${Date.now()}_${sanitizedFileName}`;
-
-//     // Initialize multipart upload
-//     const createParams = {
-//       Bucket: process.env.AWS_BUCKET_NAME,
-//       Key: key,
-//       ContentType: req.file.mimetype,
-//       ACL: 'public-read'
-//     };
-//     const multipartUpload = await s3.createMultipartUpload(createParams).promise();
-//     const uploadId = multipartUpload.UploadId;
-    
-//     const partSize = 5 * 1024 * 1024; // 5MB per part
-//     const parts = [];
-//     let partNumber = 1;
-
-//     // Split the file into parts and upload each part
-//     for (let start = 0; start < req.file.buffer.length; start += partSize) {
-//       const end = Math.min(start + partSize, req.file.buffer.length);
-//       const partParams = {
-//         Bucket: process.env.AWS_BUCKET_NAME,
-//         Key: key,
-//         PartNumber: partNumber,
-//         UploadId: uploadId,
-//         Body: req.file.buffer.slice(start, end),
-//       };
-
-//       const uploadPart = await s3.uploadPart(partParams).promise();
-//       parts.push({ ETag: uploadPart.ETag, PartNumber: partNumber });
-//       partNumber++;
-//     }
-
-//     // Complete multipart upload
-//     const completeParams = {
-//       Bucket: process.env.AWS_BUCKET_NAME,
-//       Key: key,
-//       UploadId: uploadId,
-//       MultipartUpload: { Parts: parts },
-//     };
-//     const data = await s3.completeMultipartUpload(completeParams).promise();
-
-//     const fileUrl = data.Location || '';
-//     const fileKey = fileUrl.replace(`https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/`, '');
-
-//     res.status(200).send({
-//       message: 'File uploaded successfully',
-//       file: req.file,
-//       fileUrl: fileKey,
-//     });
-//   } catch (error) {
-//     res.send({ message: error.message });
-//   }
-// });
 
 router.post('/bankslipupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
@@ -245,10 +188,7 @@ router.post('/excelupload', async (req, res) => {
           return res.send({ message: 'The EntrNo already exists in the Excel file.' });
       }
 
-
-      // Append new data
       const updatedData = [...existingData, ...dataToAppend];
-      console.log(updatedData, "updatedupdated");
       
       const newWorksheet = xlsx.utils.aoa_to_sheet(updatedData);
       existingWorkbook.Sheets[sheetName] = newWorksheet;
@@ -354,6 +294,91 @@ router.post('/mergeExcelFiles', async (req, res) => {
         console.error('Error merging Excel files:', error);
         return res.status(500).send('An error occurred while merging the Excel files.');
     }
+});
+
+router.post('/download-excel', async (req, res) => {
+  const data = req.body.invoices;
+  const {invoiceNo, addedBy, status, startDate, endDate} = req.body;
+  try {
+    
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('My Data');
+    const currentDate = new Date().toISOString().split('T')[0];
+    const uniqueIdentifier = Date.now();  
+    const fileName = `ExcelReports/Proforma/${currentDate}_${uniqueIdentifier}.xlsx`; 
+    const bucketName = process.env.AWS_BUCKET_NAME;
+
+    worksheet.columns = [
+      { header: 'PI NO', key: 'piNo', width: 10 },
+      { header: 'PO NO', key: 'supplierPoNo', width: 10 },
+      { header: 'Supplier', key: 'supplier', width: 20 },
+      { header: 'Invoice NO', key: 'supplierSoNo', width: 10 },
+      { header: 'Amount', key: 'supplierPrice', width: 10 },
+      { header: 'Purpose', key: 'purpose', width: 8 },
+      { header: 'Customer', key: 'customer', width: 20 },
+      { header: 'CustomerSoNo', key: 'customerSoNo', width: 10 },
+      { header: 'CustomerPoNo', key: 'customerPoNo', width: 10 },
+      { header: 'Payment Mode', key: 'paymentMode', width: 10 },
+      { header: 'Status', key: 'status', width: 10 },
+      { header: 'AddedBy', key: 'addedBy', width: 15 },
+      { header: 'Sales Person', key: 'salesPerson', width: 15 },
+      { header: 'KAM', key: 'kamName', width: 15 },
+      { header: 'AM', key: 'amName', width: 15 },
+      { header: 'Accountant', key: 'accountant', width: 15 },
+      { header: 'Created Date', key: 'createdDate', width: 8 },
+      { header: 'Updated Date', key: 'updatedDate', width: 8 },
+      { header: 'Attachments', key: 'url', width: 80 },
+      { header: 'Wire Slip', key: 'bankSlip', width: 50 },
+      { header: 'Notes', key: 'notes', width: 50 },
+    ];
+
+    data.forEach(item => {
+      worksheet.addRow({
+        piNo: item.piNo,
+        supplierPoNo: item.supplierPoNo,
+        supplier: item.suppliers.companyName,
+        supplierSoNo: item.supplierSoNo,
+        supplierPrice: `${item.poValue} ${item.supplierCurrency}`,
+        purpose: item.purpose,
+        customer: item.customers?.companyName,
+        customerSoNo: item.customerSoNo,
+        customerPoNo: item.customerPoNo,
+        customerPrice: `${item.customerPrice} ${item.customerCurrency}`,
+        paymentMode: item.paymentMode,
+        status: item.status,
+        addedBy: item.addedBy.name,
+        salesPerson: item.salesPerson?.name,
+        kamName: item.kam?.name,
+        amName: item.am?.name,
+        accountant: item.accountant?.name,
+        createdDate: item.createdAt,
+        updatedDate: item.updatedAt,
+        url: item.url ? item.url.map(entry => entry.url).join(', ') : '',
+        bankSlip: item.bankSlip,
+        notes: item.notes
+      });
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    const paramsUploadNew = {
+      Bucket: bucketName,
+      Key: fileName,
+      Body: buffer,
+      ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      ACL: 'public-read'
+    };
+
+    const excelLog = new ExcelLog ({ fromDate: startDate, toDate: endDate, status, userId: addedBy, 
+      downloadedDate: currentDate, fileName: fileName, invoiceNo, type: 'Proforma'  });
+      await excelLog.save();
+    const result = await s3.upload(paramsUploadNew).promise();
+
+    res.send({ message: 'File uploaded successfully', name: fileName, excelLog: excelLog });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: error.message });
+  }
 });
 
 

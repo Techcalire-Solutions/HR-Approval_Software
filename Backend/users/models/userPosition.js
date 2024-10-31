@@ -22,8 +22,9 @@ const UserPosition = sequelize.define('userposition',{
     timestamps : false
 })
 
-User.hasMany(UserPosition, { foreignKey: 'userId', onUpdate: 'CASCADE' });
-UserPosition.belongsTo(User);
+
+User.hasOne(UserPosition, { foreignKey: 'userId', onUpdate: 'CASCADE' });
+UserPosition.belongsTo(User, { foreignKey: 'userId' });
 
 UserPosition.sync({ alter: true })
   .then(() => console.log("UserPosition table Sync"))
