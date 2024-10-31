@@ -38,6 +38,8 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName; 
+      console.log(this.roleName);
+      
     })
   }
 
@@ -85,16 +87,21 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
           let invoiceUser = this.expenses[i]?.userId;
           let invoiceAM = this.expenses[i]?.amId;
           let invoiceMA = this.expenses[i]?.accountantId;
-
-          if (userId === invoiceUser || userId === invoiceAM  || userId === invoiceMA) {
+            
+          if(this.roleName === 'Administrator' || this.roleName === 'Super Administrator'){
+            this.expenses[i] = {
+              ...this.expenses[i],
+              editButtonStatus: true
+            };
+            console.log(expenses[i]);
+            
+          }else if (userId === invoiceUser || userId === invoiceAM  || userId === invoiceMA) {
             this.expenses[i] = {
               ...this.expenses[i],
               userStatus: true
             };
           }
-          
           if(this.expenses[i].userId === userId){
-            
             if(this.expenses[i].user.role.roleName != 'Manager' &&
               (this.expenses[i].status === 'Generated'|| this.expenses[i].status === 'AM Rejected') ){
                 this.expenses[i] = {
@@ -102,8 +109,7 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
                   editButtonStatus: true
                 };
             }else if(this.expenses[i].user.role.roleName === 'Manager' &&
-              (this.expenses[i].status === 'AM Verfied') ){
-
+              (this.expenses[i].status === 'AM Verified') ){
                 this.expenses[i] = {
                   ...this.expenses[i],
                   editButtonStatus: true

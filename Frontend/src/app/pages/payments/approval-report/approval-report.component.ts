@@ -76,7 +76,8 @@ export class ApprovalReportComponent {
       invoiceNo: this.filterValue ? this.filterValue : '',
       addedBy: this.addedBy ? this.addedBy : null,  
       status: this.status ? this.status : null,  
-      date: this.date ? this.date : null
+      startDate: this.startDate ? this.startDate : null,
+      endDate: this.endDate ? this.endDate : null,
     };
     
     this.invoiceSub = this.invoiceService.getAdminReports(data).subscribe(res=>{
@@ -97,12 +98,15 @@ export class ApprovalReportComponent {
     this.getByFilter()
   }
 
-  date: Date;
-  onDateChange(event: any): void {
-    this.date = event.value;
-    this.getByFilter()
+  startDate: Date;
+  endDate: Date;
+
+  // ... previous code remains the same
+  onDateRangeChange(event: any) {
+    this.startDate = event.value?.start;
+    this.endDate = event.value?.end;
   }
-  
+
 
   addedBy: number
   getAdded(id: number){

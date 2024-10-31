@@ -25,6 +25,8 @@ router.post('/save', authenticateToken, async (req, res) => {
   const userId = req.user.id;
   let status;
 
+  const { exNo, url, bankSlip, amId, accountantId, count, notes, totalAmount, currency } = req.body;
+
   try {
     const user = await User.findByPk(userId, {
       include: {
@@ -35,14 +37,18 @@ router.post('/save', authenticateToken, async (req, res) => {
 
     if (user && user.role && user.role.roleName === 'Manager') {
       status = 'AM Verified';
+      if(accountantId === null || accountantId === '' || accountantId === 'undefined'){
+        return res.send("Please select an account and submit again")
+      }
     } else {
       status = 'Generated';
+      if(amId === null || amId === '' || amId === 'undefined'){
+        return res.send("Please select a manager and submit again")
+      }
     }
   } catch (error) {
     return res.send(error.message); 
   }
-
-  const { exNo, url, bankSlip, amId, accountantId, count, notes, totalAmount, currency } = req.body;
 
   try {
     const expeExists = await Expense.findOne({ where: {exNo: exNo}})
@@ -160,7 +166,7 @@ router.post('/save', authenticateToken, async (req, res) => {
 
     
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.json({ error: error.message });
   }
 });
 
@@ -186,14 +192,11 @@ router.get('/findbyuser', authenticateToken, async (req, res) => {
   }
   try {
     let condition = {};
-    console.log(roleName, flow,"OOOOOOOOOOOOOOOOOOo");
     
     if (roleName === 'Manager' && flow === "true") {
-      console.log(flow,"pppppppppppppppppp");
       
       condition.amId = user;
     } else if (roleName === 'Accountant'&& flow === "true") {
-      console.log(flow,"pppppppppppppppppp");
       condition.accountantId = user;
     } else if (roleName === 'Administrator' || roleName === 'Super Administrator'&& flow === "true") {
       condition = {};
@@ -637,6 +640,26 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
 
 router.patch('/update/:id', authenticateToken, async (req, res) => {
   let { url, amId, notes, currency, totalAmount } = req.body;
+  const userId = req.user.id;
+  let status;
+  const user = await User.findByPk(userId, {
+    include: {
+      model: Role,
+      attributes: ['roleName']
+    }
+  });
+
+  if (user && user.role && user.role.roleName === 'Manager') {
+    status = 'AM Verified';
+    if(accountantId === null || accountantId === '' || accountantId === 'undefined'){
+      return res.send("Please select an account and submit again")
+    }
+  } else {
+    status = 'Generated';
+    if(amId === null || amId === '' || amId === 'undefined'){
+      return res.send("Please select a manager and submit again")
+    }
+  }
 
 
   let recipientEmail = null;
@@ -660,7 +683,6 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
       if (!pi) {
           return res.status(404).send({ message: 'Expense not found.' });
       }
-      let status;
 
       pi.url = url;
       pi.amId = amId;

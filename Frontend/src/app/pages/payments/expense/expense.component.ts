@@ -238,15 +238,17 @@ export class ExpenseComponent implements OnInit{
   onSubmit(){
     if(this.editStatus){
       this.submit = this.expenseService.updateExpense(this.expenseForm.getRawValue(), this.id).subscribe(res =>{
-        this.snackBar.open("Expense updated succesfully...","" ,{duration:3000})
-        this.router.navigateByUrl('login/viewApproval/viewexpenses');
-      })
-    }else{
-      console.log(this.expenseForm.getRawValue());
-      
-      this.submit = this.expenseService.addExpense(this.expenseForm.getRawValue()).subscribe(res =>{
         console.log(res);
         
+        this.snackBar.open("Expense updated succesfully...","" ,{duration:3000})
+        if(this.roleName === 'Super Administrator' || this.roleName === 'Administrator'){
+          this.router.navigateByUrl('login/viewApproval/view');
+        }else{
+          this.router.navigateByUrl('login/viewApproval/viewexpenses');
+        }
+      })
+    }else{
+      this.submit = this.expenseService.addExpense(this.expenseForm.getRawValue()).subscribe(res =>{
         this.snackBar.open("Expense added succesfully...","" ,{duration:3000})
         this.router.navigateByUrl('login/viewApproval/viewexpenses');
       })

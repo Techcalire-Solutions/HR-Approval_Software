@@ -31,7 +31,6 @@
     <table class="table table-bordered">
       <tbody>
         <tr>
-
           <td><strong>Supplier Name:</strong> {{ pi.suppliers.companyName }}</td>
           <td><strong> PO No:</strong> {{ pi.supplierPoNo }}</td>
           <td><strong>Supplier SO No:</strong> {{ pi.supplierSoNo }}</td>
@@ -53,19 +52,17 @@
 
         </tr>
         <tr>
-  @if(pi.customers?.companyName){
-    <td><strong>Customer Name:</strong> {{ pi.customers.companyName }}</td>
-    <td><strong>Customer SO No:</strong> {{ pi.customerSoNo }}</td>
-    <td><strong>Customer PO No:</strong> {{ pi.customerPoNo }}</td>
-    <td>
-      <strong>Customer PO Value:</strong>
-      <span style="color: green;">
-        {{ pi.customerCurrency === 'Dollar' ? '$' : pi.customerCurrency }} {{ pi.poValue }}
-      </span>
-    </td>
-  }
-
-
+          @if(pi.customers?.companyName){
+            <td><strong>Customer Name:</strong> {{ pi.customers.companyName }}</td>
+            <td><strong>Customer SO No:</strong> {{ pi.customerSoNo }}</td>
+            <td><strong>Customer PO No:</strong> {{ pi.customerPoNo }}</td>
+            <td>
+              <strong>Customer PO Value:</strong>
+              <span style="color: green;">
+                {{ pi.customerCurrency === 'Dollar' ? '$' : pi.customerCurrency }} {{ pi.poValue }}
+              </span>
+            </td>
+          }
         </tr>
       </tbody>
     </table>
@@ -109,9 +106,17 @@
   }
 
   @if(kam && pi.status === 'AM APPROVED'){
-    <button mat-raised-button class="add-bank-slip-button"
+
+    <mat-card-actions>
+      <button mat-raised-button type="button" class="btn btn-success" (click)="addBankSlip(pi.piNo, pi.id, pi.status)">
+        ATTACH
+      </button>
+    </mat-card-actions>
+
+    <!-- <button mat-raised-button class="add-bank-slip-button"
+    
     (click)="addBankSlip(pi.piNo, pi.id, pi.status)"> ATTACH
-    </button>
+    </button> -->
   }
 
     <mat-card>

@@ -148,6 +148,11 @@ users:User;
         (item.title === 'Payment Flow' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5) ||
         (item.title === 'Excel' && item.parentId === 5) ||
+        
+        (item.title === 'Expense' && !item.parentId) ||
+        (item.title === 'Add' && item.parentId === 26) ||
+        (item.title === 'View' && item.parentId === 26)||
+
         (item.title === 'Leave' && !item.parentId)||
         (item.title === 'Apply Leave' && item.parentId === 8) ||
         (item.title === 'Leave Balance' && item.parentId === 8)||
@@ -162,6 +167,10 @@ users:User;
 
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
+        (item.title === 'Expense' && !item.parentId) ||
+        (item.title === 'Add' && item.parentId === 26) ||
+        (item.title === 'View' && item.parentId === 26)||
+        
         (item.title === 'Leave' && !item.parentId) ||
         (item.title === 'Leave' && !item.parentId)||
         (item.title === 'Apply Leave' && item.parentId === 8) ||
@@ -203,7 +212,7 @@ users:User;
         (item.title === 'Directory' && item.parentId === 3) ||
         (item.title === 'Confirmation' && item.parentId === 3) ||
         // item.title === 'Team' ||
-        (item.title === 'Payment FLow' && !item.parentId) ||
+        (item.title === 'Payment Flow' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5) ||
         (item.title === 'Leave' && !item.parentId) ||
         (item.title === 'Calendar' && item.parentId === 8) ||
