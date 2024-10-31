@@ -3,6 +3,7 @@ import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { Expense } from '../common/interfaces/expense';
+import { ExcelLog } from '../common/interfaces/excel-log';
 
 @Injectable({
   providedIn: 'root'
@@ -54,5 +55,17 @@ export class ExpensesService {
 
   deleteExpense(id: number) {
     return this.http.delete(`${this.url}/expense/${id}`);
+  }
+  
+  getExpenseReports(data: any){
+    return this.http.patch<any[]>(this.url + '/expense/getforadminreport', data);
+  }
+
+  reportExport(data: any){
+    return this.http.post<any[]>(this.url + '/expense/download-excel', data);
+  }
+
+  getExcelLog(): Observable<ExcelLog[]>{
+    return this.http.get<ExcelLog[]>(this.url + '/excelLog/findexpenses');
   }
 }

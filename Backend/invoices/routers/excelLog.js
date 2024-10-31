@@ -4,15 +4,28 @@ const ExcelLog = require('../models/excelLog');
 const s3 = require('../../utils/s3bucket');
 
 router.get("/find", async (req, res) => {
-    try {
-      const el = await ExcelLog.findAll({ 
-        order: [['id', 'DESC']],
-      });
-      res.send(el);
-    } catch (error) {
-      res.send({ error: error.message });
-    }
-  })
+  try {
+    const el = await ExcelLog.findAll({ 
+      where: {type: "Proforma"},
+      order: [['id', 'DESC']],
+    });
+    res.send(el);
+  } catch (error) {
+    res.send({ error: error.message });
+  }
+})
+
+router.get("/findexpenses", async (req, res) => {
+  try {
+    const el = await ExcelLog.findAll({ 
+      where: {type: "Expense"},
+      order: [['id', 'DESC']],
+    });
+    res.send(el);
+  } catch (error) {
+    res.send({ error: error.message });
+  }
+})
   router.delete('/delete-excel/:id', async (req, res) => {
     const bucketName = process.env.AWS_BUCKET_NAME;
   
