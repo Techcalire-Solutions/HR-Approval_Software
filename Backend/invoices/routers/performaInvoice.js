@@ -1023,7 +1023,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
 
        
             const mailOptions = {
-                from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+                from: `Proforma Invoice<${process.env.EMAIL_USER}>`,
                 to: recipientEmails.length > 0 ? recipientEmails.join(',') : process.env.DEFAULT_EMAIL,
                 cc: process.env.FINANCE_EMAIL_USER,
                 subject: emailSubject,
@@ -1070,6 +1070,9 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             recipientEmails = users
                 .filter(user => user.userId !== pi.accountantId)
                 .map(user => user.projectMailId);
+
+
+                console.log('Email addresses to send:', recipientEmails);   
             
 
             const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
@@ -1116,54 +1119,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
                 console.error('No recipients defined for Bank Slip Issued. Email not sent.');
             }
 
-        } else if (status === 'AM Verified') {
-            newStat = 'PaymentCompleted';
-            pi = await Expense.findByPk(req.params.id);
-            if (!pi) {
-                return res.status(404).json({ message: 'Expense not found' });
-            }
-            const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-            const params = {
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: fileKey,
-            };
-    
-            const s3File = await s3.getObject(params).promise();
-            const fileBuffer = s3File.Body;
-            const addedByUser = await User.findByPk(pi.userId);
-            if (addedByUser) {
-                recipientEmails.push(addedByUser.email);
-            }
-            const emailSubject = `Payment Completed for Invoice - ${pi.exNo}`;
-            const emailBody = `
-                <p>Payment has been successfully processed for proforma invoice ID: <strong>${pi.exNo}</strong>.</p>
-                <br>
-                <p>Please review the details at your earliest convenience.</p>
-                <br>
-                <p>Thank you!</p>
-            `;
-            const mailOptions = {
-                from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
-                to: recipientEmails.length > 0 ? recipientEmails.join(',') : process.env.DEFAULT_EMAIL,
-                subject: emailSubject,
-                html: emailBody,
-                attachments: [
-                    {
-                        filename: bankSlip.split('/').pop(),
-                        content: fileBuffer,
-                        contentType: s3File.ContentType
-                    }
-                ]
-            };
-
-     
-            if (recipientEmails.length > 0) {
-                await transporter.sendMail(mailOptions);
-                console.log('Payment Completed email sent successfully.');
-            } else {
-                console.error('No recipients defined for Payment Completed. Email not sent.');
-            }
-        }
+        } 
 
      
         pi.bankSlip = bankSlip;
@@ -1176,6 +1132,8 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         res.status(500).send({ message: error.message }); 
     }
 });
+
+
 
 
 router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {

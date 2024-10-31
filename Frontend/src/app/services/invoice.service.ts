@@ -129,7 +129,10 @@ export class InvoiceService {
   addBankSlip(data: any, id: number){
     return this._http.patch(this.url + '/performaInvoice/bankslip/' + id, data);
   }
-  
+  addExpenseBankSlip(data: any ,id:number){
+    return this._http.patch(this.url + '/expense/bankslip/' + id, data);
+
+  }
   getRole(filterValue?: string, page?: number, pagesize?:number): Observable<Role[]> {
     return this._http.get<Role[]>(this.url + `/role/find/?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
   }
