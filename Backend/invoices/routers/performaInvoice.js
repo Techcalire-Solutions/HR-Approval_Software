@@ -28,6 +28,7 @@ const transporter = nodemailer.createTransport({
     }
   });
 
+
 router.post('/save', authenticateToken, async (req, res) => {
     let { piNo, url, kamId, amId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, customerId,
         customerPoNo, customerSoNo, customerCurrency, poValue, notes, paymentMode } = req.body;
@@ -38,80 +39,70 @@ router.post('/save', authenticateToken, async (req, res) => {
     kamId = kamId === '' ? null : kamId;
     amId = amId === '' ? null : amId;
     customerId = customerId === '' ? null : customerId;
-    
 
-    if(paymentMode === 'CreditCard'){
-        if(amId == null){
-            return res.send('Please Select Manager');
+    if (paymentMode === 'CreditCard') {
+        if (!amId) {
+            return res.send('Please Select Account Manager');
         }
-        status = 'INITIATED'
-    } else {
-        if(kamId == null){
+        status = 'INITIATED';
+    } else if (paymentMode === 'WireTransfer') {
+        if (!kamId) {
             return res.send('Please Select Key Account Manager');
         }
-        status = 'GENERATED'
+        status = 'GENERATED';
     }
-    
-    const kam = paymentMode === 'WireTransfer' ? await UserPosition.findOne({userId: kamId }) : null;
-    const am = paymentMode === 'CreditCard' ? await UserPosition.findOne({userId: amId }) : null;
-
-    const kamEmail = kam ? kam.projectMailId : null; 
-    const amEmail = am ? am.aprojectMailId : null;  
-    
-    if (paymentMode === 'WireTransfer' && !kamEmail) {
-        return res.send("KAM Project mail not found")
-
-    }
-
-    if (paymentMode === 'CreditCard' && !amEmail) {
-        return res.send("AM Project mail not found")
- 
-    }
-
 
     try {
+   
+        let recipientEmail = null;
+        let notificationRecipientId = null;
+        if (paymentMode === 'CreditCard') {
+            const am = await UserPosition.findOne({ where: { userId: amId } });
+            recipientEmail = am ? am.projectMailId : null;
+            notificationRecipientId = amId;
+            if (!recipientEmail) {
+                return res.send("AM project email is missing.\n Please inform the admin to add it.");
+            }
+        } else if (paymentMode === 'WireTransfer') {
+            const kam = await UserPosition.findOne({ where: { userId: kamId } });
+            recipientEmail = kam ? kam.projectMailId : null;
+             notificationRecipientId = kamId;
+            if (!recipientEmail) {
+                return res.send("KAM project email is missing. \n Please inform the admin to add it.");
+            }
+        }
+
         const existingInvoice = await PerformaInvoice.findOne({ where: { piNo } });
         if (existingInvoice) {
             return res.json({ error: 'Invoice is already saved' });
         }
 
-
-
-
         const newPi = await PerformaInvoice.create({
-            piNo, url, status: status, salesPersonId: userId, kamId, supplierId,
-            amId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose,
-            customerId, customerPoNo, customerSoNo, customerCurrency, poValue, addedById: userId,
-            notes, paymentMode
+            piNo, url, status, salesPersonId: userId, kamId, supplierId, amId,
+            supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose,
+            customerId, customerPoNo, customerSoNo, customerCurrency, poValue,
+            addedById: userId, notes, paymentMode
         });
-        
-        const piId = newPi.id;
-        const piStatus = await PerformaInvoiceStatus.create({
-            performaInvoiceId: piId,
-            status: status,
+
+        await PerformaInvoiceStatus.create({
+            performaInvoiceId: newPi.id,
+            status,
             date: new Date(),
         });
 
-        const attachments = []
-
+        const attachments = [];
         for (const fileObj of url) {
             const actualUrl = fileObj.url || fileObj.file;
             if (!actualUrl) continue;
 
             const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-
-            const params = {
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: fileKey,
-            };
+            const params = { Bucket: process.env.AWS_BUCKET_NAME, Key: fileKey };
 
             try {
                 const s3File = await s3.getObject(params).promise();
-                const fileBuffer = s3File.Body;
-
                 attachments.push({
                     filename: actualUrl.split('/').pop(),
-                    content: fileBuffer,
+                    content: s3File.Body,
                     contentType: s3File.ContentType
                 });
             } catch (error) {
@@ -122,70 +113,45 @@ router.post('/save', authenticateToken, async (req, res) => {
         const supplier = await Company.findOne({ where: { id: supplierId } });
         const customer = await Company.findOne({ where: { id: customerId } });
 
-         const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
-          const customerName = customer ? customer.companyName : 'Unknown Customer';
+        const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
+        const customerName = customer ? customer.companyName : 'Unknown Customer';
 
-        let mailOptions;
+        const mailOptions = {
+            from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+            to: recipientEmail,
+            cc: process.env.FINANCE_EMAIL_USER,
+            subject: `New Payment Request Generated ${piNo} / ${supplierPoNo}`,
+            html: `
+            <p>Request Generated By <strong>${req.user.name}</strong></p>
+            <p><strong>Entry Number:</strong> ${piNo}</p>
+            <p><strong>Supplier Name:</strong> ${supplierName}</p>
+            <p><strong>PO No:</strong> ${supplierPoNo}</p>
+            <p><strong>Supplier Invoice No:</strong> ${supplierSoNo}</p>
+            <p><strong>Supplier Currency:</strong> ${supplierCurrency}</p>
+            <p><strong>Status:</strong> ${newPi.status}</p>
+            <p><strong>Payment Mode:</strong> ${paymentMode}</p>
+            ${purpose === 'Stock' 
+                ? `<p><strong>Purpose:</strong> Stock</p>` 
+                : `<p><strong>Purpose:</strong> Customer</p>
+                   <p><strong>Customer Name:</strong> ${customerName}</p>
+                   <p><strong>Customer PO No:</strong> ${customerPoNo}</p>
+                   <p><strong>Customer SO No:</strong> ${customerSoNo}</p>
+                   <p><strong>Customer Currency:</strong> ${customerCurrency}</p>`
+            }
+            <p><strong>Notes:</strong> ${newPi.notes}</p>
+            <p>Please find the attached documents related to this Proforma Invoice.</p>
+        `,
+        attachments: attachments
+        };
 
-        if (paymentMode === 'CreditCard') {
-     
-            mailOptions = {
-                from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
-                to: amEmail,
-                cc: process.env.FINANCE_EMAIL_USER,
-                subject: `New Payment Request Generated  ${piNo} /  ${supplierPoNo}`,
-                html: `
-                    <p>A new payment request generated by <strong>${req.user.name}</strong></p>
-                    <p><strong>Entry Number:</strong> ${piNo}</p>
-                    <p><strong>Supplier Name:</strong> ${supplierName}</p>
-                    <p><strong>PO No:</strong> ${supplierPoNo}</p>
-                    <p><strong>Supplier Invoice No:</strong> ${supplierSoNo}</p>
-                    <p><strong>Status:</strong> ${newPi.status}</p>
-                    <p><strong>Payment Mode:</strong> ${paymentMode}</p>
-                    ${purpose === 'Stock' 
-                        ? `<p><strong>Purpose:</strong> Stock</p>` 
-                        : `<p><strong>Purpose:</strong> Customer</p>
-                           <p><strong>Customer Name:</strong> ${customerName}</p>
-                           <p><strong>Customer PO No:</strong> ${customerPoNo}</p>
-                           <p><strong>Customer SO No:</strong> ${customerSoNo}</p>`
-                    }
-                    <p><strong>Notes:</strong> ${newPi.notes}</p>
-                    <p>Please find the attached documents related to this Proforma Invoice.</p>
-                `,
-                attachments: attachments
-            };
+        await transporter.sendMail(mailOptions);
 
-            await transporter.sendMail(mailOptions);
-        } else if (paymentMode === 'WireTransfer') {
-
-            mailOptions = {
-                from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
-                to: kamEmail,
-                cc: process.env.FINANCE_EMAIL_USER,
-                subject: `New Payment Request Generated  ${piNo} /  ${supplierPoNo}`,
-                html: `
-                    <p>A new payment request generated <strong>${req.user.name}</strong></p>
-                    <p><strong>Entry Number:</strong> ${piNo}</p>
-                    <p><strong>Supplier Name:</strong> ${supplierName}</p>
-                    <p><strong>PO No:</strong> ${supplierPoNo}</p>
-                    <p><strong>Supplier Invoice  No:</strong> ${supplierSoNo}</p>
-                    <p><strong>Status:</strong> ${newPi.status}</p>
-                    <p><strong>Payment Mode:</strong> ${paymentMode}</p>
-                    ${purpose === 'Stock' 
-                        ? `<p><strong>Purpose:</strong> Stock</p>` 
-                        : `<p><strong>Purpose:</strong> Customer</p>
-                           <p><strong>Customer Name:</strong> ${customerName}</p>
-                           <p><strong>Customer PO No:</strong> ${customerPoNo}</p>
-                           <p><strong>Customer SO No:</strong> ${customerSoNo}</p>`
-                    }
-                    <p><strong>Notes:</strong> ${newPi.notes}</p>
-                    <p>Please find the attached documents related to this Proforma Invoice.</p>
-                `,
-                attachments: attachments
-            };
-
-            await transporter.sendMail(mailOptions);
-        }
+      
+             await Notification.create({
+                userId: notificationRecipientId,
+                message: `New Payment Request Generated ${piNo} / ${supplierPoNo}`,
+                isRead: false,
+            });
 
         res.json({
             piNo: newPi.piNo,
@@ -196,6 +162,9 @@ router.post('/save', authenticateToken, async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+
+
   
 router.post('/saveByKAM', authenticateToken, async (req, res) => {
     const { piNo, url, amId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose,
@@ -216,6 +185,23 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
         status = 'INITIATED'
     } else {
         status = 'KAM VERIFIED'
+    }
+    let recipientEmail = null ;
+    let notificationRecipientId = null ;
+    try {
+    
+        const am = await UserPosition.findOne({where:{userId:amId}})
+        recipientEmail = am ? am.projectMailId : null ;
+        notificationRecipientId = amId
+
+        if (!recipientEmail) { 
+            return res.send("AM project email is missing.\n Please inform the admin to add it.");
+        }
+        
+        
+    } catch (error) {
+        res.send(error.message)
+        
     }
 
     try {
@@ -245,9 +231,7 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
    const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
    const customerName = customer ? customer.companyName : 'Unknown Customer';
 
-
-   const am = await UserPosition.findOne({ where: { id: amId } });
-   const amEmail = am ? am.projectMailId : null;
+     
 
    const attachments = [];
 
@@ -280,38 +264,40 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
 
    const mailOptions = {
        from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
-       to: amEmail,
+       to: recipientEmail,
        cc: process.env.FINANCE_EMAIL_USER,
        subject: `New Payment request  Generated - ${piNo} / ${supplierPoNo}`,
        html: `
-           <p>New Payment request  Generated by <strong>${req.user.name}</strong></p>
-           <p><strong>Entry Number:</strong> ${piNo}</p>
-           <p><strong>Supplier Name:</strong> ${supplierName}</p>
-           <p><strong>Supplier PO No:</strong> ${supplierPoNo}</p>
-           <p><strong>Supplier SO No:</strong> ${supplierSoNo}</p>
-           <p><strong>Status:</strong> ${newPi.status}</p>
-           ${purpose === 'Stock'
-               ? `<p><strong>Purpose:</strong> Stock</p>`
-               : `<p><strong>Purpose:</strong> Customer</p>
-                  <p><strong>Customer Name:</strong> ${customerName}</p>
-                  <p><strong>Customer PO No:</strong> ${customerPoNo}</p>
-                  <p><strong>Customer SO No:</strong> ${customerSoNo}</p>`
-           }
-           <p><strong>Notes:</strong> ${newPi.notes}</p>
-           <p>Please find the attached documents related to this Proforma Invoice.</p>
-       `,
-       attachments,
+       <p>Request Generated By <strong>${req.user.name}</strong></p>
+       <p><strong>Entry Number:</strong> ${piNo}</p>
+       <p><strong>Supplier Name:</strong> ${supplierName}</p>
+       <p><strong>PO No:</strong> ${supplierPoNo}</p>
+       <p><strong>Supplier Invoice No:</strong> ${supplierSoNo}</p>
+       <p><strong>Supplier Currency:</strong> ${supplierCurrency}</p>
+       <p><strong>Status:</strong> ${newPi.status}</p>
+       <p><strong>Payment Mode:</strong> ${paymentMode}</p>
+       ${purpose === 'Stock' 
+           ? `<p><strong>Purpose:</strong> Stock</p>` 
+           : `<p><strong>Purpose:</strong> Customer</p>
+              <p><strong>Customer Name:</strong> ${customerName}</p>
+              <p><strong>Customer PO No:</strong> ${customerPoNo}</p>
+              <p><strong>Customer SO No:</strong> ${customerSoNo}</p>
+              <p><strong>Customer Currency:</strong> ${customerCurrency}</p>`
+       }
+       <p><strong>Notes:</strong> ${newPi.notes}</p>
+       <p>Please find the attached documents related to this Proforma Invoice.</p>
+   `,
+   attachments: attachments
    };
 
+   await transporter.sendMail(mailOptions);
+             
 
-   if (amEmail) {
-       await transporter.sendMail(mailOptions);
-   } else {
-       console.log('No AM email found');
-   }
-
-
- 
+   await Notification.create({
+    userId: notificationRecipientId,
+    message: `New Payment Request Generated ${piNo} / ${supplierPoNo}`,
+    isRead: false,
+});
 
         res.json({
             piNo: newPi.piNo,          
@@ -334,7 +320,7 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
     customerId = customerId === '' ? null : customerId;
 
     let status;
-    let recipientEmail; 
+   
 
     if (paymentMode === 'CreditCard') {
         if (kamId == null) {
@@ -346,6 +332,34 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
             return res.send('Please Select Accountant');
         }
         status = 'AM VERIFIED';
+    }
+    let recipientEmail = null; 
+    let notificationRecipientId = null
+    try {
+        if (paymentMode === 'CreditCard') {
+            const kam = await UserPosition.findOne({ where: {userId: kamId } });
+            recipientEmail = kam ? kam.projectMailId : null ;
+            notificationRecipientId = kamId;
+            if (!recipientEmail) {
+              return res.send("KAM project email is missing. \n Please inform the admin to add it.");
+            }
+        } else {
+          
+           const accountant = await UserPosition.findOne({where:{userId:accountantId}})
+            recipientEmail = accountant.projectMailId; 
+            notificationRecipientId =  accountantId;
+            if(!recipientEmail){
+                return res.send("Accoutant project email is missing. \n Please inform the admin to add it.");
+
+            }
+
+        }
+
+
+        
+    } catch (error) {
+        res.send(error.message)
+        
     }
 
     try {
@@ -373,19 +387,6 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
         const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
         const customerName = customer ? customer.companyName : 'Unknown Customer';
 
-        if (paymentMode === 'CreditCard') {
-            const kam = await UserPosition.findOne({ where: { id: kamId } });
-            if (!kam) {
-                return res.status(404).json({ error: 'Key Account Manager not found' });
-            }
-            recipientEmail = kam.projectMailId; 
-        } else {
-            const accountant = await UserPosition.findOne({ where: { id: accountantId } });
-            if (!accountant) {
-                return res.status(404).json({ error: 'Accountant not found' });
-            }
-            recipientEmail = accountant.projectMailId; 
-        }
 
         const attachments = [];
         for (const fileObj of url) {
@@ -440,6 +441,13 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
         };
 
         await transporter.sendMail(mailOptions);
+
+        await Notification.create({
+            userId: notificationRecipientId,
+            message: `New Payment Request Generated ${piNo} / ${supplierPoNo}`,
+            isRead: false,
+        });
+        
 
         res.json({
             piNo: newPi.piNo,
@@ -975,17 +983,22 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             await statusArray.save();
 
      
-            const users = await User.findAll({
+            const users = await UserPosition.findAll({
                 where: {
                     [Op.or]: [
-                        { id: pi.salesPersonId },
-                        { id: pi.kamId },
-                        { id: pi.amId },
-                        { id: pi.accountantId },
-                        { id: pi.addedById }
+                        { userId: pi.salesPersonId },
+                        { userId: pi.kamId },
+                        { userId: pi.amId },
+                        { userId: pi.accountantId },
+                        { userId: pi.addedById }
                     ]
                 }
             });
+            
+            recipientEmails = users
+                .filter(user => user.userId !== pi.accountantId)
+                .map(user => user.projectMailId);
+            
      
         const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
         const params = {
@@ -996,10 +1009,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         const s3File = await s3.getObject(params).promise();
         const fileBuffer = s3File.Body;
 
-            recipientEmails = users
-                .filter(user => user.id !== pi.accountantId)
-                .map(user => user.email);
-        
+
 
 
             const emailSubject = `Card Payment Success for Invoice - ${pi.piNo}`
@@ -1045,17 +1055,22 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             statusArray = new PerformaInvoiceStatus({ performaInvoiceId, status, date: new Date() });
             await statusArray.save();
 
-            const users = await User.findAll({
+            const users = await UserPosition.findAll({
                 where: {
                     [Op.or]: [
-                        { id: pi.salesPersonId },
-                        { id: pi.kamId },
-                        { id: pi.amId },
-                        { id: pi.accountantId },
-                        { id: pi.addedById }
+                        { userId: pi.salesPersonId },
+                        { userId: pi.kamId },
+                        { userId: pi.amId },
+                        { userId: pi.accountantId },
+                        { userId: pi.addedById }
                     ]
                 }
             });
+            
+            recipientEmails = users
+                .filter(user => user.userId !== pi.accountantId)
+                .map(user => user.projectMailId);
+            
 
             const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
             const params = {
@@ -1066,9 +1081,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             const s3File = await s3.getObject(params).promise();
             const fileBuffer = s3File.Body;
       
-            recipientEmails = users
-                .filter(user => user.id !== pi.accountantId)
-                .map(user => user.email);
+ 
 
 
             const emailSubject = `Payslip Issued for Invoice - ${pi.piNo}`;
@@ -1166,7 +1179,9 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
     }
 });
 
+
 router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
+
     let { url, kamId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, 
         customerId, customerSoNo, customerPoNo, customerCurrency, poValue, notes, paymentMode, amId } = req.body;
 
@@ -1174,27 +1189,54 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
     amId = amId === '' ? null : amId;
     customerId = customerId === '' ? null : customerId;
 
+    let recipientEmail = null;
+    let notificationRecipientId = null;
+
+    try {
+  
+        if (paymentMode === 'CreditCard') {
+            const am = await UserPosition.findOne({ where: { userId: amId } });
+            recipientEmail = am ? am.projectMailId : null; 
+            notificationRecipientId = amId;
+
+            if (!recipientEmail) {
+                return res.status(400).send("AM project email is missing. Please inform the admin to add it.");
+            }
+        } else if (paymentMode === 'WireTransfer') {
+            const kam = await UserPosition.findOne({ where: { userId: kamId } });
+            recipientEmail = kam ? kam.projectMailId : null; 
+            notificationRecipientId = kamId;
+
+            if (!recipientEmail) {
+                return res.status(400).send("KAM project email is missing. Please inform the admin to add it.");
+            }
+        }
+    } catch (error) {
+        return res.status(500).send(error.message);
+    }
+
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
+        const piNo = pi.piNo;
         if (!pi) {
             return res.status(404).send({ message: 'Proforma Invoice not found.' });
         }
+
         let status;
-        let recipient;
-        if(paymentMode === 'CreditCard'){
-            if(amId == null){
-                return res.send('Please Select Manager');
+
+        if (paymentMode === 'CreditCard') {
+            if (amId == null) {
+                return res.status(400).send('Please select Manager.');
             }
-            status = 'INITIATED'
-            recipient = amId;
+            status = 'INITIATED';
         } else {
-            if(kamId == null){
-                return res.send('Please Select Key Account Manager');
+            if (kamId == null) {
+                return res.status(400).send('Please select Key Account Manager.');
             }
-            status = 'GENERATED'
-            recipient=kamId
+            status = 'GENERATED';
         }
 
+     
         pi.url = url;
         pi.kamId = kamId;
         pi.amId = amId;
@@ -1218,43 +1260,28 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
         await pi.save();
 
         const piId = pi.id;
-        
         const piStatus = new PerformaInvoiceStatus({
-            performaInvoiceId: piId, status: status, date: new Date(), count: count
-        })
+            performaInvoiceId: piId, 
+            status: status, 
+            date: new Date(), 
+            count: pi.count
+        });
         await piStatus.save();
 
-        res.json({
-            piNo: pi.piNo,
-            status: piStatus.status,
-            res: pi,
-            message: 'Proforma Invoice updated successfully'
-        });
 
-
-        
+  
         const supplier = await Company.findOne({ where: { id: supplierId } });
         const customer = await Company.findOne({ where: { id: customerId } });
+        const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
+        const customerName = customer ? customer.companyName : 'Unknown Customer';
 
-         const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
-          const customerName = customer ? customer.companyName : 'Unknown Customer';
-
-          
-         const recipientUser = await User.findOne({ where: { id: recipient } });
-         const recipientEmail = recipientUser ? recipientUser.email : null;
-
-    
         const attachments = [];
         for (const fileObj of url) {
             const actualUrl = fileObj.url || fileObj.file;
             if (!actualUrl) continue;
 
             const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-
-            const params = {
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: fileKey,
-            };
+            const params = { Bucket: process.env.AWS_BUCKET_NAME, Key: fileKey };
 
             try {
                 const s3File = await s3.getObject(params).promise();
@@ -1266,14 +1293,16 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
                     contentType: s3File.ContentType 
                 });
             } catch (error) {
+                console.warn(`Failed to retrieve file from S3: ${error.message}`);
                 continue; 
             }
         }
 
+    
         const mailOptions = {
             from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
             to: recipientEmail, 
-            subject: `Proforma Invoice Updated - ${pi.piNo}`,
+            subject: `Proforma Invoice Updated - ${piNo}`,
             html: `
                 <p>Proforma Invoice has been updated by <strong>${req.user.name}</strong></p>
                 <p><strong>Entry Number:</strong> ${pi.piNo}</p>
@@ -1295,12 +1324,25 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
             attachments: attachments 
         };
 
-      
         await transporter.sendMail(mailOptions);
 
 
+        await Notification.create({
+            userId: notificationRecipientId,
+            message: `New Payment Request Generated ${pi.piNo} / ${supplierPoNo}`,
+            isRead: false,
+        });
+
+        res.json({
+            piNo: pi.piNo,
+            status: piStatus.status,
+            res: pi,
+            message: 'Proforma Invoice updated successfully'
+        });
+
+
     } catch (error) {
-        res.send(error.message);
+        return res.status(500).send(error.message);
     }
 });
 
@@ -1313,8 +1355,29 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
     } else {
         status = 'KAM VERIFIED'
     }
+
+    let recipientEmail = null ;
+    let notificationRecipientId = null ;
+    try {
+    
+        const am = await UserPosition.findOne({where:{userId:amId}})
+        recipientEmail = am ? am.projectMailId : null ;
+        notificationRecipientId = amId
+
+        if (!recipientEmail) { 
+            return res.send("AM project email is missing.\n Please inform the admin to add it.");
+        }
+        
+        
+    } catch (error) {
+        res.send(error.message)
+        
+    }
+
+
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
+        const piNo = pi.piNo;
         kamId = kamId === '' ? pi.kamId : kamId;
         amId = amId === '' ? pi.amId : amId;
         customerId = customerId === '' ? null : customerId;
@@ -1339,6 +1402,7 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
         pi.notes=notes;
 
         await pi.save();
+      
 
         const piId = pi.id;
         
@@ -1347,20 +1411,8 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
         })
         await piStatus.save();
 
-        // res.json({ p: pi, status: piStatus})
-        res.json({
-            piNo: pi.piNo,
-            status: piStatus.status,
-            res: pi,
-            message: 'Proforma Invoice updated successfully'
-        });
 
 
-        const am = await User.findOne({ where: { id: amId } });
-        if (!amId) {
-            return res.status(404).send({ message: 'AM user not found.' });
-        }
-        const amEmail = am.email;
 
         const supplier = await Company.findOne({ where: { id: supplierId } });
         const customer = await Company.findOne({ where: { id: customerId } });
@@ -1402,8 +1454,8 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
      
         const mailOptions = {
             from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
-        to: amEmail, 
-            subject: `Proforma Invoice Updated - ${pi.piNo}`,
+            to:recipientEmail, 
+            subject: `Proforma Invoice Updated - ${piNo}`,
             html: `
             <p>Proforma Invoice has been updated by <strong>${req.user.name}</strong></p>
             <p><strong>Entry Number:</strong> ${pi.piNo}</p>
@@ -1427,6 +1479,21 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
 
         
         await transporter.sendMail(mailOptions);
+        await Notification.create({
+            userId: notificationRecipientId,
+            message: `New Payment Request Generated ${piNo} / ${supplierPoNo}`,
+            isRead: false,
+        });
+
+                // res.json({ p: pi, status: piStatus})
+                res.json({
+                    piNo: pi.piNo,
+                    status: piStatus.status,
+                    res: pi,
+                    message: 'Proforma Invoice updated successfully'
+                });
+        
+        
 
     
     } catch (error) {
@@ -1440,22 +1507,47 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
         
     try {
         let status;
-        let recipient;
         if(paymentMode === 'CreditCard'){
             if(kamId == null){
                 return res.send('Please Select key Account Manager');
             
             }
             status = 'AM APPROVED';
-            recipient = kamId; 
         } else {
             if(accountantId == null){
                 return res.send('Please Select Accountant');
             }
             status = 'AM VERIFIED'
-            recipient = accountantId;
         }
+
+        let recipientEmail = null;
+        let notificationRecipientId = null;
+    
+        try {
+      
+            if (paymentMode === 'CreditCard') {
+                const kam = await UserPosition.findOne({ where: { userId: kamId } });
+                recipientEmail = kam ? kam.projectMailId : null; 
+                notificationRecipientId = kamId;
+    
+                if (!recipientEmail) {
+                    return res.status(400).send("KAM project email is missing. Please inform the admin to add it.");
+                }
+            } else if (paymentMode === 'WireTransfer') {
+                const accountant = await UserPosition.findOne({ where: { userId: accountantId } });
+                recipientEmail = accountant ? accountant.projectMailId : null; 
+                notificationRecipientId = accountantId;
+    
+                if (!recipientEmail) {
+                    return res.status(400).send("Accountant project email is missing. Please inform the admin to add it.");
+                }
+            }
+        } catch (error) {
+            return res.status(500).send(error.message);
+        }
+
         const pi = await PerformaInvoice.findByPk(req.params.id);
+        const piNo = pi.piNo;
 
         kamId = kamId === '' ? null : kamId;
         accountantId = accountantId === '' ? null : accountantId;
@@ -1490,12 +1582,6 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
         })
         await piStatus.save();
 
-    res.json({
-        piNo: pi.piNo,
-        status: piStatus.status,
-        res: pi,
-        message: 'Proforma Invoice updated successfully'
-    });
 
 
     const supplier = await Company.findOne({ where: { id: supplierId } });
@@ -1505,8 +1591,7 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
     const customerName = customer ? customer.companyName : 'Unknown Customer';
 
 
-    const recipientUser = await User.findOne({ where: { id: recipient } });
-    const recipientEmail = recipientUser ? recipientUser.email : null;
+
 
     const attachments = [];
 
@@ -1534,7 +1619,7 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
             continue;
         }
     }
-    const piNo = pi.piNo;
+
 
 
     const mailOptions = {
@@ -1561,12 +1646,20 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
         attachments,
     };
 
+    await Notification.create({
+        userId: notificationRecipientId,
+        message: `New Payment Request Generated ${pi.piNo} / ${supplierPoNo}`,
+        isRead: false,
+    });
 
-    if (recipientEmail) {
-        await transporter.sendMail(mailOptions);
-    } else {
-        console.log('No recipient email found');
-    }
+    res.json({
+        piNo: pi.piNo,
+        status: piStatus.status,
+        res: pi,
+        message: 'Proforma Invoice updated successfully'
+    });
+
+
 
 } catch (error) {
     res.json({ error: error.message });
