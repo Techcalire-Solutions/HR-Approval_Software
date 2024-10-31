@@ -106,11 +106,16 @@ users:User;
       {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        (item.title === 'Payment Flow' && !item.parentId) ||
+        (item.title === 'Proforma' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5)||
         (item.title === 'Reports' && !item.parentId) ||
-        (item.title === 'Approval Report' && item.parentId === 21)||
-        (item.title === 'Expense Report' && item.parentId=== 21)
+        (item.title === 'Proforma' && item.parentId === 21) ||
+        (item.title === 'View' && item.parentId === 22) ||
+        (item.title === 'Excel' && item.parentId === 22) ||
+
+        (item.title === 'Expense' && item.parentId === 21)||
+        (item.title === 'View' && item.parentId === 24) ||
+        (item.title === 'Excel' && item.parentId === 24) 
 
       );
     } else if (
@@ -121,7 +126,7 @@ users:User;
     ) {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        (item.title === 'Payment Flow' && !item.parentId) ||
+        (item.title === 'Proforma' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5)||
         (item.title === 'Add' && item.parentId === 5) ||
         (item.title === 'Expense' && !item.parentId) ||
@@ -145,7 +150,7 @@ users:User;
     ) {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        (item.title === 'Payment Flow' && !item.parentId) ||
+        (item.title === 'Proforma' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5) ||
         (item.title === 'Excel' && item.parentId === 5) ||
         
