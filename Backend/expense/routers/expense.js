@@ -80,10 +80,16 @@ router.post('/save', authenticateToken, async (req, res) => {
       const am = await UserPosition.findOne({ where: { userId: amId } });
       recipientEmail = am ? am.projectMailId : null;
       notificationRecipientId=amId
+      if(!recipientEmail){
+        return res.send("Project email is missing.\n Please inform the admin to add it")
+      }
     } else if (status === 'AM Verified') {
       const accountant = await UserPosition.findOne({ where: { userId: accountantId } });
       recipientEmail = accountant ? accountant.projectMailId : null;
       notificationRecipientId=accountantId
+      if(!recipientEmail){
+        return res.send("Accoutant Project email is missing.\n Please inform the admin to add it")
+      }
     }
 
     const attachments = [];
@@ -333,11 +339,17 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
               recipientName = acc.user ? acc.user.name : 'Accountant';
               notificationRecipientId = accountantId;
               notificationMessage = `The expense claim ${expense.exNo} has been approved.`;
+              if(!recipientEmail){
+                return res.send("Accountant email is missing.\n Please inform the admin to add it")
+              }
           } else if (us && us.projectMailId) {
               recipientEmail = us.projectMailId;
               recipientName = us.user ? us.user.name : 'User'; 
               notificationRecipientId = expense.addedById;
               notificationMessage = `The expense claim ${expense.exNo} has been rejected.`;
+              if(!recipientEmail){
+                return res.send("Project email is missing.\n Please inform the admin to add it")
+              }
           }
           if (!recipientEmail) {
               return res.send('Recipient email not defined for this  action.');
@@ -420,20 +432,21 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
 
 
 
+
+
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
   const { bankSlip } = req.body;
   try {
-      let newStat = 'PaymentCompleted'
-      
-      const ex = await Expense.findByPk(req.params.id);
+      let newStat = 'PaymentCompleted';
 
+      const ex = await Expense.findByPk(req.params.id);
       if (!ex) {
           return res.status(404).json({ message: 'Expense not found' });
       }
- 
+
       ex.bankSlip = bankSlip;
       ex.status = newStat;
-      await ez.save();
+      await ex.save(); 
 
       const status = new ExpenseStatus({
           expenseId: ex.id,
@@ -442,24 +455,24 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
       });
       await status.save();
 
-      const users = await User.findAll({
+      const users = await UserPosition.findAll({
           where: {
               [Op.or]: [
-                  { id: ex.userId },
-                  { id: ex.amId },
-                  { id: ex.accountantId }
+                  { userId: ex.userId },
+                  // { userId: ex.amId },
+                  // { userId: ex.accountantId }
               ]
           }
       });
 
-  
-
       const otherEmails = users
           .filter(user => user.id !== ex.accountantId)
-          .map(user => user.email)
+          .map(user => user.projectMailId)
           .join(',');
 
+      console.log('Email addresses to send:', otherEmails); 
 
+     
       const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
       const params = {
           Bucket: process.env.AWS_BUCKET_NAME,
@@ -469,28 +482,16 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
       const s3File = await s3.getObject(params).promise();
       const fileBuffer = s3File.Body;
 
-
       let emailSubject = `Bank Slip Uploaded for Invoice - ${ex.exNo}`;
       let emailBody = `
+          <p>Dear Team,</p>
           <p>A bank slip has been uploaded for proforma invoice ID: <strong>${ex.exNo}</strong>.</p>
-          <br>
-          <p>Please review the bank slip at your earliest convenience.</p>
+          <p>Please review the bank slip attached at your earliest convenience.</p>
+          <p>For any queries or further assistance, feel free to reach out.</p>
           <br>
           <p>Thank you!</p>
+          <p>Best regards,<br>Your Company Name</p>
       `;
-
-  
-      if (newStat === 'CARD PAYMENT SUCCESS') {
-          emailSubject = `Card Payment Success for Invoice - ${ex.exNo}`;
-          emailBody = `
-              <p>Card payment has been successfully processed for proforma invoice ID: <strong>${ex.exNo}</strong>.</p>
-              <br>
-              <p>Please review the  slip at your earliest convenience.</p>
-              <br>
-              <p>Thank you!</p>
-          `;
-      }
-
 
       const mailOptions = {
           from: `Expense<${process.env.EMAIL_USER}>`,
@@ -506,10 +507,27 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
           ]
       };
 
+      try {
+          await transporter.sendMail(mailOptions);
+          console.log('Email sent successfully');
+      } catch (emailError) {
+          console.error('Failed to send email:', emailError);
+          return res.status(500).send('Failed to send email');
+      }
 
-      await transporter.sendMail(mailOptions);
+      for (const user of users) {
+          try {
+              await Notification.create({
+                  userId: user.id,
+                  message: `A bank slip has been uploaded for Expense claim ID: ${ex.exNo}.`,
+                  isRead: false,
+              });
+              console.log(`Notification created for user ID: ${user.id}`);
+          } catch (notifyError) {
+              console.error(`Failed to create notification for user ID: ${user.id}`, notifyError);
+          }
+      }
 
- 
       res.json({ ex: ex, status: status, users });
   } catch (error) {
       res.status(500).send(error.message);

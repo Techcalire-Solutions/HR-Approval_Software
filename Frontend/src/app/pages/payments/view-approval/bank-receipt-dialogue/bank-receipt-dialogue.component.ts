@@ -94,7 +94,7 @@ export class BankReceiptDialogueComponent {
 
   submit!: Subscription;
   onSubmit() {
-    this.submit = this.invoiceService.addBankSlip(this.piForm.getRawValue(), this.dialogData.id).subscribe((invoice: any) =>{
+    this.submit = this.invoiceService.addExpenseBankSlip(this.piForm.getRawValue(), this.dialogData.id).subscribe((invoice: any) =>{
       this.dialogRef.close(true);
     });
 
