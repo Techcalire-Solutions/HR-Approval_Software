@@ -224,8 +224,12 @@ users:User;
         (item.title === 'Process Payroll' && item.parentId === 13) ||
         (item.title === 'Salary Statement' && item.parentId === 13) ||
         (item.title === 'YTD Reports' && item.parentId === 13)||
+
         (item.title === 'Reports' && !item.parentId) ||
         (item.title === 'Approval Report' && item.parentId === 21) ||
+        (item.title === 'View' && item.parentId === 22) ||
+        (item.title === 'Excel' && item.parentId === 22) ||
+
         (item.title === 'Leave Report' && item.parentId === 21)||
         (item.title === 'Expense Report' && item.parentId === 21)
 

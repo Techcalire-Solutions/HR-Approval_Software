@@ -58,11 +58,11 @@ export const routes: Routes = [
       //   loadComponent: () => import('./add-approval/expense/expense.component').then(c => c.ExpenseComponent),
       //   canActivate: [AuthGuard], data: { breadcrumb: 'Expense' },
       // },
-      {
-        path: 'viewexcel',
-        loadComponent: () => import('./add-approval/view-excel/view-excel.component').then(c => c.ViewExcelComponent),
-        canActivate: [AuthGuard], data: { breadcrumb: 'View Excel' },
-      },
+      // {
+      //   path: 'viewexcel',
+      //   loadComponent: () => import('./add-approval/view-excel/view-excel.component').then(c => c.ViewExcelComponent),
+      //   canActivate: [AuthGuard], data: { breadcrumb: 'View Excel' },
+      // },
       {
         path: 'viewApproval',
         loadChildren: () => import('./payments/payment.routes').then(c => c.routes),canActivate: [AuthGuard]

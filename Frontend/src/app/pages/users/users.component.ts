@@ -15,20 +15,16 @@ import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { PipesModule } from '../../theme/pipes/pipes.module';
 import { MatCardModule } from '@angular/material/card';
 import { DatePipe } from '@angular/common';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
-import { SafePipe } from '../add-approval/view-invoices/safe.pipe';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { environment } from '../../../environments/environment';
 import { User } from '../../common/interfaces/user';
-import { count, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 import { Router } from '@angular/router';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
-import { AddPayrollComponent } from '../payroll/add-payroll/add-payroll.component';
 import { UserAssetsComponent } from './user-assets/user-assets.component';
 
 
@@ -51,7 +47,6 @@ import { UserAssetsComponent } from './user-assets/user-assets.component';
     DatePipe,
     UserDialogComponent,
     CommonModule,
-    SafePipe,
     MatPaginatorModule
   ],
   templateUrl: './users.component.html',

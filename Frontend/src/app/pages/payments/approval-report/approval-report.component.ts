@@ -21,16 +21,21 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatDividerModule } from '@angular/material/divider';
 import { User } from '../../../common/interfaces/user';
 import { UsersService } from '@services/users.service';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDatepickerModule, MatDateRangeInput } from '@angular/material/datepicker';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, NativeDateAdapter } from '@angular/material/core';
 import { MatChipsModule } from '@angular/material/chips';
 import { SafePipe } from '../../../common/safe.pipe';
+import { MatDatepickerInputEvent } from '@angular/material/datepicker';
+import { HttpClient, HttpRequest } from '@angular/common/http';
+import { PerformaInvoice } from '../../../common/interfaces/performaInvoice';
+
+
 @Component({
   selector: 'app-approval-report',
   standalone: true,
   imports: [ CommonModule, RouterModule, MatDatepickerModule, ReactiveFormsModule,  MatFormFieldModule, MatCardModule, MatToolbarModule,
     MatIconModule, MatButtonModule, MatSelectModule, MatInputModule, MatProgressBarModule, MatProgressSpinnerModule, SafePipe,
-    MatPaginatorModule, MatDividerModule, MatChipsModule],
+    MatPaginatorModule, MatDividerModule, MatChipsModule, MatDateRangeInput],
   templateUrl: './approval-report.component.html',
   styleUrl: './approval-report.component.scss',
   providers: [
@@ -67,7 +72,7 @@ export class ApprovalReportComponent {
     this.getUsers()
     this.getByFilter()
   }
-  invoices: any[] = [];
+  invoices: PerformaInvoice[] = [];
   invoiceSub!: Subscription;
   totalItems = 0;
   getByFilter(){
@@ -77,7 +82,7 @@ export class ApprovalReportComponent {
       addedBy: this.addedBy ? this.addedBy : null,  
       status: this.status ? this.status : null,  
       startDate: this.startDate ? this.startDate : null,
-      endDate: this.endDate ? this.endDate : null,
+      endDate: this.endDate ? this.endDate : null
     };
     
     this.invoiceSub = this.invoiceService.getAdminReports(data).subscribe(res=>{
@@ -98,16 +103,21 @@ export class ApprovalReportComponent {
     this.getByFilter()
   }
 
-  startDate: Date;
-  endDate: Date;
+  startDate: any;
+  endDate: any;
+  onDateChange(type: 'start' | 'end', event: MatDatepickerInputEvent<Date>): void {
+    if (type === 'start') {
+      this.startDate = event.value;
+    } else if (type === 'end') {
+      this.endDate = event.value;
+    }
 
-  // ... previous code remains the same
-  onDateRangeChange(event: any) {
-    this.startDate = event.value?.start;
-    this.endDate = event.value?.end;
+    if (this.startDate && this.endDate) {
+      this.getByFilter();
+    }
   }
-
-
+  
+  
   addedBy: number
   getAdded(id: number){
     this.addedBy = id;
@@ -122,6 +132,25 @@ export class ApprovalReportComponent {
     this.usersSub = this.userService.getUser().subscribe(res => {
       this.Users = res;
     });
+  }
+
+  makeExcel() {
+    let data = {
+      invoices: this.invoices, 
+      invoiceNo: this.filterValue? this.filterValue : '',
+      addedBy: this.addedBy? this.addedBy : null,  
+      status: this.status? this.status : null,  
+      startDate: this.startDate? this.startDate : null,
+      endDate: this.endDate? this.endDate : null
+    }
+    console.log(data);
+    
+    this.invoiceService.reportExport(data).subscribe((res:any)=>{
+      if (res.message === 'File uploaded successfully') {
+        this.router.navigate(['login/viewApproval/approvalReport/excellog/openexcel'], { queryParams: { name: res.name } });
+        this.snackBar.open('Excel File exported successfully...', '', { duration: 3000 });
+      }
+    })
   }
 
 }

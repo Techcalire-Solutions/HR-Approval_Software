@@ -1105,8 +1105,6 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
 
         } else if (status === 'AM Verified') {
             newStat = 'PaymentCompleted';
-
-
             pi = await Expense.findByPk(req.params.id);
             if (!pi) {
                 return res.status(404).json({ message: 'Expense not found' });
@@ -1809,7 +1807,10 @@ router.patch('/getforadminreport', authenticateToken, async (req, res) => {
     try {
         invoices = await PerformaInvoice.findAll({
             include: [
+                { model: Company, as: 'suppliers' }, 
+                { model: Company, as: 'customers' }, 
                 { model: PerformaInvoiceStatus },
+                { model: User, as: 'addedBy', attributes: ['name'] },
                 { model: User, as: 'salesPerson', attributes: ['name'] },
                 { model: User, as: 'kam', attributes: ['name'] },
                 { model: User, as: 'am', attributes: ['name'] }
@@ -1820,7 +1821,7 @@ router.patch('/getforadminreport', authenticateToken, async (req, res) => {
     }
     
     let { invoiceNo, addedBy, status, startDate, endDate } = req.body;
-
+    
     if (invoiceNo) {
         const searchTerm = invoiceNo.replace(/\s+/g, '').trim().toLowerCase();
         invoices = invoices.filter(invoice => 
@@ -1837,7 +1838,21 @@ router.patch('/getforadminreport', authenticateToken, async (req, res) => {
     }
 
     if (status) {
-        invoices = invoices.filter(invoice => invoice.status === status);
+        if (status === 'GENERATED') {
+            invoices = invoices.filter(invoice => 
+                invoice.status === 'GENERATED' || invoice.status === 'INITIATED'
+            );
+        }else if (status === 'AM VERIFIED') {
+            invoices = invoices.filter(invoice => 
+                invoice.status === 'AM VERIFIED' || invoice.status === 'AM APPROVED'
+            );
+        }else if (status === 'BANK SLIP ISSUED') {
+            invoices = invoices.filter(invoice => 
+                invoice.status === 'BANK SLIP ISSUED' || invoice.status === 'CARD PAYMENT SUCCESS'
+            );
+        }  else {
+            invoices = invoices.filter(invoice => invoice.status === status);
+        }
     }
 
     if (startDate && endDate) {

@@ -160,7 +160,6 @@ router.get("/customers", async (req, res) => {
 // });
 
 router.get("/findone/:id", async (req, res) => {
-  console.log("LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLll");
   
   try {
     const companyId = req.params.id;
@@ -229,13 +228,11 @@ router.patch("/:id", async (req, res) => {
 });
 
 router.get('/find', async (req, res) => {
-  console.log("PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP");
   
   try {
     let whereClause = {}
     let limit;
     let offset;
-    console.log(req.query.pageSize, req.query.page,"PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPp");
     
     if (req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
       limit = req.query.pageSize;

@@ -13,8 +13,7 @@ import { PagesComponent } from '../../pages.component';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
-import { SafePipe } from "../../add-approval/view-invoices/safe.pipe";
-
+import { SafePipe } from "../../../common/safe.pipe";
 @Component({
   selector: 'app-add-announcements',
   standalone: true,

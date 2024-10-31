@@ -1,71 +1,92 @@
-/* Page container styling */
 .page-container {
-  background-color: #f5f5f5; /* Light background for contrast */
+  padding: 20px;
+  background-color: #f8f9fa; /* Light background for contrast */
 }
 
-
-/* Table component holder */
 .table-component-holder {
-  background-color: #fff; /* White background for card */
-  border-radius: 8px; /* Rounded corners */
-  overflow: hidden; /* Prevents content overflow */
+  padding: 16px;
+  border-radius: 8px;
+  background-color: white; /* White background for cards */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
 }
 
-/* Toolbar styling */
-.table-header {
-  background-color: #31a4f7; /* Primary color */
-  color: #fff; /* White text color */
-  // padding: 10px 20px; /* Spacing */
+.mat-toolbar {
+  background-color: white; /* Primary color */
+  color: rgb(16, 67, 207); /* Text color */
+  border-radius: 8px 8px 0 0; /* Rounded corners on top */
 }
 
-/* Input group styling */
-.input-group {
-  display: flex; /* Flex layout for input group */
-  // align-items: center; /* Center items vertically */
+.search-container {
+  margin-top: 16px; /* Add some space above */
+  margin-bottom: 16px; /* Add some space below */
 }
 
-/* Table styling */
+.mat-form-field {
+  width: 100%; /* Full width for fields */
+}
+
 .table-container {
-  margin-top: 10px;
-  overflow-x: auto; /* Allows horizontal scrolling */
+  overflow-x: auto; /* Allows horizontal scrolling on smaller screens */
 }
 
-/* Table styles */
 table {
-  border-radius: 10px;
-  width: 100%; /* Full width */
-  border-collapse: collapse; /* Remove gaps between cells */
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
 }
 
-th, td {
-  padding: 12px; /* Padding for table cells */
-  text-align: left; /* Left-aligned text */
-  border-bottom: 1px solid #ddd; /* Bottom border for rows */
+thead {
+  background-color: #f1f1f1; /* Slightly darker for headers */
 }
 
 th {
-  background-color: #5c91ec; /* Light grey background for headers */
-  font-weight: bold; /* Bold text for headers */
+  padding: 12px;
+  text-align: left; /* Align text to the left */
+  font-weight: 600; /* Bold headers */
+  color: #333; /* Darker text color for contrast */
 }
 
-/* Hover effect for table rows */
-tbody tr:hover {
-  background-color: #f1f1f1; /* Light background on hover */
+td {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0; /* Light border for rows */
+  color: #555; /* Slightly lighter text */
 }
 
-/* Empty state styling */
-tbody tr:empty td {
-  text-align: center; /* Center align empty state */
+tr {
+  transition: background-color 0.3s; /* Smooth transition for hover effect */
 }
 
-/* Pagination styling */
-mat-paginator {
-  margin-top: 20px; /* Space above paginator */
+tr:hover {
+  background-color: #e9ecef; /* Highlight on hover */
 }
 
-/* Divider styling */
-mat-divider {
-  margin: 20px 0; /* Space around divider */
+.total-count-row {
+  background-color: #f8f9fa; /* Background color for total count row */
+  font-weight: bold; /* Make total count bold */
+}
+
+@media (max-width: 600px) {
+  .table-container table {
+    font-size: 0.9em; /* Reduce font size on small screens */
+  }
+
+  .search-container {
+    flex-direction: column; /* Stack fields on small screens */
+  }
+
+  .mat-form-field {
+    margin-bottom: 16px; /* Space between fields */
+  }
+}
+.row {
+  margin-top: 10px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.col {
+  flex: 1;
 }
 
 @media(max-width:576px)
@@ -76,25 +97,4 @@ mat-divider {
         display: flex;
         flex-direction: column;
     }
-}
-
-.row {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.col {
-  flex: 1;
-  margin-right: 10px;
-}
-
-.col:last-child {
-  margin-right: 0;
-}
-
-.total-count-row {
-  background-color: #e9ecef; /* Light gray background */
-  font-weight: bold;         /* Bold text */
-  color: #021643;              /* Dark text color */
-  
 }
