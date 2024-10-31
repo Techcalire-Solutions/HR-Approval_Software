@@ -13,11 +13,12 @@ import { BankReceiptDialogueComponent } from '../../view-approval/bank-receipt-d
 import { CommonModule } from '@angular/common';
 import { DeleteDialogueComponent } from '../../../../theme/components/delete-dialogue/delete-dialogue.component';
 import { InvoiceService } from '@services/invoice.service';
+import { ExpenseReceiptDialogComponent } from '../expense-receipt-dialog/expense-receipt-dialog.component';
 
 @Component({
   selector: 'app-view-expense',
   standalone: true,
-  imports: [MatCardModule, MatToolbarModule, MatPaginatorModule, RouterModule, CommonModule],
+  imports: [MatCardModule, MatToolbarModule, MatPaginatorModule, RouterModule, CommonModule,ExpenseReceiptDialogComponent],
   templateUrl: './view-expense.component.html',
   styleUrl: './view-expense.component.scss'
 })
@@ -37,9 +38,9 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   roleName: string;
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
-      this.roleName = role.roleName; 
+      this.roleName = role.roleName;
       console.log(this.roleName);
-      
+
     })
   }
 
@@ -62,7 +63,7 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
 
   data: any;
   isFlow: boolean = false;
-  loadData(data: any) { 
+  loadData(data: any) {
     this.isFlow = true;
     if (!data) {
       console.error("No data available for this tab.");
@@ -81,20 +82,20 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
       this.totalItems = expenses.count;
       if (this.expenses) {
 
-        this.expenses = [...this.expenses]; 
-        
+        this.expenses = [...this.expenses];
+
         for (let i = 0; i < this.expenses.length; i++) {
           let invoiceUser = this.expenses[i]?.userId;
           let invoiceAM = this.expenses[i]?.amId;
           let invoiceMA = this.expenses[i]?.accountantId;
-            
+
           if(this.roleName === 'Administrator' || this.roleName === 'Super Administrator'){
             this.expenses[i] = {
               ...this.expenses[i],
               editButtonStatus: true
             };
             console.log(expenses[i]);
-            
+
           }else if (userId === invoiceUser || userId === invoiceAM  || userId === invoiceMA) {
             this.expenses[i] = {
               ...this.expenses[i],
@@ -120,7 +121,7 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
                 editButtonStatus: false
               };
             }
-            
+
           }
         }
       }
@@ -134,10 +135,10 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   private router = inject(Router);
   verified(value: string, piNo: string, sp: string, id: number, stat: string){
     let status = stat;
-    
+
     if(status === 'Generated' && value === 'approved') status = 'AM Verified';
     else if(status === 'Generated' && value === 'rejected') status = 'AM Rejected';
-    
+
     const dialogRef = this.dialog.open(VerificationDialogueComponent, {
       data: { invoiceNo: piNo, status: status, sp: sp }
     });
@@ -161,7 +162,7 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   }
 
   addBankSlip(piNo: string, id: number, status: string){
-    const dialogRef = this.dialog.open(BankReceiptDialogueComponent, {
+    const dialogRef = this.dialog.open(ExpenseReceiptDialogComponent, {
       data: { invoiceNo: piNo, id: id, status: status }
     });
 
