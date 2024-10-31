@@ -13,7 +13,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { SafePipe } from '../add-approval/view-invoices/safe.pipe';
 import { UserDialogComponent } from '../users/user-dialog/user-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AddAnnouncementsComponent } from './add-announcements/add-announcements.component';
@@ -30,7 +29,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   standalone: true,
   imports: [ FormsModule, FlexLayoutModule, MatButtonModule, MatButtonToggleModule,  MatIconModule, MatFormFieldModule, MatInputModule,
     MatProgressSpinnerModule, MatMenuModule,  MatSlideToggleModule, MatCardModule, NgxPaginationModule, DatePipe, UserDialogComponent,
-    CommonModule, SafePipe, MatPaginatorModule
+    CommonModule, MatPaginatorModule
   ],
   templateUrl: './announcements.component.html',
   styleUrl: './announcements.component.scss'

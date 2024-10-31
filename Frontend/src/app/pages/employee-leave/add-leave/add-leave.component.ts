@@ -17,7 +17,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { LeaveService } from '@services/leave.service';
-import { SafePipe } from '../../add-approval/view-invoices/safe.pipe';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -52,7 +51,6 @@ function sessionSelectionValidator(group: FormGroup) {
     MatProgressBarModule,
     MatProgressSpinnerModule,
     MatCheckboxModule,
-    SafePipe,
     MatDatepickerModule,
     MatTableModule,
     MatSnackBarModule,

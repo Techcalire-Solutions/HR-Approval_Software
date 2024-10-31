@@ -5,6 +5,7 @@ import { environment } from '../../environments/environment';
 import { PerformaInvoice } from '../common/interfaces/performaInvoice';
 import { PerformaInvoiceStatus } from '../common/interfaces/performa-invoice-status';
 import { Role } from '../common/interfaces/role';
+import { ExcelLog } from '../common/interfaces/excel-log';
 
 @Injectable({
   providedIn: 'root'
@@ -147,7 +148,15 @@ export class InvoiceService {
     return this._http.post<any[]>(this.url + '/invoice/excelupload', data);
   }
 
-  getexcel(){
-    return this._http.get(this.url + '/invoice/getexcel', { responseType: 'arraybuffer' });
+  reportExport(data: any){
+    return this._http.post<any[]>(this.url + '/invoice/download-excel', data);
+  }
+
+  getExcelLog(): Observable<ExcelLog[]>{
+    return this._http.get<ExcelLog[]>(this.url + '/excelLog/find');
+  }
+
+  deleteExcelLog(id: number){
+    return this._http.delete(this.url + '/excelLog/delete-excel/' + id);
   }
 }

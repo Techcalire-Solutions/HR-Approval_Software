@@ -13,9 +13,33 @@ export const routes: Routes = [
       { path: 'updatePI/:id', loadComponent: () => import('./update-pi/update-pi.component').then(c => c.UpdatePIComponent),
         data: { breadcrumb: 'Update' }, canActivate: [AuthGuard]
       },
-      { path: 'approvalReport',
-        loadComponent: () => import('./approval-report/approval-report.component').then(c => c.ApprovalReportComponent),
-        data: { breadcrumb: 'Report' }, canActivate: [AuthGuard]
+      {
+        path: 'approvalReport',
+        data: { breadcrumb: 'Report' },
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./approval-report/approval-report.component')
+              .then(c => c.ApprovalReportComponent),
+            canActivate: [AuthGuard] 
+          },
+          {
+            path: 'excellog', data: { breadcrumb: 'Excel' }, children: [
+              {
+                path: '',
+                loadComponent: () => import('./approval-report/excel-log/excel-log.component')
+                  .then(c => c.ExcelLogComponent),
+                canActivate: [AuthGuard] 
+              },
+              {
+                path: 'openexcel',
+                loadComponent: () => import('./approval-report/view-excel-report/view-excel-report.component')
+                  .then(c => c.ViewExcelReportComponent),
+                canActivate: [AuthGuard], data: { breadcrumb: 'Report' },
+              }
+            ]
+          }
+        ]
       },
       {
         path: 'addapproval',

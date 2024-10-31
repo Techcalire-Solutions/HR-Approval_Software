@@ -18,12 +18,12 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { User } from '../../../../common/interfaces/user';
-import { SafePipe } from '../../../add-approval/view-invoices/safe.pipe';
 import { LeaveType } from '../../../../common/interfaces/leaveType';
 import { AddCompanyComponent } from '../../../company/add-company/add-company.component';
 import { PayrollService } from '@services/payroll.service';
 import { UsersService } from '@services/users.service';
 import { AdvanceSalary } from '../../../../common/interfaces/advanceSalary';
+import { SafePipe } from '../../../../common/safe.pipe';
 
 @Component({
   selector: 'app-add-advance-salary',

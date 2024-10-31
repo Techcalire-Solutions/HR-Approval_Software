@@ -16,7 +16,6 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { SafePipe } from '../../add-approval/view-invoices/safe.pipe';
 import { CompanyService } from '@services/company.service';
 import { Company } from '../../../common/interfaces/company';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -36,7 +35,7 @@ import { Router } from '@angular/router';
     MatSelectModule,
     MatInputModule,
     MatProgressBarModule,
-    MatProgressSpinnerModule, SafePipe,
+    MatProgressSpinnerModule,
     MatDialogModule,
     MatCheckboxModule],
     providers: [DatePipe],

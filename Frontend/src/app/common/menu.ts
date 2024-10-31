@@ -41,9 +41,12 @@ export const verticalMenuItems = [
   new Menu(17, 'Pay Details', '/login/viewApproval', null, 'visibility', null, false, 13),
   new Menu(18, 'User leave', '/login/userLeave', null, 'visibility', null, false, 8),
   new Menu(20, 'Events Calender', '/login/employee-leave/events', null, 'visibility', null, false, 8),
-  // new Menu(21, 'Reports', '/login/leave/reports', null, 'visibility', null, false, 8),
+
   new Menu(21, 'Reports', '', null, 'assessment', null, true, 0),
-  new Menu(22, 'Approval Report', '/login/viewApproval/approvalReport', null, 'visibility', null, false, 21),
+  new Menu(22, 'Approval Report', '/login/viewApproval/approvalReport', null, 'visibility', null, true, 21),
+  new Menu(29, 'View', '/login/viewApproval/approvalReport', null, 'visibility', null, false, 22),
+  new Menu(29, 'Excel', '/login/viewApproval/approvalReport/excellog', null, 'layers', null, false, 22),
+
   new Menu(23, 'Employee Report', '/login/employee-leave/balance', null, 'visibility', null, false, 21),
   new Menu(24, 'Leave Report', '/login/employee-leave/balance', null, 'visibility', null, false, 21),
   new Menu(24, 'Expense Report', '/login/viewApproval/expenses', null, 'visibility', null, false, 21),
