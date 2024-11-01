@@ -305,29 +305,29 @@ router.post('/download-excel', async (req, res) => {
     const worksheet = workbook.addWorksheet('My Data');
     const currentDate = new Date().toISOString().split('T')[0];
     const uniqueIdentifier = Date.now();  
-    const fileName = `ExcelReports/Payments/${currentDate}_${uniqueIdentifier}.xlsx`; 
+    const fileName = `ExcelReports/Proforma/${currentDate}_${uniqueIdentifier}.xlsx`; 
     const bucketName = process.env.AWS_BUCKET_NAME;
 
     worksheet.columns = [
       { header: 'PI NO', key: 'piNo', width: 10 },
       { header: 'PO NO', key: 'supplierPoNo', width: 10 },
-      { header: 'Supplier', key: 'supplier', width: 10 },
+      { header: 'Supplier', key: 'supplier', width: 20 },
       { header: 'Invoice NO', key: 'supplierSoNo', width: 10 },
-      { header: 'Amount', key: 'supplierPrice', width: 8 },
-      { header: 'Purpose', key: 'purpose', width: 5 },
-      { header: 'Customer', key: 'customer', width: 10 },
+      { header: 'Amount', key: 'supplierPrice', width: 10 },
+      { header: 'Purpose', key: 'purpose', width: 8 },
+      { header: 'Customer', key: 'customer', width: 20 },
       { header: 'CustomerSoNo', key: 'customerSoNo', width: 10 },
       { header: 'CustomerPoNo', key: 'customerPoNo', width: 10 },
-      { header: 'Payment Mode', key: 'paymentMode', width: 5 },
-      { header: 'Status', key: 'status', width: 8 },
-      { header: 'AddedBy', key: 'addedBy', width: 10 },
-      { header: 'Sales Person', key: 'salesPerson', width: 10 },
-      { header: 'KAM', key: 'kamName', width: 10 },
-      { header: 'AM', key: 'amName', width: 10 },
-      { header: 'Accountant', key: 'accountant', width: 10 },
+      { header: 'Payment Mode', key: 'paymentMode', width: 10 },
+      { header: 'Status', key: 'status', width: 10 },
+      { header: 'AddedBy', key: 'addedBy', width: 15 },
+      { header: 'Sales Person', key: 'salesPerson', width: 15 },
+      { header: 'KAM', key: 'kamName', width: 15 },
+      { header: 'AM', key: 'amName', width: 15 },
+      { header: 'Accountant', key: 'accountant', width: 15 },
       { header: 'Created Date', key: 'createdDate', width: 8 },
       { header: 'Updated Date', key: 'updatedDate', width: 8 },
-      { header: 'Attachments', key: 'url', width: 100 },
+      { header: 'Attachments', key: 'url', width: 80 },
       { header: 'Wire Slip', key: 'bankSlip', width: 50 },
       { header: 'Notes', key: 'notes', width: 50 },
     ];
@@ -370,7 +370,7 @@ router.post('/download-excel', async (req, res) => {
     };
 
     const excelLog = new ExcelLog ({ fromDate: startDate, toDate: endDate, status, userId: addedBy, 
-      downloadedDate: currentDate, fileName: fileName, invoiceNo });
+      downloadedDate: currentDate, fileName: fileName, invoiceNo, type: 'Proforma'  });
       await excelLog.save();
     const result = await s3.upload(paramsUploadNew).promise();
 

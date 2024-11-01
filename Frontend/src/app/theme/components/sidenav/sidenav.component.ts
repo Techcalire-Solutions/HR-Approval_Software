@@ -106,11 +106,16 @@ users:User;
       {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        (item.title === 'Payment Flow' && !item.parentId) ||
+        (item.title === 'Proforma' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5)||
         (item.title === 'Reports' && !item.parentId) ||
-        (item.title === 'Approval Report' && item.parentId === 21)||
-        (item.title === 'Expense Report' && item.parentId=== 21)
+        (item.title === 'Proforma' && item.parentId === 21) ||
+        (item.title === 'View' && item.parentId === 22) ||
+        (item.title === 'Excel' && item.parentId === 22) ||
+
+        (item.title === 'Expense' && item.parentId === 21)||
+        (item.title === 'View' && item.parentId === 24) ||
+        (item.title === 'Excel' && item.parentId === 24) 
 
       );
     } else if (
@@ -121,7 +126,7 @@ users:User;
     ) {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        (item.title === 'Payment Flow' && !item.parentId) ||
+        (item.title === 'Proforma' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5)||
         (item.title === 'Add' && item.parentId === 5) ||
         (item.title === 'Expense' && !item.parentId) ||
@@ -145,7 +150,7 @@ users:User;
     ) {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        (item.title === 'Payment Flow' && !item.parentId) ||
+        (item.title === 'Proforma' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5) ||
         (item.title === 'Excel' && item.parentId === 5) ||
         
@@ -212,7 +217,7 @@ users:User;
         (item.title === 'Directory' && item.parentId === 3) ||
         (item.title === 'Confirmation' && item.parentId === 3) ||
         // item.title === 'Team' ||
-        (item.title === 'Payment Flow' && !item.parentId) ||
+        (item.title === 'Proforma' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5) ||
         (item.title === 'Leave' && !item.parentId) ||
         (item.title === 'Calendar' && item.parentId === 8) ||
@@ -226,12 +231,15 @@ users:User;
         (item.title === 'YTD Reports' && item.parentId === 13)||
 
         (item.title === 'Reports' && !item.parentId) ||
-        (item.title === 'Approval Report' && item.parentId === 21) ||
+        (item.title === 'Proforma' && item.parentId === 21) ||
         (item.title === 'View' && item.parentId === 22) ||
         (item.title === 'Excel' && item.parentId === 22) ||
 
-        (item.title === 'Leave Report' && item.parentId === 21)||
-        (item.title === 'Expense Report' && item.parentId === 21)
+        (item.title === 'Expense' && item.parentId === 21)||
+        (item.title === 'View' && item.parentId === 24) ||
+        (item.title === 'Excel' && item.parentId === 24) ||
+
+        (item.title === 'Leave Report' && item.parentId === 21)
 
       );
 

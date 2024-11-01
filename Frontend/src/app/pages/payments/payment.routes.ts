@@ -13,9 +13,10 @@ export const routes: Routes = [
       { path: 'updatePI/:id', loadComponent: () => import('./update-pi/update-pi.component').then(c => c.UpdatePIComponent),
         data: { breadcrumb: 'Update' }, canActivate: [AuthGuard]
       },
+
       {
         path: 'approvalReport',
-        data: { breadcrumb: 'Report' },
+        data: { breadcrumb: 'Proforma Report' },
         children: [
           {
             path: '',
@@ -35,12 +36,13 @@ export const routes: Routes = [
                 path: 'openexcel',
                 loadComponent: () => import('./approval-report/view-excel-report/view-excel-report.component')
                   .then(c => c.ViewExcelReportComponent),
-                canActivate: [AuthGuard], data: { breadcrumb: 'Report' },
+                canActivate: [AuthGuard], data: { breadcrumb: 'Open' },
               }
             ]
           }
         ]
       },
+
       {
         path: 'addapproval',
         loadComponent: () => import('./add-approval/add-approval.component').then(c => c.AddApprovalComponent),
@@ -80,6 +82,35 @@ export const routes: Routes = [
           loadComponent: () => import('./expense/open-expense/open-expense.component').then(c => c.OpenExpenseComponent),
           data: { breadcrumb: 'Open' }, canActivate: [AuthGuard]
         },
+      ]
+    },
+
+    {
+      path: 'expensereport',
+      data: { breadcrumb: 'Expense Report' },
+      children: [
+        {
+          path: '',
+          loadComponent: () => import('./expense-reports/expense-reports.component')
+            .then(c => c.ExpenseReportsComponent),
+          canActivate: [AuthGuard] 
+        },
+        {
+          path: 'excellog', data: { breadcrumb: 'Excel' }, children: [
+            {
+              path: '',
+              loadComponent: () => import('./expense-reports/expense-excel-log/expense-excel-log.component')
+                .then(c => c.ExpenseExcelLogComponent),
+              canActivate: [AuthGuard] 
+            },
+            {
+              path: 'openexcel',
+              loadComponent: () => import('./expense-reports/expense-excel/expense-excel.component')
+                .then(c => c.ExpenseExcelComponent),
+              canActivate: [AuthGuard], data: { breadcrumb: 'Open' },
+            }
+          ]
+        }
       ]
     },
 

@@ -8,7 +8,8 @@ const ExcelLog = sequelize.define('excelLog',{
     status : {type : DataTypes.STRING, defaultValue : true},
     userId: {type : DataTypes.INTEGER},
     downloadedDate : {type : DataTypes.DATEONLY, allowNull: false},
-    fileName: {type : DataTypes.STRING, allowNull: false}
+    fileName: {type : DataTypes.STRING, allowNull: false},
+    type: {type : DataTypes.STRING},
 },
 {
     freezeTableName: true,
