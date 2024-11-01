@@ -81,8 +81,7 @@
 
         <mat-card-content>
             <div formArrayName="url">
-                @for (uploadForm of doc().controls; track $index; let i = $index;) {
-                  <div [formGroupName]="i" class="form-instance">
+                  <div *ngFor="let uploadForm of doc().controls; let i = index" [formGroupName]="i" class="form-instance">
                     <div class="form-row" style="margin-top: 20px;">
                       <div class="col">
                         <mat-form-field class="w-100" appearance="outline">
@@ -108,11 +107,7 @@
                       } @else if(imageUrl[i] && !savedImageUrl[i]){
                         <div class="col">
                           <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
-                            @if(fileType[i] === 'pdf'){
-                              <iframe [src]="imageUrl[i] | safe" width="100%" height="300px"></iframe>
-                            }@else {
-                              <img [src]="imageUrl[i]" alt="Image" title="Image" height="100" width="100" class="clickable-image" />
-                            }
+                            <iframe [src]="imageUrl[i] | safe" width="100%" height="300px"></iframe>
                             <mat-icon style="color: red;" (click)="onDeleteImage(i)">delete</mat-icon>
                           </div>
                         </div>
@@ -124,7 +119,6 @@
                       }
                     </div>
                   </div>
-                }
                 <button mat-raised-button color="primary" (click)="addDoc()" type="button"
                 [disabled]="!isImageUploaded()">New Doc</button>
               </div>

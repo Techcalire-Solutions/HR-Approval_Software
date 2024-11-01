@@ -1,4 +1,4 @@
-import { Component, inject, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, ViewEncapsulation } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { InvoiceService } from '@services/invoice.service';
 import { LoginService } from '@services/login.service';
@@ -18,12 +18,13 @@ import { ReactiveFormsModule, FormBuilder, Validators, FormArray, FormGroup } fr
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SafePipe } from '../../../common/safe.pipe';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-update-pi',
   standalone: true,
   imports: [ ReactiveFormsModule, MatFormFieldModule,  MatCardModule,  MatToolbarModule,  MatButtonModule, MatIconModule,
-    MatSelectModule, MatInputModule, SafePipe],
+    MatSelectModule, MatInputModule, SafePipe, CommonModule],
   templateUrl: './update-pi.component.html',
   styleUrl: './update-pi.component.scss',
   encapsulation: ViewEncapsulation.None
@@ -103,6 +104,7 @@ export class UpdatePIComponent {
   addDoc(data?:any){
     this.doc().push(this.newDoc(data));
     this.clickedForms.push(false);
+    this.cdr.detectChanges();
   }
 
   newDoc(initialValue?: any): FormGroup {
@@ -112,29 +114,17 @@ export class UpdatePIComponent {
     });
   }
 
-  deleteUploadSub!: Subscription;
+  deleteUploadSub!: Subscription;  
+  private cdr = inject(ChangeDetectorRef) 
   removeData(index: number) {
-    const formGroup = this.doc().at(index).value;
-    if (formGroup.url !== null) {
-      this.deleteUploadSub = this.invoiceService.deleteUploadByurl(formGroup.url).subscribe({
-        next: (response) => {
-          const control = this.doc().at(index).get('url');
-          if (control) {
-            control.setValue('');
-            this.imageUrl[index] = '';
-            this.newImageUrl[index] = '';
-          }
-          this.doc().removeAt(index);
-        },
-        error: (error) => {
-          console.error('Error during update:', error);
-        }
-      });
+    if (index >= 0 && index < this.doc().length) {
+        this.doc().removeAt(index);
+        this.imageUrl.splice(index, 1);      
+        this.newImageUrl.splice(index, 1); 
     } else {
-      this.doc().removeAt(index);
+        console.warn(`Index ${index} is out of bounds for removal`);
     }
   }
-
 
   id!: number;
   ngOnInit(): void {
@@ -254,7 +244,6 @@ export class UpdatePIComponent {
 
           this.upload = updateMethod.subscribe({
               next: (invoice: any) => {
-                console.log(invoice)
                   const piNo = invoice?.piNo;
 
                   if (piNo) {
@@ -317,6 +306,7 @@ export class UpdatePIComponent {
     this.deleteSub = this.invoiceService.deleteUploaded(this.route.snapshot.params['id'], i).subscribe(data=>{
       this.newImageUrl[i] = '';
       this.imageUrl[i] = '';
+      const control = this.doc().at(i).get('url')?.setValue('');
       this.snackBar.open("Document is deleted successfully...","" ,{duration:3000})
       this.isImageUploaded()
     });
@@ -326,6 +316,7 @@ export class UpdatePIComponent {
   onDeleteImage(i: number){
     this.deleteImageSub = this.invoiceService.deleteUploadByurl(this.newImageUrl[i]).subscribe(data=>{
       this.newImageUrl[i] = ''
+      this.imageUrl[i] = ''
         this.doc().at(i).get('docUrl')?.setValue('');
       this.snackBar.open("Document is deleted successfully...","" ,{duration:3000})
     });
@@ -334,8 +325,7 @@ export class UpdatePIComponent {
   imageUploaded: boolean
   isImageUploaded(): boolean {
     const controls = this.piForm.get('url')as FormArray;
-
-    if( controls.length === 0) {return true;}
+    if( controls.length === 0) { return true}
     let i = controls.length - 1;
     if (this.imageUrl[i] || this.newImageUrl[i]) {
       return true;

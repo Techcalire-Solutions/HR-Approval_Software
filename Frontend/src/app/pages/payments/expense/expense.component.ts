@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -145,35 +145,6 @@ export class ExpenseComponent implements OnInit{
     });
   }
 
-
-  deleteUploadSub!: Subscription;
-  removeData(index: number) {
-    const formGroup = this.doc().at(index).value;
-    
-    if (formGroup.url !== null) {
-      this.deleteUploadSub = this.expenseService.deleteUploadByurl(formGroup.url).subscribe({
-        next: (response) => {
-          console.log(response);
-          
-          const control = this.doc().at(index).get('url');
-          console.log(control);
-          
-          if (control) {
-            control.setValue('');
-            this.imageUrl[index] = '';
-            this.savedImageUrl[index] = '';
-          }
-          this.doc().removeAt(index);
-        },
-        error: (error) => {
-          console.error('Error during update:', error);
-        }
-      });
-    } else {
-      this.doc().removeAt(index);
-    }
-  }
-
   isImageUploaded(): boolean {
     const controls = this.expenseForm.get('url') as FormArray;
     
@@ -186,11 +157,13 @@ export class ExpenseComponent implements OnInit{
     return this.imageUrl[lastIndex] ? true : false;
   }
   
+
   index!: number;
   clickedForms: boolean[] = [];
   addDoc(data?:any){
     this.doc().push(this.newDoc(data));
     this.clickedForms.push(false);
+    this.cdr.detectChanges();
   }
 
   newDoc(initialValue?: any): FormGroup {
@@ -198,6 +171,18 @@ export class ExpenseComponent implements OnInit{
       url: [initialValue?initialValue.url : '', Validators.required],
       remarks: [initialValue?initialValue.remarks : ''],
     });
+  }
+
+  deleteUploadSub!: Subscription;  
+  private cdr = inject(ChangeDetectorRef) 
+  removeData(index: number) {
+    if (index >= 0 && index < this.doc().length) {
+        this.doc().removeAt(index);
+        this.imageUrl.splice(index, 1);      
+        this.savedImageUrl.splice(index, 1); 
+    } else {
+        console.warn(`Index ${index} is out of bounds for removal`);
+    }
   }
 
   invSub!: Subscription;
