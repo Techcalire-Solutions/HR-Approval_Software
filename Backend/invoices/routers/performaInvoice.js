@@ -1600,7 +1600,7 @@ router.patch('/updatePIByAdminSuperAdmin/:id', authenticateToken, async(req, res
         const piId = pi.id;
         
         const piStatus = new PerformaInvoiceStatus({
-            performaInvoiceId: piId, date: new Date(), count: count
+            performaInvoiceId: piId, date: new Date(), count: count, status:pi.status
         })
         await piStatus.save();
 
