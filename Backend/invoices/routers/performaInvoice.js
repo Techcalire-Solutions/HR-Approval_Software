@@ -343,7 +343,7 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
             if (!recipientEmail) {
               return res.send("KAM project email is missing. \n Please inform the admin to add it.");
             }
-        } else if(paymentMode === 'CreditCard'){
+        } else{
           
            const accountant = await UserPosition.findOne({where:{userId:accountantId}})
             recipientEmail = accountant ? accountant.projectMailId:null;
