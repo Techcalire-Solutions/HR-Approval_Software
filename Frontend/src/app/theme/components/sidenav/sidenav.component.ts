@@ -115,7 +115,7 @@ users:User;
 
         (item.title === 'Expense' && item.parentId === 21)||
         (item.title === 'View' && item.parentId === 24) ||
-        (item.title === 'Excel' && item.parentId === 24) 
+        (item.title === 'Excel' && item.parentId === 24)
 
       );
     } else if (
@@ -131,14 +131,14 @@ users:User;
         (item.title === 'Add' && item.parentId === 5) ||
         (item.title === 'Expense' && !item.parentId) ||
         (item.title === 'Add' && item.parentId === 26) ||
-        (item.title === 'View' && item.parentId === 26)||
-        (item.title === 'Leave' && !item.parentId)||
-        (item.title === 'Leave' && !item.parentId)||
-        (item.title === 'Apply Leave' && item.parentId === 8) ||
-        (item.title === 'Leave Balance' && item.parentId === 8)||
-        (item.title === 'Payroll' && !item.parentId) ||
-        (item.title === 'Payslip' && item.parentId === 13) ||
-        (item.title === 'Pay Details' && item.parentId === 13)
+        (item.title === 'View' && item.parentId === 26)
+        // (item.title === 'Leave' && !item.parentId)||
+        // (item.title === 'Leave' && !item.parentId)||
+        // (item.title === 'Apply Leave' && item.parentId === 8) ||
+        // (item.title === 'Leave Balance' && item.parentId === 8)||
+        // (item.title === 'Payroll' && !item.parentId) ||
+        // (item.title === 'Payslip' && item.parentId === 13) ||
+        // (item.title === 'Pay Details' && item.parentId === 13)
 
       );
     }
@@ -153,18 +153,18 @@ users:User;
         (item.title === 'Proforma' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5) ||
         (item.title === 'Excel' && item.parentId === 5) ||
-        
+
         (item.title === 'Expense' && !item.parentId) ||
         (item.title === 'Add' && item.parentId === 26) ||
-        (item.title === 'View' && item.parentId === 26)||
+        (item.title === 'View' && item.parentId === 26)
 
-        (item.title === 'Leave' && !item.parentId)||
-        (item.title === 'Apply Leave' && item.parentId === 8) ||
-        (item.title === 'Leave Balance' && item.parentId === 8)||
-        (item.title === 'Payroll' && !item.parentId) ||
-        (item.title === 'Advance Salary' && item.parentId === 13) ||
-        (item.title === 'Payslip' && item.parentId === 13) ||
-        (item.title === 'Pay Details' && item.parentId === 13)
+        // (item.title === 'Leave' && !item.parentId)||
+        // (item.title === 'Apply Leave' && item.parentId === 8) ||
+        // (item.title === 'Leave Balance' && item.parentId === 8)||
+        // (item.title === 'Payroll' && !item.parentId) ||
+        // (item.title === 'Advance Salary' && item.parentId === 13) ||
+        // (item.title === 'Payslip' && item.parentId === 13) ||
+        // (item.title === 'Pay Details' && item.parentId === 13)
 
       );
     }
@@ -174,16 +174,16 @@ users:User;
         item.title === 'Dashboard' ||
         (item.title === 'Expense' && !item.parentId) ||
         (item.title === 'Add' && item.parentId === 26) ||
-        (item.title === 'View' && item.parentId === 26)||
-        
-        (item.title === 'Leave' && !item.parentId) ||
-        (item.title === 'Leave' && !item.parentId)||
-        (item.title === 'Apply Leave' && item.parentId === 8) ||
-        (item.title === 'Leave Balance' && item.parentId === 8)||
-        (item.title === 'Payroll' && !item.parentId) ||
-        (item.title === 'Advance Salary' && item.parentId === 13) ||
-        (item.title === 'Payslip' && item.parentId === 13) ||
-        (item.title === 'Pay Details' && item.parentId === 13)
+        (item.title === 'View' && item.parentId === 26)
+
+        // (item.title === 'Leave' && !item.parentId) ||
+        // (item.title === 'Leave' && !item.parentId)||
+        // (item.title === 'Apply Leave' && item.parentId === 8) ||
+        // (item.title === 'Leave Balance' && item.parentId === 8)||
+        // (item.title === 'Payroll' && !item.parentId) ||
+        // (item.title === 'Advance Salary' && item.parentId === 13) ||
+        // (item.title === 'Payslip' && item.parentId === 13) ||
+        // (item.title === 'Pay Details' && item.parentId === 13)
       );
 
     }
@@ -194,18 +194,18 @@ users:User;
         // item.title === 'Role' ||
         (item.title === 'Employee' && !item.parentId) ||
         (item.title === 'Directory' && item.parentId === 3) ||
-        (item.title === 'Confirmation' && item.parentId === 3) ||
+        (item.title === 'Confirmation' && item.parentId === 3)
         // item.title === 'Team' ||
-        (item.title === 'Leave' && !item.parentId) ||
-        (item.title === 'Calendar' && item.parentId === 8) ||
-        (item.title === 'View' && item.parentId === 8) ||
-        (item.title === 'User Leave' && item.parentId === 8) ||
-        (item.title === 'Emergency' && item.parentId === 8) ||
-        (item.title === 'Payroll' && !item.parentId) ||
-        (item.title === 'Advance Salary' && item.parentId === 13) ||
-        (item.title === 'Process Payroll' && item.parentId === 13) ||
-        (item.title === 'Salary Statement' && item.parentId === 13) ||
-        (item.title === 'YTD Reports' && item.parentId === 13)
+        // (item.title === 'Leave' && !item.parentId) ||
+        // (item.title === 'Calendar' && item.parentId === 8) ||
+        // (item.title === 'View' && item.parentId === 8) ||
+        // (item.title === 'User Leave' && item.parentId === 8) ||
+        // (item.title === 'Emergency' && item.parentId === 8) ||
+        // (item.title === 'Payroll' && !item.parentId) ||
+        // (item.title === 'Advance Salary' && item.parentId === 13) ||
+        // (item.title === 'Process Payroll' && item.parentId === 13) ||
+        // (item.title === 'Salary Statement' && item.parentId === 13) ||
+        // (item.title === 'YTD Reports' && item.parentId === 13)
       );
     }
     else if (role === 'Super Administrator') {
@@ -219,16 +219,16 @@ users:User;
         // item.title === 'Team' ||
         (item.title === 'Proforma' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5) ||
-        (item.title === 'Leave' && !item.parentId) ||
-        (item.title === 'Calendar' && item.parentId === 8) ||
-        (item.title === 'View' && item.parentId === 8) ||
-        (item.title === 'User Leave' && item.parentId === 8) ||
-        (item.title === 'Emergency' && item.parentId === 8) ||
-        (item.title === 'Payroll' && !item.parentId) || 
-        (item.title === 'Advance Salary' && item.parentId === 13) ||
-        (item.title === 'Process Payroll' && item.parentId === 13) ||
-        (item.title === 'Salary Statement' && item.parentId === 13) ||
-        (item.title === 'YTD Reports' && item.parentId === 13)||
+        // (item.title === 'Leave' && !item.parentId) ||
+        // (item.title === 'Calendar' && item.parentId === 8) ||
+        // (item.title === 'View' && item.parentId === 8) ||
+        // (item.title === 'User Leave' && item.parentId === 8) ||
+        // (item.title === 'Emergency' && item.parentId === 8) ||
+        // (item.title === 'Payroll' && !item.parentId) ||
+        // (item.title === 'Advance Salary' && item.parentId === 13) ||
+        // (item.title === 'Process Payroll' && item.parentId === 13) ||
+        // (item.title === 'Salary Statement' && item.parentId === 13) ||
+        // (item.title === 'YTD Reports' && item.parentId === 13)||
 
         (item.title === 'Reports' && !item.parentId) ||
         (item.title === 'Proforma' && item.parentId === 21) ||
@@ -237,9 +237,9 @@ users:User;
 
         (item.title === 'Expense' && item.parentId === 21)||
         (item.title === 'View' && item.parentId === 24) ||
-        (item.title === 'Excel' && item.parentId === 24) ||
+        (item.title === 'Excel' && item.parentId === 24)
 
-        (item.title === 'Leave Report' && item.parentId === 21)
+        // (item.title === 'Leave Report' && item.parentId === 21)
 
       );
 

@@ -1234,7 +1234,7 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
 
         await Notification.create({
             userId: notificationRecipientId,
-            message: `New Payment Request Generated ${pi.piNo} / ${supplierPoNo}`,
+            message: `Payment Request updated ${pi.piNo} / ${supplierPoNo}`,
             isRead: false,
         });
 
@@ -1386,7 +1386,7 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
         await transporter.sendMail(mailOptions);
         await Notification.create({
             userId: notificationRecipientId,
-            message: `New Payment Request Generated ${piNo} / ${supplierPoNo}`,
+            message: `Payment Request Updated ${piNo} / ${supplierPoNo}`,
             isRead: false,
         });
 
@@ -1553,7 +1553,7 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
 
     await Notification.create({
         userId: notificationRecipientId,
-        message: `New Payment Request Generated ${pi.piNo} / ${supplierPoNo}`,
+        message: `Payment Request Updated ${pi.piNo} / ${supplierPoNo}`,
         isRead: false,
     });
 
@@ -1600,7 +1600,7 @@ router.patch('/updatePIByAdminSuperAdmin/:id', authenticateToken, async(req, res
         const piId = pi.id;
         
         const piStatus = new PerformaInvoiceStatus({
-            performaInvoiceId: piId, date: new Date(), count: count
+            performaInvoiceId: piId, date: new Date(), count: count, status:pi.status
         })
         await piStatus.save();
 

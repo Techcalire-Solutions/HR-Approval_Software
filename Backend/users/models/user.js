@@ -29,8 +29,8 @@ Role.hasMany(User, { foreignKey: 'roleId', onUpdate: 'CASCADE' });
 User.belongsTo(Role);
 
 
-// User.sync({ alter: true })
-//   .then(() => console.log("User table synced successfully"))
-//   .catch((err) => console.log("Error syncing User table:", err));
+User.sync({ alter: true })
+  .then(() => console.log("User table synced successfully"))
+  .catch((err) => console.log("Error syncing User table:", err));
 
 module.exports = User;
