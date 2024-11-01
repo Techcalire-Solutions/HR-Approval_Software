@@ -3,6 +3,7 @@ const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const UserAccount = require('../models/userAccount');
 const UserPosition = require('../models/userPosition');
+const User = require('../models/user')
 
 router.post('/add', authenticateToken, async (req, res) => {
   const { userId, division, costCentre, grade, designation, location, department, office, salary, probationPeriod, 
@@ -31,7 +32,12 @@ router.post('/add', authenticateToken, async (req, res) => {
 
 router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
   try {
-    const user = await UserPosition.findOne({where: {userId: req.params.id}})
+    const user = await UserPosition.findOne({where: {userId: req.params.id},
+    include:[{
+      model :User,
+      attributes : ['name']
+    }
+    ]})
 
     res.send(user)
   } catch (error) {

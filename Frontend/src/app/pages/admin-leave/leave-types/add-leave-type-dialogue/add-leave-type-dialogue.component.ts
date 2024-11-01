@@ -16,7 +16,6 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { LeaveService } from '@services/leave.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
-import { SafePipe } from '../../../add-approval/view-invoices/safe.pipe';
 import { LeaveType } from '../../../../common/interfaces/leaveType';
 import { Subscription } from 'rxjs';
 @Component({
@@ -34,7 +33,7 @@ import { Subscription } from 'rxjs';
     MatSelectModule,
     MatInputModule,
     MatProgressBarModule,
-    MatProgressSpinnerModule, SafePipe,
+    MatProgressSpinnerModule,
     MatDialogModule],
     providers: [DatePipe],
   templateUrl: './add-leave-type-dialogue.component.html',

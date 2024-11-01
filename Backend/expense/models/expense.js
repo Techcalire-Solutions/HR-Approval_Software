@@ -14,7 +14,8 @@ const Expense = sequelize.define('expense',{
     count: {type : DataTypes.INTEGER, defaultValue: 1},
     notes:  { type: DataTypes.TEXT },
     totalAmount: {type : DataTypes.FLOAT, allowNull : false},
-    currency: {type : STRING, allowNull : false}
+    currency: {type : STRING, allowNull : false},
+    addedById: { type: DataTypes.INTEGER },
 },
 
 {

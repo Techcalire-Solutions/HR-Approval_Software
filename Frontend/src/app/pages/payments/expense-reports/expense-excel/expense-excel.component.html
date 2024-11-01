@@ -1,0 +1,8 @@
+<div class="date-picker-container" style="display: flex; align-items: center; margin-top: 10px;">
+    <button mat-raised-button color="primary" style="margin-left: auto;" (click)="downloadExcel()">Download Excel</button>
+</div>
+
+<div class="pdf-container" style="margin-top: 10px;">
+    <iframe [src]="excelUrl" width="100%" height="600px"></iframe>
+</div>
+  

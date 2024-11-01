@@ -1,42 +1,37 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { InvoiceService } from '@services/invoice.service';
-
-import { SafePipe } from "../view-invoices/safe.pipe";
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { DatePipe } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatButtonModule } from '@angular/material/button';
+import { DatePipe } from '@angular/common';
+import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
+import { InvoiceService } from '@services/invoice.service';
+import { ActivatedRoute } from '@angular/router';
+import { SafePipe } from '../../../../common/safe.pipe';
 
 @Component({
-  selector: 'app-view-excel',
+  selector: 'app-view-excel-report',
   standalone: true,
   imports: [SafePipe, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatButtonModule],
-  templateUrl: './view-excel.component.html',
-  styleUrl: './view-excel.component.scss',
+  templateUrl: './view-excel-report.component.html',
+  styleUrl: './view-excel-report.component.scss',
   providers: [DatePipe]
 })
-export class ViewExcelComponent implements OnInit {
+export class ViewExcelReportComponent {
+  private route = inject(ActivatedRoute);
   excelUrl: SafeResourceUrl;
   datePipe = inject(DatePipe);
+  fileName: string;
   ngOnInit(): void {
-    this.newDate = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
-    this.getExcel(this.newDate)
+    this.route.queryParams.subscribe(params => {
+      this.fileName = params['name'];
+      this.getExcel(this.fileName)
+    });
   }
-
-  newDate: any
-  onDateChange(event: any): void {
-    const selectedDate = event.value;
-    this.newDate = this.datePipe.transform(selectedDate, 'yyyy-MM-dd');
-    this.getExcel(this.newDate)
-  }
-
-  getExcel(date: any) {
-    const rawFileUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/PaymentExcel/${date}.xlsx?cache-bust=${new Date().getTime()}`;
-
-    // const rawFileUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/PaymentExcel/${date}.xlsx`;
+  
+  getExcel(fileName: any) {
+    const rawFileUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${fileName}`;
     const fileUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(rawFileUrl)}`;
     this.excelUrl = this.sanitizeUrl(fileUrl);
   }
@@ -44,11 +39,12 @@ export class ViewExcelComponent implements OnInit {
   sanitizeUrl(url: string): SafeResourceUrl {
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
+  
   invoiceService = inject(InvoiceService);
   private sanitizer = inject(DomSanitizer);
 
   async downloadExcel(): Promise<void> {
-    const fileUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/PaymentExcel/${this.newDate}.xlsx`; // Your file URL
+    const fileUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${this.fileName}`; // Your file URL
     try {
       const response = await fetch(fileUrl);
 
@@ -79,7 +75,4 @@ export class ViewExcelComponent implements OnInit {
       console.error('Download failed', error);
     }
   }
-
-
-
 }
