@@ -16,12 +16,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoleService } from '@services/role.service';
 import { SafePipe } from '../../../common/safe.pipe';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-expense',
   standalone: true,
   imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatCardModule, MatButtonModule, MatIconModule, SafePipe,
-    MatOptionModule, MatSelectModule
+    MatOptionModule, MatSelectModule, CommonModule
   ],
   templateUrl: './expense.component.html',
   styleUrl: './expense.component.scss'
