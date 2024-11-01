@@ -201,41 +201,39 @@
       </form>
       <form [formGroup]="piForm" enctype="multipart/form-data">
         <div formArrayName="url">
-          @for (uploadForm of doc().controls; track $index; let i = $index;) {
-            <div [formGroupName]="i" class="form-instance">
-              <div class="row" style="margin-top: 20px;">
-                <div class="col">
-                  <mat-form-field class="w-100" appearance="outline">
-                    <mat-label>Document Remarks</mat-label>
-                    <input matInput formControlName="remarks">
-                  </mat-form-field>
-                </div>
-
-                @if(!imageUrl[i]){
-                  <div class="col">
-                    <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">
-                    <mat-icon (click)="fileInput.click()">cloud_upload</mat-icon>
-                    <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
-                  </div>
-                }
-                @else{
-                  <div class="col">
-                    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
-                      @if(fileType[i] === 'pdf'){
-                        <iframe [src]="imageUrl[i] | safe" width="100%" height="300px"></iframe>
-                      }@else {
-                        <img [src]="imageUrl[i]" alt="Image" title="Image" width="100%" height="300px" class="clickable-image" />
-                      }
-                      <mat-icon style="color: red;" (click)="onDeleteImage(i)">delete</mat-icon>
-                    </div>
-                  </div>
-                }
-                <button mat-icon-button color="warn" (click)="removeData(i)">
-                  <mat-icon>remove_circle</mat-icon>
-                </button>
+          <div *ngFor="let uploadForm of doc().controls; let i = index" [formGroupName]="i" class="form-instance">
+            <div class="row" style="margin-top: 20px;">
+              <div class="col">
+                <mat-form-field class="w-100" appearance="outline">
+                  <mat-label>Document Remarks</mat-label>
+                  <input matInput formControlName="remarks">
+                </mat-form-field>
               </div>
+
+              @if(!imageUrl[i]){
+                <div class="col">
+                  <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">
+                  <mat-icon (click)="fileInput.click()">cloud_upload</mat-icon>
+                  <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
+                </div>
+              }
+              @else{
+                <div class="col">
+                  <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+                    <iframe [src]="imageUrl[i] | safe" width="100%" height="300px"></iframe>
+                    <!-- @if(fileType[i] === 'pdf'){
+                    }@else {
+                      <img [src]="imageUrl[i]" alt="Image" title="Image" width="100%" height="300px" class="clickable-image" />
+                    } -->
+                    <mat-icon style="color: red;" (click)="onDeleteImage(i)">delete</mat-icon>
+                  </div>
+                </div>
+              }
+              <button mat-icon-button color="warn" (click)="removeData(i)">
+                <mat-icon>remove_circle</mat-icon>
+              </button>
             </div>
-          }
+          </div>
           <button mat-raised-button color="primary" (click)="addDoc()" [disabled]="!isImageUploaded()" >New Doc</button>
         </div>
       </form>

@@ -183,54 +183,56 @@
       </form>
       <form [formGroup]="piForm" enctype="multipart/form-data">
         <div formArrayName="url">
-          @for (uploadForm of doc().controls; track $index; let i = $index;) {
-            <div [formGroupName]="i" class="form-instance">
-              <div class="row" style="margin-top: 20px;">
+          <div *ngFor="let uploadForm of doc().controls; let i = index" [formGroupName]="i" class="form-instance">
+            <div class="row" style="margin-top: 20px;">
+              <div class="col">
+                <mat-form-field class="w-100" appearance="outline">
+                  <mat-label>Document Remarks</mat-label>
+                  <input matInput formControlName="remarks">
+                </mat-form-field>
+              </div>
+          
+              <ng-container *ngIf="!imageUrl[i] && !newImageUrl[i]">
                 <div class="col">
-                  <mat-form-field class="w-100" appearance="outline">
-                    <mat-label>Document Remarks</mat-label>
-                    <input matInput formControlName="remarks">
-                  </mat-form-field>
+                  <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">
+                  <mat-icon class="file-upload-icon" (click)="fileInput.click()">cloud_upload</mat-icon>
+                  <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
                 </div>
-
-                @if(!imageUrl[i] && !newImageUrl[i]){
-                  <div class="col">
-                    <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">
-                    <mat-icon class="file-upload-icon" (click)="fileInput.click()">cloud_upload</mat-icon>
-                    <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
+              </ng-container>
+              
+              <ng-container *ngIf="imageUrl[i] && !newImageUrl[i]">
+                <div class="col">
+                  <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+                    <iframe [src]="imageUrl[i].url | safe"></iframe>
+                    <mat-icon style="color: red;" (click)="onDeleteUploadedImage(i)">delete</mat-icon>
                   </div>
-                }
-                @else if(imageUrl[i] && !newImageUrl[i]){
-                  <div class="col">
-                    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
-                      <iframe [src]="imageUrl[i].url | safe"></iframe>
-                      <mat-icon style="color: red;" (click)="onDeleteUploadedImage(i)">delete</mat-icon>
-                    </div>
+                </div>
+              </ng-container>
+          
+              <ng-container *ngIf="!imageUrl[i] && newImageUrl[i]">
+                <div class="col">
+                  <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+                    <iframe [src]="newImageUrl[i] | safe" width="25%" height="150px"></iframe>
+                    <mat-icon style="color: red;" (click)="onDeleteImage(i)">delete</mat-icon>
                   </div>
-                } @else if(!imageUrl[i] && newImageUrl[i]){
-                  <div class="col">
-                    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
-                      @if(fileType[i] === 'pdf'){
-                        <iframe [src]="newImageUrl[i] | safe" width="100%" height="300px"></iframe>
-                      }@else {
-                        <img [src]="newImageUrl[i]" alt="Image" title="Image" height="100" width="100" class="clickable-image" />
-                      }
-                      <mat-icon style="color: red;" (click)="onDeleteImage(i)">delete</mat-icon>
-                    </div>
-                  </div>
-                }
-                <button mat-icon-button color="warn" (click)="removeData(i)">
+                </div>
+              </ng-container>
+          
+              <ng-container *ngIf="!newImageUrl[i] && !imageUrl[i]">
+                <button mat-icon-button color="warn" type="button" (click)="removeData(i)">
                   <mat-icon>remove_circle</mat-icon>
                 </button>
-              </div>
+              </ng-container>
             </div>
-          }
+          </div>
+          
           <button mat-raised-button color="primary" (click)="addDoc()" [disabled]="!isImageUploaded()">New Doc</button>
         </div>
       </form>
       <br>
       <button mat-raised-button type="button" color="primary" class="btn btn-success"
-        (click)="onUpdate()"  [disabled]="!piForm.valid || !isImageUploaded()"> UPDATE
+        (click)="onUpdate()"  
+        [disabled]="!piForm.valid || !isImageUploaded() || doc().length === 0"> UPDATE
       </button>
     </div>
   </mat-card-content>

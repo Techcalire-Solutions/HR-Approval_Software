@@ -39,11 +39,7 @@
         @else{
         <div class="col">
             <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
-            @if(fileType === 'pdf'){
                 <iframe [src]="imageUrl | safe" width="100%" height="300px"></iframe>
-            }@else {
-                <img [src]="imageUrl" alt="Image" title="Image" height="300px" class="clickable-image" />
-            }
 
             <mat-icon style="color: red;" (click)="onDeleteImage()">delete</mat-icon>
             </div>
