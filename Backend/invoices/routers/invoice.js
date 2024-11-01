@@ -13,7 +13,7 @@ const ExcelLog = require('../models/excelLog');
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).send({ message: 'No file uploaded' });
+      return res.send({ message: 'No file uploaded' });
     }
     const sanitizedFileName = req.body.name || req.file.originalname.replace(/[^a-zA-Z0-9]/g, '_');
 
@@ -34,13 +34,17 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
     // Replace only if fileUrl is valid
     const key = fileUrl ? fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
 
-    res.status(200).send({
+    res.send({
       message: 'File uploaded successfully',
       file: req.file,
       fileUrl: key // S3 URL of the uploaded file
     });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    if (err instanceof multer.MulterError) {
+      return res.json({ message: err.message });
+    } else if (err) {
+      return res.status(400).json({ message: err.message });
+    }
   }
 });
 
