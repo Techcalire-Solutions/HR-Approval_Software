@@ -72,6 +72,11 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         const accountantEmail = accountant ? accountant.projectMailId : null;
         const amEmail = am ? am.projectMailId : null;
 
+         
+          if (!salesPersonEmail || !kamEmail || !accountantEmail || !amEmail) {
+            return res.send('One or more project mail IDs not found.');
+        }
+
         let toEmail = null;
         let notificationMessage = '';
 
