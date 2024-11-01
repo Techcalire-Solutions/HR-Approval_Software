@@ -224,7 +224,7 @@
                       @if(fileType[i] === 'pdf'){
                         <iframe [src]="imageUrl[i] | safe" width="100%" height="300px"></iframe>
                       }@else {
-                        <img [src]="imageUrl[i]" alt="Image" title="Image" height="100" width="100" class="clickable-image" />
+                        <img [src]="imageUrl[i]" alt="Image" title="Image" width="100%" height="300px" class="clickable-image" />
                       }
                       <mat-icon style="color: red;" (click)="onDeleteImage(i)">delete</mat-icon>
                     </div>

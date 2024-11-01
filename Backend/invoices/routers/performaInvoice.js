@@ -343,10 +343,10 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
             if (!recipientEmail) {
               return res.send("KAM project email is missing. \n Please inform the admin to add it.");
             }
-        } else {
+        } else{
           
            const accountant = await UserPosition.findOne({where:{userId:accountantId}})
-            recipientEmail = accountant.projectMailId; 
+            recipientEmail = accountant ? accountant.projectMailId:null;
             notificationRecipientId =  accountantId;
             if(!recipientEmail){
                 return res.send("Accoutant project email is missing. \n Please inform the admin to add it.");
@@ -442,11 +442,11 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
 
         await transporter.sendMail(mailOptions);
 
-        await Notification.create({
-            userId: notificationRecipientId,
-            message: `New Payment Request Generated ${piNo} / ${supplierPoNo}`,
-            isRead: false,
-        });
+        // await Notification.create({
+        //     userId: notificationRecipientId,
+        //     message: `New Payment Request Generated ${piNo} / ${supplierPoNo}`,
+        //     isRead: false,
+        // });
         
 
         res.json({
