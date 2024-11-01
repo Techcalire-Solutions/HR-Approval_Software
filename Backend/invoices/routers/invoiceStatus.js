@@ -41,6 +41,28 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
             return res.status(404).send('Proforma Invoice does not have an associated file or the URL is invalid.');
         }
 
+        const [salesPerson, kam, am, accountant] = await Promise.all([
+            UserPosition.findOne({ where: { id: pi.salesPersonId } }),
+            UserPosition.findOne({ where: { id: kamId } }),
+            UserPosition.findOne({ where: { id: amId } }),
+            UserPosition.findOne({ where: { id: accountantId } }),
+        ]);
+    
+        try {
+            const salesPersonEmail = salesPerson ? salesPerson.projectMailId : null;
+            const kamEmail = kam ? kam.projectMailId : null;
+            const accountantEmail = accountant ? accountant.projectMailId : null;
+            const amEmail = am ? am.projectMailId : null;
+        
+        
+            if (!salesPersonEmail || !kamEmail || !accountantEmail || !amEmail) {
+                return res.send('One or more project mail IDs not found. No action will be taken.');
+            }
+        
+        } catch (error) {
+            res.send(error.message);
+        }
+
      
         const newStatus = new PerformaInvoiceStatus({
             performaInvoiceId,
@@ -60,22 +82,9 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
 
         console.log(pi);
       
-        const [salesPerson, kam, am, accountant] = await Promise.all([
-            UserPosition.findOne({ where: { id: pi.salesPersonId } }),
-            UserPosition.findOne({ where: { id: kamId } }),
-            UserPosition.findOne({ where: { id: amId } }),
-            UserPosition.findOne({ where: { id: accountantId } }),
-        ]);
+        
 
-        const salesPersonEmail = salesPerson ? salesPerson.projectMailId : null;
-        const kamEmail = kam ? kam.projectMailId : null;
-        const accountantEmail = accountant ? accountant.projectMailId : null;
-        const amEmail = am ? am.projectMailId : null;
 
-         
-          if (!salesPersonEmail || !kamEmail || !accountantEmail || !amEmail) {
-            return res.send('One or more project mail IDs not found.');
-        }
 
         let toEmail = null;
         let notificationMessage = '';
