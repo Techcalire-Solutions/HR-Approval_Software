@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -109,6 +109,7 @@ export class AddApprovalComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       this.getSuppliers()
+      this.getCustomers()
     })
   }
 
@@ -190,33 +191,30 @@ export class AddApprovalComponent {
     return this.piForm.get("url") as FormArray;
   }
 
+
   index!: number;
   clickedForms: boolean[] = [];
   addDoc(data?:any){
     this.doc().push(this.newDoc(data));
     this.clickedForms.push(false);
+    this.cdr.detectChanges();
   }
 
   newDoc(initialValue?: any): FormGroup {
     return this.fb.group({
-      url: [initialValue?initialValue.docUrl : '', Validators.required],
-      remarks: [initialValue?initialValue.docUrl : ''],
+      url: [initialValue?initialValue.url : '', Validators.required],
+      remarks: [initialValue?initialValue.remarks : ''],
     });
   }
 
+  deleteUploadSub!: Subscription;  
+  private cdr = inject(ChangeDetectorRef) 
   removeData(index: number) {
-    const formGroup = this.doc().at(index).value;
-    if (formGroup.url !== null) {
-      this.invoiceService.deleteUploadByurl(formGroup.url).subscribe({
-        next: (response) => {
-          this.doc().removeAt(index)
-        },
-        error: (error) => {
-          console.error('Error during update:', error);
-        }
-      });
+    if (index >= 0 && index < this.doc().length) {
+        this.doc().removeAt(index);
+        this.imageUrl.splice(index, 1);    
     } else {
-      this.doc().removeAt(index)
+        console.warn(`Index ${index} is out of bounds for removal`);
     }
   }
 
@@ -250,6 +248,7 @@ export class AddApprovalComponent {
 
         this.uploadSub = this.invoiceService.uploadInvoice(formData).subscribe({
             next: (invoice) => {
+              
                 this.doc().at(i).get('url')?.setValue(invoice.fileUrl);
                 this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${invoice.fileUrl}`;
             }
