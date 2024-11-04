@@ -1,5 +1,6 @@
-import { Component, Inject, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Component, inject } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
@@ -28,7 +29,7 @@ export class UserAssetsComponent {
 
   private route = inject(ActivatedRoute);
   ngOnInit(): void {
-    let id = this.route.snapshot.params['id'];
+    const id = this.route.snapshot.params['id'];
     this.getUserById(id)
   }
 
@@ -36,7 +37,11 @@ export class UserAssetsComponent {
   getUserById(id: number){
     this.userService.getUserPositionDetailsByUser(id).subscribe(position=>{
       console.log(position);
-      this.generateCode(position?.department)
+      if(position === null){
+        alert("Add department details...");
+        history.back();
+      }
+      this.generateCode(position?.department.abbreviation)
     });
   }
 
@@ -52,7 +57,16 @@ export class UserAssetsComponent {
   // Function to save user assets
   saveAssets() {
     console.log(this.rows);
-    
+    const data = {
+      userId: this.route.snapshot.params['id'],
+      assetCode: this.assetCode,
+      assets: this.rows
+    }
+    this.userService.addUserAssets(data).subscribe(asset => {
+      console.log(asset);
+      
+      this.snackbar.open("Assets saved successfully...","" ,{duration:3000})
+    })
   }
 
   // Function to remove a row
@@ -61,25 +75,23 @@ export class UserAssetsComponent {
   }
 
   private userService = inject(UsersService);
+  assetCode: string;
   generateCode(department?: string) {
-    let prefix: any;
+    let prefix: string;
     const currentYear = new Date().getFullYear();
     const twoDigitYear = currentYear.toString().slice(-2);
-    console.log(twoDigitYear)
 
     this.userService.getUserAssets(department).subscribe((res) => {
-      console.log(res);
+      const users = res;
+      console.log(users);
       
-      let users = res;
-
       if (users.length > 0) {
         const maxId = users.reduce((prevMax, inv) => {
-          const empNoParts = inv.empNo.split('-'); // Split by '-'
+          const empNoParts = inv.assetCode.split('-'); // Split by '-'
 
-          // Extract the numeric portion that represents the ID, assuming it's the last part
           const idNumber = parseInt(empNoParts[empNoParts.length - 1], 10);
 
-          prefix = this.extractLetters(inv.empNo); // Get the prefix
+          prefix = this.extractLetters(inv.assetCode); // Get the prefix
 
           if (!isNaN(idNumber)) {
             // Compare and return the maximum ID
@@ -89,25 +101,23 @@ export class UserAssetsComponent {
           }
         }, 0);
 
-        // Increment the maxId by 1 to get the next ID
-        let nextId = maxId + 1;
+        const nextId = maxId + 1;
 
-        const paddedId = `${prefix}-${currentYear}-${nextId.toString().padStart(3, "0")}`;
+        const paddedId = `${prefix}-${twoDigitYear}-${department}-${nextId.toString().padStart(3, "0")}`;
 
-        let ivNum = paddedId;
-        // this.invNo = ivNum;
-        // this.form.get('empNo')?.setValue(ivNum);
+        const ivNum = paddedId;
+        this.assetCode = ivNum;
+        this.form.get('assetCode')?.setValue(ivNum);
       } else {
-        // If there are no employees in the array, set the employeeId to 'EMP001'
-        let nextId = 0o1;
-        prefix =  `OAC-${currentYear}-`;
+        const nextId = 0o1;
+        prefix =  `OAC-${twoDigitYear}-${department}-`;
 
         const paddedId = `${prefix}${nextId.toString().padStart(3, "0")}`;
 
-        let ivNum = paddedId;
+        const ivNum = paddedId;
 
-        // this.form.get('envNo')?.setValue(ivNum);
-        // this.invNo = ivNum;
+        this.form.get('assetCode')?.setValue(ivNum);
+        this.assetCode = ivNum;
       }
     });
   }

@@ -1,5 +1,5 @@
 <div class="container">
-  <h2 class="title">User Assets</h2>
+  <h2 class="title">User Assets - {{assetCode}}</h2>
   <form [formGroup]="form" (ngSubmit)="addRow()" class="form">
     <div formGroupName="newRow" class="input-group">
       <input formControlName="identifierType" placeholder="Identifier Type" required class="input-field" />
