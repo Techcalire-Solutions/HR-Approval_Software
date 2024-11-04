@@ -110,7 +110,7 @@ export class ExpenseComponent implements OnInit{
     let file: any = input.files?.[0];
     let fileType = file.type.split('/')[1]
     if (!this.allowedFileTypes.includes(fileType)) {
-      alert('Invalid file type. Please select a PDF, JPEG, JPG, or PNG file.');
+      alert('Invalid file type. Please select a PDF, JPEG, JPG, DOCX, TXT or PNG file.');
       return;
     }
     if (file) {

@@ -244,7 +244,7 @@ export class AddApprovalComponent {
     console.log(this.fileType[i]);
     
     if (!this.allowedFileTypes.includes(this.fileType[i])) {
-      alert('Invalid file type. Please select a PDF, JPEG, JPG, or PNG file.');
+      alert('IInvalid file type. Please select a PDF, JPEG, JPG, DOCX, TXT or PNG file.');
       return;
     }
     if (file) {

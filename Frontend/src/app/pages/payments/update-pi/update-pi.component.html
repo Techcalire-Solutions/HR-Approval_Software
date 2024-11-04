@@ -15,11 +15,12 @@
     <div class="wrapper">
       <form [formGroup]="piForm">
         <mat-form-field appearance="outline">
-          <mat-label>InvoiceNo</mat-label>
+          <mat-label>EntryNo</mat-label>
           <input matInput placeholder="" formControlName="piNo" readonly="true">
         </mat-form-field>
 
         <mat-form-field appearance="outline">
+          <mat-label>Supplier</mat-label>
           <mat-select placeholder="Choose Supplier Name" formControlName="supplierId">
             @for(item of supplierCompanies; track $index){
               <mat-option [value]="item.id">
@@ -64,6 +65,7 @@
         @if(piForm.get('purpose')?.value === 'Customer'){
           <ng-container>
             <mat-form-field appearance="outline">
+              <mat-label>Customer</mat-label>
                 <mat-select placeholder="Choose Customer Name" formControlName="customerId">
                   @for(item of customerCompanies; track $index){
                     <mat-option [value]="item.id">
