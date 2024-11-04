@@ -15,11 +15,12 @@
     <div class="wrapper">
       <form [formGroup]="piForm">
         <mat-form-field appearance="outline">
-          <mat-label>InvoiceNo</mat-label>
+          <mat-label>EntryNo</mat-label>
           <input matInput placeholder="" formControlName="piNo" readonly="true">
         </mat-form-field>
 
         <mat-form-field appearance="outline">
+          <mat-label>Supplier</mat-label>
           <mat-select placeholder="Choose Supplier Name" formControlName="supplierId">
             @for(item of supplierCompanies; track $index){
               <mat-option [value]="item.id">
@@ -64,6 +65,7 @@
         @if(piForm.get('purpose')?.value === 'Customer'){
           <ng-container>
             <mat-form-field appearance="outline">
+              <mat-label>Customer</mat-label>
                 <mat-select placeholder="Choose Customer Name" formControlName="customerId">
                   @for(item of customerCompanies; track $index){
                     <mat-option [value]="item.id">
@@ -212,8 +214,13 @@
               <ng-container *ngIf="!imageUrl[i] && newImageUrl[i]">
                 <div class="col">
                   <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
-                    <iframe [src]="newImageUrl[i] | safe" width="25%" height="150px"></iframe>
-                    <mat-icon style="color: red;" (click)="onDeleteImage(i)">delete</mat-icon>
+                    @if (fileType[i] === 'vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                      <iframe [src]="'https://docs.google.com/viewer?url=' + imageUrl[i] + '&embedded=true' | safe"
+                        width="100%" height="300px">
+                      </iframe>
+                    }@else {
+                      <iframe [src]="imageUrl[i] | safe" width="100%" height="300px"></iframe>
+                    }
                   </div>
                 </div>
               </ng-container>

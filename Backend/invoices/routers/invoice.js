@@ -15,7 +15,10 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
     if (!req.file) {
       return res.send({ message: 'No file uploaded' });
     }
-    const sanitizedFileName = req.body.name || req.file.originalname.replace(/[^a-zA-Z0-9]/g, '_');
+    const originalFileName = req.file.originalname;
+    const fileType = originalFileName.split('.').pop(); // Extracts the file extension
+    const sanitizedFileName = (req.body.name || originalFileName.replace(/[^a-zA-Z0-9]/g, '_')).concat(`.${fileType}`);
+
 
     const params = {
       Bucket: process.env.AWS_BUCKET_NAME,

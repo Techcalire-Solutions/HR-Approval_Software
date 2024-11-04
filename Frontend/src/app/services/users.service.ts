@@ -198,4 +198,8 @@ export class UsersService {
     return this.http.get( this.apiUrl+'/user/resignemployee/' + id);
   }
 
+  getUserAssets(department?: string): Observable<User[]>{
+    return this.http.get<User[]>(this.apiUrl + `/asset/find?department=${department}`)
+  }
+
 }

@@ -102,11 +102,19 @@ export class ExpenseComponent implements OnInit{
 
   fileType: any[] = [];
   uploadSub!: Subscription;
-  imageUrl: any[] = [];
+  imageUrl: any[] = [];  
+  allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png', 'docx', 
+    'vnd.openxmlformats-officedocument.wordprocessingml.document', 'plain'];
   onFileSelected(event: Event, i: number): void {
     const input = event.target as HTMLInputElement;
     let file: any = input.files?.[0];
     this.fileType[i] = file.type.split('/')[1]
+    console.log(this.fileType[i]);
+    
+    if (!this.allowedFileTypes.includes(this.fileType[i])) {
+      alert('Invalid file type. Please select a PDF, JPEG, JPG, DOCX, TXT or PNG file.');
+      return;
+    }
     if (file) {
         let inv = this.ivNum;
         const name = `${inv}_${i}`;

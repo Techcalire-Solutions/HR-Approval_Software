@@ -156,12 +156,17 @@ export class UpdatePIComponent {
   fileType: any[] = [];
   uploadSub!: Subscription;
   imageUrl: any[] = [];
-  newImageUrl: any[] = [];
+  newImageUrl: any[] = [];  
+  allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png', 'docx', 
+    'vnd.openxmlformats-officedocument.wordprocessingml.document', 'plain'];
   onFileSelected(event: Event, i: number): void {
     const input = event.target as HTMLInputElement;
     let file: any = input.files?.[0];
-
-    this.fileType[i] = file.type.split('/')[1]
+    let fileType = file.type.split('/')[1]
+    if (!this.allowedFileTypes.includes(fileType)) {
+      alert('Invalid file type. Please select a PDF, JPEG, JPG, DOCX, TXT or PNG file.');
+      return;
+    }
     if (file) {
         let inv = this.piNo;
         const name = `${inv}_${i}`;

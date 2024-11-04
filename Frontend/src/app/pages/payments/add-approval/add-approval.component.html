@@ -16,13 +16,14 @@
     <div class="wrapper">
       <form [formGroup]="piForm">
         <mat-form-field appearance="outline">
-          <mat-label>InvoiceNo</mat-label>
+          <mat-label>EntryNo</mat-label>
           <input matInput placeholder="" formControlName="piNo" readonly="true">
         </mat-form-field>
         <!-- Control value: {{myControl.value || 'empty'}} -->
 
         @if(supplierCompanies) {
           <mat-form-field class="full-width" appearance="outline" >
+            <mat-label>Supplier</mat-label>
             <input matInput placeholder="Select Supplier" formControlName="supplierName" [matAutocomplete]="auto" (keyup)="search($event,'sup')">
             <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value,'sup')">
               <mat-option *ngFor="let suggestion of filteredOptions" [value]="suggestion">
@@ -73,6 +74,7 @@
           <ng-container>
             @if(customerCompanies) {
               <mat-form-field class="full-width" appearance="outline" >
+                <mat-label>Customer</mat-label>
                 <input matInput placeholder="Select Customer" formControlName="customerName" [matAutocomplete]="auto" (keyup)="search($event,'cust')">
                 <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value,'cust')">
                   <mat-option *ngFor="let suggestion of filteredCustomers" [value]="suggestion">
@@ -220,11 +222,13 @@
               @else{
                 <div class="col">
                   <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
-                    <iframe [src]="imageUrl[i] | safe" width="100%" height="300px"></iframe>
-                    <!-- @if(fileType[i] === 'pdf'){
+                    @if (fileType[i] === 'vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                      <iframe [src]="'https://docs.google.com/viewer?url=' + imageUrl[i] + '&embedded=true' | safe"
+                        width="100%" height="300px">
+                      </iframe>
                     }@else {
-                      <img [src]="imageUrl[i]" alt="Image" title="Image" width="100%" height="300px" class="clickable-image" />
-                    } -->
+                      <iframe [src]="imageUrl[i] | safe" width="100%" height="300px"></iframe>
+                    }
                     <mat-icon style="color: red;" (click)="onDeleteImage(i)">delete</mat-icon>
                   </div>
                 </div>
