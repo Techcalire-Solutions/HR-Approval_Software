@@ -13,6 +13,7 @@ import { Subscription } from 'rxjs/internal/Subscription';
 import { LeaveService } from '@services/leave.service';
 import { CommonModule } from '@angular/common';
 import { TimeAgoPipe } from '../pipes/time-ago.pipe';
+import { RoleService } from '@services/role.service';
 
 @Component({
   selector: 'app-messages',
@@ -51,6 +52,8 @@ export class MessagesComponent implements OnInit {
   notifiedUnreadIds: Set<string> = new Set();
   private audioContext: AudioContext;
   messagesService = inject(MessagesService)
+  userRole: string;
+  roleService = inject(RoleService)
 
 
   ngOnInit() {
@@ -63,8 +66,21 @@ export class MessagesComponent implements OnInit {
     this.meetings = this.messagesService.getMeetings();
     const token: any = localStorage.getItem('token');
     let user = JSON.parse(token);
+    let roleId = user.role
+    this.getRoleById(roleId)
     this.userId = user.id;
+    this.userRole = user.role.roleName;
+    console.log(this.userRole)
     this.getNotificationsForUser();
+
+   }
+
+   roleSub!: Subscription;
+   roleName!: string;
+   getRoleById(id: number){
+     this.roleSub = this.roleService.getRoleById(id).subscribe(role => {
+       this.roleName = role.roleName;
+     })
    }
 
   updateUnreadCount() {
@@ -84,8 +100,8 @@ export class MessagesComponent implements OnInit {
   }
 
 
-  messageNotfiSub:Subscription
-  getNotificationsForUser() {
+  // messageNotfiSub:Subscription
+  getNotificationsForUser2() {
    this.messageNotfiSub =  this.messagesService.getUserNotifications(this.userId).subscribe(
       (data: any) => {
         this.notifications = data.notifications || [];
@@ -98,7 +114,39 @@ export class MessagesComponent implements OnInit {
       }
     );
   }
+  messageNotfiSub: Subscription;
+  getNotificationsForUser() {
+    if (this.userRole === 'Super Administrator' || this.userRole === 'Administrator') {
 
+      console.log("Super Administrator")
+      // Fetch notifications for super admin or admin
+      this.messageNotfiSub = this.messagesService.getAllNotifications().subscribe(
+        (data: any) => {
+          console.log('API Response:', data);
+          this.notifications = data.notifications || [];
+
+          this.checkForNewNotifications(data);
+          this.updateUnreadCount();
+        },
+        (error) => {
+          console.error('Error fetching notifications for admin:', error);
+        }
+      );
+    } else {
+      // Fetch user-specific notifications
+      this.messageNotfiSub = this.messagesService.getUserNotifications(this.userId).subscribe(
+        (data: any) => {
+          console.log('API Response:', data);
+          this.notifications = data.notifications || [];
+          this.checkForNewNotifications(data);
+          this.updateUnreadCount();
+        },
+        (error) => {
+          console.error('Error fetching notifications:', error);
+        }
+      );
+    }
+  }
   checkForNewNotifications(newNotifications: any) {
     const extractedNotifications = newNotifications.notifications || [];
     if (!Array.isArray(extractedNotifications) || !Array.isArray(this.notifications)) {
