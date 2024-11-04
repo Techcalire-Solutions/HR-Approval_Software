@@ -16,13 +16,14 @@
     <div class="wrapper">
       <form [formGroup]="piForm">
         <mat-form-field appearance="outline">
-          <mat-label>InvoiceNo</mat-label>
+          <mat-label>EntryNo</mat-label>
           <input matInput placeholder="" formControlName="piNo" readonly="true">
         </mat-form-field>
         <!-- Control value: {{myControl.value || 'empty'}} -->
 
         @if(supplierCompanies) {
           <mat-form-field class="full-width" appearance="outline" >
+            <mat-label>Supplier</mat-label>
             <input matInput placeholder="Select Supplier" formControlName="supplierName" [matAutocomplete]="auto" (keyup)="search($event,'sup')">
             <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value,'sup')">
               <mat-option *ngFor="let suggestion of filteredOptions" [value]="suggestion">
@@ -73,6 +74,7 @@
           <ng-container>
             @if(customerCompanies) {
               <mat-form-field class="full-width" appearance="outline" >
+                <mat-label>Customer</mat-label>
                 <input matInput placeholder="Select Customer" formControlName="customerName" [matAutocomplete]="auto" (keyup)="search($event,'cust')">
                 <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value,'cust')">
                   <mat-option *ngFor="let suggestion of filteredCustomers" [value]="suggestion">
