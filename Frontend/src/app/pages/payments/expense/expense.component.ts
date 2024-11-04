@@ -108,8 +108,10 @@ export class ExpenseComponent implements OnInit{
   onFileSelected(event: Event, i: number): void {
     const input = event.target as HTMLInputElement;
     let file: any = input.files?.[0];
-    let fileType = file.type.split('/')[1]
-    if (!this.allowedFileTypes.includes(fileType)) {
+    this.fileType[i] = file.type.split('/')[1]
+    console.log(this.fileType[i]);
+    
+    if (!this.allowedFileTypes.includes(this.fileType[i])) {
       alert('Invalid file type. Please select a PDF, JPEG, JPG, DOCX, TXT or PNG file.');
       return;
     }
