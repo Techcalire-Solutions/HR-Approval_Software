@@ -220,11 +220,13 @@
               @else{
                 <div class="col">
                   <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
-                    <iframe [src]="imageUrl[i] | safe" width="100%" height="300px"></iframe>
-                    <!-- @if(fileType[i] === 'pdf'){
+                    @if (fileType[i] === 'vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                      <iframe [src]="'https://docs.google.com/viewer?url=' + imageUrl[i] + '&embedded=true' | safe"
+                        width="100%" height="300px">
+                      </iframe>
                     }@else {
-                      <img [src]="imageUrl[i]" alt="Image" title="Image" width="100%" height="300px" class="clickable-image" />
-                    } -->
+                      <iframe [src]="imageUrl[i] | safe" width="100%" height="300px"></iframe>
+                    }
                     <mat-icon style="color: red;" (click)="onDeleteImage(i)">delete</mat-icon>
                   </div>
                 </div>

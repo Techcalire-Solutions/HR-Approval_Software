@@ -212,7 +212,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   selectedTabIndex: number = 0;
   formSubmitted: boolean = true;
   isFormSubmitted: boolean = false;
-  isWorkFormSubmitted: boolean = true;
+  isWorkFormSubmitted: boolean = false;
   isContactsFormSubmitted: boolean = false;
   isSocialFormSubmitted: boolean = false;
   isAccountFormSubmitted: boolean = false;

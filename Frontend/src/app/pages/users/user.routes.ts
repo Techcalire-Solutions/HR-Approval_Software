@@ -19,5 +19,8 @@ export const routes: Routes = [
   },
   { path: 'payroll/:id',  loadComponent: () => import('../payroll/add-payroll/add-payroll.component').then(c => c.AddPayrollComponent),
     data: { breadcrumb: 'Payroll' }, canActivate: [AuthGuard]
+  },
+  { path: 'assets/:id',  loadComponent: () => import('../users/user-assets/user-assets.component').then(c => c.UserAssetsComponent),
+    data: { breadcrumb: 'Assests' }, canActivate: [AuthGuard]
   }
 ];

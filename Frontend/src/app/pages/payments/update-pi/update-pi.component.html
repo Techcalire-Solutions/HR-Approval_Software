@@ -212,8 +212,13 @@
               <ng-container *ngIf="!imageUrl[i] && newImageUrl[i]">
                 <div class="col">
                   <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
-                    <iframe [src]="newImageUrl[i] | safe" width="25%" height="150px"></iframe>
-                    <mat-icon style="color: red;" (click)="onDeleteImage(i)">delete</mat-icon>
+                    @if (fileType[i] === 'vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                      <iframe [src]="'https://docs.google.com/viewer?url=' + imageUrl[i] + '&embedded=true' | safe"
+                        width="100%" height="300px">
+                      </iframe>
+                    }@else {
+                      <iframe [src]="imageUrl[i] | safe" width="100%" height="300px"></iframe>
+                    }
                   </div>
                 </div>
               </ng-container>
