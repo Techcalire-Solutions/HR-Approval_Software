@@ -442,16 +442,16 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
 
         await transporter.sendMail(mailOptions);
 
-        // await Notification.create({
-        //     userId: notificationRecipientId,
-        //     message: `New Payment Request Generated ${piNo} / ${supplierPoNo}`,
-        //     isRead: false,
-        // });
+        await Notification.create({
+            userId: notificationRecipientId,
+            message: `New Payment Request Generated ${piNo} / ${supplierPoNo}`,
+            isRead: false,
+        });
         
 
         res.json({
             piNo: newPi.piNo,
-            status: status, // Use the status variable
+            status: status, 
             message: 'Proforma Invoice saved successfully'
         });
     } catch (error) {
@@ -962,6 +962,7 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
     }
 });
 
+
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
     const { bankSlip, status } = req.body;
     
@@ -985,8 +986,16 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Invalid status' });
         }
 
+          pi.bankSlip = bankSlip;
+           pi.status = newStat;
+           await pi.save();
 
-        statusArray = new PerformaInvoiceStatus({ performaInvoiceId: pi.id, status, date: new Date() });
+
+        statusArray = new PerformaInvoiceStatus({
+             performaInvoiceId: pi.id,
+              status :newStat,
+             date: new Date() 
+            });
         await statusArray.save();
 
         const users = await UserPosition.findAll({
@@ -1069,9 +1078,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         }
 
 
-        pi.bankSlip = bankSlip;
-        pi.status = newStat;
-        await pi.save();
+   
       
         res.json({ p: pi, status: newStat });
     } catch (error) {

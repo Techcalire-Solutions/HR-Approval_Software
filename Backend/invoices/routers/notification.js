@@ -3,7 +3,15 @@ const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const Notification = require('../models/notification')
 
-
+// Middleware to check if user is Super Admin or Admin
+function checkAdminRole(req, res, next) {
+    const userRole = req.user.role; // Assuming user role is stored in req.user
+    if (userRole === 'Super Administrator' || userRole === 'admin') {
+        next(); // User is authorized, proceed to the next middleware
+    } else {
+        return res.status(403).json({ message: 'Access denied.' });
+    }
+}
 
 router.post('/create', authenticateToken, async (req, res) => {
     const { userId, message } = req.body;
@@ -37,22 +45,35 @@ router.get('/user/:userId', authenticateToken, async (req, res) => {
 
 
 
-router.get('/', authenticateToken, async (req, res) => {
-    try {
+// router.get('/', authenticateToken, async (req, res) => {
+//     try {
 
+//         const notifications = await Notification.findAll({
+//             order: [['createdAt', 'DESC']], 
+//         });
+
+//         res.json(notifications);
+
+//     } catch (error) {
+//         console.error('Error fetching notifications:', error.message);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
+// Get all notifications (accessible by Super Admin and Admin)
+
+
+router.get('/', authenticateToken, checkAdminRole, async (req, res) => {
+    try {
         const notifications = await Notification.findAll({
             order: [['createdAt', 'DESC']], 
         });
-
         res.json(notifications);
-
     } catch (error) {
         console.error('Error fetching notifications:', error.message);
         res.status(500).send('Internal Server Error');
     }
 });
-
-
 
 router.put('/mark-read/:notificationId', authenticateToken, async (req, res) => {
     const { notificationId } = req.params;
