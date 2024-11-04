@@ -183,12 +183,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('login/users/payroll/'+id)
   }
 
-  openAssets(id: number, empNo: string){
-    const dialogRef = this.dialog.open(UserAssetsComponent, {
-      width: '450px',
-      data: {id: id, empNo: empNo}
-    });dialogRef.afterClosed().subscribe((result) => {
-
-    })
+  openAssets(id: number){
+    this.router.navigateByUrl('/login/users/assets/'+id)
   }
 }

@@ -55,10 +55,15 @@ export class AddAnnouncementsComponent implements OnDestroy {
   fileType: string;
   uploadSub!: Subscription;
   imageUrl: string = ''
+  allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png'];
   onFileSelected(event: any) {
     const input = event.target as HTMLInputElement;
     let file: any = input.files?.[0];
     this.fileType = file.type.split('/')[1];
+    if (!this.allowedFileTypes.includes(this.fileType)) {
+      alert('Invalid file type. Please select a PDF, JPEG, JPG, or PNG file.');
+      return;
+    }
     if (file) {
     const formData = new FormData();
     formData.append('file', file);

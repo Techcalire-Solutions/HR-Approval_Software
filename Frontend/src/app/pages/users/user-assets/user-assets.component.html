@@ -1,32 +1,40 @@
-<div class="asset-form-container">
-    <h2>Add Assets for User</h2>
-  
-    <form [formGroup]="assetForm" (ngSubmit)="onSubmit()">
-      <div formArrayName="assets">
-        <div *ngFor="let asset of assets.controls; let i = index" [formGroupName]="i" class="asset-group">
-          
-          <div>
-            <label for="assetName">Asset Name</label>
-            <input formControlName="assetName" type="text" required />
-          </div>
-  
-          <div>
-            <label for="assetType">Asset Type</label>
-            <input formControlName="assetType" type="text" required />
-          </div>
-  
-          <div>
-            <label for="assignedDate">Assigned Date</label>
-            <input formControlName="assignedDate" type="date" required />
-          </div>
-  
-          <button type="button" (click)="removeAsset(i)">Remove</button>
-  
-        </div>
-      </div>
-  
-      <button type="button" (click)="addAsset()">Add Another Asset</button>
-      <button type="submit" [disabled]="assetForm.invalid">Submit</button>
-    </form>
-  </div>
-  
+<div class="container">
+  <h2 class="title">User Assets</h2>
+  <form [formGroup]="form" (ngSubmit)="addRow()" class="form">
+    <div formGroupName="newRow" class="input-group">
+      <input formControlName="identifierType" placeholder="Identifier Type" required class="input-field" />
+      <input formControlName="identificationNumber" placeholder="Identification Number" required class="input-field" />
+      <input formControlName="description" placeholder="Description" required class="input-field" />
+      <input type="date" formControlName="assignedDate" placeholder="Assigned Date" required class="input-field" />
+      <mat-icon (click)="addRow()">add_circle_outline</mat-icon>
+    </div>
+  </form>
+
+  <table class="table">
+    <thead>
+      <tr class="table-header">
+        <th>Identifier Type</th>
+        <th>Identification Number</th>
+        <th>Description</th>
+        <th>Assigned Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows; let i = $index; track $index) {
+        <tr class="table-row">
+          <td>{{ row.identifierType }}</td>
+          <td>{{ row.identificationNumber }}</td>
+          <td>{{ row.description }}</td>
+          <td>{{ row.assignedDate }}</td>
+          <td>
+            <mat-icon (click)="removeRow(i)">remove_circle_outline</mat-icon>
+          </td>
+        </tr>
+      }
+
+    </tbody>
+  </table>
+
+  <button (click)="saveAssets()" class="btn save-btn">Save Assets</button>
+</div>

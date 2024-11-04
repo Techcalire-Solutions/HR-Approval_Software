@@ -9,9 +9,6 @@ const sequelize = require('../../utils/db');
 router.post('/', authenticateToken, async (req, res) => {
   const { roleName, abbreviation, status, department } = req.body;
     try {
-      let rrr = await Role.findAll({})
-      console.log(rrr);
-      
           const role = new Role({roleName, abbreviation, status, department});
           await role.save();
           

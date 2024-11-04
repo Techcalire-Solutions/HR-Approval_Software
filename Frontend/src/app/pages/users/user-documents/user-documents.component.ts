@@ -123,13 +123,13 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
   fileType: string;
   uploadSub!: Subscription;
   imageUrl: any[] = [];
+  allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png'];
   onFileSelected(event: Event, i: number): void {
     const input = event.target as HTMLInputElement;
     let file: any = input.files?.[0];
     this.fileType = file.type.split('/')[1];
     if (file) {
       let userName = this.data.name;
-      // let userName = 'Nishida';
       const docFormGroup = this.doc().at(i) as FormGroup;
       const docName = docFormGroup.value.docName;  // Extract docName from the form
       const name = `${userName}_${docName}`;
