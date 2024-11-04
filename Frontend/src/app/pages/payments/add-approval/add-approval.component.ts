@@ -241,10 +241,9 @@ export class AddApprovalComponent {
     const input = event.target as HTMLInputElement;
     let file: any = input.files?.[0];
     this.fileType[i] = file.type.split('/')[1]
-    console.log(this.fileType[i]);
     
     if (!this.allowedFileTypes.includes(this.fileType[i])) {
-      alert('IInvalid file type. Please select a PDF, JPEG, JPG, DOCX, TXT or PNG file.');
+      alert('Invalid file type. Please select a PDF, JPEG, JPG, DOCX, TXT or PNG file.');
       return;
     }
     if (file) {
