@@ -23,47 +23,98 @@ const transporter = nodemailer.createTransport({
   });
 
 
-
 router.post('/updatestatus', authenticateToken, async (req, res) => {
     const { performaInvoiceId, remarks, amId, accountantId, status, kamId } = req.body;
     
     try {
-       
         const pi = await PerformaInvoice.findByPk(performaInvoiceId);
         
         if (!pi) {
-            return res.status(404).send('Proforma Invoice not found.');
+            return res.send('Proforma Invoice not found.');
         }
-
 
         if (!Array.isArray(pi.url) || pi.url.length === 0) {
             console.error('Invalid or missing URL:', pi.url);
-            return res.status(404).send('Proforma Invoice does not have an associated file or the URL is invalid.');
+            return res.send('Proforma Invoice does not have an associated file or the URL is invalid.');
         }
 
         const [salesPerson, kam, am, accountant] = await Promise.all([
-            UserPosition.findOne({ where: { id: pi.salesPersonId } }),
-            UserPosition.findOne({ where: { id: kamId } }),
-            UserPosition.findOne({ where: { id: amId } }),
-            UserPosition.findOne({ where: { id: accountantId } }),
+            UserPosition.findOne({ where: { userId: pi.salesPersonId } }),
+            UserPosition.findOne({ where: { userId: kamId } }),
+            UserPosition.findOne({ where: { userId: amId } }),
+            UserPosition.findOne({ where: { userId: accountantId } }),
         ]);
-    
-        try {
-            const salesPersonEmail = salesPerson ? salesPerson.projectMailId : null;
-            const kamEmail = kam ? kam.projectMailId : null;
-            const accountantEmail = accountant ? accountant.projectMailId : null;
-            const amEmail = am ? am.projectMailId : null;
-        
-        
-            if (!salesPersonEmail || !kamEmail || !accountantEmail || !amEmail) {
-                return res.send('One or more project mail IDs not found. No action will be taken.');
-            }
-        
-        } catch (error) {
-            res.send(error.message);
+
+        const salesPersonEmail = salesPerson ? salesPerson.projectMailId : null;
+        const kamEmail = kam ? kam.projectMailId : null;
+        const accountantEmail = accountant ? accountant.projectMailId : null;
+        const amEmail = am ? am.projectMailId : null;
+
+        let toEmail = null;
+        let notificationMessage = '';
+
+
+        switch (status) {
+            case 'AM APPROVED':
+                notificationMessage = `The Proforma Invoice ${pi.piNo} has been approved by AM.`;
+                toEmail = kamEmail;
+                if (!toEmail) {
+                    return res.send('Please inform the admin to add the KAM project mail ID.');
+                }
+                break;
+            case 'INITIATED':
+                notificationMessage = `The Proforma Invoice ${pi.piNo} has been initiated.`;
+                toEmail = amEmail;
+                if (!toEmail) {
+                    return res.send('Please inform the admin to add the AM project mail ID.');
+                }
+                break;
+            case 'KAM VERIFIED':
+                notificationMessage = `The Proforma Invoice ${pi.piNo} has been verified by KAM.`;
+                toEmail = amEmail;
+                if (!amEmail) {
+                    return res.send('Please inform the admin to add the AM project mail ID.');
+                }
+                break;
+            case 'KAM REJECTED':
+                notificationMessage = `The Proforma Invoice ${pi.piNo} has been rejected by KAM.`;
+                toEmail = salesPersonEmail;
+                if (!toEmail) {
+                    return res.send('Please inform the admin to add the Sales Person project mail ID.');
+                }
+                break;
+            case 'AM VERIFIED':
+                notificationMessage = `The Proforma Invoice ${pi.piNo} has been verified by AM.`;
+                toEmail = accountantEmail;
+                if (!accountantEmail) {
+                    return res.send('Please inform the admin to add the Accountant  project mail ID.');
+                }
+                break;
+                case 'AM DECLINED': 
+                case 'AM REJECTED':
+                    notificationMessage = `The Proforma Invoice ${pi.piNo} has been ${status === 'AM DECLINED' ? 'declined' : 'rejected'} by AM.`;
+                    if (pi.addedById === pi.salesPersonId) {
+                        toEmail = salesPersonEmail;
+                        if (!salesPersonEmail) {
+                            return res.send('Please inform the admin to add the Sales Person project mail ID.');
+                        }
+                    } else {
+                        toEmail = kamEmail;
+                        if (!kamEmail) {
+                            return res.send('Please inform the admin to add the KAM project mail ID.');
+                        }
+                    }
+                    break;
+                
+            default:
+                return res.send('Invalid status update.');
         }
 
-     
+        const involvedUsers = [salesPerson, kam, am, accountant].filter(Boolean);
+        const createdNotifications = await Promise.all(involvedUsers.map(user => 
+            Notification.create({ userId: user.id, message: notificationMessage })
+        ));
+
         const newStatus = new PerformaInvoiceStatus({
             performaInvoiceId,
             status,
@@ -73,100 +124,42 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         
         await newStatus.save();
 
-   
         pi.status = status;
         if (kamId != null) pi.kamId = kamId;
         if (amId != null) pi.amId = amId;
         if (accountantId != null) pi.accountantId = accountantId;
         await pi.save();
 
-        console.log(pi);
-      
-        
+ 
+        const attachments = [];
 
+        for (const fileObj of pi.url) {
+            const actualUrl = typeof fileObj === 'string' ? fileObj : fileObj.url;
 
+            if (!actualUrl || typeof actualUrl !== 'string') {
+                console.warn('Skipping invalid URL:', fileObj);
+                continue;
+            }
 
-        let toEmail = null;
-        let notificationMessage = '';
+            const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+            const params = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: fileKey,
+            };
 
-     
-        switch (status) {
-            case 'AM APPROVED':
-                notificationMessage = `The Proforma Invoice ${pi.piNo} has been approved by AM.`;
-                toEmail = kamEmail;
-                break;
-            case 'INITIATED':
-                notificationMessage = `The Proforma Invoice ${pi.piNo} has been initiated.`;
-                toEmail = amEmail;
-                break;
-            case 'KAM VERIFIED':
-                notificationMessage = `The Proforma Invoice ${pi.piNo} has been verified by KAM.`;
-                toEmail = [salesPersonEmail, amEmail].filter(Boolean).join(', ');
-                break;
-            case 'KAM REJECTED':
-                notificationMessage = `The Proforma Invoice ${pi.piNo} has been rejected by KAM.` ;
-                    toEmail = salesPersonEmail; 
-                    break;
-            case 'AM VERIFIED':
-                notificationMessage = `The Proforma Invoice ${pi.piNo} has been verified by AM.`;
-                toEmail = [accountantEmail, kamEmail].filter(Boolean).join(', ');
-                break;
-            case 'AM DECLINED':
-                notificationMessage = `The Proforma Invoice ${pi.piNo} has been declined by AM.`;
-                toEmail = pi.addedById === pi.salesPersonId ? salesPersonEmail : kamEmail;
-                break;
-            case 'AM REJECTED':
-                notificationMessage = `The Proforma Invoice ${pi.piNo} has been rejected by AM.`;
-                toEmail = pi.addedById === pi.salesPersonId ? salesPersonEmail : kamEmail;
-                break;
-            default:
-                return res.status(400).send('Invalid status update.');
+            try {
+                const s3File = await s3.getObject(params).promise();
+                attachments.push({
+                    filename: actualUrl.split('/').pop(),
+                    content: s3File.Body,
+                    contentType: s3File.ContentType
+                });
+            } catch (error) {
+                console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error.message);
+                continue;
+            }
         }
 
-        const involvedUsers = [salesPerson, kam, am, accountant].filter(Boolean);
-        const createdNotifications = await Promise.all(involvedUsers.map(user => 
-            Notification.create({ userId: user.id, message: notificationMessage })
-        ));
-
-
-        
-if (!Array.isArray(pi.url) || pi.url.length === 0) {
-    console.error('Invalid or missing URL:', pi.url);
-    return res.status(404).send('Proforma Invoice does not have an associated file or the URL is invalid.');
-}
-const attachments = [];
-
-for (const fileObj of pi.url) {
-
-    const actualUrl = typeof fileObj === 'string' ? fileObj : fileObj.url;
-
- 
-    if (!actualUrl || typeof actualUrl !== 'string') {
-        console.warn('Skipping invalid URL:', fileObj);
-        continue;
-    }
-
-    const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-
-    const params = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: fileKey,
-    };
-
-    try {
-        const s3File = await s3.getObject(params).promise();
-        attachments.push({
-            filename: actualUrl.split('/').pop(),
-            content: s3File.Body,
-            contentType: s3File.ContentType
-        });
-    } catch (error) {
-        console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error.message);
-        continue; 
-    }
-}
-
-      
         const mailOptions = {
             from: `${req.user.name} <${req.user.email}>`,
             to: toEmail,
@@ -191,11 +184,8 @@ for (const fileObj of pi.url) {
         attachments: attachments
         };
 
-   
-        if (toEmail) {
-            await transporter.sendMail(mailOptions);
-            console.log('Email sent successfully to:', toEmail);
-        }
+        await transporter.sendMail(mailOptions);
+        console.log('Email sent successfully to:', toEmail);
 
         res.json({ pi, status: newStatus, notifications: createdNotifications });
 
