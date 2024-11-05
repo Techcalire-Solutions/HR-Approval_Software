@@ -110,8 +110,7 @@ router.post('/save', authenticateToken, async (req, res) => {
           contentType: s3File.ContentType,
         });
       } catch (error) {
-        console.error("Error retrieving file from S3:", error);
-        continue;
+        res.send(error.message)
       }
     }
 

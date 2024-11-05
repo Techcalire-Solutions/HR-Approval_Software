@@ -84,7 +84,6 @@ getLeaveSub : Subscription
         }
       },
       (error) => {
-
         this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
       }
     );
