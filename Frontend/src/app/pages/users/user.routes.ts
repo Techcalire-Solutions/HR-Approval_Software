@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { UsersComponent } from './users.component';
-import { UserDialogComponent } from './user-dialog/user-dialog.component';
 import { AuthGuard } from '../../common/guards/auth.guard';
 
 export const routes: Routes = [
@@ -22,5 +21,8 @@ export const routes: Routes = [
   },
   { path: 'assets/:id',  loadComponent: () => import('../users/user-assets/user-assets.component').then(c => c.UserAssetsComponent),
     data: { breadcrumb: 'Assests' }, canActivate: [AuthGuard]
+  },
+  { path: 'separated',  loadComponent: () => import('../users/view-separated/view-separated.component').then(c => c.ViewSeparatedComponent),
+    data: { breadcrumb: 'Separated' }, canActivate: [AuthGuard]
   }
 ];

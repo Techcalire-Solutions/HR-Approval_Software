@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { NativeDateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -11,6 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { UsersService } from '@services/users.service';
 import { DateAdapter } from 'angular-calendar';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-user-assets',
@@ -25,7 +26,13 @@ import { DateAdapter } from 'angular-calendar';
     { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
   ]
 })
-export class UserAssetsComponent {
+export class UserAssetsComponent implements OnDestroy{
+  ngOnDestroy(): void {
+    this.userAssetSub?.unsubscribe();
+    this.assetSub?.unsubscribe();
+    this.userSub?.unsubscribe();
+    this.userPosition?.unsubscribe();
+  }
   rows: any[] = []; 
 
   private fb = inject(FormBuilder);
@@ -49,8 +56,10 @@ export class UserAssetsComponent {
   updateStatus: boolean = false;
   id: number;
   userName: string;
+  userSub!: Subscription;
+  userPosition: Subscription;
   getUserById(id: number){
-    this.userService.getUserAssetsByUser(id).subscribe(data =>{
+    this.userSub = this.userService.getUserAssetsByUser(id).subscribe(data =>{
       if(data){
         this.userName = data.user.name
         this.updateStatus = true;
@@ -60,7 +69,7 @@ export class UserAssetsComponent {
           this.addRow(data.assets[i])
         }
       }else{
-        this.userService.getUserPositionDetailsByUser(id).subscribe(position=>{
+        this.userPosition = this.userService.getUserPositionDetailsByUser(id).subscribe(position=>{
           this.userName = position.user.name
           if(position === null){
             alert("Add department details...");
@@ -91,7 +100,7 @@ export class UserAssetsComponent {
     this.form.reset();
   }
 
-  // Function to save user assets
+  assetSub!: Subscription;
   saveAssets() {
     const data = {
       userId: this.route.snapshot.params['id'],
@@ -99,11 +108,11 @@ export class UserAssetsComponent {
       assets: this.rows
     }
     if(this.updateStatus){
-      this.userService.updateUserAssets(data, this.id).subscribe(() => {
+      this.assetSub = this.userService.updateUserAssets(data, this.id).subscribe(() => {
         this.snackbar.open("Assets updated successfully...","" ,{duration:3000})
       })
     }else{
-      this.userService.addUserAssets(data).subscribe(() => {
+      this.assetSub = this.userService.addUserAssets(data).subscribe(() => {
         this.snackbar.open("Assets saved successfully...","" ,{duration:3000})
       })
     }
@@ -117,14 +126,14 @@ export class UserAssetsComponent {
 
   private userService = inject(UsersService);
   assetCode: string;
+  userAssetSub!: Subscription;
   generateCode(department?: string) {
     let prefix: string;
     const currentYear = new Date().getFullYear();
     const twoDigitYear = currentYear.toString().slice(-2);
 
-    this.userService.getUserAssets(department).subscribe((res) => {
+    this.userAssetSub = this.userService.getUserAssets(department).subscribe((res) => {
       const users = res;
-      console.log(users);
       
       if (users.length > 0) {
         const maxId = users.reduce((prevMax, inv) => {

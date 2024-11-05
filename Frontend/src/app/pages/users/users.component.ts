@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { Component, inject, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { UsersService } from '../../services/users.service';
@@ -25,7 +26,7 @@ import { Subscription } from 'rxjs';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 import { Router } from '@angular/router';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
-import { UserAssetsComponent } from './user-assets/user-assets.component';
+import { SeparationComponent } from './separation/separation.component';
 
 
 @Component({
@@ -117,7 +118,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
-        this.usersService.deleteUser(id).subscribe((res) => {
+        this.usersService.deleteUser(id).subscribe(() => {
           this.snackbar.open("User deleted successfully...", "", { duration: 3000 });
           this.getUsers();
         }, (error) => {
@@ -139,7 +140,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
-        this.usersService.deleteUserImage(id).subscribe((res) => {
+        this.usersService.deleteUserImage(id).subscribe(() => {
           this.snackbar.open("User image deleted successfully...", "", { duration: 3000 });
           this.getUsers();
         }, (error) => {
@@ -153,15 +154,15 @@ export class UsersComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(ResetPasswordComponent, {
       width: '450px',
       data: {id: id, empNo: empNo, paswordReset: false}
-    });dialogRef.afterClosed().subscribe((result) => {
+    });dialogRef.afterClosed().subscribe(() => {
 
     })
   }
 
   updateSub!: Subscription;
   updateStatus(event: any, id: number, name: string){
-    let data = { status: event.checked }
-    this.updateSub = this.usersService.updateUserStatus(data, id).subscribe((result) => {
+    const data = { status: event.checked }
+    this.updateSub = this.usersService.updateUserStatus(data, id).subscribe(() => {
       if (event.checked) {
         this.snackbar.open(`${name} is now in active state`, "", { duration: 3000 });
       } else {
@@ -172,10 +173,17 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   rsignSub!: Subscription;
-  resignEmployee(id: number, emp: string){
-    this.rsignSub = this.usersService.resignEmployee(id).subscribe(res => {
-      this.snackbar.open(`${emp} is now resigned`, "", { duration: 3000 });
-      this.getUsers()
+  resignEmployee(id: number, empNo: string, name: string){
+    const dialogRef = this.dialog.open(SeparationComponent, {
+      width: '450px',
+      data: {id: id, empNo: empNo, name: name}
+    });dialogRef.afterClosed().subscribe((res) => {
+      this.rsignSub = this.usersService.resignEmployee(id, res).subscribe(() => {
+        console.log(res);
+        
+        this.snackbar.open(`${empNo} is now resigned`, "", { duration: 3000 });
+        this.getUsers()
+      })
     })
   }
 
@@ -185,5 +193,9 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   openAssets(id: number){
     this.router.navigateByUrl('/login/users/assets/'+id)
+  }
+
+  viewSeparated(){
+    this.router.navigateByUrl('/login/users/separated')
   }
 }

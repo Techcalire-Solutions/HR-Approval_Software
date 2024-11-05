@@ -192,12 +192,16 @@ export class UsersService {
     return this.http.get<User[]>(this.apiUrl + '/user/getdirectors')
   }
 
+  getSeparated(): Observable<User[]>{
+    return this.http.get<User[]>(this.apiUrl + '/user/getseparated')
+  }
+
   getUserByRm(id: number): Observable<User[]>{
     return this.http.get<User[]>(this.apiUrl + '/user/getbyrm/'+id)
   }
 
-  resignEmployee(id: number): Observable<any> {
-    return this.http.get( this.apiUrl+'/user/resignemployee/' + id);
+  resignEmployee(id: number, data: any): Observable<any> {
+    return this.http.patch( this.apiUrl+'/user/resignemployee/' + id, data);
   }
 
   getUserAssets(department?: string): Observable<UserAssets[]>{

@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable no-undef */
 const express = require('express');
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const Role = require('../models/role')
-const { Op, fn, col, where } = require('sequelize');
+const { Op } = require('sequelize');
 const sequelize = require('../../utils/db');
-const multer = require('../../utils/userImageMulter'); // Import the configured multer instance
 const Team = require('../models/team')
 const TeamMember = require('../models/teamMember');
 const upload = require('../../utils/userImageMulter'); 
@@ -63,7 +64,7 @@ router.post('/add', async (req, res) => {
 
 router.get('/find/', async (req, res) => {
   try {
-    let whereClause = {}
+    let whereClause = {separated: false}
     let limit;
     let offset;
     if (req.query.pageSize && req.query.page && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
@@ -190,7 +191,6 @@ router.patch('/statusupdate/:id', async (req, res) => {
   }
 })
 
-
 router.get('/findone/:id', async (req, res) => {
   let id = req.params.id;
   
@@ -252,21 +252,19 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
 router.get('/findbyrole/:id', async (req, res) => {
   try {
     const user = await User.findAll({
-      where: { roleId: req.params.id }
+      where: { roleId: req.params.id, separated: false }
     })
     res.send(user);
   } catch (error) {
     res.send(error.message)
   }
 })
+
 router.get('/findbyroleName/:roleName', async (req, res) => {
   try {
     const users = await User.findAll({
-      include: {
-        model: Role,
-        where: { roleName: req.params.roleName } 
-     
-      }
+      include: { model: Role, where: [{ roleName: req.params.roleName} ] },
+      where: { separated: false }
     });
 
     res.send(users);
@@ -279,6 +277,18 @@ router.get('/getdirectors', async (req, res) => {
   try {
     const user = await User.findAll({
       where: { director: true }
+    })
+    res.send(user);
+  } catch (error) {
+    res.send(error.message)
+  }
+})
+
+router.get('/getseparated', async (req, res) => {
+  try {
+    const user = await User.findAll({
+      where: { separated: true },
+      include: [{ model: Role, attributes: ['roleName']}]
     })
     res.send(user);
   } catch (error) {
@@ -435,7 +445,7 @@ router.get('/underprobation', async (req, res) => {
         },
 
       ],
-      where: { isTemporary: true }
+      where: { isTemporary: true, separated: false }
     })
     res.send(user);
   } catch (error) {
@@ -446,7 +456,7 @@ router.get('/underprobation', async (req, res) => {
 router.get('/confirmed', async (req, res) => {
   try {
     const user = await User.findAll({
-      where: { isTemporary: false }
+      where: { isTemporary: false, separated: false }
     })
     res.send(user);
   } catch (error) {
@@ -511,18 +521,21 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/resignemployee/:id', async (req, res) => {
+router.patch('/resignemployee/:id', async (req, res) => {
   try {
       let result = await User.findByPk(req.params.id);
       
       if (!result) {
           return res.json({ message: "Employee not found" });
       }
-
-      result.separated = !result.separated;
-      result.status = !result.separated;
+      console.log(req.body, "Employee found");
+      
+      result.separated = req.body.confirmed;
+      result.status = !req.body.confirmed;
+      result.separationNote = req.body.note;
+      result.separationDate = req.body.date;
       await result.save();
-      res.json({ message: "Employee Separetd" });
+      res.json({ result });
   } catch (error) {
       res.json({ message: "Internal Server Error", error: error.message });
   }
