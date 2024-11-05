@@ -114,3 +114,9 @@
     margin: 1rem auto;
   }
   
+  .disabled {
+    color: gray; /* Optional: make the icon appear grayed out */
+    pointer-events: none; /* Prevents clicks */
+    opacity: 0.5; /* Optional: reduce opacity */
+  }
+  

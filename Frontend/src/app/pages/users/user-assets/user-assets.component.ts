@@ -2,19 +2,28 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { NativeDateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { UsersService } from '@services/users.service';
+import { DateAdapter } from 'angular-calendar';
 
 @Component({
   selector: 'app-user-assets',
   standalone: true,
-  imports: [ReactiveFormsModule, MatIconModule, MatFormFieldModule, MatInputModule, CommonModule],
+  imports: [ReactiveFormsModule, MatIconModule, MatFormFieldModule, MatInputModule, CommonModule, MatDatepickerModule,
+    MatNativeDateModule
+  ],
   templateUrl: './user-assets.component.html',
-  styleUrl: './user-assets.component.scss'
+  styleUrl: './user-assets.component.scss',
+  providers: [
+    { provide: DateAdapter, useClass: NativeDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
+  ]
 })
 export class UserAssetsComponent {
   rows: any[] = []; 
@@ -26,7 +35,7 @@ export class UserAssetsComponent {
       identifierType: [''],
       identificationNumber: [''],
       description: [''],
-      assignedDate: [''],
+      assignedDate: [],
     }),
   });
 
@@ -39,9 +48,11 @@ export class UserAssetsComponent {
   private snackbar = inject(MatSnackBar);
   updateStatus: boolean = false;
   id: number;
+  userName: string;
   getUserById(id: number){
     this.userService.getUserAssetsByUser(id).subscribe(data =>{
       if(data){
+        this.userName = data.user.name
         this.updateStatus = true;
         this.id = data.id;
         this.assetCode = data.assetCode;
@@ -50,6 +61,7 @@ export class UserAssetsComponent {
         }
       }else{
         this.userService.getUserPositionDetailsByUser(id).subscribe(position=>{
+          this.userName = position.user.name
           if(position === null){
             alert("Add department details...");
             history.back();

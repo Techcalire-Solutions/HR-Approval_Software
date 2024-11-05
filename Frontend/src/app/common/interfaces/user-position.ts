@@ -1,3 +1,5 @@
+import { User } from "./user";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface UserPosition {
   id: number;
@@ -14,4 +16,5 @@ export interface UserPosition {
   officialMailId: string
   projectMailId: string
   probationNote: string
+  user: User
 }

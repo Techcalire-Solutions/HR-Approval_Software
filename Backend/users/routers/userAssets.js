@@ -67,7 +67,10 @@ router.get('/find', authenticateToken, async (req, res) => {
 
 router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
     try {
-        const ua = await UserAssets.findOne({where: {userId: req.params.id}});
+        const ua = await UserAssets.findOne({
+            where: {userId: req.params.id},
+            include: [{ model: User, attributes: ['name']}]
+        });
         res.send(ua);
     } catch (error) {
         res.send({ error: error.message });

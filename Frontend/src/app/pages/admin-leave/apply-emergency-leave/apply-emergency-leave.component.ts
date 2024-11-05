@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule, formatDate } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormArray, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -5,8 +6,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
-import { DateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS } from '@angular/material/core';
-import { NativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -55,11 +54,7 @@ function sessionSelectionValidator(group: FormGroup) {
     LeaveCountCardsComponent, MatChipsModule
   ],
   templateUrl: './apply-emergency-leave.component.html',
-  styleUrl: './apply-emergency-leave.component.scss',
-  providers: [
-    { provide: DateAdapter, useClass: NativeDateAdapter },
-    { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
-  ],
+  styleUrl: './apply-emergency-leave.component.scss'
 })
 export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
   ngOnDestroy(): void {
