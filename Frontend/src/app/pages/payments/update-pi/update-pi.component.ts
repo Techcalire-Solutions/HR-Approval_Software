@@ -140,6 +140,7 @@ export class UpdatePIComponent {
       this.getCustomers()
     })
   }
+  
   doc(): FormArray {
     return this.piForm.get("url") as FormArray;
   }
@@ -182,9 +183,9 @@ export class UpdatePIComponent {
     this.getAccountants();
 
     const token: any = localStorage.getItem('token')
-    let user = JSON.parse(token)
+    const user = JSON.parse(token)
 
-    let roleId = user.role
+    const roleId = user.role
     this.getRoleById(roleId)
     this.getSuppliers();
     this.getCustomers()
@@ -228,8 +229,8 @@ export class UpdatePIComponent {
   }
 
   extractLetters(input: string): string {
-    var extractedChars = input.match(/[A-Za-z-]/g);
-    var result = extractedChars ? extractedChars.join('') : '';
+    const extractedChars = input.match(/[A-Za-z-]/g);
+    const result = extractedChars ? extractedChars.join('') : '';
     return result;
   }
 
@@ -318,9 +319,11 @@ export class UpdatePIComponent {
   patchdata(id: number) {
     this.editStatus = true;
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
-      let inv = pi.pi;
+      const inv = pi.pi;
       this.piNo = inv.piNo
-      let remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
+      console.log(inv);
+      
+      const remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
       this.piForm.patchValue({
         piNo: inv.piNo,
         status: inv.status,
@@ -329,11 +332,13 @@ export class UpdatePIComponent {
         amId: inv.amId,
         accountantId: inv.accountantId,
         supplierId: inv.supplierId,
+        supplierName: inv.suppliers.companyName,
         supplierSoNo: inv.supplierSoNo,
         supplierPoNo: inv.supplierPoNo,
         supplierPrice: inv.supplierPrice,
         purpose: inv.purpose,
         customerId: inv.customerId,
+        customerName: inv.customers.companyName,
         customerPoNo: inv.customerPoNo,
         customerSoNo: inv.customerSoNo,
         poValue: inv.poValue,
@@ -374,7 +379,7 @@ export class UpdatePIComponent {
   isImageUploaded(): boolean {
     const controls = this.piForm.get('url')as FormArray;
     if( controls.length === 0) { return true}
-    let i = controls.length - 1;
+    const i = controls.length - 1;
     if (this.imageUrl[i] || this.newImageUrl[i]) {
       return true;
     }else return false;
