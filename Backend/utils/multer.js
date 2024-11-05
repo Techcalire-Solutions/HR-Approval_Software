@@ -1,8 +1,10 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const multer = require('multer');
 const path = require('path');
 
 const fileFilter = (req, file, cb) => {
-  const fileTypes = /jpeg|jpg|png|pdf|doc|docx|txt|text\/plain/; 
+  const fileTypes = /jpeg|jpg|png|pdf|txt|text\/plain/; 
 
   const mimetype = fileTypes.test(file.mimetype);
   

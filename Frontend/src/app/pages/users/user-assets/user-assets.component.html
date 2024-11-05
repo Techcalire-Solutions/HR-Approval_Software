@@ -1,5 +1,5 @@
 <div class="container">
-  <h2 class="title"> @if(updateStatus){Update} @else{Add} User Assets - {{assetCode}}</h2>
+  <h2 class="title"> @if(updateStatus){Update} @else{Add} User Assets for {{userName}}  - <strong>{{assetCode}}</strong></h2>
   <form [formGroup]="form" (ngSubmit)="addRow()" class="form">
     <div formGroupName="newRow" class="input-group">
       
@@ -18,12 +18,21 @@
         <input matInput formControlName="description" placeholder="Description" required />
       </mat-form-field>
   
-      <mat-form-field appearance="outline" class="input-field full-width">
+      <!-- <mat-form-field appearance="outline" class="input-field full-width">
         <mat-label>Assigned Date</mat-label>
         <input matInput type="date" formControlName="assignedDate" required />
+      </mat-form-field> -->
+
+      <mat-form-field appearance="outline" class="input-field full-width">
+        <mat-label>Assigned Date</mat-label>
+        <input matInput [matDatepicker]="startDatePicker" formControlName="assignedDate" placeholder="Date" required >
+        <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #startDatePicker></mat-datepicker>
       </mat-form-field>
   
-      <mat-icon (click)="addRow()" class="add-icon">add_circle_outline</mat-icon>
+      <mat-icon (click)="form.valid && addRow()" class="add-icon" [ngClass]="{'disabled': !form.valid}">
+        add_circle_outline
+      </mat-icon>
     </div>
   </form>
   
