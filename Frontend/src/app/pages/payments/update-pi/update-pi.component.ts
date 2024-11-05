@@ -92,13 +92,15 @@ export class UpdatePIComponent {
   public getSuppliers(): void {
     this.companySub = this.companyService.getSuppliers().subscribe((suppliers: any) =>{
       this.supplierCompanies = suppliers;
+      this.fileterdOptions = this.supplierCompanies;
     });
   }
 
   customerSub!: Subscription;
   public getCustomers(): void {
     this.customerSub = this.companyService.getCustomers().subscribe((customers: any) =>{
-      this.customerCompanies = customers
+      this.customerCompanies = customers;
+      this.filteredCustomers = this.customerCompanies;
     });
   }
 
