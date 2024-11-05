@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { UsersService } from '@services/users.service';
@@ -9,7 +12,7 @@ import { UsersService } from '@services/users.service';
 @Component({
   selector: 'app-user-assets',
   standalone: true,
-  imports: [ReactiveFormsModule, MatIconModule],
+  imports: [ReactiveFormsModule, MatIconModule, MatFormFieldModule, MatInputModule, CommonModule],
   templateUrl: './user-assets.component.html',
   styleUrl: './user-assets.component.scss'
 })
@@ -34,39 +37,65 @@ export class UserAssetsComponent {
   }
 
   private snackbar = inject(MatSnackBar);
+  updateStatus: boolean = false;
+  id: number;
   getUserById(id: number){
-    this.userService.getUserPositionDetailsByUser(id).subscribe(position=>{
-      console.log(position);
-      if(position === null){
-        alert("Add department details...");
-        history.back();
+    this.userService.getUserAssetsByUser(id).subscribe(data =>{
+      if(data){
+        this.updateStatus = true;
+        this.id = data.id;
+        this.assetCode = data.assetCode;
+        for(let i = 0; i < data.assets.length; i++){
+          this.addRow(data.assets[i])
+        }
+      }else{
+        this.userService.getUserPositionDetailsByUser(id).subscribe(position=>{
+          if(position === null){
+            alert("Add department details...");
+            history.back();
+          }
+          this.generateCode(position?.department.abbreviation)
+        });
       }
-      this.generateCode(position?.department.abbreviation)
     });
+
   }
 
-  // Function to add a new row
-  addRow() {
-    if (this.form.valid) {
-      const newRow = { ...this.form.value.newRow };
-      this.rows.push(newRow);
-      this.form.reset(); 
-    }
+  editRow(row: any, index: number): void {
+    this.form.get('newRow')?.patchValue({
+      identifierType: row.identifierType,
+      identificationNumber: row.identificationNumber,
+      description: row.description,
+      assignedDate: row.assignedDate,
+    });
+    this.rows.splice(index, 1);
+  }
+
+  addRow(data?: any) {
+    let newRow;
+    if(data) newRow = data
+    if (this.form.valid)  newRow = { ...this.form.value.newRow }; 
+    this.rows.push(newRow);
+    this.form.reset();
   }
 
   // Function to save user assets
   saveAssets() {
-    console.log(this.rows);
     const data = {
       userId: this.route.snapshot.params['id'],
       assetCode: this.assetCode,
       assets: this.rows
     }
-    this.userService.addUserAssets(data).subscribe(asset => {
-      console.log(asset);
-      
-      this.snackbar.open("Assets saved successfully...","" ,{duration:3000})
-    })
+    if(this.updateStatus){
+      this.userService.updateUserAssets(data, this.id).subscribe(() => {
+        this.snackbar.open("Assets updated successfully...","" ,{duration:3000})
+      })
+    }else{
+      this.userService.addUserAssets(data).subscribe(() => {
+        this.snackbar.open("Assets saved successfully...","" ,{duration:3000})
+      })
+    }
+
   }
 
   // Function to remove a row

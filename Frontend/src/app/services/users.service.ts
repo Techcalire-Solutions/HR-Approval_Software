@@ -204,12 +204,16 @@ export class UsersService {
     return this.http.get<UserAssets[]>(this.apiUrl + `/asset/find?department=${department}`)
   }
 
-  addUserAssets(data: any): Observable<User[]>{
-    return this.http.post<User[]>(this.apiUrl + `/asset/save`, data)
+  addUserAssets(data: any): Observable<UserAssets[]>{
+    return this.http.post<UserAssets[]>(this.apiUrl + `/asset/save`, data)
   }
 
   getUserAssetsByUser(userId: number): Observable<UserAssets>{
     return this.http.get<UserAssets>(this.apiUrl + `/asset/findbyuser/${userId}`)
+  }
+
+  updateUserAssets(data: any, id: number): Observable<UserAssets[]>{
+    return this.http.patch<UserAssets[]>(this.apiUrl + `/asset/update/${id}`, data)
   }
 
 }

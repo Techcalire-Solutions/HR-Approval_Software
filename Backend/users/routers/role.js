@@ -1,8 +1,10 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const express = require('express');
 const Role = require('../models/role');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
-const { Op, fn, col, where } = require('sequelize');
+const { Op } = require('sequelize');
 const sequelize = require('../../utils/db');
 
 
