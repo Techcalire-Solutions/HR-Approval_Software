@@ -1088,10 +1088,6 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
 });
 
 
-
-
-
-
 router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
 
     let { url, kamId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, 
@@ -1112,7 +1108,7 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
             notificationRecipientId = amId;
 
             if (!recipientEmail) {
-                return res.status(400).send("AM project email is missing. Please inform the admin to add it.");
+                return res.send("AM project email is missing. Please inform the admin to add it.");
             }
         } else if (paymentMode === 'WireTransfer') {
             const kam = await UserPosition.findOne({ where: { userId: kamId } });
@@ -1120,7 +1116,7 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
             notificationRecipientId = kamId;
 
             if (!recipientEmail) {
-                return res.status(400).send("KAM project email is missing. Please inform the admin to add it.");
+                return res.send("KAM project email is missing. Please inform the admin to add it.");
             }
         }
     } catch (error) {
@@ -1241,7 +1237,7 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
 
         await Notification.create({
             userId: notificationRecipientId,
-            message: `Payment Request updated ${pi.piNo} / ${supplierPoNo}`,
+            message: `New Payment Request Generated ${pi.piNo} / ${supplierPoNo}`,
             isRead: false,
         });
 

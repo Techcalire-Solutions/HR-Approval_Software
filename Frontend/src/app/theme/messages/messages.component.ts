@@ -99,9 +99,7 @@ export class MessagesComponent implements OnInit {
   updateUnreadCount() {
     this.unreadCount = this.notifications.filter(notification => !notification.isRead).length;
   }
-  updateAllUnreadCount(notifications: any[]) {
-    this.allUnreadCount = notifications.filter(notification => !notification.isRead).length;
-  }
+
 
   markReadSub :Subscription
   markAsRead(notificationId: string) {
@@ -114,6 +112,8 @@ export class MessagesComponent implements OnInit {
       }
     );
   }
+
+
 
 
   messageNotfiSub:Subscription
@@ -137,7 +137,6 @@ export class MessagesComponent implements OnInit {
       (res) => {
         if (Array.isArray(res)) {
           this.notifications = res;
-          this.updateAllUnreadCount(res);
         } else {
           this.notifications = [];
         }

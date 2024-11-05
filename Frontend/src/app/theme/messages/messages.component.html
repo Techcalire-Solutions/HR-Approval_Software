@@ -1,10 +1,5 @@
 <button mat-icon-button [matMenuTriggerFor]="messagesMenu" (click)="openMessagesMenu()">
   <mat-icon>notifications</mat-icon>
-
-  @if (allUnreadCount  > 0) {
-    <span style="color: red; font-weight: bold; font-size: 0.75em; position: relative; top: -8px; left: -6px;">{{allUnreadCount }}</span>
-
-  }
   @if (unreadCount  > 0) {
     <span style="color: red; font-weight: bold; font-size: 0.75em; position: relative; top: -8px; left: -6px;">{{unreadCount }}</span>
   }
@@ -20,7 +15,7 @@
                   <ng-scrollbar pointerEventsMethod="scrollbar">
                       <div fxLayout="column" fxLayoutAlign="none">
                           @for (message of notifications; track message) {
-                              <button mat-button (click)="markAsRead(message.id)">
+                              <button mat-button     (click)="!isAdmin() ? markAsRead(message.id) : null">
                                   <!-- <img src="{{ ( message.image || (message.name | profilePicture)) }}" width="50"> -->
                                   <div fxLayout="column" fxLayoutAlign="none" class="w-100">
                                       <div fxLayout="row" fxLayoutAlign="space-between start">
