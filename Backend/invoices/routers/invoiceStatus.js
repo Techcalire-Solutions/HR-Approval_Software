@@ -131,7 +131,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         }
 
         if (!toEmail) {
-            return res.send(`Project mail ID is missing for recipient of status: ${status}`);
+            return res.send(`Project mail ID is missing for recipient`);
         }
 
     
