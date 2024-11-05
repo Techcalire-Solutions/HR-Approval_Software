@@ -64,7 +64,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                 notificationMessage = `The Proforma Invoice ${pi.piNo} has been initiated.\n\n`;
                 toEmail = amEmail;
                 await Notification.create({
-                    userId: kam ? kam.userId : null,
+                    userId: am ? am.userId : null,
                     message: notificationMessage
                 });
                 break;
