@@ -37,7 +37,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
 
         const [salesPerson, kam, am, accountant] = await Promise.all([
             UserPosition.findOne({ where: { userId: pi.salesPersonId } }),
-            UserPosition.findOne({ where: { userId: pi.kamId } }),
+            UserPosition.findOne({ where: { userId: kamId } }),
             UserPosition.findOne({ where: { userId: amId } }),
             UserPosition.findOne({ where: { userId: accountantId } }),
         ]);
