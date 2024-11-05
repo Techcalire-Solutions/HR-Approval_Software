@@ -77,6 +77,38 @@ router.put('/mark-read/:notificationId', authenticateToken, async (req, res) => 
     }
 });
 
+// Route for Admin and Super Admin to mark notifications as read
+router.put('/admin/mark-read/:notificationId', authenticateToken, async (req, res) => {
+    const { notificationId } = req.params;
+
+    try {
+        // Fetch the notification by ID
+        const notification = await Notification.findOne({
+            where: {
+                id: notificationId
+            }
+        });
+
+        if (!notification) {
+            return res.status(404).send('Notification not found.');
+        }
+
+        // Mark notification as read
+        notification.isRead = true;
+        await notification.save();
+
+        res.json({
+            message: 'Notification marked as read.',
+            notification
+        });
+    } catch (error) {
+        console.error('Error marking notification as read:', error.message);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
+
 router.get('/unread-count', authenticateToken, async (req, res) => {
     const userId = req.user.id; 
 

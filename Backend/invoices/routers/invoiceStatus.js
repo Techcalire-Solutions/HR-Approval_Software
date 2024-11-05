@@ -77,6 +77,14 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                     message: notificationMessage 
                 })
                 break;
+                case 'KAM REJECTED':
+                    notificationMessage = `The Proforma Invoice ${pi.piNo} has been rejected by KAM.\n\n`;
+                    toEmail = salesPersonEmail;
+                    Notification.create({ 
+                        userId: salesPerson ? salesPerson.userId : nulll,
+                        message: notificationMessage 
+                    })
+                    break;
             case 'AM VERIFIED':
                 notificationMessage = `The Proforma Invoice ${pi.piNo} has been verified by AM.\n\n`;
                 toEmail = accountantEmail;
