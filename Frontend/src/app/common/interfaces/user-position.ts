@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface UserPosition {
   id: number;
   userId : number
@@ -6,7 +7,7 @@ export interface UserPosition {
   grade : string
   designation : string
   location : string
-  department : string
+  department : any
   office  : string
   salary : string
   probationPeriod : number

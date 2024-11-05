@@ -27,13 +27,6 @@
     gap: 10px;
   }
   
-  .input-field {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 150px;
-  }
-  
   .btn {
     padding: 10px 15px;
     border: none;
@@ -55,7 +48,7 @@
   }
   
   .table-header {
-    background-color: #f8f9fa;
+    background-color: #5eacfa;
   }
   
   .table-header th {
@@ -75,5 +68,49 @@
   
   .remove-btn:hover {
     background-color: #c82333;
+  }
+  
+  .container {
+    max-width: 100%;
+    padding: 1rem;
+  }
+  
+  .form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .input-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    width: 100%;
+  }
+  
+  .input-field {
+    flex: 1 1 100%; /* Default to full-width */
+  }
+  
+  @media (min-width: 768px) {
+    .input-field {
+      flex: 1 1 calc(50% - 1rem); /* 2 fields per row */
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .input-field {
+      flex: 1 1 calc(25% - 1rem); /* 4 fields per row on large screens */
+    }
+  }
+  
+  .add-icon, .remove-icon {
+    cursor: pointer;
+    margin-left: 0.5rem;
+  }
+  
+  .btn.save-btn {
+    display: block;
+    margin: 1rem auto;
   }
   

@@ -115,7 +115,6 @@ export class OpenExpenseComponent {
       });
       
       this.signedUrl = signedUrlsWithType;
-      console.log(this.signedUrl);
       
       if(this.pi.status === 'Generated' && this.roleName === 'Manager' ){
         this.pi = {

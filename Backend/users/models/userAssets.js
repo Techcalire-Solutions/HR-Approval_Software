@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable no-undef */
 const {DataTypes} =  require('sequelize')
 const sequelize = require('../../utils/db');
 const User = require('./user');
@@ -8,7 +10,6 @@ const User = require('./user');
    },{
       freezeTableName :true,
       timestamps : true
-
    })
 
 User.hasMany(UserAssets, { foreignKey: 'userId', onUpdate: 'CASCADE' });

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
@@ -8,6 +9,7 @@ import { UserPosition } from '../common/interfaces/user-position';
 import { StatutoryInfo } from '../common/interfaces/statutory-info';
 import { UserAccount } from '../common/interfaces/user-account';
 import { UserDocument } from '../common/interfaces/user-document';
+import { UserAssets } from '../common/interfaces/user-assets';
 
 
 @Injectable({
@@ -198,8 +200,20 @@ export class UsersService {
     return this.http.get( this.apiUrl+'/user/resignemployee/' + id);
   }
 
-  getUserAssets(department?: string): Observable<User[]>{
-    return this.http.get<User[]>(this.apiUrl + `/asset/find?department=${department}`)
+  getUserAssets(department?: string): Observable<UserAssets[]>{
+    return this.http.get<UserAssets[]>(this.apiUrl + `/asset/find?department=${department}`)
+  }
+
+  addUserAssets(data: any): Observable<UserAssets[]>{
+    return this.http.post<UserAssets[]>(this.apiUrl + `/asset/save`, data)
+  }
+
+  getUserAssetsByUser(userId: number): Observable<UserAssets>{
+    return this.http.get<UserAssets>(this.apiUrl + `/asset/findbyuser/${userId}`)
+  }
+
+  updateUserAssets(data: any, id: number): Observable<UserAssets[]>{
+    return this.http.patch<UserAssets[]>(this.apiUrl + `/asset/update/${id}`, data)
   }
 
 }

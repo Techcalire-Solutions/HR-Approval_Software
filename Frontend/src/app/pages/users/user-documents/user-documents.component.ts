@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { MatInputModule } from '@angular/material/input';
 import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -82,15 +83,10 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
   }
 
   removeData(index: number) {
-    
     const formGroup = this.doc().at(index).value;
-    
-    // Check if form group is dirty (any changes made)
     if (formGroup.docName != '' || formGroup.docUrl != '') {
-      // Call the API to handle the update before removing
       this.userSevice.deleteUserDocComplete(this.id[index]).subscribe({
-        next: (response) => {
-          // Remove the row only after successful API call
+        next: () => {
           formGroup.removeAt(index);
         },
         error: (error) => {
@@ -98,7 +94,6 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      // Remove the row directly if no changes
       this.doc().removeAt(index)
     }
   }
@@ -126,10 +121,10 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
   allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png'];
   onFileSelected(event: Event, i: number): void {
     const input = event.target as HTMLInputElement;
-    let file: any = input.files?.[0];
+    const file: any = input.files?.[0];
     this.fileType = file.type.split('/')[1];
     if (file) {
-      let userName = this.data.name;
+      const userName = this.data.name;
       const docFormGroup = this.doc().at(i) as FormGroup;
       const docName = docFormGroup.value.docName;  // Extract docName from the form
       const name = `${userName}_${docName}`;
@@ -158,7 +153,7 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
 
   submit!: Subscription;
   onSubmit(i: number): void {
-    let form = this.doc().at(i) as FormGroup
+    const form = this.doc().at(i) as FormGroup
     this.clickedForms[i] = true;
     if(this.editStatus[i]){
       this.submit = this.userSevice.updateUserDocumentDetails(this.id[i], form.value).subscribe(res => {
@@ -178,13 +173,13 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
 
   onDeleteImage(i: number){
     if(this.id[i]){
-      this.userSevice.deleteUserDoc(this.id[i], this.imageUrl[i]).subscribe(data=>{
+      this.userSevice.deleteUserDoc(this.id[i], this.imageUrl[i]).subscribe(()=>{
         this.imageUrl[i] = ''
           this.doc().at(i).get('docUrl')?.setValue('');
         this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
       });
     }else{
-      this.userSevice.deleteUserDocByurl(this.imageUrl[i]).subscribe(data=>{
+      this.userSevice.deleteUserDocByurl(this.imageUrl[i]).subscribe(()=>{
         this.imageUrl[i] = ''
           this.doc().at(i).get('docUrl')?.setValue('');
         this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})

@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { UserDocumentsComponent } from './../user-documents/user-documents.component';
-import { Component, inject, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -120,6 +121,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
       joiningDate: user.createdAt,
       teamId: user.teamId
     })
+    this.patch(user.role)
   }
 
   uploadProgress: number | null = null;
@@ -151,7 +153,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
           this.form.get('url')?.setValue(invoice.fileUrl);
           this.uploadComplete = true; // Set to true when upload is complete
         },
-        error: (error) => {
+        error: () => {
           this.uploadComplete = true; // Set to true to remove the progress bar even on error
         }
       });
@@ -167,7 +169,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
   roles:Role[]=[];
   roleSub!: Subscription;
-  public filteredOptions: any[] = [];
+  public filteredOptions: Role[] = [];
   getRoles(){
     this.roleSub = this.roleService.getRole().subscribe((res)=>{
       this.roles = res;
@@ -176,7 +178,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   }
 
   filterValue: string;
-  search(event: Event, type: string) {
+  search(event: Event) {
     this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
     this.filteredOptions = this.roles.filter(option => 
       option.roleName.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
@@ -184,18 +186,18 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     );
   }
 
-  patch(selectedSuggestion: any) {
+  patch(selectedSuggestion: Role) {
     this.form.patchValue({ roleId: selectedSuggestion.id, roleName: selectedSuggestion.roleName });
   }
 
   private dialog = inject(MatDialog);
-  add(type: string){
-    let name = this.filterValue;
+  add(){
+    const name = this.filterValue;
     const dialogRef = this.dialog.open(AddRoleDialogComponent, {
       data: {type : 'add', name: name}
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe(() => {
       this.getRoles()
     })
   }
@@ -219,7 +221,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   submit!: Subscription;
   onSubmit(){
     if(this.editStatus){
-      this.submit = this.userService.updateUser(this.id, this.form.getRawValue()).subscribe((res)=>{
+      this.submit = this.userService.updateUser(this.id, this.form.getRawValue()).subscribe(()=>{
         this.snackBar.open("User updated succesfully...","" ,{duration:3000})
       })
     }else{
@@ -277,7 +279,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     const currentYear = new Date().getFullYear();
 
     this.userService.getUser().subscribe((res) => {
-      let users = res;
+      const users = res;
 
       if (users.length > 0) {
         const maxId = users.reduce((prevMax, inv) => {
@@ -297,21 +299,21 @@ export class UserDialogComponent implements OnInit, OnDestroy {
         }, 0);
 
         // Increment the maxId by 1 to get the next ID
-        let nextId = maxId + 1;
+        const nextId = maxId + 1;
 
         const paddedId = `${prefix}-${currentYear}-${nextId.toString().padStart(3, "0")}`;
 
-        let ivNum = paddedId;
+        const ivNum = paddedId;
         this.invNo = ivNum;
         this.form.get('empNo')?.setValue(ivNum);
       } else {
         // If there are no employees in the array, set the employeeId to 'EMP001'
-        let nextId = 0o1;
+        const nextId = 0o1;
         prefix =  `OAC-${currentYear}-`;
 
         const paddedId = `${prefix}${nextId.toString().padStart(3, "0")}`;
 
-        let ivNum = paddedId;
+        const ivNum = paddedId;
 
         this.form.get('envNo')?.setValue(ivNum);
         this.invNo = ivNum;
@@ -390,13 +392,13 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
   deleteImage() {
     if(this.id){
-      this.userService.deleteUserImage(this.id, this.imageUrl).subscribe(data=>{
+      this.userService.deleteUserImage(this.id, this.imageUrl).subscribe(()=>{
         this.imageUrl = ''
         this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
         this.getUser(this.id)
       });
     }else{
-      this.userService.deleteUserImageByurl(this.imageUrl).subscribe(data=>{
+      this.userService.deleteUserImageByurl(this.imageUrl).subscribe(()=>{
         this.imageUrl = ''
         this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
       });

@@ -56,7 +56,13 @@
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>Department</mat-label>
-            <input matInput formControlName="department" >
+            <mat-select formControlName="department">
+              @for (department of departments; track $index) {
+                <mat-option [value]="department">
+                  {{ department.name }}
+                </mat-option>
+              }
+            </mat-select>
           </mat-form-field>
         </div>
       </div>
