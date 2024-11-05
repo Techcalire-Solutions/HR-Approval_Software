@@ -74,4 +74,18 @@ router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
     }
 });
 
+router.patch('/update/:id', async(req,res)=>{
+    const { assets } = req.body;
+    try {
+      let result = await UserAssets.findByPk(req.params.id);
+      result.assets = assets
+  
+      await result.save();
+      res.send(result);
+    } catch (error) {
+      res.send(error.message);
+    }
+  })
+  
+
 module.exports = router;
