@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 
 const sequelize = require('./db');
 const Role = require('../users/models/role');
@@ -6,7 +8,7 @@ const Holiday = require("../leave/models/holiday");
 
 async function syncModel() {
    
-  await sequelize.sync({force: true})
+  await sequelize.sync({alter: true})
   
     const holiday = await Holiday.findAll({})
     

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ChangeDetectorRef, Component, inject, ViewEncapsulation } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { InvoiceService } from '@services/invoice.service';
@@ -19,12 +20,15 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SafePipe } from '../../../common/safe.pipe';
 import { CommonModule } from '@angular/common';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatDialog } from '@angular/material/dialog';
+import { AddCompanyComponent } from '../../company/add-company/add-company.component';
 
 @Component({
   selector: 'app-update-pi',
   standalone: true,
   imports: [ ReactiveFormsModule, MatFormFieldModule,  MatCardModule,  MatToolbarModule,  MatButtonModule, MatIconModule,
-    MatSelectModule, MatInputModule, SafePipe, CommonModule],
+    MatSelectModule, MatInputModule, SafePipe, CommonModule, MatAutocompleteModule],
   templateUrl: './update-pi.component.html',
   styleUrl: './update-pi.component.scss',
   encapsulation: ViewEncapsulation.None
@@ -65,23 +69,25 @@ export class UpdatePIComponent {
     kamId: <any>[],
     amId:  <any>[],
     accountantId:  <any>[],
-    supplierId: ['', Validators.required],
+    supplierId: <any>[],
+    supplierName: [''],
     supplierPoNo: ['', Validators.required],
     supplierSoNo:[''],
     supplierCurrency:['Dollar'],
-    supplierPrice: ['', Validators.required],
+    supplierPrice: [Validators.required],
     purpose: ['', Validators.required],
-    customerId: [''],
+    customerId: <any>[],
+    customerName: [''],
     customerPoNo: [''],
     customerSoNo:[''],
     customerCurrency:['Dollar'],
-    poValue: [''],
-    notes:[],
-    paymentMode:['']
+    poValue: [],
+    notes:[''],
+    paymentMode: ['WireTransfer']
   });
 
-  public supplierCompanies: Company[] | null;
-  public customerCompanies: Company[] | null;
+  public supplierCompanies: Company[];
+  public customerCompanies: Company[];
   companySub!: Subscription;
   public getSuppliers(): void {
     this.companySub = this.companyService.getSuppliers().subscribe((suppliers: any) =>{
@@ -94,6 +100,43 @@ export class UpdatePIComponent {
     this.customerSub = this.companyService.getCustomers().subscribe((customers: any) =>{
       this.customerCompanies = customers
     });
+  }
+
+  filterValue: string;
+  filteredCustomers: Company[] = [];
+  fileterdOptions: Company[] = [];
+  search(event: Event, type: string) {
+    if(type === 'sup'){
+      this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
+      this.fileterdOptions = this.supplierCompanies.filter(option => 
+        option.companyName.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
+        option.code.toString().replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
+      );
+    }else if(type === 'cust'){
+      this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
+      this.filteredCustomers = this.customerCompanies.filter(option => 
+        option.companyName.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
+        option.code.toString().replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
+      );
+    }
+  }
+
+  patch(selectedSuggestion: Company, type: string) {
+    if(type === 'sup') this.piForm.patchValue({ supplierId: selectedSuggestion.id, supplierName: selectedSuggestion.companyName });
+    else if(type === 'cust')  this.piForm.patchValue({ customerId: selectedSuggestion.id, customerName: selectedSuggestion.companyName});
+  }
+
+  private dialog = inject(MatDialog);
+  add(type: string){
+    const name = this.filterValue;
+    const dialogRef = this.dialog.open(AddCompanyComponent, {
+      data: {type : type, name: name}
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      this.getSuppliers()
+      this.getCustomers()
+    })
   }
   doc(): FormArray {
     return this.piForm.get("url") as FormArray;
@@ -157,18 +200,17 @@ export class UpdatePIComponent {
   uploadSub!: Subscription;
   imageUrl: any[] = [];
   newImageUrl: any[] = [];  
-  allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png', 'docx', 
-    'vnd.openxmlformats-officedocument.wordprocessingml.document', 'plain'];
+  allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png', 'plain'];
   onFileSelected(event: Event, i: number): void {
     const input = event.target as HTMLInputElement;
-    let file: any = input.files?.[0];
-    let fileType = file.type.split('/')[1]
+    const file: any = input.files?.[0];
+    const fileType = file.type.split('/')[1]
     if (!this.allowedFileTypes.includes(fileType)) {
-      alert('Invalid file type. Please select a PDF, JPEG, JPG, DOCX, TXT or PNG file.');
+      alert('Invalid file type. Please select a PDF, JPEG, JPG, TXT or PNG file.');
       return;
     }
     if (file) {
-        let inv = this.piNo;
+        const inv = this.piNo;
         const name = `${inv}_${i}`;
         const formData = new FormData();
         formData.append('file', file);
@@ -308,10 +350,9 @@ export class UpdatePIComponent {
 
   deleteSub!: Subscription;
   onDeleteUploadedImage(i: number){
-    this.deleteSub = this.invoiceService.deleteUploaded(this.route.snapshot.params['id'], i).subscribe(data=>{
+    this.deleteSub = this.invoiceService.deleteUploaded(this.route.snapshot.params['id'], i).subscribe(()=>{
       this.newImageUrl[i] = '';
       this.imageUrl[i] = '';
-      const control = this.doc().at(i).get('url')?.setValue('');
       this.snackBar.open("Document is deleted successfully...","" ,{duration:3000})
       this.isImageUploaded()
     });
@@ -319,7 +360,7 @@ export class UpdatePIComponent {
 
   deleteImageSub!: Subscription;
   onDeleteImage(i: number){
-    this.deleteImageSub = this.invoiceService.deleteUploadByurl(this.newImageUrl[i]).subscribe(data=>{
+    this.deleteImageSub = this.invoiceService.deleteUploadByurl(this.newImageUrl[i]).subscribe(()=>{
       this.newImageUrl[i] = ''
       this.imageUrl[i] = ''
         this.doc().at(i).get('docUrl')?.setValue('');
