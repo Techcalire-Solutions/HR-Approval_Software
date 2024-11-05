@@ -43,48 +43,64 @@ export class MessagesComponent implements OnInit {
   public files: Array<any>;
   public meetings: Array<any>;
   holidays: any[] = [];
-
   leaveService = inject(LeaveService);
   userId: number;
   unreadCount: number = 0;
+  allUnreadCount: number = 0;
   notifications: any[] = [];
   previousNotificationIds: Set<string> = new Set();
   notifiedUnreadIds: Set<string> = new Set();
-  private audioContext: AudioContext;
   messagesService = inject(MessagesService)
   userRole: string;
   roleService = inject(RoleService)
 
 
-  ngOnInit() {
+  async ngOnInit() {
     this.initializeComponent()
   }
 
-   initializeComponent(){
+   async initializeComponent(){
     this.messages = this.messagesService.getMessages();
     this.files = this.messagesService.getFiles();
     this.meetings = this.messagesService.getMeetings();
     const token: any = localStorage.getItem('token');
-    let user = JSON.parse(token);
-    let roleId = user.role
-    this.getRoleById(roleId)
-    this.userId = user.id;
-    this.userRole = user.role.roleName;
-    console.log(this.userRole)
-    this.getNotificationsForUser();
-
-   }
+    const user = JSON.parse(token);
+    if (user && typeof user.role === 'number') {
+      const roleId = user.role;
+      this.userId = user.id;
+      await this.getRoleById(roleId);
+      if (this.userRole === 'Admin' || this.userRole === 'Super Administrator') {
+        this.getAllNot();
+      } else {
+        this.getNotificationsForUser();
+      }
+    } else {
+      console.error("User role is missing or incorrectly structured in token data");
+    }
+  }
 
    roleSub!: Subscription;
    roleName!: string;
-   getRoleById(id: number){
-     this.roleSub = this.roleService.getRoleById(id).subscribe(role => {
-       this.roleName = role.roleName;
-     })
-   }
+   getRoleById(id: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.roleSub = this.roleService.getRoleById(id).subscribe({
+        next: role => {
+          this.userRole = role.roleName;
+          resolve();
+        },
+        error: err => {
+          console.error('Error fetching role:', err);
+          reject(err);
+        }
+      });
+    });
+  }
 
   updateUnreadCount() {
     this.unreadCount = this.notifications.filter(notification => !notification.isRead).length;
+  }
+  updateAllUnreadCount(notifications: any[]) {
+    this.allUnreadCount = notifications.filter(notification => !notification.isRead).length;
   }
 
   markReadSub :Subscription
@@ -100,8 +116,8 @@ export class MessagesComponent implements OnInit {
   }
 
 
-  // messageNotfiSub:Subscription
-  getNotificationsForUser2() {
+  messageNotfiSub:Subscription
+  getNotificationsForUser() {
    this.messageNotfiSub =  this.messagesService.getUserNotifications(this.userId).subscribe(
       (data: any) => {
         this.notifications = data.notifications || [];
@@ -114,39 +130,28 @@ export class MessagesComponent implements OnInit {
       }
     );
   }
-  messageNotfiSub: Subscription;
-  getNotificationsForUser() {
-    if (this.userRole === 'Super Administrator' || this.userRole === 'Administrator') {
+  allNotSub: Subscription;
 
-      console.log("Super Administrator")
-      // Fetch notifications for super admin or admin
-      this.messageNotfiSub = this.messagesService.getAllNotifications().subscribe(
-        (data: any) => {
-          console.log('API Response:', data);
-          this.notifications = data.notifications || [];
-
-          this.checkForNewNotifications(data);
-          this.updateUnreadCount();
-        },
-        (error) => {
-          console.error('Error fetching notifications for admin:', error);
+  getAllNot() {
+    this.allNotSub = this.messagesService.getAllNotifications().subscribe(
+      (res) => {
+        if (Array.isArray(res)) {
+          this.notifications = res;
+          this.updateAllUnreadCount(res);
+        } else {
+          this.notifications = [];
         }
-      );
-    } else {
-      // Fetch user-specific notifications
-      this.messageNotfiSub = this.messagesService.getUserNotifications(this.userId).subscribe(
-        (data: any) => {
-          console.log('API Response:', data);
-          this.notifications = data.notifications || [];
-          this.checkForNewNotifications(data);
-          this.updateUnreadCount();
-        },
-        (error) => {
-          console.error('Error fetching notifications:', error);
-        }
-      );
-    }
+      },
+      (error) => {
+        console.error('Error fetching all notifications:', error);
+      }
+    );
   }
+
+
+
+
+
   checkForNewNotifications(newNotifications: any) {
     const extractedNotifications = newNotifications.notifications || [];
     if (!Array.isArray(extractedNotifications) || !Array.isArray(this.notifications)) {
@@ -157,8 +162,6 @@ export class MessagesComponent implements OnInit {
 
     const unreadNotifications = extractedNotifications.filter(n => !n.isRead && !this.notifiedUnreadIds.has(n.id));
     if (unreadNotifications.length > 0) {
-      this.playBeepSound();
-      // this.notifyUser(unreadNotifications.length);
       unreadNotifications.forEach(n => this.notifiedUnreadIds.add(n.id));
     } else {
 
@@ -167,41 +170,8 @@ export class MessagesComponent implements OnInit {
   }
 
 
-  playBeepSound() {
-    if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
-    if (this.audioContext.state === 'suspended') {
-      this.audioContext.resume();
-    }
-    const oscillator = this.audioContext.createOscillator();
-    // oscillator.type = 'sine';
-    // oscillator.frequency.setValueAtTime(440, this.audioContext.currentTime);
-    // oscillator.connect(this.audioContext.destination);
-    // oscillator.start();
-    // oscillator.stop(this.audioContext.currentTime + 0.5);
-  }
 
 
-
-  notifyUser(unreadCount: number) {
-    if (Notification.permission === 'granted') {
-      const notification = new Notification('New Notification', {
-        body: `${unreadCount} new message${unreadCount > 1 ? 's' : ''} received.`,
-        icon: 'assets/icons/notification.png',
-      });
-
-      notification.onclick = () => {
-        window.focus();
-      };
-    } else if (Notification.permission !== 'denied') {
-      Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-          this.notifyUser(unreadCount);
-        }
-      });
-    }
-  }
 
   openMessagesMenu() {
     this.trigger.openMenu();
