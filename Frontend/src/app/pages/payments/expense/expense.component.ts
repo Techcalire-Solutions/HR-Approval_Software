@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -41,7 +42,7 @@ export class ExpenseComponent implements OnInit{
       this.generateInvoiceNumber();
     }
     const token: any = localStorage.getItem('token')
-    let user = JSON.parse(token)
+    const user = JSON.parse(token)
     
     this.getRoleById(user.role)
   }
@@ -79,7 +80,7 @@ export class ExpenseComponent implements OnInit{
   patchdata(id: number) {
     this.editStatus = true;
     this.piSub = this.expenseService.getExpenseById(id).subscribe((pi: any) => {
-      let inv: Expense = pi.pi;
+      const inv: Expense = pi.pi;
       this.piNo = inv.exNo
       this.expenseForm.patchValue({
         exNo: inv.exNo,
@@ -103,20 +104,19 @@ export class ExpenseComponent implements OnInit{
   fileType: any[] = [];
   uploadSub!: Subscription;
   imageUrl: any[] = [];  
-  allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png', 'docx', 
-    'vnd.openxmlformats-officedocument.wordprocessingml.document', 'plain'];
+  allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png', 'plain'];
   onFileSelected(event: Event, i: number): void {
     const input = event.target as HTMLInputElement;
-    let file: any = input.files?.[0];
+    const file: any = input.files?.[0];
     this.fileType[i] = file.type.split('/')[1]
     console.log(this.fileType[i]);
     
     if (!this.allowedFileTypes.includes(this.fileType[i])) {
-      alert('Invalid file type. Please select a PDF, JPEG, JPG, DOCX, TXT or PNG file.');
+      alert('Invalid file type. Please select a PDF, JPEG, JPG, TXT or PNG file.');
       return;
     }
     if (file) {
-        let inv = this.ivNum;
+        const inv = this.ivNum;
         const name = `${inv}_${i}`;
         const formData = new FormData();
         formData.append('file', file);
@@ -136,7 +136,7 @@ export class ExpenseComponent implements OnInit{
   }
 
   onDeleteImage(i: number){
-    this.expenseService.deleteUploadByurl(this.imageUrl[i]).subscribe(data=>{
+    this.expenseService.deleteUploadByurl(this.imageUrl[i]).subscribe(()=>{
       this.imageUrl[i] = ''
       this.savedImageUrl[i] = ''
       this.doc().at(i).get('url')?.setValue('');
@@ -146,7 +146,7 @@ export class ExpenseComponent implements OnInit{
 
   deleteSub!: Subscription;
   onDeleteUploadedImage(i: number){
-    this.deleteSub = this.expenseService.deleteUploaded(this.route.snapshot.params['id'], i).subscribe(data=>{
+    this.deleteSub = this.expenseService.deleteUploaded(this.route.snapshot.params['id'], i).subscribe(()=>{
       this.savedImageUrl[i] = '';
       this.imageUrl[i] = '';
       this.snackBar.open("Document is deleted successfully...","" ,{duration:3000})
@@ -206,12 +206,12 @@ export class ExpenseComponent implements OnInit{
           return !isNaN(idNumber) && idNumber > prevMax ? idNumber : prevMax;
         }, 0);
 
-        let nextId = maxId + 1;
+        const nextId = maxId + 1;
         const paddedId = `${this.prefix}${nextId.toString().padStart(3, "0")}`;
         this.ivNum = paddedId;
       } else {
-        let nextId = 1;
-        let prefix = "EXP-";
+        const nextId = 1;
+        const prefix = "EXP-";
         const paddedId = `${prefix}${nextId.toString().padStart(3, "0")}`;
         this.ivNum = paddedId;
       }
@@ -221,8 +221,8 @@ export class ExpenseComponent implements OnInit{
   }
 
   extractLetters(input: string): string {
-    var extractedChars = input.match(/[A-Za-z-]/g);
-    var result = extractedChars ? extractedChars.join('') : '';
+    const extractedChars = input.match(/[A-Za-z-]/g);
+    const result = extractedChars ? extractedChars.join('') : '';
 
     return result;
   }
@@ -242,7 +242,7 @@ export class ExpenseComponent implements OnInit{
         }
       })
     }else{
-      this.submit = this.expenseService.addExpense(this.expenseForm.getRawValue()).subscribe(res =>{
+      this.submit = this.expenseService.addExpense(this.expenseForm.getRawValue()).subscribe(() =>{
         this.snackBar.open("Expense added succesfully...","" ,{duration:3000})
         this.router.navigateByUrl('login/viewApproval/viewexpenses');
       })
