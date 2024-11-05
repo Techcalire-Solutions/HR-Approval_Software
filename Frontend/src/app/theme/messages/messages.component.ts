@@ -193,6 +193,11 @@ export class MessagesComponent implements OnInit {
     }
   }
 
+  isAdmin(): boolean {
+    return this.userRole === 'admin' || this.userRole === 'Super Administrator';
+  }
+
+
   ngOnDestroy(){
     if(this.markReadSub) this.markReadSub.unsubscribe();
     if(this.messageNotfiSub) this.messageNotfiSub.unsubscribe();

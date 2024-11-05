@@ -31,7 +31,7 @@
                                   </div>
                                   <mat-icon
                                   style="color: blue; cursor: pointer;"
-                                  (click)="markAsRead(message.id)"
+                                  (click)="!isAdmin() ? markAsRead(message.id) : null"
                                   aria-label="Mark as read">
                                   mark_email_read
                                 </mat-icon>
