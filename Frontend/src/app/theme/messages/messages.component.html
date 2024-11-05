@@ -1,11 +1,12 @@
 <button mat-icon-button [matMenuTriggerFor]="messagesMenu" (click)="openMessagesMenu()">
   <mat-icon>notifications</mat-icon>
 
-  @if (unreadCount > 0) {
-    <span style="color: red; font-weight: bold; font-size: 0.75em; position: relative; top: -8px; left: -6px;">{{unreadCount}}</span>
+  @if (allUnreadCount  > 0) {
+    <span style="color: red; font-weight: bold; font-size: 0.75em; position: relative; top: -8px; left: -6px;">{{allUnreadCount }}</span>
 
-
-
+  }
+  @if (unreadCount  > 0) {
+    <span style="color: red; font-weight: bold; font-size: 0.75em; position: relative; top: -8px; left: -6px;">{{unreadCount }}</span>
   }
 </button>
 
