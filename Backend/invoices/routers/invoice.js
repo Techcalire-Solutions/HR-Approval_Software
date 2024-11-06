@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const express = require('express');
 const router = express.Router();
 const upload = require('../../utils/multer'); // Import the configured multer instance
@@ -7,7 +9,6 @@ const s3 = require('../../utils/s3bucket');
 const sequelize = require('../../utils/db');
 const xlsx = require('xlsx');
 const ExcelJS = require('exceljs');
-const path = require('path');
 const ExcelLog = require('../models/excelLog');
 
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
@@ -100,45 +101,30 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
       return res.status(404).send({ message: 'File or index not found' });
     }
 
-    // Get the fileKey from the URL array
     fileKey = result.url[index].url;
-    console.log("Deleting file:", fileKey);
-
-    // Remove the file from the URL array based on the index
     result.url.splice(index, 1); 
-    console.log("URL list after removal:", result.url);
 
-    // Explicitly mark the URL field as changed and force the update
     result.setDataValue('url', result.url);
-    result.changed('url', true); // Ensure Sequelize recognizes the field as changed
+    result.changed('url', true);
 
-    // Save the changes
     await result.save({ transaction: t });
 
-    // Commit the transaction to persist the changes
     await t.commit();
 
-    // Fetch the latest version to check if it's updated
     result = await PerformaInvoice.findByPk(id);
-    console.log("Updated URL list after reload:", result.url);
 
-    // Set S3 delete parameters
     const deleteParams = {
       Bucket: process.env.AWS_BUCKET_NAME,
       Key: fileKey.replace('https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/', '')
     };
 
-    // Delete the file from S3
     await s3.deleteObject(deleteParams).promise();
 
     res.send({ message: 'File deleted successfully' });
   } catch (error) {
-    console.error('Error deleting file from S3 or database:', error);
-
-    // Rollback the transaction if it was created and an error occurs
     if (t) await t.rollback();
 
-    res.status(500).send({ message: error.message });
+    res.send({ message: error.message });
   }
 });
 
@@ -159,10 +145,10 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
       // Delete the file from S3
       await s3.deleteObject(deleteParams).promise();
 
-      res.status(200).send({ message: 'File deleted successfully' });
+      res.send({ message: 'File deleted successfully' });
     } catch (error) {
       console.error('Error deleting file from S3:', error);
-      res.status(500).send({ message: error.message });
+      res.send({ message: error.message });
     }
 });
 
