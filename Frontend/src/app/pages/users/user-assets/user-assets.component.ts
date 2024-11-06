@@ -1,60 +1,181 @@
-import { Component, inject } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { CommonModule } from '@angular/common';
+import { Component, inject, OnDestroy } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { NativeDateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute } from '@angular/router';
+import { UsersService } from '@services/users.service';
+import { DateAdapter } from 'angular-calendar';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-user-assets',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, MatIconModule, MatFormFieldModule, MatInputModule, CommonModule, MatDatepickerModule,
+    MatNativeDateModule
+  ],
   templateUrl: './user-assets.component.html',
-  styleUrl: './user-assets.component.scss'
+  styleUrl: './user-assets.component.scss',
+  providers: [
+    { provide: DateAdapter, useClass: NativeDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
+  ]
 })
-export class UserAssetsComponent {
-  assetForm: FormGroup;
+export class UserAssetsComponent implements OnDestroy{
+  ngOnDestroy(): void {
+    this.userAssetSub?.unsubscribe();
+    this.assetSub?.unsubscribe();
+    this.userSub?.unsubscribe();
+    this.userPosition?.unsubscribe();
+  }
+  rows: any[] = []; 
 
-  constructor(private fb: FormBuilder) {
-    this.assetForm = this.fb.group({
-      assets: this.fb.array([this.createAssetFormGroup()]) // Start with one asset field
+  private fb = inject(FormBuilder);
+  form = this.fb.group({
+    assetCode: [''],
+    newRow: this.fb.group({
+      identifierType: [''],
+      identificationNumber: [''],
+      description: [''],
+      assignedDate: [],
+    }),
+  });
+
+  private route = inject(ActivatedRoute);
+  ngOnInit(): void {
+    const id = this.route.snapshot.params['id'];
+    this.getUserById(id)
+  }
+
+  private snackbar = inject(MatSnackBar);
+  updateStatus: boolean = false;
+  id: number;
+  userName: string;
+  userSub!: Subscription;
+  userPosition: Subscription;
+  getUserById(id: number){
+    this.userSub = this.userService.getUserAssetsByUser(id).subscribe(data =>{
+      if(data){
+        this.userName = data.user.name
+        this.updateStatus = true;
+        this.id = data.id;
+        this.assetCode = data.assetCode;
+        for(let i = 0; i < data.assets.length; i++){
+          this.addRow(data.assets[i])
+        }
+      }else{
+        this.userPosition = this.userService.getUserPositionDetailsByUser(id).subscribe(position=>{
+          this.userName = position.user.name
+          if(position === null){
+            alert("Add department details...");
+            history.back();
+          }
+          this.generateCode(position?.department.abbreviation)
+        });
+      }
     });
+
   }
 
-  ngOnInit(): void {}
-
-  // Get the assets FormArray
-  get assets(): FormArray {
-    return this.assetForm.get('assets') as FormArray;
-  }
-
-  // Create a new FormGroup for an asset
-  createAssetFormGroup(): FormGroup {
-    return this.fb.group({
-      assetName: ['', Validators.required],
-      assetType: ['', Validators.required],
-      assignedDate: ['', Validators.required]
+  editRow(row: any, index: number): void {
+    this.form.get('newRow')?.patchValue({
+      identifierType: row.identifierType,
+      identificationNumber: row.identificationNumber,
+      description: row.description,
+      assignedDate: row.assignedDate,
     });
+    this.rows.splice(index, 1);
   }
 
-  // Add a new asset form group to the FormArray
-  addAsset() {
-    this.assets.push(this.createAssetFormGroup());
+  addRow(data?: any) {
+    let newRow;
+    if(data) newRow = data
+    if (this.form.valid)  newRow = { ...this.form.value.newRow }; 
+    this.rows.push(newRow);
+    this.form.reset();
   }
 
-  // Remove an asset form group from the FormArray
-  removeAsset(index: number) {
-    this.assets.removeAt(index);
-  }
-
-  // Handle form submission
-  onSubmit() {
-    if (this.assetForm.valid) {
-      const assetData = this.assetForm.value.assets;
-      // this.assetService.addMultipleAssets(assetData).subscribe(
-      //   response => {
-      //     console.log('Assets successfully added!', response);
-      //   },
-      //   error => {
-      //     console.error('Error adding assets:', error);
-      //   }
-      // );
+  assetSub!: Subscription;
+  saveAssets() {
+    const data = {
+      userId: this.route.snapshot.params['id'],
+      assetCode: this.assetCode,
+      assets: this.rows
     }
+    if(this.updateStatus){
+      this.assetSub = this.userService.updateUserAssets(data, this.id).subscribe(() => {
+        this.snackbar.open("Assets updated successfully...","" ,{duration:3000})
+      })
+    }else{
+      this.assetSub = this.userService.addUserAssets(data).subscribe(() => {
+        this.snackbar.open("Assets saved successfully...","" ,{duration:3000})
+      })
+    }
+
   }
+
+  // Function to remove a row
+  removeRow(index: number) {
+    this.rows.splice(index, 1); // Remove the row at the specified index
+  }
+
+  private userService = inject(UsersService);
+  assetCode: string;
+  userAssetSub!: Subscription;
+  generateCode(department?: string) {
+    let prefix: string;
+    const currentYear = new Date().getFullYear();
+    const twoDigitYear = currentYear.toString().slice(-2);
+
+    this.userAssetSub = this.userService.getUserAssets(department).subscribe((res) => {
+      const users = res;
+      
+      if (users.length > 0) {
+        const maxId = users.reduce((prevMax, inv) => {
+          const empNoParts = inv.assetCode.split('-'); // Split by '-'
+
+          const idNumber = parseInt(empNoParts[empNoParts.length - 1], 10);
+
+          prefix = this.extractLetters(inv.assetCode); // Get the prefix
+
+          if (!isNaN(idNumber)) {
+            // Compare and return the maximum ID
+            return idNumber > prevMax ? idNumber : prevMax;
+          } else {
+            return prevMax;
+          }
+        }, 0);
+
+        const nextId = maxId + 1;
+
+        const paddedId = `${prefix}-${twoDigitYear}-${department}-${nextId.toString().padStart(3, "0")}`;
+
+        const ivNum = paddedId;
+        this.assetCode = ivNum;
+        this.form.get('assetCode')?.setValue(ivNum);
+      } else {
+        const nextId = 0o1;
+        prefix =  `OAC-${twoDigitYear}-${department}-`;
+
+        const paddedId = `${prefix}${nextId.toString().padStart(3, "0")}`;
+
+        const ivNum = paddedId;
+
+        this.form.get('assetCode')?.setValue(ivNum);
+        this.assetCode = ivNum;
+      }
+    });
+  }
+
+  extractLetters(input: string): string {
+    const match = input.match(/^[A-Za-z]+/);
+
+    return match ? match[0] : '';
+  }
+
 }

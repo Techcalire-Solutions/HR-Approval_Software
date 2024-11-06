@@ -45,7 +45,6 @@ export class AddLeaveTypeDialogueComponent {
   leaveService=inject(LeaveService)
   _snackBar=inject(MatSnackBar)
   dialog=inject(MatDialog)
-  dialogRef = inject(MatDialogRef<AddLeaveTypeDialogueComponent>)
   leaveType = inject(MAT_DIALOG_DATA);
 
   leaveTypeForm = this.formBuilder.group({

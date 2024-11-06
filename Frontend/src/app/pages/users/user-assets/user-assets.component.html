@@ -1,32 +1,70 @@
-<div class="asset-form-container">
-    <h2>Add Assets for User</h2>
+<div class="container">
+  <h2 class="title"> @if(updateStatus){Update} @else{Add} User Assets for {{userName}}  - <strong>{{assetCode}}</strong></h2>
+  <form [formGroup]="form" (ngSubmit)="addRow()" class="form">
+    <div formGroupName="newRow" class="input-group">
+      
+      <mat-form-field appearance="outline" class="input-field full-width">
+        <mat-label>Identifier Type</mat-label>
+        <input matInput formControlName="identifierType" placeholder="Identifier Type" required />
+      </mat-form-field>
   
-    <form [formGroup]="assetForm" (ngSubmit)="onSubmit()">
-      <div formArrayName="assets">
-        <div *ngFor="let asset of assets.controls; let i = index" [formGroupName]="i" class="asset-group">
-          
-          <div>
-            <label for="assetName">Asset Name</label>
-            <input formControlName="assetName" type="text" required />
-          </div>
+      <mat-form-field appearance="outline" class="input-field full-width">
+        <mat-label>Identification Number</mat-label>
+        <input matInput formControlName="identificationNumber" placeholder="Identification Number" required />
+      </mat-form-field>
   
-          <div>
-            <label for="assetType">Asset Type</label>
-            <input formControlName="assetType" type="text" required />
-          </div>
+      <mat-form-field appearance="outline" class="input-field full-width">
+        <mat-label>Description</mat-label>
+        <input matInput formControlName="description" placeholder="Description" required />
+      </mat-form-field>
   
-          <div>
-            <label for="assignedDate">Assigned Date</label>
-            <input formControlName="assignedDate" type="date" required />
-          </div>
+      <!-- <mat-form-field appearance="outline" class="input-field full-width">
+        <mat-label>Assigned Date</mat-label>
+        <input matInput type="date" formControlName="assignedDate" required />
+      </mat-form-field> -->
+
+      <mat-form-field appearance="outline" class="input-field full-width">
+        <mat-label>Assigned Date</mat-label>
+        <input matInput [matDatepicker]="startDatePicker" formControlName="assignedDate" placeholder="Date" required >
+        <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #startDatePicker></mat-datepicker>
+      </mat-form-field>
   
-          <button type="button" (click)="removeAsset(i)">Remove</button>
+      <mat-icon (click)="form.valid && addRow()" class="add-icon" [ngClass]="{'disabled': !form.valid}">
+        add_circle_outline
+      </mat-icon>
+    </div>
+  </form>
   
-        </div>
-      </div>
-  
-      <button type="button" (click)="addAsset()">Add Another Asset</button>
-      <button type="submit" [disabled]="assetForm.invalid">Submit</button>
-    </form>
-  </div>
-  
+
+  <table class="table">
+    <thead>
+      <tr class="table-header">
+        <th>Identifier Type</th>
+        <th>Identification Number</th>
+        <th>Description</th>
+        <th>Assigned Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows; let i = $index; track $index) {
+        <tr class="table-row" (click)="editRow(row, i)">
+          <td>{{ row.identifierType }}</td>
+          <td>{{ row.identificationNumber }}</td>
+          <td>{{ row.description }}</td>
+          <td>{{ row.assignedDate | date: 'dd-MM-yyyy' }}</td>
+          <td>
+            <mat-icon (click)="removeRow(i)">remove_circle_outline</mat-icon>
+          </td>
+        </tr>
+      }
+
+    </tbody>
+  </table>
+  @if(rows.length > 0){
+    <button (click)="saveAssets()" class="btn save-btn">
+      @if(updateStatus){Update} @else {Save} Assets
+    </button>
+  }
+</div>

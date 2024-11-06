@@ -32,12 +32,12 @@
             <input matInput formControlName="grade" >
           </mat-form-field>
         </div>
-        <div class="col">
+        <!-- <div class="col">
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>Designation</mat-label>
             <input matInput formControlName="designation" >
           </mat-form-field>
-        </div>
+        </div> -->
       </div>
   
       <div class="row box">
@@ -56,7 +56,13 @@
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>Department</mat-label>
-            <input matInput formControlName="department" >
+            <mat-select formControlName="department">
+              @for (department of departments; track $index) {
+                <mat-option [value]="department">
+                  {{ department.name }}
+                </mat-option>
+              }
+            </mat-select>
           </mat-form-field>
         </div>
       </div>

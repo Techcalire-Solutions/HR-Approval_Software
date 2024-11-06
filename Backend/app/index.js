@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const express = require('express');
 const app = express();
 const dotenv = require('dotenv');
@@ -20,6 +21,7 @@ const statutoryInfo = require('../users/routers/statutoryInfo');
 const userAccount = require('../users/routers/userAccount');
 const userPosition = require('../users/routers/userPosition');
 const userDocument = require('../users/routers/userDocument');
+const userAssets = require('../users/routers/userAssets');
 
 const auth = require('../users/routers/auth');
 const team = require('../users/routers/team');
@@ -45,6 +47,7 @@ app.use('/statutoryinfo', statutoryInfo)
 app.use('/account', userAccount)
 app.use('/position', userPosition)
 app.use('/document', userDocument)
+app.use('/asset', userAssets)
 
 app.use('/auth', auth);
 app.use('/team', team);
@@ -85,6 +88,7 @@ const advanceSalary = require('../payroll/routers/advanceSalary');
 app.use('/advanceSalary', advanceSalary);
 
 const monthlyPayroll = require('../payroll/routers/monthlyPayroll');
+const UserAssets = require('../users/models/userAssets');
 app.use('/monthlyPayroll', monthlyPayroll);
 
 app.get('/export', async(req,res)=> {

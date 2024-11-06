@@ -89,12 +89,12 @@
 
               <div class="col">
                 <mat-form-field class="w-100" appearance="outline" >
-                  <input matInput placeholder="Select Designation" formControlName="roleName" [matAutocomplete]="auto" (keyup)="search($event,'cust')">
+                  <input matInput placeholder="Select Designation" formControlName="roleName" [matAutocomplete]="auto" (keyup)="search($event)">
                   <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value)">
                     <mat-option *ngFor="let suggestion of filteredOptions" [value]="suggestion">
                       {{ suggestion.roleName }}
                     </mat-option>
-                    <mat-option *ngIf="filteredOptions.length === 0" [value]="'add'" (click)="add('cust')">
+                    <mat-option *ngIf="filteredOptions.length === 0" [value]="'add'" (click)="add()">
                       <mat-icon style="font-size: 25px; color: rgb(35, 35, 247);">playlist_add</mat-icon>
                       ADD NEW
                     </mat-option>

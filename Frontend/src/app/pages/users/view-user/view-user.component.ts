@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
@@ -17,6 +17,7 @@ import { StatutoryInfo } from '../../../common/interfaces/statutory-info';
 import { UserAccount } from '../../../common/interfaces/user-account';
 import { UserPosition } from '../../../common/interfaces/user-position';
 import { UserDocument } from '../../../common/interfaces/user-document';
+import { UserAssets } from '../../../common/interfaces/user-assets';
 
 @Component({
   selector: 'app-view-user',
@@ -43,7 +44,7 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   userSub!: Subscription;
   userService = inject(UsersService);
   route = inject(ActivatedRoute);
-  user: any;
+  user: User;
   getUser(){
     this.userSub = this.userService.getUserById(this.route.snapshot.params['id']).subscribe(x => {
       this.user = x;
@@ -52,6 +53,7 @@ export class ViewUserComponent implements OnInit, OnDestroy{
       this.getStatutoryData(x.id);
       this.getPositionData(x.id);
       this.getDocuments(x.id);
+      this.getAssets(x.id)
     });
   }
 
@@ -93,6 +95,14 @@ export class ViewUserComponent implements OnInit, OnDestroy{
     this.docSub = this.userService.getUserDocumentsByUser(id).subscribe(x => {
       this.documents = x
     });
+  }
+
+  assetSub!: Subscription;
+  assets: UserAssets; 
+  getAssets(id: number){
+    this.assetSub = this.userService.getUserAssetsByUser(id).subscribe(x => {
+      this.assets = x;
+    })
   }
 
   ngOnDestroy(): void {

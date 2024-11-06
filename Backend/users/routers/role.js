@@ -1,17 +1,16 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const express = require('express');
 const Role = require('../models/role');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
-const { Op, fn, col, where } = require('sequelize');
+const { Op } = require('sequelize');
 const sequelize = require('../../utils/db');
 
 
 router.post('/', authenticateToken, async (req, res) => {
   const { roleName, abbreviation, status, department } = req.body;
     try {
-      let rrr = await Role.findAll({})
-      console.log(rrr);
-      
           const role = new Role({roleName, abbreviation, status, department});
           await role.save();
           

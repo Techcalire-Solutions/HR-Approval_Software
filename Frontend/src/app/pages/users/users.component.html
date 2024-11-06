@@ -19,9 +19,10 @@
 
     <div fxLayout="row" fxLayoutAlign="space-between center">
         <mat-button-toggle-group #viewType="matButtonToggleGroup" appearance="legacy" value="grid" hideSingleSelectionIndicator="true">
-            <mat-button-toggle value="grid">
-                <mat-icon>view_module</mat-icon>
+            <mat-button-toggle value="grid" (click)="viewSeparated()">
+                <mat-icon>no_accounts</mat-icon>
             </mat-button-toggle>
+            
         </mat-button-toggle-group>
     </div>
 </div>
@@ -66,11 +67,11 @@
                                 <mat-icon>password</mat-icon>
                                 <span>Password</span>
                             </button>
-                            <button mat-menu-item (click)="resignEmployee(user.id, user.empNo);">
+                            <button mat-menu-item (click)="resignEmployee(user.id, user.empNo, user.name);">
                                 <mat-icon>low_priority</mat-icon>
                                 <span>Separation</span>
                             </button>
-                            <button mat-menu-item (click)="openAssets(user.id, user.empNo);">
+                            <button mat-menu-item (click)="openAssets(user.id);">
                                 <mat-icon>devices</mat-icon>
                                 <span>Assets</span>
                             </button>

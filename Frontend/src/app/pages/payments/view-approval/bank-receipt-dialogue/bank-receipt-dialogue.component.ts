@@ -72,9 +72,18 @@ export class BankReceiptDialogueComponent {
   uploadComplete: boolean = false;
   file!: any;
   uploadSub!: Subscription;
+  fileType: string;
+  allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png', 'docx', 
+    'vnd.openxmlformats-officedocument.wordprocessingml.document', 'plain'];
   uploadFile(event: Event) {
     const input = event.target as HTMLInputElement;
     this.file = input.files?.[0];
+    this.fileType = this.file.type.split('/')[1]
+    
+    if (!this.allowedFileTypes.includes(this.fileType)) {
+      alert('Invalid file type. Please select a PDF, JPEG, JPG, DOCX, TXT or PNG file.');
+      return;
+    }
     this.uploadComplete = true;
 
     if (this.file) {

@@ -87,7 +87,12 @@ export class OpenExpenseComponent {
       if(this.roleName === 'Team Lead') { this.teamLead = true }
     })
   }
+
+  encodeUrl(url: string): string {
+    return encodeURIComponent(url);
+  }
   
+
   piSub!: Subscription;
   url!: string;
   piNo!: string;
@@ -96,12 +101,20 @@ export class OpenExpenseComponent {
   signedUrl: any[];
   getPiById(id: number){
     this.piSub = this.expenseService.getExpenseById(id).subscribe((pi: any) => {
-      console.log(pi);
-      
       this.pi = pi.pi;
       this.piNo = pi.pi.exNo;
-
-      this.signedUrl= pi.signedUrl
+      
+      const signedUrlsWithType = pi.signedUrl.map((signedUrl: any) => {
+        const url = signedUrl.url;
+        const fileType = url.split('.').pop().split('?')[0]; 
+        return {
+            url: url,
+            type: fileType,
+            remarks: signedUrl.remarks 
+        };
+      });
+      
+      this.signedUrl = signedUrlsWithType;
       
       if(this.pi.status === 'Generated' && this.roleName === 'Manager' ){
         this.pi = {

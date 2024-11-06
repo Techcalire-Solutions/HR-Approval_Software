@@ -1,4 +1,5 @@
-import { Component, inject, ViewEncapsulation } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ChangeDetectorRef, Component, inject, ViewEncapsulation } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { InvoiceService } from '@services/invoice.service';
 import { LoginService } from '@services/login.service';
@@ -18,12 +19,16 @@ import { ReactiveFormsModule, FormBuilder, Validators, FormArray, FormGroup } fr
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SafePipe } from '../../../common/safe.pipe';
+import { CommonModule } from '@angular/common';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatDialog } from '@angular/material/dialog';
+import { AddCompanyComponent } from '../../company/add-company/add-company.component';
 
 @Component({
   selector: 'app-update-pi',
   standalone: true,
   imports: [ ReactiveFormsModule, MatFormFieldModule,  MatCardModule,  MatToolbarModule,  MatButtonModule, MatIconModule,
-    MatSelectModule, MatInputModule, SafePipe],
+    MatSelectModule, MatInputModule, SafePipe, CommonModule, MatAutocompleteModule],
   templateUrl: './update-pi.component.html',
   styleUrl: './update-pi.component.scss',
   encapsulation: ViewEncapsulation.None
@@ -64,36 +69,78 @@ export class UpdatePIComponent {
     kamId: <any>[],
     amId:  <any>[],
     accountantId:  <any>[],
-    supplierId: ['', Validators.required],
+    supplierId: <any>[],
+    supplierName: [''],
     supplierPoNo: ['', Validators.required],
     supplierSoNo:[''],
     supplierCurrency:['Dollar'],
-    supplierPrice: ['', Validators.required],
+    supplierPrice: [Validators.required],
     purpose: ['', Validators.required],
-    customerId: [''],
+    customerId: <any>[],
+    customerName: [''],
     customerPoNo: [''],
     customerSoNo:[''],
     customerCurrency:['Dollar'],
-    poValue: [''],
-    notes:[],
-    paymentMode:['']
+    poValue: [],
+    notes:[''],
+    paymentMode: ['WireTransfer']
   });
 
-  public supplierCompanies: Company[] | null;
-  public customerCompanies: Company[] | null;
+  public supplierCompanies: Company[];
+  public customerCompanies: Company[];
   companySub!: Subscription;
   public getSuppliers(): void {
     this.companySub = this.companyService.getSuppliers().subscribe((suppliers: any) =>{
       this.supplierCompanies = suppliers;
+      this.fileterdOptions = this.supplierCompanies;
     });
   }
 
   customerSub!: Subscription;
   public getCustomers(): void {
     this.customerSub = this.companyService.getCustomers().subscribe((customers: any) =>{
-      this.customerCompanies = customers
+      this.customerCompanies = customers;
+      this.filteredCustomers = this.customerCompanies;
     });
   }
+
+  filterValue: string;
+  filteredCustomers: Company[] = [];
+  fileterdOptions: Company[] = [];
+  search(event: Event, type: string) {
+    if(type === 'sup'){
+      this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
+      this.fileterdOptions = this.supplierCompanies.filter(option => 
+        option.companyName.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
+        option.code.toString().replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
+      );
+    }else if(type === 'cust'){
+      this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
+      this.filteredCustomers = this.customerCompanies.filter(option => 
+        option.companyName.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
+        option.code.toString().replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
+      );
+    }
+  }
+
+  patch(selectedSuggestion: Company, type: string) {
+    if(type === 'sup') this.piForm.patchValue({ supplierId: selectedSuggestion.id, supplierName: selectedSuggestion.companyName });
+    else if(type === 'cust')  this.piForm.patchValue({ customerId: selectedSuggestion.id, customerName: selectedSuggestion.companyName});
+  }
+
+  private dialog = inject(MatDialog);
+  add(type: string){
+    const name = this.filterValue;
+    const dialogRef = this.dialog.open(AddCompanyComponent, {
+      data: {type : type, name: name}
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      this.getSuppliers()
+      this.getCustomers()
+    })
+  }
+  
   doc(): FormArray {
     return this.piForm.get("url") as FormArray;
   }
@@ -103,6 +150,7 @@ export class UpdatePIComponent {
   addDoc(data?:any){
     this.doc().push(this.newDoc(data));
     this.clickedForms.push(false);
+    this.cdr.detectChanges();
   }
 
   newDoc(initialValue?: any): FormGroup {
@@ -112,29 +160,17 @@ export class UpdatePIComponent {
     });
   }
 
-  deleteUploadSub!: Subscription;
+  deleteUploadSub!: Subscription;  
+  private cdr = inject(ChangeDetectorRef) 
   removeData(index: number) {
-    const formGroup = this.doc().at(index).value;
-    if (formGroup.url !== null) {
-      this.deleteUploadSub = this.invoiceService.deleteUploadByurl(formGroup.url).subscribe({
-        next: (response) => {
-          const control = this.doc().at(index).get('url');
-          if (control) {
-            control.setValue('');
-            this.imageUrl[index] = '';
-            this.newImageUrl[index] = '';
-          }
-          this.doc().removeAt(index);
-        },
-        error: (error) => {
-          console.error('Error during update:', error);
-        }
-      });
+    if (index >= 0 && index < this.doc().length) {
+        this.doc().removeAt(index);
+        this.imageUrl.splice(index, 1);      
+        this.newImageUrl.splice(index, 1); 
     } else {
-      this.doc().removeAt(index);
+        console.warn(`Index ${index} is out of bounds for removal`);
     }
   }
-
 
   id!: number;
   ngOnInit(): void {
@@ -147,9 +183,9 @@ export class UpdatePIComponent {
     this.getAccountants();
 
     const token: any = localStorage.getItem('token')
-    let user = JSON.parse(token)
+    const user = JSON.parse(token)
 
-    let roleId = user.role
+    const roleId = user.role
     this.getRoleById(roleId)
     this.getSuppliers();
     this.getCustomers()
@@ -166,14 +202,18 @@ export class UpdatePIComponent {
   fileType: any[] = [];
   uploadSub!: Subscription;
   imageUrl: any[] = [];
-  newImageUrl: any[] = [];
+  newImageUrl: any[] = [];  
+  allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png', 'plain'];
   onFileSelected(event: Event, i: number): void {
     const input = event.target as HTMLInputElement;
-    let file: any = input.files?.[0];
-
-    this.fileType[i] = file.type.split('/')[1]
+    const file: any = input.files?.[0];
+    const fileType = file.type.split('/')[1]
+    if (!this.allowedFileTypes.includes(fileType)) {
+      alert('Invalid file type. Please select a PDF, JPEG, JPG, TXT or PNG file.');
+      return;
+    }
     if (file) {
-        let inv = this.piNo;
+        const inv = this.piNo;
         const name = `${inv}_${i}`;
         const formData = new FormData();
         formData.append('file', file);
@@ -189,8 +229,8 @@ export class UpdatePIComponent {
   }
 
   extractLetters(input: string): string {
-    var extractedChars = input.match(/[A-Za-z-]/g);
-    var result = extractedChars ? extractedChars.join('') : '';
+    const extractedChars = input.match(/[A-Za-z-]/g);
+    const result = extractedChars ? extractedChars.join('') : '';
     return result;
   }
 
@@ -254,7 +294,6 @@ export class UpdatePIComponent {
 
           this.upload = updateMethod.subscribe({
               next: (invoice: any) => {
-                console.log(invoice)
                   const piNo = invoice?.piNo;
 
                   if (piNo) {
@@ -280,9 +319,11 @@ export class UpdatePIComponent {
   patchdata(id: number) {
     this.editStatus = true;
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
-      let inv = pi.pi;
+      const inv = pi.pi;
       this.piNo = inv.piNo
-      let remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
+      console.log(inv);
+      
+      const remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
       this.piForm.patchValue({
         piNo: inv.piNo,
         status: inv.status,
@@ -291,11 +332,13 @@ export class UpdatePIComponent {
         amId: inv.amId,
         accountantId: inv.accountantId,
         supplierId: inv.supplierId,
+        supplierName: inv.suppliers?.companyName,
         supplierSoNo: inv.supplierSoNo,
         supplierPoNo: inv.supplierPoNo,
         supplierPrice: inv.supplierPrice,
         purpose: inv.purpose,
         customerId: inv.customerId,
+        customerName: inv.customers?.companyName,
         customerPoNo: inv.customerPoNo,
         customerSoNo: inv.customerSoNo,
         poValue: inv.poValue,
@@ -314,7 +357,7 @@ export class UpdatePIComponent {
 
   deleteSub!: Subscription;
   onDeleteUploadedImage(i: number){
-    this.deleteSub = this.invoiceService.deleteUploaded(this.route.snapshot.params['id'], i).subscribe(data=>{
+    this.deleteSub = this.invoiceService.deleteUploaded(this.route.snapshot.params['id'], i).subscribe(()=>{
       this.newImageUrl[i] = '';
       this.imageUrl[i] = '';
       this.snackBar.open("Document is deleted successfully...","" ,{duration:3000})
@@ -324,8 +367,9 @@ export class UpdatePIComponent {
 
   deleteImageSub!: Subscription;
   onDeleteImage(i: number){
-    this.deleteImageSub = this.invoiceService.deleteUploadByurl(this.newImageUrl[i]).subscribe(data=>{
+    this.deleteImageSub = this.invoiceService.deleteUploadByurl(this.newImageUrl[i]).subscribe(()=>{
       this.newImageUrl[i] = ''
+      this.imageUrl[i] = ''
         this.doc().at(i).get('docUrl')?.setValue('');
       this.snackBar.open("Document is deleted successfully...","" ,{duration:3000})
     });
@@ -334,9 +378,8 @@ export class UpdatePIComponent {
   imageUploaded: boolean
   isImageUploaded(): boolean {
     const controls = this.piForm.get('url')as FormArray;
-
-    if( controls.length === 0) {return true;}
-    let i = controls.length - 1;
+    if( controls.length === 0) { return true}
+    const i = controls.length - 1;
     if (this.imageUrl[i] || this.newImageUrl[i]) {
       return true;
     }else return false;

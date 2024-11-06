@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -78,8 +79,6 @@ export class AddCompanyComponent {
     if (this.company) {
       this.patchCompany(this.company);
     }
-    const token: any = localStorage.getItem('token');
-    let user = JSON.parse(token);
     this.getCompany()
     if(this.dialogData){
       console.log(this.dialogData);
@@ -145,16 +144,14 @@ export class AddCompanyComponent {
   }
   onSubmit(){
     if(this.company){
-      this.companyService.updateCompany(this.company.id, this.companyForm.getRawValue()).subscribe(data => {
+      this.companyService.updateCompany(this.company.id, this.companyForm.getRawValue()).subscribe(() => {
         if (this.dialogRef) this.dialogRef.close();
         else  this.router.navigateByUrl('/login/company');
-        
         this._snackBar.open("Company updated succesfully...","" ,{duration:1000})
         this.getCompany();
-        this.router.navigateByUrl('/login/company')
       });
     }else{
-      this.companyService.addCompany(this.companyForm.getRawValue()).subscribe((res)=>{
+      this.companyService.addCompany(this.companyForm.getRawValue()).subscribe(()=>{
         if (this.dialogRef) this.dialogRef.close();
         else  this.router.navigateByUrl('/login/company');
         this._snackBar.open("Company added successfully...","" ,{duration:3000})

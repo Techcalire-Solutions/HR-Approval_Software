@@ -343,10 +343,10 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
             if (!recipientEmail) {
               return res.send("KAM project email is missing. \n Please inform the admin to add it.");
             }
-        } else {
+        } else{
           
            const accountant = await UserPosition.findOne({where:{userId:accountantId}})
-            recipientEmail = accountant.projectMailId; 
+            recipientEmail = accountant ? accountant.projectMailId:null;
             notificationRecipientId =  accountantId;
             if(!recipientEmail){
                 return res.send("Accoutant project email is missing. \n Please inform the admin to add it.");
@@ -451,7 +451,7 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
 
         res.json({
             piNo: newPi.piNo,
-            status: status, // Use the status variable
+            status: status, 
             message: 'Proforma Invoice saved successfully'
         });
     } catch (error) {
@@ -962,6 +962,7 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
     }
 });
 
+
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
     const { bankSlip, status } = req.body;
     
@@ -985,8 +986,16 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Invalid status' });
         }
 
+          pi.bankSlip = bankSlip;
+           pi.status = newStat;
+           await pi.save();
 
-        statusArray = new PerformaInvoiceStatus({ performaInvoiceId: pi.id, status, date: new Date() });
+
+        statusArray = new PerformaInvoiceStatus({
+             performaInvoiceId: pi.id,
+              status :newStat,
+             date: new Date() 
+            });
         await statusArray.save();
 
         const users = await UserPosition.findAll({
@@ -1069,9 +1078,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         }
 
 
-        pi.bankSlip = bankSlip;
-        pi.status = newStat;
-        await pi.save();
+   
       
         res.json({ p: pi, status: newStat });
     } catch (error) {
@@ -1079,10 +1086,6 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         res.status(500).send({ message: error.message }); 
     }
 });
-
-
-
-
 
 
 router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
@@ -1105,7 +1108,7 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
             notificationRecipientId = amId;
 
             if (!recipientEmail) {
-                return res.status(400).send("AM project email is missing. Please inform the admin to add it.");
+                return res.send("AM project email is missing. Please inform the admin to add it.");
             }
         } else if (paymentMode === 'WireTransfer') {
             const kam = await UserPosition.findOne({ where: { userId: kamId } });
@@ -1113,7 +1116,7 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
             notificationRecipientId = kamId;
 
             if (!recipientEmail) {
-                return res.status(400).send("KAM project email is missing. Please inform the admin to add it.");
+                return res.send("KAM project email is missing. Please inform the admin to add it.");
             }
         }
     } catch (error) {
@@ -1386,7 +1389,7 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
         await transporter.sendMail(mailOptions);
         await Notification.create({
             userId: notificationRecipientId,
-            message: `New Payment Request Generated ${piNo} / ${supplierPoNo}`,
+            message: `Payment Request Updated ${piNo} / ${supplierPoNo}`,
             isRead: false,
         });
 
@@ -1553,7 +1556,7 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
 
     await Notification.create({
         userId: notificationRecipientId,
-        message: `New Payment Request Generated ${pi.piNo} / ${supplierPoNo}`,
+        message: `Payment Request Updated ${pi.piNo} / ${supplierPoNo}`,
         isRead: false,
     });
 
@@ -1600,7 +1603,7 @@ router.patch('/updatePIByAdminSuperAdmin/:id', authenticateToken, async(req, res
         const piId = pi.id;
         
         const piStatus = new PerformaInvoiceStatus({
-            performaInvoiceId: piId, date: new Date(), count: count
+            performaInvoiceId: piId, date: new Date(), count: count, status:pi.status
         })
         await piStatus.save();
 

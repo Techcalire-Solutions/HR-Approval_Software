@@ -1,10 +1,11 @@
-import { Component, ElementRef, inject, ViewChild } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router, ActivatedRoute } from '@angular/router';
 import { LoginService } from '@services/login.service';
-import { map, Observable, startWith, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
@@ -58,10 +59,11 @@ export class AddApprovalComponent {
     this.getAM();
     this.getAccountants();
 
-    const token: any = localStorage.getItem('token')
-    let user = JSON.parse(token)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const token: any = localStorage.getItem('token');
+    const user = JSON.parse(token)
 
-    let roleId = user.role
+    const roleId = user.role
     this.getRoleById(roleId)
     this.addDoc()
   }
@@ -69,9 +71,9 @@ export class AddApprovalComponent {
   id!: number;
   supplierCompanies: Company[] = []; 
   public customerCompanies: Company[] = [];
-  public filteredOptions: any[] = [];
+  public filteredOptions: Company[] = [];
   public getSuppliers(): void {
-    this.companyService.getSuppliers().subscribe((suppliers: any) => {
+    this.companyService.getSuppliers().subscribe((suppliers: Company[]) => {
       this.supplierCompanies = suppliers;
       this.filteredOptions = this.supplierCompanies
     });
@@ -95,25 +97,25 @@ export class AddApprovalComponent {
     }
   }
 
-  patch(selectedSuggestion: any, type: string) {
+  patch(selectedSuggestion: Company, type: string) {
     if(type === 'sup') this.piForm.patchValue({ supplierId: selectedSuggestion.id, supplierName: selectedSuggestion.companyName });
     else if(type === 'cust')  this.piForm.patchValue({ customerId: selectedSuggestion.id, customerName: selectedSuggestion.companyName});
   }
 
   add(type: string){
-    console.log(this.filterValue);
-    let name = this.filterValue;
+    const name = this.filterValue;
     const dialogRef = this.dialog.open(AddCompanyComponent, {
       data: {type : type, name: name}
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe(() => {
       this.getSuppliers()
+      this.getCustomers()
     })
   }
 
   public getCustomers(): void {
-    this.companyService.getCustomers().subscribe((customers: any) =>{
+    this.companyService.getCustomers().subscribe((customers: Company[]) =>{
       this.customerCompanies = customers
       this.filteredCustomers = this.customerCompanies;
     });
@@ -174,7 +176,7 @@ export class AddApprovalComponent {
     supplierPoNo: ['', Validators.required],
     supplierSoNo:[''],
     supplierCurrency:['Dollar'],
-    supplierPrice: [, Validators.required],
+    supplierPrice: [Validators.required],
     purpose: ['', Validators.required],
     customerId: <any>[],
     customerName: [''],
@@ -190,33 +192,30 @@ export class AddApprovalComponent {
     return this.piForm.get("url") as FormArray;
   }
 
+
   index!: number;
   clickedForms: boolean[] = [];
   addDoc(data?:any){
     this.doc().push(this.newDoc(data));
     this.clickedForms.push(false);
+    this.cdr.detectChanges();
   }
 
   newDoc(initialValue?: any): FormGroup {
     return this.fb.group({
-      url: [initialValue?initialValue.docUrl : '', Validators.required],
-      remarks: [initialValue?initialValue.docUrl : ''],
+      url: [initialValue?initialValue.url : '', Validators.required],
+      remarks: [initialValue?initialValue.remarks : ''],
     });
   }
 
+  deleteUploadSub!: Subscription;  
+  private cdr = inject(ChangeDetectorRef) 
   removeData(index: number) {
-    const formGroup = this.doc().at(index).value;
-    if (formGroup.url !== null) {
-      this.invoiceService.deleteUploadByurl(formGroup.url).subscribe({
-        next: (response) => {
-          this.doc().removeAt(index)
-        },
-        error: (error) => {
-          console.error('Error during update:', error);
-        }
-      });
+    if (index >= 0 && index < this.doc().length) {
+        this.doc().removeAt(index);
+        this.imageUrl.splice(index, 1);    
     } else {
-      this.doc().removeAt(index)
+        console.warn(`Index ${index} is out of bounds for removal`);
     }
   }
 
@@ -224,7 +223,7 @@ export class AddApprovalComponent {
   isImageUploaded(): boolean {
     const controls = this.piForm.get('url')as FormArray;
     if( controls.length === 0) {return true}
-    let i = controls.length - 1;
+    const i = controls.length - 1;
     if (this.imageUrl[i]) {
       return true;
     }else return false;
@@ -234,15 +233,21 @@ export class AddApprovalComponent {
   uploadProgress: number[] = [];
   uploadSuccess: boolean[] = [];
 
-  fileType: any[] = [];
   uploadSub!: Subscription;
-  imageUrl: any[] = [];
+  imageUrl: string[] = [];
+  fileType: string[] = [];
+  allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png', 'plain'];
   onFileSelected(event: Event, i: number): void {
     const input = event.target as HTMLInputElement;
-    let file: any = input.files?.[0];
+    const file: any = input.files?.[0];
     this.fileType[i] = file.type.split('/')[1]
+    
+    if (!this.allowedFileTypes.includes(this.fileType[i])) {
+      alert('Invalid file type. Please select a PDF, JPEG, JPG, TXT or PNG file.');
+      return;
+    }
     if (file) {
-        let inv = this.ivNum;
+        const inv = this.ivNum;
         const name = `${inv}_${i}`;
         const formData = new FormData();
         formData.append('file', file);
@@ -250,6 +255,7 @@ export class AddApprovalComponent {
 
         this.uploadSub = this.invoiceService.uploadInvoice(formData).subscribe({
             next: (invoice) => {
+              
                 this.doc().at(i).get('url')?.setValue(invoice.fileUrl);
                 this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${invoice.fileUrl}`;
             }
@@ -269,12 +275,12 @@ export class AddApprovalComponent {
           return !isNaN(idNumber) && idNumber > prevMax ? idNumber : prevMax;
         }, 0);
 
-        let nextId = maxId + 1;
+        const nextId = maxId + 1;
         const paddedId = `${this.prefix}${nextId.toString().padStart(3, "0")}`;
         this.ivNum = paddedId;
       } else {
-        let nextId = 1;
-        let prefix = "E-";
+        const nextId = 1;
+        const prefix = "E-";
         const paddedId = `${prefix}${nextId.toString().padStart(3, "0")}`;
         this.ivNum = paddedId;
       }
@@ -284,8 +290,8 @@ export class AddApprovalComponent {
   }
 
   extractLetters(input: string): string {
-    var extractedChars = input.match(/[A-Za-z-]/g);
-    var result = extractedChars ? extractedChars.join('') : '';
+    const extractedChars = input.match(/[A-Za-z-]/g);
+    const result = extractedChars ? extractedChars.join('') : '';
 
     return result;
   }
@@ -322,7 +328,7 @@ export class AddApprovalComponent {
   }
 
   onDeleteImage(i: number){
-    this.invoiceService.deleteUploadByurl(this.imageUrl[i]).subscribe(data=>{
+    this.invoiceService.deleteUploadByurl(this.imageUrl[i]).subscribe(()=>{
       this.imageUrl[i] = ''
         this.doc().at(i).get('docUrl')?.setValue('');
       this.snackBar.open("Document is deleted successfully...","" ,{duration:3000})

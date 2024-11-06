@@ -13,6 +13,7 @@ import { Subscription } from 'rxjs/internal/Subscription';
 import { LeaveService } from '@services/leave.service';
 import { CommonModule } from '@angular/common';
 import { TimeAgoPipe } from '../pipes/time-ago.pipe';
+import { RoleService } from '@services/role.service';
 
 @Component({
   selector: 'app-messages',
@@ -42,34 +43,63 @@ export class MessagesComponent implements OnInit {
   public files: Array<any>;
   public meetings: Array<any>;
   holidays: any[] = [];
-
   leaveService = inject(LeaveService);
   userId: number;
   unreadCount: number = 0;
+  allUnreadCount: number = 0;
   notifications: any[] = [];
   previousNotificationIds: Set<string> = new Set();
   notifiedUnreadIds: Set<string> = new Set();
-  private audioContext: AudioContext;
   messagesService = inject(MessagesService)
+  userRole: string;
+  roleService = inject(RoleService)
 
 
-  ngOnInit() {
+  async ngOnInit() {
     this.initializeComponent()
   }
 
-   initializeComponent(){
+   async initializeComponent(){
     this.messages = this.messagesService.getMessages();
     this.files = this.messagesService.getFiles();
     this.meetings = this.messagesService.getMeetings();
     const token: any = localStorage.getItem('token');
-    let user = JSON.parse(token);
-    this.userId = user.id;
-    this.getNotificationsForUser();
-   }
+    const user = JSON.parse(token);
+    if (user && typeof user.role === 'number') {
+      const roleId = user.role;
+      this.userId = user.id;
+      await this.getRoleById(roleId);
+      if (this.userRole === 'Admin' || this.userRole === 'Super Administrator') {
+        this.getAllNot();
+      } else {
+        this.getNotificationsForUser();
+      }
+    } else {
+      console.error("User role is missing or incorrectly structured in token data");
+    }
+  }
+
+   roleSub!: Subscription;
+   roleName!: string;
+   getRoleById(id: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.roleSub = this.roleService.getRoleById(id).subscribe({
+        next: role => {
+          this.userRole = role.roleName;
+          resolve();
+        },
+        error: err => {
+          console.error('Error fetching role:', err);
+          reject(err);
+        }
+      });
+    });
+  }
 
   updateUnreadCount() {
     this.unreadCount = this.notifications.filter(notification => !notification.isRead).length;
   }
+
 
   markReadSub :Subscription
   markAsRead(notificationId: string) {
@@ -82,6 +112,8 @@ export class MessagesComponent implements OnInit {
       }
     );
   }
+
+
 
 
   messageNotfiSub:Subscription
@@ -98,6 +130,26 @@ export class MessagesComponent implements OnInit {
       }
     );
   }
+  allNotSub: Subscription;
+
+  getAllNot() {
+    this.allNotSub = this.messagesService.getAllNotifications().subscribe(
+      (res) => {
+        if (Array.isArray(res)) {
+          this.notifications = res;
+        } else {
+          this.notifications = [];
+        }
+      },
+      (error) => {
+        console.error('Error fetching all notifications:', error);
+      }
+    );
+  }
+
+
+
+
 
   checkForNewNotifications(newNotifications: any) {
     const extractedNotifications = newNotifications.notifications || [];
@@ -109,8 +161,6 @@ export class MessagesComponent implements OnInit {
 
     const unreadNotifications = extractedNotifications.filter(n => !n.isRead && !this.notifiedUnreadIds.has(n.id));
     if (unreadNotifications.length > 0) {
-      this.playBeepSound();
-      // this.notifyUser(unreadNotifications.length);
       unreadNotifications.forEach(n => this.notifiedUnreadIds.add(n.id));
     } else {
 
@@ -119,41 +169,8 @@ export class MessagesComponent implements OnInit {
   }
 
 
-  playBeepSound() {
-    if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
-    if (this.audioContext.state === 'suspended') {
-      this.audioContext.resume();
-    }
-    const oscillator = this.audioContext.createOscillator();
-    // oscillator.type = 'sine';
-    // oscillator.frequency.setValueAtTime(440, this.audioContext.currentTime);
-    // oscillator.connect(this.audioContext.destination);
-    // oscillator.start();
-    // oscillator.stop(this.audioContext.currentTime + 0.5);
-  }
 
 
-
-  notifyUser(unreadCount: number) {
-    if (Notification.permission === 'granted') {
-      const notification = new Notification('New Notification', {
-        body: `${unreadCount} new message${unreadCount > 1 ? 's' : ''} received.`,
-        icon: 'assets/icons/notification.png',
-      });
-
-      notification.onclick = () => {
-        window.focus();
-      };
-    } else if (Notification.permission !== 'denied') {
-      Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-          this.notifyUser(unreadCount);
-        }
-      });
-    }
-  }
 
   openMessagesMenu() {
     this.trigger.openMenu();
@@ -174,6 +191,11 @@ export class MessagesComponent implements OnInit {
       this.markAsRead(message.id);
     }
   }
+
+  isAdmin(): boolean {
+    return this.userRole === 'admin' || this.userRole === 'Super Administrator';
+  }
+
 
   ngOnDestroy(){
     if(this.markReadSub) this.markReadSub.unsubscribe();

@@ -110,8 +110,7 @@ router.post('/save', authenticateToken, async (req, res) => {
           contentType: s3File.ContentType,
         });
       } catch (error) {
-        console.error("Error retrieving file from S3:", error);
-        continue;
+        res.send(error.message)
       }
     }
 
@@ -270,7 +269,9 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
       if (!req.file) {
         return res.status(400).send({ message: 'No file uploaded' });
       }
-      const sanitizedFileName = req.body.name || req.file.originalname.replace(/[^a-zA-Z0-9]/g, '_');
+      const originalFileName = req.file.originalname;
+      const fileType = originalFileName.split('.').pop(); // Extracts the file extension
+      const sanitizedFileName = (req.body.name || originalFileName.replace(/[^a-zA-Z0-9]/g, '_')).concat(`.${fileType}`);
       
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
