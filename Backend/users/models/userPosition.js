@@ -10,10 +10,7 @@ const UserPosition = sequelize.define('userposition',{
     costCentre : {type : DataTypes.STRING},
     grade : {type : DataTypes.STRING},
     location : {type : DataTypes.STRING},
-    department: {
-      type: DataTypes.JSON,
-      allowNull: true,
-  },
+    department: { type: DataTypes.JSON, allowNull: true},
     office  : {type : DataTypes.STRING},
     salary : {type : DataTypes.STRING},
     probationPeriod : {type : DataTypes.INTEGER, defaultValue : 3},

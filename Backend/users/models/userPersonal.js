@@ -1,6 +1,7 @@
-const { Sequelize, DataTypes } = require('sequelize');
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
+const { DataTypes } = require('sequelize');
 const sequelize = require('../../utils/db');
-const Role = require('./role');
 const User = require('./user');
 
 const UserPersonal = sequelize.define('userPersonal', {

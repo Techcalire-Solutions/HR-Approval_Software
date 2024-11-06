@@ -1,0 +1,29 @@
+<h2 mat-dialog-title style="text-align: center;">Confirm Separation</h2>
+<form [formGroup]="separationForm" style="padding: 20px;">
+  <div mat-dialog-content>
+    <p style="font-size: 16px; margin-bottom: 15px;">
+      Are you sure you want to separate <strong>{{ data.name }}({{data.empNo}})</strong>?
+    </p>
+
+    <!-- Separation Note with Reactive Form Control -->
+    <mat-form-field appearance="fill" style="width: 100%;">
+      <mat-label>Separation Note</mat-label>
+      <textarea
+        matInput
+        formControlName="note"
+        rows="3"
+        placeholder="Enter the reason for separation"
+      ></textarea>
+      <mat-error *ngIf="separationForm.controls['note'].invalid">
+        Separation note is required.
+      </mat-error>
+    </mat-form-field>
+  </div>
+  
+  <div mat-dialog-actions style="justify-content: space-between;">
+    <button mat-button (click)="onCancel()" style="margin-right: 10px;">Cancel</button>
+    <button mat-button color="warn" (click)="onConfirm()" [disabled]="separationForm.invalid">
+      Confirm
+    </button>
+  </div>
+</form>

@@ -33,5 +33,7 @@ export interface User {
 
   separated: boolean
   probationEndDate: Date
+  separationNote: string
+  separationDate: Date
   
 }

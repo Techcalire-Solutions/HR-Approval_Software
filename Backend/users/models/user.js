@@ -1,4 +1,6 @@
-const { Sequelize, DataTypes } = require('sequelize');
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
+const { DataTypes } = require('sequelize');
 const sequelize = require('../../utils/db');
 const Role = require('./role');
 
@@ -18,7 +20,9 @@ const User = sequelize.define('user', {
 
   paswordReset: { type: DataTypes.BOOLEAN, defaultValue: false},
   isTemporary: { type: DataTypes.BOOLEAN, defaultValue: true, allowNull: false },
-  separated: { type: DataTypes.BOOLEAN, defaultValue: false}
+  separated: { type: DataTypes.BOOLEAN, defaultValue: false},
+  separationNote: { type: DataTypes.TEXT},
+  separationDate: { type: DataTypes.DATEONLY}
 },
 {
   freezeTableName: true,
