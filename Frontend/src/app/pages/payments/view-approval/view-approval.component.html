@@ -64,7 +64,7 @@
 
                       @if(data.kam && invoice.status === 'AM APPROVED'){
                         <button mat-raised-button class="add-bank-slip-button"
-                        (click)="addBankSlip(invoice.piNo, invoice.id, invoice.status)"> ATTACH
+                        (click)="addBankSlip(invoice.piNo, invoice.id, invoice.status)"> ATTACH{{ invoice.status === 'CARD PAYMENT SUCCESS' ? 'Edit Attach' : 'Attch' }}
                       </button>
                       }
                      
