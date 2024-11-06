@@ -1177,7 +1177,7 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
     try {
   
         if (paymentMode === 'CreditCard') {
-            if (amId == null) {
+            if (amId == null || amId === '' || amId === undefined) {
                 return res.status(400).send('Please select Manager and proceed');
             }
             const am = await UserPosition.findOne({ where: { userId: amId } });
@@ -1188,7 +1188,7 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
                 return res.send("AM project email is missing. Please inform the admin to add it.");
             }
         } else if (paymentMode === 'WireTransfer') {
-            if(kamId === null){
+            if(kamId === null || kamId  === '' || kamId === undefined) {
                 return res.send('Please select Key Account Manager and proceed');
             }
             const kam = await UserPosition.findOne({ where: { userId: kamId } });
@@ -1213,12 +1213,12 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
         let status;
 
         if (paymentMode === 'CreditCard') {
-            if (amId == null) {
+            if (amId == null || amId === undefined || amId === '') {
                 return res.status(400).send('Please select Manager.');
             }
             status = 'INITIATED';
         } else {
-            if (kamId == null) {
+            if (kamId == null || kamId === undefined || kamId === '') {
                 return res.status(400).send('Please select Key Account Manager.');
             }
             status = 'GENERATED';
@@ -1336,7 +1336,7 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
 
 router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
     let { url, kamId, amId, supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes, paymentMode} = req.body;
-    if(amId === null){
+    if(amId === null || amId === undefined || amId === ''){
         return res.send("Select a manager and proceed")
     }
     let status;
