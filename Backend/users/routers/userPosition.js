@@ -67,4 +67,40 @@ router.patch('/update/:id', async(req,res)=>{
   }
 })
 
+router.delete('/delete/:id', authenticateToken, async (req, res) => {
+  const id = req.params.id
+  try {
+    const userposition = await UserPosition.findByPk(id)
+
+    const result = await userposition.destroy({
+      force: true
+    });
+    if (result === 0) {
+      return res.status(404).json({
+        status: "fail",
+        message: "userposition with that ID not found",
+      });
+    }
+
+    res.status(204).json();
+  } catch (error) {
+    res.send(error.message)
+  }
+})
+
+router.get('/', async (req, res) => {
+  try {
+      const userposition = await UserPosition.findAll({
+         
+      });
+
+      res.send(userposition);
+
+
+  } catch (error) {
+      res.send(error.message)
+  }
+
+})
+
 module.exports = router;
