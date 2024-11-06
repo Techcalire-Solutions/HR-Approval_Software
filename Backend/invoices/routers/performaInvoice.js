@@ -1503,7 +1503,7 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
             }
             status = 'AM APPROVED';
         } else {
-            if(accountantId == null || accountantId === undefined || accountantId || ''){
+            if(accountantId == null || accountantId === undefined || accountantId === ''){
                 return res.send('Please Select Accountant');
             }
             status = 'AM VERIFIED'
