@@ -511,7 +511,6 @@ router.get('/confirmemployee/:id', async (req, res) => {
   }
 });
 
-
 router.get('/', async (req, res) => {
   try {
     const users = await User.findAll();
@@ -528,7 +527,6 @@ router.patch('/resignemployee/:id', async (req, res) => {
       if (!result) {
           return res.json({ message: "Employee not found" });
       }
-      console.log(req.body, "Employee found");
       
       result.separated = req.body.confirmed;
       result.status = !req.body.confirmed;
@@ -541,4 +539,19 @@ router.patch('/resignemployee/:id', async (req, res) => {
   }
 });
 
+router.patch('/editnote/:id', async (req, res) => {
+  try {
+      let result = await User.findByPk(req.params.id);
+      
+      if (!result) {
+          return res.json({ message: "Employee not found" });
+      }
+      result.separationNote = req.body.note;
+      result.separationDate = req.body.date;
+      await result.save();
+      res.json({ result });
+  } catch (error) {
+      res.json({ message: "Internal Server Error", error: error.message });
+  }
+});
 module.exports = router;

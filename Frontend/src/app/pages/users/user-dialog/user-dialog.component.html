@@ -1,6 +1,6 @@
 
 
-@if( invNo ){ <h1>{{ invNo }}</h1> }
+<div class="row"> @if( invNo ){ <h1>{{ invNo }}</h1> }@if( userName ){ <h1>/{{ userName }}</h1> }</div>
 <mat-tab-group class="horizontal-tabs" [backgroundColor]="'primary'" [selectedIndex]="selectedTabIndex">
   <mat-tab [disabled]="!formSubmitted">
     <mat-card style="margin-top: 20px;">
