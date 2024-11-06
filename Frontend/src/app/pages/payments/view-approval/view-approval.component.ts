@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, SimpleChanges, ViewChild } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -60,7 +61,7 @@ export class ViewApprovalComponent {
   querySub!: Subscription;
   ngOnInit() {
     const token: any = localStorage.getItem('token')
-    let user = JSON.parse(token)
+    const user = JSON.parse(token)
     this.user = user.id;
     this.querySub = this.route.queryParams.subscribe(params => {
       this.isSubmitted = params['isSubmitted'] === 'true'; 
@@ -123,10 +124,10 @@ export class ViewApprovalComponent {
           this.invoices = [...invoice]; 
           
           for (let i = 0; i < this.invoices.length; i++) {
-            let invoiceSP = this.invoices[i]?.salesPersonId;
-            let invoiceKAM = this.invoices[i]?.kamId;
-            let invoiceAM = this.invoices[i]?.amId;
-            let invoiceMA = this.invoices[i]?.accountantId;
+            const invoiceSP = this.invoices[i]?.salesPersonId;
+            const invoiceKAM = this.invoices[i]?.kamId;
+            const invoiceAM = this.invoices[i]?.amId;
+            const invoiceMA = this.invoices[i]?.accountantId;
 
             if (this.user === invoiceSP || this.user === invoiceKAM || this.user === invoiceAM || this.user === invoiceMA) {
               this.invoices[i] = {
@@ -167,7 +168,7 @@ export class ViewApprovalComponent {
         }
         this.submittingForm = false;
         this.cd.detectChanges();
-      }, (error: any) => {
+      }, () => {
         this.submittingForm = false;
       });
     }
@@ -211,7 +212,7 @@ export class ViewApprovalComponent {
     this.dialogSub = dialogRef.afterClosed().subscribe(result => {
       if(result){
         this.submittingForm = true;
-        let data = {
+        const data = {
           status: status,
           performaInvoiceId: id,
           remarks: result.remarks,
@@ -220,7 +221,7 @@ export class ViewApprovalComponent {
           accountantId: result.accountantId
         }
 
-        this.verifiedSub = this.invoiceService.updatePIStatus(data).subscribe(result => {
+        this.verifiedSub = this.invoiceService.updatePIStatus(data).subscribe(() => {
           this.submittingForm = false;
           this.getInvoices()
           this.snackBar.open(`Invoice ${piNo} updated to ${status}...`,"" ,{duration:3000})
@@ -252,7 +253,7 @@ export class ViewApprovalComponent {
 
     this.dialogSub = dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
-        this.deleteSub = this.invoiceService.deleteInvoice(id).subscribe((res)=>{
+        this.deleteSub = this.invoiceService.deleteInvoice(id).subscribe(()=>{
           this._snackbar.open("PI deleted successfully...","" ,{duration:3000})
           this.getInvoices()
         },(error=>{
