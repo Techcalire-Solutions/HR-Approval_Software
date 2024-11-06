@@ -1,4 +1,5 @@
-import { Component, ElementRef, inject, Inject, Optional, ViewChild } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -7,7 +8,7 @@ import { InvoiceService } from '@services/invoice.service';
 import { Subscription } from 'rxjs';
 
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon'; 
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatDividerModule } from '@angular/material/divider';
@@ -90,7 +91,7 @@ export class BankReceiptDialogueComponent {
       let fileName = this.file.name
 
       if(fileName.length > 12){
-        let splitName = fileName.split('.');
+        const splitName = fileName.split('.');
         fileName = splitName[0].substring(0, 12) + "...." + splitName[1];
       }
       this.uploadSub = this.invoiceService.uploadBankSlip(this.file).subscribe(invoice => {
@@ -103,7 +104,7 @@ export class BankReceiptDialogueComponent {
 
   submit!: Subscription;
   onSubmit() {
-    this.submit = this.invoiceService.addBankSlip(this.piForm.getRawValue(), this.dialogData.id).subscribe((invoice: any) =>{
+    this.submit = this.invoiceService.addBankSlip(this.piForm.getRawValue(), this.dialogData.id).subscribe(() =>{
       this.dialogRef.close(true);
     });
 

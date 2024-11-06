@@ -9,6 +9,6 @@ export interface AdvanceSalary {
     createdAt: Date
     updatedAt: Date,
     user: User
-
+    duration: number
   }
   

@@ -1177,6 +1177,9 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
     try {
   
         if (paymentMode === 'CreditCard') {
+            if (amId == null) {
+                return res.status(400).send('Please select Manager and proceed');
+            }
             const am = await UserPosition.findOne({ where: { userId: amId } });
             recipientEmail = am ? am.projectMailId : null; 
             notificationRecipientId = amId;
@@ -1185,6 +1188,9 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
                 return res.send("AM project email is missing. Please inform the admin to add it.");
             }
         } else if (paymentMode === 'WireTransfer') {
+            if(kamId === null){
+                return res.send('Please select Key Account Manager and proceed');
+            }
             const kam = await UserPosition.findOne({ where: { userId: kamId } });
             recipientEmail = kam ? kam.projectMailId : null; 
             notificationRecipientId = kamId;
@@ -1330,7 +1336,9 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
 
 router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
     let { url, kamId, amId, supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes, paymentMode} = req.body;
-    
+    if(amId === null){
+        return res.send("Select a manager and proceed")
+    }
     let status;
     if(paymentMode === 'CreditCard'){
         status = 'INITIATED'
@@ -1492,7 +1500,6 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
         if(paymentMode === 'CreditCard'){
             if(kamId == null){
                 return res.send('Please Select key Account Manager');
-            
             }
             status = 'AM APPROVED';
         } else {

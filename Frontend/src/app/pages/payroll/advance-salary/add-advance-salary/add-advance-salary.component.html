@@ -1,72 +1,81 @@
 <h1 mat-dialog-title>
-    @if (dialogData) {
-        <span>EDIT</span>
-    } @else {
-        <span>ADD</span>
-    }
-    ADVANCE SALARY
-  </h1>
-  <br>
-  <br>
-  <div mat-dialog-content>
-    <form [formGroup]="advanceSalaryForm" class="user-form">
-      <div fxLayout="column" class="form-field-outer">
-        <mat-form-field class="full-width" appearance="outline">
-            <mat-label>Employee</mat-label>
-              <mat-select placeholder="Employee" formControlName="userId">
-                &nbsp;&nbsp; &nbsp;&nbsp;<span class="material-icons" style="font-size: 30px; color: rgb(30,58,138);"
-                (click)="manageUser()" >playlist_add</span>
-                @for(item of users; track item){
-                  @if(item.name !== 'HR Admin' && item.name !== 'Approval Admin' && item.name !== 'Super Admin'){
-                    <mat-option [value]="item.id">
-                      {{ item.name }}
-                    </mat-option>
-                  }
-                }
-               </mat-select>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-                <mat-label>Scheme</mat-label>
-                <mat-select formControlName="scheme">
-                    <mat-option value="OnetimeSettlement">One time Settlement</mat-option>
-                    <mat-option value="MonthlyInstallment">Monthly Installment</mat-option>
-                </mat-select>
-              </mat-form-field> 
+  @if (dialogData.salary) {  <span>EDIT</span>}
+  @else {ADD}
+  ADVANCE SALARY
+</h1><br>
+
+<div mat-dialog-content>
+  <form [formGroup]="advanceSalaryForm" class="user-form">
+    <div fxLayout="column" class="form-field-outer">
+      <mat-form-field class="full-width" appearance="outline" >
+        <mat-label>Employee</mat-label>
+        <input matInput placeholder="Select Employee" formControlName="userName" [matAutocomplete]="auto" (keyup)="search($event)">
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value,'sup')">
+          <mat-option *ngFor="let suggestion of filteredUsers" [value]="suggestion">
+            {{ suggestion.name }}
+          </mat-option>
+        </mat-autocomplete>  
+      </mat-form-field>
+
       <mat-form-field appearance="outline" class="half-width">
-        <mat-label> Amount: </mat-label>
+        <mat-label>Amount</mat-label>
         <input matInput formControlName="amount">
-        <mat-error>
-            @if (advanceSalaryForm.controls['amount'].hasError('required')) {
-                amount is required
-            }
+        <mat-error *ngIf="advanceSalaryForm.controls['amount'].hasError('required')">
+          Amount is required
         </mat-error>
-    </mat-form-field>
+      </mat-form-field>
 
-    <mat-form-field appearance="outline" class="half-width">
-      <mat-label> reason: </mat-label>
-      <input matInput formControlName="reason">
-      <mat-error>
-          @if (advanceSalaryForm.controls['reason'].hasError('required')) {
-            reason is required
-          }
-      </mat-error>
-  </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Scheme</mat-label>
+        <mat-select formControlName="scheme">
+          <mat-option value="OneTime">One time Settlement</mat-option>
+          <mat-option value="Monthly">Monthly Installment</mat-option>
+        </mat-select>
+      </mat-form-field> 
 
- 
-      </div>
-    </form>
-  </div>
-  <br>
-  <br>
-  <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
-    <button mat-raised-button color="primary" [disabled]="!advanceSalaryForm.valid" (click)="onSubmit()">
-        @if (editStatus) {
-            Update
-        } @else {
-            Save
-        }
-    </button> &nbsp;
-    
-    <button mat-raised-button color="warn" (click)="close()" type="button">Cancel</button>
-  </div>
-  
+      @if(advanceSalaryForm.get('scheme')?.value === 'Monthly'){
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Duration</mat-label>
+          <mat-select formControlName="duration" (selectionChange)="findAmount()">
+            <mat-option value=1>1 Month</mat-option>
+            <mat-option value=2>2 Month</mat-option>
+            <mat-option value=3>3 Month</mat-option>
+            <mat-option value=4>4 Month</mat-option>
+            <mat-option value=5>5 Month</mat-option>
+            <mat-option value=6>6 Month</mat-option>
+            <mat-option value=7>7 Month</mat-option>
+            <mat-option value=8>8 Month</mat-option>
+            <mat-option value=9>9 Month</mat-option>
+            <mat-option value=10>10 Month</mat-option>
+            <mat-option value=11>11 Month</mat-option>
+            <mat-option value=12>12 Month</mat-option>
+          </mat-select>
+          <mat-error *ngIf="advanceSalaryForm.controls['duration'].hasError('required')">
+            Amount is required
+          </mat-error>
+        </mat-form-field>
+      }
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Monthly Pay</mat-label>
+        <input matInput formControlName="monthlyPay">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Reason</mat-label>
+        <input matInput formControlName="reason">
+        <mat-error *ngIf="advanceSalaryForm.controls['reason'].hasError('required')">
+          Reason is required
+        </mat-error>
+      </mat-form-field>
+
+    </div>
+  </form>
+</div>
+
+<div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
+  <button mat-raised-button color="primary" [disabled]="!advanceSalaryForm.valid" (click)="onSubmit()">
+    {{ editStatus ? 'Update' : 'Save' }}
+  </button>
+  <button mat-raised-button color="warn" (click)="close()" type="button">Cancel</button>
+</div>
