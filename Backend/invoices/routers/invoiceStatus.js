@@ -22,13 +22,20 @@ const transporter = nodemailer.createTransport({
 
 
 router.post('/updatestatus', authenticateToken, async (req, res) => {
-    const { performaInvoiceId, remarks, amId, accountantId, status, kamId } = req.body;
+    let  { performaInvoiceId, remarks, amId, accountantId, status, kamId } = req.body;
+
+
 
     try {
         const pi = await PerformaInvoice.findByPk(performaInvoiceId);
         if (!pi) {
             return res.status(404).send('Proforma Invoice not found.');
         }
+        if(kamId==null){
+            kamId = pi.kamId
+        }
+
+         
 
         if (!Array.isArray(pi.url) || pi.url.length === 0) {
             console.error('Invalid or missing URL:', pi.url);
@@ -37,17 +44,21 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
 
         const [salesPerson, kam, am, accountant] = await Promise.all([
             UserPosition.findOne({ where: { userId: pi.salesPersonId } }),
-            UserPosition.findOne({ where: { userId: pi.kamId } }),
+            UserPosition.findOne({ where: { userId: kamId } }),
             UserPosition.findOne({ where: { userId: amId } }),
             UserPosition.findOne({ where: { userId: accountantId } }),
         ]);
+
+
 
         const salesPersonEmail = salesPerson ? salesPerson.projectMailId : null;
         const kamEmail = kam ? kam.projectMailId : null;
         const accountantEmail = accountant ? accountant.projectMailId : null;
         const amEmail = am ? am.projectMailId : null;
 
-       
+  
+          
+
         let toEmail = null;
         let notificationMessage = '';
         let notificationRecipient = null;
@@ -56,77 +67,80 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
             case 'AM APPROVED':
                 notificationMessage = `The Proforma Invoice ${pi.piNo} has been approved by AM.\n\n`;
                 toEmail = kamEmail;
-                Notification.create({ 
-                    userId: kam ? kam.userId : null,
-                    message: notificationMessage 
-                })
+                await Notification.create({
+                    userId: kamId,
+                    message: notificationMessage
+                });
                 break;
             case 'INITIATED':
                 notificationMessage = `The Proforma Invoice ${pi.piNo} has been initiated.\n\n`;
                 toEmail = amEmail;
-                Notification.create({ 
-                    userId: kam ? kam.userId : null,
-                    message: notificationMessage 
-                })
+                await Notification.create({
+                    userId: amId,
+                    message: notificationMessage
+                });
                 break;
             case 'KAM VERIFIED':
                 notificationMessage = `The Proforma Invoice ${pi.piNo} has been verified by KAM.\n\n`;
                 toEmail = amEmail;
-                Notification.create({ 
-                    userId: am ? am.userId : null,
-                    message: notificationMessage 
-                })
+                await Notification.create({
+                    userId: amId,
+                    message: notificationMessage
+                });
+                break;
+            case 'KAM REJECTED':
+                notificationMessage = `The Proforma Invoice ${pi.piNo} has been rejected by KAM.\n\n`;
+                toEmail = salesPersonEmail;
+                await Notification.create({
+                    userId: pi.salesPersonId,
+                    message: notificationMessage
+                });
                 break;
             case 'AM VERIFIED':
                 notificationMessage = `The Proforma Invoice ${pi.piNo} has been verified by AM.\n\n`;
                 toEmail = accountantEmail;
-                Notification.create({ 
-                    userId: kam ? kam.userId : null,
-                    message: notificationMessage 
-                })
+                await Notification.create({
+                    userId: accountantId,
+                    message: notificationMessage
+                });
                 break;
-                case 'AM DECLINED':
-                    notificationMessage = `The Proforma Invoice ${pi.piNo} has been declined by AM.\n\n`;
-                    toEmail = pi.addedById === pi.salesPersonId ? salesPersonEmail : kamEmail;
-                    notificationRecipient = pi.addedById === pi.salesPersonId
-                        ? (salesPerson ? salesPerson.userId : null)
-                        : (kam ? kam.userId : null);
-            
-                    if (notificationRecipient) {
-                        await Notification.create({
-                            userId: notificationRecipient,
-                            message: notificationMessage,
-                            isRead: false
-                        });
-                        console.log(`Notification created for user ID: ${notificationRecipient}`);
-                    }
-                    break;
-            
+            case 'AM DECLINED':
+                notificationMessage = `The Proforma Invoice ${pi.piNo} has been declined by AM.\n\n`;
+                toEmail = pi.addedById === pi.salesPersonId ? salesPersonEmail : kamEmail;
+                notificationRecipient = pi.addedById === pi.salesPersonId
+                    ? pi.salesPersonId : kamId;
+
+                if (notificationRecipient) {
+                    await Notification.create({
+                        userId: notificationRecipient,
+                        message: notificationMessage,
+                        isRead: false
+                    });
+                }
+                break;   
                 case 'AM REJECTED':
-                    notificationMessage = `The Proforma Invoice ${pi.piNo} has been rejected by AM.\n\n`;
+                    notificationMessage = `The Proforma Invoice ${pi.piNo} has been rejected  by AM.\n\n`;
                     toEmail = pi.addedById === pi.salesPersonId ? salesPersonEmail : kamEmail;
                     notificationRecipient = pi.addedById === pi.salesPersonId
-                        ? (salesPerson ? salesPerson.userId : null)
-                        : (kam ? kam.userId : null);
-            
+                    ? pi.salesPersonId : kamId;
+    
                     if (notificationRecipient) {
                         await Notification.create({
                             userId: notificationRecipient,
                             message: notificationMessage,
                             isRead: false
                         });
-                        console.log(`Notification created for user ID: ${notificationRecipient}`);
                     }
-                    break;
+                    break;   
+    
             default:
                 return res.status(400).send('Invalid status update.');
         }
 
         if (!toEmail) {
-            return res.send(`Project mail ID is missing for recipient of status: ${status}`);
+            return res.send(`Project mail ID is missing for recipient`);
         }
 
-    
         const newStatus = new PerformaInvoiceStatus({
             performaInvoiceId,
             status,
@@ -140,7 +154,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         if (amId != null) pi.amId = amId;
         if (accountantId != null) pi.accountantId = accountantId;
         await pi.save();
-
 
         const attachments = [];
 
@@ -167,10 +180,9 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                 });
             } catch (error) {
                 console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error.message);
-                continue;
+                continue; // Continue even if fetching a specific file fails
             }
         }
-
 
         const mailOptions = {
             from: `${req.user.name} <${req.user.email}>`,
@@ -192,23 +204,25 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
             }
             <p><strong>Notes:</strong> ${pi.notes}</p>
             <p>Please find the attached documents related to this Proforma Invoice.</p>
-        `,
-        attachments: attachments
+            `,
+            attachments: attachments
         };
 
-        await transporter.sendMail(mailOptions);
-        console.log('Email sent successfully to:', toEmail);
+        try {
+            await transporter.sendMail(mailOptions);
+            console.log('Email sent successfully to:', toEmail);
+        } catch (error) {
+            console.error('Error sending email:', error.message);
+            // Email failure should not stop the backend
+        }
 
-
-        res.json({ pi, status: newStatus});
-
+        res.json({ pi, status: newStatus });
 
     } catch (error) {
-        console.error('Error updating status and sending email:', error);
+        console.error('Error updating status and sending email:', error.message);
         res.status(500).send('An error occurred while updating the status.');
     }
 });
-
 
 
 
