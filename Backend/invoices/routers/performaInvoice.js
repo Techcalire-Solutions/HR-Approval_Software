@@ -1178,7 +1178,7 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
   
         if (paymentMode === 'CreditCard') {
             if (amId == null || amId === '' || amId === undefined) {
-                return res.status(400).send('Please select Manager and proceed');
+                return res.send('Please select Manager and proceed');
             }
             const am = await UserPosition.findOne({ where: { userId: amId } });
             recipientEmail = am ? am.projectMailId : null; 
