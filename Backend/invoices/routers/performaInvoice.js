@@ -965,18 +965,20 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
 
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
     const { bankSlip, status } = req.body;
-    
+
     try {
         let newStat;
         let statusArray;
         let pi;
         let recipientEmails = [];
-      
+        let fileBuffer; 
 
         pi = await PerformaInvoice.findByPk(req.params.id);
         if (!pi) {
             return res.status(404).json({ message: 'Invoice not found' });
         }
+        url = pi.url
+        console.log("pi", pi);
 
         if (status === 'AM APPROVED') {
             newStat = 'CARD PAYMENT SUCCESS';
@@ -986,16 +988,15 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Invalid status' });
         }
 
-          pi.bankSlip = bankSlip;
-           pi.status = newStat;
-           await pi.save();
-
+        pi.bankSlip = bankSlip;
+        pi.status = newStat;
+        await pi.save();
 
         statusArray = new PerformaInvoiceStatus({
-             performaInvoiceId: pi.id,
-              status :newStat,
-             date: new Date() 
-            });
+            performaInvoiceId: pi.id,
+            status: newStat,
+            date: new Date()
+        });
         await statusArray.save();
 
         const users = await UserPosition.findAll({
@@ -1009,19 +1010,69 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
                 ]
             }
         });
-        
+
         recipientEmails = users
             .filter(user => user.userId !== pi.accountantId)
             .map(user => user.projectMailId);
-        
-        const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-        const params = {
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: fileKey,
-        };
 
-        const s3File = await s3.getObject(params).promise();
-        const fileBuffer = s3File.Body;
+            const supplier = await Company.findOne({ where: { id: pi.supplierId } });
+            const customer = await Company.findOne({ where: { id: pi.customerId } });
+    
+            const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
+            const customerName = customer ? customer.companyName : 'Unknown Customer';
+
+        const attachments = [];
+
+       
+        for (const fileObj of url) {
+            const actualUrl = fileObj.url || fileObj.file;
+            if (!actualUrl || typeof actualUrl !== 'string') continue;
+
+            const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+
+            const params = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: fileKey,
+            };
+
+            try {
+                const s3File = await s3.getObject(params).promise(); 
+                fileBuffer = s3File.Body;  
+
+                attachments.push({
+                    filename: actualUrl.split('/').pop(),
+                    content: fileBuffer,
+                    contentType: s3File.ContentType,
+                });
+            } catch (error) {
+                console.error("Error fetching file from S3:", error);
+                continue; 
+            }
+        }
+
+
+        if (bankSlip && typeof bankSlip === 'string') {
+            const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+            const params = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: fileKey,
+            };
+
+            try {
+                const s3File = await s3.getObject(params).promise(); 
+                fileBuffer = s3File.Body; 
+
+                attachments.push({
+                    filename: bankSlip.split('/').pop(),
+                    content: fileBuffer,
+                    contentType: s3File.ContentType,
+                });
+            } catch (error) {
+                console.error("Error fetching bank slip from S3:", error);
+            }
+        }
+
+        console.log("Attachments:", attachments);
 
         let emailSubject;
         let emailBody;
@@ -1032,6 +1083,21 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
                 <p>Dear Team,</p>
                 <p>We are pleased to inform you that the card payment for proforma invoice: <strong>${pi.piNo}</strong> has been successfully processed.</p>
                 <p>Please find the bank slip attached for your records. If you have any questions or require further assistance, feel free to reach out.</p>
+                
+                 <p><strong>Entry Number:</strong> ${pi.piNo}</p>
+                <p><strong>Supplier Name:</strong> ${supplierName}</p>
+                <p><strong>Supplier PO No:</strong> ${pi.supplierPoNo}</p>
+                <p><strong>Supplier SO No:</strong> ${pi.supplierSoNo}</p>
+                <p><strong>Status:</strong> ${pi.status}</p>
+                ${pi.purpose === 'Stock' 
+                    ? `<p><strong>Purpose:</strong> Stock</p>` 
+                    : `<p><strong>Purpose:</strong> Customer</p>
+                       <p><strong>Customer Name:</strong> ${customerName}</p>
+                       <p><strong>Customer PO No:</strong> ${pi.customerPoNo}</p>
+                       <p><strong>Customer SO No:</strong> ${pi.customerSoNo}</p>`
+                }
+                <p><strong>Payment Mode:</strong> ${pi.paymentMode}</p>
+                <p><strong>Notes:</strong> ${pi.notes}</p>
                 <p>Thank you for your attention to this matter.</p>
                 <p>Best regards,<br> Finance Team</p>
             `;
@@ -1041,6 +1107,21 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
                 <p>Dear Team,</p>
                 <p>A bank slip has been issued for proforma invoice: <strong>${pi.piNo}</strong>. You may review the attached document for the payment details.</p>
                 <p>Kindly review at your earliest convenience, and please reach out if you need any additional information.</p>
+                <p><strong>Entry Number:</strong> ${pi.piNo}</p>
+                <p><strong>Supplier Name:</strong> ${supplierName}</p>
+                <p><strong>Supplier PO No:</strong> ${pi.supplierPoNo}</p>
+                <p><strong>Supplier SO No:</strong> ${pi.supplierSoNo}</p>
+                <p><strong>Status:</strong> ${pi.status}</p>
+                ${pi.purpose === 'Stock' 
+                    ? `<p><strong>Purpose:</strong> Stock</p>` 
+                    : `<p><strong>Purpose:</strong> Customer</p>
+                       <p><strong>Customer Name:</strong> ${customerName}</p>
+                       <p><strong>Customer PO No:</strong> ${pi.customerPoNo}</p>
+                       <p><strong>Customer SO No:</strong> ${pi.customerSoNo}</p>`
+                }
+                <p><strong>Payment Mode:</strong> ${pi.paymentMode}</p>
+                <p><strong>Notes:</strong> ${pi.notes}</p>
+              
                 <p>Thank you!</p>
                 <p>Best regards,<br>Finance Team</p>
             `;
@@ -1052,13 +1133,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             cc: process.env.FINANCE_EMAIL_USER,
             subject: emailSubject,
             html: emailBody,
-            attachments: [
-                {
-                    filename: bankSlip.split('/').pop(),
-                    content: fileBuffer,
-                    contentType: s3File.ContentType
-                }
-            ]
+            attachments: attachments 
         };
 
         if (recipientEmails.length > 0) {
@@ -1077,15 +1152,14 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             console.log(`Notification created for user ID: ${user.userId}`);
         }
 
-
-   
-      
         res.json({ p: pi, status: newStat });
     } catch (error) {
-        console.error(error); 
-        res.status(500).send({ message: error.message }); 
+        console.error(error);
+        res.status(500).send({ message: error.message });
     }
 });
+
+
 
 
 router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {

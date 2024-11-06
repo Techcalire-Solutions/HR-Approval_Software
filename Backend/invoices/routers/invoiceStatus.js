@@ -22,13 +22,20 @@ const transporter = nodemailer.createTransport({
 
 
 router.post('/updatestatus', authenticateToken, async (req, res) => {
-    const { performaInvoiceId, remarks, amId, accountantId, status, kamId } = req.body;
+    let  { performaInvoiceId, remarks, amId, accountantId, status, kamId } = req.body;
+
+
 
     try {
         const pi = await PerformaInvoice.findByPk(performaInvoiceId);
         if (!pi) {
             return res.status(404).send('Proforma Invoice not found.');
         }
+        if(kamId==null){
+            kamId = pi.kamId
+        }
+
+         
 
         if (!Array.isArray(pi.url) || pi.url.length === 0) {
             console.error('Invalid or missing URL:', pi.url);
@@ -42,10 +49,15 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
             UserPosition.findOne({ where: { userId: accountantId } }),
         ]);
 
+
+
         const salesPersonEmail = salesPerson ? salesPerson.projectMailId : null;
         const kamEmail = kam ? kam.projectMailId : null;
         const accountantEmail = accountant ? accountant.projectMailId : null;
         const amEmail = am ? am.projectMailId : null;
+
+  
+          
 
         let toEmail = null;
         let notificationMessage = '';
@@ -106,22 +118,23 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                         isRead: false
                     });
                 }
-                break;
-            case 'AM REJECTED':
-                notificationMessage = `The Proforma Invoice ${pi.piNo} has been rejected by AM.\n\n`;
-                toEmail = pi.addedById === pi.salesPersonId ? salesPersonEmail : kamEmail;
-                notificationRecipient = pi.addedById === pi.salesPersonId
-                    ? (salesPerson ? salesPerson.userId : null)
-                    : (kam ? kam.userId : null);
-
-                if (notificationRecipient) {
-                    await Notification.create({
-                        userId: notificationRecipient,
-                        message: notificationMessage,
-                        isRead: false
-                    });
-                }
-                break;
+                break;   
+                case 'AM REJECTED':
+                    notificationMessage = `The Proforma Invoice ${pi.piNo} has been rejected  by AM.\n\n`;
+                    toEmail = pi.addedById === pi.salesPersonId ? salesPersonEmail : kamEmail;
+                    notificationRecipient = pi.addedById === pi.salesPersonId
+                        ? (salesPerson ? salesPerson.userId : null)
+                        : (kam ? kam.userId : null);
+    
+                    if (notificationRecipient) {
+                        await Notification.create({
+                            userId: notificationRecipient,
+                            message: notificationMessage,
+                            isRead: false
+                        });
+                    }
+                    break;   
+    
             default:
                 return res.status(400).send('Invalid status update.');
         }
