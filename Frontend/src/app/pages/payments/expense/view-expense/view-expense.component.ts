@@ -1,15 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ExpensesService } from '@services/expenses.service';
-import { Expense } from '../../../../common/interfaces/expense';
 import { Subscription } from 'rxjs';
 import { Router, RouterModule } from '@angular/router';
 import { VerificationDialogueComponent } from '../../view-approval/verification-dialogue/verification-dialogue.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { BankReceiptDialogueComponent } from '../../view-approval/bank-receipt-dialogue/bank-receipt-dialogue.component';
 import { CommonModule } from '@angular/common';
 import { DeleteDialogueComponent } from '../../../../theme/components/delete-dialogue/delete-dialogue.component';
 import { InvoiceService } from '@services/invoice.service';
@@ -27,7 +26,7 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   userId: number;
   ngOnInit(): void {
     const token: any = localStorage.getItem('token')
-    let user = JSON.parse(token)
+    const user = JSON.parse(token)
     this.userId =  user.id
 
     this.getRoleById(user.role)
@@ -85,9 +84,9 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
         this.expenses = [...this.expenses];
 
         for (let i = 0; i < this.expenses.length; i++) {
-          let invoiceUser = this.expenses[i]?.userId;
-          let invoiceAM = this.expenses[i]?.amId;
-          let invoiceMA = this.expenses[i]?.accountantId;
+          const invoiceUser = this.expenses[i]?.userId;
+          const invoiceAM = this.expenses[i]?.amId;
+          const invoiceMA = this.expenses[i]?.accountantId;
 
           if(this.roleName === 'Administrator' || this.roleName === 'Super Administrator'){
             this.expenses[i] = {
@@ -145,14 +144,14 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
 
     this.dialogSub = dialogRef.afterClosed().subscribe(result => {
       if(result){
-        let data = {
+        const data = {
           status: status,
           expenseId: id,
           remarks: result.remarks,
           accountantId: result.accountantId
         }
 
-        this.verifiedSub = this.expenseService.updateStatus(data).subscribe(result => {
+        this.verifiedSub = this.expenseService.updateStatus(data).subscribe(() => {
           this.getExpenses(this.userId)
           this.snackBar.open(`Expense ${piNo} updated to ${status}...`,"" ,{duration:3000})
           this.router.navigateByUrl('login/viewApproval/view')
@@ -189,7 +188,7 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
 
     this.dialogSub = dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
-        this.deleteSub = this.expenseService.deleteExpense(id).subscribe((res)=>{
+        this.deleteSub = this.expenseService.deleteExpense(id).subscribe(()=>{
           this.snackBar.open("Expense deleted successfully...","" ,{duration:3000})
           this.getExpenses(this.userId)
         },(error=>{
