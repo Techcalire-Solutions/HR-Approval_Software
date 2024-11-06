@@ -60,7 +60,7 @@ export class AdvanceSalaryComponent {
 
   public advanceSalaries: AdvanceSalary[] | null;
   public searchText: string;
-  public page:any;
+  public page: string;
   public settings: Settings;
   router = inject(Router)
   _snackbar=inject(MatSnackBar)
@@ -77,10 +77,7 @@ export class AdvanceSalaryComponent {
       this.dataSource = res;
     })
   }
-  openAddAdvanceLeave(){
-    this.router.navigate(['/login/payroll/advance-salary/add'])
-  }
-  
+
   public getAdvanceSalary(): void {
     this.payrollService.getAdvanceSalary().subscribe((advanceSalary: any) =>{
       this.advanceSalaries = advanceSalary
@@ -88,20 +85,18 @@ export class AdvanceSalaryComponent {
       
     });
   }
-  applyFilter(filterValue: string) {
+  applyFilter() {
     // this.dataSource.filter = filterValue.trim().toLowerCase();
   }
   // public addTeam(user:User){
   //   this.teamService.addTeam(user).subscribe(user => this.getAdvanceSalary());
   // }
   
-  public openRoleDialog(salary: any){
-    console.log(salary);
-    
-    let dialogRef = this.dialog.open(AddAdvanceSalaryComponent, {
+  public openAdvanceDialog(salary?: any){
+    const dialogRef = this.dialog.open(AddAdvanceSalaryComponent, {
       data: {salary: salary}
     });
-    dialogRef.afterClosed().subscribe(user => {
+    dialogRef.afterClosed().subscribe(() => {
       this.getAdvanceSalary()
     });
   }

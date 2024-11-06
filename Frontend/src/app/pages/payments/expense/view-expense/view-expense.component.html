@@ -91,9 +91,9 @@
                           REJECT
                         </button>
                       }
-                      @if(data?.ma && invoice.status != 'PaymentCompleted'){
+                      @if(data?.ma){
                         <button mat-raised-button class="add-bank-slip-button"
-                        (click)="addBankSlip(invoice.exNo, invoice.id, invoice.status)"> {{ invoice.status === 'BANK SLIP ISSUED' ? 'Edit Wireslip' : 'Wireslip' }}
+                        (click)="addBankSlip(invoice.exNo, invoice.id, invoice.status)"> {{ invoice.status === 'PaymentCompleted' ? 'Edit Wireslip' : 'Wireslip' }}
                       </button>
                       }
 

@@ -204,6 +204,10 @@ export class UsersService {
     return this.http.patch( this.apiUrl+'/user/resignemployee/' + id, data);
   }
 
+  updateSeparationNote(id: number, data: any){
+    return this.http.patch(this.apiUrl + '/user/editnote/' + id, data);
+  }
+
   getUserAssets(department?: string): Observable<UserAssets[]>{
     return this.http.get<UserAssets[]>(this.apiUrl + `/asset/find?department=${department}`)
   }

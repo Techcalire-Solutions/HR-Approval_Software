@@ -68,7 +68,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                 notificationMessage = `The Proforma Invoice ${pi.piNo} has been approved by AM.\n\n`;
                 toEmail = kamEmail;
                 await Notification.create({
-                    userId: kam ? kam.userId : null,
+                    userId: kamId,
                     message: notificationMessage
                 });
                 break;
@@ -76,7 +76,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                 notificationMessage = `The Proforma Invoice ${pi.piNo} has been initiated.\n\n`;
                 toEmail = amEmail;
                 await Notification.create({
-                    userId: am ? am.userId : null,
+                    userId: amId,
                     message: notificationMessage
                 });
                 break;
@@ -84,7 +84,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                 notificationMessage = `The Proforma Invoice ${pi.piNo} has been verified by KAM.\n\n`;
                 toEmail = amEmail;
                 await Notification.create({
-                    userId: am ? am.userId : null,
+                    userId: amId,
                     message: notificationMessage
                 });
                 break;
@@ -92,7 +92,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                 notificationMessage = `The Proforma Invoice ${pi.piNo} has been rejected by KAM.\n\n`;
                 toEmail = salesPersonEmail;
                 await Notification.create({
-                    userId: salesPerson ? salesPerson.userId : null,
+                    userId: pi.salesPersonId,
                     message: notificationMessage
                 });
                 break;
@@ -100,7 +100,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                 notificationMessage = `The Proforma Invoice ${pi.piNo} has been verified by AM.\n\n`;
                 toEmail = accountantEmail;
                 await Notification.create({
-                    userId: accountant ? accountant.userId : null,
+                    userId: accountantId,
                     message: notificationMessage
                 });
                 break;
@@ -108,8 +108,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                 notificationMessage = `The Proforma Invoice ${pi.piNo} has been declined by AM.\n\n`;
                 toEmail = pi.addedById === pi.salesPersonId ? salesPersonEmail : kamEmail;
                 notificationRecipient = pi.addedById === pi.salesPersonId
-                    ? (salesPerson ? salesPerson.userId : null)
-                    : (kam ? kam.userId : null);
+                    ? pi.salesPersonId : kamId;
 
                 if (notificationRecipient) {
                     await Notification.create({
@@ -123,8 +122,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                     notificationMessage = `The Proforma Invoice ${pi.piNo} has been rejected  by AM.\n\n`;
                     toEmail = pi.addedById === pi.salesPersonId ? salesPersonEmail : kamEmail;
                     notificationRecipient = pi.addedById === pi.salesPersonId
-                        ? (salesPerson ? salesPerson.userId : null)
-                        : (kam ? kam.userId : null);
+                    ? pi.salesPersonId : kamId;
     
                     if (notificationRecipient) {
                         await Notification.create({
