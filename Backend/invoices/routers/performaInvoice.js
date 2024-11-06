@@ -1498,12 +1498,12 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
     try {
         let status;
         if(paymentMode === 'CreditCard'){
-            if(kamId == null){
+            if(kamId == null || kamId === undefined || kamId === ''){
                 return res.send('Please Select key Account Manager');
             }
             status = 'AM APPROVED';
         } else {
-            if(accountantId == null){
+            if(accountantId == null || accountantId === undefined || accountantId || ''){
                 return res.send('Please Select Accountant');
             }
             status = 'AM VERIFIED'
