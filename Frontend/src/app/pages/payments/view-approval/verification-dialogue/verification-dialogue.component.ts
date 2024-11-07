@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, inject } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -66,7 +67,7 @@ export class VerificationDialogueComponent {
   }
 
   onConfirmClick(): void {
-    let data = {
+    const data = {
       value: true,
       remarks: this.form.get('remarks')?.value,
       kamId:  this.form.get('kamId')?.value,

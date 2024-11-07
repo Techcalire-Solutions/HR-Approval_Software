@@ -998,16 +998,15 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             }catch (error) {
               res.send(error.message)
             }
-          }
+        }
         url = pi.url
-        console.log("pi", pi);
 
         if (status === 'AM APPROVED') {
             newStat = 'CARD PAYMENT SUCCESS';
         } else if (status === 'AM VERIFIED') {
             newStat = 'BANK SLIP ISSUED';
         } else {
-            return res.status(400).json({ message: 'Invalid status' });
+            return res.json({ message: 'Invalid status' });
         }
 
         pi.bankSlip = bankSlip;
