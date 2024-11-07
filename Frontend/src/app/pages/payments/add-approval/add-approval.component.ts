@@ -171,7 +171,7 @@ export class AddApprovalComponent {
     kamId: <any>[],
     amId:  <any>[],
     accountantId:  <any>[],
-    supplierId: <any>[],
+    supplierId: <any>[, Validators.required],
     supplierName: [''],
     supplierPoNo: ['', Validators.required],
     supplierSoNo:[''],

@@ -966,7 +966,7 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
 
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
     const { bankSlip, status } = req.body;
-
+    
     try {
         let newStat;
         let statusArray;
@@ -978,7 +978,8 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         if (!pi) {
             return res.status(404).json({ message: 'Invoice not found' });
         }
-        if(pi.bankSlip != ''){
+        
+        if( pi.bankSlip != null){
             const key = pi.bankSlip;
             const fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
             try {
@@ -1012,13 +1013,14 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         pi.bankSlip = bankSlip;
         pi.status = newStat;
         await pi.save();
-
+        
         statusArray = new PerformaInvoiceStatus({
             performaInvoiceId: pi.id,
             status: newStat,
             date: new Date()
         });
         await statusArray.save();
+        console.log(statusArray, "statusArraystatusArraystatusArraystatusArray");
 
         const users = await UserPosition.findAll({
             where: {
@@ -1071,7 +1073,6 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             }
         }
 
-
         if (bankSlip && typeof bankSlip === 'string') {
             const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
             const params = {
@@ -1092,8 +1093,6 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
                 console.error("Error fetching bank slip from S3:", error);
             }
         }
-
-        console.log("Attachments:", attachments);
 
         let emailSubject;
         let emailBody;
@@ -1338,7 +1337,7 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
 
         await Notification.create({
             userId: notificationRecipientId,
-            message: `New Payment Request Generated ${pi.piNo} / ${supplierPoNo}`,
+            message: `Payment Request Updated ${pi.piNo} / ${supplierPoNo}`,
             isRead: false,
         });
 
