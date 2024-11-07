@@ -8,7 +8,7 @@ const Holiday = require("../leave/models/holiday");
 
 async function syncModel() {
    
-  await sequelize.sync({alter: true})
+  await sequelize.sync({force: true})
   
     const holiday = await Holiday.findAll({})
     
