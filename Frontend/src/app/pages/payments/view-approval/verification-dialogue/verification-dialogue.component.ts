@@ -87,7 +87,7 @@ export class VerificationDialogueComponent {
   kamSub!: Subscription;
   kam: User[] = [];
   getKam() {
-    this.userSub = this.loginService.getUserByRole(2).subscribe(data => {
+    this.userSub = this.loginService.getUserByRoleName('Key Account Manager').subscribe(data => {
       this.kam = data;
     });
   }
