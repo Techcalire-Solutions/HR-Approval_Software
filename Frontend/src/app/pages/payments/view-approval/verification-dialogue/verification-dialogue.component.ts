@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, inject } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -66,7 +67,7 @@ export class VerificationDialogueComponent {
   }
 
   onConfirmClick(): void {
-    let data = {
+    const data = {
       value: true,
       remarks: this.form.get('remarks')?.value,
       kamId:  this.form.get('kamId')?.value,
@@ -87,7 +88,7 @@ export class VerificationDialogueComponent {
   kamSub!: Subscription;
   kam: User[] = [];
   getKam() {
-    this.userSub = this.loginService.getUserByRole(2).subscribe(data => {
+    this.userSub = this.loginService.getUserByRoleName('Key Account Manager').subscribe(data => {
       this.kam = data;
     });
   }
