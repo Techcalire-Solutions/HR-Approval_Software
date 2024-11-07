@@ -963,23 +963,28 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
     }
 });
 
+async function checkAndContinue(invoice) {
+    
+
+  }
+  
 
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
-    const { bankSlip, status } = req.body;
-    
+    const { bankSlip } = req.body;
     try {
-        let newStat;
-        let statusArray;
-        let pi;
-        let recipientEmails = [];
-        let fileBuffer; 
-        let users = [];
-
-        pi = await PerformaInvoice.findByPk(req.params.id);
+        pi = await PerformaInvoice.findByPk(req.params.id,
+          {  include: [
+                { model: User, as: 'salesPerson', attributes: ['name','empNo'] },
+                { model: User, as: 'kam', attributes: ['name','empNo'] },
+                { model: User, as: 'am', attributes: ['name','empNo'] },
+                { model: User, as: 'accountant', attributes: ['name','empNo'] }
+            ]}
+        );
         if (!pi) {
             return res.status(404).json({ message: 'Invoice not found' });
         }
         
+        // update bank slip----------------------------------------------------------
         if( pi.bankSlip != null){
             const key = pi.bankSlip;
             const fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
@@ -994,134 +999,136 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
                 Key: fileKey
               };
     
-              // Delete the file from S3
               await s3.deleteObject(deleteParams).promise();
               
             }catch (error) {
               res.send(error.message)
             }
         }
-        url = pi.url
 
-        try {
-            users = await UserPosition.findAll({
-                where: {
-                    [Op.or]: [
-                        { userId: pi.salesPersonId },
-                        { userId: pi.kamId },
-                        { userId: pi.amId },
-                        { userId: pi.accountantId },
-                        { userId: pi.addedById }
-                    ]
-                }
-            });
+        const userRoles = [
+            { id: pi.salesPersonId, role: 'SalesPerson', empNo: pi.salesPerson.empNo, name: pi.salesPerson.name },
+            { id: pi.kamId, role: 'KAM', empNo: pi.kam.empNo, name: pi.kam.name  },
+            { id: pi.amId, role: 'AM', empNo: pi.am.empNo, name: pi.am.name  },
+            { id: pi.accountantId, role: 'Accountant', empNo: pi.accountant.empNo, name: pi.accountant.name  }
+          ].filter(user => user.id !== null);
         
-
-            recipientEmails = users
-                .filter(user => user.userId !== pi.accountantId)
-                .map(user => user.projectMailId);
+          if (userRoles.length === 0) {
+            return res.send("No user IDs found in the invoice.");
+          }
         
-            if (recipientEmails.length === 0) {
-                return res.send("Project mail ID is missing for recipient" );
-            }
-            
-        } catch (error) {
-            return res.send(error.message)
-        }
-        
+           // Step 2: Get project emails for all user roles
+    const userPositions = await UserPosition.findAll({
+        where: { userId: userRoles.map(user => user.id) },
+        attributes: ['userId', 'projectMailId']
+      });
   
-
-        if (status === 'AM APPROVED') {
-            newStat = 'CARD PAYMENT SUCCESS';
-        } else if (status === 'AM VERIFIED') {
-            newStat = 'BANK SLIP ISSUED';
-        } else {
-            return res.json({ message: 'Invalid status' });
-        }
-
-        pi.bankSlip = bankSlip;
-        pi.status = newStat;
-        await pi.save();
-        
-        statusArray = new PerformaInvoiceStatus({
+      // Map user IDs to project emails
+      const userEmailMap = new Map(userPositions.map(user => [user.userId, user.projectMailId]));
+  
+      // Check for missing emails
+      const missingEmails = userRoles
+        .filter(user => !userEmailMap.get(user.id) || userEmailMap.get(user.id) === null)
+        .map(user => `${user.role}-${user.name} with ID ${user.empNo} is missing a project email.`);
+  
+      if (missingEmails.length > 0) {
+        return res.send(`Missing project emails: \n${missingEmails.join('\n')}` );
+      }
+  
+      // Step 3: Collect all other project emails except for the accountant's email
+      const recipientEmails = userPositions
+        .filter(user => user.userId !== pi.accountantId)
+        .map(user => user.projectMailId);
+  
+      // Proceed with status validation and updates
+      let newStat;
+      if (pi.status === 'AM APPROVED') {
+        newStat = 'CARD PAYMENT SUCCESS';
+      } else if (pi.status === 'AM VERIFIED') {
+        newStat = 'BANK SLIP ISSUED';
+      } else {
+        return res.json({ message: 'Invalid status' });
+      }
+  
+      // Update the invoice status and save
+      pi.bankSlip = bankSlip;
+      pi.status = newStat;
+      await pi.save();
+  
+      // Log status change in PerformaInvoiceStatus
+      await PerformaInvoiceStatus.create({
+        performaInvoiceId: pi.id,
+        status: newStat,
+        date: new Date()
+      });
+  
+      statusArray = new PerformaInvoiceStatus({
             performaInvoiceId: pi.id,
             status: newStat,
             date: new Date()
-        });
-        await statusArray.save();
-        console.log(statusArray, "statusArraystatusArraystatusArraystatusArray");
+      });
+      await statusArray.save();
 
- 
-
-     
-
-            const supplier = await Company.findOne({ where: { id: pi.supplierId } });
-            const customer = await Company.findOne({ where: { id: pi.customerId } });
-    
-            const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
-            const customerName = customer ? customer.companyName : 'Unknown Customer';
-
-        const attachments = [];
-
-       
-        for (const fileObj of url) {
-            const actualUrl = fileObj.url || fileObj.file;
-            if (!actualUrl || typeof actualUrl !== 'string') continue;
-
-            const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-
-            const params = {
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: fileKey,
-            };
-
-            try {
-                const s3File = await s3.getObject(params).promise(); 
-                fileBuffer = s3File.Body;  
-
-                attachments.push({
-                    filename: actualUrl.split('/').pop(),
-                    content: fileBuffer,
-                    contentType: s3File.ContentType,
-                });
-            } catch (error) {
-                console.error("Error fetching file from S3:", error);
-                continue; 
-            }
+    //  Fetch supplier and customer details for email
+      const [supplier, customer] = await Promise.all([
+        Company.findOne({ where: { id: pi.supplierId } }),
+        Company.findOne({ where: { id: pi.customerId } })
+      ]);
+  
+      const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
+      const customerName = customer ? customer.companyName : 'Unknown Customer';
+  
+      const attachments = [];
+  
+      // Step 5: Prepare file attachments from S3 for invoice URL list
+      for (const fileObj of pi.url) {
+        const actualUrl = fileObj.url || fileObj.file;
+        if (!actualUrl || typeof actualUrl !== 'string') continue;
+  
+        const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+        const params = { Bucket: process.env.AWS_BUCKET_NAME, Key: fileKey };
+  
+        try {
+          const s3File = await s3.getObject(params).promise();
+          attachments.push({
+            filename: actualUrl.split('/').pop(),
+            content: s3File.Body,
+            contentType: s3File.ContentType,
+          });
+        } catch (error) {
+          console.error("Error fetching file from S3:", error);
+          continue;
         }
-
-        if (bankSlip && typeof bankSlip === 'string') {
-            const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-            const params = {
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: fileKey,
-            };
-
-            try {
-                const s3File = await s3.getObject(params).promise(); 
-                fileBuffer = s3File.Body; 
-
-                attachments.push({
-                    filename: bankSlip.split('/').pop(),
-                    content: fileBuffer,
-                    contentType: s3File.ContentType,
-                });
-            } catch (error) {
-                console.error("Error fetching bank slip from S3:", error);
-            }
+      }
+  
+      // Step 6: Attach bank slip if available
+      if (bankSlip && typeof bankSlip === 'string') {
+        const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+        const params = { Bucket: process.env.AWS_BUCKET_NAME, Key: fileKey };
+  
+        try {
+          const s3File = await s3.getObject(params).promise();
+          attachments.push({
+            filename: bankSlip.split('/').pop(),
+            content: s3File.Body,
+            contentType: s3File.ContentType,
+          });
+        } catch (error) {
+          console.error("Error fetching bank slip from S3:", error);
         }
-
-        let emailSubject;
-        let emailBody;
-
-        if (status === 'AM APPROVED') {
+      }
+  
+      // Step 7: Prepare email subject and body
+      let emailSubject, emailBody;
+  
+      if (pi.status === 'CARD PAYMENT SUCCESS') {
             emailSubject = `Card Payment Successfully Processed for Proforma Invoice - ${pi.piNo}`;
             emailBody = `
                 <p>Dear Team,</p>
                 <p>We are pleased to inform you that the card payment for proforma invoice: <strong>${pi.piNo}</strong> has been successfully processed.</p>
                 <p>Please find the bank slip attached for your records. If you have any questions or require further assistance, feel free to reach out.</p>
                 
-                 <p><strong>Entry Number:</strong> ${pi.piNo}</p>
+                    <p><strong>Entry Number:</strong> ${pi.piNo}</p>
                 <p><strong>Supplier Name:</strong> ${supplierName}</p>
                 <p><strong>Supplier PO No:</strong> ${pi.supplierPoNo}</p>
                 <p><strong>Supplier SO No:</strong> ${pi.supplierSoNo}</p>
@@ -1129,16 +1136,15 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
                 ${pi.purpose === 'Stock' 
                     ? `<p><strong>Purpose:</strong> Stock</p>` 
                     : `<p><strong>Purpose:</strong> Customer</p>
-                       <p><strong>Customer Name:</strong> ${customerName}</p>
-                       <p><strong>Customer PO No:</strong> ${pi.customerPoNo}</p>
-                       <p><strong>Customer SO No:</strong> ${pi.customerSoNo}</p>`
+                        <p><strong>Customer Name:</strong> ${customerName}</p>
+                        <p><strong>Customer PO No:</strong> ${pi.customerPoNo}</p>
+                        <p><strong>Customer SO No:</strong> ${pi.customerSoNo}</p>`
                 }
                 <p><strong>Payment Mode:</strong> ${pi.paymentMode}</p>
                 <p><strong>Notes:</strong> ${pi.notes}</p>
                 <p>Thank you for your attention to this matter.</p>
-                <p>Best regards,<br> Finance Team</p>
-            `;
-        } else if (status === 'AM VERIFIED') {
+                <p>Best regards,<br> Finance Team</p>`;
+      } else if (pi.status === 'BANK SLIP ISSUED') {
             emailSubject = `Payslip Issued for Proforma Invoice - ${pi.piNo}`;
             emailBody = `
                 <p>Dear Team,</p>
@@ -1152,49 +1158,254 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
                 ${pi.purpose === 'Stock' 
                     ? `<p><strong>Purpose:</strong> Stock</p>` 
                     : `<p><strong>Purpose:</strong> Customer</p>
-                       <p><strong>Customer Name:</strong> ${customerName}</p>
-                       <p><strong>Customer PO No:</strong> ${pi.customerPoNo}</p>
-                       <p><strong>Customer SO No:</strong> ${pi.customerSoNo}</p>`
+                        <p><strong>Customer Name:</strong> ${customerName}</p>
+                        <p><strong>Customer PO No:</strong> ${pi.customerPoNo}</p>
+                        <p><strong>Customer SO No:</strong> ${pi.customerSoNo}</p>`
                 }
                 <p><strong>Payment Mode:</strong> ${pi.paymentMode}</p>
                 <p><strong>Notes:</strong> ${pi.notes}</p>
-              
+                
                 <p>Thank you!</p>
                 <p>Best regards,<br>Finance Team</p>
             `;
         }
-
-        const mailOptions = {
-            from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
-            to: recipientEmails.length > 0 ? recipientEmails.join(',') : process.env.DEFAULT_EMAIL,
-            cc: process.env.FINANCE_EMAIL_USER,
-            subject: emailSubject,
-            html: emailBody,
-            attachments: attachments 
-        };
-
-        if (recipientEmails.length > 0) {
-            await transporter.sendMail(mailOptions);
-            console.log(`${newStat} email sent successfully.`);
-        } else {
-            console.error(`No recipients defined for ${newStat}. Email not sent.`);
-        }
-
-        for (const user of users) {
-            await Notification.create({
-                userId: user.userId,
-                message: `${newStat} for Proforma Invoice ID: ${pi.piNo}.`,
-                isRead: false,
-            });
-            console.log(`Notification created for user ID: ${user.userId}`);
-        }
-
-        res.json({ p: pi, status: newStat });
+  
+      const mailOptions = {
+        from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+        to: recipientEmails.join(','),
+        cc: process.env.FINANCE_EMAIL_USER,
+        subject: emailSubject,
+        html: emailBody,
+        attachments: attachments
+      };
+  
+      // Step 8: Send email if recipients are available
+      if (recipientEmails.length > 0) {
+        await transporter.sendMail(mailOptions);
+      } else {
+        console.error(`No recipients defined for ${newStat}. Email not sent.`);
+      }
+  
+      // Step 9: Create notifications for each user involved in the invoice
+      await Promise.all(userRoles.map(user => 
+        Notification.create({
+          userId: user.id,
+          message: `${newStat} for Proforma Invoice ID: ${pi.piNo}.`,
+          isRead: false,
+        })
+      ));
+  
+      return res.json({ pi, status: newStat });
+  
     } catch (error) {
-        console.error(error);
-        res.status(500).send({ message: error.message });
+      console.error("Error processing invoice:", error);
+      return res.status(500).json({ message: error.message });
     }
-});
+  })
+    
+    // try {
+    //         let newStat;
+    //         let statusArray;
+    //         let pi;
+    //         let recipientEmails = [];
+    //         let fileBuffer; 
+    //         let users = [];
+
+
+
+    //     url = pi.url
+
+    //     try {
+    //         users = await UserPosition.findAll({
+    //             where: {
+    //                 [Op.or]: [
+    //                     { userId: pi.salesPersonId },
+    //                     { userId: pi.kamId },
+    //                     { userId: pi.amId },
+    //                     { userId: pi.accountantId },
+    //                     { userId: pi.addedById }
+    //                 ]
+    //             }
+    //         });
+        
+
+    //         recipientEmails = users
+    //             .filter(user => user.userId !== pi.accountantId)
+    //             .map(user => user.projectMailId);
+        
+    //         if (recipientEmails.length === 0) {
+    //             return res.send("Project mail ID is missing for recipient" );
+    //         }
+            
+    //     } catch (error) {
+    //         return res.send(error.message)
+    //     }
+        
+  
+
+    //     if (status === 'AM APPROVED') {
+    //         newStat = 'CARD PAYMENT SUCCESS';
+    //     } else if (status === 'AM VERIFIED') {
+    //         newStat = 'BANK SLIP ISSUED';
+    //     } else {
+    //         return res.json({ message: 'Invalid status' });
+    //     }
+
+    //     pi.bankSlip = bankSlip;
+    //     pi.status = newStat;
+    //     await pi.save();
+        
+    //     statusArray = new PerformaInvoiceStatus({
+    //         performaInvoiceId: pi.id,
+    //         status: newStat,
+    //         date: new Date()
+    //     });
+    //     await statusArray.save();
+
+ 
+
+     
+
+    //         const supplier = await Company.findOne({ where: { id: pi.supplierId } });
+    //         const customer = await Company.findOne({ where: { id: pi.customerId } });
+    
+    //         const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
+    //         const customerName = customer ? customer.companyName : 'Unknown Customer';
+
+    //     const attachments = [];
+
+       
+    //     for (const fileObj of url) {
+    //         const actualUrl = fileObj.url || fileObj.file;
+    //         if (!actualUrl || typeof actualUrl !== 'string') continue;
+
+    //         const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+
+    //         const params = {
+    //             Bucket: process.env.AWS_BUCKET_NAME,
+    //             Key: fileKey,
+    //         };
+
+    //         try {
+    //             const s3File = await s3.getObject(params).promise(); 
+    //             fileBuffer = s3File.Body;  
+
+    //             attachments.push({
+    //                 filename: actualUrl.split('/').pop(),
+    //                 content: fileBuffer,
+    //                 contentType: s3File.ContentType,
+    //             });
+    //         } catch (error) {
+    //             console.error("Error fetching file from S3:", error);
+    //             continue; 
+    //         }
+    //     }
+
+    //     if (bankSlip && typeof bankSlip === 'string') {
+    //         const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+    //         const params = {
+    //             Bucket: process.env.AWS_BUCKET_NAME,
+    //             Key: fileKey,
+    //         };
+
+    //         try {
+    //             const s3File = await s3.getObject(params).promise(); 
+    //             fileBuffer = s3File.Body; 
+
+    //             attachments.push({
+    //                 filename: bankSlip.split('/').pop(),
+    //                 content: fileBuffer,
+    //                 contentType: s3File.ContentType,
+    //             });
+    //         } catch (error) {
+    //             console.error("Error fetching bank slip from S3:", error);
+    //         }
+    //     }
+
+    //     let emailSubject;
+    //     let emailBody;
+
+    //     if (status === 'AM APPROVED') {
+    //         emailSubject = `Card Payment Successfully Processed for Proforma Invoice - ${pi.piNo}`;
+    //         emailBody = `
+    //             <p>Dear Team,</p>
+    //             <p>We are pleased to inform you that the card payment for proforma invoice: <strong>${pi.piNo}</strong> has been successfully processed.</p>
+    //             <p>Please find the bank slip attached for your records. If you have any questions or require further assistance, feel free to reach out.</p>
+                
+    //              <p><strong>Entry Number:</strong> ${pi.piNo}</p>
+    //             <p><strong>Supplier Name:</strong> ${supplierName}</p>
+    //             <p><strong>Supplier PO No:</strong> ${pi.supplierPoNo}</p>
+    //             <p><strong>Supplier SO No:</strong> ${pi.supplierSoNo}</p>
+    //             <p><strong>Status:</strong> ${pi.status}</p>
+    //             ${pi.purpose === 'Stock' 
+    //                 ? `<p><strong>Purpose:</strong> Stock</p>` 
+    //                 : `<p><strong>Purpose:</strong> Customer</p>
+    //                    <p><strong>Customer Name:</strong> ${customerName}</p>
+    //                    <p><strong>Customer PO No:</strong> ${pi.customerPoNo}</p>
+    //                    <p><strong>Customer SO No:</strong> ${pi.customerSoNo}</p>`
+    //             }
+    //             <p><strong>Payment Mode:</strong> ${pi.paymentMode}</p>
+    //             <p><strong>Notes:</strong> ${pi.notes}</p>
+    //             <p>Thank you for your attention to this matter.</p>
+    //             <p>Best regards,<br> Finance Team</p>
+    //         `;
+    //     } else if (status === 'AM VERIFIED') {
+    //         emailSubject = `Payslip Issued for Proforma Invoice - ${pi.piNo}`;
+    //         emailBody = `
+    //             <p>Dear Team,</p>
+    //             <p>A bank slip has been issued for proforma invoice: <strong>${pi.piNo}</strong>. You may review the attached document for the payment details.</p>
+    //             <p>Kindly review at your earliest convenience, and please reach out if you need any additional information.</p>
+    //             <p><strong>Entry Number:</strong> ${pi.piNo}</p>
+    //             <p><strong>Supplier Name:</strong> ${supplierName}</p>
+    //             <p><strong>Supplier PO No:</strong> ${pi.supplierPoNo}</p>
+    //             <p><strong>Supplier SO No:</strong> ${pi.supplierSoNo}</p>
+    //             <p><strong>Status:</strong> ${pi.status}</p>
+    //             ${pi.purpose === 'Stock' 
+    //                 ? `<p><strong>Purpose:</strong> Stock</p>` 
+    //                 : `<p><strong>Purpose:</strong> Customer</p>
+    //                    <p><strong>Customer Name:</strong> ${customerName}</p>
+    //                    <p><strong>Customer PO No:</strong> ${pi.customerPoNo}</p>
+    //                    <p><strong>Customer SO No:</strong> ${pi.customerSoNo}</p>`
+    //             }
+    //             <p><strong>Payment Mode:</strong> ${pi.paymentMode}</p>
+    //             <p><strong>Notes:</strong> ${pi.notes}</p>
+              
+    //             <p>Thank you!</p>
+    //             <p>Best regards,<br>Finance Team</p>
+    //         `;
+    //     }
+
+    //     const mailOptions = {
+    //         from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+    //         to: recipientEmails.length > 0 ? recipientEmails.join(',') : process.env.DEFAULT_EMAIL,
+    //         cc: process.env.FINANCE_EMAIL_USER,
+    //         subject: emailSubject,
+    //         html: emailBody,
+    //         attachments: attachments 
+    //     };
+
+    //     if (recipientEmails.length > 0) {
+    //         await transporter.sendMail(mailOptions);
+    //         console.log(`${newStat} email sent successfully.`);
+    //     } else {
+    //         console.error(`No recipients defined for ${newStat}. Email not sent.`);
+    //     }
+
+    //     for (const user of users) {
+    //         await Notification.create({
+    //             userId: user.userId,
+    //             message: `${newStat} for Proforma Invoice ID: ${pi.piNo}.`,
+    //             isRead: false,
+    //         });
+    //         console.log(`Notification created for user ID: ${user.userId}`);
+    //     }
+
+    //     res.json({ p: pi, status: newStat });
+    // } catch (error) {
+    //     console.error(error);
+    //     res.status(500).send({ message: error.message });
+    // }
+// });
 
 
 

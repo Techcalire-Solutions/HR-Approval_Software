@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
- apiUrl: 'https://api-approval.techclaire.com',
-    //  apiUrl:'http://localhost:8000',
+//  apiUrl: 'https://api-approval.techclaire.com',
+     apiUrl:'http://localhost:8000',
     //  leaveDataApi: 'https://holidays.abstractapi.com/v1/?api_key=e658c0f1a5794699a0675c06fb9b4cea&country=IN&year=2020',
 
   zLevel1: 100,
