@@ -978,29 +978,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         if (!pi) {
             return res.status(404).json({ message: 'Invoice not found' });
         }
-        if(pi.bankSlip != ''){
-            const key = pi.bankSlip;
-            const fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
-            try {
-              if (!fileKey) {
-                return res.send({ message: 'No file key provided' });
-              }
-    
-              // Set S3 delete parameters
-              const deleteParams = {
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: fileKey
-              };
-    
-              // Delete the file from S3
-              await s3.deleteObject(deleteParams).promise();
-              
-            }catch (error) {
-              res.send(error.message)
-            }
-          }
         url = pi.url
-        console.log("pi", pi);
 
         if (status === 'AM APPROVED') {
             newStat = 'CARD PAYMENT SUCCESS';
