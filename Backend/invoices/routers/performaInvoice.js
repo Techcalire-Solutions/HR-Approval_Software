@@ -973,6 +973,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         let pi;
         let recipientEmails = [];
         let fileBuffer; 
+        let users = [];
 
         pi = await PerformaInvoice.findByPk(req.params.id);
         if (!pi) {
@@ -1002,14 +1003,41 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         }
         
         url = pi.url
-        url = pi.url
+
+        try {
+            users = await UserPosition.findAll({
+                where: {
+                    [Op.or]: [
+                        { userId: pi.salesPersonId },
+                        { userId: pi.kamId },
+                        { userId: pi.amId },
+                        { userId: pi.accountantId },
+                        { userId: pi.addedById }
+                    ]
+                }
+            });
+        
+
+            recipientEmails = users
+                .filter(user => user.userId !== pi.accountantId)
+                .map(user => user.projectMailId);
+        
+            if (recipientEmails.length === 0) {
+                return res.send("Project mail ID is missing for recipient" );
+            }
+            
+        } catch (error) {
+            return res.send(error.message)
+        }
+        
+  
 
         if (status === 'AM APPROVED') {
             newStat = 'CARD PAYMENT SUCCESS';
         } else if (status === 'AM VERIFIED') {
             newStat = 'BANK SLIP ISSUED';
         } else {
-            return res.status(400).json({ message: 'Invalid status' });
+            return res.json({ message: 'Invalid status' });
         }
 
         pi.bankSlip = bankSlip;
@@ -1024,21 +1052,9 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         await statusArray.save();
         console.log(statusArray, "statusArraystatusArraystatusArraystatusArray");
 
-        const users = await UserPosition.findAll({
-            where: {
-                [Op.or]: [
-                    { userId: pi.salesPersonId },
-                    { userId: pi.kamId },
-                    { userId: pi.amId },
-                    { userId: pi.accountantId },
-                    { userId: pi.addedById }
-                ]
-            }
-        });
+ 
 
-        recipientEmails = users
-            .filter(user => user.userId !== pi.accountantId)
-            .map(user => user.projectMailId);
+     
 
             const supplier = await Company.findOne({ where: { id: pi.supplierId } });
             const customer = await Company.findOne({ where: { id: pi.customerId } });
