@@ -9,6 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { CommonModule } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { SeparationComponent } from '../separation/separation.component';
 
 @Component({
   selector: 'app-view-separated',
@@ -40,12 +42,27 @@ export class ViewSeparatedComponent implements OnInit, OnDestroy{
       confirmed: false,
       separationNote: ''
     }
-    this.userService.resignEmployee(id, data).subscribe((res) => {
-      console.log(res);
+    this.userService.resignEmployee(id, data).subscribe(() => {
       
       this.getSeparatedUsers()
       this.snackBar.open('Employee successfully rejoined', '', { duration: 3000 });
     });
+  }
+
+  private dialog = inject(MatDialog);
+  private usersService = inject(UsersService);
+  noteSub!: Subscription;
+  private snackbar = inject(MatSnackBar);
+  editNote(id: number, empNo: string, name: string){
+    const dialogRef = this.dialog.open(SeparationComponent, {
+      width: '450px',
+      data: {id: id, empNo: empNo, name: name, type: 'update'}
+    });dialogRef.afterClosed().subscribe((res) => {
+      this.noteSub = this.usersService.updateSeparationNote(id, res).subscribe(() => {
+        this.snackbar.open(`Separation note updated`, "", { duration: 3000 });
+        this.getSeparatedUsers()
+      })
+    })
   }
 
 }

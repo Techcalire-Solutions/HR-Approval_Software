@@ -1,21 +1,23 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../utils/db');
 const User = require('../../users/models/user');
 
 const AdvanceSalary = sequelize.define('advanceSalary', {
-  userId: { type: DataTypes.INTEGER },
-
-  scheme: {type : DataTypes.STRING},
-  amount: {type : DataTypes.STRING},
+  userId: { type: DataTypes.INTEGER, allowNull: false },
+  scheme: {type : DataTypes.STRING, allowNull: false},
+  amount: {type : DataTypes.STRING, allowNull: false},
   reason: {type : DataTypes.STRING},
-
+  duration: {type : DataTypes.INTEGER, allowNull: false},
+  monthlyPay: {type : DataTypes.FLOAT, allowNull: false}
  
 }, {
   freezeTableName: true,
   timestamps: true,
 });
 
-AdvanceSalary.sync({ alter: true })
+AdvanceSalary.sync({ force: true })
   .then(() => {
     console.log('Tables synced successfully.');
   })

@@ -214,7 +214,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   selectedTabIndex: number = 0;
   formSubmitted: boolean = true;
   isFormSubmitted: boolean = false;
-  isWorkFormSubmitted: boolean = true;
+  isWorkFormSubmitted: boolean = false;
   isContactsFormSubmitted: boolean = false;
   isSocialFormSubmitted: boolean = false;
   isAccountFormSubmitted: boolean = false;
@@ -226,6 +226,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
       })
     }else{
       this.submit = this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
+        this.userName = res.user.name
         this.dataToPass = { id: res.user.id, empNo: this.invNo, name: res.user.name, updateStatus: this.editStatus };
         this.selectedTabIndex = 1;
         if (this.personalDetailsComponent && this.selectedTabIndex === 1) {

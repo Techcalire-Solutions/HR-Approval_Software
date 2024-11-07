@@ -38,14 +38,10 @@
               <td>{{ user.separationDate | date: 'dd-MM-yyyy' }}</td>
               <td>
                 <button mat-icon-button (click)="employeeBack(user.id)"><mat-icon>keyboard_return</mat-icon> </button>
-  
-                <!-- <button
-                  mat-icon-button
-                  (click)="deleteRole(role.id)"
-                  [disabled]="isRestrictedRole(role.roleName)">
-                  <mat-icon>delete</mat-icon>
-                </button> -->
-              <!-- </td> -->
+                <button mat-icon-button (click)="editNote(user.id, user.empNo, user.name)">
+                  <mat-icon>edit_note</mat-icon>
+                </button>
+              </td>
             </tr>
           }
 

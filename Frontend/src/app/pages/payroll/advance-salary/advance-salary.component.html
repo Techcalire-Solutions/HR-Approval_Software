@@ -5,7 +5,7 @@
   <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
     <div fxLayout="row" class="col">
         <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-            <mat-button-toggle value="add" (click)="openAddAdvanceLeave()"><mat-icon>person_add</mat-icon>
+            <mat-button-toggle value="add" (click)="openAdvanceDialog()"><mat-icon>person_add</mat-icon>
             </mat-button-toggle>
             <!-- <mat-button-toggle value="search">
                 <mat-icon>search</mat-icon>
@@ -51,7 +51,7 @@
 
                 <td>
                   <div style="display: flex; gap: 8px;">
-                    <button mat-menu-item (click)="openRoleDialog(advanceSalary)">
+                    <button mat-menu-item (click)="openAdvanceDialog(advanceSalary)">
                       <mat-icon>mode_edit</mat-icon>
                     </button>
                     <button mat-menu-item (click)="deleteTeam(advanceSalary.id);">

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
@@ -977,6 +978,27 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         if (!pi) {
             return res.status(404).json({ message: 'Invoice not found' });
         }
+        if(pi.bankSlip != ''){
+            const key = pi.bankSlip;
+            const fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+            try {
+              if (!fileKey) {
+                return res.send({ message: 'No file key provided' });
+              }
+    
+              // Set S3 delete parameters
+              const deleteParams = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: fileKey
+              };
+    
+              // Delete the file from S3
+              await s3.deleteObject(deleteParams).promise();
+              
+            }catch (error) {
+              res.send(error.message)
+            }
+          }
         url = pi.url
         console.log("pi", pi);
 
@@ -1177,6 +1199,9 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
     try {
   
         if (paymentMode === 'CreditCard') {
+            if (amId == null || amId === '' || amId === undefined) {
+                return res.send('Please select Manager and proceed');
+            }
             const am = await UserPosition.findOne({ where: { userId: amId } });
             recipientEmail = am ? am.projectMailId : null; 
             notificationRecipientId = amId;
@@ -1185,6 +1210,9 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
                 return res.send("AM project email is missing. Please inform the admin to add it.");
             }
         } else if (paymentMode === 'WireTransfer') {
+            if(kamId === null || kamId  === '' || kamId === undefined) {
+                return res.send('Please select Key Account Manager and proceed');
+            }
             const kam = await UserPosition.findOne({ where: { userId: kamId } });
             recipientEmail = kam ? kam.projectMailId : null; 
             notificationRecipientId = kamId;
@@ -1207,12 +1235,12 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
         let status;
 
         if (paymentMode === 'CreditCard') {
-            if (amId == null) {
+            if (amId == null || amId === undefined || amId === '') {
                 return res.status(400).send('Please select Manager.');
             }
             status = 'INITIATED';
         } else {
-            if (kamId == null) {
+            if (kamId == null || kamId === undefined || kamId === '') {
                 return res.status(400).send('Please select Key Account Manager.');
             }
             status = 'GENERATED';
@@ -1330,7 +1358,9 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
 
 router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
     let { url, kamId, amId, supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes, paymentMode} = req.body;
-    
+    if(amId === null || amId === undefined || amId === ''){
+        return res.send("Select a manager and proceed")
+    }
     let status;
     if(paymentMode === 'CreditCard'){
         status = 'INITIATED'
@@ -1490,13 +1520,12 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
     try {
         let status;
         if(paymentMode === 'CreditCard'){
-            if(kamId == null){
+            if(kamId == null || kamId === undefined || kamId === ''){
                 return res.send('Please Select key Account Manager');
-            
             }
             status = 'AM APPROVED';
         } else {
-            if(accountantId == null){
+            if(accountantId == null || accountantId === undefined || accountantId === ''){
                 return res.send('Please Select Accountant');
             }
             status = 'AM VERIFIED'

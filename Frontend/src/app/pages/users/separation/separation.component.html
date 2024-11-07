@@ -1,29 +1,47 @@
-<h2 mat-dialog-title style="text-align: center;">Confirm Separation</h2>
+@if(data.type === 'update'){
+  <h2 mat-dialog-title style="text-align: center;">Update Separation</h2>
+}@else {
+  <h2 mat-dialog-title style="text-align: center;">Confirm Separation</h2>
+}
+
 <form [formGroup]="separationForm" style="padding: 20px;">
   <div mat-dialog-content>
     <p style="font-size: 16px; margin-bottom: 15px;">
-      Are you sure you want to separate <strong>{{ data.name }}({{data.empNo}})</strong>?
+      @if(data.type === 'update'){
+        <strong>{{ data.name }}({{data.empNo}})</strong> is separated,
+        Are you sure you want to update separation details?
+      }@else {
+        Are you sure you want to separate <strong>{{ data.name }}({{data.empNo}})</strong>?
+      }
     </p>
 
     <!-- Separation Note with Reactive Form Control -->
     <mat-form-field appearance="fill" style="width: 100%;">
       <mat-label>Separation Note</mat-label>
-      <textarea
-        matInput
-        formControlName="note"
-        rows="3"
-        placeholder="Enter the reason for separation"
-      ></textarea>
-      <mat-error *ngIf="separationForm.controls['note'].invalid">
-        Separation note is required.
-      </mat-error>
+      <textarea matInput formControlName="note" rows="3" placeholder="Enter the reason for separation" ></textarea>
+      @if(separationForm.controls['note'].invalid){
+        <mat-error>
+          Separation note is required.
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="half-width">
+      <mat-label>Start Date</mat-label>
+      <input matInput [matDatepicker]="startDatePicker" formControlName="separationDate" placeholder="Separation Date" required >
+      <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+      <mat-datepicker #startDatePicker></mat-datepicker>
     </mat-form-field>
   </div>
   
   <div mat-dialog-actions style="justify-content: space-between;">
     <button mat-button (click)="onCancel()" style="margin-right: 10px;">Cancel</button>
     <button mat-button color="warn" (click)="onConfirm()" [disabled]="separationForm.invalid">
-      Confirm
+      @if(data.type === 'update'){
+        Update
+      }@else {
+        Confirm
+      }
     </button>
   </div>
 </form>

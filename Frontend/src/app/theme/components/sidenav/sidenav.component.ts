@@ -168,22 +168,22 @@ users:User;
 
       );
     }
-    else if (role === 'HR'||role==='IT') {
+    else if (role === 'HR Administrator'|| role==='IT') {
 
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
         (item.title === 'Expense' && !item.parentId) ||
         (item.title === 'Add' && item.parentId === 26) ||
-        (item.title === 'View' && item.parentId === 26)
+        (item.title === 'View' && item.parentId === 26)||
 
         // (item.title === 'Leave' && !item.parentId) ||
         // (item.title === 'Leave' && !item.parentId)||
         // (item.title === 'Apply Leave' && item.parentId === 8) ||
         // (item.title === 'Leave Balance' && item.parentId === 8)||
-        // (item.title === 'Payroll' && !item.parentId) ||
-        // (item.title === 'Advance Salary' && item.parentId === 13) ||
-        // (item.title === 'Payslip' && item.parentId === 13) ||
-        // (item.title === 'Pay Details' && item.parentId === 13)
+        (item.title === 'Payroll' && !item.parentId) ||
+        (item.title === 'Advance Salary' && item.parentId === 13) ||
+        (item.title === 'Payslip' && item.parentId === 13) ||
+        (item.title === 'Pay Details' && item.parentId === 13)
       );
 
     }
