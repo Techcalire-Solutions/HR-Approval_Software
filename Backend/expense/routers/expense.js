@@ -437,7 +437,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
 
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
   const { bankSlip } = req.body;
-  console.log(bankSlip);
   
   try {
       let newStat = 'PaymentCompleted';
@@ -445,9 +444,9 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
       const ex = await Expense.findByPk(req.params.id);
       
       if (!ex) {
-          return res.status(404).json({ message: 'Expense not found' });
+          return res.json({ message: 'Expense not found' });
       }
-      if(ex.bankSlip != ''){
+      if(ex.bankSlip != null){
         const key = ex.bankSlip;
         const fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
         try {
@@ -515,8 +514,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
           fileBuffer = s3File.Body;
           contentType = s3File.ContentType;
       } catch (s3Error) {
-          console.error('Failed to retrieve file from S3:', s3Error);
-          return res.status(500).json({ message: 'Error retrieving file from S3' });
+          return res.json({ message: 'Error retrieving file from S3' });
       }
 
       let emailSubject =` Expense Request Processed Successfully - ${ex.exNo}`;
@@ -554,7 +552,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
           console.log('Email sent successfully');
       } catch (mailError) {
           console.error('Failed to send email:', mailError);
-          return res.status(500).json({ message: 'Error sending email' });
+          return res.json({ message: 'Error sending email' });
       }
 
       await Notification.create({
@@ -565,7 +563,6 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
 
       res.json({ ex: ex, status: status});
   } catch (error) {
-      console.error('Error in processing request:', error);
       res.status(500).send(error.message);
   }
 });
