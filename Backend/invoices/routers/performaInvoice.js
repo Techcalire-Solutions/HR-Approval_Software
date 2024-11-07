@@ -1339,7 +1339,7 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
 
         await Notification.create({
             userId: notificationRecipientId,
-            message: `New Payment Request Generated ${pi.piNo} / ${supplierPoNo}`,
+            message: `Payment Request Updated ${pi.piNo} / ${supplierPoNo}`,
             isRead: false,
         });
 
