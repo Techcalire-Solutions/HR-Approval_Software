@@ -43,7 +43,7 @@
 
           @if(status === 'AM APPROVED'){
             <mat-form-field class="full-width" appearance="outline">
-              <mat-label>Key Accoungt Manager</mat-label>
+              <mat-label>Key Account Manager</mat-label>
               <mat-select placeholder="" formControlName="kamId" (selectionChange)="onSelectionChange()">
                 @for(item of kam; track $index){
                   <mat-option [value]="item.id">

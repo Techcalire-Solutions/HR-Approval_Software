@@ -95,6 +95,7 @@ export class ExpenseComponent implements OnInit{
       for (let index = 0; index < pi.signedUrl.length; index++) {
         this.addDoc(pi.pi.url[index])
       }
+      
       if (inv.url) {
         this.savedImageUrl = pi.signedUrl;
       }
