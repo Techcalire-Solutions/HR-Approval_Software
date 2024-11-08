@@ -446,7 +446,12 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
       if (!ex) {
           return res.json({ message: 'Expense not found' });
       }
+
+      let message = 'processed'
       if(ex.bankSlip != null){
+            message = 'updated'
+        ex.count += 1;
+        await ex.save();
         const key = ex.bankSlip;
         const fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
         try {
@@ -521,7 +526,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
       let emailBody = `
          <p>Dear Team,</p>
 
-                  <p>We are pleased to inform you that the expense request for Expense ID: <strong>${ex.exNo}</strong> has been successfully processed, and the bank slip is now attached for your reference.</p>
+                  <p>We are pleased to inform you that the expense request for Expense ID: <strong>${ex.exNo}</strong> has been successfully ${message}, and the bank slip is now attached for your reference.</p>
 
                      <p>Please review the attached bank slip at your convenience.<br> Should you have any questions or require further details, feel free to reach out.</p>
 
