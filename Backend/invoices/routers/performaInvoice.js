@@ -1007,10 +1007,10 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         }
 
         const userRoles = [
-            { id: pi.salesPersonId, role: 'SalesPerson', empNo: pi.salesPerson.empNo, name: pi.salesPerson.name },
-            { id: pi.kamId, role: 'KAM', empNo: pi.kam.empNo, name: pi.kam.name  },
-            { id: pi.amId, role: 'AM', empNo: pi.am.empNo, name: pi.am.name  },
-            { id: pi.accountantId, role: 'Accountant', empNo: pi.accountant.empNo, name: pi.accountant.name  }
+            { id: pi.salesPersonId, role: 'SalesPerson', empNo: pi.salesPerson?.empNo, name: pi.salesPerson?.name },
+            { id: pi.kamId, role: 'KAM', empNo: pi.kam?.empNo, name: pi.kam?.name  },
+            { id: pi.amId, role: 'AM', empNo: pi.am?.empNo, name: pi.am?.name  },
+            { id: pi.accountantId, role: 'Accountant', empNo: pi.accountant?.empNo, name: pi.accountant?.name  }
           ].filter(user => user.id !== null);
         
           if (userRoles.length === 0) {
@@ -1042,9 +1042,9 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
   
       // Proceed with status validation and updates
       let newStat;
-      if (pi.status === 'AM APPROVED') {
+      if (pi.status === 'AM APPROVED' || pi.status === 'CARD PAYMENT SUCCESS') {
         newStat = 'CARD PAYMENT SUCCESS';
-      } else if (pi.status === 'AM VERIFIED') {
+      } else if (pi.status === 'AM VERIFIED' || pi.status === 'BANK SLIP ISSUED') {
         newStat = 'BANK SLIP ISSUED';
       } else {
         return res.json({ message: 'Invalid status' });
