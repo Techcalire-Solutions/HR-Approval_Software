@@ -74,7 +74,7 @@ router.get('/find', async (req, res) => {
             res.json(holiday);
         }
     } catch (error) {
-        res.status(500).send(error.message); // Sending a 500 status code for server errors
+        res.send(error.message); // Sending a 500 status code for server errors
     }
 });
 
@@ -89,7 +89,6 @@ router.patch('/update/:id', async (req, res) => {
     const holiday = await Holiday.findByPk(id);
     holiday.comboAdded = true;
     holiday.comboAddedFor = employeeLength;
-    console.log(holiday);
     
     await holiday.save();
 
@@ -98,7 +97,7 @@ router.patch('/update/:id', async (req, res) => {
       const leaveType = await LeaveType.findOne({ where: { leaveTypeName: 'Comb Off' } });
       leaveTypeId = leaveType.id;
     } catch (error) {
-      return res.status(500).send(error.message); // Send error if leaveType not found
+      return res.send(error.message); // Send error if leaveType not found
     }
     let comboOff;
     try {
@@ -131,13 +130,13 @@ router.patch('/update/:id', async (req, res) => {
           await userLeave.save(); // Save new UserLeave
         }
       } catch (error) {
-        return res.status(500).send(error.message); // Catch inner loop error
+        return res.send(error.message); // Catch inner loop error
       }
     }
     
     res.json({comboOff, holiday, message:`Compository off added for employee number ${employeeLength} on the day ${holiday.name}` });
   } catch (error) {
-    res.status(500).send(error.message); // Handle outer error
+    res.send(error.message); // Handle outer error
   }
 });
 
@@ -202,7 +201,7 @@ router.patch('/updatetheupdated/:id', async (req, res) => {
       res.json({ updatedComboOff, holiday, message: `Compository off updated for employee number ${employeeLength} on the day ${holiday.name}` });
 
   } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.json({ error: error.message });
   }
 });
 

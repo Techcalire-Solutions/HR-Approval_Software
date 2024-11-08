@@ -1,11 +1,13 @@
+/* eslint-disable no-useless-catch */
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const express = require('express');
 const UserPersonal = require('../models/userPersonal');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const sequelize = require('../../utils/db');
-const { Op, fn, col, literal, where  } = require('sequelize');
+const { Op, fn, literal  } = require('sequelize');
 const User = require('../models/user');
-const moment = require('moment');
 const UserPosition = require('../models/userPosition')
 
 async function saveDates(dateStrings) {
@@ -28,13 +30,13 @@ async function saveDates(dateStrings) {
 }
 
 router.post('/add', authenticateToken, async (req, res) => {
-  const { userId, empNo, dateOfJoining, probationPeriod, confirmationDate, isTemporary, maritalStatus, dateOfBirth, gender, 
+  const { userId, empNo, dateOfJoining, probationPeriod, isTemporary, maritalStatus, dateOfBirth, gender, 
     parentName, spouseName, referredBy, reportingMangerId, bloodGroup, emergencyContactNo, emergencyContactName, emergencyContactRelation } = req.body;
 
   try {
     const existingUser = await UserPersonal.findOne({ where: { userId } });
     if (existingUser) {
-      return res.status(400).send("Personal details have already been added for the given user");
+      return res.send("Personal details have already been added for the given user");
     }
 
     let formattedDateOfJoining;
@@ -43,14 +45,14 @@ router.post('/add', authenticateToken, async (req, res) => {
     if (dateOfJoining) {
       formattedDateOfJoining = await saveDates(dateOfJoining);
       if (formattedDateOfJoining.length === 0) {
-        return res.status(400).send("Invalid dateOfJoining format.");
+        return res.send("Invalid dateOfJoining format.");
       }
     }
 
     if (dateOfBirth) {
       formattedDateOfBirth = await saveDates(dateOfBirth);
       if (formattedDateOfBirth.length === 0) {
-        return res.status(400).send("Invalid dateOfBirth format.");
+        return res.send("Invalid dateOfBirth format.");
       }
     }
 
@@ -74,9 +76,9 @@ router.post('/add', authenticateToken, async (req, res) => {
     });
 
     await user.save();
-    res.status(201).send(user); // Return a 201 status for successful creation
+    res.send(user); // Return a 201 status for successful creation
   } catch (error) {
-    res.status(500).send(error.message);
+    res.send(error.message);
   }
 });
 
@@ -118,14 +120,14 @@ router.patch('/update/:id', async(req,res)=>{
     if (dateOfJoining) {
       formattedDateOfJoining = await saveDates(dateOfJoining);
       if (formattedDateOfJoining.length === 0) {
-        return res.status(400).send("Invalid dateOfJoining format.");
+        return res.send("Invalid dateOfJoining format.");
       }
     }
 
     if (dateOfBirth) {
       formattedDateOfBirth = await saveDates(dateOfBirth);
       if (formattedDateOfBirth.length === 0) {
-        return res.status(400).send("Invalid dateOfBirth format.");
+        return res.send("Invalid dateOfBirth format.");
       }
     }
     
@@ -189,7 +191,7 @@ router.get('/birthdays', authenticateToken, async (req, res) => {
 
     res.status(200).json(employeesWithBirthdaysWithAge);
   } catch (error) {
-    res.status(500).send(error.message);
+    res.send(error.message);
   }
 });
 
@@ -226,7 +228,7 @@ router.get('/joiningday', authenticateToken, async (req, res) => {
 
     res.status(200).json(employeesWithExp);
   } catch (error) {
-    res.status(500).send(error.message);
+    res.send(error.message);
   }
 });
 
@@ -248,7 +250,6 @@ router.get('/dueprobation', authenticateToken, async (req, res) => {
     });
     
     const probationDueUsers = [];
-    console.log(users,"oooooooooooooooooooooo");
     
     for (let i = 0; i < users.length; i++) {
       if (users[i].userPersonals?.length > 0 && users[i].userpositions?.length > 0 && users[i].isTemporary === true) {

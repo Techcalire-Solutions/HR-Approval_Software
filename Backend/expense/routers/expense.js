@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable no-undef */
 const express = require("express");
 const router = express.Router();
@@ -8,7 +9,7 @@ const s3 = require('../../utils/s3bucket');
 const Role = require("../../users/models/role");
 const User = require("../../users/models/user");
 const ExpenseStatus = require("../models/expenseStatus");
-const { Op, where } = require('sequelize');
+const { Op } = require('sequelize');
 const sequelize = require('../../utils/db');
 const nodemailer = require('nodemailer');
 const UserPosition = require('../../users/models/userPosition')
@@ -170,11 +171,8 @@ router.post('/save', authenticateToken, async (req, res) => {
     });
       res.json(expense);
 
-      
-
-    
   } catch (error) {
-    res.json({ error: error.message });
+    res.send(error.message);
   }
 });
 
@@ -268,7 +266,7 @@ router.get('/findbyuser', authenticateToken, async (req, res) => {
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
     try {
       if (!req.file) {
-        return res.status(400).send({ message: 'No file uploaded' });
+        return res.send('No file uploaded');
       }
       const originalFileName = req.file.originalname;
       const fileType = originalFileName.split('.').pop(); // Extracts the file extension
@@ -297,7 +295,7 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
         fileUrl: key // S3 URL of the uploaded file
       });
     } catch (error) {
-      res.status(500).send({ message: error.message });
+      res.send(error.message );
     }
 });
 
@@ -360,7 +358,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
           }
 
       } catch (error) {
-          return res.status(500).send(error.message);
+          return res.send(error.message);
       }
 
       let emailSubject = `Expense Claim Update - ${expense.exNo}`;
@@ -391,8 +389,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
               emailText = emailTextRejected;
               break;
           default:
-              console.error('Invalid status received:', status); 
-              return res.status(400).send(`Invalid status update: "${status}" received.`);
+              return res.send(`Invalid status update: "${status}" received.`);
       }
 
       const attachmentUrl = expense.url[0].url;
@@ -429,8 +426,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
       res.json({ expense, status: newStatus });
 
   } catch (error) {
-      console.error('Error updating expense claim status:', error); 
-      res.status(500).send('Internal Server Error');
+      res.send(error.message);
   }
 });
 
@@ -444,7 +440,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
       const ex = await Expense.findByPk(req.params.id);
       
       if (!ex) {
-          return res.json({ message: 'Expense not found' });
+          return res.send('Expense not found');
       }
 
       let message = 'processed'
@@ -456,7 +452,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         const fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
         try {
           if (!fileKey) {
-            return res.send({ message: 'No file key provided' });
+            return res.send('No file key provided');
           }
 
           // Set S3 delete parameters
@@ -487,8 +483,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
       let notificationRecipientId;
 
       try {
-        const user = await UserPosition.findOne({ where: { userId: ex.userId } }); 
-        console.log(user);
+        const user = await UserPosition.findOne({ where: { userId: ex.userId } });
         
         if (!user) {
             return res.send("Recipient project mail not added.");
@@ -502,7 +497,6 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         }
     
     } catch (error) {
-        console.error("Error fetching user or sending notification:", error);
         return res.send(error.message);
     }
   
@@ -518,8 +512,8 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
           const s3File = await s3.getObject(params).promise();
           fileBuffer = s3File.Body;
           contentType = s3File.ContentType;
-      } catch (s3Error) {
-          return res.json({ message: 'Error retrieving file from S3' });
+      } catch (error) {
+          return res.send(error.message);
       }
 
       let emailSubject =` Expense Request Processed Successfully - ${ex.exNo}`;
@@ -554,10 +548,8 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
 
       try {
           await transporter.sendMail(mailOptions);
-          console.log('Email sent successfully');
-      } catch (mailError) {
-          console.error('Failed to send email:', mailError);
-          return res.json({ message: 'Error sending email' });
+      } catch (error) {
+          return res.send(error.message);
       }
 
       await Notification.create({
@@ -568,7 +560,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
 
       res.json({ ex: ex, status: status});
   } catch (error) {
-      res.status(500).send(error.message);
+      res.send(error.message);
   }
 });
 
@@ -621,8 +613,6 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
 })
 
 router.delete('/filedelete', authenticateToken, async (req, res) => {
-  console.log(req.query);
-  
   let id = req.query.id;
   let index = req.query.index;
   let fileKey;
@@ -634,7 +624,7 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
     let result = await Expense.findByPk(id, { transaction: t });
 
     if (!result || !result.url || !result.url[index]) {
-      return res.status(404).send({ message: 'File or index not found' });
+      return res.send('File or index not found');
     }
 
     fileKey = result.url[index].url;
@@ -659,14 +649,11 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
     // Delete the file from S3
     await s3.deleteObject(deleteParams).promise();
 
-    res.send({ message: 'File deleted successfully' });
+    res.send('File deleted successfully');
   } catch (error) {
-    console.error('Error deleting file from S3 or database:', error);
-
-    // Rollback the transaction if it was created and an error occurs
     if (t) await t.rollback();
 
-    res.status(500).send({ message: error.message });
+    res.send(error.message);
   }
 });
 
@@ -687,10 +674,9 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
       // Delete the file from S3
       await s3.deleteObject(deleteParams).promise();
 
-      res.status(200).send({ message: 'File deleted successfully' });
+      res.send('File deleted successfully');
     } catch (error) {
-      console.error('Error deleting file from S3:', error);
-      res.status(500).send({ message: error.message });
+      res.send( error.message );
     }
 });
 
@@ -738,7 +724,7 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
   try {
       const pi = await Expense.findByPk(req.params.id);
       if (!pi) {
-          return res.status(404).send({ message: 'Expense not found.' });
+          return res.send('Expense not found.' );
       }
 
       pi.url = url;
@@ -786,7 +772,7 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
                   contentType: s3File.ContentType 
               });
           } catch (error) {
-              continue; 
+              res.send(error.message) 
           }
       }
 
@@ -837,15 +823,12 @@ router.delete('/:id', async(req,res)=>{
       });
 
       if (result === 0) {
-          return res.status(404).json({
-            status: "fail",
-            message: "Expense with that ID not found",
-          });
+          return res.send("Expense with that ID not found")
         }
     
         res.json();
       }  catch (error) {
-      res.send({error: error.message})
+      res.send( error.message)
   }
   
 })
@@ -966,11 +949,9 @@ router.post('/download-excel', async (req, res) => {
       downloadedDate: currentDate, fileName: fileName, invoiceNo: exNo, type: 'Expense' });
       await excelLog.save();
     const result = await s3.upload(paramsUploadNew).promise();
-
     res.send({ message: 'File uploaded successfully', name: fileName, excelLog: excelLog });
   } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: error.message });
+    res.send( error.message );
   }
 });
 module.exports = router;

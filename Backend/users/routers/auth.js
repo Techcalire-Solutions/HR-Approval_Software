@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
@@ -33,7 +35,7 @@ router.post('/', async (req, res) => {
         });
 
     } catch (error) {
-        res.json({ message: error.message });
+        res.send(error.message);
     }
 });
 
@@ -47,39 +49,6 @@ router.get('/findbyuser/:id', async (req, res) => {
       res.send(error.message)
     }
   })
-
-  
-
-
-
-router.post('/branchlogin', async(req, res)=> {
-    try {
-        const { branchCode, authorizationCode } = req.body;
-        const branch = await Branch.findOne({where: { branchCode: branchCode }});
-
-        if(!branch){
-            return res.status(404).send('Branch not found');            
-        }
-        const validPassword = await bcrypt.compare(authorizationCode, branch.authorizationCode);
-
-        if(!validPassword){
-            return res.status(401).send('incorrect authorization code' );
-        }
-        
-        let branchToken = {id:branch.id, name:branch.branchName, branchCode: branch.branchCode, branchType: branch.branchType};
-
-        let token = jwtTokens(branchToken);
-
-        res.cookie('refreshtoken', token.refreshToken, {httpOnly : true})
-
-
-        return res.status(200).send({"token" : token, "branch" : branch});
-
-    } catch (error) {
-        res.send(error.message);
-    }    
-})
-
 
 
 module.exports = router;

@@ -1,9 +1,9 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../utils/db');
 
-
 const Company = sequelize.define('company',{
-    
     companyName: {type : DataTypes.STRING, unique: true},
     code:{type: DataTypes.STRING},
     contactPerson: {type : DataTypes.STRING},

@@ -44,18 +44,14 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
       fileUrl: key // S3 URL of the uploaded file
     });
   } catch (error) {
-    if (err instanceof multer.MulterError) {
-      return res.json({ message: err.message });
-    } else if (err) {
-      return res.status(400).json({ message: err.message });
-    }
+    res.send(error.message)
   }
 });
 
 router.post('/bankslipupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).send({ message: 'No file uploaded' });
+      return res.send('No file uploaded' );
     }
     const sanitizedFileName = req.file.originalname.replace(/[^a-zA-Z0-9]/g, '_');
 
@@ -80,13 +76,11 @@ router.post('/bankslipupload', upload.single('file'), authenticateToken, async (
       fileUrl: fileUrl // S3 URL of the uploaded file
     });
   } catch (error) {
-    res.send({ message: error.message });
+    res.send(error.message );
   }
 });
 
 router.delete('/filedelete', authenticateToken, async (req, res) => {
-  console.log(req.query);
-  
   let id = req.query.id;
   let index = req.query.index;
   let fileKey;
@@ -98,7 +92,7 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
     let result = await PerformaInvoice.findByPk(id, { transaction: t });
 
     if (!result || !result.url || !result.url[index]) {
-      return res.status(404).send({ message: 'File or index not found' });
+      return res.send('File or index not found' );
     }
 
     fileKey = result.url[index].url;
@@ -124,7 +118,7 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
   } catch (error) {
     if (t) await t.rollback();
 
-    res.send({ message: error.message });
+    res.send( error.message );
   }
 });
 
@@ -133,7 +127,7 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
     fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
     try {
       if (!fileKey) {
-        return res.send({ message: 'No file key provided' });
+        return res.send('No file key provided');
       }
 
       // Set S3 delete parameters
@@ -147,8 +141,7 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
 
       res.send({ message: 'File deleted successfully' });
     } catch (error) {
-      console.error('Error deleting file from S3:', error);
-      res.send({ message: error.message });
+      res.send(error.message);
     }
 });
 
@@ -199,13 +192,9 @@ router.post('/excelupload', async (req, res) => {
       };
 
       await s3.upload(paramsUpload).promise();
-      console.log(`File updated successfully at ${paramsUpload.Key}`);
-      
       return res.status(200).send({ message: 'Excel file saved successfully.' });
 
   } catch (err) {
-    // Log the full error details for internal debugging
-    console.error('Error while processing Excel upload:', err);
     
     if (err.code === 'NoSuchKey') {
         try {
@@ -227,67 +216,63 @@ router.post('/excelupload', async (req, res) => {
 
             await s3.upload(paramsUploadNew).promise();
             return res.status(200).send({ message: 'Excel file saved successfully.' });
-        } catch (uploadErr) {
-            // Log the error details for internal use
-            console.error('Error creating new file and uploading to S3:', uploadErr);
-            return res.status(500).send('An error occurred while creating a new file.');
+        } catch (error) {
+            return res.send(error.message);
         }
     } else {
-        // Log other unexpected errors
-        console.error('Error checking or uploading to S3:', err);
-        return res.status(500).send('An error occurred while uploading the file.');
+        return res.send('An error occurred while uploading the file.');
     }
   }
 });
 
-router.post('/mergeExcelFiles', async (req, res) => {
-    const { startDate, endDate } = req.body;
-    const bucketName = process.env.AWS_BUCKET_NAME;
-    const prefix = 'PaymentExcel/';
+// router.post('/mergeExcelFiles', async (req, res) => {
+//     const { startDate, endDate } = req.body;
+//     const bucketName = process.env.AWS_BUCKET_NAME;
+//     const prefix = 'PaymentExcel/';
 
-    try {
-        const listObjects = await s3.listObjectsV2({ Bucket: bucketName, Prefix: prefix }).promise();
-        const filteredKeys = listObjects.Contents
-            .filter(obj => {
-                const fileDate = new Date(obj.Key.split('/')[1].replace('.xlsx', ''));
-                return fileDate >= new Date(startDate) && fileDate <= new Date(endDate);
-            })
-            .map(obj => obj.Key);
+//     try {
+//         const listObjects = await s3.listObjectsV2({ Bucket: bucketName, Prefix: prefix }).promise();
+//         const filteredKeys = listObjects.Contents
+//             .filter(obj => {
+//                 const fileDate = new Date(obj.Key.split('/')[1].replace('.xlsx', ''));
+//                 return fileDate >= new Date(startDate) && fileDate <= new Date(endDate);
+//             })
+//             .map(obj => obj.Key);
 
-        let mergedData = [];
+//         let mergedData = [];
 
-        for (const key of filteredKeys) {
-            const fileData = await s3.getObject({ Bucket: bucketName, Key: key }).promise();
-            const workbook = xlsx.read(fileData.Body, { type: 'buffer' });
-            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-            const sheetData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
+//         for (const key of filteredKeys) {
+//             const fileData = await s3.getObject({ Bucket: bucketName, Key: key }).promise();
+//             const workbook = xlsx.read(fileData.Body, { type: 'buffer' });
+//             const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+//             const sheetData = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
             
-            mergedData = mergedData.length ? mergedData.concat(sheetData.slice(1)) : sheetData;
-        }
+//             mergedData = mergedData.length ? mergedData.concat(sheetData.slice(1)) : sheetData;
+//         }
 
-        const newWorkbook = xlsx.utils.book_new();
-        const newWorksheet = xlsx.utils.aoa_to_sheet(mergedData);
-        xlsx.utils.book_append_sheet(newWorkbook, newWorksheet, 'MergedData');
+//         const newWorkbook = xlsx.utils.book_new();
+//         const newWorksheet = xlsx.utils.aoa_to_sheet(mergedData);
+//         xlsx.utils.book_append_sheet(newWorkbook, newWorksheet, 'MergedData');
 
-        const mergedExcel = xlsx.write(newWorkbook, { bookType: 'xlsx', type: 'buffer' });
+//         const mergedExcel = xlsx.write(newWorkbook, { bookType: 'xlsx', type: 'buffer' });
 
-        const mergedFileName = `MergedExcel/${startDate}_to_${endDate}.xlsx`;
-        const uploadParams = {
-            Bucket: bucketName,
-            Key: mergedFileName,
-            Body: mergedExcel,
-            ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            ACL: 'public-read'
-        };
+//         const mergedFileName = `MergedExcel/${startDate}_to_${endDate}.xlsx`;
+//         const uploadParams = {
+//             Bucket: bucketName,
+//             Key: mergedFileName,
+//             Body: mergedExcel,
+//             ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+//             ACL: 'public-read'
+//         };
 
-        await s3.upload(uploadParams).promise();
+//         await s3.upload(uploadParams).promise();
 
-        return res.status(200).send({ message: 'Excel files merged and saved successfully.' });
-    } catch (error) {
-        console.error('Error merging Excel files:', error);
-        return res.status(500).send('An error occurred while merging the Excel files.');
-    }
-});
+//         return res.status(200).send({ message: 'Excel files merged and saved successfully.' });
+//     } catch (error) {
+//         console.error('Error merging Excel files:', error);
+//         return res.status(500).send('An error occurred while merging the Excel files.');
+//     }
+// });
 
 router.post('/download-excel', async (req, res) => {
   const data = req.body.invoices;
@@ -369,8 +354,7 @@ router.post('/download-excel', async (req, res) => {
 
     res.send({ message: 'File uploaded successfully', name: fileName, excelLog: excelLog });
   } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: error.message });
+    res.send(error.message);
   }
 });
 

@@ -1,7 +1,8 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
-const UserAccount = require('../models/userAccount');
 const UserPosition = require('../models/userPosition');
 const User = require('../models/user')
 

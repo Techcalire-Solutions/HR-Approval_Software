@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const express = require("express");
 const router = express.Router();
 const ExcelLog = require('../models/excelLog');
@@ -33,7 +35,7 @@ router.get("/findexpenses", async (req, res) => {
       const log = await ExcelLog.findByPk(req.params.id);
       
       if (!log) {
-        return res.status(404).send({ message: 'Log entry not found' });
+        return res.send('Log entry not found');
       }
       
       const fileName = log.fileName;

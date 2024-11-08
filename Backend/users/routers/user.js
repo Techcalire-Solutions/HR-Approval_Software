@@ -46,7 +46,7 @@ router.post('/add', async (req, res) => {
         const team = await Team.findOne({ where: { id: teamId } });
 
         if (!team) {
-          return res.status(404).send('Team not found');
+          return res.send('Team not found');
         }
         const teamMember = await TeamMember.create({
           teamId: team.id,
@@ -131,7 +131,6 @@ router.get('/find/', async (req, res) => {
       limit,
       offset
     });
-    console.log(users);
     
     let totalCount;
     totalCount = await User.count();
@@ -237,9 +236,9 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
       force: true
     });
     if (result === 0) {
-      return res.status(404).json({
+      return res.json({
         status: "fail",
-        message: "Brand with that ID not found",
+        message: "User with that ID not found",
       });
     }
 
@@ -269,7 +268,7 @@ router.get('/findbyroleName/:roleName', async (req, res) => {
 
     res.send(users);
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.send(error.message );
   }
 });
 
@@ -323,7 +322,7 @@ router.get('/getbyrm/:id', async (req, res) => {
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).send({ message: 'No file uploaded' });
+      return res.send('No file uploaded');
     }
 
     // Sanitize the original file name by removing special characters and spaces
@@ -353,7 +352,7 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
       fileUrl: key // S3 URL of the uploaded file
     });
   } catch (error) {
-    res.send({ message: error.message });
+    res.send(error.message );
   }
 });
 
@@ -384,9 +383,9 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
     // Delete the file from S3
     await s3.deleteObject(deleteParams).promise();
 
-    res.status(200).send({ message: 'File deleted successfully' });
+    res.send('File deleted successfully' );
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.send(error.message );
   }
 });
 
@@ -407,9 +406,9 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
       // Delete the file from S3
       await s3.deleteObject(deleteParams).promise();
 
-      res.status(200).send({ message: 'File deleted successfully' });
+      res.send( 'File deleted successfully' );
     } catch (error) {
-      res.status(500).send({ message: error.message });
+      res.send(error.message );
     }
 });
 
@@ -431,7 +430,7 @@ router.patch('/resetpassword/:id', async (req, res) => {
       
       res.send(user);
   } catch (error) {
-      res.status(500).send(error.message);
+      res.send(error.message);
   }
 });
 
@@ -507,7 +506,7 @@ router.get('/confirmemployee/:id', async (req, res) => {
 
       res.json({ message: "Employee confirmed" });
   } catch (error) {
-      res.status(500).json({ message: "Internal Server Error", error: error.message });
+      res.send(error.message );
   }
 });
 
@@ -516,7 +515,7 @@ router.get('/', async (req, res) => {
     const users = await User.findAll();
     res.status(200).json(users); 
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.send( error.message );
   }
 });
 
@@ -535,7 +534,7 @@ router.patch('/resignemployee/:id', async (req, res) => {
       await result.save();
       res.json({ result });
   } catch (error) {
-      res.json({ message: "Internal Server Error", error: error.message });
+      res.send(error.message );
   }
 });
 
@@ -551,7 +550,7 @@ router.patch('/editnote/:id', async (req, res) => {
       await result.save();
       res.json({ result });
   } catch (error) {
-      res.json({ message: "Internal Server Error", error: error.message });
+      res.send( error.message);
   }
 });
 module.exports = router;

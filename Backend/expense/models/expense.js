@@ -1,7 +1,8 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { DataTypes, STRING } = require('sequelize');
 const sequelize = require('../../utils/db');
 const User = require('../../users/models/user');
-const Company = require('../../invoices/models/company');
 
 const Expense = sequelize.define('expense',{
     exNo : {type : DataTypes.STRING, allowNull : false},
