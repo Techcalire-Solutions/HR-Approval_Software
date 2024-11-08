@@ -682,7 +682,7 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
 
 
 router.patch('/update/:id', authenticateToken, async (req, res) => {
-  let { url, amId, notes, currency, totalAmount } = req.body;
+  let { url, amId, notes, currency, totalAmount, accountantId } = req.body;
   const userId = req.user.id;
   let status;
   const user = await User.findByPk(userId, {
@@ -718,7 +718,6 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
     
   } catch (error) {
     res.send(error.message)
-    
   }
 
   try {
