@@ -963,12 +963,6 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
     }
 });
 
-async function checkAndContinue(invoice) {
-    
-
-  }
-  
-
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
     const { bankSlip } = req.body;
     try {
@@ -984,8 +978,12 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'Invoice not found' });
         }
         
-        // update bank slip----------------------------------------------------------
+        let message = 'processed'
         if( pi.bankSlip != null){
+            message = 'updated'
+            pi.count += 1;
+            await pi.save();
+
             const key = pi.bankSlip;
             const fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
             try {
@@ -1125,7 +1123,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             emailSubject = `Card Payment Successfully Processed for Proforma Invoice - ${pi.piNo}`;
             emailBody = `
                 <p>Dear Team,</p>
-                <p>We are pleased to inform you that the card payment for proforma invoice: <strong>${pi.piNo}</strong> has been successfully processed.</p>
+                <p>We are pleased to inform you that the card payment for proforma invoice: <strong>${pi.piNo}</strong> has been successfully ${message}.</p>
                 <p>Please find the bank slip attached for your records. If you have any questions or require further assistance, feel free to reach out.</p>
                 
                     <p><strong>Entry Number:</strong> ${pi.piNo}</p>
