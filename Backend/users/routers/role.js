@@ -17,8 +17,6 @@ router.post('/', authenticateToken, async (req, res) => {
           res.send(role);
 
     } catch (error) {
-      console.log(error);
-      
         res.send(error.message);
     }
 })
@@ -29,7 +27,7 @@ router.get('/', authenticateToken, async (req, res) => {
 
     res.send(roles);
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.send( error.message );
   }
 });
 

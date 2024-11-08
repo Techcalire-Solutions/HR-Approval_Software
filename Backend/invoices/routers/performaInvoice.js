@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable no-undef */
 const express = require('express');
 const router = express.Router();
@@ -5,7 +6,7 @@ const authenticateToken = require('../../middleware/authorization');
 const PerformaInvoice = require('../models/performaInvoice');
 const PerformaInvoiceStatus = require('../models/invoiceStatus');
 const User = require('../../users/models/user');
-const { Op, where } = require('sequelize');
+const { Op } = require('sequelize');
 const sequelize = require('../../utils/db');
 const s3 = require('../../utils/s3bucket');
 const Role = require('../../users/models/role');
@@ -13,9 +14,6 @@ const nodemailer = require('nodemailer');
 const TeamMember = require('../../users/models/teamMember');
 const Team = require('../../users/models/team');
 const Company = require('../models/company');
-const Supplier = require('../../invoices/routers/company');
-const Expense = require('../../expense/models/expense')
-const ExpenseStatus  = require('../../expense/models/expenseStatus')
 const Notification = require('../../invoices/models/notification')
 const UserPosition = require('../../users/models/userPosition')
 
@@ -160,7 +158,7 @@ router.post('/save', authenticateToken, async (req, res) => {
             message: 'Proforma Invoice saved successfully....'
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.send(error.message);
     }
 });
 
@@ -209,7 +207,7 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
  
         const existingInvoice = await PerformaInvoice.findOne({ where: { piNo: piNo } });
         if (existingInvoice) {
-            return res.status(400).json({ error: 'Invoice is already saved' });
+            return res.sned( 'Invoice is already saved' );
         }
 
 
@@ -307,7 +305,7 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
             message: 'Proforma Invoice saved successfully' 
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.send( error.message );
     }
 });
 
@@ -351,12 +349,9 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
             notificationRecipientId =  accountantId;
             if(!recipientEmail){
                 return res.send("Accoutant project email is missing. \n Please inform the admin to add it.");
-
             }
 
         }
-
-
         
     } catch (error) {
         res.send(error.message)
@@ -366,7 +361,7 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
     try {
         const existingInvoice = await PerformaInvoice.findOne({ where: { piNo: piNo } });
         if (existingInvoice) {
-            return res.status(400).json({ error: 'Invoice is already saved' });
+            return res.send('Invoice is already saved') 
         }
 
         const newPi = await PerformaInvoice.create({
@@ -456,7 +451,7 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
             message: 'Proforma Invoice saved successfully'
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.send(error.message);
     }
 });
 
@@ -959,7 +954,7 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
             res.send(pi);
         }
     } catch (error) {
-        res.status(500).send(error.message);
+        res.send(error.message);
     }
 });
 
@@ -975,7 +970,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             ]}
         );
         if (!pi) {
-            return res.status(404).json({ message: 'Invoice not found' });
+            return res.send('Invoice not found' );
         }
         
         let message = 'processed'
@@ -1196,8 +1191,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
       return res.json({ pi, status: newStat });
   
     } catch (error) {
-      console.error("Error processing invoice:", error);
-      return res.status(500).json({ message: error.message });
+      return res.send(error.message );
     }
   })
     
@@ -1446,26 +1440,26 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
             }
         }
     } catch (error) {
-        return res.status(500).send(error.message);
+        return res.send(error.message);
     }
 
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
         const piNo = pi.piNo;
         if (!pi) {
-            return res.status(404).send({ message: 'Proforma Invoice not found.' });
+            return res.send('Proforma Invoice not found.');
         }
 
         let status;
 
         if (paymentMode === 'CreditCard') {
             if (amId == null || amId === undefined || amId === '') {
-                return res.status(400).send('Please select Manager.');
+                return res.send('Please select Manager.');
             }
             status = 'INITIATED';
         } else {
             if (kamId == null || kamId === undefined || kamId === '') {
-                return res.status(400).send('Please select Key Account Manager.');
+                return res.send('Please select Key Account Manager.');
             }
             status = 'GENERATED';
         }
@@ -1527,7 +1521,6 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
                     contentType: s3File.ContentType 
                 });
             } catch (error) {
-                console.warn(`Failed to retrieve file from S3: ${error.message}`);
                 continue; 
             }
         }
@@ -1576,7 +1569,7 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
 
 
     } catch (error) {
-        return res.status(500).send(error.message);
+        return res.send(error.message);
     }
 });
 
@@ -1766,7 +1759,7 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
                 notificationRecipientId = kamId;
     
                 if (!recipientEmail) {
-                    return res.status(400).send("KAM project email is missing. Please inform the admin to add it.");
+                    return res.send("KAM project email is missing. Please inform the admin to add it.");
                 }
             } else if (paymentMode === 'WireTransfer') {
                 const accountant = await UserPosition.findOne({ where: { userId: accountantId } });
@@ -1774,11 +1767,11 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
                 notificationRecipientId = accountantId;
     
                 if (!recipientEmail) {
-                    return res.status(400).send("Accountant project email is missing. Please inform the admin to add it.");
+                    return res.send("Accountant project email is missing. Please inform the admin to add it.");
                 }
             }
         } catch (error) {
-            return res.status(500).send(error.message);
+            return res.send(error.message);
         }
 
         const pi = await PerformaInvoice.findByPk(req.params.id);
@@ -1857,29 +1850,6 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
 
 
 
-    const mailOptions = {
-        from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
-        to: recipientEmail,
-        subject: `New Proforma Invoice Updated - ${piNo}`,
-        html: `
-            <p>A new Proforma Invoice has been updated  by <strong>${req.user.name}</strong></p>
-            <p><strong>Entry Number:</strong> ${piNo}</p>
-            <p><strong>Supplier Name:</strong> ${supplierName}</p>
-            <p><strong>Supplier PO No:</strong> ${supplierPoNo}</p>
-            <p><strong>Supplier SO No:</strong> ${supplierSoNo}</p>
-            <p><strong>Status:</strong> ${status}</p>
-            ${purpose === 'Stock'
-                ? `<p><strong>Purpose:</strong> Stock</p>`
-                : `<p><strong>Purpose:</strong> Customer</p>
-                   <p><strong>Customer Name:</strong> ${customerName}</p>
-                   <p><strong>Customer PO No:</strong> ${customerPoNo}</p>
-                   <p><strong>Customer SO No:</strong> ${customerSoNo}</p>`
-            }
-            <p><strong>Notes:</strong> ${pi.notes}</p>
-            <p>Please find the attached documents related to this Proforma Invoice.</p>
-        `,
-        attachments,
-    };
 
     await Notification.create({
         userId: notificationRecipientId,
@@ -1944,8 +1914,6 @@ router.patch('/updatePIByAdminSuperAdmin/:id', authenticateToken, async(req, res
         const supplier = await Company.findOne({ where: { id: supplierId } });
         const customer = await Company.findOne({ where: { id: customerId } });
 
-         const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
-          const customerName = customer ? customer.companyName : 'Unknown Customer';
 
    
           const attachments = [];
@@ -1997,15 +1965,12 @@ router.delete('/:id', async(req,res)=>{
         });
 
         if (result === 0) {
-            return res.status(404).json({
-              status: "fail",
-              message: "PerformaInvoice with that ID not found",
-            });
+            return res.send('PerformaInvoice with that ID not found')
           }
       
           res.status(204).json();
         }  catch (error) {
-        res.send({error: error.message})
+        res.send( error.message )
     }
     
 })
@@ -2067,7 +2032,7 @@ router.get('/dashboard/cc', authenticateToken, async (req, res) => {
             res.send(pi);
         }
     } catch (error) {
-        res.status(500).send({ error: error.message });
+        res.send(error.message );
     }
 });
 
@@ -2128,7 +2093,7 @@ router.get('/dashboard/wt', authenticateToken, async (req, res) => {
             res.send(pi);
         }
     } catch (error) {
-        res.status(500).send({ error: error.message });
+        res.send({ error: error.message });
     }
 });
 
@@ -2245,7 +2210,6 @@ router.get('/findcount', authenticateToken, async (req, res) => {
             attributes: ['status', [sequelize.fn('COUNT', sequelize.col('status')), 'count']],
             group: ['status']
         });
-        console.log(invoiceCounts,"invoiceCountsinvoiceCountsinvoiceCountsinvoiceCountsinvoiceCountsinvoiceCounts");
         
         invoiceCounts.forEach(invoice => {
             counts[invoice.status] = invoice.get('count');
@@ -2261,7 +2225,7 @@ router.get('/findcount', authenticateToken, async (req, res) => {
             counts: formattedCounts
         });
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while fetching the invoice counts.' });
+        res.send(error.message);
     }
 });
 

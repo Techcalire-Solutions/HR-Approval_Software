@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
@@ -15,8 +17,7 @@ router.post('/create', authenticateToken, async (req, res) => {
         });
         res.status(201).json({ notification });
     } catch (error) {
-        console.error('Error creating notification:', error.message);
-        res.status(500).send('Internal Server Error');
+        res.send(error.message);
     }
 });
 
@@ -30,8 +31,7 @@ router.get('/user/:userId', authenticateToken, async (req, res) => {
         });
         res.json({ notifications });
     } catch (error) {
-        console.error('Error retrieving notifications:', error.message);
-        res.status(500).send('Internal Server Error');
+        res.send(error.message);
     }
 });
 
@@ -43,8 +43,7 @@ router.get('/', authenticateToken,  async (req, res) => {
         });
         res.json(notifications);
     } catch (error) {
-        console.error('Error fetching notifications:', error.message);
-        res.status(500).send('Internal Server Error');
+        res.send(error.message);
     }
 });
 
@@ -61,7 +60,7 @@ router.put('/mark-read/:notificationId', authenticateToken, async (req, res) => 
         });
 
         if (!notification) {
-            return res.status(404).send('Notification not found or does not belong to the user.');
+            return res.send('Notification not found or does not belong to the user.');
         }
 
         notification.isRead = true;
@@ -72,8 +71,7 @@ router.put('/mark-read/:notificationId', authenticateToken, async (req, res) => 
             notification
         });
     } catch (error) {
-        console.error('Error marking notification as read:', error.message);
-        res.status(500).send('Internal Server Error');
+        res.send(error.message);
     }
 });
 
@@ -90,7 +88,7 @@ router.put('/admin/mark-read/:notificationId', authenticateToken, async (req, re
         });
 
         if (!notification) {
-            return res.status(404).send('Notification not found.');
+            return res.send('Notification not found.');
         }
 
         // Mark notification as read
@@ -102,8 +100,7 @@ router.put('/admin/mark-read/:notificationId', authenticateToken, async (req, re
             notification
         });
     } catch (error) {
-        console.error('Error marking notification as read:', error.message);
-        res.status(500).send('Internal Server Error');
+        res.send(error.message);
     }
 });
 
@@ -122,8 +119,7 @@ router.get('/unread-count', authenticateToken, async (req, res) => {
 
         res.json({ unreadCount });
     } catch (error) {
-        console.error('Error fetching unread count:', error.message);
-        res.status(500).send('Internal Server Error');
+        res.send(error.message);
     }
 });
 
@@ -135,14 +131,13 @@ router.delete('/delete/:notificationId', authenticateToken, async (req, res) => 
     try {
         const notification = await Notification.findByPk(notificationId);
         if (!notification) {
-            return res.status(404).send('Notification not found.');
+            return res.send('Notification not found.');
         }
 
         await notification.destroy();
         res.send('Notification deleted successfully.');
     } catch (error) {
-        console.error('Error deleting notification:', error.message);
-        res.status(500).send('Internal Server Error');
+        res.send(error.message);
     }
 });
 
@@ -153,8 +148,7 @@ router.delete('/', authenticateToken, async (req, res) => {
         await Notification.destroy({ where: {}, truncate: true });
         res.json({ message: 'All notifications deleted successfully.' });
     } catch (error) {
-        console.error('Error deleting notifications:', error.message);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.send(error.message);
     }
 })
 

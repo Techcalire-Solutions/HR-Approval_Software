@@ -1,10 +1,10 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const express = require('express');
 const TeamMember = require('../models/teamMember');
 const Team = require('../models/team');
 const router = express.Router();
-const authenticateToken = require('../../middleware/authorization');
-const { Op, fn, col, where } = require('sequelize');
-const sequelize = require('../../utils/db');
 
 
 router.post('/', async (req, res) => {
@@ -38,7 +38,7 @@ router.get('/user/:userId', async (req, res) => {
 
         res.send(teams);
     } catch (error) {
-        res.status(500).send({ error: error.message });
+        res.send( error.message );
     }
 });
 

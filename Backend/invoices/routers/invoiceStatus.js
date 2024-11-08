@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const express = require('express');
 const router = express.Router();
 const {Op} = require('sequelize');
@@ -19,17 +21,12 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-
-
 router.post('/updatestatus', authenticateToken, async (req, res) => {
     let  { performaInvoiceId, remarks, amId, accountantId, status, kamId } = req.body;
-
-
-
     try {
         const pi = await PerformaInvoice.findByPk(performaInvoiceId);
         if (!pi) {
-            return res.status(404).send('Proforma Invoice not found.');
+            return res.send('Proforma Invoice not found.');
         }
         if(kamId==null){
             kamId = pi.kamId
@@ -38,8 +35,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
          
 
         if (!Array.isArray(pi.url) || pi.url.length === 0) {
-            console.error('Invalid or missing URL:', pi.url);
-            return res.status(404).send('Proforma Invoice does not have an associated file or the URL is invalid.');
+            return res.send('Proforma Invoice does not have an associated file or the URL is invalid.');
         }
 
         const [salesPerson, kam, am, accountant] = await Promise.all([
@@ -134,7 +130,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                     break;   
     
             default:
-                return res.status(400).send('Invalid status update.');
+                return res.send('Invalid status update.');
         }
 
         if (!toEmail) {
@@ -161,7 +157,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
             const actualUrl = typeof fileObj === 'string' ? fileObj : fileObj.url;
 
             if (!actualUrl || typeof actualUrl !== 'string') {
-                console.warn('Skipping invalid URL:', fileObj);
                 continue;
             }
 
@@ -179,7 +174,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                     contentType: s3File.ContentType
                 });
             } catch (error) {
-                console.error(`Error fetching file from S3 for URL ${actualUrl}:`, error.message);
                 continue; // Continue even if fetching a specific file fails
             }
         }
@@ -210,17 +204,14 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
 
         try {
             await transporter.sendMail(mailOptions);
-            console.log('Email sent successfully to:', toEmail);
         } catch (error) {
-            console.error('Error sending email:', error.message);
-            // Email failure should not stop the backend
+            res.send(error.message)
         }
 
         res.json({ pi, status: newStatus });
 
     } catch (error) {
-        console.error('Error updating status and sending email:', error.message);
-        res.status(500).send('An error occurred while updating the status.');
+        res.send(error.message);
     }
 });
 
@@ -232,8 +223,6 @@ router.post('/updatestatustobankslip', authenticateToken, async (req, res) => {
     const { performaInvoiceId, status } = req.body;
     try {
         let newStat;
-        console.log(status);
-        
         if(status === 'AM APPROVED'){ newStat = 'CARD PAYMENT COMPLETED' }
         else if(status === 'AM VERIFIED'){ newStat = 'BANK SLIP ISSUED' }
         const result = new PerformaInvoiceStatus({ performaInvoiceId, status: newStat, date: Date.now() });

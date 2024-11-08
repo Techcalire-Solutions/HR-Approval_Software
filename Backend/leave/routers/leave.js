@@ -244,7 +244,7 @@ router.post('/', authenticateToken, async (req, res) => {
   const userId = req.user.id;
 
   if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
-    return res.status(400).json({ message: 'Missing required fields' });
+    return res.send( 'Missing required fields' );
   }
 
   const user = await User.findByPk(userId);

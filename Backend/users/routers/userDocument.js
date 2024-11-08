@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const express = require('express');
 const router = express.Router();
 const upload = require('../../utils/userDocumentMulter'); // Import the configured multer instance
@@ -34,7 +36,7 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
       fileUrl: key
     });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.send( error.message );
   }
 });
 
@@ -106,7 +108,7 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
 
     res.send({ message: 'File deleted successfully' });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.send(error.message );
   }
 });
 
@@ -139,7 +141,7 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
 
     res.status(200).send({ message: 'File deleted successfully' });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.send(error.message);
   }
 });
 

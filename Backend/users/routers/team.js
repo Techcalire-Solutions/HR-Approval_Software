@@ -1,10 +1,10 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const express = require('express');
 const Team = require('../models/team');
 const TeamMember = require('../models/teamMember');
 const router = express.Router();
-const authenticateToken = require('../../middleware/authorization');
-const { Op, fn, col, where } = require('sequelize');
-const sequelize = require('../../utils/db');
 const User = require('../models/user');
 
 
@@ -119,10 +119,7 @@ router.patch('/:id', async (req, res) => {
             });
         }
     } catch (error) {
-        res.status(500).json({
-            status: "error",
-            message: error.message,
-        });
+        res.send(error.message);
     }
 });
 
@@ -144,7 +141,7 @@ router.delete('/:id', async (req, res) => {
 
         res.status(204).json();
     } catch (error) {
-        res.send({ error: error.message })
+        res.send(error.message)
     }
 
 })

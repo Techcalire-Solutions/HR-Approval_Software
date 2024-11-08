@@ -1,7 +1,9 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const express = require("express");
 const router = express.Router();
 const Company = require("../models/company");
-const { Op, where } = require('sequelize');
+const { Op } = require('sequelize');
 
 
 router.post("/", async (req, res) => {
@@ -33,10 +35,7 @@ router.post("/", async (req, res) => {
       where: { companyName: companyName }
     })
     if(compExist){
-      return res.status(500).json({
-        status: "error",
-        message: 'There is already a company that exists under the same name.',
-      });
+      return res.send('There is already a company that exists under the same name.')
     }
 
     const company = new Company({
@@ -64,7 +63,7 @@ router.post("/", async (req, res) => {
     
 
   } catch (error) {
-    res.send(error);
+    res.send(error.message);
   }
 });
 
@@ -74,7 +73,9 @@ router.get("/", async (req, res) => {
       order: [['createdAt', 'DESC']],
     });
     res.send(company);
-  } catch (error) {}
+  } catch (error) {
+    res.send(error.message)
+  }
 });
 
 router.get("/suppliers", async (req, res) => {
@@ -85,8 +86,7 @@ router.get("/suppliers", async (req, res) => {
     });
     res.send(companies);
   } catch (error) {
-    console.error("Error fetching suppliers:", error); // Log the error for debugging
-    res.status(500).send({ message: "Internal server error" }); // Send a 500 status if there's an error
+    res.send(error.message); // Send a 500 status if there's an error
   }
 });
 
@@ -98,8 +98,7 @@ router.get("/customers", async (req, res) => {
     });
     res.send(companies);
   } catch (error) {
-    console.error("Error fetching suppliers:", error); // Log the error for debugging
-    res.status(500).send({ message: "Internal server error" }); // Send a 500 status if there's an error
+    res.send(error.message); // Send a 500 status if there's an error
   }
 });
 
@@ -166,11 +165,11 @@ router.get("/findone/:id", async (req, res) => {
     const company = await Company.findOne({ where: { id: companyId },
       include: [CompanyTerm, Team]  });
     if (!company) {
-      return res.status(404).json({ error: "Company not found" });
+      return res.send("Company not found" );
     }
   
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res.send(error.message);
   }
 });
 
@@ -199,7 +198,7 @@ router.patch("/:id", async (req, res) => {
     } = req.body;
     const company = await Company.findOne({ where: { id: companyId } });
     if (!company) {
-      return res.status(404).json({ error: "Company not found" });
+      return res.send("Company not found");
     }
     company.companyName = companyName;
     company.code = code;
@@ -222,8 +221,7 @@ router.patch("/:id", async (req, res) => {
 
     res.json(company);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.send(error.message);
   }
 });
 
@@ -307,15 +305,12 @@ router.delete('/:id', async(req,res)=>{
       });
 
       if (result === 0) {
-          return res.status(404).json({
-            status: "fail",
-            message: "Company with that ID not found",
-          });
+          return res.send("Company with that ID not found");
         }
     
         res.status(204).json();
       }  catch (error) {
-      res.send({error: error.message})
+      res.send( error.message )
   }
   
 })
@@ -330,7 +325,7 @@ router.get("/getsuppliers/:id", async (req, res) => {
     res.send(company);
       
   } catch (error) {
-    res.send({ error: error.message});
+    res.send(error.message);
   }
 });
 
@@ -346,27 +341,20 @@ router.get("/getsuppliersforparts/:partid/:companyid", async (req, res) => {
     res.send(company);
       
   } catch (error) {
-    res.send({ error: error.message});
+    res.send(error.message );
   }
 });
 
 router.get("/:id", async (req, res) => {
   try {
     const companyId = req.params.id;
-    console.log('companyId:', companyId);
-
     const company = await Company.findOne({ where: { id: companyId } });
-    console.log('company:', company);
-
     if (!company) {
-      return res.status(404).json({ error: "Company not found" });
+      return res.send("Company not found");
     }
-
-    // Send the company data as the response
     res.json(company);
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.send(error.message);
   }
 });
 

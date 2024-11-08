@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
@@ -5,7 +7,6 @@ const Announcement = require('../model/announcement');
 const upload = require('../../utils/multer');
 const s3 = require('../../utils/s3bucket');
 const nodemailer = require('nodemailer');
-const User = require('../../users/models/user');
 const UserPosition = require('../../users/models/userPosition')
 
 
@@ -22,16 +23,8 @@ router.post('/add', authenticateToken, async (req, res) => {
   const { message, type, dismissible, fileUrl } = req.body;
 
   try {
-    const users = await User.findAll({
-      where: {
-        status: true,
-        separated: false,
-      },
-    });
 
-    const userPosition = await UserPosition.findAll({
-
-    })
+    const userPosition = await UserPosition.findAll({})
 
     const userEmails = userPosition.map(userPosition => userPosition.officialMailId).filter(officialMailId => officialMailId);
 
@@ -89,7 +82,7 @@ router.post('/add', authenticateToken, async (req, res) => {
 
     res.send(ancmnts);
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.send( error.message );
   }
 });
 
@@ -111,6 +104,7 @@ router.delete('/delete/:id', authenticateToken, async(req, res) => {
       let fileKey = ancmnt.fileUrl;
       if(fileKey){
         const deleteParams = {
+          // eslint-disable-next-line no-undef
           Bucket: process.env.AWS_BUCKET_NAME,
           Key: fileKey
         };
@@ -125,10 +119,7 @@ router.delete('/delete/:id', authenticateToken, async(req, res) => {
         });
 
         if (result === 0) {
-            return res.status(404).json({
-              status: "fail",
-              message: "Role with that ID not found",
-            });
+            return res.send("Role with that ID not found");
           }
       
           res.status(204).json();
@@ -165,7 +156,7 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
         fileUrl: key
       });
     } catch (error) {
-      res.status(500).send({ message: error.message });
+      res.send(error.message );
     }
 });
 
@@ -196,9 +187,9 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
     // Delete the file from S3
     await s3.deleteObject(deleteParams).promise();
 
-    res.status(200).send({ message: 'File deleted successfully' });
+    res.send('File deleted successfully' );
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.send(error.message );
   }
 });
 
@@ -219,9 +210,9 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
       // Delete the file from S3
       await s3.deleteObject(deleteParams).promise();
 
-      res.status(200).send({ message: 'File deleted successfully' });
+      res.send('File deleted successfully' );
     } catch (error) {
-      res.status(500).send({ message: error.message });
+      res.send({ message: error.message });
     }
 });
 module.exports = router;

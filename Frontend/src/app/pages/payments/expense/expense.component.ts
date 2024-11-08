@@ -156,15 +156,12 @@ export class ExpenseComponent implements OnInit{
   }
 
   isImageUploaded(): boolean {
-    const controls = this.expenseForm.get('url') as FormArray;
-    
-    if (controls.length === 0) {
+    const controls = this.expenseForm.get('url')as FormArray;
+    if( controls.length === 0) {return true}
+    const i = controls.length - 1;
+    if (this.savedImageUrl[i] || this.imageUrl[i]) {
       return true;
-    }
-  
-    const lastIndex = controls.length - 1;
-    
-    return this.imageUrl[lastIndex] ? true : false;
+    }else return false;
   }
   
 
