@@ -12,12 +12,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { User } from '../../../../common/interfaces/user';
 import { PayrollService } from '@services/payroll.service';
 import { UsersService } from '@services/users.service';
-import { AdvanceSalary } from '../../../../common/interfaces/advanceSalary';
+import { AdvanceSalary } from '../../../../common/interfaces/payRoll/advanceSalary';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSelectModule } from '@angular/material/select';
+import { User } from '../../../../common/interfaces/users/user';
 
 @Component({
   selector: 'app-add-advance-salary',
@@ -60,7 +60,7 @@ export class AddAdvanceSalaryComponent implements OnInit{
     this.dialogRef?.close();
   }
 
-  
+
   getUsers() {
     this.userService.getUser().subscribe((result) => {
       this.users = result;
@@ -72,7 +72,7 @@ export class AddAdvanceSalaryComponent implements OnInit{
   filterValue = '';
   search(event: Event) {
     this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
-    this.filteredUsers = this.users.filter(option => 
+    this.filteredUsers = this.users.filter(option =>
       option.name.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
       option.empNo.toString().replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
     );
@@ -84,7 +84,7 @@ export class AddAdvanceSalaryComponent implements OnInit{
   }
 
   findAmount(){
-    
+
   }
 
   manageUser(){}
@@ -107,7 +107,7 @@ export class AddAdvanceSalaryComponent implements OnInit{
    users: User[] = [];
   onSubmit(){
     console.log(this.advanceSalaryForm.getRawValue());
-    
+
     // if(this.dialogData){
     //   this.payrollService.updateAdvanceSalary(this.dialogData.salary.id, this.advanceSalaryForm.getRawValue()).subscribe(data => {
     //     if (this.dialogRef) this.dialogRef.close();

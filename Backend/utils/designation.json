@@ -1,0 +1,18 @@
+[
+    {"designationName": "SUPER ADMIN", "abbreviation": "SA"}, 
+    {"designationName": "APPROVAL ADMIN", "abbreviation": "AA"}, 
+    {"designationName": "HR ADMIN", "abbreviation": "HRA"}, 
+    {"designationName": "MANAGING DIRECTOR", "abbreviation": "MD"}, 
+    {"designationName": "OPERATIONS MANAGER", "abbreviation": "OM"}, 
+    {"designationName": "KEY ACCOUNT MANAGER", "abbreviation": "KAM"}, 
+    {"designationName": "FINANCE MANAGER", "abbreviation": "FM"}, 
+    {"designationName": "SENIOR SALES ASSOCIATE", "abbreviation": "SSA"}, 
+    {"designationName": "TEAM LEAD", "abbreviation": "TL"}, 
+    {"designationName": "GRAPHIC DESIGNER", "abbreviation": "GD"}, 
+    {"designationName": "LOGISTICS COORDINATOR", "abbreviation": "LC"}, 
+    {"designationName": "SALES ASSOCIATE", "abbreviation": "SA"}, 
+    {"designationName": "HR & ADMINISTRATION MANAGER", "abbreviation": "HR"}, 
+    {"designationName": "ACCOUNTS EXECUTIVE", "abbreviation": "AE"}, 
+    {"designationName": "SEO SPECIALIST", "abbreviation": "SS"}, 
+    {"designationName": "SOFTWARE ENGINEER", "abbreviation": "SE"}
+]

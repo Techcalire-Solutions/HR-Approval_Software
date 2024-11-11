@@ -21,8 +21,8 @@ export const routes: Routes = [
       },
 
       {
-        path: 'role',
-        loadComponent: () => import('./role/role.component').then(c => c.RoleComponent),
+        path: 'designation',
+        loadComponent: () => import('./users/designation/designation.component').then(c => c.DesignationComponent),
         data: { breadcrumb: 'Designation' }, canActivate: [AuthGuard]
       },
       {

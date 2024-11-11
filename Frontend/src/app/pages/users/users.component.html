@@ -22,7 +22,7 @@
             <mat-button-toggle value="grid" (click)="viewSeparated()">
                 <mat-icon>no_accounts</mat-icon>
             </mat-button-toggle>
-            
+
         </mat-button-toggle-group>
     </div>
 </div>
@@ -47,6 +47,10 @@
                     </div>
                     <mat-menu #menu="matMenu" xPosition="before" overlapTrigger="true">
                         <span (mouseleave)="menuTrigger.closeMenu()">
+                            <button mat-menu-item (click)="updateDesignation(user.id, user.name, user.empNo)">
+                              <mat-icon>verified_user</mat-icon>
+                              <span>Designation</span>
+                            </button>
                             <button mat-menu-item (click)="openPayRoll(user.id)">
                                 <mat-icon>payment</mat-icon>
                                 <span>Payroll</span>

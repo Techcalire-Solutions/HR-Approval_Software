@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
-import { UserPersonal } from '../../../common/interfaces/user-personal';
 import { MatCardModule } from '@angular/material/card';
 import { DatePipe } from '@angular/common';
+import { UserPersonal } from '../../../common/interfaces/users/user-personal';
 
 @Component({
   selector: 'app-joining-day',

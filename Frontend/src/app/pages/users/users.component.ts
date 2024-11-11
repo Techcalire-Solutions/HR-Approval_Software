@@ -21,12 +21,13 @@ import { DatePipe } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { User } from '../../common/interfaces/user';
 import { Subscription } from 'rxjs';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 import { Router } from '@angular/router';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { SeparationComponent } from './separation/separation.component';
+import { User } from '../../common/interfaces/users/user';
+import { UpdateDesignationComponent } from './update-designation/update-designation.component';
 
 
 @Component({
@@ -78,7 +79,7 @@ export class UsersComponent implements OnInit, OnDestroy {
   getUsers(): void {
     this.userSub = this.usersService.getUser(this.searchText, this.currentPage, this.pageSize).subscribe((users: any) =>{
       console.log(users);
-      
+
       this.users = users.items;
       this.totalItems = users.count
     });
@@ -109,6 +110,16 @@ export class UsersComponent implements OnInit, OnDestroy {
     }
   }
 
+  updateDesignation(id: number, name: string, empNo: string){
+    const dialogRef = this.dialog.open(UpdateDesignationComponent, {
+      width: '320px',
+      data: {id: id, name: name, empNo: empNo}
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      this.getUsers()
+    });
+  }
 
   deleteFunction(id: number){
     const dialogRef = this.dialog.open(DeleteDialogueComponent, {
@@ -180,7 +191,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     });dialogRef.afterClosed().subscribe((res) => {
       this.rsignSub = this.usersService.resignEmployee(id, res).subscribe(() => {
         console.log(res);
-        
+
         this.snackbar.open(`${empNo} is now resigned`, "", { duration: 3000 });
         this.getUsers()
       })

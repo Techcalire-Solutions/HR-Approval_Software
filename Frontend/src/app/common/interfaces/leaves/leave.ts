@@ -1,5 +1,5 @@
+import { User } from "../users/user";
 import { LeaveType } from "./leaveType";
-import { User } from "./user";
 
 export interface Leave {
   id: number; // Assuming this is the primary key

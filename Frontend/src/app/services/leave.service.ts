@@ -1,12 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { LeaveType } from '../common/interfaces/leaveType';
+import { LeaveType } from '../common/interfaces/leaves/leaveType';
 import { Observable } from 'rxjs/internal/Observable';
 import { environment } from '../../environments/environment';
-import { UserLeave } from '../common/interfaces/userLeave';
+import { UserLeave } from '../common/interfaces/leaves/userLeave';
 import {  throwError } from 'rxjs';
-import { Holidays } from '../common/interfaces/holidays';
-import { CompoOff } from '../common/interfaces/compo-off';
+import { Holidays } from '../common/interfaces/leaves/holidays';
+import { CompoOff } from '../common/interfaces/leaves/compo-off';
 
 @Injectable({
   providedIn: 'root'

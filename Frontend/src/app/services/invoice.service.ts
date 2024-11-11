@@ -2,10 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { PerformaInvoice } from '../common/interfaces/performaInvoice';
-import { PerformaInvoiceStatus } from '../common/interfaces/performa-invoice-status';
-import { Role } from '../common/interfaces/role';
-import { ExcelLog } from '../common/interfaces/excel-log';
+import { PerformaInvoice } from '../common/interfaces/payments/performaInvoice';
+import { ExcelLog } from '../common/interfaces/payments/excel-log';
+import { PerformaInvoiceStatus } from '../common/interfaces/payments/performa-invoice-status';
+import { Role } from '../common/interfaces/users/role';
 
 @Injectable({
   providedIn: 'root'

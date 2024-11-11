@@ -28,7 +28,6 @@ import { CamelCasePipe } from '../../../theme/pipes/camel-case.pipe';
 import { PipesModule } from '../../../theme/pipes/pipes.module';
 import { UserDialogComponent } from '../../users/user-dialog/user-dialog.component';
 import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
-import { Leave } from '../../../common/interfaces/leave';
 @Component({
   selector: 'app-view-leave-request',
   standalone: true,

@@ -22,7 +22,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Settings, SettingsService } from '@services/settings.service';
 import { Subscription } from 'rxjs';
 import { TeamDialogueComponent } from '../../team/team-dialogue/team-dialogue.component';
-import { AdvanceSalary } from '../../../common/interfaces/advanceSalary';
+import { AdvanceSalary } from '../../../common/interfaces/payRoll/advanceSalary';
 import { PayrollService } from '@services/payroll.service';
 import { Router } from '@angular/router';
 import { AddAdvanceSalaryComponent } from './add-advance-salary/add-advance-salary.component';
@@ -67,7 +67,7 @@ export class AdvanceSalaryComponent {
   settingsService=inject(SettingsService)
   dialog=inject(MatDialog)
   payrollService=inject(PayrollService)
- 
+
 
   dataSource : AdvanceSalary[]=[]
   ngOnInit() {
@@ -82,7 +82,7 @@ export class AdvanceSalaryComponent {
     this.payrollService.getAdvanceSalary().subscribe((advanceSalary: any) =>{
       this.advanceSalaries = advanceSalary
       console.log('this.advanceSalaries',this.advanceSalaries);
-      
+
     });
   }
   applyFilter() {
@@ -91,7 +91,7 @@ export class AdvanceSalaryComponent {
   // public addTeam(user:User){
   //   this.teamService.addTeam(user).subscribe(user => this.getAdvanceSalary());
   // }
-  
+
   public openAdvanceDialog(salary?: any){
     const dialogRef = this.dialog.open(AddAdvanceSalaryComponent, {
       data: {salary: salary}

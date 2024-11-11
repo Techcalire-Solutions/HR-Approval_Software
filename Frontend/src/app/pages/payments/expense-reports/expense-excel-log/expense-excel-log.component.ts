@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { InvoiceService } from '@services/invoice.service';
 import { Subscription } from 'rxjs';
-import { ExcelLog } from '../../../../common/interfaces/excel-log';
+import { ExcelLog } from '../../../../common/interfaces/payments/excel-log';
 import { CommonModule } from '@angular/common';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -43,7 +43,7 @@ export class ExpenseExcelLogComponent {
       this.deleteSub = this.invoiceService.deleteExcelLog(id).subscribe(log =>{
         this.getLog()
         this.snackBar.open('ExcelLog deleted successfully...', '', { duration: 3000 });
-        
+
       })
   }
 }

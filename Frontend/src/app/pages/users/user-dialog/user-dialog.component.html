@@ -81,13 +81,13 @@
                 <button type="button" class="small-btn" (click)="generateRandomPassword()">
                   <span class="material-icons">autorenew</span>
                 </button>
-                <button type="button" class="small-btn" (click)="copyEmpNoAndPassword()" 
+                <button type="button" class="small-btn" (click)="copyEmpNoAndPassword()"
                   [disabled]="form.controls.password.value === ''">
                   <span class="material-icons">content_copy</span>
                 </button>
               </div>
 
-              <div class="col">
+              <!-- <div class="col">
                 <mat-form-field class="w-100" appearance="outline" >
                   <input matInput placeholder="Select Designation" formControlName="roleName" [matAutocomplete]="auto" (keyup)="search($event)">
                   <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value)">
@@ -99,25 +99,9 @@
                       ADD NEW
                     </mat-option>
                   </mat-autocomplete>
-                  
-                </mat-form-field>
 
-                <!-- <mat-form-field class="w-100" appearance="outline">
-                  <mat-label>Role</mat-label>
-                  <mat-select formControlName="roleId" required>
-                    @for(role of roles; track role){
-                      <mat-option [value]="role.id">
-                        {{ role.roleName }}
-                      </mat-option>
-                    }
-                  </mat-select>
-                  @if(form.controls.roleId.hasError('required')){
-                    <mat-error>
-                      Role is required
-                    </mat-error>
-                  }
-                </mat-form-field> -->
-              </div>
+                </mat-form-field>
+              </div> -->
 
               <div class="col">
                 <mat-form-field class="w-100" appearance="outline">
@@ -150,7 +134,7 @@
                   <span class="material-icons clickable-icon" (click)="fileInput.click()" style="margin-left: 10px;">cloud_upload</span>
                 </div>
               }
-              
+
               <div fxLayout="row" fxLayoutGap="16px">
                 <button mat-raised-button color="primary" [disabled]="!form.valid" (click)="onSubmit()">
                   {{ editStatus ? 'Update' : 'Save' }}

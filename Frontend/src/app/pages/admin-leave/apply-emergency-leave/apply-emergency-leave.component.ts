@@ -22,9 +22,9 @@ import { Subscription } from 'rxjs';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LeaveCountCardsComponent } from '../../employee-leave/leave-count-cards/leave-count-cards.component';
 import { UsersService } from '@services/users.service';
-import { User } from '../../../common/interfaces/user';
 import { MatChipsModule } from '@angular/material/chips';
-import { UserLeave } from '../../../common/interfaces/userLeave';
+import { UserLeave } from '../../../common/interfaces/leaves/userLeave';
+import { User } from '../../../common/interfaces/users/user';
 // Custom validator to check if at least one session is selected
 function sessionSelectionValidator(group: FormGroup) {
   const session1 = group.get('session1')?.value;
@@ -210,7 +210,7 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
   getLeaveType() {
     this.leaveTypeSub = this.leaveService.getLeaveType().subscribe( (leaveTypes: any) => {
       console.log(leaveTypes);
-      
+
         this.leaveTypes = leaveTypes;
       },(error) => {
         console.error('Error fetching leave types:', error);
@@ -227,7 +227,7 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
 
   uploadFile(event: Event) {
     console.log(event);
-    
+
     const input = event.target as HTMLInputElement;
     const selectedFile = input.files?.[0]; // Get the first file if it exists
 
@@ -272,9 +272,9 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
     this.getLeaveType()
     this.getUserLeaves(id)
     this.employeeSub = this.userService.getProbationEmployees().subscribe((employees) => {
-      
+
       this.isProbationEmployee = employees.some((emp: any) => emp.id === id);
-      
+
       if (this.isProbationEmployee) {
         this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
       }

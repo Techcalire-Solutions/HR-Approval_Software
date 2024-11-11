@@ -23,7 +23,7 @@ import { SettingsService } from '@services/settings.service';
 import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
 import { AddLeaveTypeDialogueComponent } from './add-leave-type-dialogue/add-leave-type-dialogue.component';
 import { LeaveService } from '@services/leave.service';
-import { LeaveType } from '../../../common/interfaces/leaveType';
+import { LeaveType } from '../../../common/interfaces/leaves/leaveType';
 @Component({
   selector: 'app-leave-types',
   standalone: true,
@@ -58,7 +58,7 @@ export class LeaveTypesComponent {
   settingsService= inject(SettingsService)
   dialog=inject(MatDialog)
   leaveService=inject(LeaveService)
- 
+
 
   ngOnInit(){
     this.getLeaveTypes()
@@ -71,7 +71,7 @@ export class LeaveTypesComponent {
       this.leaveTypes = res.items;
       this.totalItems = res.count;
       console.log('hiii',res);
-      
+
     })
   }
 
@@ -103,7 +103,7 @@ export class LeaveTypesComponent {
       data: leaveType
     });
     console.log('leaveType',leaveType);
-    
+
     dialogRef.afterClosed().subscribe(() => {
       this.getLeaveTypes()
     });
