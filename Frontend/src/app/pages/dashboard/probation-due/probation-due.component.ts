@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { User } from '../../../common/interfaces/user';
 import { Subscription } from 'rxjs';
 import { UsersService } from '@services/users.service';
 import { MatCardModule } from '@angular/material/card';
 import { DatePipe } from '@angular/common';
+import { User } from '../../../common/interfaces/users/user';
 
 @Component({
   selector: 'app-probation-due',
@@ -25,7 +25,7 @@ export class ProbationDueComponent {
     this.usersSub = this.userService.getProbationDues().subscribe(res=>{
       this.dueUsers = res;
       console.log(this.dueUsers);
-      
+
     })
   }
 

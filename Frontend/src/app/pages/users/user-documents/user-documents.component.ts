@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
-import { UserDocument } from '../../../common/interfaces/user-document';
+import { UserDocument } from '../../../common/interfaces/users/user-document';
 
 @Component({
   selector: 'app-user-documents',
@@ -97,7 +97,7 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
       this.doc().removeAt(index)
     }
   }
-  
+
 
   doc(): FormArray {
     return this.mainForm.get("uploadForms") as FormArray;

@@ -5,6 +5,25 @@
     <div fxLayout="column" class="form-field-outer" style="margin-top: 20px;">
       <div class="row box">
         <div class="col">
+          <mat-form-field class="w-100" appearance="outline" >
+            <input matInput placeholder="Select Designation" formControlName="designationName" [matAutocomplete]="auto" (keyup)="search($event)">
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value)">
+              @for (suggestion of filteredOptions; track $index) {
+                <mat-option [value]="suggestion">
+                  {{ suggestion.designationName }}
+                </mat-option>
+                @if (filteredOptions.length === 0) {
+                  <mat-option [value]="'add'" (click)="add()">
+                    <mat-icon style="font-size: 25px; color: rgb(35, 35, 247);">playlist_add</mat-icon>
+                    ADD NEW
+                  </mat-option>
+                }
+              }
+            </mat-autocomplete>
+
+          </mat-form-field>
+        </div>
+        <div class="col">
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>Official Mail</mat-label>
             <input matInput formControlName="officialMailId" >
@@ -39,7 +58,7 @@
           </mat-form-field>
         </div> -->
       </div>
-  
+
       <div class="row box">
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
@@ -66,7 +85,7 @@
           </mat-form-field>
         </div>
       </div>
-  
+
       <div class="row box">
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
@@ -89,7 +108,7 @@
         </div>
       </div>
     </div>
-  
+
     <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
       <div class="col" style="text-align: right;">
         <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.pristine || form.invalid">

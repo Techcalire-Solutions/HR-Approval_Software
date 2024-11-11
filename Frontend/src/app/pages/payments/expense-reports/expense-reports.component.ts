@@ -13,15 +13,14 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { LoginService } from '@services/login.service';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
-import { PerformaInvoice } from '../../../common/interfaces/performaInvoice';
-import { User } from '../../../common/interfaces/user';
 import { ExpensesService } from '@services/expenses.service';
-import { Expense } from '../../../common/interfaces/expense';
+import { Expense } from '../../../common/interfaces/payments/expense';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { SafePipe } from '../../../common/safe.pipe';
+import { User } from '../../../common/interfaces/users/user';
 
 @Component({
   selector: 'app-expense-reports',
@@ -70,14 +69,14 @@ export class ExpenseReportsComponent implements OnInit, OnDestroy{
   totalItems = 0;
   getByFilter(){
     let data = {
-      invoices: this.invoices, 
+      invoices: this.invoices,
       exNo: this.filterValue ? this.filterValue : '',
-      user: this.addedBy ? this.addedBy : null,  
-      status: this.status ? this.status : null,  
+      user: this.addedBy ? this.addedBy : null,
+      status: this.status ? this.status : null,
       startDate: this.startDate ? this.startDate : null,
       endDate: this.endDate ? this.endDate : null
     };
-    
+
     this.invoiceSub = this.expenseService.getExpenseReports(data).subscribe(res=>{
       this.invoices = res;
       this.totalItems = res.length;
@@ -92,7 +91,7 @@ export class ExpenseReportsComponent implements OnInit, OnDestroy{
   filterValue: string = '';
   applyFilter(event: Event): void {
     this.filterValue = (event.target as HTMLInputElement).value.trim()
-    
+
     this.getByFilter()
   }
 
@@ -109,12 +108,12 @@ export class ExpenseReportsComponent implements OnInit, OnDestroy{
       this.getByFilter();
     }
   }
-  
-  
+
+
   addedBy: number
   getAdded(id: number){
     this.addedBy = id;
-    
+
     this.getByFilter()
   }
 
@@ -129,15 +128,15 @@ export class ExpenseReportsComponent implements OnInit, OnDestroy{
 
   makeExcel() {
     let data = {
-      invoices: this.invoices, 
+      invoices: this.invoices,
       invoiceNo: this.filterValue? this.filterValue : '',
-      addedBy: this.addedBy? this.addedBy : null,  
-      status: this.status? this.status : null,  
+      addedBy: this.addedBy? this.addedBy : null,
+      status: this.status? this.status : null,
       startDate: this.startDate? this.startDate : null,
       endDate: this.endDate? this.endDate : null
     }
     console.log(data);
-    
+
     this.expenseService.reportExport(data).subscribe((res:any)=>{
       if (res.message === 'File uploaded successfully') {
         this.router.navigate(['login/viewApproval/approvalReport/excellog/openexcel'], { queryParams: { name: res.name } });
@@ -147,6 +146,6 @@ export class ExpenseReportsComponent implements OnInit, OnDestroy{
   }
 
 
-  
+
 
 }

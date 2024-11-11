@@ -6,7 +6,7 @@ const User = require('../models/user');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const Role = require('../models/role')
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const sequelize = require('../../utils/db');
 const Team = require('../models/team')
 const TeamMember = require('../models/teamMember');
@@ -18,10 +18,21 @@ const UserPersonal = require('../models/userPersonal');
 const UserPosition = require('../models/userPosition');
 
 router.post('/add', async (req, res) => {
-  const { name, email, phoneNumber, password, roleId, status, userImage, url, teamId, empNo, director } = req.body;
+  const { name, email, phoneNumber, password, status, userImage, url, teamId, empNo, director } = req.body;
 
   try {
-    // Check if user exists by email/role or empNo/role
+    let roleId = req.body.roleId;
+    if(roleId === '' || roleId === null || roleId === undefined){
+      try {
+        const role = await Role.findOne({ where: {roleName: 'Employee'}})
+        console.log(role);
+        
+        roleId = role.id;
+      } catch (error) {
+        res.send(error.message)
+      }
+    }
+
     const userExist = await User.findOne({
       where: {
         [Op.or]: [
@@ -123,11 +134,10 @@ router.get('/find/', async (req, res) => {
     }
 
     const users = await User.findAll({
-      where: whereClause,
+      where: whereClause, order: [['id']],
       include: [
         { model: Role, as: 'role', attributes: ['id', 'roleName'] }
       ],
-      order: ["id"],
       limit,
       offset
     });

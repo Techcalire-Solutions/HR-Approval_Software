@@ -4,11 +4,13 @@ const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const UserPosition = require('../models/userPosition');
-const User = require('../models/user')
+const User = require('../models/user');
+const Role = require('../models/role');
+const { where } = require('sequelize');
 
 router.post('/add', authenticateToken, async (req, res) => {
-  const { userId, division, costCentre, grade, designation, location, department, office, salary, probationPeriod, 
-    officialMailId, projectMailId }  = req.body;
+  const { userId, division, costCentre, grade, location, department, office, salary, probationPeriod, 
+    officialMailId, projectMailId, designationId, designationName }  = req.body;
   try {
     try {
       const userExist = await UserPosition.findOne({
@@ -20,9 +22,34 @@ router.post('/add', authenticateToken, async (req, res) => {
     } catch (error) {
       res.send(error.message)
     } 
+
+    let roleId;
+    if(designationName === 'SENIOR SALES ASSOCIATE' || designationName === 'SALES ASSOCIATE'){
+      const role = await Role.findOne({ where: {roleName: 'Sales Executive'}})
+      roleId = role.id;
+    }else if(designationName === 'KEY ACCOUNT MANAGER'){
+      const role = await Role.findOne({ where: {roleName: 'Key Account Manager'}})
+      roleId = role.id;
+    }else if(designationName === 'FINANCE MANAGER' || designationName === 'ACCOUNTS EXECUTIVE'){
+      const role = await Role.findOne({ where: {roleName: 'Accountant'}})
+      roleId = role.id;
+    }else if(designationName === 'MANAGING DIRECTOR'){
+      const role = await Role.findOne({ where: {roleName: 'Manager'}})
+      roleId = role.id;
+    }
     
-    const user = new UserPosition({ userId, division, costCentre, grade, designation, location, department, office, salary, 
-      probationPeriod, officialMailId, projectMailId });
+    if(roleId != null || roleId === ''){
+      try {
+        let user = await User.findByPk(userId)
+        user.roleId = roleId;
+        await user.save();
+      } catch (error) {
+        res.send(error.message)
+      }
+    }
+    
+    const user = new UserPosition({ userId, division, costCentre, grade, location, department, office, salary, 
+      probationPeriod, officialMailId, projectMailId, designationId });
     await user.save();
     
     res.send(user);
@@ -49,7 +76,32 @@ router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
 router.patch('/update/:id', async(req,res)=>{
   const { division, costCentre, grade, designation, location, department, office, salary, probationPeriod, projectMailId } = req.body
   try {
+    
     let result = await UserPosition.findByPk(req.params.id);
+    let roleId;
+    if(designationName === 'SENIOR SALES ASSOCIATE' || designationName === 'SALES ASSOCIATE'){
+      const role = await Role.findOne({ where: {roleName: 'Sales Executive'}})
+      roleId = role.id;
+    }else if(designationName === 'KEY ACCOUNT MANAGER'){
+      const role = await Role.findOne({ where: {roleName: 'Key Account Manager'}})
+      roleId = role.id;
+    }else if(designationName === 'FINANCE MANAGER' || designationName === 'ACCOUNTS EXECUTIVE'){
+      const role = await Role.findOne({ where: {roleName: 'Accountant'}})
+      roleId = role.id;
+    }else if(designationName === 'MANAGING DIRECTOR'){
+      const role = await Role.findOne({ where: {roleName: 'Manager'}})
+      roleId = role.id;
+    }
+    
+    if(roleId != null || roleId === ''){
+      try {
+        let user = await User.findByPk(result.userId)
+        user.roleId = roleId;
+        await user.save();
+      } catch (error) {
+        res.send(error.message)
+      }
+    }
     result.division = division;
     result.costCentre = costCentre;
     result.grade = grade;
@@ -104,4 +156,50 @@ router.get('/', async (req, res) => {
 
 })
 
+router.patch('/updaterole/:id', async (req, res) => {
+  console.log(req.body);
+  
+  try {
+    let roleId;
+    if(req.body.designationName === 'SENIOR SALES ASSOCIATE' || req.body.designationName === 'SALES ASSOCIATE'){
+      const role = await Role.findOne({ where: {roleName: 'Sales Executive'}})
+      roleId = role.id;
+    }else if(req.body.designationName === 'KEY ACCOUNT MANAGER'){
+      const role = await Role.findOne({ where: {roleName: 'Key Account Manager'}})
+      console.log(role, "Role");
+      
+      roleId = role.id;
+    }else if(req.body.designationName === 'FINANCE MANAGER' || req.body.designationName === 'ACCOUNTS EXECUTIVE'){
+      const role = await Role.findOne({ where: {roleName: 'Accountant'}})
+      roleId = role.id;
+    }else if(req.body.designationName === 'MANAGING DIRECTOR'){
+      const role = await Role.findOne({ where: {roleName: 'Manager'}})
+      roleId = role.id;
+    }
+    console.log(roleId,"roleId");
+    
+    if(roleId != null || roleId === ''){
+      try {
+        let user = await User.findByPk(req.params.id)
+        user.roleId = roleId;
+        await user.save();
+      } catch (error) {
+        res.send(error.message)
+      }
+    }
+
+      const userposition = await UserPosition.findOne({userId: req.params.id});
+      if(userposition){
+        userposition.designationId = req.body.designationId;
+      }else{
+        userposition = new UserPosition({userId: req.params.id, designationId: req.body.designationId});
+        await userposition.save();
+      }
+
+      res.send(userposition);
+  } catch (error) {
+      res.send(error.message)
+  }
+
+})
 module.exports = router;

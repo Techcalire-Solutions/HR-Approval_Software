@@ -13,11 +13,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
-import { PerformaInvoiceStatus } from '../../../../common/interfaces/performa-invoice-status';
 import { BankReceiptDialogueComponent } from '../bank-receipt-dialogue/bank-receipt-dialogue.component';
 import { VerificationDialogueComponent } from '../verification-dialogue/verification-dialogue.component';
 import { SafePipe } from '../../../../common/safe.pipe';
 import { MatButtonModule } from '@angular/material/button';
+import { PerformaInvoiceStatus } from '../../../../common/interfaces/payments/performa-invoice-status';
 
 @Component({
   selector: 'app-view-invoices',
@@ -53,20 +53,20 @@ export class ViewInvoicesComponent {
 
   formatNotes(notes: string): string {
     const urlRegex = /(https?:\/\/[^\s]+)/g; // Regex to match URLs
-    return notes.replace(urlRegex, (url) => 
+    return notes.replace(urlRegex, (url) =>
       `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
     );
   }
-  
+
   formatRemarks(remarks: string | null | undefined): string {
     if (!remarks) return ''; // Handle null or undefined values gracefully
-  
+
     const urlRegex = /(https?:\/\/[^\s]+)/g; // Regex to match URLs
-    return remarks.replace(urlRegex, (url) => 
+    return remarks.replace(urlRegex, (url) =>
       `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
     );
   }
-  
+
   ngOnInit(): void {
     let id = this.route.snapshot.params['id'];
 
@@ -99,7 +99,7 @@ export class ViewInvoicesComponent {
      if(this.roleName === 'Team Lead') { this.teamLead = true }
     })
   }
-  
+
   encodeUrl(url: string): string {
     return encodeURIComponent(url);
   }
@@ -117,16 +117,16 @@ export class ViewInvoicesComponent {
 
       const signedUrlsWithType = pi.signedUrl.map((signedUrl: any) => {
         const url = signedUrl.url;
-        const fileType = url.split('.').pop().split('?')[0]; 
+        const fileType = url.split('.').pop().split('?')[0];
         return {
             url: url,
             type: fileType,
-            remarks: signedUrl.remarks 
+            remarks: signedUrl.remarks
         };
       });
-      
+
       this.signedUrl = signedUrlsWithType;
-      
+
       if( (this.pi.status === 'GENERATED' ) && this.roleName === 'Key Account Manager' ){
         this.pi = {
           ...this.pi,
@@ -234,7 +234,7 @@ export class ViewInvoicesComponent {
       url: this.pi.url.map((u: any) => `URL: https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${u.url}, Remarks: ${u.remarks}`).join(' | '),
       CreatedAt: this.pi.createdAt,
     };
-  
+
     this.excelSub = this.invoiceService.excelExport(data).subscribe({
       next: (result: any) => {
         if (result && result.message === "Excel file saved successfully.") {
@@ -247,14 +247,14 @@ export class ViewInvoicesComponent {
         if (error.error) {
           console.error(`Error Body: ${JSON.stringify(error.error)}`);
         }
-  
+
         alert('There was an error exporting the Excel file. Please check the logs.');
       }
     });
   }
-  
-  
-  
+
+
+
 
 }
 

@@ -19,7 +19,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatDividerModule } from '@angular/material/divider';
-import { User } from '../../../common/interfaces/user';
 import { UsersService } from '@services/users.service';
 import { MatDatepickerModule, MatDateRangeInput } from '@angular/material/datepicker';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, NativeDateAdapter } from '@angular/material/core';
@@ -27,7 +26,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { SafePipe } from '../../../common/safe.pipe';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { HttpClient, HttpRequest } from '@angular/common/http';
-import { PerformaInvoice } from '../../../common/interfaces/performaInvoice';
+import { PerformaInvoice } from '../../../common/interfaces/payments/performaInvoice';
+import { User } from '../../../common/interfaces/users/user';
 
 
 @Component({
@@ -77,14 +77,14 @@ export class ApprovalReportComponent {
   totalItems = 0;
   getByFilter(){
     let data = {
-      invoices: this.invoices, 
+      invoices: this.invoices,
       invoiceNo: this.filterValue ? this.filterValue : '',
-      addedBy: this.addedBy ? this.addedBy : null,  
-      status: this.status ? this.status : null,  
+      addedBy: this.addedBy ? this.addedBy : null,
+      status: this.status ? this.status : null,
       startDate: this.startDate ? this.startDate : null,
       endDate: this.endDate ? this.endDate : null
     };
-    
+
     this.invoiceSub = this.invoiceService.getAdminReports(data).subscribe(res=>{
       this.invoices = res;
       this.totalItems = res.length;
@@ -99,7 +99,7 @@ export class ApprovalReportComponent {
   filterValue: string = '';
   applyFilter(event: Event): void {
     this.filterValue = (event.target as HTMLInputElement).value.trim()
-    
+
     this.getByFilter()
   }
 
@@ -116,12 +116,12 @@ export class ApprovalReportComponent {
       this.getByFilter();
     }
   }
-  
-  
+
+
   addedBy: number
   getAdded(id: number){
     this.addedBy = id;
-    
+
     this.getByFilter()
   }
 
@@ -136,15 +136,15 @@ export class ApprovalReportComponent {
 
   makeExcel() {
     let data = {
-      invoices: this.invoices, 
+      invoices: this.invoices,
       invoiceNo: this.filterValue? this.filterValue : '',
-      addedBy: this.addedBy? this.addedBy : null,  
-      status: this.status? this.status : null,  
+      addedBy: this.addedBy? this.addedBy : null,
+      status: this.status? this.status : null,
       startDate: this.startDate? this.startDate : null,
       endDate: this.endDate? this.endDate : null
     }
     console.log(data);
-    
+
     this.invoiceService.reportExport(data).subscribe((res:any)=>{
       if (res.message === 'File uploaded successfully') {
         this.router.navigate(['login/viewApproval/approvalReport/excellog/openexcel'], { queryParams: { name: res.name } });

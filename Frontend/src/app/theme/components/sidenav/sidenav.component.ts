@@ -2,7 +2,6 @@ import { Component, inject, OnInit, PipeTransform, ViewEncapsulation } from '@an
 import { Settings, SettingsService } from '../../../services/settings.service';
 import { MenuService } from '../../../services/menu.service';
 import { VerticalMenuComponent } from '../menu/vertical-menu/vertical-menu.component';
-import { ChangeDetectorRef } from '@angular/core';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 
@@ -10,14 +9,12 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
-import { UsersService } from '../../../services/users.service';
 import { InvoiceService } from '@services/invoice.service';
 import { Router } from '@angular/router';
 import { Menu } from '../../../common/models/menu.model';
-import { environment } from '../../../../environments/environment';
 import { LoginService } from '@services/login.service';
-import { User } from '../../../common/interfaces/user';
 import { Subscription } from 'rxjs';
+import { User } from '../../../common/interfaces/users/user';
 
 @Component({
   selector: 'app-sidenav',

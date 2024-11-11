@@ -1,7 +1,6 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
-import { User } from '../../../common/interfaces/user';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { SeparationComponent } from '../separation/separation.component';
+import { User } from '../../../common/interfaces/users/user';
 
 @Component({
   selector: 'app-view-separated',
@@ -21,7 +21,7 @@ import { SeparationComponent } from '../separation/separation.component';
 })
 export class ViewSeparatedComponent implements OnInit, OnDestroy{
   ngOnDestroy(): void {
-    
+
   }
   ngOnInit(): void {
     this.getSeparatedUsers();
@@ -43,7 +43,7 @@ export class ViewSeparatedComponent implements OnInit, OnDestroy{
       separationNote: ''
     }
     this.userService.resignEmployee(id, data).subscribe(() => {
-      
+
       this.getSeparatedUsers()
       this.snackBar.open('Employee successfully rejoined', '', { duration: 3000 });
     });

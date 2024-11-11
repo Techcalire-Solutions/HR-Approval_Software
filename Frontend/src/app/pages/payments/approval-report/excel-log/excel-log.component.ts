@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { InvoiceService } from '@services/invoice.service';
 import { Subscription } from 'rxjs';
-import { ExcelLog } from '../../../../common/interfaces/excel-log';
+import { ExcelLog } from '../../../../common/interfaces/payments/excel-log';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -40,7 +40,7 @@ export class ExcelLogComponent implements OnInit, OnDestroy{
       this.deleteSub = this.invoiceService.deleteExcelLog(id).subscribe(log =>{
         this.getLog()
         this.snackBar.open('ExcelLog deleted successfully...', '', { duration: 3000 });
-        
+
       })
   }
 

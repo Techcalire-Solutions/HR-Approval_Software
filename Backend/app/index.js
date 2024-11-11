@@ -14,6 +14,7 @@ const syncModel = require('../utils/association')
 syncModel()
 
 const role = require('../users/routers/role');
+const designation = require('../users/routers/designation');
 
 const user = require('../users/routers/user');
 const userPersonal = require('../users/routers/userPersonal');
@@ -27,6 +28,7 @@ const auth = require('../users/routers/auth');
 const team = require('../users/routers/team');
 const teamMember = require('../users/routers/teamMember');
 app.use('/role', role);
+app.use('/designation', designation);
 
 const holiday = require('../leave/routers/holiday');
 app.use('/holidays', holiday);

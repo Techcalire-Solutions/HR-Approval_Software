@@ -2,14 +2,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
-import { User } from '../common/interfaces/user';
 import { environment } from '../../environments/environment';
-import { UserPersonal } from '../common/interfaces/user-personal';
-import { UserPosition } from '../common/interfaces/user-position';
-import { StatutoryInfo } from '../common/interfaces/statutory-info';
-import { UserAccount } from '../common/interfaces/user-account';
-import { UserDocument } from '../common/interfaces/user-document';
-import { UserAssets } from '../common/interfaces/user-assets';
+import { StatutoryInfo } from '../common/interfaces/users/statutory-info';
+import { User } from '../common/interfaces/users/user';
+import { UserAccount } from '../common/interfaces/users/user-account';
+import { UserAssets } from '../common/interfaces/users/user-assets';
+import { UserDocument } from '../common/interfaces/users/user-document';
+import { UserPersonal } from '../common/interfaces/users/user-personal';
+import { UserPosition } from '../common/interfaces/users/user-position';
 
 
 @Injectable({
@@ -42,7 +42,7 @@ export class UsersService {
     }
   }
 
-  
+
 
   // deleteInvoice(id: number, fileName: string){
   //   return this._http.delete(this.url + `/invoice/filedelete/?id=${id}&fileName=${fileName}`);
@@ -222,6 +222,10 @@ export class UsersService {
 
   updateUserAssets(data: any, id: number): Observable<UserAssets[]>{
     return this.http.patch<UserAssets[]>(this.apiUrl + `/asset/update/${id}`, data)
+  }
+
+  updateDesignation(id: number, data: any){
+    return this.http.patch<UserPosition[]>(this.apiUrl + `/position/updaterole/${id}`, data)
   }
 
 }

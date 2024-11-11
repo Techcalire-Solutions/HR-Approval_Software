@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipListbox, MatChipOption } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
-import { Leave } from '../../../common/interfaces/leave';
+import { Leave } from '../../../common/interfaces/leaves/leave';
 
 @Component({
   selector: 'app-leave-requests-notification',

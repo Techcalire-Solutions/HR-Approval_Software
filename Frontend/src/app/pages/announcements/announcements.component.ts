@@ -19,10 +19,10 @@ import { AddAnnouncementsComponent } from './add-announcements/add-announcements
 import { AnnouncementsService } from '@services/announcements.service';
 import { Subscription } from 'rxjs';
 import { Announcement } from '../../common/interfaces/announcement';
-import { Role } from '../../common/interfaces/role';
 import { RoleService } from '@services/role.service';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Role } from '../../common/interfaces/users/role';
 
 @Component({
   selector: 'app-announcements',
@@ -67,7 +67,7 @@ export class AnnouncementsComponent implements OnInit, OnDestroy{
   }
 
   ngOnDestroy(): void {
-    
+
   }
 
   announceSub!: Subscription;
