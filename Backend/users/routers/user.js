@@ -16,6 +16,7 @@ const UserLeave = require('../../leave/models/userLeave');
 const LeaveType = require('../../leave/models/leaveType');
 const UserPersonal = require('../models/userPersonal');
 const UserPosition = require('../models/userPosition');
+const Designation = require('../models/designation');
 
 router.post('/add', async (req, res) => {
   const { name, email, phoneNumber, password, status, userImage, url, teamId, empNo, director } = req.body;
@@ -136,7 +137,10 @@ router.get('/find/', async (req, res) => {
     const users = await User.findAll({
       where: whereClause, order: [['id']],
       include: [
-        { model: Role, as: 'role', attributes: ['id', 'roleName'] }
+        { model: Role, as: 'role', attributes: ['id', 'roleName'] }, // Including role with specific attributes
+        { model: UserPosition, required: false, attributes: ['designationId'],
+          include: [ { model: Designation, attributes: ['designationName'] } ]
+        }
       ],
       limit,
       offset

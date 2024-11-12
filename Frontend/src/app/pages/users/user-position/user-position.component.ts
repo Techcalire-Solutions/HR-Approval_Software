@@ -114,6 +114,8 @@ export class UserPositionComponent implements OnDestroy {
   id: number
   getPositionDetailsByUser(id: number){
     this.pUSub = this.userService.getUserPositionDetailsByUser(id).subscribe(data=>{
+      console.log(data);
+
       if(data){
         this.id = data.id;
         this.editStatus = true;

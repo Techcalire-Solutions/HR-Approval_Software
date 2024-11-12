@@ -29,8 +29,8 @@ const UserPosition = sequelize.define('userposition',{
 User.hasOne(UserPosition, { foreignKey: 'userId', onUpdate: 'CASCADE' });
 UserPosition.belongsTo(User, { foreignKey: 'userId' });
 
-Designation.hasOne(UserPosition, { foreignKey: 'userId', onUpdate: 'CASCADE' });
-UserPosition.belongsTo(User, { foreignKey: 'userId' });
+Designation.hasOne(UserPosition, { foreignKey: 'designationId', onUpdate: 'CASCADE' });
+UserPosition.belongsTo(Designation, { foreignKey: 'designationId' });
 
 UserPosition.sync({ alter: true })
   .then(() => console.log("UserPosition table Sync"))
