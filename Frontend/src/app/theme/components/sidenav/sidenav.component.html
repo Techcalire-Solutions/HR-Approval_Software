@@ -54,7 +54,7 @@
       <p class="name">{{user.name}}</p>
       @if(settings.menuType == 'default'){
         <p class="position">
-          {{role}}<br />
+          {{ user.userposition ? user.userposition.designation.designationName : user.role.roleName }}<br />
           <small class="muted-text">Member since {{user.createdAt | date:'dd MMM yyyy'}}</small>
 
         </p>

@@ -81,7 +81,7 @@
 
                 <div class="flex-container">
                   <div>Referred By  :<strong>{{userPersonal.referredBy }}</strong></div>
-                  <div>Reporting Manger  :<strong>{{userPersonal.manager.name || 'None'}}</strong></div>
+                  <div>Reporting Manger  :<strong>{{userPersonal.manager?.name || 'None'}}</strong></div>
                 </div>
               </div>
             }@else {

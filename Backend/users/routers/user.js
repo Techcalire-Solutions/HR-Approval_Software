@@ -210,11 +210,10 @@ router.get('/findone/:id', async (req, res) => {
   try {
     const user = await User.findByPk(id, {
       include: [
-        {
-          model: Role,
-          attributes: ['id', 'roleName']
-        },
-
+        { model: Role, attributes: ['id', 'roleName'] },
+        { model: UserPosition, attributes: ['designationId'],
+            include: [{ model: Designation, attributes: ['designationName']}]
+        }
       ]
     });
     res.send(user);
