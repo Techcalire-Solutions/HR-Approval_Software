@@ -92,6 +92,8 @@ users:User;
   getUser(){
    this.loginUserSub= this.loginService.getUserById(this.userId).subscribe((res)=>{
       this.user = res;
+      console.log(this.user);
+
     })
   }
 
