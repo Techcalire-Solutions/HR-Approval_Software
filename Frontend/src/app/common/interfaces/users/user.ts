@@ -1,5 +1,6 @@
 import { Role } from "./role"
 import { Team } from "./team"
+import { UserPosition } from "./user-position"
 
 export interface User {
   id: number,
@@ -35,5 +36,6 @@ export interface User {
   probationEndDate: Date
   separationNote: string
   separationDate: Date
-  
+
+  userposition: UserPosition
 }

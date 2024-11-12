@@ -43,6 +43,8 @@ export class UpdateDesignationComponent implements OnInit, OnDestroy{
   getDesignation(){
     this.desigSub = this.roleService.getDesignation().subscribe(designation =>{
       this.designation = designation;
+      console.log(designation);
+
       this.filteredOptions = designation;
     });
   }
@@ -57,6 +59,8 @@ export class UpdateDesignationComponent implements OnInit, OnDestroy{
   }
 
   patch(selectedSuggestion: Designation) {
+    console.log(selectedSuggestion);
+
     this.form.get('designationName')?.setValue(selectedSuggestion.designationName);
     this.form.get('designationId')?.setValue(selectedSuggestion.id);
   }
@@ -78,6 +82,8 @@ export class UpdateDesignationComponent implements OnInit, OnDestroy{
   private snackBar = inject(MatSnackBar);
   onSubmit(){
     this.submit = this.userService.updateDesignation(this.dialogData.id, this.form.getRawValue()).subscribe(data => {
+      console.log(data);
+
       this.dialogRef.close();
       this.snackBar.open(`Designation updated for ${this.name}-${this.empNo}...`, '', { duration: 3000 });
     });

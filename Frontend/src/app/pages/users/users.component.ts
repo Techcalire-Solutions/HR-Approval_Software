@@ -111,6 +111,8 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   updateDesignation(id: number, name: string, empNo: string){
+    console.log(id);
+
     const dialogRef = this.dialog.open(UpdateDesignationComponent, {
       width: '320px',
       data: {id: id, name: name, empNo: empNo}
@@ -208,5 +210,10 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   viewSeparated(){
     this.router.navigateByUrl('/login/users/separated')
+  }
+
+  selectedEmployee: any;
+  isEmployeeSelected(user: any): boolean {
+    return this.selectedEmployee && this.selectedEmployee.id === user.id;
   }
 }

@@ -7,6 +7,7 @@ const UserPosition = require('../models/userPosition');
 const User = require('../models/user');
 const Role = require('../models/role');
 const { where } = require('sequelize');
+const Designation = require('../models/designation');
 
 router.post('/add', authenticateToken, async (req, res) => {
   const { userId, division, costCentre, grade, location, department, office, salary, probationPeriod, 
@@ -61,11 +62,11 @@ router.post('/add', authenticateToken, async (req, res) => {
 router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
   try {
     const user = await UserPosition.findOne({where: {userId: req.params.id},
-    include:[{
-      model :User,
-      attributes : ['name']
-    }
-    ]})
+      include:[
+        { model : User, attributes : ['name'] },
+        { model : Designation, attributes : ['designationName']}
+      ]
+    })
 
     res.send(user)
   } catch (error) {
@@ -157,8 +158,6 @@ router.get('/', async (req, res) => {
 })
 
 router.patch('/updaterole/:id', async (req, res) => {
-  console.log(req.body);
-  
   try {
     let roleId;
     if(req.body.designationName === 'SENIOR SALES ASSOCIATE' || req.body.designationName === 'SALES ASSOCIATE'){
@@ -166,8 +165,6 @@ router.patch('/updaterole/:id', async (req, res) => {
       roleId = role.id;
     }else if(req.body.designationName === 'KEY ACCOUNT MANAGER'){
       const role = await Role.findOne({ where: {roleName: 'Key Account Manager'}})
-      console.log(role, "Role");
-      
       roleId = role.id;
     }else if(req.body.designationName === 'FINANCE MANAGER' || req.body.designationName === 'ACCOUNTS EXECUTIVE'){
       const role = await Role.findOne({ where: {roleName: 'Accountant'}})
@@ -176,7 +173,6 @@ router.patch('/updaterole/:id', async (req, res) => {
       const role = await Role.findOne({ where: {roleName: 'Manager'}})
       roleId = role.id;
     }
-    console.log(roleId,"roleId");
     
     if(roleId != null || roleId === ''){
       try {
@@ -187,8 +183,11 @@ router.patch('/updaterole/:id', async (req, res) => {
         res.send(error.message)
       }
     }
-
-      const userposition = await UserPosition.findOne({userId: req.params.id});
+      
+      let userposition = await UserPosition.findOne({
+        where: {userId: req.params.id}
+      });
+      
       if(userposition){
         userposition.designationId = req.body.designationId;
       }else{
