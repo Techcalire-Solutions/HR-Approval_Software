@@ -75,7 +75,7 @@ router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
 });
 
 router.patch('/update/:id', async(req,res)=>{
-  const { division, costCentre, grade, designation, location, department, office, salary, probationPeriod, projectMailId } = req.body
+  const { division, costCentre, grade, designationName, location, department, office, salary, probationPeriod, projectMailId, designationId } = req.body
   try {
     
     let result = await UserPosition.findByPk(req.params.id);
@@ -106,7 +106,7 @@ router.patch('/update/:id', async(req,res)=>{
     result.division = division;
     result.costCentre = costCentre;
     result.grade = grade;
-    result.designation = designation;
+    result.designationId = designationId;
     result.location = location;
     result.department = department;
     result.office = office;
