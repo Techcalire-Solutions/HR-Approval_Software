@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { UsersService } from '@services/users.service';
 import { PayrollService } from '@services/payroll.service';
 import { Subscription } from 'rxjs';
-import { Payroll } from '../../../common/interfaces/payroll';
+import { Payroll } from '../../../common/interfaces/payRoll/payroll';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 @Component({
@@ -100,19 +100,19 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
       let ybp = 12 * bp;
       this.payrollForm.patchValue({ yearbasicPay: ybp }, { emitEvent: false });
     });
-  
+
     this.payrollForm.get('hra')?.valueChanges.subscribe(() => {
       let hr: any = this.payrollForm.get('hra')?.value;
       let yhr = 12 * hr;
       this.payrollForm.patchValue({ yearhra: yhr }, { emitEvent: false });
     });
-  
+
     this.payrollForm.get('conveyanceAllowance')?.valueChanges.subscribe(() => {
       let conveyanceAllowance: any = this.payrollForm.get('conveyanceAllowance')?.value;
       let yca = 12 * conveyanceAllowance;
       this.payrollForm.patchValue({ yearconveyanceAllowance: yca }, { emitEvent: false });
     });
-  
+
     this.payrollForm.get('lta')?.valueChanges.subscribe(() => {
       let lta: any = this.payrollForm.get('lta')?.value;
       let ylta = 12 * lta;

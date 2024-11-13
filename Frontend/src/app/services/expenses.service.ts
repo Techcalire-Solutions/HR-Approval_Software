@@ -2,8 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { Expense } from '../common/interfaces/expense';
-import { ExcelLog } from '../common/interfaces/excel-log';
+import { Expense } from '../common/interfaces/payments/expense';
+import { ExcelLog } from '../common/interfaces/payments/excel-log';
 
 @Injectable({
   providedIn: 'root'
@@ -56,7 +56,7 @@ export class ExpensesService {
   deleteExpense(id: number) {
     return this.http.delete(`${this.url}/expense/${id}`);
   }
-  
+
   getExpenseReports(data: any){
     return this.http.patch<any[]>(this.url + '/expense/getforadminreport', data);
   }

@@ -22,9 +22,9 @@ import { SafePipe } from '../../../common/safe.pipe';
 import { InvoiceService } from '@services/invoice.service';
 import { environment } from '../../../../environments/environment';
 import { Company } from '../../../common/interfaces/company';
-import { PerformaInvoice } from '../../../common/interfaces/performaInvoice';
-import { User } from '../../../common/interfaces/user';
+import { PerformaInvoice } from '../../../common/interfaces/payments/performaInvoice';
 import { AddCompanyComponent } from '../../company/add-company/add-company.component';
+import { User } from '../../../common/interfaces/users/user';
 @Component({
   selector: 'app-add-approval',
   standalone: true,
@@ -69,7 +69,7 @@ export class AddApprovalComponent {
   }
 
   id!: number;
-  supplierCompanies: Company[] = []; 
+  supplierCompanies: Company[] = [];
   public customerCompanies: Company[] = [];
   public filteredOptions: Company[] = [];
   public getSuppliers(): void {
@@ -78,19 +78,19 @@ export class AddApprovalComponent {
       this.filteredOptions = this.supplierCompanies
     });
   }
-  
+
   filterValue: string;
   filteredCustomers: Company[] = [];
   search(event: Event, type: string) {
     if(type === 'sup'){
       this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
-      this.filteredOptions = this.supplierCompanies.filter(option => 
+      this.filteredOptions = this.supplierCompanies.filter(option =>
         option.companyName.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
         option.code.toString().replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
       );
     }else if(type === 'cust'){
       this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
-      this.filteredCustomers = this.customerCompanies.filter(option => 
+      this.filteredCustomers = this.customerCompanies.filter(option =>
         option.companyName.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
         option.code.toString().replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
       );
@@ -208,12 +208,12 @@ export class AddApprovalComponent {
     });
   }
 
-  deleteUploadSub!: Subscription;  
-  private cdr = inject(ChangeDetectorRef) 
+  deleteUploadSub!: Subscription;
+  private cdr = inject(ChangeDetectorRef)
   removeData(index: number) {
     if (index >= 0 && index < this.doc().length) {
         this.doc().removeAt(index);
-        this.imageUrl.splice(index, 1);    
+        this.imageUrl.splice(index, 1);
     } else {
         console.warn(`Index ${index} is out of bounds for removal`);
     }
@@ -241,7 +241,7 @@ export class AddApprovalComponent {
     const input = event.target as HTMLInputElement;
     const file: any = input.files?.[0];
     this.fileType[i] = file.type.split('/')[1]
-    
+
     if (!this.allowedFileTypes.includes(this.fileType[i])) {
       alert('Invalid file type. Please select a PDF, JPEG, JPG, TXT or PNG file.');
       return;
@@ -255,7 +255,7 @@ export class AddApprovalComponent {
 
         this.uploadSub = this.invoiceService.uploadInvoice(formData).subscribe({
             next: (invoice) => {
-              
+
                 this.doc().at(i).get('url')?.setValue(invoice.fileUrl);
                 this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${invoice.fileUrl}`;
             }

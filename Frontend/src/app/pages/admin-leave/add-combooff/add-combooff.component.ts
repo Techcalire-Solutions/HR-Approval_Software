@@ -2,13 +2,13 @@ import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { UsersService } from '@services/users.service';
-import { User } from '../../../common/interfaces/user';
 import { Subscription } from 'rxjs';
 import { LeaveService } from '@services/leave.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CompoOff } from '../../../common/interfaces/compo-off';
+import { CompoOff } from '../../../common/interfaces/leaves/compo-off';
 import { MatIconModule } from '@angular/material/icon';
+import { User } from '../../../common/interfaces/users/user';
 
 @Component({
   selector: 'app-add-combooff',
@@ -62,7 +62,7 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
   onCheckboxChange(event: any, employeeId: number) {
     if (event.target.checked) {
       this.selectedEmployeeIds.push(employeeId);
-    } 
+    }
     else {
       const index = this.selectedEmployeeIds.indexOf(employeeId);
       if (index !== -1) {
@@ -82,15 +82,15 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
         selectedEmployeeIds: this.selectedEmployeeIds,
         deselectedEmployeeIds: this.deselectedEmployeeIds
       }
-      
+
       this.submit = this.leaveService.updateUpdatedCompoOff( this.route.snapshot.params['id'], data).subscribe((res: any) => {
         console.log(res);
-        
-        this.snackBar.open(res.message, 'Close', { duration: 3000 });  
+
+        this.snackBar.open(res.message, 'Close', { duration: 3000 });
         history.back()
       })
     }else{
-      this.submit = this.leaveService.updateCompoOff(this.route.snapshot.params['id'], this.selectedEmployeeIds).subscribe((res: any) => {    
+      this.submit = this.leaveService.updateCompoOff(this.route.snapshot.params['id'], this.selectedEmployeeIds).subscribe((res: any) => {
         this.snackBar.open(res.message, 'Close', { duration: 3000 });
         history.back()
       })
@@ -110,7 +110,7 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
     this.comboOffSub = this.leaveService.getCompoOff(this.route.snapshot.params['id']).subscribe(res => {
       this.co = res;
       console.log(res);
-      
+
       if(this.co){
         this.editStatus = true;
         this.setInitialCheckboxes(this.co.userId);
@@ -132,10 +132,10 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
 
   getDeselectedUserIds(): number[] {
     const allEmployeeIds = this.co.userId.map(employee => employee);
-     
-    return allEmployeeIds.filter(id => !this.selectedEmployeeIds.includes(id)); 
+
+    return allEmployeeIds.filter(id => !this.selectedEmployeeIds.includes(id));
   }
-  
+
   goBack() {
     // Logic to navigate back, for example:
     history.back();  // This requires importing Location from '@angular/common'

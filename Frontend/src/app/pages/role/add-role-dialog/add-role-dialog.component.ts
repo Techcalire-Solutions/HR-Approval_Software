@@ -69,12 +69,12 @@ export class AddRoleDialogComponent {
   }
   onSubmit(){
     if(this.editStatus){
-      this.roleService.updateRole(this.role.id, this.form.getRawValue()).subscribe(data => {
+      this.roleService.updateDesignation(this.role.id, this.form.getRawValue()).subscribe(data => {
         this.dialogRef.close()
         this.snackBar.open("Role updated succesfully...","" ,{duration:3000})
       });
     }else{
-      this.roleService.addRole(this.form.getRawValue()).subscribe((res)=>{
+      this.roleService.addDesignation(this.form.getRawValue()).subscribe((res)=>{
         this.dialogRef.close();
         this.snackBar.open("Role added succesfully...","" ,{duration:3000})
       })

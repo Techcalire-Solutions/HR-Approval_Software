@@ -6,7 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
-import { PerformaInvoice } from '../../../common/interfaces/performaInvoice';
+import { PerformaInvoice } from '../../../common/interfaces/payments/performaInvoice';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -64,7 +64,7 @@ export class ViewApprovalComponent {
     const user = JSON.parse(token)
     this.user = user.id;
     this.querySub = this.route.queryParams.subscribe(params => {
-      this.isSubmitted = params['isSubmitted'] === 'true'; 
+      this.isSubmitted = params['isSubmitted'] === 'true';
     });
   }
 
@@ -77,7 +77,7 @@ export class ViewApprovalComponent {
     this.data = data;
     this.getInvoices();
   }
-  
+
   invoices: any[] = [];
   invoiceSubscriptions!: Subscription;
   submittingForm: boolean = false;
@@ -85,7 +85,7 @@ export class ViewApprovalComponent {
   pageStatus: boolean = true;
   getInvoices() {
     let invoice!: PerformaInvoice[];
-    
+
     let apiCall;
     if (this.data.roleName === 'Sales Executive') {
       apiCall = this.invoiceService.getPIBySP(this.data.status, this.filterValue, this.currentPage, this.pageSize);
@@ -104,13 +104,13 @@ export class ViewApprovalComponent {
 
     if (apiCall) {
       if (this.invoiceSubscriptions) {
-        this.invoiceSubscriptions.unsubscribe(); 
+        this.invoiceSubscriptions.unsubscribe();
       }
-  
+
       this.invoiceSubscriptions = apiCall.subscribe((res: any) => {
         invoice = res.items;
         this.totalItems = res.count;
-        
+
         if (invoice) {
           invoice.forEach((mainObj: any) => {
             const matchingStatus = mainObj.performaInvoiceStatuses.find(
@@ -121,8 +121,8 @@ export class ViewApprovalComponent {
             }
           });
 
-          this.invoices = [...invoice]; 
-          
+          this.invoices = [...invoice];
+
           for (let i = 0; i < this.invoices.length; i++) {
             const invoiceSP = this.invoices[i]?.salesPersonId;
             const invoiceKAM = this.invoices[i]?.kamId;
@@ -138,7 +138,7 @@ export class ViewApprovalComponent {
 
             if(invoice[i].addedById === this.user){
               if(invoice[i].addedBy.role.roleName === 'Sales Executive' &&
-                (invoice[i].status === 'GENERATED' || invoice[i].status === 'KAM REJECTED' || invoice[i].status === 'AM REJECTED' || 
+                (invoice[i].status === 'GENERATED' || invoice[i].status === 'KAM REJECTED' || invoice[i].status === 'AM REJECTED' ||
                   invoice[i].status === 'INITIATED'|| invoice[i].status === 'AM DECLINED' ) ){
                   this.invoices[i] = {
                     ...this.invoices[i],
@@ -177,7 +177,7 @@ export class ViewApprovalComponent {
   filterValue!: string;
   applyFilter(event: Event): void {
     this.filterValue = (event.target as HTMLInputElement).value.trim()
-    
+
     this.getInvoices()
   }
 
@@ -196,7 +196,7 @@ export class ViewApprovalComponent {
   verified(value: string, piNo: string, sp: string, id: number, stat: string){
     let status = this.data.status;
     console.log(status);
-    
+
     this.submittingForm = true;
     if(stat === 'INITIATED' && value === 'approved') status = 'AM APPROVED';
     else if(stat === 'INITIATED' && value === 'rejected') status = 'AM DECLINED';
@@ -243,7 +243,7 @@ export class ViewApprovalComponent {
       }
     })
   }
-  
+
   deleteSub!: Subscription;
   deleteFunction(id: number){
     const dialogRef = this.dialog.open(DeleteDialogueComponent, {

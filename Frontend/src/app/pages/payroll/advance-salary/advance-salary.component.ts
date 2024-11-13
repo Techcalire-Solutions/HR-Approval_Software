@@ -20,7 +20,8 @@ import { UserDialogComponent } from '../../users/user-dialog/user-dialog.compone
 import { UsersService } from '@services/users.service';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
-import { AdvanceSalary } from '../../../common/interfaces/advanceSalary';
+import { TeamDialogueComponent } from '../../team/team-dialogue/team-dialogue.component';
+import { AdvanceSalary } from '../../../common/interfaces/payRoll/advanceSalary';
 import { PayrollService } from '@services/payroll.service';
 import { AddAdvanceSalaryComponent } from './add-advance-salary/add-advance-salary.component';
 import { Router } from '@angular/router';

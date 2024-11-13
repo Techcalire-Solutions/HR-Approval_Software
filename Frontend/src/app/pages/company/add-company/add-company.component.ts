@@ -5,7 +5,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
-import { LeaveType } from '../../../common/interfaces/leaveType';
+import { LeaveType } from '../../../common/interfaces/leaves/leaveType';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -82,7 +82,7 @@ export class AddCompanyComponent {
     this.getCompany()
     if(this.dialogData){
       console.log(this.dialogData);
-      
+
       this.companyForm.get('companyName')?.setValue(this.dialogData.name);
       if(this.dialogData.type === 'sup') this.companyForm.get('supplier')?.setValue(true);
       else if(this.dialogData.type === 'cust') this.companyForm.get('customer')?.setValue(true);
@@ -99,7 +99,7 @@ export class AddCompanyComponent {
   //     this.leaveTypes = res.items;
   //     this.totalItems = res.count;
   //     console.log('hiii',res);
-      
+
   //   })
   // }
   public companies: Company[] | null;

@@ -9,8 +9,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
-import { User } from '../../../../common/interfaces/user';
 import { MatCardModule } from '@angular/material/card';
+import { User } from '../../../../common/interfaces/users/user';
 @Component({
   selector: 'app-verification-dialogue',
   standalone: true,
@@ -27,7 +27,7 @@ export class VerificationDialogueComponent {
   ngOnDestroy(): void {
     this.userSub?.unsubscribe();
   }
-  
+
   loginService=inject(LoginService)
   fb=inject(FormBuilder)
   dialog=inject(MatDialog)
@@ -47,13 +47,13 @@ export class VerificationDialogueComponent {
   ngOnInit(): void {
     this.invoiceNo = this.dialogData.invoiceNo;
     this.status = this.dialogData.status;
-    
+
     this.form.get('spId')?.setValue(this.dialogData.sp)
     if(this.status == 'KAM VERIFIED') this.getAm()
     if(this.status == 'AM VERIFIED'||this.status == 'AM Verified') this.getMa()
     if(this.status == 'AM APPROVED') this.getKam()
 
-    if(this.status === 'AM REJECTED' || this.status === 'KAM REJECTED' || this.status === 'AM DECLINED' || this.status === 'AM Rejected') 
+    if(this.status === 'AM REJECTED' || this.status === 'KAM REJECTED' || this.status === 'AM DECLINED' || this.status === 'AM Rejected')
       this.isSelectionMade=true;
   }
 

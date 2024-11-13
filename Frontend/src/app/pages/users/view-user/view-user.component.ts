@@ -2,7 +2,6 @@ import { Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
-import { User } from '../../../common/interfaces/user';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,12 +11,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { UserPersonal } from '../../../common/interfaces/user-personal';
-import { StatutoryInfo } from '../../../common/interfaces/statutory-info';
-import { UserAccount } from '../../../common/interfaces/user-account';
-import { UserPosition } from '../../../common/interfaces/user-position';
-import { UserDocument } from '../../../common/interfaces/user-document';
-import { UserAssets } from '../../../common/interfaces/user-assets';
+import { StatutoryInfo } from '../../../common/interfaces/users/statutory-info';
+import { UserAccount } from '../../../common/interfaces/users/user-account';
+import { UserAssets } from '../../../common/interfaces/users/user-assets';
+import { UserDocument } from '../../../common/interfaces/users/user-document';
+import { UserPersonal } from '../../../common/interfaces/users/user-personal';
+import { UserPosition } from '../../../common/interfaces/users/user-position';
+import { User } from '../../../common/interfaces/users/user';
 
 @Component({
   selector: 'app-view-user',
@@ -62,21 +62,21 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   getPersonsalData(id: number){
     this.puSub = this.userService.getUserPersonalDetailsByUser(id).subscribe(x => {
       this.userPersonal = x;
-    });  
+    });
   }
 
   suSub!: Subscription;
   userStat: StatutoryInfo;
   getStatutoryData(id: number){
     this.suSub = this.userService.getUserStatutoryuDetailsByUser(id).subscribe(x => {
-      this.userStat = x;    
+      this.userStat = x;
     })
   }
 
   auSub!: Subscription;
   accounts: UserAccount
   getAccountData(id: number){
-    this.auSub = this.userService.getUserAcoountDetailsByUser(id).subscribe(x => { 
+    this.auSub = this.userService.getUserAcoountDetailsByUser(id).subscribe(x => {
       this.accounts = x;
     })
   }
@@ -98,7 +98,7 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   }
 
   assetSub!: Subscription;
-  assets: UserAssets; 
+  assets: UserAssets;
   getAssets(id: number){
     this.assetSub = this.userService.getUserAssetsByUser(id).subscribe(x => {
       this.assets = x;

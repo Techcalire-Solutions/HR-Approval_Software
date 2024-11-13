@@ -1,6 +1,6 @@
 import { InvoiceService } from '@services/invoice.service';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { PerformaInvoice } from '../../../common/interfaces/performaInvoice';
+import { PerformaInvoice } from '../../../common/interfaces/payments/performaInvoice';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { Subscription } from 'rxjs';
@@ -52,7 +52,7 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
     this.piSub = this.invoiceServices.getDashboardCCPI(this.searchText, this.currentPage, this.pageSize).subscribe((invoice: any) => {
       this.invoices = invoice.items
       console.log(this.invoices);
-      
+
       this.totalItems = invoice.count;
     });
   }
@@ -100,7 +100,7 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
   }
 
   onMouseEnter(event: MouseEvent): void {
-    (event.target as HTMLElement).style.color = '#011b36'; 
+    (event.target as HTMLElement).style.color = '#011b36';
   }
 
   onMouseLeave(event: MouseEvent): void {

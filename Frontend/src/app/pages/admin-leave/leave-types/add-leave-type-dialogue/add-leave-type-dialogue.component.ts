@@ -16,7 +16,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { LeaveService } from '@services/leave.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
-import { LeaveType } from '../../../../common/interfaces/leaveType';
+import { LeaveType } from '../../../../common/interfaces/leaves/leaveType';
 import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-add-leave-type-dialogue',
@@ -51,7 +51,7 @@ export class AddLeaveTypeDialogueComponent {
     leaveTypeName: ['', Validators.required]
   });
 
- 
+
   ngOnInit(){
     console.log('leaveType',this.leaveType);
     if (this.leaveType) {
@@ -74,7 +74,7 @@ export class AddLeaveTypeDialogueComponent {
       this.leaveTypes = res.items;
       this.totalItems = res.count;
       console.log('hiii',res);
-      
+
     })
   }
   public searchText!: string;
@@ -92,7 +92,7 @@ export class AddLeaveTypeDialogueComponent {
     })
   }
   close(): void {
-    
+
   }
   onSubmit(){
     if(this.leaveType){

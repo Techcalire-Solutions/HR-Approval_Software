@@ -16,23 +16,22 @@ import { MatInputModule } from '@angular/material/input';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { RoleService } from '../../../services/role.service';
 import {MatToolbarModule} from '@angular/material/toolbar';
-import { Role } from '../../../common/interfaces/role';
 import { UsersService } from '../../../services/users.service';
 import { Subscription } from 'rxjs';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { User } from '../../../common/interfaces/user';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PersonalDetailsComponent } from "../personal-details/personal-details.component";
 import { UserPositionComponent } from '../user-position/user-position.component';
 import { StatuatoryInfoComponent } from '../statuatory-info/statuatory-info.component';
 import { UserAccountComponent } from "../user-account/user-account.component";
 import { ActivatedRoute, Router } from '@angular/router';
-import { Team } from '../../../common/interfaces/team';
 import { TeamService } from '@services/team.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { AddRoleDialogComponent } from '../../role/add-role-dialog/add-role-dialog.component';
+import { User } from '../../../common/interfaces/users/user';
+import { Team } from '../../../common/interfaces/users/team';
 
 
 @Component({
@@ -57,7 +56,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   route = inject(ActivatedRoute);
   teamService = inject(TeamService)
 
-  public form: FormGroup;
   public passwordHide: boolean = true;
   editStatus: boolean = false;
   id: number;
@@ -72,25 +70,22 @@ export class UserDialogComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.form = this.fb.group({
-      empNo: [''],
-      url: [''],
-      name: [ null,  Validators.compose([Validators.required, Validators.minLength(3)]) ],
-      email: [ null, Validators.compose([Validators.required, Validators.email]) ],
-      phoneNumber: [ null,  Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)]) ],
-      password: [ null, Validators.compose([Validators.required, Validators.minLength(4)]) ],
-      roleId: [ null, Validators.compose([Validators.required]) ],
-      roleName: [],
-      teamId: [ null ]
-    })
-
-    this.getRoles()
     this.getTeam()
   }
 
+  form = this.fb.group({
+    empNo: [''],
+    url: [''],
+    name: [ '',  Validators.compose([Validators.required, Validators.minLength(3)]) ],
+    email: [ '', Validators.compose([Validators.required, Validators.email]) ],
+    phoneNumber: [ '',  Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)]) ],
+    password: [ '', Validators.compose([Validators.required, Validators.minLength(4)]) ],
+    roleName: [],
+    teamId: <any>[  ]
+  })
+
   ngOnDestroy(): void {
    this.teamSub?.unsubscribe();
-   this.roleSub?.unsubscribe();
    this.userSub?.unsubscribe();
    this.usersSub?.unsubscribe();
    this.uploadSub?.unsubscribe();
@@ -108,20 +103,17 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   patchUser(user: User){
     this.invNo = user.empNo
     if(user.url != null && user.url != '' && user.url != 'undefined'){
-      
+
       this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${user.url}`
     }
     this.form.patchValue({
       name: user.name,
-      roleId: user.roleId,
       phoneNumber: user.phoneNumber,
       email: user.email,
       password: user.password,
-      status: user.status,
-      joiningDate: user.createdAt,
       teamId: user.teamId
     })
-    this.patch(user.role)
+    // this.patch(user.role)
   }
 
   uploadProgress: number | null = null;
@@ -167,40 +159,40 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
 
 
-  roles:Role[]=[];
-  roleSub!: Subscription;
-  public filteredOptions: Role[] = [];
-  getRoles(){
-    this.roleSub = this.roleService.getRole().subscribe((res)=>{
-      this.roles = res;
-      this.filteredOptions = this.roles;
-    })
-  }
+  // roles:Role[]=[];
+  // roleSub!: Subscription;
+  // public filteredOptions: Role[] = [];
+  // getRoles(){
+  //   this.roleSub = this.roleService.getRole().subscribe((res)=>{
+  //     this.roles = res;
+  //     this.filteredOptions = this.roles;
+  //   })
+  // }
 
-  filterValue: string;
-  search(event: Event) {
-    this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
-    this.filteredOptions = this.roles.filter(option => 
-      option.roleName.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
-      option.abbreviation.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
-    );
-  }
+  // filterValue: string;
+  // search(event: Event) {
+  //   this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
+  //   this.filteredOptions = this.roles.filter(option =>
+  //     option.roleName.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
+  //     option.abbreviation.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
+  //   );
+  // }
 
-  patch(selectedSuggestion: Role) {
-    this.form.patchValue({ roleId: selectedSuggestion.id, roleName: selectedSuggestion.roleName });
-  }
+  // patch(selectedSuggestion: Role) {
+  //   this.form.patchValue({ roleId: selectedSuggestion.id, roleName: selectedSuggestion.roleName });
+  // }
 
-  private dialog = inject(MatDialog);
-  add(){
-    const name = this.filterValue;
-    const dialogRef = this.dialog.open(AddRoleDialogComponent, {
-      data: {type : 'add', name: name}
-    });
+  // private dialog = inject(MatDialog);
+  // add(){
+  //   const name = this.filterValue;
+  //   const dialogRef = this.dialog.open(AddRoleDialogComponent, {
+  //     data: {type : 'add', name: name}
+  //   });
 
-    dialogRef.afterClosed().subscribe(() => {
-      this.getRoles()
-    })
-  }
+  //   dialogRef.afterClosed().subscribe(() => {
+  //     this.getRoles()
+  //   })
+  // }
 
   teams : Team[]=[]
   teamSub!:Subscription;
@@ -316,7 +308,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
         const ivNum = paddedId;
 
-        this.form.get('envNo')?.setValue(ivNum);
+        this.form.get('empNo')?.setValue(ivNum);
         this.invNo = ivNum;
       }
     });
@@ -369,9 +361,9 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     for (let i = 0; i < 10; i++) {
       password += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    
+
     this.form.get('password')?.setValue(password);
-    this.form.get('confirmPassword')?.setValue(password);  // Clear confirm password
+    // this.form.get('confirmPassword')?.setValue(password);  // Clear confirm password
   }
 
   copyEmpNoAndPassword() {

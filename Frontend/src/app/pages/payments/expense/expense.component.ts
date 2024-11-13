@@ -8,9 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Subscription } from 'rxjs';
 import { ExpensesService } from '@services/expenses.service';
-import { Expense } from '../../../common/interfaces/expense';
+import { Expense } from '../../../common/interfaces/payments/expense';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { User } from '../../../common/interfaces/user';
 import { LoginService } from '@services/login.service';
 import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
@@ -18,6 +17,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { RoleService } from '@services/role.service';
 import { SafePipe } from '../../../common/safe.pipe';
 import { CommonModule } from '@angular/common';
+import { User } from '../../../common/interfaces/users/user';
 
 @Component({
   selector: 'app-expense',
@@ -43,7 +43,7 @@ export class ExpenseComponent implements OnInit{
     }
     const token: any = localStorage.getItem('token')
     const user = JSON.parse(token)
-    
+
     this.getRoleById(user.role)
   }
 
@@ -51,8 +51,8 @@ export class ExpenseComponent implements OnInit{
   roleName: string;
   getRoleById(id: number){
     this.roleSub = this.roleService.getRoleById(id).subscribe(role => {
-      this.roleName = role.roleName; 
-      this.getAM() 
+      this.roleName = role.roleName;
+      this.getAM()
     })
   }
 
@@ -60,7 +60,7 @@ export class ExpenseComponent implements OnInit{
   private expenseService = inject(ExpensesService);
   private snackBar = inject(MatSnackBar);
   private loginService = inject(LoginService);
-  
+
   expenseForm = this.fb.group({
     exNo: ['', Validators.required],
     notes: [''],
@@ -95,7 +95,7 @@ export class ExpenseComponent implements OnInit{
       for (let index = 0; index < pi.signedUrl.length; index++) {
         this.addDoc(pi.pi.url[index])
       }
-      
+
       if (inv.url) {
         this.savedImageUrl = pi.signedUrl;
       }
@@ -104,14 +104,14 @@ export class ExpenseComponent implements OnInit{
 
   fileType: any[] = [];
   uploadSub!: Subscription;
-  imageUrl: any[] = [];  
+  imageUrl: any[] = [];
   allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png', 'plain'];
   onFileSelected(event: Event, i: number): void {
     const input = event.target as HTMLInputElement;
     const file: any = input.files?.[0];
     this.fileType[i] = file.type.split('/')[1]
     console.log(this.fileType[i]);
-    
+
     if (!this.allowedFileTypes.includes(this.fileType[i])) {
       alert('Invalid file type. Please select a PDF, JPEG, JPG, TXT or PNG file.');
       return;
@@ -163,7 +163,7 @@ export class ExpenseComponent implements OnInit{
       return true;
     }else return false;
   }
-  
+
 
   index!: number;
   clickedForms: boolean[] = [];
@@ -180,13 +180,13 @@ export class ExpenseComponent implements OnInit{
     });
   }
 
-  deleteUploadSub!: Subscription;  
-  private cdr = inject(ChangeDetectorRef) 
+  deleteUploadSub!: Subscription;
+  private cdr = inject(ChangeDetectorRef)
   removeData(index: number) {
     if (index >= 0 && index < this.doc().length) {
         this.doc().removeAt(index);
-        this.imageUrl.splice(index, 1);      
-        this.savedImageUrl.splice(index, 1); 
+        this.imageUrl.splice(index, 1);
+        this.savedImageUrl.splice(index, 1);
     } else {
         console.warn(`Index ${index} is out of bounds for removal`);
     }
@@ -231,7 +231,7 @@ export class ExpenseComponent implements OnInit{
     if(this.editStatus){
       this.submit = this.expenseService.updateExpense(this.expenseForm.getRawValue(), this.id).subscribe(res =>{
         console.log(res);
-        
+
         this.snackBar.open("Expense updated succesfully...","" ,{duration:3000})
         if(this.roleName === 'Super Administrator' || this.roleName === 'Administrator'){
           this.router.navigateByUrl('login/viewApproval/view');

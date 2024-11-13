@@ -11,8 +11,8 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { UserLeave } from '../../../common/interfaces/userLeave';
-import { LeaveType } from '../../../common/interfaces/leaveType';
+import { UserLeave } from '../../../common/interfaces/leaves/userLeave';
+import { LeaveType } from '../../../common/interfaces/leaves/leaveType';
 
 @Component({
   selector: 'app-user-leave',

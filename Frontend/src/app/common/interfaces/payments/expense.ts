@@ -1,6 +1,5 @@
+import { User } from "../users/user"
 import { ExpenseStatus } from "./expense-status"
-import { User } from "./user"
-
 export interface Expense {
     id: number
     piNo: string

@@ -2,7 +2,6 @@ import { Component, inject, OnDestroy, OnInit, ViewChild, ViewEncapsulation } fr
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { RoleService } from '@services/role.service';
-import { Role } from '../../common/interfaces/role';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from '@services/settings.service';
 import { UsersService } from '@services/users.service';
@@ -25,6 +24,7 @@ import { Subscription } from 'rxjs';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { Role } from '../../common/interfaces/users/role';
 @Component({
   selector: 'app-role',
   styleUrl: './role.component.scss',

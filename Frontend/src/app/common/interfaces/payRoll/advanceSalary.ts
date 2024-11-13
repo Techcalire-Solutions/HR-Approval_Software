@@ -1,4 +1,4 @@
-import { User } from "./user";
+import { User } from "../users/user";
 
 export interface AdvanceSalary {
     id: number;
@@ -14,4 +14,3 @@ export interface AdvanceSalary {
     status: boolean
     completed: number
   }
-  

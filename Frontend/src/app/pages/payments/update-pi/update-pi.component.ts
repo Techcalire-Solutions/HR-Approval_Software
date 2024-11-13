@@ -11,7 +11,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
-import { User } from '../../../common/interfaces/user';
 import { MatIconModule } from '@angular/material/icon';
 import { Company } from '../../../common/interfaces/company';
 import { CompanyService } from '@services/company.service';
@@ -23,6 +22,7 @@ import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDialog } from '@angular/material/dialog';
 import { AddCompanyComponent } from '../../company/add-company/add-company.component';
+import { User } from '../../../common/interfaces/users/user';
 
 @Component({
   selector: 'app-update-pi',
@@ -110,13 +110,13 @@ export class UpdatePIComponent {
   search(event: Event, type: string) {
     if(type === 'sup'){
       this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
-      this.fileterdOptions = this.supplierCompanies.filter(option => 
+      this.fileterdOptions = this.supplierCompanies.filter(option =>
         option.companyName.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
         option.code.toString().replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
       );
     }else if(type === 'cust'){
       this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
-      this.filteredCustomers = this.customerCompanies.filter(option => 
+      this.filteredCustomers = this.customerCompanies.filter(option =>
         option.companyName.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
         option.code.toString().replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
       );
@@ -140,7 +140,7 @@ export class UpdatePIComponent {
       this.getCustomers()
     })
   }
-  
+
   doc(): FormArray {
     return this.piForm.get("url") as FormArray;
   }
@@ -160,13 +160,13 @@ export class UpdatePIComponent {
     });
   }
 
-  deleteUploadSub!: Subscription;  
-  private cdr = inject(ChangeDetectorRef) 
+  deleteUploadSub!: Subscription;
+  private cdr = inject(ChangeDetectorRef)
   removeData(index: number) {
     if (index >= 0 && index < this.doc().length) {
         this.doc().removeAt(index);
-        this.imageUrl.splice(index, 1);      
-        this.newImageUrl.splice(index, 1); 
+        this.imageUrl.splice(index, 1);
+        this.newImageUrl.splice(index, 1);
     } else {
         console.warn(`Index ${index} is out of bounds for removal`);
     }
@@ -202,7 +202,7 @@ export class UpdatePIComponent {
   fileType: any[] = [];
   uploadSub!: Subscription;
   imageUrl: any[] = [];
-  newImageUrl: any[] = [];  
+  newImageUrl: any[] = [];
   allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png', 'plain'];
   onFileSelected(event: Event, i: number): void {
     const input = event.target as HTMLInputElement;
@@ -322,7 +322,7 @@ export class UpdatePIComponent {
       const inv = pi.pi;
       this.piNo = inv.piNo
       console.log(inv);
-      
+
       const remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
       this.piForm.patchValue({
         piNo: inv.piNo,

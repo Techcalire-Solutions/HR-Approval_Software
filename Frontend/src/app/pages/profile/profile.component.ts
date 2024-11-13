@@ -7,15 +7,15 @@ import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
-import { User } from '../../common/interfaces/user';
 import { DatePipe, UpperCasePipe } from '@angular/common';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
-import { StatutoryInfo } from '../../common/interfaces/statutory-info';
-import { UserAccount } from '../../common/interfaces/user-account';
-import { UserDocument } from '../../common/interfaces/user-document';
-import { UserPersonal } from '../../common/interfaces/user-personal';
-import { UserPosition } from '../../common/interfaces/user-position';
+import { StatutoryInfo } from '../../common/interfaces/users/statutory-info';
 import { UsersService } from '@services/users.service';
+import { User } from '../../common/interfaces/users/user';
+import { UserAccount } from '../../common/interfaces/users/user-account';
+import { UserDocument } from '../../common/interfaces/users/user-document';
+import { UserPersonal } from '../../common/interfaces/users/user-personal';
+import { UserPosition } from '../../common/interfaces/users/user-position';
 
 @Component({
   selector: 'app-profile',
@@ -68,21 +68,21 @@ export class ProfileComponent {
   getPersonsalData(id: number){
     this.puSub = this.userService.getUserPersonalDetailsByUser(id).subscribe(x => {
       this.userPersonal = x;
-    });  
+    });
   }
 
   suSub!: Subscription;
   userStat: StatutoryInfo;
   getStatutoryData(id: number){
     this.suSub = this.userService.getUserStatutoryuDetailsByUser(id).subscribe(x => {
-      this.userStat = x;    
+      this.userStat = x;
     })
   }
 
   auSub!: Subscription;
   accounts: UserAccount
   getAccountData(id: number){
-    this.auSub = this.userService.getUserAcoountDetailsByUser(id).subscribe(x => { 
+    this.auSub = this.userService.getUserAcoountDetailsByUser(id).subscribe(x => {
       this.accounts = x;
     });
   }

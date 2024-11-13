@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';  // Import CommonModule
 import { MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
 import { BrowserModule } from '@angular/platform-browser';
-import { Payroll } from '../../../common/interfaces/payroll';
+import { Payroll } from '../../../common/interfaces/payRoll/payroll';
 import { PayrollService } from '@services/payroll.service';
 
 // Mock employee data from getUsers() service
@@ -79,11 +79,11 @@ export class ProcessMonthlyPayrollComponent implements OnInit {
     this.payrollService.getPayroll().subscribe((advanceSalary: any) =>{
       this.allEmployeesPayroll = advanceSalary
       console.log('this.allEmployeesPayroll',this.allEmployeesPayroll);
-      
+
     });
   }
   calculateTotal(employee: Employee) {
-    employee.monthlyTotal = 
+    employee.monthlyTotal =
       employee.basic + employee.hra + employee.ca + employee.lta +
       employee.specialAllowance - (employee.lopCount * employee.lopAmount) -
       employee.pf - employee.insurance - employee.gratuity;

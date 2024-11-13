@@ -22,7 +22,7 @@
             <mat-button-toggle value="grid" (click)="viewSeparated()">
                 <mat-icon>no_accounts</mat-icon>
             </mat-button-toggle>
-            
+
         </mat-button-toggle-group>
     </div>
 </div>
@@ -47,6 +47,11 @@
                     </div>
                     <mat-menu #menu="matMenu" xPosition="before" overlapTrigger="true">
                         <span (mouseleave)="menuTrigger.closeMenu()">
+                          @if (!isEmployeeSelected(user)) {}
+                            <button mat-menu-item (click)="updateDesignation(user.id, user.name, user.empNo)">
+                              <mat-icon>verified_user</mat-icon>
+                              <span>Designation</span>
+                            </button>
                             <button mat-menu-item (click)="openPayRoll(user.id)">
                                 <mat-icon>payment</mat-icon>
                                 <span>Payroll</span>
@@ -100,7 +105,7 @@
                         <div fxFlex="70" fxLayout="column" class="user-details transition-2" [class.blocked]="!user.status">
                             <p fxLayout="row" fxLayoutAlign="start center">
                                 <mat-icon class="muted-text">card_membership</mat-icon>
-                                <span>{{user.role.roleName}}</span>
+                                <span>{{ user.userposition ? user.userposition.designation.designationName : user.role.roleName }}</span>
                             </p>
                             <p fxLayout="row" fxLayoutAlign="start center">
                                 <mat-icon class="muted-text">mail_outline</mat-icon>

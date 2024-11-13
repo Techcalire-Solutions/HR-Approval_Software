@@ -3,6 +3,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../utils/db');
 const User = require('./user');
+const Designation = require('../models/designation')
 
 const UserPosition = sequelize.define('userposition',{
     userId : {type : DataTypes.INTEGER, allowNull : false},
@@ -17,6 +18,7 @@ const UserPosition = sequelize.define('userposition',{
     probationNote : {type : DataTypes.STRING},
     officialMailId : {type : DataTypes.STRING},
     projectMailId : {type : DataTypes.STRING},
+    designationId : {type : DataTypes.INTEGER},
 },
 {
     freezeTableName: true,
@@ -26,6 +28,9 @@ const UserPosition = sequelize.define('userposition',{
 
 User.hasOne(UserPosition, { foreignKey: 'userId', onUpdate: 'CASCADE' });
 UserPosition.belongsTo(User, { foreignKey: 'userId' });
+
+Designation.hasOne(UserPosition, { foreignKey: 'designationId', onUpdate: 'CASCADE' });
+UserPosition.belongsTo(Designation, { foreignKey: 'designationId' });
 
 UserPosition.sync({ alter: true })
   .then(() => console.log("UserPosition table Sync"))

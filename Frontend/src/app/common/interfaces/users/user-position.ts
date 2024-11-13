@@ -1,3 +1,5 @@
+
+import { Designation } from "./designation";
 import { User } from "./user";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -7,7 +9,6 @@ export interface UserPosition {
   division : string
   costCentre : string
   grade : string
-  designation : string
   location : string
   department : any
   office  : string
@@ -17,4 +18,6 @@ export interface UserPosition {
   projectMailId: string
   probationNote: string
   user: User
+  designationId: number
+  designation: Designation
 }

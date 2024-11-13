@@ -1,9 +1,7 @@
 
-import { Company } from "./company";
+import { Company } from "../company";
+import { User } from "../users/user";
 import { PerformaInvoiceStatus } from "./performa-invoice-status";
-import { User } from "./user";
-
-
 
 export interface PerformaInvoice {
   id: number;
@@ -21,7 +19,7 @@ export interface PerformaInvoice {
   am: User;
   accountant: User;
 
- 
+
   supplierSoNo: string;
   supplierPoNo: string;
   supplierCurrency: string;
@@ -43,5 +41,5 @@ export interface PerformaInvoice {
   customerId?: number;
   suppliers: Company;
   customers: Company
-  
+
 }

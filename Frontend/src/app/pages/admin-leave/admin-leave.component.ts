@@ -13,8 +13,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { LeaveService } from '@services/leave.service';
-import { Router } from '@angular/router';
-import { Leave } from '../../common/interfaces/leave';
 
 const colors: any = {
   red: {

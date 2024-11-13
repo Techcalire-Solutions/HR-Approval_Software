@@ -30,14 +30,14 @@ export class ApplicationsComponent implements OnInit {
 
   ngOnInit() {
   }
-  
+
 
   openLeaveTypes(): void {
     this.router.navigateByUrl('/login/admin-leave/leave-types')
 
   }
   openRole(): void {
-    this.router.navigateByUrl('/login/role')
+    this.router.navigateByUrl('/login/designation')
 
   }
   openTeam():void{

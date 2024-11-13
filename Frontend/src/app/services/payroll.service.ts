@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { Payroll } from '../common/interfaces/payroll';
-import { AdvanceSalary } from '../common/interfaces/advanceSalary';
+import { Payroll } from '../common/interfaces/payRoll/payroll';
+import { AdvanceSalary } from '../common/interfaces/payRoll/advanceSalary';
 
 @Injectable({
   providedIn: 'root'
@@ -15,12 +15,12 @@ export class PayrollService {
 
   constructor(private http: HttpClient) { }
 
-  
+
 
   public savePayroll(data: any): Observable<any> {
     return this.http.post(this.apiUrl+"/payroll", data);
   }
-  
+
   public getPayrollDetailsByUserId(id: number): Observable<Payroll>{
     return this.http.get<Payroll>(this.apiUrl+"/payroll/"+id);
   }

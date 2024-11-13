@@ -12,8 +12,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
-import { User } from '../../../common/interfaces/user';
-
+import { User } from '../../../common/interfaces/users/user';
 @Component({
   selector: 'app-personal-details',
   standalone: true,
@@ -30,10 +29,10 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
   @Input() data: any;
   @Output() dataSubmitted = new EventEmitter<any>();
 
-  ngOnInit(): void { 
+  ngOnInit(): void {
     this.getReportingManager()
   }
-  
+
   editStatus: boolean = false;
   triggerNew(data?: any): void {
     this.getReportingManager()
@@ -66,7 +65,7 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
           reportingMangerId: data.reportingMangerId,
           emergencyContactNo: data.emergencyContactNo,
           emergencyContactName: data.emergencyContactName,
-          emergencyContactRelation: data.emergencyContactRelation, 
+          emergencyContactRelation: data.emergencyContactRelation,
           bloodGroup: data.bloodGroup
         })
       }
@@ -88,7 +87,7 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     reportingMangerId: <any>[],
     emergencyContactNo: ['', Validators.compose([Validators.pattern(/^\d{10}$/)])],
     emergencyContactName: [''],
-    emergencyContactRelation: [''], 
+    emergencyContactRelation: [''],
     bloodGroup: ['']
   });
 
@@ -98,7 +97,7 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
       ...this.form.getRawValue()
     }
     submit.userId = submit.userId ? submit.userId : this.data.id;
-    
+
     if(this.editStatus){
       this.submitSub = this.userService.updateUserPersonal(this.id, submit).subscribe(data => {
         this.snackBar.open("Personal Details updated succesfully...","" ,{duration:3000})
@@ -126,15 +125,15 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
       console.error("Invalid date input: ", date);
       return '';  // Return empty string for invalid dates
     }
-    
+
     // Get the local year, month, and day (avoiding UTC conversion)
     const year = d.getFullYear();
     const month = ('0' + (d.getMonth() + 1)).slice(-2);  // Add leading zero and ensure month is 2 digits
     const day = ('0' + d.getDate()).slice(-2);  // Add leading zero and ensure day is 2 digits
-    
+
     return `${year}-${month}-${day}`;  // Return formatted date as YYYY-MM-DD
   }
-  
+
 
   @Output() nextTab = new EventEmitter<void>();
   triggerNextTab() {

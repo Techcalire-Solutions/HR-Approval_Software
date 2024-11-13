@@ -1,7 +1,7 @@
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { LeaveService } from '@services/leave.service';
 import { Subscription } from 'rxjs';
-import { Holidays } from '../../../common/interfaces/holidays';
+import { Holidays } from '../../../common/interfaces/leaves/holidays';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { RoleService } from '@services/role.service';
@@ -47,7 +47,7 @@ export class HolidayCalendarComponent implements OnInit, OnDestroy{
   getHolidaysForYear(): void {
     this.holidaySub = this.leaveService.getHolidays(this.searchText, this.currentPage, this.pageSize).subscribe((res: any) => {
       console.log(res);
-      
+
       this.holidays = res.items
       this.totalItems = res.count;
     })
@@ -69,7 +69,7 @@ export class HolidayCalendarComponent implements OnInit, OnDestroy{
     this.getHolidaysForYear()
   }
 
-  
+
   ngOnDestroy(): void {
     this.holidaySub?.unsubscribe();
   }
