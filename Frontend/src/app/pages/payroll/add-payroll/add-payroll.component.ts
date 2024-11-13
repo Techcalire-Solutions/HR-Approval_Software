@@ -1,4 +1,5 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { UsersService } from '@services/users.service';
@@ -51,11 +52,6 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
       yearinsurance:  <any>[],
       netPay:  <any>[],
       yearnetPay:  <any>[],
-
-
-
-
-
       userName: [''],
       userRole: ['']
     });

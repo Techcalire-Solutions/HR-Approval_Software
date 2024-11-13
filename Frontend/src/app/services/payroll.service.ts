@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -24,11 +25,16 @@ export class PayrollService {
     return this.http.get<Payroll>(this.apiUrl+"/payroll/"+id);
   }
 
-
-  getAdvanceSalary(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/advanceSalary`);
+  
+  getAdvanceSalary(): Observable<AdvanceSalary[]> {
+    return this.http.get<AdvanceSalary[]>(`${this.apiUrl}/advanceSalary/findall`);
   }
-  addAdvanceSalary(data: any): Observable<any> {
+
+  getNotCompletedAdvanceSalary(): Observable<AdvanceSalary[]> {
+    return this.http.get<AdvanceSalary[]>(`${this.apiUrl}/advanceSalary/notcompleted`);
+  }
+  
+  addAdvanceSalary(data: any) {
     return this.http.post(this.apiUrl+"/advanceSalary", data);
   }
   updateAdvanceSalary(id: number, data: any): Observable<AdvanceSalary> {
