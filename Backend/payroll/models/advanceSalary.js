@@ -5,19 +5,20 @@ const sequelize = require('../../utils/db');
 const User = require('../../users/models/user');
 
 const AdvanceSalary = sequelize.define('advanceSalary', {
-  userId: { type: DataTypes.INTEGER, allowNull: false },
+  userId: {type : DataTypes.INTEGER, allowNull: false },
   scheme: {type : DataTypes.STRING, allowNull: false},
   amount: {type : DataTypes.STRING, allowNull: false},
   reason: {type : DataTypes.STRING},
   duration: {type : DataTypes.INTEGER, allowNull: false},
-  monthlyPay: {type : DataTypes.FLOAT, allowNull: false}
- 
+  monthlyPay: {type : DataTypes.FLOAT, allowNull: false},
+  status: {type : DataTypes.BOOLEAN, allowNull: false, defaultValue: true},
+  completed: {type : DataTypes.INTEGER, defaultValue: 0}
 }, {
   freezeTableName: true,
   timestamps: true,
 });
 
-AdvanceSalary.sync({ force: true })
+AdvanceSalary.sync({ alter: true })
   .then(() => {
     console.log('Tables synced successfully.');
   })
