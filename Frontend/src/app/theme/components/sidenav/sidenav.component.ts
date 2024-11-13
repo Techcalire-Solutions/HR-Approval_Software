@@ -188,26 +188,26 @@ users:User;
 
     }
 
-    else if (role === 'HR Administrator') {
-      this.filteredMenuItems = allMenuItems.filter(item =>
-        item.title === 'Dashboard' ||
-        // item.title === 'Role' ||
-        (item.title === 'Employee' && !item.parentId) ||
-        (item.title === 'Directory' && item.parentId === 3) ||
-        (item.title === 'Confirmation' && item.parentId === 3)
-        // item.title === 'Team' ||
-        // (item.title === 'Leave' && !item.parentId) ||
-        // (item.title === 'Calendar' && item.parentId === 8) ||
-        // (item.title === 'View' && item.parentId === 8) ||
-        // (item.title === 'User Leave' && item.parentId === 8) ||
-        // (item.title === 'Emergency' && item.parentId === 8) ||
-        // (item.title === 'Payroll' && !item.parentId) ||
-        // (item.title === 'Advance Salary' && item.parentId === 13) ||
-        // (item.title === 'Process Payroll' && item.parentId === 13) ||
-        // (item.title === 'Salary Statement' && item.parentId === 13) ||
-        // (item.title === 'YTD Reports' && item.parentId === 13)
-      );
-    }
+    // else if (role === 'HR Administrator') {
+    //   this.filteredMenuItems = allMenuItems.filter(item =>
+    //     item.title === 'Dashboard' ||
+    //     // item.title === 'Role' ||
+    //     (item.title === 'Employee' && !item.parentId) ||
+    //     (item.title === 'Directory' && item.parentId === 3) ||
+    //     (item.title === 'Confirmation' && item.parentId === 3)
+    //     // item.title === 'Team' ||
+    //     // (item.title === 'Leave' && !item.parentId) ||
+    //     // (item.title === 'Calendar' && item.parentId === 8) ||
+    //     // (item.title === 'View' && item.parentId === 8) ||
+    //     // (item.title === 'User Leave' && item.parentId === 8) ||
+    //     // (item.title === 'Emergency' && item.parentId === 8) ||
+    //     // (item.title === 'Payroll' && !item.parentId) ||
+    //     // (item.title === 'Advance Salary' && item.parentId === 13) ||
+    //     // (item.title === 'Process Payroll' && item.parentId === 13) ||
+    //     // (item.title === 'Salary Statement' && item.parentId === 13) ||
+    //     // (item.title === 'YTD Reports' && item.parentId === 13)
+    //   );
+    // }
     else if (role === 'Super Administrator') {
 
       this.filteredMenuItems = allMenuItems.filter(item =>
@@ -219,6 +219,11 @@ users:User;
         // item.title === 'Team' ||
         (item.title === 'Proforma' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5) ||
+        
+        (item.title === 'Payroll' && !item.parentId) ||
+        (item.title === 'Advance Salary' && item.parentId === 13) ||
+        (item.title === 'Payslip' && item.parentId === 13) ||
+        (item.title === 'Pay Details' && item.parentId === 13)||
         // (item.title === 'Leave' && !item.parentId) ||
         // (item.title === 'Calendar' && item.parentId === 8) ||
         // (item.title === 'View' && item.parentId === 8) ||

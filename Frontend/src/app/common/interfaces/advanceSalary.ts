@@ -11,5 +11,7 @@ export interface AdvanceSalary {
     user: User
     duration: number
     monthlyPay: number
+    status: boolean
+    completed: number
   }
   
