@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../utils/db');
 const User = require('../../users/models/user');
@@ -15,6 +17,12 @@ const MonthlyPayroll = sequelize.define('monthlyPayroll', {
   insurance: { type: DataTypes.DECIMAL(10, 2) },
   gratuity: { type: DataTypes.DECIMAL(10, 2) },
   employeeContribution: { type: DataTypes.DECIMAL(10, 2) },
+  netPay: { type: DataTypes.DECIMAL(10, 2) },
+  advanceAmount: { type: DataTypes.DECIMAL(10, 2) },
+  leaveDays: { type: DataTypes.DECIMAL(10, 2) },
+
+  payedFor: { type: DataTypes.STRING },
+  payedAt: { type: DataTypes.DATEONLY },
 }, {
   freezeTableName: true,
   timestamps: true,
@@ -29,4 +37,5 @@ MonthlyPayroll.sync({ alter: true })
   });
   User.hasMany(MonthlyPayroll, {foreignKey: 'userId', onUpdate: 'CASCADE' });
   MonthlyPayroll.belongsTo(User, {foreignKey: 'userId' });
+
 module.exports = MonthlyPayroll;

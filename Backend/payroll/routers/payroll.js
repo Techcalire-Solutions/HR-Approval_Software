@@ -1,56 +1,19 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable no-undef */
 const express = require("express");
 const router = express.Router();
 const Payroll = require("../models/payroll");
-const { Op, where } = require('sequelize');
+const PayrollLog = require("../models/payrollLog");
+const { Op } = require('sequelize');
+const User = require('../../users/models/user')
 
 router.post("/", async (req, res) => {
   try {
-    console.log("payroll body" + req.body);
-    const {
-        userId,
-        basic,
-        hra,
-        conveyanceAllowance,
-        lta,
-        specialAllowance,
-        grossSalary,
-        pf,
-        insurance,
-        gratuity,
-        employeeContribution
-     
+    const { userId, basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance } = req.body;
 
-
-    } = req.body;
-
-    // const compExist = await Payroll.findOne({ 
-    //   where: { companyName: companyName }
-    // })
-    // if(compExist){
-    //   return res.status(500).json({
-    //     status: "error",
-    //     message: 'There is already a payroll that exists under the same name.',
-    //   });
-    // }
-
-    const payroll = new Payroll({
-        userId,
-        basic,
-        hra,
-        conveyanceAllowance,
-        lta,
-        specialAllowance,
-        grossSalary,
-        pf,
-        insurance,
-        gratuity,
-        employeeContribution
-
-    });
+    const payroll = new Payroll({userId, basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance });
     await payroll.save();
     res.send(payroll)
-    
-
   } catch (error) {
     res.send(error);
   }
@@ -59,83 +22,69 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const payroll = await Payroll.findAll({ 
-    //   include:[
-    //     { model: User, attributes: ['name','empNo']}
-    // ],
-    //   order: [['createdAt', 'DESC']],
+      include:[
+        { model: User, attributes: ['name','empNo']}
+      ] 
     });
     res.send(payroll);
-  } catch (error) {}
+  } catch (error) {
+    res.send(error.message);
+  }
 });
 
 router.get("/:id", async (req, res) => {
-  console.log("LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLll");
-  
   try {
     const userId = req.params.id;
     console.log('userId',userId);
     
-    const payroll = await Payroll.findOne({ where: { userId: userId },
-     });
-    // if (!payroll) {
-    //   return res.status(404).json({ error: "Payroll not found" });
-    // }
+    const payroll = await Payroll.findOne({ where: { userId: userId } });
+    if (!payroll) {
+      return res.send("Payroll not found");
+    }
     return res.status(200).json(payroll);
   
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res.send(error.message);
   }
 });
 
 
 router.patch("/:id", async (req, res) => {
+  const { basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay } = req.body;
   try {
-    const companyId = req.params.id;
-    const {
-        userId,
-        basic,
-        hra,
-        conveyanceAllowance,
-        lta,
-        specialAllowance,
-        grossSalary,
-        pf,
-        insurance,
-        gratuity,
-        employeeContribution
-    } = req.body;
-    const payroll = await Payroll.findOne({ where: { id: companyId } });
+    const payroll = await Payroll.findOne({ where: { id: req.params.id } });
     if (!payroll) {
       return res.status(404).json({ error: "Payroll not found" });
     }
-    payroll.userId = userId;
+
+    const log = new PayrollLog({ userId: payroll.userId, oldIncome: payroll.netPay, newIncome: netPay, updatedDate: new Date()})
+    console.log(log);
+    
+    await log.save();
+
     payroll.basic = basic;
     payroll.hra = hra;
     payroll.conveyanceAllowance = conveyanceAllowance;
     payroll.lta = lta;
-    payroll.specialAllowance = specialAllowance;
-    payroll.grossSalary = grossSalary;
+    payroll.grossPay = grossPay;
     payroll.pf = pf;
     payroll.insurance = insurance;
     payroll.gratuity = gratuity;
-    payroll.employeeContribution = employeeContribution;
+    payroll.netPay = netPay;
+
     await payroll.save();
 
-    res.json(payroll);
+    res.json({payroll, log});
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.send(error.message);
   }
 });
 
 router.get('/find', async (req, res) => {
-  console.log("PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP");
-  
   try {
     let whereClause = {}
     let limit;
     let offset;
-    console.log(req.query.pageSize, req.query.page,"PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPp");
     
     if (req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
       limit = req.query.pageSize;
@@ -201,57 +150,6 @@ router.get('/find', async (req, res) => {
 
 
 })
-router.delete('/:id', async(req,res)=>{
-  try {
-
-      const result = await Payroll.destroy({
-          where: { id: req.params.id },
-          force: true,
-      });
-
-      if (result === 0) {
-          return res.status(404).json({
-            status: "fail",
-            message: "Payroll with that ID not found",
-          });
-        }
-    
-        res.status(204).json();
-      }  catch (error) {
-      res.send({error: error.message})
-  }
-  
-})
-
-router.get("/getsuppliers/:id", async (req, res) => {
-  try {
-    const companyId = req.params.id;
-    const payroll = await Company.findAll({
-      where: {supplier: true, id: { [Op.ne]: companyId }}, 
-    });
-
-    res.send(payroll);
-      
-  } catch (error) {
-    res.send({ error: error.message});
-  }
-});
-
-router.get("/getsuppliersforparts/:partid/:companyid", async (req, res) => {
-  try {
-    const companyId = req.params.companyid;
-    const partId = req.params.partid
-    const payroll = await Company.findAll({
-      include : [ { model: PartSupplier, as: 'partSupplier'}],
-      where: {supplier: true, id: { [Op.ne]: companyId }, '$partSupplier.partId$': partId},
-    });
-
-    res.send(payroll);
-      
-  } catch (error) {
-    res.send({ error: error.message});
-  }
-});
 
 router.get("/:id", async (req, res) => {
   try {

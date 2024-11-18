@@ -1,0 +1,12 @@
+<div class="dialog">
+    <div class="dialog-content">
+      <p><strong>{{dialogData.userName}}</strong>'s salary has been updated.</p>
+      <p><strong>Old Salary:</strong> {{dialogData.currentPay}}</p>
+      <p><strong>New Salary:</strong> {{dialogData.updated}}</p>
+      <div class="dialog-buttons">
+        <button class="ok-btn" (click)="onOkClick()">OK</button>
+        <button class="cancel-btn" (click)="onCancelClick()">Cancel</button>
+      </div>
+    </div>
+  </div>
+  

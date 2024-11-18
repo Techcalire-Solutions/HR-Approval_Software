@@ -1,5 +1,4 @@
-import { User } from "./user";
-
+import { User } from "../users/user";
 
 
 export interface MonthlyPayroll {
@@ -15,6 +14,7 @@ export interface MonthlyPayroll {
     insurance: number,
     gratuity: number,
     employeeContribution: number,
+    leaveDays: number,
 
     user: User
   }
