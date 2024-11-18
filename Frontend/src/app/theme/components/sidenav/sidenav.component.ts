@@ -155,7 +155,16 @@ users:User;
 
         (item.title === 'Expense' && !item.parentId) ||
         (item.title === 'Add' && item.parentId === 26) ||
-        (item.title === 'View' && item.parentId === 26)
+        (item.title === 'View' && item.parentId === 26) ||
+
+        (item.title === 'Reports' && !item.parentId) ||
+        (item.title === 'Proforma' && item.parentId === 21) ||
+        (item.title === 'View' && item.parentId === 22) ||
+        (item.title === 'Excel' && item.parentId === 22) ||
+
+        (item.title === 'Expense' && item.parentId === 21)||
+        (item.title === 'View' && item.parentId === 24) ||
+        (item.title === 'Excel' && item.parentId === 24)
 
         // (item.title === 'Leave' && !item.parentId)||
         // (item.title === 'Apply Leave' && item.parentId === 8) ||
@@ -218,7 +227,7 @@ users:User;
         // item.title === 'Team' ||
         (item.title === 'Proforma' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5) ||
-        
+
         (item.title === 'Payroll' && !item.parentId) ||
         (item.title === 'Advance Salary' && item.parentId === 13) ||
         (item.title === 'Payslip' && item.parentId === 13) ||
