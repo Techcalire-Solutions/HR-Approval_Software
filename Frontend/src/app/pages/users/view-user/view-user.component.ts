@@ -18,6 +18,8 @@ import { UserDocument } from '../../../common/interfaces/users/user-document';
 import { UserPersonal } from '../../../common/interfaces/users/user-personal';
 import { UserPosition } from '../../../common/interfaces/users/user-position';
 import { User } from '../../../common/interfaces/users/user';
+import { PayrollService } from '@services/payroll.service';
+import { PayrollLog } from '../../../common/interfaces/payRoll/payroll-log';
 
 @Component({
   selector: 'app-view-user',
@@ -54,6 +56,7 @@ export class ViewUserComponent implements OnInit, OnDestroy{
       this.getPositionData(x.id);
       this.getDocuments(x.id);
       this.getAssets(x.id)
+      this.getPayrollLog(x.id)
     });
   }
 
@@ -103,6 +106,17 @@ export class ViewUserComponent implements OnInit, OnDestroy{
     this.assetSub = this.userService.getUserAssetsByUser(id).subscribe(x => {
       this.assets = x;
     })
+  }
+
+  payLogSUb!: Subscription;
+  private payrollService = inject(PayrollService);
+  payrollLog: PayrollLog[] = [];
+  getPayrollLog(id: number){
+    this.payLogSUb = this.payrollService.getPayrollLogByUser(id).subscribe(x => {
+      console.log(x);
+      
+      this.payrollLog = x;
+    });
   }
 
   ngOnDestroy(): void {

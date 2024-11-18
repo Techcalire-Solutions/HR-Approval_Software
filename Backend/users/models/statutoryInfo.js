@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../utils/db');
+const User = require('./user');
 
 const StatutoryInfo = sequelize.define('statutoryinfo',{
     userId : {type : DataTypes.INTEGER, allowNull : false},
@@ -15,6 +16,10 @@ const StatutoryInfo = sequelize.define('statutoryinfo',{
     freezeTableName: true,
     timestamps : false
 })
+
+User.hasOne(StatutoryInfo, { foreignKey: 'userId', onUpdate: 'CASCADE' });
+StatutoryInfo.belongsTo(User, { foreignKey: 'userId', as: 'manager'  });
+
 
 StatutoryInfo.sync({ alter: true })
   .then(() => console.log("StatutoryInfo table Sync"))

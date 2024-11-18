@@ -1,0 +1,68 @@
+<form [formGroup]="payrollForm">
+    <h2> @if (updateStatus) {Update} {{month}}</h2>
+    @if(doc().controls && doc().controls.length){
+        <table formArrayName="payrolls">
+            <tr>
+                <th>Employee Name</th>
+                <th colspan="5">Earnings</th>
+                <th colspan="5">Deductions</th>
+                <th>Net Salary</th>
+            </tr>
+            
+            <tr>
+                <th>Employee Name</th>
+                <th>Basic Salary (₹)</th>
+                <th>HRA (₹)</th>
+                <th>CA(₹)</th>
+                <th>LTA</th>
+                <th>SA</th>
+                <th>PF</th>
+                <th>Insurance</th>
+                <th>Gratuity</th>
+                <th>Advance</th>
+                <th>LeaveDays</th>
+                <th>ToPay</th>
+            </tr>
+            @for (payroll of doc().controls; track $index; let i = $index) {
+                <tr [formGroupName]="i">
+                    <td><input type="text" placeholder="Employee" formControlName="userName"></td>
+                    <td><input type="number" placeholder="Basic" formControlName="basic"></td>
+                    <td><input type="number" placeholder="HRA" formControlName="hra"></td>
+                    <td><input type="number" placeholder="CA" formControlName="conveyanceAllowance"></td>
+                    <td><input type="number" placeholder="LTA" formControlName="lta"></td>
+                    <td><input type="number" placeholder="SA" formControlName="specialAllowance"></td>
+                    <td><input type="number" placeholder="PF" formControlName="pf"></td>
+                    <td><input type="number" placeholder="Insurance" formControlName="insurance"></td>
+                    <td><input type="number" placeholder="Gratuity" formControlName="gratuity"></td>
+                    <td><input type="number" placeholder="Advance" formControlName="advanceAmount"></td>
+                    <td><input type="number" placeholder="LeaveDays" formControlName="leaveDays"></td>
+                    <td>
+                        <input type="number" [value]="payroll.get('toPay')?.value" disabled>
+                      </td>
+                </tr>
+            }
+
+        
+            <!-- @for (payrollForm of doc().controls; track $index; let i = $index) {
+                <tr [formGroupName]="i">
+                    <td><input type="text" placeholder="Employee" formControlName="userName"></td>
+                    <td><input type="number" placeholder="Basic" formControlName="basic"></td>
+                    <td><input type="number" placeholder="HRA" formControlName="hra"></td>
+                    <td><input type="number" placeholder="CA" formControlName="conveyanceAllowance"></td>
+                    <td><input type="number" placeholder="LTA" formControlName="lta"></td>
+                    <td><input type="number" placeholder="SA" formControlName="specialAllowance"></td>
+                    <td><input type="number" placeholder="PF" formControlName="pf"></td>
+                    <td><input type="number" placeholder="Insurance" formControlName="insurance"></td>
+                    <td><input type="number" placeholder="Gratuity" formControlName="gratuity"></td>
+                </tr>
+            } -->
+        </table>
+    }
+    <button type="button" (click)="savePayroll()">
+        @if(updateStatus){
+            Update
+        }@else{
+            Save
+        }
+        Payroll</button>
+</form>

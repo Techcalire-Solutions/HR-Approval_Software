@@ -88,6 +88,7 @@ export class LeaveTypesComponent {
   delete!: Subscription;
   deleteRole(id: number){
     const dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+
     dialogRef.afterClosed().subscribe(res => {
       if(res){
         this.delete = this.leaveService.deleteLeaveType(id).subscribe(res => {

@@ -64,6 +64,8 @@ export class AdvanceSalaryComponent implements OnInit , OnDestroy{
   salarySub!: Subscription;
   public getAdvanceSalary(): void {
     this.salarySub = this.payrollService.getNotCompletedAdvanceSalary().subscribe((advanceSalary: any) =>{
+      console.log(advanceSalary);
+      
       this.advanceSalaries = advanceSalary
     });
   }

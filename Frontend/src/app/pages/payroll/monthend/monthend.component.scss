@@ -1,0 +1,41 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    padding: 20px;
+}
+h2 {
+    text-align: center;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+th, td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+th {
+    background-color: #084c7a;
+    color: white;
+}
+th[colspan="4"],
+th[colspan="5"] {
+    background-color: #f51b22;
+}
+td input[type="number"] {
+    width: 100%;
+    padding: 6px;
+    box-sizing: border-box;
+}
+.calculate-btn {
+    padding: 8px 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+.calculate-btn:hover {
+    background-color: #45a049;
+}

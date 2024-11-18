@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+  <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
+    <div fxLayout="row" class="col">
+        <!-- <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
+            <mat-button-toggle value="add" (click)="openRoleDialog(null)"><mat-icon>person_add</mat-icon>
+            </mat-button-toggle>
+        </mat-button-toggle-group> -->
+    <!-- </div>
+    <div fxLayout="row" class="col">
+      <form class="user-search" [class.show]="controls.value == 'search'">
+        <mat-form-field class="user-search-input">
+            <input matInput placeholder="Search designation..." name="search" (keyup)="search($event)">
+        </mat-form-field>
+      </form>
+    </div> -->
+  </div>
+
+  <main class="table" id="customers_table">
+    <section class="table__body">
+      <table>
+        <thead>
+          <tr>
+            <th> User Name</th>
+            <th> PayedFor </th>
+            <th> PayedAt</th>
+            <th> PayedAmount </th>
+            <th> Manage </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(role of logs; track $index){
+            <tr (click)="openPayroll(role.id)">
+              <td>{{ role.user.name }}</td>
+              <td>{{ role.payedFor }}</td>
+              <td>{{ role.payedAt }}</td>
+              <td>{{ role.netPay }}</td>
+              <td>
+                <!-- <button
+                  mat-icon-button
+                  (click)="openRoleDialog(role)"
+                  [disabled]="isRestrictedRole(role.roleName)">
+                  <mat-icon>mode_edit</mat-icon>
+                </button> -->
+  
+                <!-- <button
+                  mat-icon-button
+                  (click)="deleteRole(role.id)"
+                  [disabled]="isRestrictedRole(role.roleName)">
+                  <mat-icon>delete</mat-icon>
+                </button> -->
+              </td>
+            </tr>
+          }
+
+        </tbody>
+      </table>
+      <!-- <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
+       (page)="onPageChange($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
+      </mat-paginator> -->
+    </section>
+  </main>
+

@@ -83,14 +83,15 @@ app.use('/announcements', announcements)
 const expense = require('../expense/routers/expense');
 app.use('/expense', expense);
 
-const payroll = require('../payroll/routers/payroll');
-app.use('/payroll', payroll);
-
 const advanceSalary = require('../payroll/routers/advanceSalary');
+const payroll = require('../payroll/routers/payroll');
+const payrollLog = require('../payroll/routers/payrollLog');
+const monthlyPayroll = require('../payroll/routers/monthlyPayroll');
+app.use('/payroll', payroll);
+app.use('/payrolllog', payrollLog);
+app.use('/monthlypayroll', monthlyPayroll);
 app.use('/advanceSalary', advanceSalary);
 
-const monthlyPayroll = require('../payroll/routers/monthlyPayroll');
-app.use('/monthlyPayroll', monthlyPayroll);
 
 const port = process.env.PORT || 8000;
 app.listen(port, () => {
