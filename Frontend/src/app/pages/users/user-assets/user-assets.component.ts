@@ -39,6 +39,7 @@ export class UserAssetsComponent implements OnDestroy{
   form = this.fb.group({
     assetCode: [''],
     newRow: this.fb.group({
+      assetName: [''],
       identifierType: [''],
       identificationNumber: [''],
       description: [''],
@@ -70,11 +71,11 @@ export class UserAssetsComponent implements OnDestroy{
         }
       }else{
         this.userPosition = this.userService.getUserPositionDetailsByUser(id).subscribe(position=>{
-          this.userName = position.user.name
           if(position === null){
             alert("Add department details...");
             history.back();
           }
+          this.userName = position.user.name
           this.generateCode(position?.department.abbreviation)
         });
       }
@@ -84,6 +85,7 @@ export class UserAssetsComponent implements OnDestroy{
 
   editRow(row: any, index: number): void {
     this.form.get('newRow')?.patchValue({
+      assetName: row.assetName,
       identifierType: row.identifierType,
       identificationNumber: row.identificationNumber,
       description: row.description,
@@ -96,6 +98,8 @@ export class UserAssetsComponent implements OnDestroy{
     let newRow;
     if(data) newRow = data
     if (this.form.valid)  newRow = { ...this.form.value.newRow }; 
+    console.log(newRow);
+    
     this.rows.push(newRow);
     this.form.reset();
   }
