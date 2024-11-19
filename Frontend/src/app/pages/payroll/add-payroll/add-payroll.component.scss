@@ -1,3 +1,10 @@
+.payroll-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
 /* payroll.component.css */
 .payroll-container {
     width: 60%;

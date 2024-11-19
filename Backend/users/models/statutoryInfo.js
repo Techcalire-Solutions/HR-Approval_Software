@@ -9,6 +9,7 @@ const StatutoryInfo = sequelize.define('statutoryinfo',{
     adharNo : {type : DataTypes.STRING, allowNull : false},
     panNumber : {type : DataTypes.STRING, allowNull : false},
     esiNumber : {type : DataTypes.STRING, allowNull : false},
+    pfNumber : {type : DataTypes.STRING, allowNull : false},
     uanNumber : {type : DataTypes.STRING, allowNull : false},
     insuranceNumber : {type : DataTypes.STRING, allowNull : false}
 },
