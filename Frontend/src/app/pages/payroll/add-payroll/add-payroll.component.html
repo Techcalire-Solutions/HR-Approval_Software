@@ -1,9 +1,10 @@
 
+
+<h2>Payroll Calculation</h2>
 <div class="payroll-container">
-    <h2>Payroll Calculation</h2>
+  <button class="download-button exclude-from-pdf" (click)="downloadPDF()">Download as PDF</button>
     <form [formGroup]="payrollForm">
       <table class="payroll-table">
-        
         <thead>
         <tr>
             <td>Name</td>
@@ -36,9 +37,14 @@
             <td><input type="number" formControlName="yearconveyanceAllowance" class="input-field"></td>
           </tr>
           <tr>
-            <td>Leave Trave Allowance</td>
+            <td>Leave Travel Allowance</td>
             <td><input type="number" formControlName="lta" class="input-field"></td>
             <td><input type="number" formControlName="yearlta" class="input-field"></td>
+          </tr>
+          <tr>
+            <td>Speacial Allowance</td>
+            <td><input type="number" formControlName="specialAllowance" class="input-field"></td>
+            <td><input type="number" formControlName="yearspecialAllowance" class="input-field"></td>
           </tr>
           <!-- <tr>
             <td>Overtime Pay</td>
@@ -52,9 +58,7 @@
             <td><input type="number" formControlName="grossPay" class="input-field" readonly></td>
             <td><input type="number" formControlName="yeargrossPay" class="input-field" readonly></td>
           </tr>
-          
-
-          
+                  
           <tr>
             <td>Provident Fund</td>
             <td><input type="number" formControlName="pf" class="input-field"></td>
@@ -78,22 +82,26 @@
           
         </tbody>
       </table>
+      
     </form>
+    <button mat-raised-button class="save-button exclude-from-pdf" (click)="savePayrollDetails()"  [disabled]="!payrollForm.valid">
+     @if(editStaus) {Update Payroll}
+     @else {Save Payroll}
+    </button>
   
     <!-- Payroll summary section -->
-    <div class="payroll-summary">
+    <!-- <div class="payroll-summary"> -->
       
-      <!-- <p><strong>Total Deductions:</strong> ₹ {{ grossPay - netPay }}</p>
+      <!-- <p><strong>Total Deductions:</strong> ₹ {{ netPay - grossPay }}</p>
       <p><strong>Net Pay:</strong> ₹ {{ netPay }}</p> -->
-      <!-- <button class="save-button" (click)="savePayrollDetails()">Save Payroll</button> -->
-      <button class="save-button" *ngIf="isPayrollAvailable; else saveButton" (click)="updatePayroll()">
+      <!-- <button class="save-button" *ngIf="isPayrollAvailable; else saveButton" (click)="updatePayroll()">
         Update
       </button>
       
       <ng-template #saveButton>
         <button class="save-button" (click)="savePayrollDetails()">Save</button>
-      </ng-template>
+      </ng-template> -->
       
-    </div>
+    <!-- </div> -->
   </div>
   

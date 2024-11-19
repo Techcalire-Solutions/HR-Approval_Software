@@ -78,8 +78,6 @@ export class UsersComponent implements OnInit, OnDestroy {
   userSub!: Subscription;
   getUsers(): void {
     this.userSub = this.usersService.getUser(this.searchText, this.currentPage, this.pageSize).subscribe((users: any) =>{
-      console.log(users);
-
       this.users = users.items;
       this.totalItems = users.count
     });
@@ -111,8 +109,6 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   updateDesignation(id: number, name: string, empNo: string){
-    console.log(id);
-
     const dialogRef = this.dialog.open(UpdateDesignationComponent, {
       width: '320px',
       data: {id: id, name: name, empNo: empNo}
@@ -192,8 +188,6 @@ export class UsersComponent implements OnInit, OnDestroy {
       data: {id: id, empNo: empNo, name: name}
     });dialogRef.afterClosed().subscribe((res) => {
       this.rsignSub = this.usersService.resignEmployee(id, res).subscribe(() => {
-        console.log(res);
-
         this.snackbar.open(`${empNo} is now resigned`, "", { duration: 3000 });
         this.getUsers()
       })

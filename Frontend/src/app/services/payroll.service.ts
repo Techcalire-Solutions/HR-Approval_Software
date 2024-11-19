@@ -5,6 +5,7 @@ import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Payroll } from '../common/interfaces/payRoll/payroll';
 import { AdvanceSalary } from '../common/interfaces/payRoll/advanceSalary';
+import { PayrollLog } from '../common/interfaces/payRoll/payroll-log';
 
 @Injectable({
   providedIn: 'root'
@@ -15,16 +16,21 @@ export class PayrollService {
 
   constructor(private http: HttpClient) { }
 
-
-
   public savePayroll(data: any): Observable<any> {
     return this.http.post(this.apiUrl+"/payroll", data);
+  }
+
+  public updatePayroll(id: number, data: any): Observable<any> {
+    return this.http.patch(this.apiUrl+"/payroll/"+id, data);
   }
 
   public getPayrollDetailsByUserId(id: number): Observable<Payroll>{
     return this.http.get<Payroll>(this.apiUrl+"/payroll/"+id);
   }
-
+  
+  getPayroll(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/payroll`);
+  }
   
   getAdvanceSalary(): Observable<AdvanceSalary[]> {
     return this.http.get<AdvanceSalary[]>(`${this.apiUrl}/advanceSalary/findall`);
@@ -43,11 +49,39 @@ export class PayrollService {
   deleteAdvanceSalary(id: number) {
     return this.http.delete(`${this.apiUrl}/advanceSalary/` +id);
   }
-  getPayroll(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/payroll`);
-  }
 
   getAdvanceSalaryByid(id: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/advanceSalary/findbyid/${id}`);
   }
+
+  getAdvanceSalaryByUserId(id: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/advanceSalary/findbyuserid/${id}`);
+  }
+
+  getPayrollLogByUser(id: number): Observable<PayrollLog[]>{
+    return this.http.get<PayrollLog[]>(`${this.apiUrl}/payrolllog/getbyuser/${id}`);
+  }
+
+  monthlyPayroll(data: any): Observable<any> {
+    return this.http.post(this.apiUrl+"/monthlypayroll/save", data);
+  }
+
+  updateMonthlyPayroll(data: any): Observable<any> {
+    return this.http.post(this.apiUrl+"/monthlypayroll/update", data);
+  }
+
+
+  getMonthlyPayroll(): Observable<any> {
+    return this.http.get(this.apiUrl+"/monthlypayroll/find");
+  }
+
+  getMonthlyPayrollById(id: number): Observable<any> {
+    return this.http.get(this.apiUrl+"/monthlypayroll/findbyid/" + id);
+  }
+
+
+  getMonthlyPayrollByPayedFor(payedForValue: string): Observable<Payroll[]> {
+    return this.http.get<Payroll[]>(this.apiUrl+`/monthlypayroll/bypayedfor/?payedFor=${payedForValue}`);
+  }
+
 }

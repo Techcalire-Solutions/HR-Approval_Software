@@ -64,6 +64,17 @@ router.get("/findbyid/:id", authenticateToken, async (req, res) => {
   }
 });
 
+router.get("/findbyuserid/:id", authenticateToken, async (req, res) => {
+  try {
+
+    const advanceSalary = await AdvanceSalary.findOne({ where: { userId: req.params.id, status: true } });
+   
+    res.json(advanceSalary);
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
 router.patch('/update/:id', authenticateToken, async(req,res)=>{
   try {
     const id = parseInt(req.params.id, 10);

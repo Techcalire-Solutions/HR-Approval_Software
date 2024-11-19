@@ -218,6 +218,27 @@
               <p>No Data is added</p>
             }
           </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header class="custom-header">
+              <span class="panel-title"> Payroll Log </span>
+              <span class="spacer"></span>
+              <mat-icon style="margin-right: 10px;">price_change</mat-icon>
+            </mat-expansion-panel-header>
+            @if(payrollLog){
+              <div class="p-3">
+                @for (item of payrollLog; track $index) {
+                  <div class="flex-container">
+                    <div>Updated Date  :<strong>{{item.updatedDate | date:'dd/MM/yyyy'}}</strong></div>
+                    <div>New Salary  :<strong>{{item.newIncome }}</strong></div>
+                    <div>Previous Salary  :<strong>{{item.oldIncome}}</strong></div>
+                  </div>
+                }
+              </div>
+            }@else {
+              <p>No Data is added</p>
+            }
+          </mat-expansion-panel>
         </mat-accordion>
 
 

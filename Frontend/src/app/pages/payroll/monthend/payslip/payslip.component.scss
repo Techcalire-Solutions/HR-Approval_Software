@@ -1,0 +1,36 @@
+body {
+    font-family: Arial, sans-serif;
+}
+.payslip-container {
+    width: 800px;
+    margin: 0 auto;
+    border: 1px solid #000;
+    padding: 20px;
+}
+.header, .footer {
+    text-align: center;
+    font-weight: bold;
+}
+.company-info, .employee-info, .earnings-deductions {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+.company-info td, .employee-info td, .earnings-deductions td {
+    padding: 8px;
+    border: 1px solid #000;
+}
+.section-title {
+    font-weight: bold;
+    text-align: center;
+    padding: 10px 0;
+}
+.earnings-deductions th {
+    text-align: left;
+    padding: 8px;
+}
+.net-pay {
+    font-weight: bold;
+    text-align: center;
+    padding: 10px 0;
+}
