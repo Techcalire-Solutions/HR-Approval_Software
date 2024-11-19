@@ -6,6 +6,7 @@ const User = require('../models/user');
 
 const UserAccount = sequelize.define('useraccount',{
     userId : {type : DataTypes.INTEGER, allowNull : false},
+    bankName : {type : DataTypes.STRING, allowNull : false},
     accountNo : {type : DataTypes.STRING, allowNull : false},
     ifseCode : {type : DataTypes.STRING, allowNull : false},
     paymentFrequency : {type : DataTypes.STRING, allowNull : false},

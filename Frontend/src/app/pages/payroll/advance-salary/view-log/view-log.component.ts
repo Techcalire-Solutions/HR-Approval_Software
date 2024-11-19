@@ -6,11 +6,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { AdvanceSalary } from '../../../../common/interfaces/payRoll/advanceSalary';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-view-log',
   standalone: true,
-  imports: [MatButtonToggleModule, MatIconModule, CommonModule, MatFormFieldModule],
+  imports: [MatButtonToggleModule, MatIconModule, CommonModule, MatFormFieldModule, MatInputModule],
   templateUrl: './view-log.component.html',
   styleUrl: './view-log.component.scss'
 })

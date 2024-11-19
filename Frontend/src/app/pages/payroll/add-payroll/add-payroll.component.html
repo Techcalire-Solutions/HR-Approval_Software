@@ -1,8 +1,12 @@
 
 
-<h2>Payroll Calculation</h2>
+<div class="payroll-header">
+  <h2>Payroll Calculation</h2>
+  <button class="download-button exclude-from-pdf" mat-raised-button (click)="downloadPDF()">
+    <mat-icon>picture_as_pdf</mat-icon>
+  </button>
+</div>
 <div class="payroll-container">
-  <button class="download-button exclude-from-pdf" (click)="downloadPDF()">Download as PDF</button>
     <form [formGroup]="payrollForm">
       <table class="payroll-table">
         <thead>
@@ -46,13 +50,7 @@
             <td><input type="number" formControlName="specialAllowance" class="input-field"></td>
             <td><input type="number" formControlName="yearspecialAllowance" class="input-field"></td>
           </tr>
-          <!-- <tr>
-            <td>Overtime Pay</td>
-            <td><input type="number" formControlName="specialAllowance" class="input-field"></td>
-            <td><input type="number" formControlName="specialAllowance" class="input-field"></td>
-          </tr> -->
           
-          <!-- Input fields for deductions -->
           <tr style="background-color: #7facc6; font-weight: bold; text-align: center;">
             <td><b>Gross Pay</b></td>
             <td><input type="number" formControlName="grossPay" class="input-field" readonly></td>
@@ -78,6 +76,16 @@
             <td><b>Net Pay</b></td>
             <td><input type="number" formControlName="netPay" class="input-field" readonly></td>
             <td><input type="number" formControlName="yearnetPay" class="input-field" readonly></td>
+          </tr>
+          <tr>
+            <td>PF Deduction</td>
+            <td><input type="number" formControlName="pfDeduction" class="input-field"></td>
+            <td><input type="number" formControlName="yearPfDeduction" class="input-field"></td>
+          </tr>
+          <tr>
+            <td>ESI</td>
+            <td><input type="number" formControlName="esi" class="input-field"></td>
+            <td><input type="number" formControlName="yearEsi" class="input-field"></td>
           </tr>
           
         </tbody>

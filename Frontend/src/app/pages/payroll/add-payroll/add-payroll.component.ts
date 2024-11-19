@@ -13,11 +13,12 @@ import { PayrollUpdateVerificationComponent } from './payroll-update-verificatio
 import { MatDialog } from '@angular/material/dialog';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { MatIconModule } from '@angular/material/icon';
 @Component({
   selector: 'app-add-payroll',
   standalone: true,
   templateUrl: './add-payroll.component.html',
-  imports: [ReactiveFormsModule, CommonModule, MatButtonModule],  // Include ReactiveFormsModule
+  imports: [ReactiveFormsModule, CommonModule, MatButtonModule, MatIconModule, MatButtonModule],  // Include ReactiveFormsModule
   styleUrls: ['./add-payroll.component.scss']
 })
 export class AddPayrollComponent implements OnInit, OnDestroy {
@@ -48,7 +49,11 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
     netPay:  <any>[{ value: null, disabled: true }],
     yearnetPay:  <any>[{ value: null, disabled: true }],
     userName: [''],
-    userRole: ['']
+    userRole: [''],
+    pfDeduction: <any>[null, Validators.required],
+    yearPfDeduction: <any>[{ value: null, disabled: true }],
+    esi: <any>[null, Validators.required],
+    yearEsi: <any>[{ value: null, disabled: true }],
   });
 
   ngOnInit(): void {
@@ -69,6 +74,8 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
   getUserById() {
     this.userSub = this.userService.getUserById(this.route.snapshot.params['id']).subscribe((res) => {
       this.user = res;
+      this.userName = res.name;
+      this.empNo = res.empNo;
       this.payrollForm.get('userName')?.setValue(this.user.name);
       this.payrollForm.get('userRole')?.setValue(this.user.role.roleName);
     });
@@ -76,9 +83,12 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
 
   private payrollService = inject(PayrollService);
   editStaus: boolean = false;
+  userName: string;
+  empNo: string;
   getPayrollDetailsByUserId() {
     this.payrollService.getPayrollDetailsByUserId(this.route.snapshot.params['id']).subscribe({
       next: (res) => {
+        
         if (res) {
           this.editStaus = true;
           this.payroll = res;
@@ -114,9 +124,13 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
       grossPay: value.grossPay,
       yeargrossPay: value.grossPay * 12,
       yearGratuity: value.gratuity * 12,
-      yearinsurance:  value.insurance,
+      yearinsurance:  value.insurance * 12,
       netPay:  value.netPay,
       yearnetPay:  value.netPay * 12,
+      pfDeduction: value.pfDeduction,
+      yearPfDeduction: value.pfDeduction * 12,
+      esi: value.esi,
+      yearEsi: value.esi * 12,
     })
   }
 
@@ -174,6 +188,20 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
       const pf: any = this.payrollForm.get('pf')?.value;
       const ypf = 12 * pf;
       this.payrollForm.patchValue({ yearpf: ypf }, { emitEvent: false });
+      this.calculateGrossPay();
+    });
+
+    this.payrollForm.get('pfDeduction')?.valueChanges.subscribe(() => {
+      const pf: any = this.payrollForm.get('pfDeduction')?.value;
+      const ypf = 12 * pf;
+      this.payrollForm.patchValue({ yearPfDeduction: ypf }, { emitEvent: false });
+      this.calculateGrossPay();
+    });
+
+    this.payrollForm.get('esi')?.valueChanges.subscribe(() => {
+      const pf: any = this.payrollForm.get('esi')?.value;
+      const ypf = 12 * pf;
+      this.payrollForm.patchValue({ yearEsi: ypf }, { emitEvent: false });
       this.calculateGrossPay();
     });
   }
@@ -253,7 +281,7 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
   
       pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-      pdf.save('Payroll.pdf');
+      pdf.save(`Payroll_${this.userName}_${this.empNo}.pdf`);
   
       excludedElements.forEach((el) => {
         (el as HTMLElement).style.display = '';
