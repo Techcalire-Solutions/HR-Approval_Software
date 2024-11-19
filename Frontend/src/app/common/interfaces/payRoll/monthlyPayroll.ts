@@ -2,20 +2,27 @@ import { User } from "../users/user";
 
 
 export interface MonthlyPayroll {
-    id: number;
-    userId: number,
-    basic: number,
-    hra: number,
-    conveyanceAllowance: number,
-    lta: number,
-    specialAllowance: number,
-    grossSalary: number,
-    pf: number,
-    insurance: number,
-    gratuity: number,
-    employeeContribution: number,
-    leaveDays: number,
+  id: number
+  userId: number
+  basic: number
+  hra: number
+  conveyanceAllowance: number
+  lta: number
+  specialAllowance: number
+  ot: number
+  incentive: number
+  payOut: number
+  pfDeduction: number
+  insurance: number
+  tds: number
+  advanceAmount: number
+  leaveDays: number
+  leaveDeduction: number
+  incentiveDeduction: number
+  
+  toPay: number
+  payedFor: string
 
-    user: User
+  user: User
   }
   

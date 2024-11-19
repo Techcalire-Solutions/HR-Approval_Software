@@ -46,7 +46,7 @@ export class AddAdvanceSalaryComponent implements OnInit, OnDestroy{
 
   advanceSalaryForm = this.formBuilder.group({
     userId: <any>['', Validators.required],
-    scheme: ['OnetimeSettlement', Validators.required],
+    scheme: ['OneTime', Validators.required],
     amount: <any>['',Validators.required],
     reason: ['',Validators.required],
     userName: [''],
@@ -65,6 +65,8 @@ export class AddAdvanceSalaryComponent implements OnInit, OnDestroy{
   }
 
   findAmount() {
+    const scheme = this.advanceSalaryForm.get('scheme')?.value;
+    if(scheme === 'OneTime') this.advanceSalaryForm.get('duration')?.setValue(1, { emitEvent: false })
     const duration: any = this.advanceSalaryForm.get('duration')?.value;
     const amount: any = this.advanceSalaryForm.get('amount')?.value;
     if(duration && amount){

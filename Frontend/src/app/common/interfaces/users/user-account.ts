@@ -6,4 +6,5 @@ export interface UserAccount {
   paymentFrequency : string
   modeOfPayment : string
   branchName: string
+  bankName: string
 }

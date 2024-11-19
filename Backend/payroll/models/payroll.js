@@ -16,7 +16,9 @@ const Payroll = sequelize.define('payroll', {
   pf: { type: DataTypes.DECIMAL(10, 2) },
   insurance: { type: DataTypes.DECIMAL(10, 2) },
   gratuity: { type: DataTypes.DECIMAL(10, 2) },
-  netPay: { type: DataTypes.DECIMAL(10, 2) }
+  netPay: { type: DataTypes.DECIMAL(10, 2) },
+  pfDeduction: { type: DataTypes.DECIMAL(10, 2) },
+  esi: { type: DataTypes.DECIMAL(10, 2) },
 }, {
   freezeTableName: true,
   timestamps: true,

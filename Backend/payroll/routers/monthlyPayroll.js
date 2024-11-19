@@ -14,12 +14,13 @@ const Designation = require("../../users/models/designation");
 
 router.post("/save", async (req, res) => {
   const data = req.body.payrolls;
+  
   try {
     for (let i = 0; i < data.length; i++) {
-      const { userId, basic, hra, conveyanceAllowance, lta, specialAllowance, grossSalary, pf, insurance, gratuity, toPay, 
-        payedFor, leaveDays, advanceAmount } = data[i];
-      const monthlyPayroll = new MonthlyPayroll({userId, basic, hra, conveyanceAllowance, lta, specialAllowance, grossSalary, payedFor,
-      pf, insurance, gratuity, netPay: toPay, payedAt: new Date(), leaveDays, advanceAmount});
+      const { userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
+        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays} = data[i];
+      const monthlyPayroll = new MonthlyPayroll({userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
+        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays});
 
       const advanceSalary = await AdvanceSalary.findOne({ where: { userId: userId, status: true } });
       if(advanceSalary){
@@ -77,14 +78,11 @@ router.post("/update", async (req, res) => {
   const transaction = await sequelize.transaction();
 
   try {
-    const currentDate = new Date();
 
     for (const payroll of data) {
-      console.log(payroll, "payrollpayrollpayrollpayrollpayroll");
       
-      const {
-        userId, basic, hra, conveyanceAllowance, lta, specialAllowance, grossSalary, pf, insurance, gratuity, netPay, 
-        payedFor, leaveDays, advanceAmount
+      const {userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
+        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays
       } = payroll;
 
       // Check if a payroll record exists for the given user and period
@@ -94,13 +92,11 @@ router.post("/update", async (req, res) => {
       });
 
       if (existingPayroll) {
-        console.log(existingPayroll);
-        
-        await existingPayroll.update({ basic, hra, conveyanceAllowance, lta, specialAllowance, grossSalary, pf, insurance, gratuity,
-          netPay, payedAt: currentDate, leaveDays, advanceAmount, }, { transaction });
+        await existingPayroll.update({ basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
+          advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays }, { transaction });
       } else 
-        await MonthlyPayroll.create({ userId, basic, hra, conveyanceAllowance, lta, specialAllowance, grossSalary, payedFor,
-          pf, insurance, gratuity, netPay, payedAt: currentDate, leaveDays, advanceAmount }, { transaction });
+        await MonthlyPayroll.create({ basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
+          advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays }, { transaction });
     }
 
     await transaction.commit();
@@ -119,8 +115,8 @@ router.get('/findbyid/:id', async (req, res) => {
         {model: User, attributes: ['name','empNo'], include: [
           {model: UserPersonal, attributes: ['dateOfJoining']},
           {model: UserAccount},
-          {model: StatutoryInfo, attributes: ['panNumber', 'uanNumber']},
-          {model: UserPosition, attributes: ['designationId', 'department'], include:[
+          {model: StatutoryInfo, attributes: ['panNumber', 'uanNumber', 'pfNumber']},
+          {model: UserPosition, attributes: ['designationId', 'department', 'location'], include:[
             {model: Designation, attributes: ['designationName']}
           ]}
         ]}

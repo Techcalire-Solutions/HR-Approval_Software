@@ -61,22 +61,13 @@
                         </tr>
                     }@else {
                         <tr>
-                            <td> {{ advanceSalary.user.name }} </td>
-                            <td> {{ advanceSalary.user.empNo }} </td>
-                            <td> {{ advanceSalary.scheme }} </td>
-                            <td> {{ advanceSalary.amount }} </td>
-                            <td> {{ advanceSalary.reason }} </td>
-                            <td> {{ advanceSalary.createdAt | date: 'dd-MM-yyyy' }} </td>
-                            <td>
-                              <div style="display: flex; gap: 8px;">
-                                <!-- <button mat-menu-item (click)="openAdvanceDialog(advanceSalary)"> -->
-                                  <!-- <mat-icon (click)="openAdvanceDialog(advanceSalary)">mode_edit</mat-icon> -->
-                                <!-- </button> -->
-                                <!-- <button mat-menu-item > -->
-                                  <!-- <mat-icon (click)="deleteTeam(advanceSalary.id);">delete</mat-icon> -->
-                                <!-- </button> -->
-                              </div>
-                            </td>
+                          <td> {{ advanceSalary.user.name }}_{{ advanceSalary.user.empNo }} </td>
+                          <td> {{ advanceSalary.scheme }} </td>
+                          <td> {{ advanceSalary.duration }} Months </td>
+                          <td> {{ advanceSalary.completed }} Months </td>
+                          <td> {{ advanceSalary.amount - advanceSalary.monthlyPay * advanceSalary.completed}} </td>
+                          <td> {{ advanceSalary.createdAt | date: 'dd-MM-yyyy' }} </td>
+                          <td> {{ advanceSalary.updatedAt | date: 'dd-MM-yyyy' }} </td>
                             
                         </tr>
                     }

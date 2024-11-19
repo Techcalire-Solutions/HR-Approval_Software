@@ -9,9 +9,9 @@ const User = require('../../users/models/user')
 
 router.post("/", async (req, res) => {
   try {
-    const { userId, basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance } = req.body;
+    const { userId, basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance, pfDeduction, esi } = req.body;
 
-    const payroll = new Payroll({userId, basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance });
+    const payroll = new Payroll({userId, basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance, pfDeduction, esi });
     await payroll.save();
     res.send(payroll)
   } catch (error) {
@@ -35,7 +35,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const userId = req.params.id;
-    console.log('userId',userId);
+    console.log(userId);
     
     const payroll = await Payroll.findOne({ where: { userId: userId } });
     if (!payroll) {
@@ -50,7 +50,7 @@ router.get("/:id", async (req, res) => {
 
 
 router.patch("/:id", async (req, res) => {
-  const { basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay } = req.body;
+  const { basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance, pfDeduction } = req.body;
   try {
     const payroll = await Payroll.findOne({ where: { id: req.params.id } });
     if (!payroll) {
@@ -58,7 +58,6 @@ router.patch("/:id", async (req, res) => {
     }
 
     const log = new PayrollLog({ userId: payroll.userId, oldIncome: payroll.netPay, newIncome: netPay, updatedDate: new Date()})
-    console.log(log);
     
     await log.save();
 
@@ -71,6 +70,9 @@ router.patch("/:id", async (req, res) => {
     payroll.insurance = insurance;
     payroll.gratuity = gratuity;
     payroll.netPay = netPay;
+    payroll.specialAllowance = specialAllowance;
+    payroll.pfDeduction = pfDeduction;
+    payroll.esi = esi;
 
     await payroll.save();
 

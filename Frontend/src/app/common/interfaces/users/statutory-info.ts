@@ -6,4 +6,5 @@ export interface StatutoryInfo {
   esiNumber : string
   uanNumber : string
   insuranceNumber : string
+  pfNumber: string
 }

@@ -105,7 +105,7 @@
                         <div fxFlex="70" fxLayout="column" class="user-details transition-2" [class.blocked]="!user.status">
                             <p fxLayout="row" fxLayoutAlign="start center">
                                 <mat-icon class="muted-text">card_membership</mat-icon>
-                                <span>{{ user.userposition?.designation ? user.userposition.designation?.designationName : user.role.roleName }}</span>
+                                <span>{{ user.userposition.designation ? user.userposition.designation.designationName : user.role.roleName }}</span>
                             </p>
                             <p fxLayout="row" fxLayoutAlign="start center">
                                 <mat-icon class="muted-text">mail_outline</mat-icon>

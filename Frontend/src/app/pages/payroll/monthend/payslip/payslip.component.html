@@ -1,9 +1,10 @@
-@if(payroll){
-    <div class="payslip-container">
+@if(payroll && fullValue){
+    <button class="download-button exclude-from-pdf" (click)="downloadPDF()">Download as PDF</button>
+    <div class="payroll-container">
         <div class="header">
-            <p>WRIGHT AERO COMPONENTS INDIA PRIVATE LIMITED</p>
+            <p>ONBOARD AERO CONSULTANTS PRIVATE LIMITED</p>
             <p>BUILDING NO.48/768-C-2 SHREE LATHA BUILDING EROOR, THRIPUNITHURA, ERNAKULAM, KL 682306.</p>
-            <h2>Payslip for the month of July 2024</h2>
+            <h2>Payslip for the month of {{payroll.payedFor}}</h2>
         </div>
     
         <table class="company-info">
@@ -13,19 +14,19 @@
             </tr>
             <tr>
                 <td>Joining Date: {{payroll.user.userPersonals[0]?.dateOfJoining | date: 'dd-MM-yyyy'}}</td>
-                <td>Bank Name: [Bank Name]</td>
+                <td>Bank Name: {{payroll.user.useraccount?.bankName}}</td>
             </tr>
             <tr>
                 <td>Designation: {{payroll.user.userposition?.designation?.designationName}}</td>
                 <td>Bank Account No: {{payroll.user.useraccount?.accountNo}}</td>
             </tr>
             <tr>
-                <td>Department: {{payroll.user.userposition.department?.name}}</td>
+                <td>Department: {{payroll.user.userposition?.department?.name}}</td>
                 <td>PAN Number: {{payroll.user.statutoryinfo?.panNumber}}</td>
             </tr>
             <tr>
-                <td>Location: Kerala</td>
-                <td>PF No: [PF Number]</td>
+                <td>Location: {{payroll.user.userposition?.location}}</td>
+                <td>PF No:  {{payroll.user.statutoryinfo?.pfNumber}}</td>
             </tr>
             <tr>
                 <td>Effective Work Days: 31</td>
@@ -52,50 +53,50 @@
             <tbody>
                 <tr>
                     <td>BASIC</td>
-                    <td>[Full Amount]</td>
-                    <td>[Actual Amount]</td>
+                    <td>{{fullValue.basic}}</td>
+                    <td>{{payroll.basic}}</td>
                     <td>PF</td>
-                    <td>[PF Amount]</td>
+                    <td>{{payroll.pfDeduction}}</td>
                 </tr>
                 <tr>
                     <td>HRA</td>
-                    <td>[Full Amount]</td>
-                    <td>[Actual Amount]</td>
+                    <td>{{fullValue.hra}}</td>
+                    <td>{{payroll.hra}}</td>
                     <td>TDS</td>
-                    <td>[TDS Amount]</td>
+                    <td>{{payroll.tds}}</td>
                 </tr>
                 <tr>
                     <td>SPECIAL ALLOWANCE</td>
-                    <td>[Full Amount]</td>
-                    <td>[Actual Amount]</td>
-                    <td></td>
-                    <td></td>
+                    <td>{{fullValue.specialAllowance}}</td>
+                    <td>{{payroll.specialAllowance}}</td>
+                    <td>Advance</td>
+                    <td>{{payroll.advanceAmount}}</td>
                 </tr>
                 <tr>
-                    <td>INCENTIVE</td>
-                    <td>[Full Amount]</td>
-                    <td>[Actual Amount]</td>
-                    <td></td>
-                    <td></td>
+                    <td>CONVEYANCE ALLOWANCE</td>
+                    <td>{{fullValue.conveyanceAllowance}}</td>
+                    <td>{{payroll.conveyanceAllowance}}</td>
+                    <td>LOP</td>
+                    <td>{{payroll.leaveDeduction}}</td>
                 </tr>
                 <tr>
                     <td>TRAVEL ALLOWANCE</td>
-                    <td>[Full Amount]</td>
-                    <td>[Actual Amount]</td>
+                    <td>{{fullValue.lta}}</td>
+                    <td>{{payroll.lta}}</td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td colspan="2"><b>Total Earnings: INR</b> [Total Earnings]</td>
+                    <td colspan="2"><b>Total Earnings: INR</b> {{ calculateTotalEarnings() }}</td>
                     <td></td>
-                    <td colspan="2"><b>Total Deductions: INR</b> [Total Deductions]</td>
+                    <td colspan="2"><b>Total Deductions: INR</b> {{ calculateTotalDeductions() }}</td>
                 </tr>
             </tbody>
         </table>
     
         <div class="net-pay">
-            <p>Net Pay for the month (Total Earnings - Total Deductions): INR [Net Pay]</p>
-            <p>(Rupees [Amount in words] Only)</p>
+            <p>Net Pay for the month (Total Earnings - Total Deductions): INR {{payroll.toPay}}</p>
+            <p>(Rupees {{ getAmountInWords() | titlecase }} Only)</p>
         </div>
     
         <!-- <div class="footer">
