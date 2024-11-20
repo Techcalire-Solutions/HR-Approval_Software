@@ -36,6 +36,10 @@ export class PayrollService {
     return this.http.get<AdvanceSalary[]>(`${this.apiUrl}/advanceSalary/findall`);
   }
 
+  closeAdvanceSalary(id: number, data: any): Observable<AdvanceSalary> {
+    return this.http.patch<AdvanceSalary>(`${this.apiUrl}/advanceSalary/closeadvance/${id}`, data);
+  }
+
   getNotCompletedAdvanceSalary(): Observable<AdvanceSalary[]> {
     return this.http.get<AdvanceSalary[]>(`${this.apiUrl}/advanceSalary/notcompleted`);
   }

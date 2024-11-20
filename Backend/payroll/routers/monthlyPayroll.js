@@ -18,15 +18,17 @@ router.post("/save", async (req, res) => {
   try {
     for (let i = 0; i < data.length; i++) {
       const { userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
-        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays} = data[i];
+        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, leaveDays} = data[i];
       const monthlyPayroll = new MonthlyPayroll({userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
-        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays});
+        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt: new Date(), leaveDays});
 
       const advanceSalary = await AdvanceSalary.findOne({ where: { userId: userId, status: true } });
       if(advanceSalary){
         advanceSalary.completed += 1;
         if(advanceSalary.duration === advanceSalary.completed){
           advanceSalary.status = false
+          advanceSalary.completedDate = new Date();
+          advanceSalary.closeNote = 'Advance Payment is completed successfully'
         }
         await advanceSalary.save();
       }

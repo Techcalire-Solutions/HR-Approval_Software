@@ -33,8 +33,8 @@
                 <th> Completed </th>
                 <th> Balance </th>
                 <th> Created </th>
-                <th> Updated </th>
-
+                <th> Closed </th>
+                <th> Closed Note</th>
               </tr>
             </thead>
             <tbody>
@@ -47,7 +47,7 @@
                             <td> {{ advanceSalary.completed }} Months </td>
                             <td> {{ advanceSalary.amount - advanceSalary.monthlyPay * advanceSalary.completed}} </td>
                             <td> {{ advanceSalary.createdAt | date: 'dd-MM-yyyy' }} </td>
-                            <td> {{ advanceSalary.updatedAt | date: 'dd-MM-yyyy' }} </td>
+                            <td> {{ advanceSalary.completedDate | date: 'dd-MM-yyyy' }} </td>
                             <!-- <td>
                               <div style="display: flex; gap: 8px;">
                                 <button mat-menu-item (click)="openAdvanceDialog(advanceSalary)">
@@ -67,7 +67,8 @@
                           <td> {{ advanceSalary.completed }} Months </td>
                           <td> {{ advanceSalary.amount - advanceSalary.monthlyPay * advanceSalary.completed}} </td>
                           <td> {{ advanceSalary.createdAt | date: 'dd-MM-yyyy' }} </td>
-                          <td> {{ advanceSalary.updatedAt | date: 'dd-MM-yyyy' }} </td>
+                          <td> {{ advanceSalary.completedDate | date: 'dd-MM-yyyy' }} </td>
+                          <td> {{ advanceSalary.closeNote }} </td>
                             
                         </tr>
                     }
