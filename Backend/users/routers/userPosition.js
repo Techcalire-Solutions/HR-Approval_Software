@@ -25,9 +25,7 @@ router.post('/add', authenticateToken, async (req, res) => {
     } 
 
     const desi = await Designation.findByPk(designationId);
-    const roleId = desi.roleId;
-    console.log(roleId);
-    
+    const roleId = desi?.roleId;
     // if(designationName === 'SENIOR SALES ASSOCIATE' || designationName === 'SALES ASSOCIATE'){
     //   const role = await Role.findOne({ where: {roleName: 'Sales Executive'}})
     //   roleId = role.id;
@@ -83,7 +81,7 @@ router.patch('/update/:id', async(req,res)=>{
     
     let result = await UserPosition.findByPk(req.params.id);
     const desi = await Designation.findByPk(req.body.designationId);
-    const roleId = desi.roleId;
+    const roleId = desi?.roleId;
     
     if(roleId != null || roleId === ''){
       try {
@@ -164,7 +162,7 @@ router.patch('/updaterole/:id', async (req, res) => {
     //   roleId = role.id;
     // }
     const desi = await Designation.findByPk(req.body.designationId);
-    const roleId = desi.roleId;
+    const roleId = desi?.roleId;
 
     if(roleId != null || roleId === ''){
       try {

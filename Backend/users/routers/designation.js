@@ -95,6 +95,7 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
     const role = await Designation.findByPk(req.params.id);
     role.designationName = req.body.designationName;
     role.abbreviation = req.body.abbreviation;
+    role.roleId = req.body.roleId;
     await role.save();
     res.send(role);
   } catch (error) {
