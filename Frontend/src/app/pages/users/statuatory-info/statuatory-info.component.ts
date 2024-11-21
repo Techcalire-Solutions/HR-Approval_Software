@@ -2,7 +2,7 @@
 import { MatButtonModule } from '@angular/material/button';
 import { UsersService } from './../../../services/users.service';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Component, EventEmitter, Input, OnDestroy, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Subscription } from 'rxjs';
@@ -22,12 +22,12 @@ export class StatuatoryInfoComponent implements OnDestroy {
     this.pUSub?.unsubscribe();
     this.submitSub?.unsubscribe();
   }
-  
+
   @Input() statuatoryData: StatutoryInfo;
 
-  fb = inject(FormBuilder);
-  userService = inject(UsersService);
-  snackBar = inject(MatSnackBar);
+  private fb = inject(FormBuilder);
+  private userService = inject(UsersService);
+  private snackBar = inject(MatSnackBar);
 
   form = this.fb.group({
     userId : <any>[],
@@ -49,7 +49,7 @@ export class StatuatoryInfoComponent implements OnDestroy {
   }
 
   pUSub!: Subscription;
-  id: number;
+  private id: number;
   getStatutoryDetailsByUser(id: number){
     this.pUSub = this.userService.getUserStatutoryuDetailsByUser(id).subscribe(data=>{
       if(data){
@@ -68,7 +68,7 @@ export class StatuatoryInfoComponent implements OnDestroy {
   }
 
   @Output() dataSubmitted = new EventEmitter<any>();
-  submitSub!: Subscription;
+  private submitSub!: Subscription;
   onSubmit(){
     const submit = {
       ...this.form.getRawValue()
@@ -88,7 +88,7 @@ export class StatuatoryInfoComponent implements OnDestroy {
     }
   }
 
-  @Output() nextTab = new EventEmitter<void>(); 
+  @Output() nextTab = new EventEmitter<void>();
   triggerNextTab() {
     this.nextTab.emit();
   }

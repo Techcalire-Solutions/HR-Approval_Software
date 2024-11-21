@@ -21,7 +21,10 @@ import { User } from '../../../common/interfaces/users/user';
 })
 export class ViewSeparatedComponent implements OnInit, OnDestroy{
   ngOnDestroy(): void {
-
+    this.userSub?.unsubscribe();
+    this.resignSub?.unsubscribe();
+    this.dialogSub?.unsubscribe();
+    this.noteSub?.unsubscribe();
   }
   ngOnInit(): void {
     this.getSeparatedUsers();
@@ -37,12 +40,13 @@ export class ViewSeparatedComponent implements OnInit, OnDestroy{
   }
 
   private snackBar = inject(MatSnackBar);
+  resignSub!: Subscription;
   employeeBack(id: number){
     const data = {
       confirmed: false,
       separationNote: ''
     }
-    this.userService.resignEmployee(id, data).subscribe(() => {
+    this.resignSub = this.userService.resignEmployee(id, data).subscribe(() => {
 
       this.getSeparatedUsers()
       this.snackBar.open('Employee successfully rejoined', '', { duration: 3000 });
@@ -53,11 +57,13 @@ export class ViewSeparatedComponent implements OnInit, OnDestroy{
   private usersService = inject(UsersService);
   noteSub!: Subscription;
   private snackbar = inject(MatSnackBar);
+  dialogSub!: Subscription;
   editNote(id: number, empNo: string, name: string){
     const dialogRef = this.dialog.open(SeparationComponent, {
       width: '450px',
       data: {id: id, empNo: empNo, name: name, type: 'update'}
-    });dialogRef.afterClosed().subscribe((res) => {
+    });
+    this.dialogSub = dialogRef.afterClosed().subscribe((res) => {
       this.noteSub = this.usersService.updateSeparationNote(id, res).subscribe(() => {
         this.snackbar.open(`Separation note updated`, "", { duration: 3000 });
         this.getSeparatedUsers()

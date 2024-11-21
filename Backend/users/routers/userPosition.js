@@ -24,20 +24,23 @@ router.post('/add', authenticateToken, async (req, res) => {
       res.send(error.message)
     } 
 
-    let roleId;
-    if(designationName === 'SENIOR SALES ASSOCIATE' || designationName === 'SALES ASSOCIATE'){
-      const role = await Role.findOne({ where: {roleName: 'Sales Executive'}})
-      roleId = role.id;
-    }else if(designationName === 'KEY ACCOUNT MANAGER'){
-      const role = await Role.findOne({ where: {roleName: 'Key Account Manager'}})
-      roleId = role.id;
-    }else if(designationName === 'FINANCE MANAGER' || designationName === 'ACCOUNTS EXECUTIVE'){
-      const role = await Role.findOne({ where: {roleName: 'Accountant'}})
-      roleId = role.id;
-    }else if(designationName === 'MANAGING DIRECTOR'){
-      const role = await Role.findOne({ where: {roleName: 'Manager'}})
-      roleId = role.id;
-    }
+    const desi = await Designation.findByPk(designationId);
+    const roleId = desi.roleId;
+    console.log(roleId);
+    
+    // if(designationName === 'SENIOR SALES ASSOCIATE' || designationName === 'SALES ASSOCIATE'){
+    //   const role = await Role.findOne({ where: {roleName: 'Sales Executive'}})
+    //   roleId = role.id;
+    // }else if(designationName === 'KEY ACCOUNT MANAGER'){
+    //   const role = await Role.findOne({ where: {roleName: 'Key Account Manager'}})
+    //   roleId = role.id;
+    // }else if(designationName === 'FINANCE MANAGER' || designationName === 'ACCOUNTS EXECUTIVE'){
+    //   const role = await Role.findOne({ where: {roleName: 'Accountant'}})
+    //   roleId = role.id;
+    // }else if(designationName === 'MANAGING DIRECTOR'){
+    //   const role = await Role.findOne({ where: {roleName: 'Manager'}})
+    //   roleId = role.id;
+    // }
     
     if(roleId != null || roleId === ''){
       try {
@@ -79,20 +82,8 @@ router.patch('/update/:id', async(req,res)=>{
   try {
     
     let result = await UserPosition.findByPk(req.params.id);
-    let roleId;
-    if(designationName === 'SENIOR SALES ASSOCIATE' || designationName === 'SALES ASSOCIATE'){
-      const role = await Role.findOne({ where: {roleName: 'Sales Executive'}})
-      roleId = role.id;
-    }else if(designationName === 'KEY ACCOUNT MANAGER'){
-      const role = await Role.findOne({ where: {roleName: 'Key Account Manager'}})
-      roleId = role.id;
-    }else if(designationName === 'FINANCE MANAGER' || designationName === 'ACCOUNTS EXECUTIVE'){
-      const role = await Role.findOne({ where: {roleName: 'Accountant'}})
-      roleId = role.id;
-    }else if(designationName === 'MANAGING DIRECTOR'){
-      const role = await Role.findOne({ where: {roleName: 'Manager'}})
-      roleId = role.id;
-    }
+    const desi = await Designation.findByPk(req.body.designationId);
+    const roleId = desi.roleId;
     
     if(roleId != null || roleId === ''){
       try {
@@ -159,21 +150,22 @@ router.get('/', async (req, res) => {
 
 router.patch('/updaterole/:id', async (req, res) => {
   try {
-    let roleId;
-    if(req.body.designationName === 'SENIOR SALES ASSOCIATE' || req.body.designationName === 'SALES ASSOCIATE'){
-      const role = await Role.findOne({ where: {roleName: 'Sales Executive'}})
-      roleId = role.id;
-    }else if(req.body.designationName === 'KEY ACCOUNT MANAGER'){
-      const role = await Role.findOne({ where: {roleName: 'Key Account Manager'}})
-      roleId = role.id;
-    }else if(req.body.designationName === 'FINANCE MANAGER' || req.body.designationName === 'ACCOUNTS EXECUTIVE'){
-      const role = await Role.findOne({ where: {roleName: 'Accountant'}})
-      roleId = role.id;
-    }else if(req.body.designationName === 'MANAGING DIRECTOR'){
-      const role = await Role.findOne({ where: {roleName: 'Manager'}})
-      roleId = role.id;
-    }
-    
+    // if(req.body.designationName === 'SENIOR SALES ASSOCIATE' || req.body.designationName === 'SALES ASSOCIATE'){
+    //   const role = await Role.findOne({ where: {roleName: 'Sales Executive'}})
+    //   roleId = role.id;
+    // }else if(req.body.designationName === 'KEY ACCOUNT MANAGER'){
+    //   const role = await Role.findOne({ where: {roleName: 'Key Account Manager'}})
+    //   roleId = role.id;
+    // }else if(req.body.designationName === 'FINANCE MANAGER' || req.body.designationName === 'ACCOUNTS EXECUTIVE'){
+    //   const role = await Role.findOne({ where: {roleName: 'Accountant'}})
+    //   roleId = role.id;
+    // }else if(req.body.designationName === 'MANAGING DIRECTOR'){
+    //   const role = await Role.findOne({ where: {roleName: 'Manager'}})
+    //   roleId = role.id;
+    // }
+    const desi = await Designation.findByPk(req.body.designationId);
+    const roleId = desi.roleId;
+
     if(roleId != null || roleId === ''){
       try {
         let user = await User.findByPk(req.params.id)

@@ -4,7 +4,6 @@ import { Component, inject, OnDestroy, OnInit, ViewEncapsulation } from '@angula
 import { UsersService } from '../../services/users.service';
 import { Settings, SettingsService } from '../../services/settings.service';
 import { MatDialog } from '@angular/material/dialog';
-import { UserDialogComponent } from './user-dialog/user-dialog.component';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -17,7 +16,6 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCardModule } from '@angular/material/card';
-import { DatePipe } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -46,9 +44,6 @@ import { UpdateDesignationComponent } from './update-designation/update-designat
     MatSlideToggleModule,
     MatCardModule,
     NgxPaginationModule,
-    DatePipe,
-    UserDialogComponent,
-    CommonModule,
     MatPaginatorModule
   ],
   templateUrl: './users.component.html',
@@ -60,15 +55,15 @@ export class UsersComponent implements OnInit, OnDestroy {
   apiUrl ='https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/';
   public users: User[];
   public page:any;
-  public settings: Settings;
+  private router = inject(Router);
+  private dialog = inject(MatDialog);
+  private snackbar = inject(MatSnackBar);
+  private usersService = inject(UsersService);
 
-  router = inject(Router);
-  snackbar = inject(MatSnackBar);
-
-  constructor(private sanitizer: DomSanitizer, public settingsService: SettingsService,  public dialog: MatDialog, public usersService: UsersService){
-    this.settings = this.settingsService.settings;
-  }
   ngOnDestroy(): void {
+    this.userSub?.unsubscribe();
+    this.updateSub?.unsubscribe();
+    this.dialogSub?.unsubscribe();
   }
 
   ngOnInit() {
@@ -79,8 +74,6 @@ export class UsersComponent implements OnInit, OnDestroy {
   getUsers(): void {
     this.userSub = this.usersService.getUser(this.searchText, this.currentPage, this.pageSize).subscribe((users: any) =>{
       this.users = users.items;
-      console.log(users);
-      
       this.totalItems = users.count
     });
   }
@@ -110,13 +103,14 @@ export class UsersComponent implements OnInit, OnDestroy {
     }
   }
 
+  dialogSub!: Subscription;
   updateDesignation(id: number, name: string, empNo: string){
     const dialogRef = this.dialog.open(UpdateDesignationComponent, {
       width: '320px',
       data: {id: id, name: name, empNo: empNo}
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    this.dialogSub = dialogRef.afterClosed().subscribe((result) => {
       this.getUsers()
     });
   }
@@ -127,10 +121,11 @@ export class UsersComponent implements OnInit, OnDestroy {
       data: {}
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    this.dialogSub = dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
         this.usersService.deleteUser(id).subscribe(() => {
           this.snackbar.open("User deleted successfully...", "", { duration: 3000 });
+          this.searchText = '';
           this.getUsers();
         }, (error) => {
           this.snackbar.open(error.error.message, "", { duration: 3000 });
@@ -149,7 +144,7 @@ export class UsersComponent implements OnInit, OnDestroy {
       data: {}
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    this.dialogSub = dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
         this.usersService.deleteUserImage(id).subscribe(() => {
           this.snackbar.open("User image deleted successfully...", "", { duration: 3000 });
@@ -165,7 +160,8 @@ export class UsersComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(ResetPasswordComponent, {
       width: '450px',
       data: {id: id, empNo: empNo, paswordReset: false}
-    });dialogRef.afterClosed().subscribe(() => {
+    });
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
 
     })
   }
@@ -188,9 +184,11 @@ export class UsersComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(SeparationComponent, {
       width: '450px',
       data: {id: id, empNo: empNo, name: name}
-    });dialogRef.afterClosed().subscribe((res) => {
+    });
+    this.dialogSub = dialogRef.afterClosed().subscribe((res) => {
       this.rsignSub = this.usersService.resignEmployee(id, res).subscribe(() => {
         this.snackbar.open(`${empNo} is now resigned`, "", { duration: 3000 });
+        this.searchText = '';
         this.getUsers()
       })
     })

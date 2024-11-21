@@ -71,7 +71,7 @@ export class PayslipComponent implements OnInit, OnDestroy{
       (el as HTMLElement).style.display = 'none';
     });
   
-    html2canvas(element).then((canvas) => {
+    html2canvas(element).then((canvas: any) => {
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
   

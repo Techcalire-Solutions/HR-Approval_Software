@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,10 +16,14 @@ import { Subscription } from 'rxjs';
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss'
 })
-export class ResetPasswordComponent {
-  dialogRef = inject(MatDialogRef<ResetPasswordComponent>) 
-  data = inject(MAT_DIALOG_DATA);
-  fb = inject(FormBuilder)
+export class ResetPasswordComponent implements OnInit, OnDestroy{
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+    this.reset?.unsubscribe();
+  }
+  private dialogRef = inject(MatDialogRef<ResetPasswordComponent>)
+  private data = inject(MAT_DIALOG_DATA);
+  private fb = inject(FormBuilder)
   form = this.fb.group({
     empNo: [this.data.empNo],
     paswordReset: [this.data.paswordReset],
@@ -27,14 +31,19 @@ export class ResetPasswordComponent {
     confirmPassword: ['', Validators.required]
   })
 
+  private subscriptions: Subscription = new Subscription();
   ngOnInit() {
-    this.form.get('confirmPassword')?.valueChanges.subscribe(() => {
-      this.checkPasswords();
-    });
+    this.subscriptions.add(
+      this.form.get('confirmPassword')?.valueChanges.subscribe(() => {
+        this.checkPasswords();
+      })
+    );
 
-    this.form.get('password')?.valueChanges.subscribe(() => {
-      this.checkPasswords();
-    });
+    this.subscriptions.add(
+      this.form.get('password')?.valueChanges.subscribe(() => {
+        this.checkPasswords();
+      })
+    );
   }
 
   passwordMismatch: boolean = false;
@@ -43,16 +52,16 @@ export class ResetPasswordComponent {
     const confirmPassword = this.form.get('confirmPassword')?.value;
     this.passwordMismatch = password !== confirmPassword;
   }
-  
+
   generateRandomPassword() {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
     let password = '';
     for (let i = 0; i < 10; i++) {
       password += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    
+
     this.form.get('password')?.setValue(password);
-    this.form.get('confirmPassword')?.setValue(password);  // Clear confirm password
+    this.form.get('confirmPassword')?.setValue(password);
   }
 
   copyEmpNoAndPassword() {
