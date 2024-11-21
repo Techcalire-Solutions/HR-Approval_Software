@@ -1,0 +1,116 @@
+/* General form styling */
+form {
+    font-family: 'Arial', sans-serif;
+    margin: 5px auto;
+    max-width: 100%;
+    padding: 3px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    font-size: 9px; /* Compact font size */
+}
+
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 3px 0;
+    font-size: 9px; /* Smaller text in table */
+    text-align: center;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 2px; /* Reduced padding */
+}
+
+/* Different colors for Earnings and Deductions */
+th.earnings,
+td.earnings {
+    background-color: #0b5920; /* Light green for Earnings */
+}
+
+th.deductions,
+td.deductions {
+    background-color: #b12218; /* Light red for Deductions */
+}
+
+th {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    font-size: 9px; /* Smaller header font */
+    text-align: center;
+}
+
+td {
+    background-color: #ffffff;
+    color: #333;
+    text-align: center;
+    padding: 2px; /* Tighter cell padding */
+}
+
+/* Highlight row on hover */
+tr:hover {
+    background-color: #f0f0f0;
+}
+
+/* Table headers for complex tables */
+th[rowspan="2"], th[colspan] {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Input field styling */
+input[type="text"],
+input[type="number"] {
+    width: 75%; /* Reduced width */
+    padding: 2px; /* Smaller padding */
+    margin: 0;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    outline: none;
+    font-size: 9px; /* Smaller input font */
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+/* Button styling */
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 2px;
+    padding: 5px 8px; /* Reduced padding */
+    cursor: pointer;
+    font-size: 10px; /* Smaller font size */
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Adjust spacing around headings and form */
+h2 {
+    text-align: center;
+    color: #007bff;
+    margin-bottom: 8px; /* Reduced margin */
+    font-size: 12px; /* Smaller heading */
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    table, th, td {
+        font-size: 8px; /* Smaller text on small screens */
+    }
+
+    input[type="text"],
+    input[type="number"] {
+        width: 100%; /* Full-width inputs for smaller screens */
+    }
+}

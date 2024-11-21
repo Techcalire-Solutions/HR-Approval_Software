@@ -1,0 +1,106 @@
+@if(payroll && fullValue){
+    <button class="download-button exclude-from-pdf" (click)="downloadPDF()">Download as PDF</button>
+    <div class="payroll-container">
+        <div class="header">
+            <p>ONBOARD AERO CONSULTANTS PRIVATE LIMITED</p>
+            <p>BUILDING NO.48/768-C-2 SHREE LATHA BUILDING EROOR, THRIPUNITHURA, ERNAKULAM, KL 682306.</p>
+            <h2>Payslip for the month of {{payroll.payedFor}}</h2>
+        </div>
+    
+        <table class="company-info">
+            <tr>
+                <td>Name: {{payroll.user.name}}</td>
+                <td>Employee No: {{payroll.user.empNo}}</td>
+            </tr>
+            <tr>
+                <td>Joining Date: {{payroll.user.userPersonals[0]?.dateOfJoining | date: 'dd-MM-yyyy'}}</td>
+                <td>Bank Name: {{payroll.user.useraccount?.bankName}}</td>
+            </tr>
+            <tr>
+                <td>Designation: {{payroll.user.userposition?.designation?.designationName}}</td>
+                <td>Bank Account No: {{payroll.user.useraccount?.accountNo}}</td>
+            </tr>
+            <tr>
+                <td>Department: {{payroll.user.userposition?.department?.name}}</td>
+                <td>PAN Number: {{payroll.user.statutoryinfo?.panNumber}}</td>
+            </tr>
+            <tr>
+                <td>Location: {{payroll.user.userposition?.location}}</td>
+                <td>PF No:  {{payroll.user.statutoryinfo?.pfNumber}}</td>
+            </tr>
+            <tr>
+                <td>Effective Work Days: 31</td>
+                <td>PF UAN: {{payroll.user.statutoryinfo?.uanNumber}}</td>
+            </tr>
+            <tr>
+                <td>LOP: {{payroll.leaveDays}}</td>
+                <td></td>
+            </tr>
+        </table>
+    
+        <div class="section-title">Earnings and Deductions</div>
+    
+        <table class="earnings-deductions">
+            <thead>
+                <tr>
+                    <th>Earnings</th>
+                    <th>Full</th>
+                    <th>Actual</th>
+                    <th>Deductions</th>
+                    <th>Actual</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>BASIC</td>
+                    <td>{{fullValue.basic}}</td>
+                    <td>{{payroll.basic}}</td>
+                    <td>PF</td>
+                    <td>{{payroll.pfDeduction}}</td>
+                </tr>
+                <tr>
+                    <td>HRA</td>
+                    <td>{{fullValue.hra}}</td>
+                    <td>{{payroll.hra}}</td>
+                    <td>TDS</td>
+                    <td>{{payroll.tds}}</td>
+                </tr>
+                <tr>
+                    <td>SPECIAL ALLOWANCE</td>
+                    <td>{{fullValue.specialAllowance}}</td>
+                    <td>{{payroll.specialAllowance}}</td>
+                    <td>Advance</td>
+                    <td>{{payroll.advanceAmount}}</td>
+                </tr>
+                <tr>
+                    <td>CONVEYANCE ALLOWANCE</td>
+                    <td>{{fullValue.conveyanceAllowance}}</td>
+                    <td>{{payroll.conveyanceAllowance}}</td>
+                    <td>LOP</td>
+                    <td>{{payroll.leaveDeduction}}</td>
+                </tr>
+                <tr>
+                    <td>TRAVEL ALLOWANCE</td>
+                    <td>{{fullValue.lta}}</td>
+                    <td>{{payroll.lta}}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><b>Total Earnings: INR</b> {{ calculateTotalEarnings() }}</td>
+                    <td></td>
+                    <td colspan="2"><b>Total Deductions: INR</b> {{ calculateTotalDeductions() }}</td>
+                </tr>
+            </tbody>
+        </table>
+    
+        <div class="net-pay">
+            <p>Net Pay for the month (Total Earnings - Total Deductions): INR {{payroll.toPay}}</p>
+            <p>(Rupees {{ getAmountInWords() | titlecase }} Only)</p>
+        </div>
+    
+        <!-- <div class="footer">
+            <p>This is a system-generated payslip and does not require a signature.</p>
+        </div> -->
+    </div>
+}

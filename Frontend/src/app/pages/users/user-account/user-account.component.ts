@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -41,7 +42,8 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     ifseCode : [''],
     paymentFrequency : [''],
     modeOfPayment : [''],
-    branchName : ['']
+    branchName : [''],
+    bankName: ['']
   });
 
   editStatus: boolean = false;
@@ -65,7 +67,8 @@ export class UserAccountComponent implements OnInit, OnDestroy {
           ifseCode : data.ifseCode,
           paymentFrequency : data.paymentFrequency,
           modeOfPayment : data.modeOfPayment,
-          branchName : data.branchName
+          branchName : data.branchName,
+          bankName : data.bankName
         })
       }
     })
@@ -74,17 +77,17 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   @Output() dataSubmitted = new EventEmitter<any>();
   submitSub!: Subscription;
   onSubmit(){
-    let submit = {
+    const submit = {
       ...this.form.getRawValue()
     }
     submit.userId = submit.userId ? submit.userId : this.accountData.id;
     if(this.editStatus){
-      this.submitSub = this.userService.updateUserAccount(this.id, submit).subscribe(data => {
+      this.submitSub = this.userService.updateUserAccount(this.id, submit).subscribe(() => {
         this.snackBar.open("Account Details updated succesfully...","" ,{duration:3000})
         this.dataSubmitted.emit( {isFormSubmitted: true} );
       })}
     else{
-      this.submitSub = this.userService.addUserAccountDetails(submit).subscribe(data => {
+      this.submitSub = this.userService.addUserAccountDetails(submit).subscribe(() => {
         this.snackBar.open("Account Details added succesfully...","" ,{duration:3000})
         this.dataSubmitted.emit( {isFormSubmitted: true} );
       })}

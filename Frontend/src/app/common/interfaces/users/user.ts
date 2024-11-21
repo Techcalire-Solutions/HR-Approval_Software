@@ -1,5 +1,8 @@
 import { Role } from "./role"
+import { StatutoryInfo } from "./statutory-info"
 import { Team } from "./team"
+import { UserAccount } from "./user-account"
+import { UserPersonal } from "./user-personal"
 import { UserPosition } from "./user-position"
 
 export interface User {
@@ -38,4 +41,7 @@ export interface User {
   separationDate: Date
 
   userposition: UserPosition
+  userPersonals: UserPersonal[]
+  useraccount: UserAccount
+  statutoryinfo: StatutoryInfo
 }

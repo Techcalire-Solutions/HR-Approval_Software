@@ -1,3 +1,10 @@
+.payroll-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
 /* payroll.component.css */
 .payroll-container {
     width: 60%;
@@ -52,36 +59,42 @@
     outline: none;
   }
   
-  .payroll-summary {
-    text-align: center;
-    padding: 20px;
-    background-color: #ecf0f1;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    font-size: 18px;
-    color: #2c3e50;
-  }
+  // .payroll-summary {
+  //   text-align: center;
+  //   padding: 20px;
+  //   background-color: #ecf0f1;
+  //   border-radius: 8px;
+  //   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  //   font-size: 18px;
+  //   color: #2c3e50;
+  // }
   
-  .payroll-summary p {
-    margin: 10px 0;
-  }
+  // .payroll-summary p {
+  //   margin: 10px 0;
+  // }
   /* Right-align the button */
 .save-button {
   display: inline-block;
-  margin-top: 10px;
-  margin-left: auto;
-  padding: 10px 20px;
-  background-color: #4caf50;
+  // margin-top: 10px;
+  // margin-left: auto;
+  padding: 10px 10px;
+  background-color: #2980b9;
   color: white;
   font-size: 16px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s;
-  float: right; /* Aligns the button to the right */
+  // float: right; /* Aligns the button to the right */
 }
 
 /* Change background on hover */
 .save-button:hover {
-  background-color: #45a049;
+  background-color: #04263c;
+}
+
+.save-button:disabled {
+  background-color: #e0e0e0; /* Add custom disabled color */
+  color: #9e9e9e; /* Disable text color */
+  cursor: not-allowed; /* Disable the pointer */
 }
