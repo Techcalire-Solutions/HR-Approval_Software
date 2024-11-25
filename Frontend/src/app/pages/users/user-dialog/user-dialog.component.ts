@@ -3,16 +3,20 @@ import { UserDocumentsComponent } from './../user-documents/user-documents.compo
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatRadioModule } from '@angular/material/radio';
 import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
-import { RoleService } from '../../../services/role.service';
+import { FlexLayoutModule } from '@ngbracket/ngx-layout';
+import {MatToolbarModule} from '@angular/material/toolbar';
 import { UsersService } from '../../../services/users.service';
 import { Subscription } from 'rxjs';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -21,7 +25,7 @@ import { PersonalDetailsComponent } from "../personal-details/personal-details.c
 import { UserPositionComponent } from '../user-position/user-position.component';
 import { StatuatoryInfoComponent } from '../statuatory-info/statuatory-info.component';
 import { UserAccountComponent } from "../user-account/user-account.component";
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { TeamService } from '@services/team.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
@@ -33,8 +37,8 @@ import { Team } from '../../../common/interfaces/users/team';
 @Component({
   selector: 'app-user-dialog',
   standalone: true,
-  imports: [ ReactiveFormsModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule,  MatDatepickerModule,
-    MatNativeDateModule, MatRadioModule, MatDialogModule,  MatButtonModule,
+  imports: [ ReactiveFormsModule, FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule,  MatDatepickerModule,
+    MatNativeDateModule, MatRadioModule, MatDialogModule,  MatButtonModule, MatCheckboxModule,  MatToolbarModule,
     PersonalDetailsComponent, UserPositionComponent, StatuatoryInfoComponent, UserAccountComponent, UserDocumentsComponent, MatCardModule,
     MatOptionModule, MatSelectModule, CommonModule, MatAutocompleteModule
 ],
@@ -43,14 +47,12 @@ import { Team } from '../../../common/interfaces/users/team';
 })
 export class UserDialogComponent implements OnInit, OnDestroy {
   url = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`;
-  snackBar = inject(MatSnackBar);
-  sanitizer = inject(DomSanitizer);
-  fb = inject(FormBuilder)
-  roleService = inject(RoleService);
-  userService = inject(UsersService);
-  router = inject(Router);
-  route = inject(ActivatedRoute);
-  teamService = inject(TeamService)
+  private snackBar = inject(MatSnackBar);
+  private sanitizer = inject(DomSanitizer);
+  private fb = inject(FormBuilder)
+  private userService = inject(UsersService);
+  private route = inject(ActivatedRoute);
+  private teamService = inject(TeamService)
 
   public passwordHide: boolean = true;
   editStatus: boolean = false;
@@ -81,10 +83,11 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   })
 
   ngOnDestroy(): void {
-   this.teamSub?.unsubscribe();
-   this.userSub?.unsubscribe();
-   this.usersSub?.unsubscribe();
-   this.uploadSub?.unsubscribe();
+    this.teamSub?.unsubscribe();
+    this.userSub?.unsubscribe();
+    this.usersSub?.unsubscribe();
+    this.uploadSub?.unsubscribe();
+    this.delete?.unsubscribe();
   }
 
   userSub!: Subscription;
@@ -233,7 +236,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     let prefix: any;
     const currentYear = new Date().getFullYear();
 
-    this.userService.getUser().subscribe((res) => {
+    this.userSub = this.userService.getUser().subscribe((res) => {
       const users = res;
 
       if (users.length > 0) {
@@ -345,15 +348,16 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     }
   }
 
+  delete!: Subscription;
   deleteImage() {
     if(this.id){
-      this.userService.deleteUserImage(this.id, this.imageUrl).subscribe(()=>{
+      this.delete = this.userService.deleteUserImage(this.id, this.imageUrl).subscribe(()=>{
         this.imageUrl = ''
         this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
         this.getUser(this.id)
       });
     }else{
-      this.userService.deleteUserImageByurl(this.imageUrl).subscribe(()=>{
+      this.delete = this.userService.deleteUserImageByurl(this.imageUrl).subscribe(()=>{
         this.imageUrl = ''
         this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
       });

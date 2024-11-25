@@ -1,14 +1,15 @@
-<mat-card class="designation-card">
-  <!-- Header with title and close button -->
-  <div class="card-header">
-    <mat-card-title class="title">Update Designation for {{name}}-{{empNo}}</mat-card-title>
-    <button mat-icon-button (click)="close()" aria-label="Close">
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
+
+<div class="reset-password-container">
+  <mat-toolbar class="bg-blue-900">
+    <p style="color:rgb(11, 70, 118)"> Update Designation for {{name}}-{{empNo}} </p>
+    <!-- <button mat-mini-fab color="primary" type="button" style="margin-left: auto;"
+      aria-label="Example icon button with a home icon" class="d-block mr-0 ml-auto" (click)="onCancelClick()"> -->
+      <mat-icon (click)="close()" style="margin-left: auto;">close</mat-icon>
+    <!-- </button> -->
+  </mat-toolbar>
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <mat-form-field class="w-100" appearance="outline">
-      <input matInput placeholder="Select Designation" formControlName="designationName" [matAutocomplete]="auto" (keyup)="search($event)">
+      <input matInput placeholder="Select Designation" formControlName="designationName" [matAutocomplete]="auto" (click)="getDesignation()" (keyup)="search($event)">
       <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value)">
         @for (suggestion of filteredOptions; track $index) {
           <mat-option [value]="suggestion">
@@ -30,5 +31,4 @@
       </button>
     </div>
   </form>
-</mat-card>
-
+</div>

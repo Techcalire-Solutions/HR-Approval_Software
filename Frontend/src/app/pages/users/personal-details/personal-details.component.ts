@@ -23,9 +23,9 @@ import { User } from '../../../common/interfaces/users/user';
   styleUrl: './personal-details.component.scss'
 })
 export class PersonalDetailsComponent implements OnInit, OnDestroy {
-  fb = inject(FormBuilder);
-  userService = inject(UsersService);
-  snackBar = inject(MatSnackBar);
+  private fb = inject(FormBuilder);
+  private userService = inject(UsersService);
+  private snackBar = inject(MatSnackBar);
 
   @Input() data: any;
   @Output() dataSubmitted = new EventEmitter<any>();

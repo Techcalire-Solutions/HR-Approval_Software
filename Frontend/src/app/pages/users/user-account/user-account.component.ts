@@ -31,10 +31,10 @@ export class UserAccountComponent implements OnInit, OnDestroy {
 
   @Input() accountData: any;
 
-  fb = inject(FormBuilder);
-  userService = inject(UsersService);
-  snackBar = inject(MatSnackBar);
-  router = inject(Router);
+  private fb = inject(FormBuilder);
+  private userService = inject(UsersService);
+  private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
 
   form = this.fb.group({
     userId : [''],
@@ -55,7 +55,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     }
   }
 
-  pUSub!: Subscription;
+  private pUSub!: Subscription;
   id: number;
   getPositionDetailsByUser(id: number){
     this.pUSub = this.userService.getUserAcoountDetailsByUser(id).subscribe(data=>{
@@ -75,7 +75,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   }
 
   @Output() dataSubmitted = new EventEmitter<any>();
-  submitSub!: Subscription;
+  private submitSub!: Subscription;
   onSubmit(){
     const submit = {
       ...this.form.getRawValue()
@@ -93,7 +93,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
       })}
   }
 
-  @Output() nextTab = new EventEmitter<void>(); 
+  @Output() nextTab = new EventEmitter<void>();
   triggerNextTab() {
     this.nextTab.emit();
   }

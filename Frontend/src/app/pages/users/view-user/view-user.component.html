@@ -239,6 +239,54 @@
               <p>No Data is added</p>
             }
           </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header class="custom-header">
+              <span class="panel-title"> PaySlips </span>
+              <span class="spacer"></span>
+              <mat-icon style="margin-right: 10px;">price_change</mat-icon>
+            </mat-expansion-panel-header>
+            @if(payrollLog){
+              <div class="p-3">
+                <table>
+                  <thead>
+                    <tr>
+                      <th> PayedFor </th>
+                      <th> PayedAt</th>
+                      <th> PayedAmount </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for(role of monthlySalary; track $index){
+                      <tr (click)="openPayroll(role.id)">
+                        <td>{{ role.payedFor }}</td>
+                        <td>{{ role.payedAt | date: 'dd-MM-yyyy'}}</td>
+                        <td>{{ role.toPay }}</td>
+                        <td>
+                          <!-- <button
+                            mat-icon-button
+                            (click)="openRoleDialog(role)"
+                            [disabled]="isRestrictedRole(role.roleName)">
+                            <mat-icon>mode_edit</mat-icon>
+                          </button> -->
+
+                          <!-- <button
+                            mat-icon-button
+                            (click)="deleteRole(role.id)"
+                            [disabled]="isRestrictedRole(role.roleName)">
+                            <mat-icon>delete</mat-icon>
+                          </button> -->
+                        </td>
+                      </tr>
+                    }
+
+                  </tbody>
+                </table>
+              </div>
+            }@else {
+              <p>No Data is added</p>
+            }
+          </mat-expansion-panel>
         </mat-accordion>
 
 

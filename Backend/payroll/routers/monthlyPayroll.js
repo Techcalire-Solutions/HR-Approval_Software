@@ -11,6 +11,7 @@ const UserAccount = require("../../users/models/userAccount");
 const StatutoryInfo = require("../../users/models/statutoryInfo");
 const UserPosition = require("../../users/models/userPosition");
 const Designation = require("../../users/models/designation");
+const { where } = require("sequelize");
 
 router.post("/save", async (req, res) => {
   const data = req.body.payrolls;
@@ -18,9 +19,9 @@ router.post("/save", async (req, res) => {
   try {
     for (let i = 0; i < data.length; i++) {
       const { userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
-        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, leaveDays} = data[i];
+        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, leaveDays, daysInMonth} = data[i];
       const monthlyPayroll = new MonthlyPayroll({userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
-        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt: new Date(), leaveDays});
+        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt: new Date(), leaveDays, daysInMonth});
 
       const advanceSalary = await AdvanceSalary.findOne({ where: { userId: userId, status: true } });
       if(advanceSalary){
@@ -43,6 +44,22 @@ router.post("/save", async (req, res) => {
 router.get("/find", async (req, res) => {
   try {
     const monthlyPayroll = await MonthlyPayroll.findAll({ 
+        include:[
+            { model: User, attributes: ['name','empNo']}
+        ],
+    });
+    res.send(monthlyPayroll);
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
+router.get("/findbyuser/:id", async (req, res) => {
+  console.log(req.params.id,"aaaaaaaaaaaaaaaaaaaaa");
+  
+  try {
+    const monthlyPayroll = await MonthlyPayroll.findAll({
+        where: {userId: req.params.id}, 
         include:[
             { model: User, attributes: ['name','empNo']}
         ],

@@ -19,10 +19,10 @@ export interface MonthlyPayroll {
   leaveDays: number
   leaveDeduction: number
   incentiveDeduction: number
-  
+
   toPay: number
   payedFor: string
+  payedAt: Date
 
   user: User
   }
-  

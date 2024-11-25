@@ -33,7 +33,7 @@ export class UserAssetsComponent implements OnDestroy{
     this.userSub?.unsubscribe();
     this.userPosition?.unsubscribe();
   }
-  rows: any[] = []; 
+  rows: any[] = [];
 
   private fb = inject(FormBuilder);
   form = this.fb.group({
@@ -57,7 +57,7 @@ export class UserAssetsComponent implements OnDestroy{
   updateStatus: boolean = false;
   id: number;
   userName: string;
-  userSub!: Subscription;
+  private userSub!: Subscription;
   userPosition: Subscription;
   getUserById(id: number){
     this.userSub = this.userService.getUserAssetsByUser(id).subscribe(data =>{
@@ -97,9 +97,7 @@ export class UserAssetsComponent implements OnDestroy{
   addRow(data?: any) {
     let newRow;
     if(data) newRow = data
-    if (this.form.valid)  newRow = { ...this.form.value.newRow }; 
-    console.log(newRow);
-    
+    if (this.form.valid)  newRow = { ...this.form.value.newRow };
     this.rows.push(newRow);
     this.form.reset();
   }
@@ -138,7 +136,7 @@ export class UserAssetsComponent implements OnDestroy{
 
     this.userAssetSub = this.userService.getUserAssets(department).subscribe((res) => {
       const users = res;
-      
+
       if (users.length > 0) {
         const maxId = users.reduce((prevMax, inv) => {
           const empNoParts = inv.assetCode.split('-'); // Split by '-'

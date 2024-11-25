@@ -45,7 +45,7 @@ export class ConfirmationComponent implements OnInit, OnDestroy{
 
   onConfirmClick(id: number) {
     this.selectedEmployeeId = id;
-    this.note = ''; // Clear previous note input
+    this.note = '';
   }
 
   cancelNote() {
@@ -70,9 +70,7 @@ export class ConfirmationComponent implements OnInit, OnDestroy{
         width: '450px',
         data: {id: id, name: name}
       });
-      this.dialodSub = dialogRef.afterClosed().subscribe((result) => {
-
-      })
+      this.dialodSub = dialogRef.afterClosed().subscribe((result) => {})
   }
 
   ngOnDestroy(): void {

@@ -5,7 +5,7 @@
         <mat-toolbar class="table-header">
           <div class="row" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <div class="col">
-              
+
             </div>
             <div class="col" style="text-align: right;">
               <div class="input-group">
@@ -37,8 +37,8 @@
                   <td [attr.data-label]="'AM'">{{invoice.am?.name || '-'}}</td>
                   <td [attr.data-label]="'MA'">{{invoice.accountant?.name}}</td>
                   <td [attr.data-label]="'Status'">{{invoice.status}}_{{invoice.count}}</td>
-  
-  
+
+
                   <td (click)="$event.stopPropagation()">
                     <div class="action-icons">
                       @if(data.admin || invoice.editButtonStatus){
@@ -67,7 +67,7 @@
                         (click)="addBankSlip(invoice.piNo, invoice.id, invoice.status)"> {{ invoice.status === 'CARD PAYMENT SUCCESS' ? 'Edit Attach' : 'Attach' }}
                       </button>
                       }
-                     
+
                     </div>
                   </td>
                 </tr>
@@ -77,13 +77,23 @@
                   <td [colSpan]="7" style="text-align: center;">No records found</td>
                 </tr>
               }
-             
+
             </tbody>
           </table>
 
-          <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
-            (page)="onPageChange($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
-          </mat-paginator>
+          @if (invoices) {
+            <div fxLayout="row wrap">
+                <div fxFlex="100" class="p-2">
+                  <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
+                    (page)="onPageChange($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
+                  </mat-paginator>
+                </div>
+            </div>
+        } @else {
+            <div fxLayout="column" fxLayoutAlign="center center" class="user-spinner">
+                <mat-spinner color="primary"></mat-spinner>
+            </div>
+        }
         </div>
       </div>
     </mat-card>
