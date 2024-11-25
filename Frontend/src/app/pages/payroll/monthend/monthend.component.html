@@ -1,5 +1,5 @@
 <form [formGroup]="payrollForm">
-    <h2> @if (updateStatus) {Update} {{month}}</h2>
+    <h2> @if (updateStatus) {Update} {{month}}-{{daysInMonth}}</h2>
     @if(doc().controls && doc().controls.length){
         <table formArrayName="payrolls">
             <tr>
@@ -9,7 +9,7 @@
                 <th colspan="6">Deductions</th>
                 <th>Net Salary</th>
             </tr>
-            
+
             <tr>
                 <th class="earnings">Basic (₹)</th>
                 <th class="earnings">HRA (₹)</th>

@@ -6,7 +6,7 @@
             <p>BUILDING NO.48/768-C-2 SHREE LATHA BUILDING EROOR, THRIPUNITHURA, ERNAKULAM, KL 682306.</p>
             <h2>Payslip for the month of {{payroll.payedFor}}</h2>
         </div>
-    
+
         <table class="company-info">
             <tr>
                 <td>Name: {{payroll.user.name}}</td>
@@ -29,7 +29,7 @@
                 <td>PF No:  {{payroll.user.statutoryinfo?.pfNumber}}</td>
             </tr>
             <tr>
-                <td>Effective Work Days: 31</td>
+                <td>Effective Work Days: {{workingDays}}</td>
                 <td>PF UAN: {{payroll.user.statutoryinfo?.uanNumber}}</td>
             </tr>
             <tr>
@@ -37,9 +37,9 @@
                 <td></td>
             </tr>
         </table>
-    
+
         <div class="section-title">Earnings and Deductions</div>
-    
+
         <table class="earnings-deductions">
             <thead>
                 <tr>
@@ -83,9 +83,38 @@
                     <td>TRAVEL ALLOWANCE</td>
                     <td>{{fullValue.lta}}</td>
                     <td>{{payroll.lta}}</td>
-                    <td></td>
-                    <td></td>
+                    <td>ESI</td>
+                    <td>{{payroll.insurance}}</td>
                 </tr>
+                <tr>
+                  <td>OVER TIME</td>
+                  <td></td>
+                  <td>{{payroll.ot}}</td>
+                  <td>INCENTIVE</td>
+                  <td>{{payroll.incentiveDeduction}}</td>
+              </tr>
+              <tr>
+                <td>PAY OUT</td>
+                <td></td>
+                <td>{{payroll.payOut}}</td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>INCENTIVE</td>
+                <td></td>
+                <td>{{payroll.incentive}}</td>
+                <td></td>
+                <td></td>
+              </tr>
+
+  <!-- ot: { type: DataTypes.DECIMAL(10, 2) },
+  incentive: { type: DataTypes.DECIMAL(10, 2) },
+  payOut: { type: DataTypes.DECIMAL(10, 2) },
+
+  leaveDays: { type: DataTypes.DECIMAL(10, 2) },
+  leaveDeduction: { type: DataTypes.DECIMAL(10, 2) },
+  incentiveDeduction: { type: DataTypes.DECIMAL(10, 2) }, -->
                 <tr>
                     <td colspan="2"><b>Total Earnings: INR</b> {{ calculateTotalEarnings() }}</td>
                     <td></td>
@@ -93,12 +122,12 @@
                 </tr>
             </tbody>
         </table>
-    
+
         <div class="net-pay">
             <p>Net Pay for the month (Total Earnings - Total Deductions): INR {{payroll.toPay}}</p>
             <p>(Rupees {{ getAmountInWords() | titlecase }} Only)</p>
         </div>
-    
+
         <!-- <div class="footer">
             <p>This is a system-generated payslip and does not require a signature.</p>
         </div> -->

@@ -24,10 +24,11 @@ export class PayslipComponent implements OnInit, OnDestroy{
   private payroleService = inject(PayrollService);
   private route = inject(ActivatedRoute);
   payroll: MonthlyPayroll;
+  workingDays: number;
   getPaySlip(){
     this.payroleService.getMonthlyPayrollById(this.route.snapshot.params['id']).subscribe(payroll => {
       console.log(payroll);
-      
+      this.workingDays = payroll.daysInMonth - payroll.leaveDays
       this.payroll = payroll;
       this.getPayroll();
     })
@@ -58,29 +59,29 @@ export class PayslipComponent implements OnInit, OnDestroy{
       return (
           this.toNumber(this.payroll.pfDeduction) +
           this.toNumber(this.payroll.tds) +
-          this.toNumber(this.payroll.advanceAmount) + 
+          this.toNumber(this.payroll.advanceAmount) +
           this.toNumber(this.payroll.leaveDeduction)
       );
   }
 
   downloadPDF() {
     const element: HTMLElement = document.querySelector('.payroll-container')!;
-    
+
     const excludedElements = document.querySelectorAll('.exclude-from-pdf');
     excludedElements.forEach((el) => {
       (el as HTMLElement).style.display = 'none';
     });
-  
-    html2canvas(element).then((canvas) => {
+
+    html2canvas(element).then((canvas: any) => {
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-  
-      const imgWidth = 160; 
+
+      const imgWidth = 160;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-  
+
       pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
       pdf.save(`Payslip_${this.payroll.user.name}_${this.payroll.payedFor}.pdf`);
-  
+
       excludedElements.forEach((el) => {
         (el as HTMLElement).style.display = '';
       });

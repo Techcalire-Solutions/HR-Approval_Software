@@ -1,40 +1,61 @@
-.designation-card {
-  max-width: 400px;
-  padding: 16px;
+
+.reset-password-container {
+  background-color: #fff;
+  padding: 20px;
   border-radius: 8px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+}
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #e0e0e0;
-  margin-bottom: 16px;
-}
-
-.title {
-  font-size: 1.2rem;
-  font-weight: 500;
-  color: #424242;
-}
-
-mat-form-field {
+button {
   width: 100%;
+  padding: 10px;
+  background-color: #083680;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
-
-.add-icon {
-  font-size: 25px;
-  color: rgb(35, 35, 247);
+button:hover {
+  background-color: #04132d;
 }
+// .error {
+//   color: red;
+//   font-size: 12px;
+//   text-align: center;
+// }
 
-button[mat-icon-button] {
-  color: #757575;
-}
+// .email-input {
+//   display: flex;
+//   align-items: center;
+//   gap: 8px; /* Adds space between the email input and the button */
+// }
 
-.submit-button {
+.small-btn {
+  width: 40px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  // padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
   display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
+  // align-items: center;
 }
+
+.small-btn .material-icons {
+  font-size: 18px;
+}
+
+.small-btn:hover {
+  background-color: #0056b3;
+}
+
+button:disabled {
+  background-color: #cccccc; /* Light grey when disabled */
+  color: #666666; /* Dark grey text when disabled */
+  cursor: not-allowed; /* Show not-allowed cursor */
+}
+

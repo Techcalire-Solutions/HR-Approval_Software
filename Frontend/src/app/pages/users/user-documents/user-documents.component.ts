@@ -23,8 +23,7 @@ import { UserDocument } from '../../../common/interfaces/users/user-document';
   templateUrl: './user-documents.component.html',
   styleUrl: './user-documents.component.scss'
 })
-export class UserDocumentsComponent implements OnInit, OnDestroy {
-  ngOnInit(): void {  }
+export class UserDocumentsComponent implements OnDestroy {
 
   trigger(){
     this.addDoc();
@@ -63,13 +62,15 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.uploadSub?.unsubscribe();
     this.submit?.unsubscribe();
+    this.deleteSub?.unsubscribe();
+    this.deleteImageSub?.unsubscribe();
   }
   @Input() data: any;
 
-  fb = inject(FormBuilder);
-  userSevice = inject(UsersService)
-  snackBar = inject(MatSnackBar);
-  router = inject(Router);
+  private fb = inject(FormBuilder);
+  private userSevice = inject(UsersService)
+  private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
 
   mainForm = this.fb.group({
     uploadForms: this.fb.array([])
@@ -82,10 +83,11 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
     this.clickedForms.push(false);
   }
 
+  deleteSub!: Subscription;
   removeData(index: number) {
     const formGroup = this.doc().at(index).value;
     if (formGroup.docName != '' || formGroup.docUrl != '') {
-      this.userSevice.deleteUserDocComplete(this.id[index]).subscribe({
+      this.deleteSub = this.userSevice.deleteUserDocComplete(this.id[index]).subscribe({
         next: () => {
           formGroup.removeAt(index);
         },
@@ -171,15 +173,16 @@ export class UserDocumentsComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('/login/users')
   }
 
+  deleteImageSub!: Subscription;
   onDeleteImage(i: number){
     if(this.id[i]){
-      this.userSevice.deleteUserDoc(this.id[i], this.imageUrl[i]).subscribe(()=>{
+      this.deleteImageSub = this.userSevice.deleteUserDoc(this.id[i], this.imageUrl[i]).subscribe(()=>{
         this.imageUrl[i] = ''
           this.doc().at(i).get('docUrl')?.setValue('');
         this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
       });
     }else{
-      this.userSevice.deleteUserDocByurl(this.imageUrl[i]).subscribe(()=>{
+      this.deleteImageSub = this.userSevice.deleteUserDocByurl(this.imageUrl[i]).subscribe(()=>{
         this.imageUrl[i] = ''
           this.doc().at(i).get('docUrl')?.setValue('');
         this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})

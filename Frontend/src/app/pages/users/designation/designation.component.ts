@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -23,10 +23,11 @@ import { AddDesignationComponent } from './add-designation/add-designation.compo
   templateUrl: './designation.component.html',
   styleUrl: './designation.component.scss'
 })
-export class DesignationComponent {
+export class DesignationComponent implements OnInit, OnDestroy{
   public page:any;
-  snackBar = inject(MatSnackBar)
-  constructor(private roleService:RoleService,public settingsService: SettingsService, public dialog: MatDialog,  public usersService: UsersService){}
+  private snackBar = inject(MatSnackBar);
+  private roleService = inject(RoleService);
+  private dialog = inject(MatDialog);
 
   ngOnInit(){
     this.getRoles()
@@ -41,26 +42,6 @@ export class DesignationComponent {
     })
   }
 
-
-  // Function to check if the role is restricted
-  isRestrictedRole(roleName: string): boolean {
-    const restrictedRoles = [
-      'Sales Executive',
-      'Key Account Manager',
-      'Manager',
-      'Accountant',
-      'Team Lead',
-      'Administrator',
-      'Approval Administrator',
-      'HR Administrator',
-      'Super Administrator',
-      'HR'
-    ];
-    return restrictedRoles.includes(roleName);
-  }
-
-  // Other functions like openRoleDialog, deleteRole...
-
   public searchText!: string;
   search(event: Event){
     this.searchText = (event.target as HTMLInputElement).value.trim()
@@ -69,12 +50,13 @@ export class DesignationComponent {
 
 
   delete!: Subscription;
+  dialogSub!: Subscription;
   deleteRole(id: number){
     let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
-    dialogRef.afterClosed().subscribe(res => {
+    this.dialogSub = dialogRef.afterClosed().subscribe(res => {
       if(res){
         this.delete = this.roleService.deleteRole(id).subscribe(res => {
-          this.snackBar.open("Role deleted successfully...","" ,{duration:3000})
+          this.snackBar.open("Designation deleted successfully...","" ,{duration:3000})
           this.getRoles()
         });
       }
@@ -85,7 +67,7 @@ export class DesignationComponent {
     let dialogRef = this.dialog.open(AddDesignationComponent, {
       data: role
     });
-    dialogRef.afterClosed().subscribe(res => {
+    this.dialogSub = dialogRef.afterClosed().subscribe(res => {
       this.getRoles()
     });
   }
@@ -103,6 +85,7 @@ export class DesignationComponent {
   ngOnDestroy(): void {
     this.roleSub?.unsubscribe();
     this.delete?.unsubscribe();
+    this.dialogSub?.unsubscribe();
   }
 
 }
