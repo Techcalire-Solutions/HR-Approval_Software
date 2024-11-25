@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PayrollService } from '@services/payroll.service';
@@ -21,6 +22,7 @@ export class PayslipComponent implements OnInit, OnDestroy{
     this.getPaySlip();
   }
 
+  logo = 'img/OAC.jpg';
   private payroleService = inject(PayrollService);
   private route = inject(ActivatedRoute);
   payroll: MonthlyPayroll;
@@ -76,9 +78,9 @@ export class PayslipComponent implements OnInit, OnDestroy{
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
 
-      const imgWidth = 160;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
+      const imgWidth = 190;
+      const imgHeight = ((canvas.height * imgWidth) / canvas.width) + 100;
+      
       pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
       pdf.save(`Payslip_${this.payroll.user.name}_${this.payroll.payedFor}.pdf`);
 

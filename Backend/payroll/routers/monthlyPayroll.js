@@ -11,8 +11,7 @@ const UserAccount = require("../../users/models/userAccount");
 const StatutoryInfo = require("../../users/models/statutoryInfo");
 const UserPosition = require("../../users/models/userPosition");
 const Designation = require("../../users/models/designation");
-const { where } = require("sequelize");
-
+const { Op } = require('sequelize');
 router.post("/save", async (req, res) => {
   const data = req.body.payrolls;
   
@@ -28,6 +27,8 @@ router.post("/save", async (req, res) => {
         advanceSalary.completed += 1;
         if(advanceSalary.duration === advanceSalary.completed){
           advanceSalary.status = false
+          advanceSalary.completedDate = new Date();
+          advanceSalary.closeNote = 'Advance Payment is completed successfully'
         }
         await advanceSalary.save();
       }
@@ -39,14 +40,56 @@ router.post("/save", async (req, res) => {
   }
 });
 
+
+
 router.get("/find", async (req, res) => {
+  let whereClause = { };
+  let limit;
+  let offset;
+  if (req.query.search !== 'undefined') {
+    const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+    whereClause = {
+      [Op.or]: [
+        sequelize.where(
+          sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('payedFor'), ' ', '')),
+          {
+            [Op.like]: `%${searchTerm}%`
+          }
+        ),
+        sequelize.where(
+          sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.name'), ' ', '')),
+          {
+            [Op.like]: `%${searchTerm}%`
+          }
+        )
+      ]
+    };
+  }
+
+  if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+    limit = req.query.pageSize;
+    offset = (req.query.page - 1) * req.query.pageSize;
+  }
+
   try {
     const monthlyPayroll = await MonthlyPayroll.findAll({ 
-        include:[
-            { model: User, attributes: ['name','empNo']}
-        ],
+      where: whereClause, limit: limit, offset: offset,
+      include:[
+          { model: User, attributes: ['name','empNo']}
+      ], order: [['id', 'DESC']]
     });
-    res.send(monthlyPayroll);
+    totalCount = await MonthlyPayroll.count({});
+
+    if (req.query.page != 'undefined' && req.query.pageSize != 'undefined') {
+      const response = {
+        count: totalCount,
+        items: monthlyPayroll,
+      };
+
+      res.json(response);
+    } else {
+      res.json(monthlyPayroll);
+    }
   } catch (error) {
     res.send(error.message);
   }

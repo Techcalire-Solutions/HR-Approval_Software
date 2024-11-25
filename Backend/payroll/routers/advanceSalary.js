@@ -101,11 +101,16 @@ router.patch('/update/:id', authenticateToken, async(req,res)=>{
 
 })
 
-router.patch('/updatestatus/:id', authenticateToken, async(req, res)=>{
+router.patch('/closeadvance/:id', authenticateToken, async(req, res)=>{
   try {
+    console.log(req.params.id);
+    
     let as = await AdvanceSalary.findByPk(req.params.id)
-    as.status = !as.status
+    as.status = false;
+    as.completedDate = new Date();
+    as.closeNote = req.body.closeNote;
     await as.save();
+    res.send(as);
   } catch (error) {
     res.send(error.message);
   }

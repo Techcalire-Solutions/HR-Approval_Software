@@ -1,4 +1,5 @@
-import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -93,19 +94,19 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
 
   submitSub!: Subscription;
   onSubmit(){
-    let submit = {
+    const submit = {
       ...this.form.getRawValue()
     }
     submit.userId = submit.userId ? submit.userId : this.data.id;
 
     if(this.editStatus){
-      this.submitSub = this.userService.updateUserPersonal(this.id, submit).subscribe(data => {
+      this.submitSub = this.userService.updateUserPersonal(this.id, submit).subscribe(() => {
         this.snackBar.open("Personal Details updated succesfully...","" ,{duration:3000})
         this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }
     else{
-      this.submitSub = this.userService.addUserPersonalDetails(submit).subscribe(data => {
+      this.submitSub = this.userService.addUserPersonalDetails(submit).subscribe(() => {
         this.snackBar.open("Personal Details added succesfully...","" ,{duration:3000})
         this.dataSubmitted.emit( {isFormSubmitted: true} );
       })

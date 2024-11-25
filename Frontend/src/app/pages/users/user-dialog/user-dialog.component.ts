@@ -11,7 +11,6 @@ import { MatRadioModule } from '@angular/material/radio';
 import { CommonModule } from '@angular/common';
 import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import {MatToolbarModule} from '@angular/material/toolbar';
@@ -36,7 +35,7 @@ import { Team } from '../../../common/interfaces/users/team';
   selector: 'app-user-dialog',
   standalone: true,
   imports: [ ReactiveFormsModule, FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule,  MatDatepickerModule,
-    MatNativeDateModule, MatRadioModule, MatDialogModule,  MatButtonModule, MatCheckboxModule,  MatToolbarModule,
+    MatNativeDateModule, MatRadioModule, MatDialogModule,  MatButtonModule,  MatToolbarModule,
     PersonalDetailsComponent, UserPositionComponent, StatuatoryInfoComponent, UserAccountComponent, UserDocumentsComponent, MatCardModule,
     MatOptionModule, MatSelectModule, CommonModule, MatAutocompleteModule
 ],
@@ -195,6 +194,9 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     this.isWorkFormSubmitted = event.isFormSubmitted
     this.isFormSubmitted = false;
     this.selectedTabIndex = 2;
+    if (this.userPositionComponent && this.selectedTabIndex === 2) {
+      this.userPositionComponent.triggerNew();
+    }
   }
 
   workSubmit(event: any){
