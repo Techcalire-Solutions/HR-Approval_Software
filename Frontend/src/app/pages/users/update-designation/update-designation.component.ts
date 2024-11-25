@@ -12,11 +12,14 @@ import { AddDesignationComponent } from '../designation/add-designation/add-desi
 import { MatInputModule } from '@angular/material/input';
 import { UsersService } from '@services/users.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 @Component({
   selector: 'app-update-designation',
   standalone: true,
-  imports: [MatCardModule, MatFormFieldModule, MatAutocompleteModule, MatIconModule, MatInputModule, ReactiveFormsModule],
+  imports: [MatCardModule, MatFormFieldModule, MatAutocompleteModule, MatIconModule, MatInputModule, ReactiveFormsModule,
+    MatToolbarModule
+  ],
   templateUrl: './update-designation.component.html',
   styleUrl: './update-designation.component.scss'
 })
@@ -25,7 +28,7 @@ export class UpdateDesignationComponent implements OnInit, OnDestroy{
   name: string;
   empNo: string;
   ngOnInit(): void {
-    this.getDesignation();
+    // this.getDesignation();
     this.name = this.dialogData.name;
     this.empNo = this.dialogData.empNo;
   }

@@ -20,31 +20,31 @@ export class MonthendComponent implements OnInit, OnDestroy{
 
   ngOnInit(): void {
     const currentDate = new Date();
-    const currentMonth = currentDate.getMonth(); 
+    const currentMonth = currentDate.getMonth();
 
     const monthNames = [
-      "January", "February", "March", "April", "May", "June", 
+      "January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"
     ]
     this.month = monthNames[currentMonth-1];
     this.currentYear = currentDate.getFullYear();
-  
+
     this.daysInMonth = new Date(this.currentYear, currentMonth + 1, 0).getDate();
 
     this.payrollForm.valueChanges.subscribe(() => {
       const payrollArray = this.payrollForm.get('payrolls') as FormArray;
-      
+
       payrollArray.controls.forEach((control, index) => {
           control.valueChanges.subscribe(() => {
             this.calculateTotalSalary(index);
           });
       });
     });
-    
+
     this.getPayroll();
   }
 
-  private cdr = inject(ChangeDetectorRef)          
+  private cdr = inject(ChangeDetectorRef)
 
   ngAfterViewInit() {
     this.cdr.detectChanges();
@@ -74,13 +74,13 @@ export class MonthendComponent implements OnInit, OnDestroy{
   month: string;
   calculateTotalSalary(index: number): void {
     const payrollGroup = this.doc().at(index) as FormGroup;
-  
+
     const basic: number = Number(payrollGroup.get('basic')?.value || 0);
     const hra: number = Number(payrollGroup.get('hra')?.value || 0);
     const conveyanceAllowance: number = Number(payrollGroup.get('conveyanceAllowance')?.value || 0);
     const lta: number = Number(payrollGroup.get('lta')?.value || 0);
     const specialAllowance: number = Number(payrollGroup.get('specialAllowance')?.value || 0);
-  
+
     const ot: number = Number(payrollGroup.get('ot')?.value || 0);
     const incentive: number = Number(payrollGroup.get('incentive')?.value || 0);
     const payOut: number = Number(payrollGroup.get('payOut')?.value || 0);
@@ -90,21 +90,22 @@ export class MonthendComponent implements OnInit, OnDestroy{
     const leaveDays: number = Number(payrollGroup.get('leaveDays')?.value || 0);
     const advanceAmount: number = Number(payrollGroup.get('advanceAmount')?.value || 0);
     const incentiveDeduction: number = Number(payrollGroup.get('incentiveDeduction')?.value || 0);
-  
+
     const gross = basic + hra + conveyanceAllowance + lta + specialAllowance;
     const roundedGross = Math.round(gross); // Round gross salary
     payrollGroup.get('perDay')?.setValue((roundedGross / this.daysInMonth).toFixed(2), { emitEvent: false });
-  
+    payrollGroup.get('daysInMonth')?.setValue((this.daysInMonth), { emitEvent: false });
+
     const deduction = pf + insurance + tds + advanceAmount + incentiveDeduction;
     const grossTotal = Math.round(gross + ot + incentive + payOut - deduction); // Round gross total
     const perDaySalary = gross / this.daysInMonth;
     const leaveDeduction = Math.round(perDaySalary * leaveDays); // Round leave deduction
-  
+
     payrollGroup.get('leaveDeduction')?.setValue(leaveDeduction, { emitEvent: false });
     const totalToPay = Math.round(grossTotal - leaveDeduction); // Round total to pay
     payrollGroup.get('toPay')?.setValue(totalToPay, { emitEvent: false });
   }
-  
+
 
   removeData(index: number): void {
     this.doc().removeAt(index);
@@ -132,7 +133,8 @@ export class MonthendComponent implements OnInit, OnDestroy{
       leaveDeduction: [0],
       incentiveDeduction: [0],
       toPay: [{ value: 0, disabled: true }],
-      payedFor: [payedForValue]
+      payedFor: [payedForValue],
+      daysInMonth : [ initialValue ? initialValue.daysInMonth : 0]
     });
   }
 
@@ -145,15 +147,13 @@ export class MonthendComponent implements OnInit, OnDestroy{
   getPayroll() {
     const payedForValue = `${this.month} ${this.currentYear}`;
     this.paySub = this.payrollService.getMonthlyPayrollByPayedFor(payedForValue).subscribe(payroll =>{
-      console.log(payroll);
-      
       if(payroll.length === 0){
         this.payrollSub = this.payrollService.getPayroll().subscribe((payroll) => {
           this.payrolls = payroll;
-      
+
           this.payrolls.forEach((payrollItem: any) => {
             const userId = payrollItem.userId;
-            
+
             this.advanceSUb = this.payrollService.getAdvanceSalaryByUserId(userId).subscribe((advanceSalary: AdvanceSalary) => {
               if(advanceSalary){
                 payrollItem.advanceAmount = advanceSalary.monthlyPay;
@@ -173,8 +173,8 @@ export class MonthendComponent implements OnInit, OnDestroy{
       }
     });
   }
-  
-  
+
+
   get payrollControls(): FormArray {
     return this.payrollForm.get('payrolls') as FormArray;
   }
@@ -191,7 +191,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
       })
     }
   }
-  
+
   ngOnDestroy(): void {
     this.advanceSUb?.unsubscribe();
     this.paySub?.unsubscribe();

@@ -106,7 +106,7 @@ export class UsersComponent implements OnInit, OnDestroy {
   dialogSub!: Subscription;
   updateDesignation(id: number, name: string, empNo: string){
     const dialogRef = this.dialog.open(UpdateDesignationComponent, {
-      width: '320px',
+      width: '600px',
       data: {id: id, name: name, empNo: empNo}
     });
 

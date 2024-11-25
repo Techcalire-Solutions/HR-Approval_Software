@@ -7,7 +7,9 @@ import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
 
@@ -15,7 +17,7 @@ import { Subscription } from 'rxjs';
   selector: 'app-separation',
   standalone: true,
   imports: [MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule, CommonModule, MatNativeDateModule,
-    MatDatepickerModule],
+    MatDatepickerModule, MatToolbarModule, MatIconModule],
   templateUrl: './separation.component.html',
   styleUrl: './separation.component.scss',
   providers: [provideNativeDateAdapter()],

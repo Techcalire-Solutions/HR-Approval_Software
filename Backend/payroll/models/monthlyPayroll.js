@@ -24,12 +24,13 @@ const MonthlyPayroll = sequelize.define('monthlyPayroll', {
   toPay: { type: DataTypes.DECIMAL(10, 2) },
   payedFor: { type: DataTypes.STRING },
   payedAt: { type: DataTypes.DATEONLY },
+  daysInMonth: { type: DataTypes.INTEGER}
 }, {
   freezeTableName: true,
   timestamps: true,
 });
 
-MonthlyPayroll.sync({ force: true })
+MonthlyPayroll.sync({ alter: true })
   .then(() => {
     console.log('Tables synced successfully.');
   })

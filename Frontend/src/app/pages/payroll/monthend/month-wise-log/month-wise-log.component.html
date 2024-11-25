@@ -22,7 +22,6 @@
       <table>
         <thead>
           <tr>
-            <th> User Name</th>
             <th> PayedFor </th>
             <th> PayedAt</th>
             <th> PayedAmount </th>
@@ -32,7 +31,6 @@
         <tbody>
           @for(role of logs; track $index){
             <tr (click)="openPayroll(role.id)">
-              <td>{{ role.user.name }}</td>
               <td>{{ role.payedFor }}</td>
               <td>{{ role.payedAt }}</td>
               <td>{{ role.toPay }}</td>
@@ -43,7 +41,7 @@
                   [disabled]="isRestrictedRole(role.roleName)">
                   <mat-icon>mode_edit</mat-icon>
                 </button> -->
-  
+
                 <!-- <button
                   mat-icon-button
                   (click)="deleteRole(role.id)"
