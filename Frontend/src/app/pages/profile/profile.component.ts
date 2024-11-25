@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
@@ -16,6 +17,10 @@ import { UserAccount } from '../../common/interfaces/users/user-account';
 import { UserDocument } from '../../common/interfaces/users/user-document';
 import { UserPersonal } from '../../common/interfaces/users/user-personal';
 import { UserPosition } from '../../common/interfaces/users/user-position';
+import { PayrollService } from '@services/payroll.service';
+import { MonthlyPayroll } from '../../common/interfaces/payRoll/monthlyPayroll';
+import { PayrollLog } from '../../common/interfaces/payRoll/payroll-log';
+import { UserAssets } from '../../common/interfaces/users/user-assets';
 
 @Component({
   selector: 'app-profile',
@@ -44,9 +49,8 @@ export class ProfileComponent {
   ngOnInit(){
     if(localStorage.getItem('token')){
       const token: any = localStorage.getItem('token')
-      let user = JSON.parse(token)
+      const user = JSON.parse(token)
       this.getUser(user.id)
-      let roleid = user.role
     }
   }
 
@@ -60,6 +64,9 @@ export class ProfileComponent {
       this.getStatutoryData(x.id);
       this.getPositionData(x.id);
       this.getDocuments(x.id);
+      this.getAssets(x.id);
+      this.getPayrollLog(x.id);
+      this.getMonthlySalary(x.id);
     });
   }
 
@@ -101,6 +108,44 @@ export class ProfileComponent {
     this.docSub = this.userService.getUserDocumentsByUser(id).subscribe(x => {
       this.documents = x
     });
+  }
+
+  assetSub!: Subscription;
+  assets: UserAssets;
+  getAssets(id: number){
+    this.assetSub = this.userService.getUserAssetsByUser(id).subscribe(x => {
+      this.assets = x;
+    })
+  }
+
+  payLogSUb!: Subscription;
+  private payrollService = inject(PayrollService);
+  payrollLog: PayrollLog[] = [];
+  getPayrollLog(id: number){
+    this.payLogSUb = this.payrollService.getPayrollLogByUser(id).subscribe(x => {
+      this.payrollLog = x;
+    });
+  }
+
+  monthSalarySub!: Subscription;
+  monthlySalary: MonthlyPayroll[] = [];
+  getMonthlySalary(id: number){
+    this.monthSalarySub = this.payrollService.getMonthlyPayrollByUser(id).subscribe(x => {
+      this.monthlySalary = x;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.userSub?.unsubscribe();
+    this.puSub?.unsubscribe();
+    this.suSub?.unsubscribe();
+    this.auSub?.unsubscribe();
+    this.posuSub?.unsubscribe();
+  }
+
+  private router = inject(Router);
+  openPayroll(id: number){
+    this.router.navigateByUrl('login/payroll/month-end/payslip/open/'+ id)
   }
 
 }

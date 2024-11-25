@@ -3,14 +3,11 @@ import { UserDocumentsComponent } from './../user-documents/user-documents.compo
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatRadioModule } from '@angular/material/radio';
-import { CommonModule } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -38,7 +35,7 @@ import { Team } from '../../../common/interfaces/users/team';
   selector: 'app-user-dialog',
   standalone: true,
   imports: [ ReactiveFormsModule, FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule,  MatDatepickerModule,
-    MatNativeDateModule, MatRadioModule, MatDialogModule,  MatButtonModule, MatCheckboxModule,  MatToolbarModule,
+    MatNativeDateModule, MatRadioModule, MatDialogModule,  MatButtonModule,  MatToolbarModule,
     PersonalDetailsComponent, UserPositionComponent, StatuatoryInfoComponent, UserAccountComponent, UserDocumentsComponent, MatCardModule,
     MatOptionModule, MatSelectModule, CommonModule, MatAutocompleteModule
 ],

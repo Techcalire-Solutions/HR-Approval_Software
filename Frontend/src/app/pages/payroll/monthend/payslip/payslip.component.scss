@@ -34,3 +34,49 @@ body {
     text-align: center;
     padding: 10px 0;
 }
+
+.header-row {
+    display: flex;
+    // justify-content: space-between;
+    align-items: center; /* Align items vertically in the center */
+    // margin-bottom: 20px; /* Add some spacing below the header */
+}
+
+.logo img {
+    max-width: 200px;
+    margin-right: 90px;
+}
+
+.address {
+    text-align: center;
+}
+
+.address h2{
+    text-align: center; 
+    font-weight: bolder;
+}
+
+.payslip-title{
+    text-align: center;
+}
+
+.header {
+    display: flex;
+    justify-content: flex-end; /* Moves content to the right */
+    margin-bottom: 20px; /* Adds spacing between button and content */
+  }
+  
+  .download-button {
+    background-color: #007bff; /* Customize button color */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .download-button:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+  }
+  

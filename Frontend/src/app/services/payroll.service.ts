@@ -74,8 +74,8 @@ export class PayrollService {
     return this.http.post(this.apiUrl+"/monthlypayroll/update", data);
   }
 
-  getMonthlyPayroll(): Observable<any> {
-    return this.http.get(this.apiUrl+"/monthlypayroll/find");
+  getMonthlyPayroll(filterValue?: string, page?: number, pagesize?:number): Observable<any> {
+    return this.http.get(this.apiUrl+`/monthlypayroll/find?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
   }
 
   getMonthlyPayrollByUser(id: number): Observable<any> {
