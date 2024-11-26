@@ -68,27 +68,35 @@ export class PayslipComponent implements OnInit, OnDestroy{
 
   downloadPDF() {
     const element: HTMLElement = document.querySelector('.payroll-container')!;
-
+  
+    // Exclude elements from the PDF
     const excludedElements = document.querySelectorAll('.exclude-from-pdf');
     excludedElements.forEach((el) => {
       (el as HTMLElement).style.display = 'none';
     });
-
+  
+    // Temporarily increase font size
+    element.classList.add('increase-font-size');
+  
     html2canvas(element).then((canvas: any) => {
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-
+  
       const imgWidth = 190;
-      const imgHeight = ((canvas.height * imgWidth) / canvas.width) + 100;
-      
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  
       pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
       pdf.save(`Payslip_${this.payroll.user.name}_${this.payroll.payedFor}.pdf`);
-
+  
+      // Remove temporary changes
       excludedElements.forEach((el) => {
         (el as HTMLElement).style.display = '';
       });
+  
+      element.classList.remove('increase-font-size');
     });
   }
+  
 
   getAmountInWords(): string {
     return this.convertNumberToWords(this.payroll.toPay);
