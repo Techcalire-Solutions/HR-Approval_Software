@@ -64,6 +64,17 @@ router.get("/findbyid/:id", authenticateToken, async (req, res) => {
   }
 });
 
+router.get("/findbyuserid/:id", authenticateToken, async (req, res) => {
+  try {
+
+    const advanceSalary = await AdvanceSalary.findOne({ where: { userId: req.params.id, status: true } });
+   
+    res.json(advanceSalary);
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
 router.patch('/update/:id', authenticateToken, async(req,res)=>{
   try {
     const id = parseInt(req.params.id, 10);
@@ -90,11 +101,16 @@ router.patch('/update/:id', authenticateToken, async(req,res)=>{
 
 })
 
-router.patch('/updatestatus/:id', authenticateToken, async(req, res)=>{
+router.patch('/closeadvance/:id', authenticateToken, async(req, res)=>{
   try {
+    console.log(req.params.id);
+    
     let as = await AdvanceSalary.findByPk(req.params.id)
-    as.status = !as.status
+    as.status = false;
+    as.completedDate = new Date();
+    as.closeNote = req.body.closeNote;
     await as.save();
+    res.send(as);
   } catch (error) {
     res.send(error.message);
   }

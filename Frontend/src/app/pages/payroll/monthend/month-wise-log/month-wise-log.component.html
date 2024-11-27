@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+  <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
+    <div fxLayout="row" class="col">
+      <form class="user-search">
+        <mat-form-field class="user-search-input" appearance="outline">
+            <input matInput placeholder="Search Log..." name="search" (keyup)="search($event)">
+        </mat-form-field>
+      </form>
+    </div>
+  </div>
+
+  <main class="table" id="customers_table">
+    <section class="table__body">
+      <table>
+        <thead>
+          <tr>
+            <th> User Name</th>
+            <th> PayedFor </th>
+            <th> PayedAt</th>
+            <th> PayedAmount </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(role of logs; track $index){
+            <tr (click)="openPayroll(role.id)">
+              <td>{{ role.user.name }}</td>
+              <td>{{ role.payedFor }}</td>
+              <td>{{ role.payedAt }}</td>
+              <td>{{ role.toPay }}</td>
+            </tr>
+          }
+
+        </tbody>
+      </table>
+      <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
+       (page)="onPageChange($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
+      </mat-paginator>
+    </section>
+  </main>
+

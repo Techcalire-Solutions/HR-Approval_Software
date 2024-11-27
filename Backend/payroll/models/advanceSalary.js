@@ -12,7 +12,9 @@ const AdvanceSalary = sequelize.define('advanceSalary', {
   duration: {type : DataTypes.INTEGER, allowNull: false},
   monthlyPay: {type : DataTypes.FLOAT, allowNull: false},
   status: {type : DataTypes.BOOLEAN, allowNull: false, defaultValue: true},
-  completed: {type : DataTypes.INTEGER, defaultValue: 0}
+  completed: {type : DataTypes.INTEGER, defaultValue: 0},
+  completedDate: {type : DataTypes.DATEONLY},
+  closeNote: {type : DataTypes.STRING}
 }, {
   freezeTableName: true,
   timestamps: true,

@@ -33,12 +33,13 @@ export class UserAssetsComponent implements OnDestroy{
     this.userSub?.unsubscribe();
     this.userPosition?.unsubscribe();
   }
-  rows: any[] = []; 
+  rows: any[] = [];
 
   private fb = inject(FormBuilder);
   form = this.fb.group({
     assetCode: [''],
     newRow: this.fb.group({
+      assetName: [''],
       identifierType: [''],
       identificationNumber: [''],
       description: [''],
@@ -56,7 +57,7 @@ export class UserAssetsComponent implements OnDestroy{
   updateStatus: boolean = false;
   id: number;
   userName: string;
-  userSub!: Subscription;
+  private userSub!: Subscription;
   userPosition: Subscription;
   getUserById(id: number){
     this.userSub = this.userService.getUserAssetsByUser(id).subscribe(data =>{
@@ -70,11 +71,11 @@ export class UserAssetsComponent implements OnDestroy{
         }
       }else{
         this.userPosition = this.userService.getUserPositionDetailsByUser(id).subscribe(position=>{
-          this.userName = position.user.name
-          if(position === null){
+          if(position.department === null){
             alert("Add department details...");
             history.back();
           }
+          this.userName = position.user.name
           this.generateCode(position?.department.abbreviation)
         });
       }
@@ -84,6 +85,7 @@ export class UserAssetsComponent implements OnDestroy{
 
   editRow(row: any, index: number): void {
     this.form.get('newRow')?.patchValue({
+      assetName: row.assetName,
       identifierType: row.identifierType,
       identificationNumber: row.identificationNumber,
       description: row.description,
@@ -95,7 +97,7 @@ export class UserAssetsComponent implements OnDestroy{
   addRow(data?: any) {
     let newRow;
     if(data) newRow = data
-    if (this.form.valid)  newRow = { ...this.form.value.newRow }; 
+    if (this.form.valid)  newRow = { ...this.form.value.newRow };
     this.rows.push(newRow);
     this.form.reset();
   }
@@ -134,7 +136,7 @@ export class UserAssetsComponent implements OnDestroy{
 
     this.userAssetSub = this.userService.getUserAssets(department).subscribe((res) => {
       const users = res;
-      
+
       if (users.length > 0) {
         const maxId = users.reduce((prevMax, inv) => {
           const empNoParts = inv.assetCode.split('-'); // Split by '-'

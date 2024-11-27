@@ -76,13 +76,15 @@ router.post('/add', async (req, res) => {
 
 router.get('/find/', async (req, res) => {
   try {
-    let whereClause = {separated: false}
+    let whereClause = { separated: false };
     let limit;
     let offset;
-    if (req.query.pageSize && req.query.page && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
+    
+    if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
       limit = req.query.pageSize;
       offset = (req.query.page - 1) * req.query.pageSize;
-      if (req.query.search != 'undefined') {
+    
+      if (req.query.search !== 'undefined') {
         const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
         whereClause = {
           [Op.or]: [
@@ -110,26 +112,30 @@ router.get('/find/', async (req, res) => {
                 [Op.like]: `%${searchTerm}%`
               }
             )
-          ]
+          ],
+          status: true,
+          separated: false // Always include separated: false
         };
       }
     } else {
-      if (req.query.search != 'undefined') {
+      if (req.query.search !== 'undefined') {
         const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
         whereClause = {
-          [Op.or]: [
+          [Op.and]: [
             sequelize.where(
               sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('name'), ' ', '')),
               {
                 [Op.like]: `%${searchTerm}%`
               }
-            )
-          ],
-          status: true
+            ),
+            { status: true },
+            { separated: false } // Always include separated: false
+          ]
         };
       } else {
         whereClause = {
-          status: true
+          status: true,
+          separated: false // Always include separated: false
         };
       }
     }
@@ -145,9 +151,8 @@ router.get('/find/', async (req, res) => {
       limit,
       offset
     });
-    
     let totalCount;
-    totalCount = await User.count();
+    totalCount = await User.count({where: { separated: false } });
 
     if (req.query.page != 'undefined' && req.query.pageSize != 'undefined') {
       const response = {
@@ -223,14 +228,13 @@ router.get('/findone/:id', async (req, res) => {
 });
 
 router.patch('/update/:id', async(req,res)=>{
-  const { name, email, phoneNumber, roleId, url} = req.body;
+  const { name, email, phoneNumber, url} = req.body;
   // const pass = await bcrypt.hash(password, 10);
   try {
     let result = await User.findByPk(req.params.id);
     result.name = name;
     result.email = email;
     result.phoneNumber = phoneNumber;
-    result.roleId = roleId;
     result.url = url
 
     await result.save();

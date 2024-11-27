@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { MatButtonModule } from '@angular/material/button';
 import { UsersService } from './../../../services/users.service';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Component, EventEmitter, Input, OnDestroy, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatCardModule } from '@angular/material/card';
+import { StatutoryInfo } from '../../../common/interfaces/users/statutory-info';
 
 @Component({
   selector: 'app-statuatory-info',
@@ -20,20 +22,21 @@ export class StatuatoryInfoComponent implements OnDestroy {
     this.pUSub?.unsubscribe();
     this.submitSub?.unsubscribe();
   }
-  
-  @Input() statuatoryData: any;
 
-  fb = inject(FormBuilder);
-  userService = inject(UsersService);
-  snackBar = inject(MatSnackBar);
+  @Input() statuatoryData: StatutoryInfo;
+
+  private fb = inject(FormBuilder);
+  private userService = inject(UsersService);
+  private snackBar = inject(MatSnackBar);
 
   form = this.fb.group({
-    userId : [],
+    userId : <any>[],
     adharNo : [''],
     panNumber : [''],
     esiNumber : [''],
     uanNumber : [''],
-    insuranceNumber: ['']
+    insuranceNumber: [''],
+    pfNumber : ['']
   });
 
   editStatus: boolean = false;
@@ -46,7 +49,7 @@ export class StatuatoryInfoComponent implements OnDestroy {
   }
 
   pUSub!: Subscription;
-  id: number;
+  private id: number;
   getStatutoryDetailsByUser(id: number){
     this.pUSub = this.userService.getUserStatutoryuDetailsByUser(id).subscribe(data=>{
       if(data){
@@ -57,34 +60,35 @@ export class StatuatoryInfoComponent implements OnDestroy {
           panNumber : data.panNumber,
           esiNumber : data.esiNumber,
           uanNumber : data.uanNumber,
-          insuranceNumber : data.insuranceNumber
+          insuranceNumber : data.insuranceNumber,
+          pfNumber : data.pfNumber
         })
       }
     })
   }
 
   @Output() dataSubmitted = new EventEmitter<any>();
-  submitSub!: Subscription;
+  private submitSub!: Subscription;
   onSubmit(){
-    let submit = {
+    const submit = {
       ...this.form.getRawValue()
     }
     submit.userId = submit.userId ? submit.userId : this.statuatoryData.id;
     if(this.editStatus){
-      this.submitSub = this.userService.updateUserStatutory(this.id, submit).subscribe(data => {
+      this.submitSub = this.userService.updateUserStatutory(this.id, submit).subscribe(() => {
         this.snackBar.open("Statutory Details updated succesfully...","" ,{duration:3000})
         this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }
     else{
-      this.submitSub = this.userService.addStautoryInfo(submit).subscribe(data => {
+      this.submitSub = this.userService.addStautoryInfo(submit).subscribe(() => {
         this.snackBar.open("Statutory Details added succesfully...","" ,{duration:3000})
         this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }
   }
 
-  @Output() nextTab = new EventEmitter<void>(); 
+  @Output() nextTab = new EventEmitter<void>();
   triggerNextTab() {
     this.nextTab.emit();
   }

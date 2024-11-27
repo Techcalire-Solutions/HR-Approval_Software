@@ -207,7 +207,7 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
  
         const existingInvoice = await PerformaInvoice.findOne({ where: { piNo: piNo } });
         if (existingInvoice) {
-            return res.sned( 'Invoice is already saved' );
+            return res.send( 'Invoice is already saved' );
         }
 
 

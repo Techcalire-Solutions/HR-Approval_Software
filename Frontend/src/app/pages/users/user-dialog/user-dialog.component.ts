@@ -1,20 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { UserDocumentsComponent } from './../user-documents/user-documents.component';
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatRadioModule } from '@angular/material/radio';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
-import { RoleService } from '../../../services/role.service';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import { UsersService } from '../../../services/users.service';
 import { Subscription } from 'rxjs';
@@ -24,12 +22,11 @@ import { PersonalDetailsComponent } from "../personal-details/personal-details.c
 import { UserPositionComponent } from '../user-position/user-position.component';
 import { StatuatoryInfoComponent } from '../statuatory-info/statuatory-info.component';
 import { UserAccountComponent } from "../user-account/user-account.component";
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { TeamService } from '@services/team.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { AddRoleDialogComponent } from '../../role/add-role-dialog/add-role-dialog.component';
 import { User } from '../../../common/interfaces/users/user';
 import { Team } from '../../../common/interfaces/users/team';
 
@@ -38,7 +35,7 @@ import { Team } from '../../../common/interfaces/users/team';
   selector: 'app-user-dialog',
   standalone: true,
   imports: [ ReactiveFormsModule, FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule,  MatDatepickerModule,
-    MatNativeDateModule, MatRadioModule, MatDialogModule,  MatButtonModule, MatCheckboxModule, DatePipe,  MatToolbarModule,
+    MatNativeDateModule, MatRadioModule, MatDialogModule,  MatButtonModule,  MatToolbarModule,
     PersonalDetailsComponent, UserPositionComponent, StatuatoryInfoComponent, UserAccountComponent, UserDocumentsComponent, MatCardModule,
     MatOptionModule, MatSelectModule, CommonModule, MatAutocompleteModule
 ],
@@ -47,14 +44,12 @@ import { Team } from '../../../common/interfaces/users/team';
 })
 export class UserDialogComponent implements OnInit, OnDestroy {
   url = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`;
-  snackBar = inject(MatSnackBar);
-  sanitizer = inject(DomSanitizer);
-  fb = inject(FormBuilder)
-  roleService = inject(RoleService);
-  userService = inject(UsersService);
-  router = inject(Router);
-  route = inject(ActivatedRoute);
-  teamService = inject(TeamService)
+  private snackBar = inject(MatSnackBar);
+  private sanitizer = inject(DomSanitizer);
+  private fb = inject(FormBuilder)
+  private userService = inject(UsersService);
+  private route = inject(ActivatedRoute);
+  private teamService = inject(TeamService)
 
   public passwordHide: boolean = true;
   editStatus: boolean = false;
@@ -85,10 +80,11 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   })
 
   ngOnDestroy(): void {
-   this.teamSub?.unsubscribe();
-   this.userSub?.unsubscribe();
-   this.usersSub?.unsubscribe();
-   this.uploadSub?.unsubscribe();
+    this.teamSub?.unsubscribe();
+    this.userSub?.unsubscribe();
+    this.usersSub?.unsubscribe();
+    this.uploadSub?.unsubscribe();
+    this.delete?.unsubscribe();
   }
 
   userSub!: Subscription;
@@ -157,43 +153,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     this.hidePassword = !this.hidePassword;
   }
 
-
-
-  // roles:Role[]=[];
-  // roleSub!: Subscription;
-  // public filteredOptions: Role[] = [];
-  // getRoles(){
-  //   this.roleSub = this.roleService.getRole().subscribe((res)=>{
-  //     this.roles = res;
-  //     this.filteredOptions = this.roles;
-  //   })
-  // }
-
-  // filterValue: string;
-  // search(event: Event) {
-  //   this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
-  //   this.filteredOptions = this.roles.filter(option =>
-  //     option.roleName.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
-  //     option.abbreviation.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
-  //   );
-  // }
-
-  // patch(selectedSuggestion: Role) {
-  //   this.form.patchValue({ roleId: selectedSuggestion.id, roleName: selectedSuggestion.roleName });
-  // }
-
-  // private dialog = inject(MatDialog);
-  // add(){
-  //   const name = this.filterValue;
-  //   const dialogRef = this.dialog.open(AddRoleDialogComponent, {
-  //     data: {type : 'add', name: name}
-  //   });
-
-  //   dialogRef.afterClosed().subscribe(() => {
-  //     this.getRoles()
-  //   })
-  // }
-
   teams : Team[]=[]
   teamSub!:Subscription;
   getTeam(){
@@ -235,6 +194,9 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     this.isWorkFormSubmitted = event.isFormSubmitted
     this.isFormSubmitted = false;
     this.selectedTabIndex = 2;
+    if (this.userPositionComponent && this.selectedTabIndex === 2) {
+      this.userPositionComponent.triggerNew();
+    }
   }
 
   workSubmit(event: any){
@@ -271,7 +233,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     let prefix: any;
     const currentYear = new Date().getFullYear();
 
-    this.userService.getUser().subscribe((res) => {
+    this.userSub = this.userService.getUser().subscribe((res) => {
       const users = res;
 
       if (users.length > 0) {
@@ -383,15 +345,16 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     }
   }
 
+  delete!: Subscription;
   deleteImage() {
     if(this.id){
-      this.userService.deleteUserImage(this.id, this.imageUrl).subscribe(()=>{
+      this.delete = this.userService.deleteUserImage(this.id, this.imageUrl).subscribe(()=>{
         this.imageUrl = ''
         this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
         this.getUser(this.id)
       });
     }else{
-      this.userService.deleteUserImageByurl(this.imageUrl).subscribe(()=>{
+      this.delete = this.userService.deleteUserImageByurl(this.imageUrl).subscribe(()=>{
         this.imageUrl = ''
         this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
       });

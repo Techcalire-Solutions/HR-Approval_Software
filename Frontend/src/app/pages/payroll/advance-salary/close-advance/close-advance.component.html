@@ -1,0 +1,47 @@
+<mat-card>
+  <h2 mat-dialog-title class="dialog-title">
+    CLOSE ADVANCE SALARY
+  </h2>
+  
+  <div mat-dialog-content>
+    <form [formGroup]="advanceSalaryForm" class="user-form">
+      
+      <div fxLayout="column" fxLayoutAlign="start stretch" class="form-field-outer">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Amount To Pay</mat-label>
+          <input matInput formControlName="amountToPay" type="number" placeholder="Enter amount to pay" readonly>
+        </mat-form-field>
+      </div>
+  
+      <div fxLayout="column" fxLayoutAlign="start stretch" class="form-field-outer">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Amount Paid</mat-label>
+          <input matInput formControlName="amountPayed" type="number" placeholder="Enter amount paid">
+        </mat-form-field>
+      </div>
+
+      <div fxLayout="column" fxLayoutAlign="start stretch" class="form-field-outer">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Close Note</mat-label>
+          <textarea matInput formControlName="closeNote" placeholder="Enter Note"></textarea>
+        </mat-form-field>
+      </div>
+    
+    </form>
+  </div>
+  
+  <div mat-dialog-actions fxLayout="row" fxLayoutAlign="end center" class="dialog-actions">
+    <button 
+      mat-raised-button 
+      color="primary" 
+      [disabled]="!advanceSalaryForm.valid" 
+      (click)="onSubmit()">
+      SAVE
+    </button>
+    
+    <button mat-raised-button color="warn" (click)="close()" type="button">
+      CLOSE
+    </button>
+  </div>
+</mat-card>
+

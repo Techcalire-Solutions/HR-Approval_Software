@@ -13,4 +13,6 @@ export interface AdvanceSalary {
     monthlyPay: number
     status: boolean
     completed: number
+    completedDate: Date
+    closeNote: string
   }

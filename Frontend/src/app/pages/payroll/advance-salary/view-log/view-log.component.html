@@ -10,13 +10,13 @@
             </mat-button-toggle>
         </mat-button-toggle-group>
     </div>
-    <!-- <div fxLayout="row" class="col">
+    <div fxLayout="row" class="col">
       <form class="user-search" [class.show]="controls.value == 'search'">
         <mat-form-field class="user-search-input">
             <input matInput placeholder="Search role by role name..." name="search" (keyup)="search($event)">
         </mat-form-field>
       </form>
-    </div> -->
+    </div>
   </div>
 
     <main class="table" id="customers_table">
@@ -33,8 +33,8 @@
                 <th> Completed </th>
                 <th> Balance </th>
                 <th> Created </th>
-                <th> Updated </th>
-
+                <th> Closed </th>
+                <th> Closed Note</th>
               </tr>
             </thead>
             <tbody>
@@ -47,7 +47,7 @@
                             <td> {{ advanceSalary.completed }} Months </td>
                             <td> {{ advanceSalary.amount - advanceSalary.monthlyPay * advanceSalary.completed}} </td>
                             <td> {{ advanceSalary.createdAt | date: 'dd-MM-yyyy' }} </td>
-                            <td> {{ advanceSalary.updatedAt | date: 'dd-MM-yyyy' }} </td>
+                            <td> {{ advanceSalary.completedDate | date: 'dd-MM-yyyy' }} </td>
                             <!-- <td>
                               <div style="display: flex; gap: 8px;">
                                 <button mat-menu-item (click)="openAdvanceDialog(advanceSalary)">
@@ -61,22 +61,14 @@
                         </tr>
                     }@else {
                         <tr>
-                            <td> {{ advanceSalary.user.name }} </td>
-                            <td> {{ advanceSalary.user.empNo }} </td>
-                            <td> {{ advanceSalary.scheme }} </td>
-                            <td> {{ advanceSalary.amount }} </td>
-                            <td> {{ advanceSalary.reason }} </td>
-                            <td> {{ advanceSalary.createdAt | date: 'dd-MM-yyyy' }} </td>
-                            <td>
-                              <div style="display: flex; gap: 8px;">
-                                <!-- <button mat-menu-item (click)="openAdvanceDialog(advanceSalary)"> -->
-                                  <!-- <mat-icon (click)="openAdvanceDialog(advanceSalary)">mode_edit</mat-icon> -->
-                                <!-- </button> -->
-                                <!-- <button mat-menu-item > -->
-                                  <!-- <mat-icon (click)="deleteTeam(advanceSalary.id);">delete</mat-icon> -->
-                                <!-- </button> -->
-                              </div>
-                            </td>
+                          <td> {{ advanceSalary.user.name }}_{{ advanceSalary.user.empNo }} </td>
+                          <td> {{ advanceSalary.scheme }} </td>
+                          <td> {{ advanceSalary.duration }} Months </td>
+                          <td> {{ advanceSalary.completed }} Months </td>
+                          <td> {{ advanceSalary.amount - advanceSalary.monthlyPay * advanceSalary.completed}} </td>
+                          <td> {{ advanceSalary.createdAt | date: 'dd-MM-yyyy' }} </td>
+                          <td> {{ advanceSalary.completedDate | date: 'dd-MM-yyyy' }} </td>
+                          <td> {{ advanceSalary.closeNote }} </td>
                             
                         </tr>
                     }

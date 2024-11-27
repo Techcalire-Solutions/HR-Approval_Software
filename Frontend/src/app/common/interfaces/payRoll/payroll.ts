@@ -1,3 +1,4 @@
+import { User } from "../users/user";
 
 
 //basic initial structure of employee
@@ -9,9 +10,10 @@ export interface Payroll {
   conveyanceAllowance: number,
   lta: number,
   specialAllowance: number,
-  grossSalary: number,
+  grossPay: number,
   pf: number,
   insurance: number,
   gratuity: number,
-  employeeContribution: number,
+  netPay: number,
+  user: User
 }

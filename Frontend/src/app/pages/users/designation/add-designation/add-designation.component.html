@@ -33,6 +33,24 @@
         </mat-error>
       </mat-form-field>
 
+      <div class="form-check-box">
+        <mat-checkbox formControlName="includedInPaymentFlow" (change)="getRole()">Included in the payment flow</mat-checkbox>
+      </div>
+
+      @if(form.controls['includedInPaymentFlow'].value){
+        <div>
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Select Role</mat-label>
+            <mat-select formControlName="roleId">
+              @for (role of roles; track $index) {
+                <mat-option [value]="role.id">{{ role.roleName }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      }
+
+
       <!-- <div class="col center-align" style="align-content: center;">
         <mat-slide-toggle formControlName="status">Status</mat-slide-toggle>
       </div> -->

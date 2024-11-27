@@ -1,0 +1,225 @@
+@if(payroll && fullValue){
+    <div class="header">
+        <button class="download-button exclude-from-pdf" (click)="downloadPDF()">Download as PDF</button>
+      </div>
+    <div class="payroll-container">
+        <div class="header-row">
+            <div class="logo">
+                <img [src]="logo" alt="Company Logo">
+            </div>
+            <div class="address">
+                <h2>ONBOARD AERO CONSULTANTS PRIVATE LIMITED</h2>
+                <p>BUILDING NO.48/768-C-2 SHREE LATHA BUILDING EROOR, THRIPUNITHURA, ERNAKULAM, KL 682306.</p>
+            </div>
+        </div>
+        <h2 class="payslip-title">Payslip for the month of {{payroll.payedFor}}</h2>
+        <table class="company-info">
+            <tr>
+                <td>
+                  <div style="display: flex; align-items: center; width: 100%;">
+                    <span style="flex: 1;">Name</span>
+                    <span style="width: 20px; text-align: center;">:</span>
+                    <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.name}}</span>
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; align-items: center; width: 100%;">
+                    <span style="flex: 1;">Employee No</span>
+                    <span style="width: 20px; text-align: center;">:</span>
+                    <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.empNo}}</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display: flex; align-items: center; width: 100%;">
+                    <span style="flex: 1;">Joining Date</span>
+                    <span style="width: 20px; text-align: center;">:</span>
+                    <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.userPersonals[0]?.dateOfJoining | date: 'dd-MM-yyyy'}}</span>
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; align-items: center; width: 100%;">
+                    <span style="flex: 1;">Bank Name</span>
+                    <span style="width: 20px; text-align: center;">:</span>
+                    <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.useraccount?.bankName}}</span>
+                  </div>
+                </td>
+              </tr>
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; width: 100%;">
+                        <span style="flex: 1;">Designation</span>
+                        <span style="width: 20px; text-align: center;">:</span>
+                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.userposition?.designation?.designationName}}</span>
+                      </div>
+                </td>
+                <td>
+                    <div style="display: flex; align-items: center; width: 100%;">
+                        <span style="flex: 1;">Bank Account No</span>
+                        <span style="width: 20px; text-align: center;">:</span>
+                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.useraccount?.accountNo}}</span>
+                      </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; width: 100%;">
+                        <span style="flex: 1;">Department</span>
+                        <span style="width: 20px; text-align: center;">:</span>
+                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.userposition?.department?.name}}</span>
+                    </div>
+                </td>
+                <td>
+                    <div style="display: flex; align-items: center; width: 100%;">
+                        <span style="flex: 1;">PAN Numbe</span>
+                        <span style="width: 20px; text-align: center;">:</span>
+                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.statutoryinfo?.panNumber}}</span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; width: 100%;">
+                        <span style="flex: 1;">Location</span>
+                        <span style="width: 20px; text-align: center;">:</span>
+                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.userposition?.location}}</span>
+                    </div>
+                </td>
+                <td>
+                    <div style="display: flex; align-items: center; width: 100%;">
+                        <span style="flex: 1;">PF No</span>
+                        <span style="width: 20px; text-align: center;">:</span>
+                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.statutoryinfo?.pfNumber}}</span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; width: 100%;">
+                        <span style="flex: 1;">Effective Work Days</span>
+                        <span style="width: 20px; text-align: center;">:</span>
+                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{workingDays}}</span>
+                    </div>
+                </td>
+                <td>
+                    <div style="display: flex; align-items: center; width: 100%;">
+                        <span style="flex: 1;">PF UAN</span>
+                        <span style="width: 20px; text-align: center;">:</span>
+                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.statutoryinfo?.uanNumber}}</span>
+                    </div>
+                </td>
+            </tr>
+            @if (payroll.leaveDays > 0) {
+                <tr>
+                    <td> 
+                        <div style="display: flex; align-items: center; width: 100%;">
+                            <span style="flex: 1;">LOP</span>
+                            <span style="width: 20px; text-align: center;">:</span>
+                            <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.leaveDays}}</span>
+                        </div>
+                    </td>
+                    <td></td>
+                </tr>       
+            }
+
+        </table>
+
+        <div class="section-title">Earnings and Deductions</div>
+
+        <table class="earnings-deductions">
+            <thead>
+                <tr>
+                    <th>Earnings</th>
+                    <th>Full</th>
+                    <th>Actual</th>
+                    <th>Deductions</th>
+                    <th>Actual</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>BASIC</td>
+                    <td>{{fullValue.basic}}</td>
+                    <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.basic}}</td>
+                    <td>PF</td>
+                    <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.pfDeduction}}</td>
+                </tr>
+                <tr>
+                    <td>HRA</td>
+                    <td>{{fullValue.hra}}</td>
+                    <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.hra}}</td>
+                    <td>TDS</td>
+                    <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.tds}}</td>
+                </tr>
+                <tr>
+                    <td>SPECIAL ALLOWANCE</td>
+                    <td>{{fullValue.specialAllowance}}</td>
+                    <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.specialAllowance}}</td>
+                    <td>Advance</td>
+                    <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.advanceAmount}}</td>
+                </tr>
+                <tr>
+                    <td>CONVEYANCE ALLOWANCE</td>
+                    <td>{{fullValue.conveyanceAllowance}}</td>
+                    <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.conveyanceAllowance}}</td>
+                    <td>LOP</td>
+                    <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.leaveDeduction}}</td>
+                </tr>
+                <tr>
+                    <td>TRAVEL ALLOWANCE</td>
+                    <td>{{fullValue.lta}}</td>
+                    <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.lta}}</td>
+                    <td>ESI</td>
+                    <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.insurance}}</td>
+                </tr>
+                <tr>
+                  <td>OVER TIME</td>
+                  <td></td>
+                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.ot}}</td>
+                  <td>INCENTIVE</td>
+                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.incentiveDeduction}}</td>
+              </tr>
+              <tr>
+                <td>PAY OUT</td>
+                <td></td>
+                <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.payOut}}</td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>INCENTIVE</td>
+                <td></td>
+                <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.incentive}}</td>
+                <td></td>
+                <td></td>
+              </tr>
+                <tr>
+                    <td colspan="3"> 
+                        <div style="display: flex; align-items: center; width: 100%;">
+                            <span style="flex: 1;">Total Earnings</span>
+                            <span style="width: 20px; text-align: center;">:</span>
+                            <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">INR {{ calculateTotalEarnings() }}</span>
+                        </div>
+                    </td>
+                    <td colspan="2"> 
+                        <div style="display: flex; align-items: center; width: 100%;">
+                            <span style="flex: 1;">Total Deductions</span>
+                            <span style="width: 20px; text-align: center;">:</span>
+                            <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">INR {{ calculateTotalDeductions() }}</span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="net-pay">
+            <p>Net Pay for the month (Total Earnings - Total Deductions): <a  style="font-weight: bolder; color: rgb(8, 72, 115);">INR {{payroll.toPay}}</a></p>
+            <p><a  style="font-weight: bolder; color: rgb(8, 72, 115);">(Rupees {{ getAmountInWords() | titlecase }} Only)</a></p>
+        </div>
+
+        <!-- <div class="footer">
+            <p>This is a system-generated payslip and does not require a signature.</p>
+        </div> -->
+    </div>
+}

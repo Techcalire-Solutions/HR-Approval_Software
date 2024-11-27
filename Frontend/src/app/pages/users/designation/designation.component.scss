@@ -111,9 +111,8 @@ thead th:first-child, tbody td:first-child {
   width: 100%;
 }
 
-.icon:hover{
+mat-icon:hover{
   color: red;
   cursor: pointer;
   transform: scale(1.5);
 }
-

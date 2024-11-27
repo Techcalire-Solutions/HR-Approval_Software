@@ -1,0 +1,62 @@
+<form [formGroup]="payrollForm">
+    <h2> @if (updateStatus) {Update} {{month}}-{{daysInMonth}}</h2>
+    @if(doc().controls && doc().controls.length){
+        <table formArrayName="payrolls">
+            <tr>
+                <th rowspan="2">Employee Name</th>
+                <th rowspan="2">PerDay</th>
+                <th colspan="8">Earnings</th>
+                <th colspan="6">Deductions</th>
+                <th>Net Salary</th>
+            </tr>
+
+            <tr>
+                <th class="earnings">Basic (₹)</th>
+                <th class="earnings">HRA (₹)</th>
+                <th class="earnings">CA(₹)</th>
+                <th class="earnings">LTA</th>
+                <th class="earnings">SA</th>
+                <th class="earnings">OT</th>
+                <th class="earnings">Incentive</th>
+                <th class="earnings">PayOut</th>
+                <th class="deductions">PF</th>
+                <th class="deductions">ESI</th>
+                <th class="deductions">TDS</th>
+                <th class="deductions">Advance</th>
+                <th class="deductions">LeaveDays</th>
+                <th class="deductions">Incentive</th>
+                <th>ToPay</th>
+            </tr>
+            @for (payroll of doc().controls; track $index; let i = $index) {
+                <tr [formGroupName]="i">
+                    <td><input type="text" placeholder="Employee" formControlName="userName"></td>
+                    <td><input type="text" placeholder="PerDay" formControlName="perDay"></td>
+                    <td><input type="number" placeholder="Basic" formControlName="basic"></td>
+                    <td><input type="number" placeholder="HRA" formControlName="hra"></td>
+                    <td><input type="number" placeholder="CA" formControlName="conveyanceAllowance"></td>
+                    <td><input type="number" placeholder="LTA" formControlName="lta"></td>
+                    <td><input type="number" placeholder="SA" formControlName="specialAllowance"></td>
+                    <td><input type="number" placeholder="OT" formControlName="ot"></td>
+                    <td><input type="number" placeholder="Incentive" formControlName="incentive"></td>
+                    <td><input type="number" placeholder="PayOut" formControlName="payOut"></td>
+                    <td><input type="number" placeholder="PF" formControlName="pfDeduction"></td>
+                    <td><input type="number" placeholder="ESI" formControlName="insurance"></td>
+                    <td><input type="number" placeholder="TDS" formControlName="tds"></td>
+                    <td><input type="number" placeholder="Advance" formControlName="advanceAmount"></td>
+                    <td><input type="number" placeholder="LeaveDays" formControlName="leaveDays"></td>
+                    <td><input type="number" placeholder="Incentive" formControlName="incentiveDeduction"></td>
+                    <td>
+                        <input type="number" [value]="payroll.get('toPay')?.value" disabled>
+                      </td>
+                </tr>
+            }
+        </table>
+    }<br>
+    <button type="button" (click)="savePayroll()" class="calculate-btn">
+        @if(updateStatus){
+            Update
+        }@else{
+            Save
+        }
+        Payroll</button>
+</form>

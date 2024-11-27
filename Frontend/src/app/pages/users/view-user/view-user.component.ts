@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
@@ -18,6 +18,9 @@ import { UserDocument } from '../../../common/interfaces/users/user-document';
 import { UserPersonal } from '../../../common/interfaces/users/user-personal';
 import { UserPosition } from '../../../common/interfaces/users/user-position';
 import { User } from '../../../common/interfaces/users/user';
+import { PayrollService } from '@services/payroll.service';
+import { PayrollLog } from '../../../common/interfaces/payRoll/payroll-log';
+import { MonthlyPayroll } from '../../../common/interfaces/payRoll/monthlyPayroll';
 
 @Component({
   selector: 'app-view-user',
@@ -53,7 +56,9 @@ export class ViewUserComponent implements OnInit, OnDestroy{
       this.getStatutoryData(x.id);
       this.getPositionData(x.id);
       this.getDocuments(x.id);
-      this.getAssets(x.id)
+      this.getAssets(x.id);
+      this.getPayrollLog(x.id);
+      this.getMonthlySalary(x.id);
     });
   }
 
@@ -105,6 +110,25 @@ export class ViewUserComponent implements OnInit, OnDestroy{
     })
   }
 
+  payLogSUb!: Subscription;
+  private payrollService = inject(PayrollService);
+  payrollLog: PayrollLog[] = [];
+  getPayrollLog(id: number){
+    this.payLogSUb = this.payrollService.getPayrollLogByUser(id).subscribe(x => {
+      this.payrollLog = x;
+    });
+  }
+
+  monthSalarySub!: Subscription;
+  monthlySalary: MonthlyPayroll[] = [];
+  getMonthlySalary(id: number){
+    this.monthSalarySub = this.payrollService.getMonthlyPayrollByUser(id).subscribe(x => {
+      this.monthlySalary = x;
+      console.log(this.monthlySalary);
+
+    });
+  }
+
   ngOnDestroy(): void {
     this.userSub?.unsubscribe();
     this.puSub?.unsubscribe();
@@ -113,4 +137,8 @@ export class ViewUserComponent implements OnInit, OnDestroy{
     this.posuSub?.unsubscribe();
   }
 
+  private router = inject(Router);
+  openPayroll(id: number){
+    this.router.navigateByUrl('login/payroll/month-end/payslip/open/'+ id)
+  }
 }

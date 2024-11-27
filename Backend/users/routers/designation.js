@@ -1,13 +1,14 @@
 const express = require('express');
-const Role = require('../models/role');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const Designation = require('../models/designation');
+const { Op } = require('sequelize');
+const sequelize = require('../../utils/db');
 
 router.post('/add', authenticateToken, async (req, res) => {
-  const { designationName, abbreviation } = req.body;
+  const { designationName, abbreviation, roleId } = req.body;
     try {
-          const role = new Designation({ designationName, abbreviation });
+          const role = new Designation({ designationName, abbreviation, roleId });
           await role.save();
           
           res.send(role);
@@ -31,9 +32,15 @@ router.get('/find', async (req, res) => {
         whereClause = {
           [Op.or]: [
             sequelize.where(
-              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('roleName'), ' ', '')),
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('designationName'), ' ', '')),
               {
-                [Op.like]: `%${searchTerm}%`
+                [Op.like]: `%${searchTerm.toLowerCase()}%`
+              }
+            ),
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('abbreviation'), ' ', '')),
+              {
+                [Op.like]: `%${searchTerm.toLowerCase()}%`
               }
             )
           ]
@@ -88,6 +95,7 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
     const role = await Designation.findByPk(req.params.id);
     role.designationName = req.body.designationName;
     role.abbreviation = req.body.abbreviation;
+    role.roleId = req.body.roleId;
     await role.save();
     res.send(role);
   } catch (error) {
