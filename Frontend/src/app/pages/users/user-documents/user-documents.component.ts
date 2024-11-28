@@ -13,13 +13,13 @@ import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { UserDocument } from '../../../common/interfaces/users/user-document';
+import { SafePipe } from "../../../common/safe.pipe";
 
 @Component({
   selector: 'app-user-documents',
   standalone: true,
-  imports: [ MatFormFieldModule, ReactiveFormsModule, MatProgressBarModule, MatIconModule, MatInputModule, MatButtonModule, CommonModule,
-    MatCardModule
-  ],
+  imports: [MatFormFieldModule, ReactiveFormsModule, MatProgressBarModule, MatIconModule, MatInputModule, MatButtonModule, CommonModule,
+    MatCardModule, SafePipe],
   templateUrl: './user-documents.component.html',
   styleUrl: './user-documents.component.scss'
 })

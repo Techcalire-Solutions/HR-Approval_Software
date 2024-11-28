@@ -63,12 +63,6 @@
 
                 <div class="flex-container">
                   <div>Joining Date  :<strong>{{userPersonal.dateOfJoining | date:'dd/MM/yyyy'}}</strong></div>
-                  <div>Probation Period  :<strong>{{userPersonal.probationPeriod }}</strong></div>
-                  <div>Confirmed Date  :<strong>{{userPersonal.confirmationDate | date:'dd/MM/yyyy'}}</strong></div>
-                </div>
-
-                <div class="flex-container">
-                  <div>Parent Name  :<strong>{{userPersonal.parentName }}</strong></div>
                   <div>Marital Status  :<strong>{{userPersonal.maritalStatus }}</strong></div>
                   <div>Spouse Name  :<strong>{{userPersonal.spouseName }}</strong></div>
                 </div>
@@ -80,6 +74,7 @@
                 </div>
 
                 <div class="flex-container">
+                  <div>Parent Name  :<strong>{{userPersonal.parentName }}</strong></div>
                   <div>Referred By  :<strong>{{userPersonal.referredBy }}</strong></div>
                   <div>Reporting Manger  :<strong>{{userPersonal.manager?.name || 'None'}}</strong></div>
                 </div>
@@ -101,12 +96,12 @@
                   <div>Official Mail  :<strong>{{positions.officialMailId }}</strong></div>
                   <div>Project Mail  :<strong>{{positions.projectMailId }}</strong></div>
                   <div>Salary  :<strong>{{positions.salary }}</strong></div>
-                  <div>Designation  :<strong>{{positions.designation }}</strong></div>
+                  <div>Designation  :<strong>{{positions.designation.designationName }}</strong></div>
                 </div>
 
                 <div class="flex-container">
                   <div>Grade  :<strong>{{positions.grade}}</strong></div>
-                  <div>Department  :<strong >{{positions.department}}</strong></div>
+                  <div>Department  :<strong >{{positions.department.name}}</strong></div>
                   <div>Division  :<strong >{{positions.division}}</strong></div>
                   <div>Cost Centre  :<strong>{{positions.costCentre}}</strong></div>
                 </div>
@@ -115,6 +110,10 @@
                   <div>Location  :<strong >{{positions.location}}</strong></div>
                   <div>Office  :<strong >{{positions.office}}</strong></div>
                   <div>Probation Period  :<strong >{{positions.probationPeriod}}</strong></div>
+                  <div>Confirmed Date  :<strong>{{userPersonal.confirmationDate | date:'dd/MM/yyyy'}}</strong></div>
+                </div>
+
+                <div class="flex-container">
                   <div>Confirmation Note  :<strong >{{positions.probationNote}}</strong></div>
                 </div>
               </div>
@@ -135,6 +134,7 @@
                 <div class="flex-container">
                   <div>Adhar No  :<strong >{{userStat.adharNo}}</strong></div>
                   <div>PAN No  :<strong >{{userStat.panNumber}}</strong></div>
+                  <div>PF Number  :<strong >{{userStat.pfNumber}}</strong></div>
                 </div>
 
                 <div class="flex-container">
@@ -159,10 +159,11 @@
                 <div class="flex-container">
                   <div>Account No  :<strong>{{accounts.accountNo}}</strong></div>
                   <div>IFSC  :<strong>{{accounts.ifseCode}}</strong></div>
-                  <div>Branc hName  :<strong>{{accounts.branchName}}</strong></div>
+                  <div>Branch Name  :<strong>{{accounts.branchName}}</strong></div>
                 </div>
 
                 <div class="flex-container">
+                  <div>Bank Name  :<strong>{{accounts.bankName}}</strong></div>
                   <div>Mode Of Payment  :<strong>{{accounts.modeOfPayment}}</strong></div>
                   <div>Payment Frequency  :<strong >{{accounts.paymentFrequency}}</strong></div>
                 </div>
@@ -183,7 +184,9 @@
                 @for(data of documents; track data){
                   <div class="flex-container">
                     <div> <strong>{{ data.docName}}</strong>  :</div>
-                    <div> <img [src]="apiUrl + data.docUrl" alt="Photo 1" width="400" height="400"></div>
+                    <div> 
+                      <iframe [src]="apiUrl + data.docUrl | safe" width="400" height="400"></iframe>
+                    </div>
                   </div>
                 }
               </div>

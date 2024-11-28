@@ -1,8 +1,8 @@
 <h1 mat-dialog-title>
     @if (company) {
-        <span>Edit</span>
+        <span>EDIT</span>
     } @else {
-        <span>Add</span>
+        <span>ADD</span>
     }
     COMPANY
   </h1>
@@ -188,11 +188,11 @@
   </div>
   <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
     <button mat-raised-button color="primary" [disabled]="!companyForm.valid" (click)="onSubmit()">
-        <!-- @if (leaveType) {
+        @if (company) {
             Update
-        } @else { -->
+        } @else {
             Save
-        <!-- } -->
+        }
     </button> &nbsp;
     <button mat-raised-button color="warn" (click)="close()" type="button">Cancel</button>
   </div>

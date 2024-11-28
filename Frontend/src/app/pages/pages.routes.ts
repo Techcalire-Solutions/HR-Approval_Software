@@ -115,7 +115,7 @@ export const routes: Routes = [
           {
             path: 'addCompany',
             loadComponent: () => import('./company/add-company/add-company.component').then(c => c.AddCompanyComponent),
-            data: { breadcrumb: 'Manage Company' },
+            data: { breadcrumb: 'Add Company' },
             canActivate: [AuthGuard]
           },
           {
