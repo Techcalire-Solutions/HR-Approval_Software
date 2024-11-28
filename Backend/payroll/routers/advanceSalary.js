@@ -47,7 +47,6 @@ router.get("/findall", authenticateToken, async (req, res) => {
   }
 });
 
-
 router.get("/findbyid/:id", authenticateToken, async (req, res) => {
   try {
     const advanceSalaryId = req.params.id;
@@ -114,6 +113,27 @@ router.patch('/closeadvance/:id', authenticateToken, async(req, res)=>{
   } catch (error) {
     res.send(error.message);
   }
+})
+
+router.delete('/delete/:id', authenticateToken, async(req,res)=>{
+  try {
+      const result = await AdvanceSalary.destroy({
+          where: { id: req.params.id },
+          force: true,
+      });
+
+      if (result === 0) {
+          return res.status(404).json({
+            status: "fail",
+            message: "Advance with that ID not found",
+          });
+        }
+    
+        res.status(204).json();
+      }  catch (error) {
+        res.send(error.message);
+  }
+  
 })
 
 module.exports = router;
