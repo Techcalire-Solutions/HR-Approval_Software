@@ -76,15 +76,13 @@ router.get('/find', async (req, res) => {
       };
 
       res.json(response);
-    } else{
-      res.send(role)
+    } 
+    else {
+      const filteredRoles = role.filter(role => 
+        role.designationName !== 'SUPER ADMIN' && role.designationName !== 'APPROVAL ADMIN' && role.designationName !== 'HR ADMIN'
+      );
+      res.json(filteredRoles);
     }
-    // else {
-    //   const filteredRoles = role.filter(role => 
-    //     role.roleName !== 'Administrator' && role.roleName !== 'Super Administrator' && role.roleName !== 'HR Administrator'
-    //   );
-    //   res.json(filteredRoles);
-    // }
   } catch (error) {
     res.send(error.message);
   }
