@@ -5,7 +5,7 @@
   <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
     <div fxLayout="row" class="col">
         <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-            <mat-button-toggle value="add" (click)="openCompany(null)"><mat-icon>person_add</mat-icon>
+            <mat-button-toggle value="add" (click)="openCompany(null)"><mat-icon>business</mat-icon>
             </mat-button-toggle>
             <!-- <mat-button-toggle value="search">
                 <mat-icon>search</mat-icon>
@@ -68,25 +68,18 @@
                   
                   
                 </td>
-
-                <!-- Team Leader Column -->
-                <!-- <td> {{ team.leader.name }} </td> -->
-
-                <!-- Team Members Column -->
-                <!-- <td>
-                  <div *ngFor="let member of team.teamMembers" class="team-member">
-                    {{ member.user.name }}
-                    <mat-divider></mat-divider>
-                  </div>
-                </td> -->
-
-                <!-- Manage Column -->
                 <td>
-                  <button mat-menu-item (click)="openCompany(company)">
+                  <button
+                    mat-icon-button
+                    (click)="$event.stopPropagation()"
+                    (click)="openCompany(company)">
                     <mat-icon>mode_edit</mat-icon>
                   </button>
-                  <!-- Uncomment if delete is needed -->
-                  <button mat-menu-item (click)="deleteCompany(company.id);">
+    
+                  <button
+                    mat-icon-button
+                    (click)="$event.stopPropagation()"
+                    (click)="deleteCompany(company.id)">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </td>

@@ -5,8 +5,6 @@ import { RoleService } from '@services/role.service';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from '@services/settings.service';
 import { UsersService } from '@services/users.service';
-import { UserDialogComponent } from '../users/user-dialog/user-dialog.component';
-import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -45,8 +43,6 @@ import { Role } from '../../common/interfaces/users/role';
     MatCardModule,
     NgxPaginationModule,
     PipesModule,
-    DatePipe,
-    UserDialogComponent,
     MatPaginatorModule
   ],
   templateUrl: './role.component.html',

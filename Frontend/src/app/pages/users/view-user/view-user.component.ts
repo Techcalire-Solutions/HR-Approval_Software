@@ -21,16 +21,17 @@ import { User } from '../../../common/interfaces/users/user';
 import { PayrollService } from '@services/payroll.service';
 import { PayrollLog } from '../../../common/interfaces/payRoll/payroll-log';
 import { MonthlyPayroll } from '../../../common/interfaces/payRoll/monthlyPayroll';
+import { SafePipe } from "../../../common/safe.pipe";
 
 @Component({
   selector: 'app-view-user',
   standalone: true,
-  imports: [ MatCardModule, MatDividerModule, MatIconModule, DatePipe, UpperCasePipe,     MatButtonModule,
+  imports: [MatCardModule, MatDividerModule, MatIconModule, DatePipe, UpperCasePipe, MatButtonModule,
     MatExpansionModule, CommonModule,
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,],
+    MatDatepickerModule, SafePipe],
   templateUrl: './view-user.component.html',
   styleUrl: './view-user.component.scss',
   // changeDetection: ChangeDetectionStrategy.OnPush,

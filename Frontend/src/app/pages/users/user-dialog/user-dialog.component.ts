@@ -299,18 +299,22 @@ export class UserDialogComponent implements OnInit, OnDestroy {
         this.personalDetailsComponent.triggerNew(this.dataToPass);
       }
       else if (this.userPositionComponent && this.selectedTabIndex === 2) {
+        this.isFormSubmitted = false;
         this.isWorkFormSubmitted = true;
         this.userPositionComponent.triggerNew(this.dataToPass);
       }
       else if (this.statuatoryInfoComponent && this.selectedTabIndex === 3) {
+        this.isWorkFormSubmitted = false;
         this.isContactsFormSubmitted = true;
         this.statuatoryInfoComponent.triggerNew(this.dataToPass);
       }
       else if (this.userAccountComponent && this.selectedTabIndex === 4) {
+        this.isContactsFormSubmitted = false;
         this.isSocialFormSubmitted = true;
         this.userAccountComponent.triggerNew(this.dataToPass);
       }
       else if (this.userDocumentsComponent && this.selectedTabIndex === 5) {
+        this.isSocialFormSubmitted = false;
         this.isAccountFormSubmitted = true;
         this.userDocumentsComponent.triggerNew(this.dataToPass);
       }

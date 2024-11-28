@@ -77,15 +77,18 @@
                 </mat-form-field>
 
               </div>
-              <div style="margin-left: 0; margin-right: 15px;">
-                <button type="button" class="small-btn" (click)="generateRandomPassword()">
-                  <span class="material-icons">autorenew</span>
-                </button>
-                <button type="button" class="small-btn" (click)="copyEmpNoAndPassword()"
-                  [disabled]="form.controls.password.value === ''">
-                  <span class="material-icons">content_copy</span>
-                </button>
-              </div>
+              @if(!editStatus){
+                <div style="margin-left: 0; margin-right: 15px;">
+                  <button type="button" class="small-btn" (click)="generateRandomPassword()">
+                    <span class="material-icons">autorenew</span>
+                  </button>
+                  <button type="button" class="small-btn" (click)="copyEmpNoAndPassword()"
+                    [disabled]="form.controls.password.value === ''">
+                    <span class="material-icons">content_copy</span>
+                  </button>
+                </div>
+              }
+
 
               <!-- <div class="col">
                 <mat-form-field class="w-100" appearance="outline" >
