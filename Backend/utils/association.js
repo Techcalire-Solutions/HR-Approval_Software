@@ -15,7 +15,7 @@ const bcrypt = require('bcrypt');
 
 async function syncModel() {
    
-  await sequelize.sync({alter: true})
+  await sequelize.sync({force: true})
   
     const holiday = await Holiday.findAll({})
     
