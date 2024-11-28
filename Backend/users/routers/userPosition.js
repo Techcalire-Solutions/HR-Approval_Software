@@ -180,6 +180,7 @@ router.patch('/updaterole/:id', async (req, res) => {
       
       if(userposition){
         userposition.designationId = req.body.designationId;
+        await userposition.save();
       }else{
         userposition = new UserPosition({userId: req.params.id, designationId: req.body.designationId});
         await userposition.save();
