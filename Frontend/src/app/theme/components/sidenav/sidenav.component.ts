@@ -95,6 +95,8 @@ users:User;
 
   private menuService = inject(MenuService);
   filterMenuItemsByRole(role: string) {
+    console.log(role);
+    
     const allMenuItems = this.menuService.getVerticalMenuItems();
     if (role === 'Administrator'){
       this.filteredMenuItems = allMenuItems.filter(item =>
@@ -178,8 +180,9 @@ users:User;
         // (item.title === 'Leave Balance' && item.parentId === 8)||
         (item.title === 'Payroll' && !item.parentId) ||
         (item.title === 'Advance Salary' && item.parentId === 13) ||
-        (item.title === 'Payslip' && item.parentId === 13) ||
-        (item.title === 'Pay Details' && item.parentId === 13)
+        (item.title === 'Payslip' && item.parentId === 13)
+        // ||
+        // (item.title === 'Pay Details' && item.parentId === 13)
       );
 
     }
@@ -192,7 +195,10 @@ users:User;
         (item.title === 'Confirmation' && item.parentId === 3)||
         (item.title === 'Payroll' && !item.parentId) ||
         (item.title === 'Advance Salary' && item.parentId === 13) ||
-        (item.title === 'Month End' && item.parentId === 13) 
+        (item.title === 'Month End' && item.parentId === 13) ||
+        (item.title === 'Expense' && !item.parentId) ||
+        (item.title === 'Add' && item.parentId === 26) ||
+        (item.title === 'View' && item.parentId === 26)
         // item.title === 'Team' ||
         // (item.title === 'Leave' && !item.parentId) ||
         // (item.title === 'Calendar' && item.parentId === 8) ||
@@ -219,7 +225,7 @@ users:User;
         (item.title === 'Advance Salary' && item.parentId === 13) ||
         (item.title === 'Month End' && item.parentId === 13) ||
         (item.title === 'Payslip' && item.parentId === 13) ||
-        (item.title === 'Pay Details' && item.parentId === 13)||
+        // (item.title === 'Pay Details' && item.parentId === 13)||
         // (item.title === 'Leave' && !item.parentId) ||
         // (item.title === 'Calendar' && item.parentId === 8) ||
         // (item.title === 'View' && item.parentId === 8) ||
@@ -238,8 +244,9 @@ users:User;
 
         (item.title === 'Expense' && item.parentId === 21)||
         (item.title === 'View' && item.parentId === 24) ||
-        (item.title === 'Excel' && item.parentId === 24)
+        (item.title === 'Excel' && item.parentId === 24)||
 
+        (item.title === 'YTD' && item.parentId === 21)
         // (item.title === 'Leave Report' && item.parentId === 21)
 
       );
