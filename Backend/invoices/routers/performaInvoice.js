@@ -1011,22 +1011,22 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
           }
         
            // Step 2: Get project emails for all user roles
-    const userPositions = await UserPosition.findAll({
-        where: { userId: userRoles.map(user => user.id) },
-        attributes: ['userId', 'projectMailId']
-      });
+            const userPositions = await UserPosition.findAll({
+                where: { userId: userRoles.map(user => user.id) },
+                attributes: ['userId', 'projectMailId']
+            });
   
-      // Map user IDs to project emails
-      const userEmailMap = new Map(userPositions.map(user => [user.userId, user.projectMailId]));
+            // Map user IDs to project emails
+            const userEmailMap = new Map(userPositions.map(user => [user.userId, user.projectMailId]));
   
-      // Check for missing emails
-      const missingEmails = userRoles
-        .filter(user => !userEmailMap.get(user.id) || userEmailMap.get(user.id) === null)
-        .map(user => `${user.role}-${user.name} with ID ${user.empNo} is missing a project email.`);
-  
-      if (missingEmails.length > 0) {
-        return res.send(`Missing project emails: \n${missingEmails.join('\n')}` );
-      }
+            // Check for missing emails
+            const missingEmails = userRoles
+                .filter(user => !userEmailMap.get(user.id) || userEmailMap.get(user.id) === null)
+                .map(user => `${user.role}-${user.name} with ID ${user.empNo} is missing a project email.`);
+        
+            if (missingEmails.length > 0) {
+                return res.send(`Missing project emails: \n${missingEmails.join('\n')}` );
+            }
   
       // Step 3: Collect all other project emails except for the accountant's email
       const recipientEmails = userPositions
@@ -1054,13 +1054,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         status: newStat,
         date: new Date()
       });
-  
-      statusArray = new PerformaInvoiceStatus({
-            performaInvoiceId: pi.id,
-            status: newStat,
-            date: new Date()
-      });
-      await statusArray.save();
+
 
     //  Fetch supplier and customer details for email
       const [supplier, customer] = await Promise.all([
