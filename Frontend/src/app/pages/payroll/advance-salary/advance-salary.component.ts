@@ -12,6 +12,8 @@ import { PayrollService } from '@services/payroll.service';
 import { AddAdvanceSalaryComponent } from './add-advance-salary/add-advance-salary.component';
 import { Router } from '@angular/router';
 import { CloseAdvanceComponent } from './close-advance/close-advance.component';
+import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-advance-salary',
@@ -78,18 +80,19 @@ export class AdvanceSalaryComponent implements OnInit , OnDestroy{
   //   }
   // }
   delete!: Subscription;
+  private snackBar = inject(MatSnackBar);
   deleteTeam(id: number){
     console.log(id);
     
-    // let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
-    // dialogRef.afterClosed().subscribe(res => {
-    //   if(res){
-    //     this.delete = this.teamService.deleteTeam(id).subscribe(res => {
-    //       this._snackbar.open("Team deleted successfully...","" ,{duration:3000})
-    //       this.getAdvanceSalary()
-    //     });
-    //   }
-    // });
+    const dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+    dialogRef.afterClosed().subscribe(res => {
+      if(res){
+        this.delete = this.payrollService.deleteAdvanceSalary(id).subscribe(() => {
+          this.snackBar.open("Advance Salary deleted successfully...","" ,{duration:3000})
+          this.getAdvanceSalary()
+        });
+      }
+    });
   }
 
 }
