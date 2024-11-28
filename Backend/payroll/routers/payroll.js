@@ -39,7 +39,7 @@ router.get("/:id", async (req, res) => {
     
     const payroll = await Payroll.findOne({ where: { userId: userId } });
     if (!payroll) {
-      return res.send("Payroll not found");
+      return;
     }
     return res.status(200).json(payroll);
   
@@ -153,24 +153,6 @@ router.get('/find', async (req, res) => {
 
 })
 
-router.get("/:id", async (req, res) => {
-  try {
-    const companyId = req.params.id;
-    console.log('companyId:', companyId);
 
-    const payroll = await Company.findOne({ where: { id: companyId } });
-    console.log('payroll:', payroll);
-
-    if (!payroll) {
-      return res.status(404).json({ error: "Company not found" });
-    }
-
-    // Send the payroll data as the response
-    res.json(payroll);
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
 
 module.exports = router;
