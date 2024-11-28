@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { MatInputModule } from '@angular/material/input';
-import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, Input, OnDestroy } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -125,6 +125,12 @@ export class UserDocumentsComponent implements OnDestroy {
     const input = event.target as HTMLInputElement;
     const file: any = input.files?.[0];
     this.fileType = file.type.split('/')[1];
+    console.log(this.fileType);
+    
+    if (!this.allowedFileTypes.includes(this.fileType)) {
+      alert('Invalid file type. Please select a PDF, JPEG, JPG, or PNG file.');
+      return;
+    }
     if (file) {
       const userName = this.data.name;
       const docFormGroup = this.doc().at(i) as FormGroup;
