@@ -3,8 +3,6 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { Settings, SettingsService } from '../../services/settings.service';
 
-import { UserDialogComponent } from '../users/user-dialog/user-dialog.component';
-import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -19,24 +17,21 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { PipesModule } from '../../theme/pipes/pipes.module';
 import { UsersService } from '../../services/users.service';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatDividerModule } from '@angular/material/divider';
-import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
 import { Subscription } from 'rxjs';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Company } from '../../common/interfaces/company';
 import { CompanyService } from '@services/company.service';
-import { AddCompanyComponent } from './add-company/add-company.component';
 import { Router } from '@angular/router';
-import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { User } from '../../common/interfaces/users/user';
 @Component({
   selector: 'app-company',
   standalone: true,
   imports: [
-    CommonModule,
     MatTableModule,
+    MatInputModule ,
     FormsModule,
     FlexLayoutModule,
     MatButtonModule,
@@ -46,16 +41,11 @@ import { User } from '../../common/interfaces/users/user';
     MatInputModule,
     MatProgressSpinnerModule,
     MatMenuModule,
-    NgxPaginationModule,
     MatSlideToggleModule,
     MatCardModule,
     NgxPaginationModule,
     PipesModule,
-    DatePipe,
-    UserDialogComponent,
-    MatDividerModule,
-    MatPaginatorModule,
-    MatPaginator
+    MatPaginatorModule
   ],
   templateUrl: './company.component.html',
   styleUrl: './company.component.scss',

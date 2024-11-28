@@ -24,7 +24,7 @@
               @else{
                 <div class="col">
                   <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
-                    <img [src]="imageUrl[i]" alt="Image" title="Image" height="100" width="100" class="clickable-image" />
+                    <iframe [src]="imageUrl[i] | safe" alt="Image" title="Image" height="100" width="100" class="clickable-image"></iframe>
                     <mat-icon style="color: red;" (click)="onDeleteImage(i)">delete</mat-icon>
                   </div>
                 </div>
