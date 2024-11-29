@@ -51,7 +51,7 @@ export class PayrollService {
     return this.http.patch<AdvanceSalary>(`${this.apiUrl}/advanceSalary/update/` + id, data);
   }
   deleteAdvanceSalary(id: number) {
-    return this.http.delete(`${this.apiUrl}/advanceSalary/` +id);
+    return this.http.delete(`${this.apiUrl}/advanceSalary/delete/` +id);
   }
 
   getAdvanceSalaryByid(id: number): Observable<any> {
