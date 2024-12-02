@@ -39,7 +39,7 @@ export class StatuatoryInfoComponent implements OnDestroy {
     insuranceNumber: [''],
     pfNumber : [''],
     passportNumber : [''],
-    passportExpiry: [''],
+    passportExpiry: <any>[''],
   });
 
   editStatus: boolean = false;
@@ -64,7 +64,9 @@ export class StatuatoryInfoComponent implements OnDestroy {
           esiNumber : data.esiNumber,
           uanNumber : data.uanNumber,
           insuranceNumber : data.insuranceNumber,
-          pfNumber : data.pfNumber
+          pfNumber : data.pfNumber,
+          passportNumber : data.passportNumber,
+          passportExpiry: data.passportExpiry,
         })
       }
     })

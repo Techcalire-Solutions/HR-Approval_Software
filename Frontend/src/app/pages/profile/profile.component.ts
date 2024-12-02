@@ -21,6 +21,7 @@ import { PayrollService } from '@services/payroll.service';
 import { MonthlyPayroll } from '../../common/interfaces/payRoll/monthlyPayroll';
 import { PayrollLog } from '../../common/interfaces/payRoll/payroll-log';
 import { UserAssets } from '../../common/interfaces/users/user-assets';
+import { UserQualification } from '../../common/interfaces/users/user-qualification';
 
 @Component({
   selector: 'app-profile',
@@ -67,6 +68,7 @@ export class ProfileComponent {
       this.getAssets(x.id);
       this.getPayrollLog(x.id);
       this.getMonthlySalary(x.id);
+      this.getQualData(x.id);
     });
   }
 
@@ -135,12 +137,25 @@ export class ProfileComponent {
     });
   }
 
+  qualSub!: Subscription;
+  qualifications: UserQualification;
+  getQualData(id: number){
+    this.qualSub = this.userService.getUserQualDetailsByUser(id).subscribe(x => {
+      this.qualifications = x;
+    })
+  }
+
   ngOnDestroy(): void {
     this.userSub?.unsubscribe();
     this.puSub?.unsubscribe();
     this.suSub?.unsubscribe();
     this.auSub?.unsubscribe();
     this.posuSub?.unsubscribe();
+    this.qualSub?.unsubscribe();
+    this.monthSalarySub?.unsubscribe();
+    this.payLogSUb?.unsubscribe();
+    this.assetSub?.unsubscribe();
+    this.docSub?.unsubscribe();
   }
 
   private router = inject(Router);

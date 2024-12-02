@@ -30,7 +30,6 @@ export class UserQualificationComponent {
   triggerNew(data?: any): void {
     if(data){
       if(data.updateStatus){
-        this.editStaus = true;
         this.id = data.id;
         this.getQualDetailsByUser(data.id)
       }else{
@@ -43,18 +42,22 @@ export class UserQualificationComponent {
   docSub!: Subscription;
   getQualDetailsByUser(id: number){
     this.docSub = this.userService.getUserQualDetailsByUser(id).subscribe(res=>{
-      console.log(res);
-      
-      if(res.experience.length > 0){
-        for (let index = 0; index < res.experience.length; index++) {
-          this.addExperience(res.experience[index])
+      if(res){
+        this.editStaus = true;
+        if(res.experience.length > 0){
+          for (let index = 0; index < res.experience.length; index++) {
+            this.addExperience(res.experience[index])
+          }
+          
         }
-        
-      }
-      if(res.qualification.length > 0){
-        for (let index = 0; index < res.qualification.length; index++) {
-          this.addQual(res.qualification[index])
+        if(res.qualification.length > 0){
+          for (let index = 0; index < res.qualification.length; index++) {
+            this.addQual(res.qualification[index])
+          }
         }
+      }else{
+        this.addExperience()
+        this.addQual()
       }
     })
   }
