@@ -5,13 +5,13 @@ const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const UserPosition = require('../models/userPosition');
 const User = require('../models/user');
-const Role = require('../models/role');
-const { where } = require('sequelize');
 const Designation = require('../models/designation');
+const Team = require('../models/team');
+const TeamMember = require('../models/teamMember');
 
 router.post('/add', authenticateToken, async (req, res) => {
   const { userId, division, costCentre, grade, location, department, office, salary, probationPeriod, 
-    officialMailId, projectMailId, designationId, designationName }  = req.body;
+    officialMailId, projectMailId, designationId, teamId }  = req.body;
   try {
     try {
       const userExist = await UserPosition.findOne({
@@ -49,12 +49,27 @@ router.post('/add', authenticateToken, async (req, res) => {
         res.send(error.message)
       }
     }
-    
+
+        
     const user = new UserPosition({ userId, division, costCentre, grade, location, department, office, salary, 
-      probationPeriod, officialMailId, projectMailId, designationId });
+      probationPeriod, officialMailId, projectMailId, designationId, teamId });
     await user.save();
     
+
+    if (teamId!=null){
+      const team = await Team.findOne({ where: { id: teamId } });
+
+      if (!team) {
+        return res.send('Team not found');
+      }
+
+      const teamMember = await TeamMember.create({
+        teamId: team.id,
+        userId: userId
+      });
+    } 
     res.send(user);
+
   } catch (error) {
     res.send(error.message);
   }
@@ -65,7 +80,8 @@ router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
     const user = await UserPosition.findOne({where: {userId: req.params.id},
       include:[
         { model : User, attributes : ['name'] },
-        { model : Designation, attributes : ['designationName']}
+        { model : Designation, attributes : ['designationName']},
+        { model : Team, attributes : ['teamName']}
       ]
     })
 
@@ -76,7 +92,7 @@ router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
 });
 
 router.patch('/update/:id', async(req,res)=>{
-  const { division, costCentre, grade, designationName, location, department, office, salary, probationPeriod, projectMailId, designationId } = req.body
+  const { division, costCentre, grade, teamId, location, department, office, salary, probationPeriod, projectMailId, designationId } = req.body
   try {
     
     let result = await UserPosition.findByPk(req.params.id);
@@ -102,6 +118,7 @@ router.patch('/update/:id', async(req,res)=>{
     result.salary = salary;
     result.probationPeriod = probationPeriod;
     result.projectMailId = projectMailId;
+    result.teamId = teamId;
 
     await result.save();
     res.send(result);

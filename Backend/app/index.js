@@ -4,7 +4,6 @@ const express = require('express');
 const app = express();
 const dotenv = require('dotenv');
 const cors = require('cors')
-const path = require('path');
 const cron = require('node-cron');
 
 
@@ -88,7 +87,7 @@ const notification = require('../invoices/routers/notification')
 app.use('/notification',notification)
 
 const backup = require('./backUp')
-cron.schedule('0 0 1 * *', () => {
+cron.schedule('0 0 3 * *', () => {
     backup();
 });
 

@@ -19,7 +19,7 @@ const UserPosition = require('../models/userPosition');
 const Designation = require('../models/designation');
 
 router.post('/add', async (req, res) => {
-  const { name, email, phoneNumber, password, status, userImage, url, teamId, empNo, director } = req.body;
+  const { name, email, phoneNumber, password, status, userImage, url, empNo, director } = req.body;
 
   try {
     let roleId = req.body.roleId;
@@ -50,24 +50,10 @@ router.post('/add', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-      name, empNo, email, phoneNumber, password: hashedPassword, roleId, status, userImage, url, teamId, director
+      name, empNo, email, phoneNumber, password: hashedPassword, roleId, status, userImage, url, director
     });
 
-    // Verify the team exists
-    if (teamId!=null){
-        const team = await Team.findOne({ where: { id: teamId } });
-
-        if (!team) {
-          return res.send('Team not found');
-        }
-        const teamMember = await TeamMember.create({
-          teamId: team.id,
-          userId: user.id
-        });
-        res.send({ user, teamMember })
-    } else {
-      res.json({ user: user });
-    }
+    res.send(user)
 
   } catch (error) {
     res.send(error.message);
@@ -76,96 +62,78 @@ router.post('/add', async (req, res) => {
 
 router.get('/find/', async (req, res) => {
   try {
-    let whereClause = { separated: false };
+    let whereClause = { separated: false, status: true };
     let limit;
     let offset;
-    
-    if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
-      limit = req.query.pageSize;
-      offset = (req.query.page - 1) * req.query.pageSize;
-    
-      if (req.query.search !== 'undefined') {
-        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
-        whereClause = {
-          [Op.or]: [
-            sequelize.where(
-              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('name'), ' ', '')),
-              {
-                [Op.like]: `%${searchTerm}%`
-              }
-            ),
-            sequelize.where(
-              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('phoneNumber'), ' ', '')),
-              {
-                [Op.like]: `%${searchTerm}%`
-              }
-            ),
-            sequelize.where(
-              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('email'), ' ', '')),
-              {
-                [Op.like]: `%${searchTerm}%`
-              }
-            ),
-            sequelize.where(
-              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('role.roleName'), ' ', '')),
-              {
-                [Op.like]: `%${searchTerm}%`
-              }
-            )
-          ],
-          status: true,
-          separated: false // Always include separated: false
-        };
-      }
-    } else {
-      if (req.query.search !== 'undefined') {
-        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
-        whereClause = {
-          [Op.and]: [
-            sequelize.where(
-              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('name'), ' ', '')),
-              {
-                [Op.like]: `%${searchTerm}%`
-              }
-            ),
-            { status: true },
-            { separated: false } // Always include separated: false
-          ]
-        };
-      } else {
-        whereClause = {
-          status: true,
-          separated: false // Always include separated: false
-        };
+
+    // Add search condition if provided
+    if (req.query.search && req.query.search !== 'undefined') {
+      const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+      console.log(searchTerm);
+
+      // Update the whereClause to include the search filter
+      whereClause = {
+        [Op.and]: [
+          {
+            [Op.or]: [
+              sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('name'), ' ', '')),
+                { [Op.like]: `%${searchTerm}%` }
+              ),
+              sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('phoneNumber'), ' ', '')),
+                { [Op.like]: `%${searchTerm}%` }
+              ),
+              sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('email'), ' ', '')),
+                { [Op.like]: `%${searchTerm}%` }
+              )
+            ]
+          },
+          { status: true },
+          { separated: false }
+        ]
+      };
+    }else{
+      if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+        limit = parseInt(req.query.pageSize, 10);
+        offset = (parseInt(req.query.page, 10) - 1) * limit;
       }
     }
 
+    // Fetch paginated data
     const users = await User.findAll({
-      where: whereClause, order: [['id']],
+      where: whereClause,
+      order: [['id']],
       include: [
-        { model: Role, as: 'role', attributes: ['id', 'roleName'] }, // Including role with specific attributes
-        { model: UserPosition, required: false, attributes: ['designationId'],
-          include: [ { model: Designation, attributes: ['designationName'] } ]
+        { model: Role, as: 'role', attributes: ['id', 'roleName'] },
+        {
+          model: UserPosition,
+          required: false,
+          attributes: ['designationId'],
+          include: [{ model: Designation, attributes: ['designationName'] }]
         }
       ],
       limit,
       offset
     });
-    let totalCount;
-    totalCount = await User.count({where: { separated: false } });
 
-    if (req.query.page != 'undefined' && req.query.pageSize != 'undefined') {
+    // Count total records that match the search condition
+    const totalCount = await User.count({ where: whereClause });
+
+    // Return the response
+    if (req.query.page !== 'undefined' && req.query.pageSize !== 'undefined') {
       const response = {
         count: totalCount,
-        items: users,
+        items: users // Paginated data
       };
 
       res.json(response);
     } else {
-      res.json(users);
+      res.send(users)
     }
   } catch (error) {
-    res.send(error.message);
+    res.status(500).send(error.message);
   }
 });
 

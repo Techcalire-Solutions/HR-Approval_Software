@@ -105,19 +105,6 @@
 
                 </mat-form-field>
               </div> -->
-
-              <div class="col">
-                <mat-form-field class="w-100" appearance="outline">
-                  <mat-label>Team</mat-label>
-                  <mat-select formControlName="teamId">
-                    @for(team of teams; track team){
-                      <mat-option [value]="team.id">
-                        {{ team.teamName}}
-                      </mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-              </div>
             </div>
 
             <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, EventEmitter, Input, Output, inject, OnDestroy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatAutocomplete, MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatOptionModule } from '@angular/material/core';
@@ -15,6 +15,8 @@ import { Subscription } from 'rxjs';
 import { Designation } from '../../../common/interfaces/users/designation';
 import { RoleService } from '@services/role.service';
 import { MatDialog } from '@angular/material/dialog';
+import { Team } from '../../../common/interfaces/users/team';
+import { TeamService } from '@services/team.service';
 
 @Component({
   selector: 'app-user-position',
@@ -58,7 +60,7 @@ export class UserPositionComponent implements OnDestroy {
 
   private dialog = inject(MatDialog);
   add(){
-    const name = this.filterValue;
+    // const name = this.filterValue;
     // const dialogRef = this.dialog.open(AddRoleDialogComponent, {
     //   data: {type : 'add', name: name}
     // });
@@ -98,11 +100,13 @@ export class UserPositionComponent implements OnDestroy {
     officialMailId: ['', Validators.email],
     projectMailId: ['', Validators.email],
     designationId: <any>[ Validators.required],
+    teamId: <any>[]
   });
 
   editStatus: boolean = false;
   triggerNew(data?: any): void {
     this.getRoles();
+    this.getTeam();
     if(data){
       if(data.updateStatus){
         this.getPositionDetailsByUser(data.id)
@@ -129,7 +133,8 @@ export class UserPositionComponent implements OnDestroy {
           officialMailId: data.officialMailId,
           projectMailId: data.projectMailId,
           designationId: data.designationId,
-          designationName: data.designation.designationName
+          designationName: data.designation?.designationName,
+          teamId: data.teamId
         })
       }
     })
@@ -158,5 +163,14 @@ export class UserPositionComponent implements OnDestroy {
   @Output() nextTab = new EventEmitter<void>();
   triggerNextTab() {
     this.nextTab.emit();
+  }
+
+  teams : Team[]=[]
+  teamSub!:Subscription;
+  private teamService = inject(TeamService);
+  getTeam(){
+    this.teamSub = this.teamService.getTeam().subscribe((res)=>{
+      this.teams = res;
+    })
   }
 }
