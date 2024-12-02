@@ -1,0 +1,110 @@
+/* General styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+  }
+  
+  /* Card styles */
+  mat-card {
+    margin: 20px;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+  }
+  
+  mat-card-header {
+    background-color: #f0f0f0;
+    padding: 10px 20px;
+    border-radius: 8px 8px 0 0;
+  }
+  
+  mat-card-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  mat-card-content {
+    padding: 20px;
+  }
+  
+  mat-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px 20px;
+  }
+  
+  /* Form field styles */
+  mat-form-field {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  
+  input::placeholder {
+    font-style: italic;
+  }
+  
+  /* Table styles */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  td {
+    padding: 10px;
+    vertical-align: top;
+  }
+  
+  tr:nth-child(odd) {
+    background-color: #f9f9f9;
+  }
+  
+  /* Icon styles */
+  .material-icons {
+    cursor: pointer;
+    vertical-align: middle;
+  }
+  
+  .material-icons:hover {
+    opacity: 0.8;
+  }
+  
+  /* Row styles */
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between;
+  }
+  
+  .col {
+    flex: 1;
+    min-width: 300px;
+    margin-bottom: 20px;
+  }
+  
+  /* Button styles */
+  button {
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+  }
+  
+  button:disabled {
+    background-color: #d4d4d4;
+    cursor: not-allowed;
+  }
+  
+  button:hover:not(:disabled) {
+    background-color: rgb(12, 12, 102);
+  }
+  

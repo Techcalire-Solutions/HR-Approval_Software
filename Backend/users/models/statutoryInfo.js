@@ -6,12 +6,14 @@ const User = require('./user');
 
 const StatutoryInfo = sequelize.define('statutoryinfo',{
     userId : {type : DataTypes.INTEGER, allowNull : false},
-    adharNo : {type : DataTypes.STRING, allowNull : false},
-    panNumber : {type : DataTypes.STRING, allowNull : false},
-    esiNumber : {type : DataTypes.STRING, allowNull : false},
-    pfNumber : {type : DataTypes.STRING, allowNull : false},
-    uanNumber : {type : DataTypes.STRING, allowNull : false},
-    insuranceNumber : {type : DataTypes.STRING, allowNull : false}
+    adharNo : {type : DataTypes.STRING},
+    panNumber : {type : DataTypes.STRING},
+    esiNumber : {type : DataTypes.STRING},
+    pfNumber : {type : DataTypes.STRING},
+    uanNumber : {type : DataTypes.STRING},
+    insuranceNumber : {type : DataTypes.STRING},
+    passportNumber : {type : DataTypes.STRING},
+    passportExpiry : {type : DataTypes.DATE}
 },
 {
     freezeTableName: true,

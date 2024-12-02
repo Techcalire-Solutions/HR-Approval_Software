@@ -37,9 +37,9 @@ export const verticalMenuItems = [
   new Menu(33, 'Month End', '/login/payroll/month-end', null, 'event', null, false, 13),
   new Menu(14, 'Process Payroll', '/login/process-monthly-payroll', null, 'add_circle', null, false, 13),
   new Menu(15, 'Salary Statement', '/login/viewApproval', null, 'visibility', null, false, 13),
-  new Menu(16, 'Payslip', '/login/payroll/month-end/payslip', null, 'visibility', null, false, 13),
+  new Menu(16, 'Payslip', '/login/payroll/month-end/payslip', null, 'receipt', null, false, 13),
   new Menu(17, 'YTD Reports', '/login/viewApproval', null, 'visibility', null, false, 13),
-  new Menu(17, 'Pay Details', '/login/viewApproval', null, 'visibility', null, false, 13),
+  // new Menu(17, 'Pay Details', '/login/viewApproval', null, 'visibility', null, false, 13),
   new Menu(18, 'User leave', '/login/userLeave', null, 'visibility', null, false, 8),
   new Menu(20, 'Events Calender', '/login/employee-leave/events', null, 'visibility', null, false, 8),
 
@@ -53,9 +53,14 @@ export const verticalMenuItems = [
   new Menu(31, 'View', '/login/viewApproval/expensereport', null, 'visibility', null, false, 24),
   new Menu(32, 'Excel', '/login/viewApproval/expensereport/excellog', null, 'layers', null, false, 24),
 
+  new Menu(34, 'YTD', '/login/payroll/ytd', null, 'price_change', null, false, 21),
+  // new Menu(31, 'View', '/login/viewApproval/expensereport', null, 'visibility', null, false, 24),
+  // new Menu(32, 'Excel', '/login/viewApproval/expensereport/excellog', null, 'layers', null, false, 24),
+
   new Menu(23, 'Employee Report', '/login/employee-leave/balance', null, 'visibility', null, false, 21),
   new Menu(24, 'Leave Report', '/login/employee-leave/balance', null, 'visibility', null, false, 21),
   // new Menu(24, 'Expense Report', '/login/viewApproval/expenses', null, 'visibility', null, false, 21),
+  new Menu(1, 'Backup', '/login/backup', null, 'dashboard', null, false, 0),
 
 ];
 

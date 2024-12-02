@@ -10,7 +10,8 @@ const LeaveType = require('../models/leaveType')
    leaveBalance : { type:DataTypes.FLOAT, allowNull:true, defaultValue: 0}
  },{
     freezeTableName :true,
-    timestamps : true
+    timestamps : true,
+    tableName: 'userLeave'
  })
 
  LeaveType.hasMany(UserLeave, { foreignKey: 'leaveTypeId', onUpdate: 'CASCADE' });

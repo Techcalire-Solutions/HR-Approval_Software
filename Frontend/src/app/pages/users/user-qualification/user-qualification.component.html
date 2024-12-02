@@ -1,0 +1,143 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>USER</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="row">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Qualification</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <table>
+              <tbody formArrayName="qualification">
+                @for (language of qualification().controls; track $index; let i = $index) {
+                  <tr [formGroupName]="i">
+                    <td>
+                      <mat-form-field appearance="fill" class="full-width">
+                        <input matInput placeholder="Field od Study" formControlName="field">
+                      </mat-form-field>
+                    </td>
+                    <td>
+                      <mat-form-field appearance="fill" class="full-width">
+                        <input matInput placeholder="University" formControlName="university">
+                      </mat-form-field>
+                    </td>
+                    <td>
+                      <mat-form-field appearance="fill" class="full-width">
+                        <input matInput placeholder="Year of Passout" formControlName="passout">
+                      </mat-form-field>
+                    </td>
+                    <td>
+                      <mat-form-field appearance="fill" class="full-width">
+                        <input matInput placeholder="Marks %" formControlName="marks">
+                      </mat-form-field>
+                    </td>
+                    <td>
+                      <span
+                        class="material-icons"
+                        style="color: rgb(255, 0, 0); font-size: 25px; cursor: pointer;"
+                        (click)="removeQual(i)"
+                      >
+                        cancel
+                      </span>
+                    </td>
+                  </tr>
+                }
+
+                <tr>
+                  <td colspan="3">
+                    <span
+                      class="material-icons"
+                      style="font-size: 25px; color: blue; cursor: pointer;"
+                      (click)="addQual()"
+                    >
+                      add_box
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="row">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>EXPERIENCES</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <table>
+              <tbody formArrayName="experience">
+                @for (experience of exp().controls; track $index; let i = $index) {
+                  <tr [formGroupName]="i">
+                    <td>
+                      <mat-form-field appearance="fill" class="full-width">
+                        <input matInput placeholder="Designation" formControlName="designation">
+                      </mat-form-field>
+                    </td>
+                    <td>
+                      <mat-form-field appearance="fill" class="full-width">
+                        <input matInput placeholder="Company" formControlName="company">
+                      </mat-form-field>
+                    </td>
+                    <td>
+                      <mat-form-field appearance="fill" class="full-width">
+                        <input matInput placeholder="Years of Experience" formControlName="yearOfExperience">
+                      </mat-form-field>
+                    </td>
+                    <td>
+                      <mat-form-field appearance="fill" class="full-width">
+                        <input matInput placeholder="Contact Number" formControlName="contactNumber">
+                      </mat-form-field>
+                    </td>
+                    <td>
+                      <span
+                        class="material-icons"
+                        style="color: rgb(255, 0, 0); font-size: 25px; cursor: pointer;"
+                        (click)="removeExperience(i)"
+                      >
+                        cancel
+                      </span>
+                    </td>
+                  </tr>
+                }
+
+                <tr>
+                  <td colspan="3">
+                    <span
+                      class="material-icons"
+                      style="font-size: 25px; color: blue; cursor: pointer;"
+                      (click)="addExperience()"
+                    >
+                      add_box
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <div class="col" style="text-align: right;">
+        <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.pristine || form.invalid">
+          @if (editStaus) {
+              Update
+          } @else {
+              Save
+          }
+        </button>
+        <button type="button" mat-raised-button color="primary" onclick="history.back()" [disabled]="!form.pristine && !form.invalid" style="margin-left: 10px;">
+          Exit
+        </button>
+        <button type="button" mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;" [disabled]="!form.pristine && !form.invalid">
+          Next
+        </button>
+      </div>
+    </mat-card-actions>
+  </mat-card>
+</form>

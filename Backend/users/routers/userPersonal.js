@@ -31,7 +31,9 @@ async function saveDates(dateStrings) {
 
 router.post('/add', authenticateToken, async (req, res) => {
   const { userId, empNo, dateOfJoining, probationPeriod, isTemporary, maritalStatus, dateOfBirth, gender, 
-    parentName, spouseName, referredBy, reportingMangerId, bloodGroup, emergencyContactNo, emergencyContactName, emergencyContactRelation } = req.body;
+    parentName, spouseName, referredBy, reportingMangerId, bloodGroup, emergencyContactNo, emergencyContactName, 
+    emergencyContactRelation, spouseContactNo, parentContactNo, motherName, motherContactNo, temporaryAddress,
+    permanentAddress } = req.body;
 
   try {
     const existingUser = await UserPersonal.findOne({ where: { userId } });
@@ -57,26 +59,14 @@ router.post('/add', authenticateToken, async (req, res) => {
     }
 
     const user = new UserPersonal({ 
-      userId, 
-      empNo, 
-      dateOfJoining: dateOfJoining ? formattedDateOfJoining[0] : null, 
-      probationPeriod, 
-      isTemporary,
-      maritalStatus, 
-      dateOfBirth: dateOfBirth ? formattedDateOfBirth[0] : null, 
-      gender, 
-      parentName, 
-      spouseName, 
-      referredBy, 
-      reportingMangerId,
-      bloodGroup, 
-      emergencyContactNo, 
-      emergencyContactName, 
-      emergencyContactRelation,
+      userId, empNo, dateOfJoining: dateOfJoining ? formattedDateOfJoining[0] : null, probationPeriod, isTemporary, maritalStatus, 
+      dateOfBirth: dateOfBirth ? formattedDateOfBirth[0] : null,  gender,  parentName,  spouseName,  referredBy, 
+      reportingMangerId, bloodGroup,  emergencyContactNo, emergencyContactName, emergencyContactRelation, 
+      spouseContactNo, parentContactNo, motherName, motherContactNo, temporaryAddress, permanentAddress
     });
 
     await user.save();
-    res.send(user); // Return a 201 status for successful creation
+    res.send(user); 
   } catch (error) {
     res.send(error.message);
   }
@@ -112,7 +102,8 @@ router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
 
 router.patch('/update/:id', async(req,res)=>{
   const { dateOfJoining, probationPeriod, confirmationDate, isTemporary, maritalStatus, dateOfBirth, gender, parentName,
-     spouseName, referredBy, reportingMangerId, bloodGroup, emergencyContactNo, emergencyContactName, emergencyContactRelation } = req.body
+     spouseName, referredBy, reportingMangerId, bloodGroup, emergencyContactNo, emergencyContactName, emergencyContactRelation,
+     spouseContactNo, parentContactNo, motherName, motherContactNo, temporaryAddress, permanentAddress } = req.body
   try {
     let formattedDateOfJoining;
     let formattedDateOfBirth;
@@ -148,8 +139,13 @@ router.patch('/update/:id', async(req,res)=>{
     result.bloodGroup = bloodGroup;
     result.emergencyContactNo = emergencyContactNo;
     result.emergencyContactName = emergencyContactName;
-    result.emergencyContactRelation = emergencyContactRelation;
-    
+    result.emergencyContactRelation = emergencyContactRelation; 
+    result.spouseContactNo = spouseContactNo;
+    result.parentContactNo = parentContactNo;
+    result.motherName = motherName;
+    result.motherContactNo = motherContactNo; 
+    result.temporaryAddress = temporaryAddress;
+    result.permanentAddress = permanentAddress;
     await result.save();
     
     res.send(result);

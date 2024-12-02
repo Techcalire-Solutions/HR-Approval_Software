@@ -198,7 +198,9 @@ users:User;
         (item.title === 'Month End' && item.parentId === 13) ||
         (item.title === 'Expense' && !item.parentId) ||
         (item.title === 'Add' && item.parentId === 26) ||
-        (item.title === 'View' && item.parentId === 26)
+        (item.title === 'View' && item.parentId === 26)||
+
+        item.title === 'Backup'
         // item.title === 'Team' ||
         // (item.title === 'Leave' && !item.parentId) ||
         // (item.title === 'Calendar' && item.parentId === 8) ||
@@ -246,9 +248,10 @@ users:User;
         (item.title === 'View' && item.parentId === 24) ||
         (item.title === 'Excel' && item.parentId === 24)||
 
-        (item.title === 'YTD' && item.parentId === 21)
+        (item.title === 'YTD' && item.parentId === 21)||
         // (item.title === 'Leave Report' && item.parentId === 21)
 
+        item.title === 'Backup'
       );
 
     }

@@ -1,0 +1,18 @@
+<table>
+    <thead>
+      <tr>
+        <th>Table</th>
+        <th>BackUpTime</th>
+        <th>Url</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for ( row of backLogs; track $index) {
+        <tr>
+            <td>{{ row.tableName }}</td>
+            <td>{{ row.backUpTime | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ row.url }}</td>
+          </tr>
+      }
+    </tbody>
+  </table>

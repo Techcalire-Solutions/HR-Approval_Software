@@ -5,7 +5,7 @@ const sequelize = require('../../utils/db');
 const User = require('./user');
 const Designation = require('../models/designation')
 
-const UserPosition = sequelize.define('userposition',{
+const UserPosition = sequelize.define('userPosition',{
     userId : {type : DataTypes.INTEGER, allowNull : false},
     division : {type : DataTypes.STRING},
     costCentre : {type : DataTypes.STRING},

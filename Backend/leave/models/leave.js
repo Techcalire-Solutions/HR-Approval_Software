@@ -3,7 +3,7 @@ const sequelize = require('../../utils/db');
 const LeaveType = require('../models/leaveType');
 const User = require('../../users/models/user');
 
-const Leave = sequelize.define('Leave', {
+const Leave = sequelize.define('leave', {
   userId: {type: DataTypes.INTEGER, allowNull: false},
   leaveTypeId: {type: DataTypes.INTEGER,allowNull: true},
   startDate: {type: DataTypes.DATE, allowNull: true},

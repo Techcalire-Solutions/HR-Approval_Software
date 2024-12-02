@@ -187,6 +187,13 @@
     <app-user-account [accountData]="dataToPass" (dataSubmitted)="accountSubmit($event)" (nextTab)="goToNextTab()"></app-user-account>
   </mat-tab>
 
+  <mat-tab [disabled]="!isQualFormSubmitted">
+    <ng-template mat-tab-label>
+      <mat-icon>school</mat-icon>
+    </ng-template>
+    <app-user-qualification [qualData]="dataToPass" (dataSubmitted)="qualSubmit($event)" (nextTab)="goToNextTab()"></app-user-qualification>
+  </mat-tab>
+
   <mat-tab [disabled]="!isAccountFormSubmitted">
     <ng-template mat-tab-label>
       <mat-icon>upload_file</mat-icon>

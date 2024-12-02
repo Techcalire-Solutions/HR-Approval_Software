@@ -1,0 +1,65 @@
+<div class="ytd-report">
+    <h2>Year-To-Date Report</h2>
+  
+    <!-- Form for selecting the date range -->
+    <form [formGroup]="ytdForm">
+      <div class="form-group">
+        <label for="startDate">Start Date</label>
+        <input id="startDate" type="date" formControlName="startDate" />
+        @if (ytdForm.get('startDate')?.touched && ytdForm.get('startDate')?.invalid) {
+            <div>
+                Start Date is required.
+            </div>
+        }
+      </div>
+  
+      <div class="form-group">
+        <label for="endDate">End Date</label>
+        <input id="endDate" type="date" formControlName="endDate" />
+        @if(ytdForm.get('endDate')?.touched && ytdForm.get('endDate')?.invalid){
+            <div>
+                End Date is required.
+            </div>
+        }
+      </div>
+  
+      <button type="submit" [disabled]="ytdForm.invalid || isLoading">Fetch Report</button>
+    </form>
+  
+    @if(isLoading){
+        <div>Loading...</div>
+    }
+    @if(errorMessage){
+        <div class="error">{{ errorMessage }}</div>
+    }
+
+    @if(!isLoading && ytdData.length > 0){
+        <table>
+            <thead>
+              <tr>
+                <th>Consultant</th>
+                <th>Project</th>
+                <th>Revenue</th>
+                <th>Hours Billed</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for ( row of ytdData; track $index) {
+                <tr>
+                    <td>{{ row.consultant }}</td>
+                    <td>{{ row.project }}</td>
+                    <td>{{ row.revenue | currency }}</td>
+                    <td>{{ row.hoursBilled }}</td>
+                  </tr>
+              }
+            </tbody>
+          </table>
+    }
+
+    @if (!isLoading && ytdData.length === 0) {
+        <div>
+            No data available for the selected period.
+        </div>
+    }
+  </div>
+  

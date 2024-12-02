@@ -65,17 +65,24 @@ export class PayslipComponent implements OnInit, OnDestroy{
           this.toNumber(this.payroll.leaveDeduction)
       );
   }
-
+  
   downloadPDF() {
     const element: HTMLElement = document.querySelector('.payroll-container')!;
+    const logoElement = document.querySelector('.logo') as HTMLElement;
+    const headerElement = document.querySelector('.address') as HTMLElement;
+    if (logoElement) {
+      logoElement.style.width = '200px'; 
+    }
   
-    // Exclude elements from the PDF
+    if (headerElement) {
+      headerElement.style.textAlign = 'center'; 
+    }
+  
     const excludedElements = document.querySelectorAll('.exclude-from-pdf');
     excludedElements.forEach((el) => {
       (el as HTMLElement).style.display = 'none';
     });
   
-    // Temporarily increase font size
     element.classList.add('increase-font-size');
   
     html2canvas(element).then((canvas: any) => {
@@ -88,16 +95,22 @@ export class PayslipComponent implements OnInit, OnDestroy{
       pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
       pdf.save(`Payslip_${this.payroll.user.name}_${this.payroll.payedFor}.pdf`);
   
-      // Remove temporary changes
       excludedElements.forEach((el) => {
         (el as HTMLElement).style.display = '';
       });
   
       element.classList.remove('increase-font-size');
+
+      if (logoElement) {
+        logoElement.style.width = '';
+      }
+  
+      if (headerElement) {
+        headerElement.style.textAlign = '';
+      }
     });
   }
   
-
   getAmountInWords(): string {
     return this.convertNumberToWords(this.payroll.toPay);
   }

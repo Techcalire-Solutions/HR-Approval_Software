@@ -61,9 +61,15 @@
                 </div>
 
                 <div class="flex-container">
-                  <div>Joining Date  :<strong>{{userPersonal.dateOfJoining | date:'dd/MM/yyyy'}}</strong></div>
-                  <div>Marital Status  :<strong>{{userPersonal.maritalStatus }}</strong></div>
+                  <div>FatherName  :<strong>{{userPersonal.parentName }}</strong></div>
+                  <div>MotherName  :<strong>{{userPersonal.motherName }}</strong></div>
                   <div>Spouse Name  :<strong>{{userPersonal.spouseName }}</strong></div>
+                </div>
+
+                <div class="flex-container"> 
+                  <div>FatherContactNo  :<strong>{{userPersonal.parentContactNo }}</strong></div>
+                  <div>MotherContactNo  :<strong>{{userPersonal.motherContactNo }}</strong></div>
+                  <div>SpouseContactNo  :<strong>{{userPersonal.spouseContactNo }}</strong></div>
                 </div>
 
                 <div class="flex-container">
@@ -72,8 +78,14 @@
                   <div>emergencyContactRelation  :<strong>{{userPersonal.emergencyContactRelation }}</strong></div>
                 </div>
 
+                <div class="flex-container"> 
+                  <div>PermanentAddress  :<strong>{{userPersonal.permanentAddress }}</strong></div>
+                  <div>PresentAddress  :<strong>{{userPersonal.temporaryAddress }}</strong></div>
+                </div>
+
                 <div class="flex-container">
-                  <div>Parent Name  :<strong>{{userPersonal.parentName }}</strong></div>
+                  <div>Joining Date  :<strong>{{userPersonal.dateOfJoining | date:'dd/MM/yyyy'}}</strong></div>
+                  <div>Marital Status  :<strong>{{userPersonal.maritalStatus }}</strong></div>
                   <div>Referred By  :<strong>{{userPersonal.referredBy }}</strong></div>
                   <div>Reporting Manger  :<strong>{{userPersonal.manager?.name || 'None'}}</strong></div>
                 </div>
@@ -141,6 +153,11 @@
                   <div>ESI No  :<strong>{{userStat.esiNumber}}</strong></div>
                   <div>UAN No  :<strong >{{userStat.uanNumber}}</strong></div>
                 </div>
+
+                <div class="flex-container">
+                  <div>Passport No  :<strong>{{userStat.passportNumber}}</strong></div>
+                  <div>Passport Expiry  :<strong >{{userStat.passportExpiry | date: 'dd/MM/yyyy'}}</strong></div>
+                </div>
               </div>
             }@else {
               <p>No Data is added</p>
@@ -167,6 +184,36 @@
                   <div>Payment Frequency  :<strong >{{accounts.paymentFrequency}}</strong></div>
                 </div>
               </div>
+            }@else {
+              <p>No Data is added</p>
+            }
+          </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header class="custom-header">
+              <span class="panel-title"> Qualifications </span>
+              <span class="spacer"></span>
+              <mat-icon style="margin-right: 10px;">school</mat-icon>
+            </mat-expansion-panel-header>
+            @if(qualifications){
+              <h3>Education</h3>
+              @for (item of qualifications.qualification; track $index) {
+                <div class="flex-container">
+                  <div>Field of Study  :<strong>{{item.field}}</strong></div>
+                  <div>University  :<strong>{{item.university }}</strong></div>
+                  <div>Year of Passout  :<strong>{{item.passout}}</strong></div>
+                  <div>Marks(in %)  :<strong>{{item.marks}}</strong></div>
+                </div>
+              }
+              <h3>Experience</h3>
+              @for (item of qualifications.experience; track $index) {
+                <div class="flex-container">
+                  <div>Designation  :<strong>{{item.designation}}</strong></div>
+                  <div>Company  :<strong>{{item.company }}</strong></div>
+                  <div>Year of Experience  :<strong>{{item.yearOfExperience}}</strong></div>
+                  <div>Contact Number  :<strong>{{item.contactNumber}}</strong></div>
+                </div>
+              }
             }@else {
               <p>No Data is added</p>
             }

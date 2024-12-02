@@ -29,16 +29,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { User } from '../../../common/interfaces/users/user';
 import { Team } from '../../../common/interfaces/users/team';
+import { UserQualificationComponent } from "../user-qualification/user-qualification.component";
 
 
 @Component({
   selector: 'app-user-dialog',
   standalone: true,
-  imports: [ ReactiveFormsModule, FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule,  MatDatepickerModule,
-    MatNativeDateModule, MatRadioModule, MatDialogModule,  MatButtonModule,  MatToolbarModule,
+  imports: [ReactiveFormsModule, FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule, MatDatepickerModule,
+    MatNativeDateModule, MatRadioModule, MatDialogModule, MatButtonModule, MatToolbarModule,
     PersonalDetailsComponent, UserPositionComponent, StatuatoryInfoComponent, UserAccountComponent, UserDocumentsComponent, MatCardModule,
-    MatOptionModule, MatSelectModule, CommonModule, MatAutocompleteModule
-],
+    MatOptionModule, MatSelectModule, CommonModule, MatAutocompleteModule, UserQualificationComponent],
   templateUrl: './user-dialog.component.html',
   styleUrl: './user-dialog.component.scss'
 })
@@ -169,6 +169,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   isContactsFormSubmitted: boolean = false;
   isSocialFormSubmitted: boolean = false;
   isAccountFormSubmitted: boolean = false;
+  isQualFormSubmitted: boolean = false;
   submit!: Subscription;
   onSubmit(){
     if(this.editStatus){
@@ -215,10 +216,19 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   }
 
   accountSubmit(event: any){
-    this.isAccountFormSubmitted = event.isFormSubmitted
+    this.isQualFormSubmitted = event.isFormSubmitted
     this.isSocialFormSubmitted = false;
     this.selectedTabIndex = 5
-    if (this.userDocumentsComponent && this.selectedTabIndex === 5) {
+    if (this.userQualificationComponent && this.selectedTabIndex === 5) {
+      this.userQualificationComponent.trigger();
+    }
+  }
+
+  qualSubmit(event: any){
+    this.isAccountFormSubmitted = event.isFormSubmitted
+    this.isQualFormSubmitted = false;
+    this.selectedTabIndex = 6
+    if (this.userDocumentsComponent && this.selectedTabIndex === 6) {
       this.userDocumentsComponent.trigger();
     }
   }
@@ -287,8 +297,9 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   @ViewChild(StatuatoryInfoComponent) statuatoryInfoComponent!: StatuatoryInfoComponent;
   @ViewChild(UserAccountComponent) userAccountComponent!: UserAccountComponent;
   @ViewChild(UserDocumentsComponent) userDocumentsComponent!: UserDocumentsComponent;
+  @ViewChild(UserQualificationComponent) userQualificationComponent!: UserQualificationComponent;
   goToNextTab() {
-    if (this.selectedTabIndex < 5) {
+    if (this.selectedTabIndex < 6) {
       if( this.dataToPass === undefined){
         this.dataToPass = { updateStatus: this.editStatus, id: this.id, name: this.userName }
       }
@@ -313,8 +324,14 @@ export class UserDialogComponent implements OnInit, OnDestroy {
         this.isSocialFormSubmitted = true;
         this.userAccountComponent.triggerNew(this.dataToPass);
       }
-      else if (this.userDocumentsComponent && this.selectedTabIndex === 5) {
+      else if (this.userQualificationComponent && this.selectedTabIndex === 5) {
         this.isSocialFormSubmitted = false;
+        this.isQualFormSubmitted = true;
+        this.userQualificationComponent.triggerNew(this.dataToPass);
+      }
+      
+      else if (this.userDocumentsComponent && this.selectedTabIndex === 6) {
+        this.isQualFormSubmitted = false;
         this.isAccountFormSubmitted = true;
         this.userDocumentsComponent.triggerNew(this.dataToPass);
       }

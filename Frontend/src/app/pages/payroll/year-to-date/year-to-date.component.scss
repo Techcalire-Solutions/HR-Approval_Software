@@ -1,0 +1,172 @@
+/* General Container */
+.ytd-report {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+/* Heading */
+h2 {
+  font-size: 24px;
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Form */
+form {
+  display: grid;
+  gap: 20px;
+}
+
+/* Form Group */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+/* Error Message */
+div.error {
+  color: #d9534f;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* Submit Button */
+button {
+  padding: 12px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:disabled {
+  background-color: #d6d6d6;
+  cursor: not-allowed;
+}
+
+button:hover:enabled {
+  background-color: #0056b3;
+}
+
+/* Loading and No Data */
+div.is-loading,
+div.no-data {
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+  margin-top: 20px;
+}
+
+.is-loading {
+  font-weight: 600;
+}
+
+.no-data {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f0ad4e;
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 30px;
+}
+
+table th,
+table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #555;
+}
+
+table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  table {
+    font-size: 14px;
+  }
+
+  table th,
+  table td {
+    padding: 10px;
+  }
+
+  form {
+    grid-template-columns: 1fr;
+  }
+}
+/* Form */
+form {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr 1fr; /* Create two columns */
+  align-items: center;
+}
+
+/* Form Group for Date Fields */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
+}
+
+/* Start and End Date Fields in Same Row */
+.date-fields {
+  display: flex;
+  gap: 20px; /* Space between the date fields */
+}
+
+/* Start Date & End Date Inputs */
+input[type="date"] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input[type="date"]:focus {
+  outline: none;
+  border-color: #007bff;
+}

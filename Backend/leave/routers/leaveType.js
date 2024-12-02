@@ -22,8 +22,6 @@ router.post('/', authenticateToken, async (req, res) => {
 
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    console.log("OOOOOOOOOOOOOo");
-    
     const leaveTypes = await LeaveType.findAll();
     res.status(200).send(leaveTypes);
   } catch (error) {

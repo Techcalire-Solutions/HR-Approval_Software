@@ -14,11 +14,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
 import { User } from '../../../common/interfaces/users/user';
+import { MatIconModule } from '@angular/material/icon';
 @Component({
   selector: 'app-personal-details',
   standalone: true,
   imports: [ MatFormFieldModule, MatDatepickerModule, MatRadioModule, ReactiveFormsModule, MatOptionModule, MatSelectModule,
-    MatInputModule, MatSlideToggleModule, MatButtonModule, MatCardModule],
+    MatInputModule, MatSlideToggleModule, MatButtonModule, MatCardModule, MatIconModule],
   templateUrl: './personal-details.component.html',
   styleUrl: './personal-details.component.scss'
 })
@@ -67,7 +68,13 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
           emergencyContactNo: data.emergencyContactNo,
           emergencyContactName: data.emergencyContactName,
           emergencyContactRelation: data.emergencyContactRelation,
-          bloodGroup: data.bloodGroup
+          bloodGroup: data.bloodGroup,
+          spouseContactNo: data.spouseContactNo, 
+          parentContactNo: data.parentContactNo, 
+          motherName: data.motherName, 
+          motherContactNo: data.motherContactNo, 
+          temporaryAddress: data.temporaryAddress, 
+          permanentAddress: data.permanentAddress
         })
       }
     })
@@ -89,8 +96,19 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     emergencyContactNo: ['', Validators.compose([Validators.pattern(/^\d{10}$/)])],
     emergencyContactName: [''],
     emergencyContactRelation: [''],
-    bloodGroup: ['']
+    bloodGroup: [''],
+    spouseContactNo: [''], 
+    parentContactNo: [''], 
+    motherName: [''], 
+    motherContactNo: [''], 
+    temporaryAddress: [''], 
+    permanentAddress: ['']
   });
+
+  copyAddress(): void {
+    const permanentAddress = this.form.get('permanentAddress')?.value;
+    this.form.patchValue({ temporaryAddress: permanentAddress });
+  }
 
   submitSub!: Subscription;
   onSubmit(){

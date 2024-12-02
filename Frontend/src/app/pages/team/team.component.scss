@@ -6,10 +6,9 @@ body {
 
 .table {
   width: 100%;
-  // margin: 20px auto;
   border-collapse: separate; /* Use separate to allow corner rounding */
   border-spacing: 0;
-  overflow: hidden;
+  // overflow: hidden;
   border-radius: 10px; /* Rounded corners for the table */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for a subtle 3D effect */
 }
@@ -26,8 +25,8 @@ body {
 
 .table__body {
   max-height: 400px;
-  overflow-x: auto;
-  overflow-y: auto;
+  // overflow-x: auto;
+  // overflow-y: auto;
   border: 1px solid #0000000b;
   border-bottom-left-radius: 10px; /* Rounded bottom left corner */
   border-bottom-right-radius: 10px; /* Rounded bottom right corner */
@@ -39,17 +38,25 @@ table {
   table-layout: auto;
 }
 
+tr{
+  top: 0;
+  z-index: 2;
+}
+
+tr td{
+  padding: 4px 8px;
+}
+
 th, td {
   padding: 12px 15px;
   text-align: left;
   border-bottom: 1px solid #ddd;
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.2s ease-in-out
 }
 
 th {
   background-color: rgb(145, 195, 243);
   color: black;
-  position: sticky;
   top: 0;
   z-index: 2;
 }
@@ -57,6 +64,7 @@ th {
 td {
   background-color: #fff;
   position: relative;
+
 }
 
 tbody tr:nth-child(odd) {
@@ -65,7 +73,6 @@ tbody tr:nth-child(odd) {
 
 
 thead th:first-child, tbody td:first-child {
-  position: sticky;
   left: 0;
   z-index: 3;
 }

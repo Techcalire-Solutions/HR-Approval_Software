@@ -22,6 +22,7 @@ import { PayrollService } from '@services/payroll.service';
 import { PayrollLog } from '../../../common/interfaces/payRoll/payroll-log';
 import { MonthlyPayroll } from '../../../common/interfaces/payRoll/monthlyPayroll';
 import { SafePipe } from "../../../common/safe.pipe";
+import { UserQualification } from '../../../common/interfaces/users/user-qualification';
 
 @Component({
   selector: 'app-view-user',
@@ -60,6 +61,7 @@ export class ViewUserComponent implements OnInit, OnDestroy{
       this.getAssets(x.id);
       this.getPayrollLog(x.id);
       this.getMonthlySalary(x.id);
+      this.getQualData(x.id)
     });
   }
 
@@ -92,6 +94,16 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   getPositionData(id: number){
     this.posuSub = this.userService.getUserPositionDetailsByUser(id).subscribe(x => {
       this.positions = x;
+    })
+  }
+
+  qualSub!: Subscription;
+  qualifications: UserQualification;
+  getQualData(id: number){
+    this.qualSub = this.userService.getUserQualDetailsByUser(id).subscribe(x => {
+      this.qualifications = x;
+      console.log(x);
+      
     })
   }
 

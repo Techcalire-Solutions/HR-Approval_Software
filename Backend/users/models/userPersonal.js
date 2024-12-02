@@ -19,7 +19,13 @@ const UserPersonal = sequelize.define('userPersonal', {
   parentName: { type: DataTypes.STRING },
   spouseName: { type: DataTypes.STRING },
   referredBy: { type: DataTypes.STRING },
-  reportingMangerId: { type: DataTypes.INTEGER }
+  reportingMangerId: { type: DataTypes.INTEGER },
+  spouseContactNo: { type: DataTypes.STRING },
+  parentContactNo: { type: DataTypes.STRING },
+  motherName: { type: DataTypes.STRING },
+  motherContactNo: { type: DataTypes.STRING },
+  temporaryAddress: { type: DataTypes.TEXT},
+  permanentAddress: { type: DataTypes.TEXT}
 },
 {
   freezeTableName: true,

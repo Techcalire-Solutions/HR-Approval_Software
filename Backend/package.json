@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@auth0/angular-jwt": "^5.1.2",
+    "@getvim/execute": "^1.0.0",
     "aws-sdk": "^2.1691.0",
     "backend": "file:",
     "bcrypt": "^5.1.1",
