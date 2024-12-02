@@ -3,7 +3,8 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../utils/db');
 const User = require('./user');
-const Designation = require('../models/designation')
+const Designation = require('../models/designation');
+const Team = require('./team');
 
 const UserPosition = sequelize.define('userPosition',{
     userId : {type : DataTypes.INTEGER, allowNull : false},
@@ -19,6 +20,7 @@ const UserPosition = sequelize.define('userPosition',{
     officialMailId : {type : DataTypes.STRING},
     projectMailId : {type : DataTypes.STRING},
     designationId : {type : DataTypes.INTEGER},
+    teamId : { type: DataTypes.INTEGER, allowNull: true } 
 },
 {
     freezeTableName: true,
@@ -28,6 +30,9 @@ const UserPosition = sequelize.define('userPosition',{
 
 User.hasOne(UserPosition, { foreignKey: 'userId', onUpdate: 'CASCADE' });
 UserPosition.belongsTo(User, { foreignKey: 'userId' });
+
+Team.hasOne(UserPosition, { foreignKey: 'teamId', onUpdate: 'CASCADE' });
+UserPosition.belongsTo(Team, { foreignKey: 'teamId' });
 
 Designation.hasOne(UserPosition, { foreignKey: 'designationId', onUpdate: 'CASCADE' });
 UserPosition.belongsTo(Designation, { foreignKey: 'designationId' });

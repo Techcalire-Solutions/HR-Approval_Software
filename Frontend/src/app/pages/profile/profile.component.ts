@@ -22,6 +22,7 @@ import { MonthlyPayroll } from '../../common/interfaces/payRoll/monthlyPayroll';
 import { PayrollLog } from '../../common/interfaces/payRoll/payroll-log';
 import { UserAssets } from '../../common/interfaces/users/user-assets';
 import { UserQualification } from '../../common/interfaces/users/user-qualification';
+import { SafePipe } from "../../common/safe.pipe";
 
 @Component({
   selector: 'app-profile',
@@ -36,8 +37,9 @@ import { UserQualification } from '../../common/interfaces/users/user-qualificat
     DatePipe,
     MatExpansionModule,
     MatAccordion,
-    UpperCasePipe
-  ],
+    UpperCasePipe,
+    SafePipe
+],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })

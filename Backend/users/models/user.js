@@ -11,7 +11,6 @@ const User = sequelize.define('user', {
   phoneNumber: { type: DataTypes.STRING },
   password: { type: DataTypes.STRING, allowNull: false },
   roleId: { type: DataTypes.INTEGER, allowNull: false },
-  teamId : { type: DataTypes.INTEGER, allowNull: true },
   status: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
 
   userImage: { type: DataTypes.STRING },

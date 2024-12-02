@@ -28,7 +28,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { User } from '../../../common/interfaces/users/user';
-import { Team } from '../../../common/interfaces/users/team';
 import { UserQualificationComponent } from "../user-qualification/user-qualification.component";
 
 
@@ -64,8 +63,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
         this.generateEmployeeNumber()
       }
     });
-
-    this.getTeam()
   }
 
   form = this.fb.group({
@@ -80,7 +77,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   })
 
   ngOnDestroy(): void {
-    this.teamSub?.unsubscribe();
     this.userSub?.unsubscribe();
     this.usersSub?.unsubscribe();
     this.uploadSub?.unsubscribe();
@@ -153,13 +149,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     this.hidePassword = !this.hidePassword;
   }
 
-  teams : Team[]=[]
-  teamSub!:Subscription;
-  getTeam(){
-    this.teamSub = this.teamService.getTeam().subscribe((res)=>{
-      this.teams = res;
-    })
-  }
+
 
 
   selectedTabIndex: number = 0;
@@ -178,8 +168,8 @@ export class UserDialogComponent implements OnInit, OnDestroy {
       })
     }else{
       this.submit = this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
-        this.userName = res.user.name
-        this.dataToPass = { id: res.user.id, empNo: this.invNo, name: res.user.name, updateStatus: this.editStatus };
+        this.userName = res.name
+        this.dataToPass = { id: res.id, empNo: this.invNo, name: res.name, updateStatus: this.editStatus };
         this.selectedTabIndex = 1;
         if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
           this.personalDetailsComponent.ngOnInit();

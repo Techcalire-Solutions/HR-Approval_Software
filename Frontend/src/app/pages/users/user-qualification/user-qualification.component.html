@@ -124,7 +124,7 @@
     </mat-card-content>
     <mat-card-actions>
       <div class="col" style="text-align: right;">
-        <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.pristine || form.invalid">
+        <button mat-raised-button color="primary" [disabled]="form.pristine || form.invalid">
           @if (editStaus) {
               Update
           } @else {

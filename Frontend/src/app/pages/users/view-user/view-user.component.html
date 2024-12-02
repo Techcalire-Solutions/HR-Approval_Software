@@ -115,13 +115,14 @@
                   <div>Department  :<strong >{{positions.department?.name}}</strong></div>
                   <div>Division  :<strong >{{positions.division}}</strong></div>
                   <div>Cost Centre  :<strong>{{positions.costCentre}}</strong></div>
+                  <div>Team  :<strong>{{positions.team.teamName}}</strong></div>
                 </div>
 
                 <div class="flex-container">
                   <div>Location  :<strong >{{positions.location}}</strong></div>
                   <div>Office  :<strong >{{positions.office}}</strong></div>
                   <div>Probation Period  :<strong >{{positions.probationPeriod}}</strong></div>
-                  <div>Confirmed Date  :<strong>{{userPersonal.confirmationDate | date:'dd/MM/yyyy'}}</strong></div>
+                  <div>Confirmed Date  :<strong>{{userPersonal?.confirmationDate | date:'dd/MM/yyyy'}}</strong></div>
                 </div>
 
                 <div class="flex-container">
