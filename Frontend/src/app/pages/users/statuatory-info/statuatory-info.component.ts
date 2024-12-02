@@ -2,18 +2,19 @@
 import { MatButtonModule } from '@angular/material/button';
 import { UsersService } from './../../../services/users.service';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, Output, inject } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatCardModule } from '@angular/material/card';
 import { StatutoryInfo } from '../../../common/interfaces/users/statutory-info';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 
 @Component({
   selector: 'app-statuatory-info',
   standalone: true,
-  imports: [ MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule, MatCardModule ],
+  imports: [ MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule, MatCardModule, MatDatepickerModule ],
   templateUrl: './statuatory-info.component.html',
   styleUrl: './statuatory-info.component.scss'
 })
@@ -36,7 +37,9 @@ export class StatuatoryInfoComponent implements OnDestroy {
     esiNumber : [''],
     uanNumber : [''],
     insuranceNumber: [''],
-    pfNumber : ['']
+    pfNumber : [''],
+    passportNumber : [''],
+    passportExpiry: [''],
   });
 
   editStatus: boolean = false;

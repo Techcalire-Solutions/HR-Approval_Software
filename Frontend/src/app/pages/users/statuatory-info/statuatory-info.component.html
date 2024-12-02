@@ -48,6 +48,22 @@
         </div>
       </div>
     </div>
+    <div class="row box">
+      <div class="col">
+        <mat-form-field class="w-100" appearance="outline">
+          <mat-label>Passport Number</mat-label>
+          <input matInput formControlName="passportNumber" >
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Expiry Date</mat-label>
+          <input matInput [matDatepicker]="startDatePicker" formControlName="passportExpiry" placeholder="">
+          <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #startDatePicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </div>
 
     <div class="col" style="text-align: right;">
       <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.pristine || form.invalid">

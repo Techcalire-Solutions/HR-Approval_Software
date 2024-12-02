@@ -19,7 +19,6 @@ export const routes: Routes = [
         loadComponent: () => import('./hierarchy-tree/hierarchy-tree.component').then(c => c.HierarchyTreeComponent),
         data: { breadcrumb: 'HierarchyTree' }, canActivate: [AuthGuard]
       },
-
       {
         path: 'designation',
         loadComponent: () => import('./users/designation/designation.component').then(c => c.DesignationComponent),
@@ -29,6 +28,9 @@ export const routes: Routes = [
         path: 'users',
         loadChildren: () => import('./users/user.routes').then(c => c.routes),
         data: { breadcrumb: 'Employees' }, canActivate: [AuthGuard]
+      },
+      {path: 'backup', loadComponent: () => import('./backup-log/backup-log.component').then(c => c.BackupLogComponent),
+        data: { breadcrumb: 'Backup' }, canActivate: [AuthGuard]
       },
       // {path: 'leaveType', loadComponent: () => import('./admin-leave/leave-types/leave-types.component').then(c => c.LeaveTypesComponent),
       //   data: { breadcrumb: 'Leave Type' }, canActivate: [AuthGuard]
@@ -126,7 +128,6 @@ export const routes: Routes = [
           }
         ]
       }
-
 
     ]
   }

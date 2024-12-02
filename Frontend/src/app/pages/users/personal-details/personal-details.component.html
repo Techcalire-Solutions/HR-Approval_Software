@@ -68,8 +68,15 @@
       <div class="row box">
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
-            <mat-label> Parent Name</mat-label>
+            <mat-label> Father Name</mat-label>
             <input matInput formControlName="parentName" >
+          </mat-form-field>
+        </div>
+
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Mother Name</mat-label>
+            <input matInput formControlName="motherName">
           </mat-form-field>
         </div>
 
@@ -77,6 +84,29 @@
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>Spouse Name</mat-label>
             <input matInput formControlName="spouseName">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="row box">
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label> Father Contact Number</mat-label>
+            <input matInput formControlName="parentContactNo" >
+          </mat-form-field>
+        </div>
+
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Mother Contact Number</mat-label>
+            <input matInput formControlName="motherContactNo">
+          </mat-form-field>
+        </div>
+
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Spouse Contact Number</mat-label>
+            <input matInput formControlName="spouseContactNo">
           </mat-form-field>
         </div>
       </div>
@@ -122,6 +152,26 @@
                 </mat-option>
               }
             </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="row box">
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Permanent Address</mat-label>
+            <textarea matInput formControlName="permanentAddress"></textarea>
+          </mat-form-field>
+        </div>
+        <div class="row">
+          <!-- <button mat-raised-button color="primary" (click)="copyAddress()"> -->
+            <mat-icon (click)="copyAddress()">repeat_one_on</mat-icon>
+          <!-- </button> -->
+        </div>&nbsp;&nbsp;
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Present Address</mat-label>
+            <textarea matInput formControlName="temporaryAddress"></textarea>
           </mat-form-field>
         </div>
       </div>

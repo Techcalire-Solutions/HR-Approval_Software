@@ -7,7 +7,7 @@ const StatutoryInfo = require('../models/statutoryInfo');
 const {Op} = require('sequelize');
 
 router.post('/add', authenticateToken, async (req, res) => {
-  const { userId, adharNo, panNumber, esiNumber, uanNumber, insuranceNumber, pfNumber }  = req.body;
+  const { userId, adharNo, panNumber, esiNumber, uanNumber, insuranceNumber, pfNumber, passportNumber, passportExpiry }  = req.body;
 
   try {
     // Build a dynamic where condition to only include non-null and non-empty values
@@ -33,6 +33,12 @@ router.post('/add', authenticateToken, async (req, res) => {
     if (pfNumber) {
       whereCondition[Op.or].push({ pfNumber: { [Op.ne]: null, [Op.eq]: pfNumber } });
     }
+    if (passportNumber) {
+      whereCondition[Op.or].push({ passportNumber: { [Op.ne]: null, [Op.eq]: passportNumber } });
+    }
+    if (passportExpiry) {
+      whereCondition[Op.or].push({ passportExpiry: { [Op.ne]: null, [Op.eq]: passportExpiry } });
+    }
 
 
     // If no conditions were added, skip the userExist check
@@ -56,7 +62,8 @@ router.post('/add', authenticateToken, async (req, res) => {
     }
 
     // Create and save the new statutory information
-    const user = new StatutoryInfo({ userId, adharNo, panNumber, esiNumber, uanNumber, insuranceNumber, pfNumber });
+    const user = new StatutoryInfo({ userId, adharNo, panNumber, esiNumber, uanNumber, insuranceNumber, pfNumber,
+       passportNumber, passportExpiry });
     await user.save();
     res.send(user);
     
@@ -77,7 +84,7 @@ router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
 });
 
 router.patch('/update/:id', async(req,res)=>{
-  const { adharNo, panNumber, esiNumber, uanNumber, pfNumber, insuranceNumber } = req.body
+  const { adharNo, panNumber, esiNumber, uanNumber, pfNumber, insuranceNumber, passportNumber, passportExpiry } = req.body
   try {
     let result = await StatutoryInfo.findByPk(req.params.id);
     result.adharNo = adharNo;
@@ -86,6 +93,8 @@ router.patch('/update/:id', async(req,res)=>{
     result.uanNumber = uanNumber;
     result.insuranceNumber = insuranceNumber;
     result.pfNumber = pfNumber;
+    result.passportNumber = passportNumber;
+    result.passportExpiry = passportExpiry;
 
     await result.save();
     res.send(result);

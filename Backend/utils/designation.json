@@ -3,6 +3,7 @@
     {"designationName": "APPROVAL ADMIN", "abbreviation": "AA"}, 
     {"designationName": "HR ADMIN", "abbreviation": "HRA"}, 
     {"designationName": "MANAGING DIRECTOR", "abbreviation": "MD"}, 
+    
     {"designationName": "OPERATIONS MANAGER", "abbreviation": "OM"}, 
     {"designationName": "KEY ACCOUNT MANAGER", "abbreviation": "KAM"}, 
     {"designationName": "FINANCE MANAGER", "abbreviation": "FM"}, 

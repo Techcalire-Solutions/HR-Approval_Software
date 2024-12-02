@@ -354,10 +354,8 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
       ACL: 'public-read' // Optional: make file publicly accessible
     };
 
-    // Upload the file to S3
     const data = await s3.upload(params).promise();
 
-    // Check if data.Location (fileUrl) exists
     const fileUrl = data.Location ? data.Location : '';
 
     // Replace only if fileUrl is valid

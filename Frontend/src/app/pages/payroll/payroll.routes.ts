@@ -43,7 +43,17 @@ export const routes: Routes = [
         ]
       }
     ]
-  }
+  },
+  { path: 'ytd', data: { breadcrumb: 'Year To Date' },
+    children: [
+      {path: '', loadComponent: () => import('./year-to-date/year-to-date.component').then(c => c.YearToDateComponent),
+        canActivate: [AuthGuard]
+      },
+      // { path: 'add',  loadComponent: () => import('./advance-salary/add-advance-salary/add-advance-salary.component').then(c => c.AddAdvanceSalaryComponent),
+      //   data: { breadcrumb: 'ADD' } , canActivate: [AuthGuard]
+      // }
+    ]
+  },
   
 
 ];

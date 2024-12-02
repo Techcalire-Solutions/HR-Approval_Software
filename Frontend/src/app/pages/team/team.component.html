@@ -36,31 +36,40 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let team of teams">
-                <td> {{ team.teamName }} </td>
+              @for (team of teams; track $index) {
+                <tr>
+                  <td> {{ team.teamName }} </td>
+  
+                  <!-- Team Leader Column -->
+                  <td> {{ team.leader.name }} </td>
+  
+                  <!-- Team Members Column -->
+                  <td>
+                    @for (member of team.teamMembers; track $index) {
+                      <div class="team-member">
+                        {{ member.user.name }}
+                        <mat-divider></mat-divider>
+                      </div>
+                    }
+                  </td>
+  
+                  <!-- Manage Column -->
+                  <td>
+                    <button
+                      mat-icon-button
+                      (click)="openRoleDialog(team)">
+                      <mat-icon>mode_edit</mat-icon>
+                    </button>
+      
+                    <button
+                      mat-icon-button
+                      (click)="deleteTeam(team.id)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              }
 
-                <!-- Team Leader Column -->
-                <td> {{ team.leader.name }} </td>
-
-                <!-- Team Members Column -->
-                <td>
-                  <div *ngFor="let member of team.teamMembers" class="team-member">
-                    {{ member.user.name }}
-                    <mat-divider></mat-divider>
-                  </div>
-                </td>
-
-                <!-- Manage Column -->
-                <td>
-                  <button mat-menu-item (click)="openRoleDialog(team)">
-                    <mat-icon>mode_edit</mat-icon>
-                  </button> &nbsp;
-                  <!-- Uncomment if delete is needed -->
-                  <button mat-menu-item (click)="deleteTeam(team.id);">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </td>
-              </tr>
             </tbody>
           </table>
 

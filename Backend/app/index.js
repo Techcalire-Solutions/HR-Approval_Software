@@ -5,6 +5,8 @@ const app = express();
 const dotenv = require('dotenv');
 const cors = require('cors')
 const path = require('path');
+const cron = require('node-cron');
+
 
 dotenv.config();
 app.use(cors({ origin: '*' }));
@@ -23,25 +25,12 @@ const userAccount = require('../users/routers/userAccount');
 const userPosition = require('../users/routers/userPosition');
 const userDocument = require('../users/routers/userDocument');
 const userAssets = require('../users/routers/userAssets');
-
+const userQual = require('../users/routers/userQualification');
 const auth = require('../users/routers/auth');
 const team = require('../users/routers/team');
 const teamMember = require('../users/routers/teamMember');
 app.use('/role', role);
 app.use('/designation', designation);
-
-const holiday = require('../leave/routers/holiday');
-app.use('/holidays', holiday);
-
-const notification = require('../invoices/routers/notification')
-app.use('/notification',notification)
-
-
-// app.use(cors({
-//     origin: 'https://approval.techclaire.com', 
-//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', 
-//     credentials: true, 
-//   }));
 
 app.use('/user', user);
 app.use('/personal', userPersonal)
@@ -50,7 +39,7 @@ app.use('/account', userAccount)
 app.use('/position', userPosition)
 app.use('/document', userDocument)
 app.use('/asset', userAssets)
-
+app.use('/qualification', userQual)
 app.use('/auth', auth);
 app.use('/team', team);
 app.use('/teamMember', teamMember);
@@ -67,8 +56,8 @@ app.use('/excelLog', excelLog);
 const company = require('../invoices/routers/company');
 app.use('/company', company);
 
-app.use('/invoices/uploads', express.static(path.join(__dirname, '../invoices/uploads')));
-app.use('/users/userImages', express.static(path.join(__dirname, '../users/userImages')));
+// app.use('/invoices/uploads', express.static(path.join(__dirname, '../invoices/uploads')));
+// app.use('/users/userImages', express.static(path.join(__dirname, '../users/userImages')));
 
 const leave = require('../leave/routers/leave');
 const leaveType = require('../leave/routers/leaveType');
@@ -92,6 +81,29 @@ app.use('/payrolllog', payrollLog);
 app.use('/monthlypayroll', monthlyPayroll);
 app.use('/advanceSalary', advanceSalary);
 
+const holiday = require('../leave/routers/holiday');
+app.use('/holidays', holiday);
+
+const notification = require('../invoices/routers/notification')
+app.use('/notification',notification)
+
+const backup = require('./backUp')
+cron.schedule('0 0 1 * *', () => {
+    backup();
+});
+
+
+// cron.schedule('* * * * *', () => {
+//     backup();
+// });
+// 0 - The task will start at minute 0.
+// 0 - The task will start at hour 0 (midnight).
+// 1 - The task will run on the 1st day of the month.
+// * - The task will run in all months.
+// * - The task will run on any day of the week.
+
+const backUpLogRouter = require('../app/backUpLogRouter');
+app.use('/backup', backUpLogRouter);
 
 const port = process.env.PORT || 8000;
 app.listen(port, () => {

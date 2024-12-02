@@ -10,6 +10,7 @@ import { UserAssets } from '../common/interfaces/users/user-assets';
 import { UserDocument } from '../common/interfaces/users/user-document';
 import { UserPersonal } from '../common/interfaces/users/user-personal';
 import { UserPosition } from '../common/interfaces/users/user-position';
+import { UserQualification } from '../common/interfaces/users/user-qualification';
 
 
 @Injectable({
@@ -102,6 +103,10 @@ export class UsersService {
 
   getUserAcoountDetailsByUser(id: number): Observable<UserAccount> {
     return this.http.get<UserAccount>( this.apiUrl + '/account/findbyuser/' + id);
+  }
+
+  getUserQualDetailsByUser(id: number): Observable<UserQualification> {
+    return this.http.get<UserQualification>( this.apiUrl + '/qualification/findbyuser/' + id);
   }
 
   getReportingManagers(): Observable<User[]>{
@@ -226,6 +231,14 @@ export class UsersService {
 
   updateDesignation(id: number, data: any){
     return this.http.patch<UserPosition[]>(this.apiUrl + `/position/updaterole/${id}`, data)
+  }
+
+  addUserQualification(data: any): Observable<any> {
+    return this.http.post( this.apiUrl + '/qualification/save', data);
+  }
+
+  updateUserQualification(data: any, id: number): Observable<UserQualification[]>{
+    return this.http.patch<UserQualification[]>(this.apiUrl + `/qualification/update/${id}`, data)
   }
 
 }

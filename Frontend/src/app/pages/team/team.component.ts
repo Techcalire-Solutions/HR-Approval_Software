@@ -1,10 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, ViewEncapsulation } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
 import { Settings, SettingsService } from '../../services/settings.service';
 
-import { UserDialogComponent } from '../users/user-dialog/user-dialog.component';
-import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -19,22 +18,22 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { PipesModule } from '../../theme/pipes/pipes.module';
 import { UsersService } from '../../services/users.service';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { TeamService } from '@services/team.service';
-import { MatDividerModule } from '@angular/material/divider';
-import { CommonModule } from '@angular/common';
 import { TeamDialogueComponent } from './team-dialogue/team-dialogue.component';
 import { Subscription } from 'rxjs';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Team } from '../../common/interfaces/users/team';
 import { User } from '../../common/interfaces/users/user';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatDividerModule } from '@angular/material/divider';
 @Component({
   selector: 'app-team',
   standalone: true,
   imports: [
-    CommonModule,
     MatTableModule,
+    MatInputModule ,
     FormsModule,
     FlexLayoutModule,
     MatButtonModule,
@@ -48,8 +47,7 @@ import { User } from '../../common/interfaces/users/user';
     MatCardModule,
     NgxPaginationModule,
     PipesModule,
-    DatePipe,
-    UserDialogComponent,
+    MatPaginatorModule,
     MatDividerModule
   ],
   templateUrl: './team.component.html',
@@ -85,11 +83,11 @@ export class TeamComponent {
       this.teams = teams
     });
   }
-  applyFilter(filterValue: string) {
+  applyFilter() {
     // this.dataSource.filter = filterValue.trim().toLowerCase();
   }
   public addTeam(user:User){
-    this.teamService.addTeam(user).subscribe(user => this.getTeams());
+    this.teamService.addTeam(user).subscribe(() => this.getTeams());
   }
   // public updateUser(user:User){
   //   this.usersService.updateUser(user).subscribe(user => this.getUsers());
@@ -98,10 +96,10 @@ export class TeamComponent {
   //   this.usersService.deleteUser(user.id).subscribe(user => this.getUsers());
   // }
   public openRoleDialog(user: any){
-    let dialogRef = this.dialog.open(TeamDialogueComponent, {
+    const dialogRef = this.dialog.open(TeamDialogueComponent, {
       data: user
     });
-    dialogRef.afterClosed().subscribe(user => {
+    dialogRef.afterClosed().subscribe(() => {
       this.getTeams()
     });
   }
@@ -118,10 +116,10 @@ export class TeamComponent {
   }
 
   public openUserDialog(user: any){
-    let dialogRef = this.dialog.open(TeamDialogueComponent, {
+    const dialogRef = this.dialog.open(TeamDialogueComponent, {
       data: user
     });
-    dialogRef.afterClosed().subscribe(user => {
+    dialogRef.afterClosed().subscribe(() => {
       // if(user){
       //     (user.id) ? this.updateUser(user) : this.addUser(user);
       // }
@@ -130,10 +128,10 @@ export class TeamComponent {
 
   delete!: Subscription;
   deleteTeam(id: number){
-    let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+    const dialogRef = this.dialog.open(DeleteDialogueComponent, {});
     dialogRef.afterClosed().subscribe(res => {
       if(res){
-        this.delete = this.teamService.deleteTeam(id).subscribe(res => {
+        this.delete = this.teamService.deleteTeam(id).subscribe(() => {
           this._snackbar.open("Team deleted successfully...","" ,{duration:3000})
           this.getTeams()
         });

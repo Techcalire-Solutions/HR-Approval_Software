@@ -25,4 +25,12 @@ export interface UserPersonal {
   user: User;
   age: number;
   exp: number;
+
+  
+  spouseContactNo: string, 
+  parentContactNo: string, 
+  motherName: string, 
+  motherContactNo: string,
+  temporaryAddress: string, 
+  permanentAddress: string
 }
