@@ -102,8 +102,6 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   getQualData(id: number){
     this.qualSub = this.userService.getUserQualDetailsByUser(id).subscribe(x => {
       this.qualifications = x;
-      console.log(x);
-      
     })
   }
 
@@ -148,6 +146,11 @@ export class ViewUserComponent implements OnInit, OnDestroy{
     this.suSub?.unsubscribe();
     this.auSub?.unsubscribe();
     this.posuSub?.unsubscribe();
+    this.qualSub?.unsubscribe();
+    this.monthSalarySub?.unsubscribe();
+    this.payLogSUb?.unsubscribe();
+    this.assetSub?.unsubscribe();
+    this.docSub?.unsubscribe();
   }
 
   private router = inject(Router);
