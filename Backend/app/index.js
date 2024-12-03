@@ -87,7 +87,7 @@ const notification = require('../invoices/routers/notification')
 app.use('/notification',notification)
 
 const backup = require('./backUp')
-cron.schedule('0 0 3 * *', () => {
+cron.schedule('0 0 4 * *', () => {
     backup();
 });
 
