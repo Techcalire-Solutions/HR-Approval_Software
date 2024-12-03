@@ -39,7 +39,7 @@ export class StatuatoryInfoComponent implements OnDestroy {
     insuranceNumber: [''],
     pfNumber : [''],
     passportNumber : [''],
-    passportExpiry: <any>[''],
+    passportExpiry: <any>[],
   });
 
   editStatus: boolean = false;
@@ -74,6 +74,7 @@ export class StatuatoryInfoComponent implements OnDestroy {
 
   @Output() dataSubmitted = new EventEmitter<any>();
   private submitSub!: Subscription;
+  isNext: boolean = false;
   onSubmit(){
     const submit = {
       ...this.form.getRawValue()
@@ -82,13 +83,15 @@ export class StatuatoryInfoComponent implements OnDestroy {
     if(this.editStatus){
       this.submitSub = this.userService.updateUserStatutory(this.id, submit).subscribe(() => {
         this.snackBar.open("Statutory Details updated succesfully...","" ,{duration:3000})
-        this.dataSubmitted.emit( {isFormSubmitted: true} );
+        this.isNext = true
+        // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }
     else{
       this.submitSub = this.userService.addStautoryInfo(submit).subscribe(() => {
         this.snackBar.open("Statutory Details added succesfully...","" ,{duration:3000})
-        this.dataSubmitted.emit( {isFormSubmitted: true} );
+        this.isNext = true
+        // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }
   }

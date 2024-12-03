@@ -36,9 +36,6 @@ router.post('/add', authenticateToken, async (req, res) => {
     if (passportNumber) {
       whereCondition[Op.or].push({ passportNumber: { [Op.ne]: null, [Op.eq]: passportNumber } });
     }
-    if (passportExpiry) {
-      whereCondition[Op.or].push({ passportExpiry: { [Op.ne]: null, [Op.eq]: passportExpiry } });
-    }
 
 
     // If no conditions were added, skip the userExist check
