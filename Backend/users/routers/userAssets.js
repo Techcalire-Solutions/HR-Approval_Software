@@ -88,7 +88,7 @@ router.patch('/update/:id', async(req,res)=>{
     } catch (error) {
       res.send(error.message);
     }
-  })
+})
   
 
 module.exports = router;

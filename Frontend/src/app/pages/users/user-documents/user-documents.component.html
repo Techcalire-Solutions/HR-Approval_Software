@@ -40,7 +40,8 @@
             </div>
           </div>
         </div>
-        <button mat-raised-button color="primary" (click)="addDoc()" [disabled]="!mainForm.get('uploadForms')?.valid || !isAnyFormClicked()">New Line</button>
+        <button mat-raised-button color="primary" (click)="addDoc()" 
+        [disabled]="!isAllFormsValidAndSaved()">New Line</button>
         <button mat-raised-button color="warn" (click)="completeForm()"
         [disabled]="!isAllFormsValidAndSaved()">Complete</button>
         <button mat-raised-button color="primary" onclick="history.back()" style="margin-left: 10px;"
