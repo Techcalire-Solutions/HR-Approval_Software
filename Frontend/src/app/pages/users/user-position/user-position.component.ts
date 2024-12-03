@@ -107,6 +107,8 @@ export class UserPositionComponent implements OnDestroy {
   triggerNew(data?: any): void {
     this.getRoles();
     this.getTeam();
+    console.log(data);
+    
     if(data){
       if(data.updateStatus){
         this.getPositionDetailsByUser(data.id)
@@ -142,6 +144,7 @@ export class UserPositionComponent implements OnDestroy {
 
   @Output() dataSubmitted = new EventEmitter<any>();
   submitSub!: Subscription;
+  isNext: boolean = false;
   onSubmit(){
     const submit = {
       ...this.form.getRawValue()
@@ -150,12 +153,14 @@ export class UserPositionComponent implements OnDestroy {
     if(this.editStatus){
       this.submitSub = this.userService.updateUserPosition(this.id, submit).subscribe(() => {
         this.snackBar.open("Postion Details updated succesfully...","" ,{duration:3000})
+        // this.isNext =true
         this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }else{
       this.submitSub = this.userService.addUserPositionDetails(submit).subscribe(() => {
         this.snackBar.open("Postion Details added succesfully...","" ,{duration:3000})
-        this.dataSubmitted.emit( {isFormSubmitted: true} );
+        this.isNext = true
+        // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }
   }

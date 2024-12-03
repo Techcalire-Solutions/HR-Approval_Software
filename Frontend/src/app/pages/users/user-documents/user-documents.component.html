@@ -31,12 +31,7 @@
               } 
               <div class="col">
                 <button mat-raised-button color="primary" type="button" (click)="onSubmit(i)" 
-                [disabled]="clickedForms[i] || !uploadForm.valid">
-                  @if (editStatus[i]) {
-                    Update
-                } @else {
-                    Save
-                }
+                [disabled]="uploadForm.pristine || !uploadForm.valid"> {{ editStatus[i] ? 'Update' : 'Save' }}
                 </button>
                 <button mat-icon-button color="warn" (click)="removeData(i)">
                   <mat-icon>remove_circle</mat-icon>
@@ -45,10 +40,11 @@
             </div>
           </div>
         </div>
-        <button mat-raised-button color="primary" (click)="addDoc()">New Line</button>
+        <button mat-raised-button color="primary" (click)="addDoc()" [disabled]="!mainForm.get('uploadForms')?.valid || !isAnyFormClicked()">New Line</button>
         <button mat-raised-button color="warn" (click)="completeForm()"
-          [disabled]="!mainForm.get('uploadForms')?.valid || !isAnyFormClicked()">Complete</button>
-        <button mat-raised-button color="primary" onclick="history.back()" style="margin-left: 10px;">
+        [disabled]="!isAllFormsValidAndSaved()">Complete</button>
+        <button mat-raised-button color="primary" onclick="history.back()" style="margin-left: 10px;"
+          [disabled]="isAnyFormClicked()">
           Exit
         </button>
       </div>

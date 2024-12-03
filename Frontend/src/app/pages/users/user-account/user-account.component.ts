@@ -76,6 +76,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
 
   @Output() dataSubmitted = new EventEmitter<any>();
   private submitSub!: Subscription;
+  isNext: boolean = false;
   onSubmit(){
     const submit = {
       ...this.form.getRawValue()
@@ -84,12 +85,14 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     if(this.editStatus){
       this.submitSub = this.userService.updateUserAccount(this.id, submit).subscribe(() => {
         this.snackBar.open("Account Details updated succesfully...","" ,{duration:3000})
+        // this.isNext = true
         this.dataSubmitted.emit( {isFormSubmitted: true} );
       })}
     else{
       this.submitSub = this.userService.addUserAccountDetails(submit).subscribe(() => {
         this.snackBar.open("Account Details added succesfully...","" ,{duration:3000})
-        this.dataSubmitted.emit( {isFormSubmitted: true} );
+        this.isNext = true
+        // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })}
   }
 

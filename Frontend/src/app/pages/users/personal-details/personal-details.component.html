@@ -191,7 +191,7 @@
           <button mat-raised-button color="primary" onclick="history.back()" [disabled]="!form.pristine && !form.invalid" style="margin-left: 10px;">
             Exit
           </button>
-          <button mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;" [disabled]="!form.pristine && !form.invalid">
+          <button mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;" [disabled]="!form.pristine && !form.invalid && !isNext">
             Next
           </button>
         </div>

@@ -32,6 +32,8 @@ export class UserDocumentsComponent implements OnDestroy {
   editStatus: boolean[] = [];
   id: number[] = [];
   triggerNew(data?: any): void {
+    console.log(this.clickedForms);
+    
     if(data){
       if(data.updateStatus){
         this.getDocumentDetailsByUser(data.id)
@@ -152,6 +154,8 @@ export class UserDocumentsComponent implements OnDestroy {
 
   isAnyFormClicked(): boolean {
     for(let i = 0; i < this.clickedForms.length; i++) {
+      console.log(this.clickedForms[i]);
+      
       if (!this.clickedForms[i]) {
         return false; // Return false if any value is false
       }
@@ -159,13 +163,18 @@ export class UserDocumentsComponent implements OnDestroy {
     return true
   }
 
+  isAllFormsValidAndSaved(): boolean {
+    return this.doc().controls.every((form) => form.valid && form.pristine);
+  }
+
   submit!: Subscription;
   onSubmit(i: number): void {
     const form = this.doc().at(i) as FormGroup
     this.clickedForms[i] = true;
+    form.markAsPristine();
     if(this.editStatus[i]){
       this.submit = this.userSevice.updateUserDocumentDetails(this.id[i], form.value).subscribe(res => {
-        this.snackBar.open(`${res.docName} is added to employee data`,"" ,{duration:3000})
+        this.snackBar.open(`${res.docName} is updated to employee data`,"" ,{duration:3000})
       });
     }else{
       this.submit = this.userSevice.addUserDocumentDetails(form.value).subscribe(res => {
