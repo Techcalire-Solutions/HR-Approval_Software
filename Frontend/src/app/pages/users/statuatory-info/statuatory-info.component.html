@@ -58,26 +58,37 @@
       <div class="col">
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Expiry Date</mat-label>
-          <input matInput [matDatepicker]="startDatePicker" formControlName="passportExpiry" placeholder="">
-          <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
-          <mat-datepicker #startDatePicker></mat-datepicker>
+          <input matInput [matDatepicker]="dp" formControlName="passportExpiry">
+          <mat-hint>DD/MM/YYYY</mat-hint>
+          <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
+          <mat-datepicker #dp></mat-datepicker>
         </mat-form-field>
       </div>
     </div>
 
     <div class="col" style="text-align: right;">
-      <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.pristine || form.invalid">
+      <button mat-raised-button (click)="triggerPreviousTab()" [disabled]="!form.pristine && !form.invalid && !isNext">
+        <div class="text-with-icon">
+          <mat-icon>arrow_back_ios</mat-icon>
+          <span>Previous</span>
+        </div>
+      </button>
+      <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.pristine || form.invalid"
+      style="margin-left: 10px;" >
         @if (editStatus) {
             Update
         } @else {
             Save
         }
       </button>
-      <button mat-raised-button color="primary" onclick="history.back()" [disabled]="!form.pristine && !form.invalid" style="margin-left: 10px;">
+      <button mat-raised-button color="primary" onclick="history.back()" [disabled]="!form.pristine && !form.invalid && !isNext" style="margin-left: 10px;">
         Exit
       </button>
-      <button mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;" [disabled]="!form.pristine && !form.invalid && !isNext">
-        Next
+      <button mat-raised-button (click)="triggerNextTab()" style="margin-left: 10px;" [disabled]="!form.pristine && !form.invalid && !isNext">
+        <div class="text-with-icon">
+          <span>Next</span>
+          <mat-icon>arrow_forward_ios</mat-icon>
+        </div>
       </button>
     </div>
   </mat-card>

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -15,13 +15,30 @@ import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
 import { User } from '../../../common/interfaces/users/user';
 import { MatIconModule } from '@angular/material/icon';
+import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
+
+export const MY_FORMATS = {
+  parse: {
+    dateInput: 'DD/MM/YYYY', // Change to desired format
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY', // Display format for the input field
+    monthYearLabel: 'MMM YYYY', // Format for month/year in the header
+    dateA11yLabel: 'DD/MM/YYYY', // Accessibility format for dates
+    monthYearA11yLabel: 'MMMM YYYY', // Accessibility format for month/year
+  },
+};
+
+
 @Component({
   selector: 'app-personal-details',
   standalone: true,
   imports: [ MatFormFieldModule, MatDatepickerModule, MatRadioModule, ReactiveFormsModule, MatOptionModule, MatSelectModule,
     MatInputModule, MatSlideToggleModule, MatButtonModule, MatCardModule, MatIconModule],
   templateUrl: './personal-details.component.html',
-  styleUrl: './personal-details.component.scss'
+  styleUrl: './personal-details.component.scss',
+  providers: [provideMomentDateAdapter(MY_FORMATS)],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PersonalDetailsComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
@@ -39,9 +56,9 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
   triggerNew(data?: any): void {
     this.getReportingManager()
     if(data){
-      if(data.updateStatus){
+      // if(data.updateStatus){
         this.getPersonalDetailsByUser(data.id)
-      }
+      // }
     }
   }
 
@@ -74,7 +91,9 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
           motherName: data.motherName, 
           motherContactNo: data.motherContactNo, 
           temporaryAddress: data.temporaryAddress, 
-          permanentAddress: data.permanentAddress
+          permanentAddress: data.permanentAddress,
+          qualification: data.qualification, 
+          experience: data.experience
         })
       }
     })
@@ -102,7 +121,9 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     motherName: [''], 
     motherContactNo: [''], 
     temporaryAddress: [''], 
-    permanentAddress: ['']
+    permanentAddress: [''],
+    qualification: [''], 
+    experience: ['']
   });
 
   copyAddress(): void {
@@ -134,6 +155,8 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
+  relations = ['Father', 'Mother', 'Sister', 'Brother', 'Spouse', 'Friend', 'Other'];
+
   ngOnDestroy(): void {
     this.submitSub?.unsubscribe();
     this.pUSub?.unsubscribe();
@@ -162,6 +185,11 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     this.nextTab.emit();
   }
 
+  @Output() previousTab = new EventEmitter<void>();
+  triggerPreviousTab() {
+    this.previousTab.emit();
+  }
+
 
   rmSub!: Subscription;
   rm: User[] = [];
@@ -171,3 +199,4 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     })
   }
 }
+

@@ -87,7 +87,7 @@ const notification = require('../invoices/routers/notification')
 app.use('/notification',notification)
 
 const backup = require('./backUp')
-cron.schedule('0 0 3 * *', () => {
+cron.schedule('0 0 5 * *', () => {
     backup();
 });
 
@@ -101,7 +101,7 @@ cron.schedule('0 0 3 * *', () => {
 // * - The task will run in all months.
 // * - The task will run on any day of the week.
 
-const backUpLogRouter = require('../app/backUpLogRouter');
+const backUpLogRouter = require('./backupLogRouter');
 app.use('/backup', backUpLogRouter);
 
 const port = process.env.PORT || 8000;

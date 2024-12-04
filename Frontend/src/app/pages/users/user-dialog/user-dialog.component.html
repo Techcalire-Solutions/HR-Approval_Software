@@ -116,8 +116,11 @@
                     Close
                   </button>
                 }@else if(editStatus){
-                  <button mat-raised-button color="primary" (click)="goToNextTab()">
-                    Next
+                  <button mat-raised-button (click)="goToNextTab()">
+                    <div class="text-with-icon">
+                      <span>Next</span>
+                      <mat-icon>arrow_forward_ios</mat-icon>
+                    </div>
                   </button>
                 }
               </div>
@@ -131,41 +134,41 @@
     <ng-template mat-tab-label>
       <mat-icon>person</mat-icon>
     </ng-template>
-    <app-personal-details [data]="dataToPass" (dataSubmitted)="personalSubmit($event)" (nextTab)="goToNextTab()"></app-personal-details>
+    <app-personal-details [data]="dataToPass" (dataSubmitted)="personalSubmit($event)" (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-personal-details>
   </mat-tab>
 
   <mat-tab [disabled]="!isWorkFormSubmitted">
     <ng-template mat-tab-label>
       <mat-icon>work</mat-icon>
     </ng-template>
-    <app-user-position [positionData]="dataToPass" (dataSubmitted)="workSubmit($event)" (nextTab)="goToNextTab()"></app-user-position>
+    <app-user-position [positionData]="dataToPass" (dataSubmitted)="workSubmit($event)" (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-user-position>
   </mat-tab>
 
   <mat-tab [disabled]="!isContactsFormSubmitted">
     <ng-template mat-tab-label>
       <mat-icon>contacts</mat-icon>
     </ng-template>
-    <app-statuatory-info [statuatoryData]="dataToPass" (dataSubmitted)="contactSubmit($event)" (nextTab)="goToNextTab()"></app-statuatory-info>
+    <app-statuatory-info [statuatoryData]="dataToPass" (dataSubmitted)="contactSubmit($event)" (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-statuatory-info>
   </mat-tab>
 
   <mat-tab [disabled]="!isSocialFormSubmitted">
     <ng-template mat-tab-label>
       <mat-icon>savings</mat-icon>
     </ng-template>
-    <app-user-account [accountData]="dataToPass" (dataSubmitted)="accountSubmit($event)" (nextTab)="goToNextTab()"></app-user-account>
+    <app-user-account [accountData]="dataToPass" (dataSubmitted)="accountSubmit($event)" (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-user-account>
   </mat-tab>
 
   <mat-tab [disabled]="!isQualFormSubmitted">
     <ng-template mat-tab-label>
       <mat-icon>school</mat-icon>
     </ng-template>
-    <app-user-qualification [qualData]="dataToPass" (dataSubmitted)="qualSubmit($event)" (nextTab)="goToNextTab()"></app-user-qualification>
+    <app-user-qualification [qualData]="dataToPass" (dataSubmitted)="qualSubmit($event)" (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-user-qualification>
   </mat-tab>
 
   <mat-tab [disabled]="!isAccountFormSubmitted">
     <ng-template mat-tab-label>
       <mat-icon>upload_file</mat-icon>
     </ng-template>
-    <app-user-documents [data]="dataToPass" (nextTab)="goToNextTab()"></app-user-documents>
+    <app-user-documents [data]="dataToPass" (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-user-documents>
   </mat-tab>
 </mat-tab-group>

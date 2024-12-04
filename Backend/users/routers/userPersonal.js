@@ -33,7 +33,7 @@ router.post('/add', authenticateToken, async (req, res) => {
   const { userId, empNo, dateOfJoining, probationPeriod, isTemporary, maritalStatus, dateOfBirth, gender, 
     parentName, spouseName, referredBy, reportingMangerId, bloodGroup, emergencyContactNo, emergencyContactName, 
     emergencyContactRelation, spouseContactNo, parentContactNo, motherName, motherContactNo, temporaryAddress,
-    permanentAddress } = req.body;
+    permanentAddress, qualification, experience } = req.body;
 
   try {
     const existingUser = await UserPersonal.findOne({ where: { userId } });
@@ -62,7 +62,7 @@ router.post('/add', authenticateToken, async (req, res) => {
       userId, empNo, dateOfJoining: dateOfJoining ? formattedDateOfJoining[0] : null, probationPeriod, isTemporary, maritalStatus, 
       dateOfBirth: dateOfBirth ? formattedDateOfBirth[0] : null,  gender,  parentName,  spouseName,  referredBy, 
       reportingMangerId, bloodGroup,  emergencyContactNo, emergencyContactName, emergencyContactRelation, 
-      spouseContactNo, parentContactNo, motherName, motherContactNo, temporaryAddress, permanentAddress
+      spouseContactNo, parentContactNo, motherName, motherContactNo, temporaryAddress, permanentAddress, qualification, experience
     });
 
     await user.save();
@@ -103,7 +103,7 @@ router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
 router.patch('/update/:id', async(req,res)=>{
   const { dateOfJoining, probationPeriod, confirmationDate, isTemporary, maritalStatus, dateOfBirth, gender, parentName,
      spouseName, referredBy, reportingMangerId, bloodGroup, emergencyContactNo, emergencyContactName, emergencyContactRelation,
-     spouseContactNo, parentContactNo, motherName, motherContactNo, temporaryAddress, permanentAddress } = req.body
+     spouseContactNo, parentContactNo, motherName, motherContactNo, temporaryAddress, permanentAddress, qualification, experience } = req.body
   try {
     let formattedDateOfJoining;
     let formattedDateOfBirth;
@@ -146,6 +146,8 @@ router.patch('/update/:id', async(req,res)=>{
     result.motherContactNo = motherContactNo; 
     result.temporaryAddress = temporaryAddress;
     result.permanentAddress = permanentAddress;
+    result.qualification = qualification;
+    result.experience = experience;
     await result.save();
     
     res.send(result);

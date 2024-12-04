@@ -8,7 +8,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule, DatePipe, UpperCasePipe } from '@angular/common';
 import {MatAccordion, MatExpansionModule} from '@angular/material/expansion';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { StatutoryInfo } from '../../../common/interfaces/users/statutory-info';
@@ -31,8 +30,7 @@ import { UserQualification } from '../../../common/interfaces/users/user-qualifi
     MatExpansionModule, CommonModule,
     MatIconModule,
     MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule, SafePipe],
+    MatInputModule, SafePipe],
   templateUrl: './view-user.component.html',
   styleUrl: './view-user.component.scss',
   // changeDetection: ChangeDetectionStrategy.OnPush,
@@ -94,6 +92,7 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   getPositionData(id: number){
     this.posuSub = this.userService.getUserPositionDetailsByUser(id).subscribe(x => {
       this.positions = x;
+      
     })
   }
 

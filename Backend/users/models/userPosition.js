@@ -12,7 +12,7 @@ const UserPosition = sequelize.define('userPosition',{
     costCentre : {type : DataTypes.STRING},
     grade : {type : DataTypes.STRING},
     location : {type : DataTypes.STRING},
-    department: { type: DataTypes.JSON, allowNull: true},
+    department: { type: DataTypes.STRING, allowNull: true},
     office  : {type : DataTypes.STRING},
     salary : {type : DataTypes.STRING},
     probationPeriod : {type : DataTypes.INTEGER, defaultValue : 3},
@@ -28,7 +28,7 @@ const UserPosition = sequelize.define('userPosition',{
 })
 
 
-User.hasOne(UserPosition, { foreignKey: 'userId', onUpdate: 'CASCADE' });
+User.hasOne(UserPosition, { foreignKey: 'userId', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 UserPosition.belongsTo(User, { foreignKey: 'userId' });
 
 Team.hasOne(UserPosition, { foreignKey: 'teamId', onUpdate: 'CASCADE' });

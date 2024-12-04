@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { NativeDateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, MatNativeDateModule } from '@angular/material/core';
+import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,8 +11,20 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { UsersService } from '@services/users.service';
-import { DateAdapter } from 'angular-calendar';
 import { Subscription } from 'rxjs';
+
+export const MY_FORMATS = {
+  parse: {
+    dateInput: 'DD/MM/YYYY', // Change to desired format
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY', // Display format for the input field
+    monthYearLabel: 'MMM YYYY', // Format for month/year in the header
+    dateA11yLabel: 'DD/MM/YYYY', // Accessibility format for dates
+    monthYearA11yLabel: 'MMMM YYYY', // Accessibility format for month/year
+  },
+};
+
 
 @Component({
   selector: 'app-user-assets',
@@ -21,10 +34,9 @@ import { Subscription } from 'rxjs';
   ],
   templateUrl: './user-assets.component.html',
   styleUrl: './user-assets.component.scss',
-  providers: [
-    { provide: DateAdapter, useClass: NativeDateAdapter },
-    { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
-  ]
+
+  providers: [provideMomentDateAdapter(MY_FORMATS)],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserAssetsComponent implements OnDestroy{
   ngOnDestroy(): void {

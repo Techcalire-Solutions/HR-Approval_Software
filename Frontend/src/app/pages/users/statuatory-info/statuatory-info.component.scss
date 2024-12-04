@@ -17,3 +17,10 @@
         flex-direction: column;
     }
 }
+
+.text-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: blue
+}
