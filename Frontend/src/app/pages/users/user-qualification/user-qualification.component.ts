@@ -115,6 +115,7 @@ export class UserQualificationComponent {
   isNext: boolean = false;
   @Output() dataSubmitted = new EventEmitter<any>();
   onSubmit(): void {
+    this.isNext = true;
     const submit = {
       ...this.form.getRawValue()
     }
@@ -124,15 +125,11 @@ export class UserQualificationComponent {
       this.submit = this.userService.addUserQualification(submit).subscribe(result => {
         console.log(result);
         this.snackBar.open("Qualification for user added succesfully...","" ,{duration:3000})
-        this.isNext = true;
-        // this.dataSubmitted.emit( {isFormSubmitted: true} );
       });
     } else {
       this.submit = this.userService.updateUserQualification(submit, this.id).subscribe(result => {
         console.log(result);
         this.snackBar.open("Qualification for user added succesfully...","" ,{duration:3000})
-        this.isNext = true;
-        // this.dataSubmitted.emit( {isFormSubmitted: true} );
       });
     }
   }

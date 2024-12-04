@@ -146,6 +146,7 @@ export class UserPositionComponent implements OnDestroy {
   submitSub!: Subscription;
   isNext: boolean = false;
   onSubmit(){
+    this.isNext =true
     const submit = {
       ...this.form.getRawValue()
     }
@@ -153,13 +154,11 @@ export class UserPositionComponent implements OnDestroy {
     if(this.editStatus){
       this.submitSub = this.userService.updateUserPosition(this.id, submit).subscribe(() => {
         this.snackBar.open("Postion Details updated succesfully...","" ,{duration:3000})
-        this.isNext =true
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }else{
       this.submitSub = this.userService.addUserPositionDetails(submit).subscribe(() => {
         this.snackBar.open("Postion Details added succesfully...","" ,{duration:3000})
-        this.isNext = true
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }

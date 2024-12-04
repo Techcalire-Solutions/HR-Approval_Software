@@ -134,6 +134,7 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
   submitSub!: Subscription;
   isNext: boolean = false;
   onSubmit(){
+    this.isNext = true
     const submit = {
       ...this.form.getRawValue()
     }
@@ -142,14 +143,12 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     if(this.editStatus){
       this.submitSub = this.userService.updateUserPersonal(this.id, submit).subscribe(() => {
         this.snackBar.open("Personal Details updated succesfully...","" ,{duration:3000})
-        this.isNext = true
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }
     else{
       this.submitSub = this.userService.addUserPersonalDetails(submit).subscribe(() => {
         this.snackBar.open("Personal Details added succesfully...","" ,{duration:3000})
-        this.isNext = true
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }
