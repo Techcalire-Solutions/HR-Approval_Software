@@ -18,7 +18,7 @@ const UserAccount = sequelize.define('useraccount',{
     timestamps : false
 })
 
-User.hasOne(UserAccount, { foreignKey: 'userId', onUpdate: 'CASCADE' });
+User.hasOne(UserAccount, { foreignKey: 'userId', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 UserAccount.belongsTo(User, { foreignKey: 'userId', as: 'manager'  });
 
 UserAccount.sync({ alter: true })

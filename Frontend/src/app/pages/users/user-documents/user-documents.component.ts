@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { MatInputModule } from '@angular/material/input';
-import { Component, inject, Input, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnDestroy, Output } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -32,14 +32,8 @@ export class UserDocumentsComponent implements OnDestroy {
   editStatus: boolean[] = [];
   id: number[] = [];
   triggerNew(data?: any): void {
-    console.log(this.clickedForms);
-    
     if(data){
-      if(data.updateStatus){
-        this.getDocumentDetailsByUser(data.id)
-      }else{
-        this.addDoc()
-      }
+      this.getDocumentDetailsByUser(data.id)
     }
   }
 
@@ -88,15 +82,16 @@ export class UserDocumentsComponent implements OnDestroy {
   deleteSub!: Subscription;
   removeData(index: number) {
     const formGroup = this.doc().at(index).value;
-    if (formGroup.docName != '' || formGroup.docUrl != '') {
-      this.deleteSub = this.userSevice.deleteUserDocComplete(this.id[index]).subscribe({
-        next: () => {
-          formGroup.removeAt(index);
-        },
-        error: (error) => {
-          console.error('Error during update:', error);
-        }
-      });
+    if (formGroup.docUrl != '') {
+      return alert('Delete the uploaded file and remove')
+      // this.deleteSub = this.userSevice.deleteUserDocComplete(this.id[index]).subscribe({
+      //   next: () => {
+      //     formGroup.removeAt(index);
+      //   },
+      //   error: (error) => {
+      //     console.error('Error during update:', error);
+      //   }
+      // });
     } else {
       this.doc().removeAt(index)
     }
@@ -154,8 +149,6 @@ export class UserDocumentsComponent implements OnDestroy {
 
   isAnyFormClicked(): boolean {
     for(let i = 0; i < this.clickedForms.length; i++) {
-      console.log(this.clickedForms[i]);
-      
       if (!this.clickedForms[i]) {
         return false; // Return false if any value is false
       }
@@ -203,5 +196,10 @@ export class UserDocumentsComponent implements OnDestroy {
         this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
       });
     }
+  }
+
+  @Output() previousTab = new EventEmitter<void>();
+  triggerPreviousTab() {
+    this.previousTab.emit();
   }
 }

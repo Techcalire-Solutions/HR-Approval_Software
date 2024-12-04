@@ -20,7 +20,7 @@ const StatutoryInfo = sequelize.define('statutoryinfo',{
     timestamps : false
 })
 
-User.hasOne(StatutoryInfo, { foreignKey: 'userId', onUpdate: 'CASCADE' });
+User.hasOne(StatutoryInfo, { foreignKey: 'userId', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 StatutoryInfo.belongsTo(User, { foreignKey: 'userId', as: 'manager'  });
 
 

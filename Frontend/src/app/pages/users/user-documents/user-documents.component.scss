@@ -59,3 +59,10 @@ button.mat-raised-button.color-accent {
   flex: 1;
   margin-right: 20px;
 }
+
+.text-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: blue
+}

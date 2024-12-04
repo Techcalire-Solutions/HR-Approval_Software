@@ -33,4 +33,6 @@ export interface UserPersonal {
   motherContactNo: string,
   temporaryAddress: string, 
   permanentAddress: string
+  qualification: string
+  experience: string
 }

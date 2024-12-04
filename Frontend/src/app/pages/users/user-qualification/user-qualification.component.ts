@@ -4,6 +4,7 @@ import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UsersService } from '@services/users.service';
@@ -12,7 +13,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-user-qualification',
   standalone: true,
-  imports: [MatCardModule, MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule],
+  imports: [MatCardModule, MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule, MatIconModule],
   templateUrl: './user-qualification.component.html',
   styleUrl: './user-qualification.component.scss'
 })
@@ -29,13 +30,13 @@ export class UserQualificationComponent {
   id: number = 0;
   triggerNew(data?: any): void {
     if(data){
-      if(data.updateStatus){
+      // if(data.updateStatus){
         this.id = data.id;
         this.getQualDetailsByUser(data.id)
-      }else{
-        this.addExperience()
-        this.addQual()
-      }
+      // }else{
+      //   this.addExperience()
+      //   this.addQual()
+      // }
     }
   }
 
@@ -139,6 +140,11 @@ export class UserQualificationComponent {
   @Output() nextTab = new EventEmitter<void>();
   triggerNextTab() {
     this.nextTab.emit();
+  }
+
+  @Output() previousTab = new EventEmitter<void>();
+  triggerPreviousTab() {
+    this.previousTab.emit();
   }
 
 }

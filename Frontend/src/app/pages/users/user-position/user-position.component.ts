@@ -110,9 +110,9 @@ export class UserPositionComponent implements OnDestroy {
     console.log(data);
     
     if(data){
-      if(data.updateStatus){
+      // if(data.updateStatus){
         this.getPositionDetailsByUser(data.id)
-      }
+      // }
     }
   }
 
@@ -153,8 +153,8 @@ export class UserPositionComponent implements OnDestroy {
     if(this.editStatus){
       this.submitSub = this.userService.updateUserPosition(this.id, submit).subscribe(() => {
         this.snackBar.open("Postion Details updated succesfully...","" ,{duration:3000})
-        // this.isNext =true
-        this.dataSubmitted.emit( {isFormSubmitted: true} );
+        this.isNext =true
+        // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }else{
       this.submitSub = this.userService.addUserPositionDetails(submit).subscribe(() => {
@@ -168,6 +168,11 @@ export class UserPositionComponent implements OnDestroy {
   @Output() nextTab = new EventEmitter<void>();
   triggerNextTab() {
     this.nextTab.emit();
+  }
+
+  @Output() previousTab = new EventEmitter<void>();
+  triggerPreviousTab() {
+    this.previousTab.emit();
   }
 
   teams : Team[]=[]

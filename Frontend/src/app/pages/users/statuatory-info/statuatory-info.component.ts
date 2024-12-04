@@ -2,7 +2,7 @@
 import { MatButtonModule } from '@angular/material/button';
 import { UsersService } from './../../../services/users.service';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Component, EventEmitter, Input, OnDestroy, Output, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, Output, inject } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Subscription } from 'rxjs';
@@ -10,14 +10,31 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatCardModule } from '@angular/material/card';
 import { StatutoryInfo } from '../../../common/interfaces/users/statutory-info';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatIconModule } from '@angular/material/icon';
+import {provideMomentDateAdapter} from '@angular/material-moment-adapter';
+export const MY_FORMATS = {
+  parse: {
+    dateInput: 'DD/MM/YYYY', // Change to desired format
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY', // Display format for the input field
+    monthYearLabel: 'MMM YYYY', // Format for month/year in the header
+    dateA11yLabel: 'DD/MM/YYYY', // Accessibility format for dates
+    monthYearA11yLabel: 'MMMM YYYY', // Accessibility format for month/year
+  },
+};
 
 @Component({
   selector: 'app-statuatory-info',
   standalone: true,
-  imports: [ MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule, MatCardModule, MatDatepickerModule ],
+  imports: [ MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule, MatCardModule, 
+    MatDatepickerModule, MatIconModule ],
   templateUrl: './statuatory-info.component.html',
-  styleUrl: './statuatory-info.component.scss'
+  styleUrl: './statuatory-info.component.scss',
+  providers: [provideMomentDateAdapter(MY_FORMATS)],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class StatuatoryInfoComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.pUSub?.unsubscribe();
@@ -45,9 +62,9 @@ export class StatuatoryInfoComponent implements OnDestroy {
   editStatus: boolean = false;
   triggerNew(data?: any): void {
     if(data){
-      if(data.updateStatus){
+      // if(data.updateStatus){
         this.getStatutoryDetailsByUser(data.id)
-      }
+      // }
     }
   }
 
@@ -99,5 +116,10 @@ export class StatuatoryInfoComponent implements OnDestroy {
   @Output() nextTab = new EventEmitter<void>();
   triggerNextTab() {
     this.nextTab.emit();
+  }
+
+  @Output() previousTab = new EventEmitter<void>();
+  triggerPreviousTab() {
+    this.previousTab.emit();
   }
 }

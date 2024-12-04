@@ -40,7 +40,13 @@
             </div>
           </div>
         </div>
-        <button mat-raised-button color="primary" (click)="addDoc()" 
+        <button mat-raised-button (click)="triggerPreviousTab()" [disabled]="isAnyFormClicked()">
+          <div class="text-with-icon">
+            <mat-icon>arrow_back_ios</mat-icon>
+            <span>Previous</span>
+          </div>
+        </button>
+        <button mat-raised-button color="primary" (click)="addDoc()"  style="margin-left: 10px;"
         [disabled]="!isAllFormsValidAndSaved()">New Line</button>
         <button mat-raised-button color="warn" (click)="completeForm()"
         [disabled]="!isAllFormsValidAndSaved()">Complete</button>

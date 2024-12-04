@@ -25,14 +25,16 @@ const UserPersonal = sequelize.define('userPersonal', {
   motherName: { type: DataTypes.STRING },
   motherContactNo: { type: DataTypes.STRING },
   temporaryAddress: { type: DataTypes.TEXT},
-  permanentAddress: { type: DataTypes.TEXT}
+  permanentAddress: { type: DataTypes.TEXT},
+  qualification: { type: DataTypes.STRING },
+  experience: { type: DataTypes.STRING}
 },
 {
   freezeTableName: true,
   timestamps: true
 });
 
-User.hasMany(UserPersonal, { foreignKey: 'userId', onUpdate: 'CASCADE' });
+User.hasMany(UserPersonal, { foreignKey: 'userId', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 UserPersonal.belongsTo(User, { foreignKey: 'userId' });
 
 User.hasOne(UserPersonal, { foreignKey: 'reportingMangerId', onUpdate: 'CASCADE' });

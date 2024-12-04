@@ -6,14 +6,13 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatRadioModule } from '@angular/material/radio';
 import { CommonModule } from '@angular/common';
 import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
-import {MatToolbarModule} from '@angular/material/toolbar';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { UsersService } from '../../../services/users.service';
 import { Subscription } from 'rxjs';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -34,7 +33,7 @@ import { UserQualificationComponent } from "../user-qualification/user-qualifica
 @Component({
   selector: 'app-user-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule, MatDatepickerModule,
+  imports: [ReactiveFormsModule, FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule,
     MatNativeDateModule, MatRadioModule, MatDialogModule, MatButtonModule, MatToolbarModule,
     PersonalDetailsComponent, UserPositionComponent, StatuatoryInfoComponent, UserAccountComponent, UserDocumentsComponent, MatCardModule,
     MatOptionModule, MatSelectModule, CommonModule, MatAutocompleteModule, UserQualificationComponent],
@@ -86,6 +85,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   userSub!: Subscription;
   userName: string;
   getUser(id: number){
+    this.id = id;
     this.userSub = this.userService.getUserById(id).subscribe(user=>{
       this.userName = user.name;
       this.patchUser(user)
@@ -299,6 +299,62 @@ export class UserDialogComponent implements OnInit, OnDestroy {
         this.isFormSubmitted = true;
         this.personalDetailsComponent.triggerNew(this.dataToPass);
       }
+
+      else if (this.userPositionComponent && this.selectedTabIndex === 2) {
+        this.isFormSubmitted = false;
+        this.isWorkFormSubmitted = true;
+        this.userPositionComponent.triggerNew(this.dataToPass);
+      }
+      else if (this.statuatoryInfoComponent && this.selectedTabIndex === 3) {
+        this.isWorkFormSubmitted = false;
+        this.isContactsFormSubmitted = true;
+        this.statuatoryInfoComponent.triggerNew(this.dataToPass);
+      }
+      else if (this.userAccountComponent && this.selectedTabIndex === 4) {
+        this.isContactsFormSubmitted = false;
+        this.isSocialFormSubmitted = true;
+        this.userAccountComponent.triggerNew(this.dataToPass);
+      }
+      else if (this.userQualificationComponent && this.selectedTabIndex === 5) {
+        this.isSocialFormSubmitted = false;
+        this.isQualFormSubmitted = true;
+        this.userQualificationComponent.triggerNew(this.dataToPass);
+      }
+      
+      else if (this.userDocumentsComponent && this.selectedTabIndex === 6) {
+        this.isQualFormSubmitted = false;
+        this.isAccountFormSubmitted = true;
+        this.userDocumentsComponent.triggerNew(this.dataToPass);
+      }
+    }
+  }
+
+  // editStatus: boolean = false;
+  triggerNew(data?: any): void {
+    console.log("hiiiiiiiiii");
+    
+    if(data){
+      console.log(data);
+      this.editStatus = true;
+      this.getUser(data.id)
+    }
+  }
+
+  goToPreviousTab(): void {
+    if (this.selectedTabIndex > 0) {
+      if( this.dataToPass === undefined){
+        this.dataToPass = { updateStatus: this.editStatus, id: this.id, name: this.userName }
+      }
+      this.selectedTabIndex --;
+      if(this.selectedTabIndex === 0){
+          this.triggerNew(this.dataToPass)
+      }
+
+      if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
+        this.isFormSubmitted = true;
+        this.personalDetailsComponent.triggerNew(this.dataToPass);
+      }
+      
       else if (this.userPositionComponent && this.selectedTabIndex === 2) {
         this.isFormSubmitted = false;
         this.isWorkFormSubmitted = true;

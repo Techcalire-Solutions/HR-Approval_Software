@@ -12,7 +12,7 @@ const User = require('./user');
       timestamps : true
    })
 
-User.hasMany(UserAssets, { foreignKey: 'userId', onUpdate: 'CASCADE' });
+User.hasMany(UserAssets, { foreignKey: 'userId', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 UserAssets.belongsTo(User);
 
  UserAssets.sync({alter:true})
