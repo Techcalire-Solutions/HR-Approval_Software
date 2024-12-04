@@ -7,25 +7,19 @@
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>Joining Date</mat-label>
             <input matInput [matDatepicker]="picker1" placeholder="Joining Date" formControlName="dateOfJoining">
+            <mat-hint>DD/MM/YYYY</mat-hint>
             <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
             <mat-datepicker #picker1></mat-datepicker>
           </mat-form-field>
         </div>
 
-        <!-- <div class="col">
-          <mat-form-field class="w-100" appearance="outline">
-            <input matInput [matDatepicker]="picker2" placeholder="ConfirmationDate" formControlName="confirmationDate">
-            <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
-            <mat-datepicker #picker2></mat-datepicker>
-          </mat-form-field>
-        </div> -->
-
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
             <mat-label>Birthday</mat-label>
-            <input matInput [matDatepicker]="birthday" formControlName="dateOfBirth">
-            <mat-datepicker-toggle matSuffix [for]="birthday"></mat-datepicker-toggle>
-            <mat-datepicker #birthday></mat-datepicker>
+            <input matInput [matDatepicker]="dp" formControlName="dateOfBirth">
+            <mat-hint>DD/MM/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
+            <mat-datepicker #dp></mat-datepicker>
           </mat-form-field>
         </div>
       <!-- </div>

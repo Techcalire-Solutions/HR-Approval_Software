@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -15,13 +15,30 @@ import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
 import { User } from '../../../common/interfaces/users/user';
 import { MatIconModule } from '@angular/material/icon';
+import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
+
+export const MY_FORMATS = {
+  parse: {
+    dateInput: 'DD/MM/YYYY', // Change to desired format
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY', // Display format for the input field
+    monthYearLabel: 'MMM YYYY', // Format for month/year in the header
+    dateA11yLabel: 'DD/MM/YYYY', // Accessibility format for dates
+    monthYearA11yLabel: 'MMMM YYYY', // Accessibility format for month/year
+  },
+};
+
+
 @Component({
   selector: 'app-personal-details',
   standalone: true,
   imports: [ MatFormFieldModule, MatDatepickerModule, MatRadioModule, ReactiveFormsModule, MatOptionModule, MatSelectModule,
     MatInputModule, MatSlideToggleModule, MatButtonModule, MatCardModule, MatIconModule],
   templateUrl: './personal-details.component.html',
-  styleUrl: './personal-details.component.scss'
+  styleUrl: './personal-details.component.scss',
+  providers: [provideMomentDateAdapter(MY_FORMATS)],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PersonalDetailsComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
@@ -182,3 +199,4 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     })
   }
 }
+
