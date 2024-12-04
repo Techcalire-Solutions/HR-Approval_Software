@@ -10,11 +10,13 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatCardModule } from '@angular/material/card';
 import { StatutoryInfo } from '../../../common/interfaces/users/statutory-info';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-statuatory-info',
   standalone: true,
-  imports: [ MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule, MatCardModule, MatDatepickerModule ],
+  imports: [ MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule, MatCardModule, 
+    MatDatepickerModule, MatIconModule ],
   templateUrl: './statuatory-info.component.html',
   styleUrl: './statuatory-info.component.scss'
 })
@@ -45,9 +47,9 @@ export class StatuatoryInfoComponent implements OnDestroy {
   editStatus: boolean = false;
   triggerNew(data?: any): void {
     if(data){
-      if(data.updateStatus){
+      // if(data.updateStatus){
         this.getStatutoryDetailsByUser(data.id)
-      }
+      // }
     }
   }
 
@@ -99,5 +101,10 @@ export class StatuatoryInfoComponent implements OnDestroy {
   @Output() nextTab = new EventEmitter<void>();
   triggerNextTab() {
     this.nextTab.emit();
+  }
+
+  @Output() previousTab = new EventEmitter<void>();
+  triggerPreviousTab() {
+    this.previousTab.emit();
   }
 }

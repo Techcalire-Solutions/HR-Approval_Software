@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatOptionModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -15,7 +16,8 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-user-account',
   standalone: true,
-  imports: [MatFormFieldModule, ReactiveFormsModule, MatOptionModule, MatSelectModule, MatInputModule, MatButtonModule, MatCardModule],
+  imports: [MatFormFieldModule, ReactiveFormsModule, MatOptionModule, MatSelectModule, MatInputModule, MatButtonModule,
+     MatCardModule, MatIconModule],
   templateUrl: './user-account.component.html',
   styleUrl: './user-account.component.scss'
 })
@@ -42,16 +44,16 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     ifseCode : [''],
     paymentFrequency : [''],
     modeOfPayment : [''],
-    branchName : [''],
-    bankName: ['']
+    branchName : ['Vyttila'],
+    bankName: ['Axis']
   });
 
   editStatus: boolean = false;
   triggerNew(data?: any): void {
     if(data){
-      if(data.updateStatus){
+      // if(data.updateStatus){
         this.getPositionDetailsByUser(data.id)
-      }
+      // }
     }
   }
 
@@ -99,5 +101,10 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   @Output() nextTab = new EventEmitter<void>();
   triggerNextTab() {
     this.nextTab.emit();
+  }
+
+  @Output() previousTab = new EventEmitter<void>();
+  triggerPreviousTab() {
+    this.previousTab.emit();
   }
 }

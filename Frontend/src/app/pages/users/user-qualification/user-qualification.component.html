@@ -124,18 +124,28 @@
     </mat-card-content>
     <mat-card-actions>
       <div class="col" style="text-align: right;">
-        <button mat-raised-button color="primary" [disabled]="form.pristine || form.invalid">
+        <button mat-raised-button (click)="triggerPreviousTab()"  type="button"
+          [disabled]="!form.pristine && !form.invalid && !isNext">
+          <div class="text-with-icon">
+            <mat-icon>arrow_back_ios</mat-icon>
+            <span>Previous</span>
+          </div>
+        </button>
+        <button mat-raised-button color="primary" [disabled]="form.pristine || form.invalid" style="margin-left: 10px;">
           @if (editStaus) {
               Update
           } @else {
               Save
           }
         </button>
-        <button type="button" mat-raised-button color="primary" onclick="history.back()" [disabled]="!form.pristine && !form.invalid" style="margin-left: 10px;">
+        <button type="button" mat-raised-button color="primary" onclick="history.back()" [disabled]="!form.pristine && !form.invalid && !isNext" style="margin-left: 10px;">
           Exit
         </button>
-        <button type="button" mat-raised-button color="primary" (click)="triggerNextTab()" style="margin-left: 10px;" [disabled]="!form.pristine && !form.invalid && !isNext">
-          Next
+        <button type="button" mat-raised-button (click)="triggerNextTab()" style="margin-left: 10px;" [disabled]="!form.pristine && !form.invalid && !isNext">
+          <div class="text-with-icon">
+            <span>Next</span>
+            <mat-icon>arrow_forward_ios</mat-icon>
+          </div>
         </button>
       </div>
     </mat-card-actions>

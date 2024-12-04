@@ -108,3 +108,9 @@ body {
     background-color: rgb(12, 12, 102);
   }
   
+  .text-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: blue
+  }

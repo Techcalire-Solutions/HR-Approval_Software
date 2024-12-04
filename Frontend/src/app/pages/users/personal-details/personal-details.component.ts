@@ -39,9 +39,9 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
   triggerNew(data?: any): void {
     this.getReportingManager()
     if(data){
-      if(data.updateStatus){
+      // if(data.updateStatus){
         this.getPersonalDetailsByUser(data.id)
-      }
+      // }
     }
   }
 
@@ -74,7 +74,9 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
           motherName: data.motherName, 
           motherContactNo: data.motherContactNo, 
           temporaryAddress: data.temporaryAddress, 
-          permanentAddress: data.permanentAddress
+          permanentAddress: data.permanentAddress,
+          qualification: data.qualification, 
+          experience: data.experience
         })
       }
     })
@@ -102,7 +104,9 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     motherName: [''], 
     motherContactNo: [''], 
     temporaryAddress: [''], 
-    permanentAddress: ['']
+    permanentAddress: [''],
+    qualification: [''], 
+    experience: ['']
   });
 
   copyAddress(): void {
@@ -134,6 +138,8 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
+  relations = ['Father', 'Mother', 'Sister', 'Brother', 'Spouse', 'Friend', 'Other'];
+
   ngOnDestroy(): void {
     this.submitSub?.unsubscribe();
     this.pUSub?.unsubscribe();
@@ -160,6 +166,11 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
   @Output() nextTab = new EventEmitter<void>();
   triggerNextTab() {
     this.nextTab.emit();
+  }
+
+  @Output() previousTab = new EventEmitter<void>();
+  triggerPreviousTab() {
+    this.previousTab.emit();
   }
 
 

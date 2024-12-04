@@ -55,39 +55,41 @@
             @if(userPersonal){
               <div class="p-3">
                 <div class="flex-container">
-                  <div>Blood Group  :<strong>{{userPersonal.bloodGroup}}</strong></div>
-                  <div>Date of Birth  :<strong>{{userPersonal.dateOfBirth | date:'dd/MM/yyyy'}}</strong></div>
                   <div>Gender  :<strong>{{userPersonal.gender }}</strong></div>
+                  <div>Date of Birth  :<strong>{{userPersonal.dateOfBirth | date:'dd/MM/yyyy'}}</strong></div>
+                  <div>Joining Date  :<strong>{{userPersonal.dateOfJoining | date:'dd/MM/yyyy'}}</strong></div>
+                  <div>Marital Status  :<strong>{{userPersonal.maritalStatus }}</strong></div>
                 </div>
 
                 <div class="flex-container">
                   <div>FatherName  :<strong>{{userPersonal.parentName }}</strong></div>
+                  <div>FatherContactNo  :<strong>{{userPersonal.parentContactNo }}</strong></div>
                   <div>MotherName  :<strong>{{userPersonal.motherName }}</strong></div>
-                  <div>Spouse Name  :<strong>{{userPersonal.spouseName }}</strong></div>
+                  <div>MotherContactNo  :<strong>{{userPersonal.motherContactNo }}</strong></div>
                 </div>
 
                 <div class="flex-container"> 
-                  <div>FatherContactNo  :<strong>{{userPersonal.parentContactNo }}</strong></div>
-                  <div>MotherContactNo  :<strong>{{userPersonal.motherContactNo }}</strong></div>
+                  <div>Spouse Name  :<strong>{{userPersonal.spouseName }}</strong></div>
                   <div>SpouseContactNo  :<strong>{{userPersonal.spouseContactNo }}</strong></div>
+                  <div>Quaification  :<strong>{{userPersonal.qualification }}</strong></div>
+                  <div>Experience  :<strong>{{userPersonal.experience }}</strong></div>
                 </div>
 
                 <div class="flex-container">
-                  <div>emergencyContactName  :<strong>{{userPersonal.emergencyContactName }}</strong></div>
-                  <div>emergencyContactNo  :<strong>{{userPersonal.emergencyContactNo }}</strong></div>
-                  <div>emergencyContactRelation  :<strong>{{userPersonal.emergencyContactRelation }}</strong></div>
+                  <div>Blood Group  :<strong>{{userPersonal.bloodGroup}}</strong></div>
+                  <div>EmergencyContactName  :<strong>{{userPersonal.emergencyContactName }}</strong></div>
+                  <div>EmergencyContactNo  :<strong>{{userPersonal.emergencyContactNo }}</strong></div>
+                  <div>EmergencyContactRelation  :<strong>{{userPersonal.emergencyContactRelation }}</strong></div>
                 </div>
 
+                <!-- <div class="flex-container">
+                </div> -->
+
                 <div class="flex-container"> 
+                  <div>Reporting Manger  :<strong>{{userPersonal.manager?.name || 'None'}}</strong></div>
                   <div>PermanentAddress  :<strong>{{userPersonal.permanentAddress }}</strong></div>
                   <div>PresentAddress  :<strong>{{userPersonal.temporaryAddress }}</strong></div>
-                </div>
-
-                <div class="flex-container">
-                  <div>Joining Date  :<strong>{{userPersonal.dateOfJoining | date:'dd/MM/yyyy'}}</strong></div>
-                  <div>Marital Status  :<strong>{{userPersonal.maritalStatus }}</strong></div>
                   <div>Referred By  :<strong>{{userPersonal.referredBy }}</strong></div>
-                  <div>Reporting Manger  :<strong>{{userPersonal.manager?.name || 'None'}}</strong></div>
                 </div>
               </div>
             }@else {
@@ -114,19 +116,19 @@
                   <div>Grade  :<strong>{{positions.grade}}</strong></div>
                   <div>Department  :<strong >{{positions.department}}</strong></div>
                   <div>Division  :<strong >{{positions.division}}</strong></div>
-                  <div>Cost Centre  :<strong>{{positions.costCentre}}</strong></div>
                   <div>Team  :<strong>{{positions.team?.teamName}}</strong></div>
                 </div>
 
                 <div class="flex-container">
                   <div>Location  :<strong >{{positions.location}}</strong></div>
                   <div>Office  :<strong >{{positions.office}}</strong></div>
+                  <div>Cost Centre  :<strong>{{positions.costCentre}}</strong></div>
                   <div>Probation Period  :<strong >{{positions.probationPeriod}}</strong></div>
-                  <div>Confirmed Date  :<strong>{{userPersonal?.confirmationDate | date:'dd/MM/yyyy'}}</strong></div>
                 </div>
 
                 <div class="flex-container">
-                  <div>Confirmation Note  :<strong >{{positions.probationNote}}</strong></div>
+                  <div style="flex: 1;">Confirmed Date  :<strong>{{userPersonal?.confirmationDate | date:'dd/MM/yyyy'}}</strong></div>
+                  <div style="flex: 3;">Confirmation Note  :<strong >{{positions.probationNote}}</strong></div>
                 </div>
               </div>
             }@else {
@@ -147,17 +149,17 @@
                   <div>Adhar No  :<strong >{{userStat.adharNo}}</strong></div>
                   <div>PAN No  :<strong >{{userStat.panNumber}}</strong></div>
                   <div>PF Number  :<strong >{{userStat.pfNumber}}</strong></div>
+                  <div>Insurance No  :<strong>{{userStat.insuranceNumber}}</strong></div>
                 </div>
 
                 <div class="flex-container">
-                  <div>Insurance No  :<strong>{{userStat.insuranceNumber}}</strong></div>
                   <div>ESI No  :<strong>{{userStat.esiNumber}}</strong></div>
                   <div>UAN No  :<strong >{{userStat.uanNumber}}</strong></div>
+                  <div>Passport No  :<strong>{{userStat.passportNumber}}</strong></div>
+                  <div>Passport Expiry  :<strong >{{userStat.passportExpiry | date: 'dd/MM/yyyy'}}</strong></div>
                 </div>
 
                 <div class="flex-container">
-                  <div>Passport No  :<strong>{{userStat.passportNumber}}</strong></div>
-                  <div>Passport Expiry  :<strong >{{userStat.passportExpiry | date: 'dd/MM/yyyy'}}</strong></div>
                 </div>
               </div>
             }@else {
