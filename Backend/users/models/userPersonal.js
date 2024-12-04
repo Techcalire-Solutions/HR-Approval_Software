@@ -32,7 +32,7 @@ const UserPersonal = sequelize.define('userPersonal', {
   timestamps: true
 });
 
-User.hasMany(UserPersonal, { foreignKey: 'userId', onUpdate: 'CASCADE' });
+User.hasMany(UserPersonal, { foreignKey: 'userId', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 UserPersonal.belongsTo(User, { foreignKey: 'userId' });
 
 User.hasOne(UserPersonal, { foreignKey: 'reportingMangerId', onUpdate: 'CASCADE' });

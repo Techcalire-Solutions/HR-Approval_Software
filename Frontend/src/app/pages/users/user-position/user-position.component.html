@@ -89,7 +89,7 @@
             <mat-label>Department</mat-label>
             <mat-select formControlName="department">
               @for (department of departments; track $index) {
-                <mat-option [value]="department">
+                <mat-option [value]="department.name">
                   {{ department.name }}
                 </mat-option>
               }

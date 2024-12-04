@@ -94,6 +94,7 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   getPositionData(id: number){
     this.posuSub = this.userService.getUserPositionDetailsByUser(id).subscribe(x => {
       this.positions = x;
+      
     })
   }
 

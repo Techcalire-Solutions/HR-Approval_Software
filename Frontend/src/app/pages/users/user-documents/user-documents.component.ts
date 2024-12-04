@@ -88,15 +88,16 @@ export class UserDocumentsComponent implements OnDestroy {
   deleteSub!: Subscription;
   removeData(index: number) {
     const formGroup = this.doc().at(index).value;
-    if (formGroup.docName != '' || formGroup.docUrl != '') {
-      this.deleteSub = this.userSevice.deleteUserDocComplete(this.id[index]).subscribe({
-        next: () => {
-          formGroup.removeAt(index);
-        },
-        error: (error) => {
-          console.error('Error during update:', error);
-        }
-      });
+    if (formGroup.docUrl != '') {
+      return alert('Delete the uploaded file and remove')
+      // this.deleteSub = this.userSevice.deleteUserDocComplete(this.id[index]).subscribe({
+      //   next: () => {
+      //     formGroup.removeAt(index);
+      //   },
+      //   error: (error) => {
+      //     console.error('Error during update:', error);
+      //   }
+      // });
     } else {
       this.doc().removeAt(index)
     }
@@ -154,8 +155,6 @@ export class UserDocumentsComponent implements OnDestroy {
 
   isAnyFormClicked(): boolean {
     for(let i = 0; i < this.clickedForms.length; i++) {
-      console.log(this.clickedForms[i]);
-      
       if (!this.clickedForms[i]) {
         return false; // Return false if any value is false
       }
