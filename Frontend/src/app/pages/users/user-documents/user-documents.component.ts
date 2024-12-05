@@ -23,7 +23,7 @@ import { SafePipe } from "../../../common/safe.pipe";
   templateUrl: './user-documents.component.html',
   styleUrl: './user-documents.component.scss'
 })
-export class UserDocumentsComponent implements OnDestroy {
+export class UserDocumentsComponent implements OnDestroy{
 
   trigger(){
     this.addDoc();
@@ -82,19 +82,18 @@ export class UserDocumentsComponent implements OnDestroy {
   deleteSub!: Subscription;
   removeData(index: number) {
     const formGroup = this.doc().at(index).value;
-    if (formGroup.docUrl != '') {
-      return alert('Delete the uploaded file and remove')
-      // this.deleteSub = this.userSevice.deleteUserDocComplete(this.id[index]).subscribe({
-      //   next: () => {
-      //     formGroup.removeAt(index);
-      //   },
-      //   error: (error) => {
-      //     console.error('Error during update:', error);
-      //   }
-      // });
-    } else {
-      this.doc().removeAt(index)
+    if(formGroup.docUrl !== ''){
+      return alert('Delete uploaded file and try again')
     }
+    else if (this.id[index] != undefined) {
+      this.imageUrl.splice(index, 1);
+      this.deleteSub = this.userSevice.deleteUserDocComplete(this.id[index]).subscribe(()=>{
+        this.doc().removeAt(index);
+      })
+    }else{
+      this.doc().removeAt(index);
+    }
+
   }
 
 
@@ -122,8 +121,6 @@ export class UserDocumentsComponent implements OnDestroy {
     const input = event.target as HTMLInputElement;
     const file: any = input.files?.[0];
     this.fileType = file.type.split('/')[1];
-    console.log(this.fileType);
-    
     if (!this.allowedFileTypes.includes(this.fileType)) {
       alert('Invalid file type. Please select a PDF, JPEG, JPG, or PNG file.');
       return;
@@ -141,6 +138,7 @@ export class UserDocumentsComponent implements OnDestroy {
     this.uploadSub = this.userSevice.uploadUserDoc(formData).subscribe({
         next: (invoice) => {
           this.doc().at(i).get('docUrl')?.setValue(invoice.fileUrl);
+          this.doc().at(i).markAsDirty();
           this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ invoice.fileUrl}`;
         }
       });
@@ -167,10 +165,12 @@ export class UserDocumentsComponent implements OnDestroy {
     form.markAsPristine();
     if(this.editStatus[i]){
       this.submit = this.userSevice.updateUserDocumentDetails(this.id[i], form.value).subscribe(res => {
+        this.id[i] = res.id
         this.snackBar.open(`${res.docName} is updated to employee data`,"" ,{duration:3000})
       });
     }else{
       this.submit = this.userSevice.addUserDocumentDetails(form.value).subscribe(res => {
+        this.id[i] = res.id
         this.snackBar.open(`${res.docName} is added to employee data`,"" ,{duration:3000})
       });
     }
@@ -201,5 +201,15 @@ export class UserDocumentsComponent implements OnDestroy {
   @Output() previousTab = new EventEmitter<void>();
   triggerPreviousTab() {
     this.previousTab.emit();
+  }
+
+  imageUploaded: boolean
+  isImageUploaded(): boolean {
+    const controls = this.mainForm.get('uploadForms')as FormArray;
+    if( controls.length === 0) {return true}
+    const i = controls.length - 1;
+    if (this.imageUrl[i]) {
+      return true;
+    }else return false;
   }
 }
