@@ -84,33 +84,27 @@ router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
 });
 
 router.delete('/delete/:id', authenticateToken, async (req, res) => {
-  let id = req.params.id;
+  const { id } = req.params;
+  console.log("Document ID to delete:", id);
+
   try {
-    try {
-        let userDoc = await UserDocument.findByPk(id);
-        fileKey = userDoc.docUrl
-        await userDoc.destroy();  
-    } catch (error) {
-      res.send(error.message)
-    }
-    if (!fileKey) {
-      return res.send({ message: 'No file key provided' });
+    // Find the document by its primary key
+    const userDoc = await UserDocument.findByPk(id);
+    console.log(userDoc);
+    
+    if (!userDoc) {
+      return res.send( "User document not found" );
     }
 
-    // Set S3 delete parameters
-    const deleteParams = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: fileKey
-    };
+    await userDoc.destroy();
+    console.log("User document deleted successfully:", id);
 
-    // Delete the file from S3
-    await s3.deleteObject(deleteParams).promise();
-
-    res.send({ message: 'File deleted successfully' });
+    res.status(200).json({ message: "User document deleted successfully" });
   } catch (error) {
-    res.send(error.message );
+    res.send(error.message);
   }
 });
+
 
 router.delete('/filedelete', authenticateToken, async (req, res) => {
   let id = req.query.id;
