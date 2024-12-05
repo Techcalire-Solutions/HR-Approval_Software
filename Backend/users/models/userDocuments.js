@@ -17,7 +17,7 @@ const UserDocument = sequelize.define('userdocument',{
 User.hasMany(UserDocument, { foreignKey: 'userId', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 UserDocument.belongsTo(User);
 
-UserDocument.sync({ alter: true })
+UserDocument.sync({ force: true })
   .then(() => console.log("UserDocument table Sync"))
   .catch((err) => console.log("Error syncing table UserDocument:", err));
 
