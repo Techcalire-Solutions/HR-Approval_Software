@@ -88,6 +88,7 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
   getPayrollDetailsByUserId() {
     this.payrollService.getPayrollDetailsByUserId(this.route.snapshot.params['id']).subscribe({
       next: (res) => {
+        console.log(res);
         
         if (res) {
           this.editStaus = true;

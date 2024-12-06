@@ -1,9 +1,15 @@
 <form [formGroup]="payrollForm">
-    <h2> @if (updateStatus) {Update} {{month}}-{{daysInMonth}}</h2>
+    <h2> @if (updateStatus) {Update} 
+        {{month}}-{{daysInMonth}} 
+        @if (isApproved){- Approved} 
+        @if (isRejected) {- Rejected}
+        @if( isLocked ) {- Sent}
+    </h2>
     @if(doc().controls && doc().controls.length){
         <table formArrayName="payrolls">
             <tr>
                 <th rowspan="2">Employee Name</th>
+                <th rowspan="2">Employee ID</th>
                 <th rowspan="2">PerDay</th>
                 <th colspan="8">Earnings</th>
                 <th colspan="6">Deductions</th>
@@ -30,6 +36,7 @@
             @for (payroll of doc().controls; track $index; let i = $index) {
                 <tr [formGroupName]="i">
                     <td><input type="text" placeholder="Employee" formControlName="userName"></td>
+                    <td><input type="text" placeholder="EmployeeId" formControlName="employeeId"></td>
                     <td><input type="text" placeholder="PerDay" formControlName="perDay"></td>
                     <td><input type="number" placeholder="Basic" formControlName="basic"></td>
                     <td><input type="number" placeholder="HRA" formControlName="hra"></td>
@@ -52,11 +59,29 @@
             }
         </table>
     }<br>
-    <button type="button" (click)="savePayroll()" class="calculate-btn">
-        @if(updateStatus){
-            Update
-        }@else{
-            Save
-        }
-        Payroll</button>
+    @if(!isLocked){
+        <button mat-raised-button type="button" (click)="savePayroll()" class="calculate-btn" color="primary">
+            @if(updateStatus || isRejected || isApproved){
+                Update
+            }@else{
+                Save
+            }
+            Payroll
+        </button>&nbsp;&nbsp;
+        <button mat-raised-button type="button" (click)="downloadExcel()" class="calculate-btn" color="primary"
+        [disabled]="!isSave">
+           Send For Verifictaion
+        </button>&nbsp;&nbsp;
+        <button mat-raised-button type="button" (click)="lockData()" class="calculate-btn" color="primary"
+        [disabled]="!isApproved">
+            Lock
+        </button>
+    }
+
 </form>
+
+@if(isLoading) {
+    <div fxLayout="column" fxLayoutAlign="center center" class="user-spinner">
+        <mat-spinner color="primary"></mat-spinner>
+    </div>
+}

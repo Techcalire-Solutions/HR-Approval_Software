@@ -1,0 +1,24 @@
+<div class="reset-password-container">
+    <mat-toolbar class="bg-blue-900">
+      <p style="color:rgb(11, 70, 118)"> Send Payroll Email </p>
+    </mat-toolbar><br>
+    <form [formGroup]="emailForm">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Email Address</mat-label>
+          <input matInput formControlName="email">
+          @if (emailForm.get('email')?.hasError('email')) {
+            <mat-error>
+                Please enter a valid email address.
+              </mat-error>
+          }
+        </mat-form-field>
+        <div class="submit-button" style="display: flex; gap: 10px;">
+            <button (click)="sendEmail()" mat-raised-button color="primary" type="submit" [disabled]="emailForm.invalid">
+              Update
+            </button>
+            <button (click)="close()" mat-raised-button color="primary" type="submit" [disabled]="emailForm.invalid">
+              Close
+            </button>
+        </div>
+    </form>
+</div>

@@ -3,6 +3,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../utils/db');
 const User = require('../../users/models/user');
+
 const MonthlyPayroll = sequelize.define('monthlyPayroll', {
   userId: { type: DataTypes.INTEGER },
   basic: { type: DataTypes.DECIMAL(10, 2) },
@@ -24,7 +25,8 @@ const MonthlyPayroll = sequelize.define('monthlyPayroll', {
   toPay: { type: DataTypes.DECIMAL(10, 2) },
   payedFor: { type: DataTypes.STRING },
   payedAt: { type: DataTypes.DATEONLY },
-  daysInMonth: { type: DataTypes.INTEGER}
+  daysInMonth: { type: DataTypes.INTEGER},
+  status: { type: DataTypes.STRING, defaultValue: 'Added' },
 }, {
   freezeTableName: true,
   timestamps: true,
@@ -37,7 +39,8 @@ MonthlyPayroll.sync({ alter: true })
   .catch(err => {
     console.error('Error syncing tables:', err);
   });
-  User.hasMany(MonthlyPayroll, {foreignKey: 'userId', onUpdate: 'CASCADE' });
-  MonthlyPayroll.belongsTo(User, {foreignKey: 'userId' });
+
+User.hasMany(MonthlyPayroll, {foreignKey: 'userId', onUpdate: 'CASCADE' });
+MonthlyPayroll.belongsTo(User, {foreignKey: 'userId' });
 
 module.exports = MonthlyPayroll;

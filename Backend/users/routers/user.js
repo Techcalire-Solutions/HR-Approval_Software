@@ -456,7 +456,7 @@ router.get('/confirmemployee/:id', async (req, res) => {
       if(!up){
         return res.send(`Personal data is not added for the employee ${result.name}`)
       }
-      up.confirmationDate = new Date()
+      up.confirmationDate = new Date();
       await up.save()
       let post = await UserPosition.findOne({
         where: { userId: req.params.id}
