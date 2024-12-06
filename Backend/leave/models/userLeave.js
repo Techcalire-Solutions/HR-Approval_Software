@@ -18,7 +18,7 @@ const LeaveType = require('../models/leaveType')
  UserLeave.belongsTo(LeaveType);
  
 
- UserLeave.sync({force:true})
+ UserLeave.sync({alter:true})
 .then(()=>console.log)
 
 module.exports = UserLeave

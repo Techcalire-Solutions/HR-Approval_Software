@@ -1,8 +1,10 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
+
 const {DataTypes} =  require('sequelize')
 const sequelize = require('../../utils/db')
-const LeaveType = require('../models/leaveType')
 
- const ComboOff = sequelize.define('comboOff',{
+ const ComboOff = sequelize.define('combooff',{
     userId: { type: DataTypes.ARRAY(DataTypes.INTEGER), allowNull: true },
     holidayId : { type : DataTypes.INTEGER, allowNull :true}
  },{

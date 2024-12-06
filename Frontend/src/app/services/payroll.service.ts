@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { Payroll } from '../common/interfaces/payRoll/payroll';
 import { AdvanceSalary } from '../common/interfaces/payRoll/advanceSalary';
 import { PayrollLog } from '../common/interfaces/payRoll/payroll-log';
+import { MonthlyPayroll } from '../common/interfaces/payRoll/monthlyPayroll';
 
 @Injectable({
   providedIn: 'root'
@@ -74,6 +75,10 @@ export class PayrollService {
     return this.http.post(this.apiUrl+"/monthlypayroll/update", data);
   }
 
+  public updateMPStatus(data: any): Observable<MonthlyPayroll> {
+    return this.http.patch<MonthlyPayroll>(this.apiUrl+"/monthlypayroll/statusupdate/", data);
+  }
+
   getMonthlyPayroll(filterValue?: string, page?: number, pagesize?:number): Observable<any> {
     return this.http.get(this.apiUrl+`/monthlypayroll/find?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
   }
@@ -89,6 +94,14 @@ export class PayrollService {
 
   getMonthlyPayrollByPayedFor(payedForValue: string): Observable<Payroll[]> {
     return this.http.get<Payroll[]>(this.apiUrl+`/monthlypayroll/bypayedfor/?payedFor=${payedForValue}`);
+  }
+
+  sendEmailWithExcel(formData: any){
+    return this.http.post(this.apiUrl+"/monthlypayroll/send-email", formData);
+  }
+
+  sendPayrollEmail(data: any){
+    return this.http.post(this.apiUrl+"/monthlypayroll/send-payroll-email", data);
   }
 
 }

@@ -40,7 +40,7 @@ export interface User {
   separationNote: string
   separationDate: Date
 
-  userposition: UserPosition
+  userPosition: UserPosition
   userPersonals: UserPersonal[]
   useraccount: UserAccount
   statutoryinfo: StatutoryInfo

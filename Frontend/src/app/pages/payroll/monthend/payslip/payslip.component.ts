@@ -156,5 +156,7 @@ export class PayslipComponent implements OnInit, OnDestroy{
     }
 
     return word.trim();
-}
+  }
+
+  
 }

@@ -12,29 +12,49 @@ const StatutoryInfo = require("../../users/models/statutoryInfo");
 const UserPosition = require("../../users/models/userPosition");
 const Designation = require("../../users/models/designation");
 const { Op } = require('sequelize');
-router.post("/save", async (req, res) => {
-  const data = req.body.payrolls;
-  
-  try {
-    for (let i = 0; i < data.length; i++) {
-      const { userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
-        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, leaveDays, daysInMonth} = data[i];
-      const monthlyPayroll = new MonthlyPayroll({userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
-        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt: new Date(), leaveDays, daysInMonth});
+const authenticateToken = require('../../middleware/authorization');
+const multer = require('multer');
+const nodemailer = require('nodemailer');
+const fs = require('fs');
+const upload = multer({ dest: 'uploads/' });
+const Notification = require('../../invoices/models/notification')
+const puppeteer = require("puppeteer");
+const Payroll = require("../models/payroll");
 
-      const advanceSalary = await AdvanceSalary.findOne({ where: { userId: userId, status: true } });
-      if(advanceSalary){
+router.post("/save", authenticateToken, async (req, res) => {
+  const data = req.body.payrolls;
+
+  try {
+    const results = []; 
+
+    for (let i = 0; i < data.length; i++) {
+      const {
+        userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
+        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, leaveDays, daysInMonth
+      } = data[i];
+
+      // Save the payroll
+      const monthlyPayroll = await MonthlyPayroll.create({
+        userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
+        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt: new Date(), leaveDays, daysInMonth
+      });
+
+      results.push(monthlyPayroll);
+
+      // Update advance salary if applicable
+      const advanceSalary = await AdvanceSalary.findOne({ where: { userId, status: true } });
+      if (advanceSalary) {
         advanceSalary.completed += 1;
-        if(advanceSalary.duration === advanceSalary.completed){
-          advanceSalary.status = false
+        if (advanceSalary.duration === advanceSalary.completed) {
+          advanceSalary.status = false;
           advanceSalary.completedDate = new Date();
-          advanceSalary.closeNote = 'Advance Payment is completed successfully'
+          advanceSalary.closeNote = 'Advance Payment is completed successfully';
         }
         await advanceSalary.save();
       }
-      await monthlyPayroll.save();
     }
-    res.send("Payrolls saved successfully");
+
+    res.status(200).send({ message: "Payrolls saved successfully", payrolls: results });
   } catch (error) {
     res.send(error.message);
   }
@@ -42,8 +62,8 @@ router.post("/save", async (req, res) => {
 
 
 
-router.get("/find", async (req, res) => {
-  let whereClause = { };
+router.get("/find", authenticateToken, async (req, res) => {
+  let whereClause = { status: 'Locked' };
   let limit;
   let offset;
   if (req.query.search !== 'undefined') {
@@ -95,9 +115,7 @@ router.get("/find", async (req, res) => {
   }
 });
 
-router.get("/findbyuser/:id", async (req, res) => {
-  console.log(req.params.id,"aaaaaaaaaaaaaaaaaaaaa");
-  
+router.get("/findbyuser/:id", authenticateToken, async (req, res) => {
   try {
     const monthlyPayroll = await MonthlyPayroll.findAll({
         where: {userId: req.params.id}, 
@@ -111,7 +129,7 @@ router.get("/findbyuser/:id", async (req, res) => {
   }
 });
 
-router.get("/bypayedfor", async (req, res) => {
+router.get("/bypayedfor", authenticateToken, async (req, res) => {
   try {
     const { payedFor } = req.query;
     
@@ -128,47 +146,104 @@ router.get("/bypayedfor", async (req, res) => {
   }
 });
 
-router.post("/update", async (req, res) => {
+router.post("/update", authenticateToken, async (req, res) => {
   const data = req.body.payrolls;
 
+  // Validate input data
   if (!Array.isArray(data) || data.length === 0) {
-    return res.status(400).send("Invalid payroll data provided.");
+    return res.send("Invalid payroll data provided." );
   }
 
+  // Start a transaction
   const transaction = await sequelize.transaction();
 
   try {
-
     for (const payroll of data) {
-      
-      const {userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
+      const {
+        userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
         advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays
       } = payroll;
 
-      // Check if a payroll record exists for the given user and period
+      if (!userId || !payedFor) {
+        throw new Error("Missing required fields: userId and payedFor are mandatory.");
+      }
+
       const existingPayroll = await MonthlyPayroll.findOne({
         where: { userId, payedFor },
-        transaction
+        transaction,
       });
 
       if (existingPayroll) {
-        await existingPayroll.update({ basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
-          advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays }, { transaction });
-      } else 
-        await MonthlyPayroll.create({ basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
-          advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays }, { transaction });
+        await existingPayroll.update(
+          {
+            basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
+            advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedAt, leaveDays,
+          },
+          { transaction }
+        );
+      } else {
+        // Create new payroll record
+        await MonthlyPayroll.create(
+          {
+            userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
+            advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays,
+          },
+          { transaction }
+        );
+      }
     }
 
+    // Commit transaction
     await transaction.commit();
-    res.send("Payrolls updated successfully");
+    return res.status(200).json({ message: "Payrolls updated successfully." });
   } catch (error) {
-    await transaction.rollback();
-    console.error("Error updating payrolls:", error);
-    res.status(500).send("An error occurred while updating payrolls.");
+    // Rollback transaction in case of error
+    if (transaction) await transaction.rollback();
+    return res.send(error.message);
   }
 });
 
-router.get('/findbyid/:id', async (req, res) => {
+
+
+// router.post("/update", authenticateToken, async (req, res) => {
+//   const data = req.body.payrolls;
+
+//   if (!Array.isArray(data) || data.length === 0) {
+//     return res.status(400).send("Invalid payroll data provided.");
+//   }
+
+//   const transaction = await sequelize.transaction();
+
+//   try {
+
+//     for (const payroll of data) {
+      
+//       const {userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
+//         advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays
+//       } = payroll;
+
+//       // Check if a payroll record exists for the given user and period
+//       const existingPayroll = await MonthlyPayroll.findOne({
+//         where: { userId, payedFor },
+//         transaction
+//       });
+
+//       if (existingPayroll) {
+//         await existingPayroll.update({ basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
+//           advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays }, { transaction });
+//       } else 
+//         await MonthlyPayroll.create({ basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
+//           advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays }, { transaction });
+//     }
+
+//     await transaction.commit();
+//     res.send("Payrolls updated successfully");
+//   } catch (error) {
+//     await transaction.rollback();
+//     res.send(error.message);
+//   }
+// })
+router.get('/findbyid/:id', authenticateToken, async (req, res) => {
   try {
     const monthlyPayroll = await MonthlyPayroll.findByPk(req.params.id,{ 
       include: [
@@ -190,6 +265,596 @@ router.get('/findbyid/:id', async (req, res) => {
   }
 })
 
+router.patch('/statusupdate', authenticateToken, async (req, res) => {
+  const { payrollData, status } = req.body;
+
+  function toNumber(value) {
+    return Number(value) || 0;
+  }
+
+  function calculateTotalEarnings(payroll) {
+    return (
+      toNumber(payroll.basic) +
+      toNumber(payroll.hra) +
+      toNumber(payroll.specialAllowance) +
+      toNumber(payroll.conveyanceAllowance) +
+      toNumber(payroll.lta)
+    );
+  }
+
+  function calculateTotalDeductions(payroll) {
+    return (
+      toNumber(payroll.pfDeduction) +
+      toNumber(payroll.tds) +
+      toNumber(payroll.advanceAmount) +
+      toNumber(payroll.leaveDeduction) +
+      toNumber(payroll.insurance) +
+      toNumber(payroll.incentiveDeduction)
+    );
+  }
+
+  function convertNumberToWords(amount) {
+    if (amount === 0) return "zero";
+    const words = [
+        "", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+        "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+        "seventeen", "eighteen", "nineteen"
+    ];
+    const tens = [
+        "", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"
+    ];
+    const scales = ["", "thousand", "million", "billion"];
+
+    let word = "";
+
+    function getWord(n, scale) {
+        let res = "";
+        if (n > 99) {
+            res += words[Math.floor(n / 100)] + " hundred ";
+            n %= 100;
+        }
+        if (n > 19) {
+            res += tens[Math.floor(n / 10)] + " ";
+            n %= 10;
+        }
+        if (n > 0) {
+            res += words[n] + " ";
+        }
+        return res.trim() + (scale ? " " + scale : "");
+    }
+
+    let scaleIndex = 0;
+    while (amount > 0) {
+        const chunk = amount % 1000;
+        if (chunk > 0) {
+            word = getWord(chunk, scales[scaleIndex]) + " " + word;
+        }
+        amount = Math.floor(amount / 1000);
+        scaleIndex++;
+    }
+
+    return word.trim();
+  }
+
+  if (!Array.isArray(payrollData) || payrollData.length === 0) {
+    return res.send("Invalid or missing payrollData." );
+  }
+
+  if (!status) {
+    return res.send("Status is required.");
+  }
+
+  try {
+    // Use a transaction for atomic updates
+    await sequelize.transaction(async (transaction) => {
+      const updatePromises = payrollData.map(async (element) => {
+        const mp = await MonthlyPayroll.findByPk(element.id, { transaction, include: [
+          {model: User, attributes: ['name','empNo', 'email'], include: [
+            {model: UserPersonal, attributes: ['dateOfJoining']},
+            {model: UserAccount},
+            {model: StatutoryInfo, attributes: ['panNumber', 'uanNumber', 'pfNumber']},
+            {model: UserPosition, attributes: ['designationId', 'department', 'location'], include:[
+              {model: Designation, attributes: ['designationName']}
+            ]}
+          ]}
+        ]});
+        if (!mp) {
+          throw new Error(`Payroll entry with ID ${element.id} not found.`);
+        }
+        mp.status = status;
+        await mp.save({ transaction });
+
+        const fullValue = await Payroll.findOne({ where: { userId: mp.userId } });
+        if (!fullValue) {
+          return res.send("Basic Payroll is not added for the employee");
+        }
+
+        // mp.status = status;
+        // await mp.save({ transaction });
+
+        const totalEarnings = calculateTotalEarnings(mp);
+        const totalDeductions = calculateTotalDeductions(mp);
+        const pdfContent = `
+          <html>
+            <head>
+              <style>
+              body {
+                  font-family: Arial, sans-serif;
+              }
+              .payslip-container {
+                  width: 800px;
+                  margin: 0 auto;
+                  border: 1px solid #000;
+                  padding: 20px;
+              }
+              .header, .footer {
+                  text-align: center;
+                  font-weight: bold;
+              }
+              .company-info, .employee-info, .earnings-deductions {
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin-top: 20px;
+              }
+              .company-info td, .employee-info td, .earnings-deductions td {
+                  padding: 8px;
+                  border: 1px solid #000;
+              }
+              .section-title {
+                  font-weight: bold;
+                  text-align: center;
+                  padding: 10px 0;
+              }
+              .earnings-deductions th {
+                  text-align: left;
+                  padding: 8px;
+              }
+              .net-pay {
+                  font-weight: bold;
+                  text-align: center;
+                  padding: 10px 0;
+              }
+
+              .header-row {
+                  display: flex;
+                  // justify-content: space-between;
+                  align-items: center; /* Align items vertically in the center */
+                  // margin-bottom: 20px; /* Add some spacing below the header */
+              }
+
+              .logo img {
+                  max-width: 200px;
+                  margin-right: 90px;
+              }
+
+              .address {
+                  text-align: center;
+              }
+
+              .address h2{
+                  text-align: center; 
+                  font-weight: bolder;
+              }
+
+              .payslip-title{
+                  text-align: center;
+              }
+
+              .header {
+                  display: flex;
+                  justify-content: flex-end; /* Moves content to the right */
+                  margin-bottom: 20px; /* Adds spacing between button and content */
+                }
+                
+                .download-button {
+                  background-color: #007bff; /* Customize button color */
+                  color: white;
+                  border: none;
+                  padding: 10px 20px;
+                  font-size: 14px;
+                  border-radius: 4px;
+                  cursor: pointer;
+                }
+                
+                .download-button:hover {
+                  background-color: #0056b3; /* Darker shade on hover */
+                }
+                
+                .increase-font-size {
+                  font-size: 1.5em; /* Adjust as needed */
+                }
+              </style>
+            </head>
+            <body>
+            <div class="payroll-container">
+                      <div class="header-row">
+                          <div class="logo">
+                              <img src="https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/images/OAC-+LOGO+edited.jpg" alt="Company Logo">
+                          </div>
+                          <div class="address">
+                              <h2>ONBOARD AERO CONSULTANTS PRIVATE LIMITED</h2>
+                              <p>BUILDING NO.48/768-C-2 SHREE LATHA BUILDING EROOR, THRIPUNITHURA, ERNAKULAM, KL 682306.</p>
+                          </div>
+                      </div>
+                      <h2 class="payslip-title">Payslip for the month of ${mp.payedFor}</h2>
+                      <table class="company-info">
+                          <tr>
+                              <td>
+                                <div style="display: flex; align-items: center; width: 100%;">
+                                  <span style="flex: 1;">Name</span>
+                                  <span style="width: 20px; text-align: center;">:</span>
+                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.name}</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div style="display: flex; align-items: center; width: 100%;">
+                                  <span style="flex: 1;">Employee No</span>
+                                  <span style="width: 20px; text-align: center;">:</span>
+                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.empNo}</span>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <div style="display: flex; align-items: center; width: 100%;">
+                                  <span style="flex: 1;">Joining Date</span>
+                                  <span style="width: 20px; text-align: center;">:</span>
+                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPersonals[0]?.dateOfJoining}</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div style="display: flex; align-items: center; width: 100%;">
+                                  <span style="flex: 1;">Bank Name</span>
+                                  <span style="width: 20px; text-align: center;">:</span>
+                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.useraccount?.bankName}</span>
+                                </div>
+                              </td>
+                            </tr>
+                          <tr>
+                              <td>
+                                  <div style="display: flex; align-items: center; width: 100%;">
+                                      <span style="flex: 1;">Designation</span>
+                                      <span style="width: 20px; text-align: center;">:</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPosition?.designation?.designationName}</span>
+                                    </div>
+                              </td>
+                              <td>
+                                  <div style="display: flex; align-items: center; width: 100%;">
+                                      <span style="flex: 1;">Bank Account No</span>
+                                      <span style="width: 20px; text-align: center;">:</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.useraccount?.accountNo}</span>
+                                    </div>
+                              </td>
+                          </tr>
+                          <tr>
+                              <td>
+                                  <div style="display: flex; align-items: center; width: 100%;">
+                                      <span style="flex: 1;">Department</span>
+                                      <span style="width: 20px; text-align: center;">:</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPosition?.department?.name}</span>
+                                  </div>
+                              </td>
+                              <td>
+                                  <div style="display: flex; align-items: center; width: 100%;">
+                                      <span style="flex: 1;">PAN Numbe</span>
+                                      <span style="width: 20px; text-align: center;">:</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.statutoryinfo?.panNumber}</span>
+                                  </div>
+                              </td>
+                          </tr>
+                          <tr>
+                              <td>
+                                  <div style="display: flex; align-items: center; width: 100%;">
+                                      <span style="flex: 1;">Location</span>
+                                      <span style="width: 20px; text-align: center;">:</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPosition?.location}</span>
+                                  </div>
+                              </td>
+                              <td>
+                                  <div style="display: flex; align-items: center; width: 100%;">
+                                      <span style="flex: 1;">PF No</span>
+                                      <span style="width: 20px; text-align: center;">:</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.statutoryinfo?.pfNumber}</span>
+                                  </div>
+                              </td>
+                          </tr>
+                          <tr>
+                              <td>
+                                  <div style="display: flex; align-items: center; width: 100%;">
+                                      <span style="flex: 1;">Effective Work Days</span>
+                                      <span style="width: 20px; text-align: center;">:</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">30</span>
+                                  </div>
+                              </td>
+                              <td>
+                                  <div style="display: flex; align-items: center; width: 100%;">
+                                      <span style="flex: 1;">PF UAN</span>
+                                      <span style="width: 20px; text-align: center;">:</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.statutoryinfo?.uanNumber}</span>
+                                  </div>
+                              </td>
+                          </tr>
+                          <tr>
+                              <td> 
+                                  <div style="display: flex; align-items: center; width: 100%;">
+                                      <span style="flex: 1;">LOP</span>
+                                      <span style="width: 20px; text-align: center;">:</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveDays}</span>
+                                  </div>
+                              </td>
+                              <td></td>
+                          </tr>       
+                      </table>
+
+                      <div class="section-title">Earnings and Deductions</div>
+
+                      <table class="earnings-deductions">
+                          <thead>
+                              <tr>
+                                  <th>Earnings</th>
+                                  <th>Full</th>
+                                  <th>Actual</th>
+                                  <th>Deductions</th>
+                                  <th>Actual</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <tr>
+                                  <td>BASIC</td>
+                                  <td>${fullValue.basic}</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.basic}</td>
+                                  <td>PF</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.pfDeduction}</td>
+                              </tr>
+                              <tr>
+                                  <td>HRA</td>
+                                  <td>${fullValue.hra}</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.hra}</td>
+                                  <td>TDS</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.tds}</td>
+                              </tr>
+                              <tr>
+                                  <td>SPECIAL ALLOWANCE</td>
+                                  <td>${fullValue.specialAllowance}</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.specialAllowance}</td>
+                                  <td>Advance</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.advanceAmount}</td>
+                              </tr>
+                              <tr>
+                                  <td>CONVEYANCE ALLOWANCE</td>
+                                  <td>${fullValue.conveyanceAllowance}</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.conveyanceAllowance}</td>
+                                  <td>LOP</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveDeduction}</td>
+                              </tr>
+                              <tr>
+                                  <td>TRAVEL ALLOWANCE</td>
+                                  <td>${fullValue.lta}</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.lta}</td>
+                                  <td>ESI</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.insurance}</td>
+                              </tr>
+                              <tr>
+                                <td>OVER TIME</td>
+                                <td></td>
+                                <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.ot}</td>
+                                <td>INCENTIVE</td>
+                                <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.incentiveDeduction}</td>
+                            </tr>
+                            <tr>
+                              <td>PAY OUT</td>
+                              <td></td>
+                              <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.payOut}</td>
+                              <td></td>
+                              <td></td>
+                            </tr>
+                            <tr>
+                              <td>INCENTIVE</td>
+                              <td></td>
+                              <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.incentive}</td>
+                              <td></td>
+                              <td></td>
+                            </tr>
+                              <tr>
+                                  <td colspan="3"> 
+                                      <div style="display: flex; align-items: center; width: 100%;">
+                                          <span style="flex: 1;">Total Earnings</span>
+                                          <span style="width: 20px; text-align: center;">:</span>
+                                          <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">INR ${totalEarnings}</span>
+                                      </div>
+                                  </td>
+                                  <td colspan="2"> 
+                                      <div style="display: flex; align-items: center; width: 100%;">
+                                          <span style="flex: 1;">Total Deductions</span>
+                                          <span style="width: 20px; text-align: center;">:</span>
+                                          <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">INR ${totalDeductions}</span>
+                                      </div>
+                                  </td>
+                              </tr>
+                          </tbody>
+                      </table>
+
+                      <div class="net-pay">
+                          <p>Net Pay for the month (Total Earnings - Total Deductions): <a  style="font-weight: bolder; color: rgb(8, 72, 115);">INR ${mp.toPay}</a></p>
+                          <p><a  style="font-weight: bolder; color: rgb(8, 72, 115);">(Rupees ${convertNumberToWords(totalEarnings - totalDeductions)} Only)</a></p>
+                      </div>
+
+                      <!-- <div class="footer">
+                          <p>This is a system-generated payslip and does not require a signature.</p>
+                      </div> -->
+                  </div>
+            </body>
+          </html>
+        `;
+
+        const pdfBuffer = await generatePDF(pdfContent);
+        await sendEmail(mp.user.email, pdfBuffer, `Payroll Status Update - ${mp.employeeName}`);
+        });
+
+      // Wait for all updates and emails to complete
+      await Promise.all(updatePromises);
+    });
+
+    res.status(200).json({ message: "Successfully updated payroll statuses and sent emails." });
+  } catch (error) {
+    console.error("Error updating payroll statuses:", error);
+    res.status(500).json({
+      message: "An error occurred while updating payroll statuses.",
+      error: error.message,
+    });
+  }
+});
+
+// Function to generate PDF
+async function generatePDF(html) {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.setContent(html);
+  const pdfBuffer = await page.pdf({ format: "A4" });
+  await browser.close();
+  return pdfBuffer;
+}
+
+// Function to send email
+async function sendEmail(to, pdfBuffer, subject) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: 'nishida@onboardaero.com',
+      pass: 'jior rtdu epzr xadt',
+    },
+  });
+
+  await transporter.sendMail({
+    from: 'nishida@onboardaero.com',
+    to: to,
+    subject: subject,
+    text: "Please find your updated payroll status attached.",
+    attachments: [
+      {
+        filename: "Payroll_Status_Update.pdf",
+        content: pdfBuffer,
+      },
+    ],
+  });
+}
+
+
+
+router.post('/send-email', upload.single('file'), authenticateToken, async (req, res) => {
+  try {
+    const { email, month, payrollData } = req.body; 
+    const payroll = JSON.parse(payrollData);
+    for (let i = 0; i < payroll.length; i++) {
+      const element = payroll[i];
+      let mp = await MonthlyPayroll.findByPk(element.id);
+      mp.status = 'SendforApproval';
+      await mp.save();
+    }
+    
+    const file = req.file;
+
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: 'nishida@onboardaero.com',
+        pass: 'jior rtdu epzr xadt',
+      },
+    });
+
+    // Send email
+    const mailOptions = {
+      from: 'your-email@gmail.com',
+      to: email,
+      subject: `Payroll Data for ${month}`,
+      html: `
+        <p>Please find the attached payroll Excel file.</p>
+        <p>Approve or Reject the payroll data using the links below:</p>
+        <div style="text-align: center; margin-top: 20px;">
+          <a href="http://localhost:8000/monthlypayroll/approve?month=${month}&id=${req.user.id}" 
+            style="
+              display: inline-block;
+              padding: 10px 20px;
+              margin: 5px;
+              font-size: 16px;
+              color: white;
+              background-color: #28a745;
+              text-decoration: none;
+              border-radius: 5px;
+            ">
+            Approve
+          </a>
+          <a href="http://localhost:8000/monthlypayroll/reject?month=${month}&id=${req.user.id}" 
+            style="
+              display: inline-block;
+              padding: 10px 20px;
+              margin: 5px;
+              font-size: 16px;
+              color: white;
+              background-color: #dc3545;
+              text-decoration: none;
+              border-radius: 5px;
+            ">
+            Reject
+          </a>
+        </div>
+      `,
+      attachments: [
+        {
+          filename: file.originalname,
+          path: file.path,
+        },
+      ],
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    fs.unlinkSync(file.path);
+
+    res.send({ message: 'Email sent successfully!' });
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
+router.get('/approve', async (req, res) => {
+  try {
+    const { month, id } = req.query;
+    const payrolls = await MonthlyPayroll.findAll({ where: { payedFor: month, status: 'SendforApproval' } });
+    payrolls.forEach(async (payroll) => {
+      payroll.status = 'Approved';
+      await payroll.save();
+    });
+
+    const not = await Notification.create({
+      userId: id, message:`Payroll for ${month} is approved`
+    })
+    
+    res.send(`Payroll for ${month} is approved`);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
+// Reject Route
+router.get('/reject', async (req, res) => {
+  try {
+    const { month, id } = req.query;
+    const payrolls = await MonthlyPayroll.findAll({ where: { payedFor: month, status: 'SendforApproval' } });
+    payrolls.forEach(async (payroll) => {
+      payroll.status = 'Rejected';
+      await payroll.save();
+    });
+
+    const not = await Notification.create({
+      userId: id, message:`Payroll for ${month} is rejected`
+    })
+    
+    res.send(`Payroll for ${month} is rejected`);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
 
 
 module.exports = router;

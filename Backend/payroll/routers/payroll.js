@@ -35,13 +35,12 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const userId = req.params.id;
-    console.log(userId);
     
     const payroll = await Payroll.findOne({ where: { userId: userId } });
     if (!payroll) {
-      return;
+      return res.send("Basic Payroll is not added for the employee");
     }
-    return res.status(200).json(payroll);
+    return res.send(payroll);
   
   } catch (error) {
     res.send(error.message);
