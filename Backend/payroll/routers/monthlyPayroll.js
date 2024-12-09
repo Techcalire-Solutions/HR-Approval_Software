@@ -29,13 +29,13 @@ router.post("/save", authenticateToken, async (req, res) => {
 
     for (let i = 0; i < data.length; i++) {
       const {
-        userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
+        userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, esi, tds,
         advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, leaveDays, daysInMonth
       } = data[i];
 
       // Save the payroll
       const monthlyPayroll = await MonthlyPayroll.create({
-        userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
+        userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, esi, tds,
         advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt: new Date(), leaveDays, daysInMonth
       });
 
@@ -160,8 +160,8 @@ router.post("/update", authenticateToken, async (req, res) => {
   try {
     for (const payroll of data) {
       const {
-        userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
-        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays
+        userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, esi, tds,
+        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays, status = 'Added'
       } = payroll;
 
       if (!userId || !payedFor) {
@@ -176,8 +176,8 @@ router.post("/update", authenticateToken, async (req, res) => {
       if (existingPayroll) {
         await existingPayroll.update(
           {
-            basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
-            advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedAt, leaveDays,
+            basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, esi, tds,
+            advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedAt, leaveDays, status
           },
           { transaction }
         );
@@ -185,8 +185,8 @@ router.post("/update", authenticateToken, async (req, res) => {
         // Create new payroll record
         await MonthlyPayroll.create(
           {
-            userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
-            advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays,
+            userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, esi, tds,
+            advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays, status
           },
           { transaction }
         );
@@ -294,7 +294,14 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
   }
 
   function convertNumberToWords(amount) {
+    if (isNaN(amount) || amount === null || amount === undefined) {
+      return "Invalid amount";
+    }
+
+    amount = Number(amount); // Ensure the amount is a number
+
     if (amount === 0) return "zero";
+
     const words = [
         "", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
         "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
@@ -323,14 +330,32 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
         return res.trim() + (scale ? " " + scale : "");
     }
 
+    const [integerPart, fractionalPart] = amount.toFixed(2).split('.').map(Number);
+
+    // Convert integer part
     let scaleIndex = 0;
-    while (amount > 0) {
-        const chunk = amount % 1000;
+    let integerWord = "";
+    let tempIntPart = integerPart;
+
+    while (tempIntPart > 0) {
+        const chunk = tempIntPart % 1000;
         if (chunk > 0) {
-            word = getWord(chunk, scales[scaleIndex]) + " " + word;
+            integerWord = getWord(chunk, scales[scaleIndex]) + " " + integerWord;
         }
-        amount = Math.floor(amount / 1000);
+        tempIntPart = Math.floor(tempIntPart / 1000);
         scaleIndex++;
+    }
+
+    // Convert fractional part
+    let fractionalWord = "";
+    if (fractionalPart > 0) {
+        fractionalWord = getWord(fractionalPart, "") + " paise";
+    }
+
+    // Combine integer and fractional parts
+    word = integerWord.trim();
+    if (fractionalWord) {
+        word += " and " + fractionalWord;
     }
 
     return word.trim();
@@ -363,6 +388,7 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
         }
         mp.status = status;
         await mp.save({ transaction });
+        const workingDays = mp.daysInMonth - mp.leaveDays
 
         const fullValue = await Payroll.findOne({ where: { userId: mp.userId } });
         if (!fullValue) {
@@ -374,7 +400,7 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
             model: Designation, attributes: ['designationName']
           }}
         });
-        if(user.userPosition.length === 0 || !user.userPosition.designationId){
+        if(!user.userPosition || !user.userPosition.designationId){
           return res.send(`Designation od the sender ${user.name} is not added`)
         }
 
@@ -405,10 +431,12 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
                   width: 100%;
                   border-collapse: collapse;
                   margin-top: 20px;
+                  font-size: 12px;
               }
               .company-info td, .employee-info td, .earnings-deductions td {
                   padding: 8px;
                   border: 1px solid #000;
+                  font-size: 12px;
               }
               .section-title {
                   font-weight: bold;
@@ -437,41 +465,36 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
               }
 
               .address {
-                  text-align: justify;
+                  text-align: center;
+                  font-size: 14px;
               }
 
               .address h2{
-                  text-align: justify; 
+                  text-align: center; 
                   font-weight: bolder;
               }
 
               .payslip-title{
                   text-align: center;
+                  font-size: 14px;
               }
 
               .header {
-                  display: flex;
-                  justify-content: flex-end; /* Moves content to the right */
-                  margin-bottom: 20px; /* Adds spacing between button and content */
-                }
+                display: flex;
+                justify-content: flex-end; /* Moves content to the right */
+                margin-bottom: 20px; /* Adds spacing between button and content */
+              }
+              
+              .download-button {
+                background-color: #007bff; /* Customize button color */
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                font-size: 14px;
+                border-radius: 4px;
+                cursor: pointer;
+              }
                 
-                .download-button {
-                  background-color: #007bff; /* Customize button color */
-                  color: white;
-                  border: none;
-                  padding: 10px 20px;
-                  font-size: 14px;
-                  border-radius: 4px;
-                  cursor: pointer;
-                }
-                
-                .download-button:hover {
-                  background-color: #0056b3; /* Darker shade on hover */
-                }
-                
-                .increase-font-size {
-                  font-size: 1.5em; /* Adjust as needed */
-                }
               </style>
             </head>
             <body>
@@ -485,21 +508,21 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
                               <p>BUILDING NO.48/768-C-2 SHREE LATHA BUILDING EROOR, THRIPUNITHURA, ERNAKULAM, KL 682306.</p>
                           </div>
                       </div>
-                      <h2 class="payslip-title">Payslip for the month of ${mp.payedFor ?? 'N/A'}</h2>
+                      <h2 class="payslip-title">Payslip for the month of ${mp.payedFor ?? ''}</h2>
                       <table class="company-info">
                           <tr>
                               <td>
                                 <div style="display: flex; align-items: center; width: 100%;">
                                   <span style="flex: 1;">Name</span>
                                   <span style="width: 20px; text-align: center;">:</span>
-                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.name ?? 'N/A'}</span>
+                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.name ?? ''}</span>
                                 </div>
                               </td>
                               <td>
                                 <div style="display: flex; align-items: center; width: 100%;">
                                   <span style="flex: 1;">Employee No</span>
                                   <span style="width: 20px; text-align: center;">:</span>
-                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.empNo ?? 'N/A'}</span>
+                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.empNo ?? ''}</span>
                                 </div>
                               </td>
                             </tr>
@@ -508,14 +531,14 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
                                 <div style="display: flex; align-items: center; width: 100%;">
                                   <span style="flex: 1;">Joining Date</span>
                                   <span style="width: 20px; text-align: center;">:</span>
-                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPersonals[0]?.dateOfJoining ?? 'N/A'}</span>
+                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPersonals[0]?.dateOfJoining ?? ''}</span>
                                 </div>
                               </td>
                               <td>
                                 <div style="display: flex; align-items: center; width: 100%;">
                                   <span style="flex: 1;">Bank Name</span>
                                   <span style="width: 20px; text-align: center;">:</span>
-                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.useraccount?.bankName ?? 'N/A'}</span>
+                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.useraccount?.bankName ?? ''}</span>
                                 </div>
                               </td>
                             </tr>
@@ -524,14 +547,14 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
                                   <div style="display: flex; align-items: center; width: 100%;">
                                       <span style="flex: 1;">Designation</span>
                                       <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPosition?.designation?.designationName ?? 'N/A'}</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPosition?.designation?.designationName ?? ''}</span>
                                     </div>
                               </td>
                               <td>
                                   <div style="display: flex; align-items: center; width: 100%;">
                                       <span style="flex: 1;">Bank Account No</span>
                                       <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.useraccount?.accountNo ?? 'N/A'}</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.useraccount?.accountNo ?? ''}</span>
                                     </div>
                               </td>
                           </tr>
@@ -540,14 +563,14 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
                                   <div style="display: flex; align-items: center; width: 100%;">
                                       <span style="flex: 1;">Department</span>
                                       <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPosition?.department?.name ?? 'N/A'}</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPosition?.department?.name ?? ''}</span>
                                   </div>
                               </td>
                               <td>
                                   <div style="display: flex; align-items: center; width: 100%;">
                                       <span style="flex: 1;">PAN Numbe</span>
                                       <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.statutoryinfo?.panNumber ?? 'N/A'}</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.statutoryinfo?.panNumber ?? ''}</span>
                                   </div>
                               </td>
                           </tr>
@@ -556,14 +579,14 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
                                   <div style="display: flex; align-items: center; width: 100%;">
                                       <span style="flex: 1;">Location</span>
                                       <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPosition?.location ?? 'N/A'}</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPosition?.location ?? ''}</span>
                                   </div>
                               </td>
                               <td>
                                   <div style="display: flex; align-items: center; width: 100%;">
                                       <span style="flex: 1;">PF No</span>
                                       <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.statutoryinfo?.pfNumber ?? 'N/A'}</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.statutoryinfo?.pfNumber ?? ''}</span>
                                   </div>
                               </td>
                           </tr>
@@ -572,14 +595,14 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
                                   <div style="display: flex; align-items: center; width: 100%;">
                                       <span style="flex: 1;">Effective Work Days</span>
                                       <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">30</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${workingDays}</span>
                                   </div>
                               </td>
                               <td>
                                   <div style="display: flex; align-items: center; width: 100%;">
                                       <span style="flex: 1;">PF UAN</span>
                                       <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.statutoryinfo?.uanNumber ?? 'N/A'}</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.statutoryinfo?.uanNumber ?? ''}</span>
                                   </div>
                               </td>
                           </tr>
@@ -588,7 +611,7 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
                                   <div style="display: flex; align-items: center; width: 100%;">
                                       <span style="flex: 1;">LOP</span>
                                       <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveDays ?? 'N/A'}</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveDays ?? ''}</span>
                                   </div>
                               </td>
                               <td></td>
@@ -610,57 +633,57 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
                           <tbody>
                               <tr>
                                   <td>BASIC</td>
-                                  <td>${fullValue.basic ?? 0}</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.basic ?? 0}</td>
+                                  <td>${fullValue.basic ?? ''}</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.basic ?? ''}</td>
                                   <td>PF</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.pfDeduction ?? 0}</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.pfDeduction ?? ''}</td>
                               </tr>
                               <tr>
                                   <td>HRA</td>
-                                  <td>${fullValue.hra ?? 0}</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.hra ?? 0}</td>
+                                  <td>${fullValue.hra ?? ''}</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.hra ?? ''}</td>
                                   <td>TDS</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.tds ?? 0}</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.tds ?? ''}</td>
                               </tr>
                               <tr>
                                   <td>SPECIAL ALLOWANCE</td>
-                                  <td>${fullValue.specialAllowance ?? 0}</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.specialAllowance ?? 0}</td>
+                                  <td>${fullValue.specialAllowance ?? ''}</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.specialAllowance ?? ''}</td>
                                   <td>Advance</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.advanceAmount ?? 0}</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.advanceAmount ?? ''}</td>
                               </tr>
                               <tr>
                                   <td>CONVEYANCE ALLOWANCE</td>
-                                  <td>${fullValue.conveyanceAllowance ?? 0}</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.conveyanceAllowance ?? 0}</td>
+                                  <td>${fullValue.conveyanceAllowance ?? ''}</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.conveyanceAllowance ?? ''}</td>
                                   <td>LOP</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveDeduction ?? 0}</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveDeduction ?? ''}</td>
                               </tr>
                               <tr>
                                   <td>TRAVEL ALLOWANCE</td>
-                                  <td>${fullValue.lta ?? 0}</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.lta ?? 0}</td>
+                                  <td>${fullValue.lta ?? ''}</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.lta ?? ''}</td>
                                   <td>ESI</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.insurance ?? 0}</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.insurance ?? ''}</td>
                               </tr>
                               <tr>
                                 <td>OVER TIME</td>
                                 <td></td>
-                                <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.ot ?? 0}</td>
+                                <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.ot ?? ''}</td>
                                 <td>INCENTIVE</td>
-                                <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.incentiveDeduction ?? 0}</td>
+                                <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.incentiveDeduction ?? ''}</td>
                             </tr>
                             <tr>
                               <td>PAY OUT</td>
                               <td></td>
-                              <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.payOut ?? 0}</td>
+                              <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.payOut ?? ''}</td>
                               <td></td>
                               <td></td>
                             </tr>
                             <tr>
                               <td>INCENTIVE</td>
                               <td></td>
-                              <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.incentive ?? 0}</td>
+                              <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.incentive ?? ''}</td>
                               <td></td>
                               <td></td>
                             </tr>
@@ -669,14 +692,14 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
                                       <div style="display: flex; align-items: center; width: 100%;">
                                           <span style="flex: 1;">Total Earnings</span>
                                           <span style="width: 20px; text-align: center;">:</span>
-                                          <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">INR ${totalEarnings ?? 0}</span>
+                                          <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">INR ${totalEarnings ?? ''}</span>
                                       </div>
                                   </td>
                                   <td colspan="2"> 
                                       <div style="display: flex; align-items: center; width: 100%;">
                                           <span style="flex: 1;">Total Deductions</span>
                                           <span style="width: 20px; text-align: center;">:</span>
-                                          <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">INR ${totalDeductions ?? 0}</span>
+                                          <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">INR ${totalDeductions ?? ''}</span>
                                       </div>
                                   </td>
                               </tr>
@@ -685,7 +708,7 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
 
                       <div class="net-pay">
                           <p>Net Pay for the month (Total Earnings - Total Deductions): <a  style="font-weight: bolder; color: rgb(8, 72, 115);">INR ${mp.toPay ?? 0}</a></p>
-                          <p><a  style="font-weight: bolder; color: rgb(8, 72, 115);">(Rupees ${convertNumberToWords(totalEarnings - totalDeductions) ?? 0} Only)</a></p>
+                          <p><a  style="font-weight: bolder; color: rgb(8, 72, 115);">(Rupees ${convertNumberToWords(totalEarnings - totalDeductions) ?? ''} Only)</a></p>
                       </div>
 
                       <!-- <div class="footer">
@@ -738,7 +761,7 @@ async function sendEmail(to, pdfBuffer, subject, payedFor, name, designation, se
     from: 'nishida@onboardaero.com',
     to: to,
     subject: subject,
-    html: `<p>Please find your updated payroll status attached.</p>
+    html: `<p>Attached is your payslip for the month of ${payedFor}. Please review it at your convenience.</p>
                       <hr style="border: 0; border-top: 1px solid #ccc; margin: 20px 0;">
                   <table>
                       <tr>
@@ -829,8 +852,8 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
         model: Designation, attributes: ['designationName']
       }}
     });
-    if(user.userPosition.length === 0 || !user.userPosition.designationId){
-      return res.send(`Designation od the sender ${user.name} is not added`)
+    if(!user.userPosition || !user.userPosition.designationId){
+      return res.send(`Designation of the sender ${user.name} is not added`)
     }
     
     const file = req.file;
@@ -849,8 +872,8 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
       to: email,
       subject: `Payroll Data for ${month}`,
       html: `
-        <p>Please find the attached payroll Excel file.</p>
-        <p>Approve or Reject the payroll data using the links below:</p>
+        <p>Please find the attached payroll Excel file for your review.</p>
+        <p>Kindly use the links below to approve or reject the payroll data as needed.</p>
         <div style="text-align: center; margin-top: 20px;">
           <a href="http://localhost:8000/monthlypayroll/approve?month=${month}&id=${req.user.id}" 
             style="

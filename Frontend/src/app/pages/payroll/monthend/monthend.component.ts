@@ -92,7 +92,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
     const incentive: number = Number(payrollGroup.get('incentive')?.value || 0);
     const payOut: number = Number(payrollGroup.get('payOut')?.value || 0);
     const pf: number = Number(payrollGroup.get('pfDeduction')?.value || 0);
-    const insurance: number = Number(payrollGroup.get('insurance')?.value || 0);
+    const insurance: number = Number(payrollGroup.get('esi')?.value || 0);
     const tds: number = Number(payrollGroup.get('tds')?.value || 0);
     const leaveDays: number = Number(payrollGroup.get('leaveDays')?.value || 0);
     const advanceAmount: number = Number(payrollGroup.get('advanceAmount')?.value || 0);
@@ -119,6 +119,8 @@ export class MonthendComponent implements OnInit, OnDestroy{
   }
 
   newDoc(initialValue?: any): FormGroup {
+    console.log(initialValue);
+    
     const payedForValue = `${this.month} ${this.currentYear}`;
     return this.fb.group({
       id: [initialValue ? initialValue.id : '', Validators.required],
@@ -135,7 +137,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
       incentive: [initialValue ? initialValue.incentive : 0,],
       payOut: [initialValue ? initialValue.payOut : 0,],
       pfDeduction: [initialValue ? initialValue.pfDeduction : 0, Validators.required],
-      insurance: [initialValue ? initialValue.esi : 0, Validators.required],
+      esi: [initialValue ? initialValue.esi : 0, Validators.required],
       tds: [initialValue ? initialValue.tds : 0, Validators.required],
       advanceAmount: [initialValue ? initialValue.advanceAmount : 0],
       leaveDays: [initialValue ? initialValue.leaveDays : 0],
@@ -155,6 +157,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
   advanceSUb!: Subscription;
   isRejected: boolean = false;
   isLocked: boolean = false;
+  approval: boolean = false;
   getPayroll() {
     this.payrolls = [];
     const payedForValue = `${this.month} ${this.currentYear}`;
@@ -180,7 +183,9 @@ export class MonthendComponent implements OnInit, OnDestroy{
         // this.updateStatus = true;
         this.payrolls = payroll;
         this.payrolls.forEach((payrollItem: any) => {
-          if (payrollItem.status === 'Approved') {
+          if (payrollItem.status === 'SendforApproval') {
+            this.approval = true;
+          }else if (payrollItem.status === 'Approved') {
             this.isApproved = true;
             this.isRejected = false;
           } else if (payrollItem.status === 'Rejected') {
@@ -215,7 +220,10 @@ export class MonthendComponent implements OnInit, OnDestroy{
     this.isSave = true;
     if(this.updateStatus || this.isRejected || this.isApproved){
       this.payrollService.updateMonthlyPayroll(this.payrollForm.getRawValue()).subscribe(() => {
-        this.isLoading = false
+        this.isLoading = false;
+        this.approval = false;
+        this.isApproved = false;
+        this.isRejected = false;
         this.snackBar.open('Payroll is updated successfully...', '', { duration: 3000 });
         this.clearAllRows()
         this.getPayroll()
@@ -256,7 +264,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
       'Incentive (₹)': row.incentive,
       'PayOut (₹)': row.payOut,
       'PF Deduction (₹)': row.pfDeduction,
-      'Insurance (₹)': row.insurance,
+      'ESI (₹)': row.esi,
       'TDS (₹)': row.tds,
       'Advance Amount (₹)': row.advanceAmount,
       'Leave Days': row.leaveDays,
@@ -277,22 +285,33 @@ export class MonthendComponent implements OnInit, OnDestroy{
     });
   
     dialogRef.afterClosed().subscribe((email) => {
-      this.isLoading = true;
       if (email) {
+        if(!this.validateEmail(email)){
+          return alert('Invalid email address. Please enter a valid email.')
+        }
+        this.isLoading = true;
         const formData = new FormData();
         formData.append('file', fileBlob, `Payroll_${this.month}_${this.daysInMonth}.xlsx`);
         formData.append('email', email);
         formData.append('month', `${this.month} ${this.currentYear}`);
         formData.append('payrollData', JSON.stringify(payrollData));
   
-        this.payrollService.sendEmailWithExcel(formData).subscribe(() => {
+        this.payrollService.sendEmailWithExcel(formData).subscribe((res) => {
+          console.log(res);
+          
           this.isLoading = false;
+          
           this.snackBar.open(`Email sent successfully to ${email}!...`, '', { duration: 3000 });
           this.getPayroll();
           this.clearAllRows();
         });
       }
     });
+  }
+
+  validateEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 
   lockData(){
@@ -326,7 +345,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
       'Incentive (₹)': row.incentive,
       'PayOut (₹)': row.payOut,
       'PF Deduction (₹)': row.pfDeduction,
-      'Insurance (₹)': row.insurance,
+      'ESI (₹)': row.esi,
       'TDS (₹)': row.tds,
       'Advance Amount (₹)': row.advanceAmount,
       'Leave Days': row.leaveDays,

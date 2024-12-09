@@ -1,6 +1,6 @@
 @if(payroll && fullValue){
     <div class="header">
-        <button class="download-button exclude-from-pdf" (click)="downloadPDF()">Download as PDF</button>
+        <button class="download-button exclude-from-pdf" (click)="downloadPDF()">Download</button>
     </div>
     <div class="payroll-container">
         <div class="header-row">
@@ -171,7 +171,7 @@
                     <td>{{fullValue.lta}}</td>
                     <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.lta}}</td>
                     <td>ESI</td>
-                    <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.insurance}}</td>
+                    <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.esi}}</td>
                 </tr>
                 <tr>
                   <td>OVER TIME</td>

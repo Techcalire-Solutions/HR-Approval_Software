@@ -2,9 +2,10 @@
 <div class="payroll-header">
     <h2>Monthend Calculation - @if (updateStatus) {Update} 
         {{month}} {{daysInMonth}} 
+        @if (approval){- Sent for Approval} 
         @if (isApproved){- Approved} 
         @if (isRejected) {- Rejected}
-        @if( isLocked ) {- Sent}
+        @if( isLocked ) {- Payroll Completed}
     </h2>
     <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon" 
         class="d-block mr-0 ml-auto" (click)="downloadExcelOnly()" style="margin-left: auto; ">
@@ -56,7 +57,7 @@
                     <td><input type="number" placeholder="Incentive" formControlName="incentive"></td>
                     <td><input type="number" placeholder="PayOut" formControlName="payOut"></td>
                     <td><input type="number" placeholder="PF" formControlName="pfDeduction"></td>
-                    <td><input type="number" placeholder="ESI" formControlName="insurance"></td>
+                    <td><input type="number" placeholder="ESI" formControlName="esi"></td>
                     <td><input type="number" placeholder="TDS" formControlName="tds"></td>
                     <td><input type="number" placeholder="Advance" formControlName="advanceAmount"></td>
                     <td><input type="number" placeholder="LeaveDays" formControlName="leaveDays"></td>
@@ -69,7 +70,8 @@
         </table>
     }<br>
     @if(!isLocked){
-        <button mat-raised-button type="button" (click)="savePayroll()" class="calculate-btn" color="primary">
+        <button mat-raised-button type="button" (click)="savePayroll()" class="calculate-btn" color="primary"
+        [disabled]="approval">
             @if(updateStatus || isRejected || isApproved){
                 Update
             }@else{
@@ -78,11 +80,11 @@
             Payroll
         </button>&nbsp;&nbsp;
         <button mat-raised-button type="button" (click)="downloadExcel()" class="calculate-btn" color="primary"
-        [disabled]="!isSave">
+        [disabled]="!isSave || approval">
            Send For Verifictaion
         </button>&nbsp;&nbsp;
         <button mat-raised-button type="button" (click)="lockData()" class="calculate-btn" color="primary"
-        [disabled]="!isApproved">
+        [disabled]="!isApproved || !payrollControls.pristine">
             Lock And Send
         </button>
     }
