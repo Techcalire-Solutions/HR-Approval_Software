@@ -369,6 +369,15 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
           return res.send("Basic Payroll is not added for the employee");
         }
 
+        let user = await User.findByPk(req.user.id, { include: 
+          {model: UserPosition, attributes: ['designationId'], include: {
+            model: Designation, attributes: ['designationName']
+          }}
+        });
+        if(user.userPosition.length === 0 || !user.userPosition.designationId){
+          return res.send(`Designation od the sender ${user.name} is not added`)
+        }
+
         // mp.status = status;
         // await mp.save({ transaction });
 
@@ -688,7 +697,7 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
         `;
 
         const pdfBuffer = await generatePDF(pdfContent);
-        await sendEmail(mp.user.email, pdfBuffer, `Payslip for - ${mp.payedFor}`, mp.payedFor, mp.user.name);
+        await sendEmail(mp.user.email, pdfBuffer, `Payslip for - ${mp.payedFor}`, mp.payedFor, mp.user.name, user.userPosition.designation.designationName, user.name);
         });
 
       // Wait for all updates and emails to complete
@@ -716,7 +725,7 @@ async function generatePDF(html) {
 }
 
 // Function to send email
-async function sendEmail(to, pdfBuffer, subject, payedFor, name) {
+async function sendEmail(to, pdfBuffer, subject, payedFor, name, designation, senderName) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -729,7 +738,72 @@ async function sendEmail(to, pdfBuffer, subject, payedFor, name) {
     from: 'nishida@onboardaero.com',
     to: to,
     subject: subject,
-    text: "Please find your updated payroll status attached.",
+    html: `<p>Please find your updated payroll status attached.</p>
+                      <hr style="border: 0; border-top: 1px solid #ccc; margin: 20px 0;">
+                  <table>
+                      <tr>
+                          <td style="padding-left: 5px; vertical-align: top;">
+                                  <div class="signature-container">
+                                  <p style=" font-weight: bold; color: #0a499b; margin-bottom: 5px; font-size:small;" >With Regards,</p>
+                                  <p style="color: #0a499b; font-size: 16px; font-weight: bold; margin: 5px 0; text-align: justify;">
+                                    ${senderName}
+                                  </p>
+                                  <p style="font-size: 14px; margin: 0; text-align:justify;">
+                                    ${designation}
+                                  </p>
+                                      <img src="https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/images/OAC-+LOGO+edited.jpg" 
+                                      alt="Onboard Aero Consultant Logo" style="width: 280px;">
+
+                                      <hr style="border: 1px solid #0a499b; margin: 5px 0;">
+                                      
+                                      <table style="width: 100%; margin: 0;">
+                                          <tr>
+                                              <td style="vertical-align: top; padding-top: 5px; text-align: center;">
+                                                  <!-- <strong style="font-style: italic; color: #0a499b;">Address:</strong> -->
+                                                  <img src="https://img.icons8.com/material-outlined/24/000000/marker.png" alt="Address Icon" 
+                                                  class="icon" style="width: 15px;">
+                                              </td>
+                                              <td style="padding-left: 5px; font-size: 10px; text-align: justify;">
+                                                  <p style="margin: 0;">ONBOARD AERO CONSULTANT PRIVATE LIMITED.<br>
+                                                  Technolodge, 13/227, Kakkoor.P.O, Ernakulam- 686662</p>
+                                              </td>
+                                          </tr>
+                                          <tr>
+                                              <td style="vertical-align: top; text-align: center;">
+                                                  <!-- <strong style="font-style: italic; color: #0a499b;">Mobile:</strong> -->
+                                                  <img src="https://img.icons8.com/material-outlined/24/000000/phone.png" alt="Phone Icon" 
+                                                  class="icon" style="width: 15px;">
+                                              </td>
+                                              <td style="padding-left: 5px; font-size: 10px; text-align: justify;">
+                                                  <p style="margin: 0;">+91 62387 83025, +91 73064 30169</p>
+                                              </td>
+                                          </tr>
+                                          <tr>
+                                              <td style="vertical-align: top; text-align: center;">
+                                                  <!-- <strong style="font-style: italic; color: #0a499b;">Email:</strong> -->
+                                                  <img src="https://img.icons8.com/material-outlined/24/000000/email.png" alt="Email Icon" 
+                                                  class="icon" style="width: 15px;">
+                                              </td>
+                                              <td style="padding-left: 5px; font-size: 10px; text-align: justify;">
+                                                  <a href="mailto:hr@onboardaero.com" style="color: black; text-decoration: none;">hr@onboardaero.com</a>
+                                              </td>
+                                          </tr>
+                                          <tr>
+                                              <td style="vertical-align: top; text-align: center;">
+                                                  <!-- <strong style="font-style: italic; color: #0a499b;">Website:</strong> -->
+                                                  <img src="https://img.icons8.com/material-outlined/24/000000/internet.png" alt="Website Icon" 
+                                                  class="icon" style="width: 15px;">
+                                              </td>
+                                              <td style="padding-left: 5px; font-size: 10px; text-align: justify;">
+                                                  <a href="https://www.onboardaero.com" style="color: black; text-decoration: none;">www.onboardaero.com</a>
+                                              </td>
+                                          </tr>
+                                      </table>
+                                  </div>
+                          </td>
+                      </tr>
+                    </table>
+    `,
     attachments: [
       {
         filename: `PaySlip_${payedFor}_${name}.pdf`,
@@ -750,6 +824,15 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
       await mp.save();
     }
     
+    let user = await User.findByPk(req.user.id, { include: 
+      {model: UserPosition, attributes: ['designationId'], include: {
+        model: Designation, attributes: ['designationName']
+      }}
+    });
+    if(user.userPosition.length === 0 || !user.userPosition.designationId){
+      return res.send(`Designation od the sender ${user.name} is not added`)
+    }
+    
     const file = req.file;
 
     const transporter = nodemailer.createTransport({
@@ -762,7 +845,7 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
 
     // Send email
     const mailOptions = {
-      from: 'your-email@gmail.com',
+      from: 'nishida@onboardaero.com',
       to: email,
       subject: `Payroll Data for ${month}`,
       html: `
@@ -796,6 +879,71 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
             Reject
           </a>
         </div>
+        <br/>
+        <hr style="border: 0; border-top: 1px solid #ccc; margin: 20px 0;">
+        <table>
+            <tr>
+                <td style="padding-left: 5px; vertical-align: top;">
+                        <div class="signature-container">
+                        <p style=" font-weight: bold; color: #0a499b; margin-bottom: 5px; font-size:small;" >With Regards,</p>
+                        <p style="color: #0a499b; font-size: 16px; font-weight: bold; margin: 5px 0; text-align: justify;">
+                          ${req.user.name}
+                        </p>
+                        <p style="font-size: 14px; margin: 0; text-align:justify;">
+                          ${user.userPosition.designation.designationName}
+                        </p>
+                            <img src="https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/images/OAC-+LOGO+edited.jpg" 
+                            alt="Onboard Aero Consultant Logo" style="width: 280px;">
+
+                            <hr style="border: 1px solid #0a499b; margin: 5px 0;">
+                            
+                            <table style="width: 100%; margin: 0;">
+                                <tr>
+                                    <td style="vertical-align: top; padding-top: 5px; text-align: center;">
+                                        <!-- <strong style="font-style: italic; color: #0a499b;">Address:</strong> -->
+                                        <img src="https://img.icons8.com/material-outlined/24/000000/marker.png" alt="Address Icon" 
+                                        class="icon" style="width: 15px;">
+                                    </td>
+                                    <td style="padding-left: 5px; font-size: 10px; text-align: justify;">
+                                        <p style="margin: 0;">ONBOARD AERO CONSULTANT PRIVATE LIMITED.<br>
+                                        Technolodge, 13/227, Kakkoor.P.O, Ernakulam- 686662</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="vertical-align: top; text-align: center;">
+                                        <!-- <strong style="font-style: italic; color: #0a499b;">Mobile:</strong> -->
+                                        <img src="https://img.icons8.com/material-outlined/24/000000/phone.png" alt="Phone Icon" 
+                                        class="icon" style="width: 15px;">
+                                    </td>
+                                    <td style="padding-left: 5px; font-size: 10px; text-align: justify;">
+                                        <p style="margin: 0;">+91 62387 83025, +91 73064 30169</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="vertical-align: top; text-align: center;">
+                                        <!-- <strong style="font-style: italic; color: #0a499b;">Email:</strong> -->
+                                        <img src="https://img.icons8.com/material-outlined/24/000000/email.png" alt="Email Icon" 
+                                        class="icon" style="width: 15px;">
+                                    </td>
+                                    <td style="padding-left: 5px; font-size: 10px; text-align: justify;">
+                                        <a href="mailto:hr@onboardaero.com" style="color: black; text-decoration: none;">hr@onboardaero.com</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="vertical-align: top; text-align: center;">
+                                        <!-- <strong style="font-style: italic; color: #0a499b;">Website:</strong> -->
+                                        <img src="https://img.icons8.com/material-outlined/24/000000/internet.png" alt="Website Icon" 
+                                        class="icon" style="width: 15px;">
+                                    </td>
+                                    <td style="padding-left: 5px; font-size: 10px; text-align: justify;">
+                                        <a href="https://www.onboardaero.com" style="color: black; text-decoration: none;">www.onboardaero.com</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                </td>
+            </tr>
+        </table>
       `,
       attachments: [
         {
