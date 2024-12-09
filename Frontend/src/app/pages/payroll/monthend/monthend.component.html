@@ -1,10 +1,19 @@
-<form [formGroup]="payrollForm">
-    <h2> @if (updateStatus) {Update} 
-        {{month}}-{{daysInMonth}} 
+
+<div class="payroll-header">
+    <h2>Monthend Calculation - @if (updateStatus) {Update} 
+        {{month}} {{daysInMonth}} 
         @if (isApproved){- Approved} 
         @if (isRejected) {- Rejected}
         @if( isLocked ) {- Sent}
     </h2>
+    <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon" 
+        class="d-block mr-0 ml-auto" (click)="downloadExcelOnly()" style="margin-left: auto; ">
+    <mat-icon>download</mat-icon>
+  </button>
+</div>
+
+<form [formGroup]="payrollForm">
+
     @if(doc().controls && doc().controls.length){
         <table formArrayName="payrolls">
             <tr>
@@ -74,7 +83,7 @@
         </button>&nbsp;&nbsp;
         <button mat-raised-button type="button" (click)="lockData()" class="calculate-btn" color="primary"
         [disabled]="!isApproved">
-            Lock
+            Lock And Send
         </button>
     }
 

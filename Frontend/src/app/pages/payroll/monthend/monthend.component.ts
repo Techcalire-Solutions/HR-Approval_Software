@@ -8,17 +8,17 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } fr
 import { CommonModule } from '@angular/common';
 import { AdvanceSalary } from '../../../common/interfaces/payRoll/advanceSalary';
 import * as XLSX from 'xlsx'; 
-import * as FileSaver from 'file-saver';
 import { MatButtonModule } from '@angular/material/button';
 import { UpdateSendmailComponent } from './update-sendmail/update-sendmail.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-monthend',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, MatButtonModule, MatProgressSpinnerModule],
+  imports: [ReactiveFormsModule, CommonModule, MatButtonModule, MatProgressSpinnerModule, MatIconModule],
   templateUrl: './monthend.component.html',
   styleUrl: './monthend.component.scss'
 })
@@ -241,9 +241,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
   private dialog = inject(MatDialog);
   isLoading: boolean = false;
   downloadExcel() {
-    const payrollData = (this.payrollForm.get('payrolls') as FormArray).value;
-    console.log(payrollData);
-    
+    const payrollData = (this.payrollForm.get('payrolls') as FormArray).getRawValue();
     const formattedData = payrollData.map((row: any, index: number) => ({
       'S.No': index + 1,
       'Employee Name': row.userName,
@@ -306,9 +304,58 @@ export class MonthendComponent implements OnInit, OnDestroy{
     }
     this.payrollService.updateMPStatus(data).subscribe(() => {
       this.isLoading = false;
-      this.snackBar.open(`Payslip has been successfully generated and emailed!...`, '', { duration: 3000 });
+      this.snackBar.open(`Payslip has been successfully generated and emailed!...`, '', { duration: 3000 });         
+      this.getPayroll();
+      this.clearAllRows();
     });
   }
+
+  downloadExcelOnly() {
+    const payrollData = (this.payrollForm.get('payrolls') as FormArray).getRawValue();
+    const formattedData = payrollData.map((row: any, index: number) => ({
+      'S.No': index + 1,
+      'Employee Name': row.userName,
+      'Employee ID': row.employeeId,
+      'Per Day': row.perDay,
+      'Basic (₹)': row.basic,
+      'HRA (₹)': row.hra,
+      'Conveyance Allowance (₹)': row.conveyanceAllowance,
+      'LTA (₹)': row.lta,
+      'Special Allowance (₹)': row.specialAllowance,
+      'OT (₹)': row.ot,
+      'Incentive (₹)': row.incentive,
+      'PayOut (₹)': row.payOut,
+      'PF Deduction (₹)': row.pfDeduction,
+      'Insurance (₹)': row.insurance,
+      'TDS (₹)': row.tds,
+      'Advance Amount (₹)': row.advanceAmount,
+      'Leave Days': row.leaveDays,
+      'Incentive Deduction (₹)': row.incentiveDeduction,
+      'Net Salary (To Pay ₹)': row.toPay
+    }));
+  
+    // Create a worksheet and workbook
+    const worksheet = XLSX.utils.json_to_sheet(formattedData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Payroll');
+  
+    // Write the workbook to a buffer
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  
+    // Convert the buffer to a Blob
+    const fileBlob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+  
+    // Create a download link
+    const link = document.createElement('a');
+    const url = window.URL.createObjectURL(fileBlob);
+    link.href = url;
+    link.download = `Payroll_${this.month}_${this.daysInMonth}.xlsx`;
+    link.click();
+  
+    // Clean up
+    window.URL.revokeObjectURL(url);
+  }
+  
   
 
   ngOnDestroy(): void {
