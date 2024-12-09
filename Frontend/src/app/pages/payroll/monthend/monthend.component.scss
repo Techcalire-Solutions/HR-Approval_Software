@@ -100,7 +100,7 @@ h2 {
     text-align: center;
     color: #007bff;
     margin-bottom: 8px; /* Reduced margin */
-    font-size: 12px; /* Smaller heading */
+    font-size: 20px; /* Smaller heading */
 }
 
 /* Responsive design for smaller screens */
@@ -127,3 +127,15 @@ h2 {
     background-color: rgba(255, 255, 255, 0.8); /* Optional: Adds a translucent background */
     z-index: 10; /* Ensures it overlays other content */
 }
+
+.payroll-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  mat-icon:hover{
+    color: #df1313;
+    cursor: pointer;
+  }
