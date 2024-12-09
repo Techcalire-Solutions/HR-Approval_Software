@@ -16,4 +16,6 @@ export interface Payroll {
   gratuity: number,
   netPay: number,
   user: User
+  pfDeduction: number,
+  esi: number
 }
