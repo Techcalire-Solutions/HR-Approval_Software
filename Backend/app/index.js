@@ -25,6 +25,7 @@ const userPosition = require('../users/routers/userPosition');
 const userDocument = require('../users/routers/userDocument');
 const userAssets = require('../users/routers/userAssets');
 const userQual = require('../users/routers/userQualification');
+const Nominee = require('../users/routers/userNominee');
 const auth = require('../users/routers/auth');
 const team = require('../users/routers/team');
 const teamMember = require('../users/routers/teamMember');
@@ -39,6 +40,7 @@ app.use('/position', userPosition)
 app.use('/document', userDocument)
 app.use('/asset', userAssets)
 app.use('/qualification', userQual)
+app.use('/nominee', Nominee)
 app.use('/auth', auth);
 app.use('/team', team);
 app.use('/teamMember', teamMember);
