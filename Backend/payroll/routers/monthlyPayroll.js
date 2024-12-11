@@ -278,9 +278,9 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
       toNumber(payroll.specialAllowance) +
       toNumber(payroll.conveyanceAllowance) +
       toNumber(payroll.lta) +
-      toNumber(this.payroll.ot) +
-      toNumber(this.payroll.incentiveDeduction) +
-      toNumber(this.payroll.payOut)
+      toNumber(payroll.ot) +
+      toNumber(payroll.incentiveDeduction) +
+      toNumber(payroll.payOut)
     );
   }
 
