@@ -6,18 +6,25 @@
     <div fxLayout="row" class="col">
         <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
             <mat-button-toggle value="add" (click)="openAdvanceDialog()"><mat-icon>money_off</mat-icon>
-            </mat-button-toggle>.
-            <mat-button-toggle value="add" (click)="openAdvanceLog()"><mat-icon>layers</mat-icon>
             </mat-button-toggle>
+            @if(admin){
+              <mat-button-toggle value="add" (click)="openAdvanceLog()">
+                <mat-icon>layers</mat-icon>
+              </mat-button-toggle>
+            }
+
         </mat-button-toggle-group>
     </div>
-    <div fxLayout="row" class="col">
-      <form class="user-search" [class.show]="controls.value == 'search'">
-        <mat-form-field class="user-search-input">
-            <input matInput placeholder="Search by employee..." name="search" (keyup)="search($event)">
-        </mat-form-field>
-      </form>
-    </div>
+    @if(admin){
+      <div fxLayout="row" class="col">
+        <form class="user-search" [class.show]="controls.value == 'search'">
+          <mat-form-field class="user-search-input">
+              <input matInput placeholder="Search..." name="search" (keyup)="search($event)">
+          </mat-form-field>
+        </form>
+      </div>
+    }
+
   </div>
 
     <main class="table" id="customers_table">
@@ -37,8 +44,10 @@
                 <th> Balance </th>
                 <th> Created on </th>
                 <th> Reason </th>
-                <th> Manage </th>
-                <th> Status </th>
+                @if(admin){
+                  <th> Manage </th>
+                  <th> Status </th>
+                }
               </tr>
             </thead>
             <tbody>
@@ -56,19 +65,21 @@
                   <!-- <td> {{ advanceSalary.reason }} </td> -->
                   <td> {{ advanceSalary.createdAt | date: 'dd-MM-yyyy' }} </td>
                   <td> {{ advanceSalary.reason }} </td>
-                  <td>
-                    <div style="display: flex; gap: 8px;">
-                      <!-- <button mat-menu-item (click)="openAdvanceDialog(advanceSalary)"> -->
-                        <mat-icon (click)="openAdvanceDialog(advanceSalary)">mode_edit</mat-icon>
-                      <!-- </button> -->
-                      <!-- <button mat-menu-item > -->
-                        <mat-icon (click)="deleteTeam(advanceSalary.id);">delete</mat-icon>
-                      <!-- </button> -->
-                    </div>
-                  </td>
-                  <td>
-                    <mat-slide-toggle (change)="onToggleChange($event, advanceSalary.id)"></mat-slide-toggle>
-                  </td>
+                  @if(admin){
+                    <td>
+                      <div style="display: flex; gap: 8px;">
+                        <!-- <button mat-menu-item (click)="openAdvanceDialog(advanceSalary)"> -->
+                          <mat-icon (click)="openAdvanceDialog(advanceSalary)">mode_edit</mat-icon>
+                        <!-- </button> -->
+                        <!-- <button mat-menu-item > -->
+                          <mat-icon (click)="deleteTeam(advanceSalary.id);">delete</mat-icon>
+                        <!-- </button> -->
+                      </div>
+                    </td>
+                    <td>
+                      <mat-slide-toggle (change)="onToggleChange($event, advanceSalary.id)"></mat-slide-toggle>
+                    </td>
+                  }
                 </tr>
               }
 

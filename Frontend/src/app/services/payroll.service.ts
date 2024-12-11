@@ -63,6 +63,11 @@ export class PayrollService {
     return this.http.get(`${this.apiUrl}/advanceSalary/findbyuserid/${id}`);
   }
 
+  
+  getAllAdvanceSalaryByUserId(id: number, search?: string, page?: number, pageSize?: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/advanceSalary/findbyuseridall/${id}?search=${search}&page=${page}&pageSize=${pageSize}`);
+  }
+
   getPayrollLogByUser(id: number): Observable<PayrollLog[]>{
     return this.http.get<PayrollLog[]>(`${this.apiUrl}/payrolllog/getbyuser/${id}`);
   }
