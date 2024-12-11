@@ -277,7 +277,10 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
       toNumber(payroll.hra) +
       toNumber(payroll.specialAllowance) +
       toNumber(payroll.conveyanceAllowance) +
-      toNumber(payroll.lta)
+      toNumber(payroll.lta) +
+      toNumber(this.payroll.ot) +
+      toNumber(this.payroll.incentiveDeduction) +
+      toNumber(this.payroll.payOut)
     );
   }
 
@@ -671,7 +674,7 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
                                   <td>${fullValue.lta ?? ''}</td>
                                   <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.lta ?? ''}</td>
                                   <td>ESI</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.insurance ?? ''}</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.esi ?? ''}</td>
                               </tr>
                               <tr>
                                 <td>OVER TIME</td>
@@ -890,7 +893,7 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
       subject: `Payroll Data for ${month}`,
       html: `
         <p>Please find the attached payroll Excel file for your review.</p>
-        <p>Kindly use the links below to approve or reject the payroll data as needed.</p>
+        <p>Kindly click the button below to either approve or reject the payroll data as required.</p>
         <div style="text-align: center; margin-top: 20px;">
           <a href="http://localhost:8000/monthlypayroll/approve?month=${month}&id=${req.user.id}" 
             style="
