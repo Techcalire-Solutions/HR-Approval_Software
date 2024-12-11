@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-wrapper-object-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, inject, OnInit, PipeTransform, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit, PipeTransform, ViewEncapsulation } from '@angular/core';
 import { Settings, SettingsService } from '../../../services/settings.service';
 import { VerticalMenuComponent } from '../menu/vertical-menu/vertical-menu.component';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
@@ -57,7 +57,7 @@ export class SidenavComponent implements OnInit , PipeTransform{
   loginService = inject(LoginService);
 
 user:any
-role: String
+role: string
 roleId:number;
 userId :number ;
 userJoinedDate : any;
@@ -74,29 +74,35 @@ users:User;
       this.roleId = user.role;
       this.userId = user.id;
       this.getUser()
-      this.invoiceService.getRoleById(user.role).subscribe((res) => {
-        this.role = res.roleName;
-        this.filterMenuItemsByRole(res.roleName);
-      });
     }
   }
 
   ngOnDestroy():void{
     this.loginUserSub.unsubscribe()
-
   }
 
   loginUserSub:Subscription
-  getUser(){
-   this.loginUserSub= this.loginService.getUserById(this.userId).subscribe((res)=>{
+  getUser() {
+    this.loginUserSub = this.loginService.getUserById(this.userId).subscribe((res) => {
       this.user = res;
-    })
+      if (!this.user.userPosition || !this.user.userPosition.designation) {
+        this.invoiceService.getRoleById(this.roleId).subscribe((roleRes) => {
+          this.role = roleRes.roleName;
+          console.log(this.role);
+          this.filterMenuItemsByRole(this.role);
+          
+        });        
+      } else {
+        if(this.user.userPosition.designation.roleId){
+          this.role = this.user.userPosition.designation.role.roleName;
+        }else this.role = this.user.userPosition.designation.designationName;
+        this.filterMenuItemsByRole(this.role);
+      }
+    });
   }
 
   private menuService = inject(MenuService);
   filterMenuItemsByRole(role: string) {
-    console.log(role);
-    
     const allMenuItems = this.menuService.getVerticalMenuItems();
     if (role === 'Administrator'){
       this.filteredMenuItems = allMenuItems.filter(item =>
@@ -113,89 +119,18 @@ users:User;
         (item.title === 'Excel' && item.parentId === 24)
 
       );
-    } else if (
-      role === 'Sales Executive' ||
-      role === 'Key Account Manager' ||
-      role === 'Manager' ||
-      role === 'Team Lead'
-    ) {
-      this.filteredMenuItems = allMenuItems.filter(item =>
-        item.title === 'Dashboard' ||
-        (item.title === 'Proforma' && !item.parentId) ||
-        (item.title === 'View' && item.parentId === 5)||
-        (item.title === 'Add' && item.parentId === 5) ||
-        (item.title === 'Expense' && !item.parentId) ||
-        (item.title === 'Add' && item.parentId === 26) ||
-        (item.title === 'View' && item.parentId === 26)
-        // (item.title === 'Leave' && !item.parentId)||
-        // (item.title === 'Leave' && !item.parentId)||
-        // (item.title === 'Apply Leave' && item.parentId === 8) ||
-        // (item.title === 'Leave Balance' && item.parentId === 8)||
-        // (item.title === 'Payroll' && !item.parentId) ||
-        // (item.title === 'Payslip' && item.parentId === 13) ||
-        // (item.title === 'Pay Details' && item.parentId === 13)
-
-      );
-    }
-    else if ( role === 'Accountant' ) {
-      this.filteredMenuItems = allMenuItems.filter(item =>
-        item.title === 'Dashboard' ||
-        (item.title === 'Proforma' && !item.parentId) ||
-        (item.title === 'View' && item.parentId === 5) ||
-        (item.title === 'Excel' && item.parentId === 5) ||
-
-        (item.title === 'Expense' && !item.parentId) ||
-        (item.title === 'Add' && item.parentId === 26) ||
-        (item.title === 'View' && item.parentId === 26) ||
-
-        (item.title === 'Reports' && !item.parentId) ||
-        (item.title === 'Proforma' && item.parentId === 21) ||
-        (item.title === 'View' && item.parentId === 22) ||
-        (item.title === 'Excel' && item.parentId === 22) ||
-
-        (item.title === 'Expense' && item.parentId === 21)||
-        (item.title === 'View' && item.parentId === 24) ||
-        (item.title === 'Excel' && item.parentId === 24)
-
-        // (item.title === 'Leave' && !item.parentId)||
-        // (item.title === 'Apply Leave' && item.parentId === 8) ||
-        // (item.title === 'Leave Balance' && item.parentId === 8)||
-        // (item.title === 'Payroll' && !item.parentId) ||
-        // (item.title === 'Advance Salary' && item.parentId === 13) ||
-        // (item.title === 'Payslip' && item.parentId === 13) ||
-        // (item.title === 'Pay Details' && item.parentId === 13)
-
-      );
-    }
-    else if (role === 'Employee') {
-      this.filteredMenuItems = allMenuItems.filter(item =>
-        item.title === 'Dashboard' ||
-        (item.title === 'Expense' && !item.parentId) ||
-        (item.title === 'Add' && item.parentId === 26) ||
-        (item.title === 'View' && item.parentId === 26)||
-
-        // (item.title === 'Leave' && !item.parentId) ||
-        // (item.title === 'Leave' && !item.parentId)||
-        // (item.title === 'Apply Leave' && item.parentId === 8) ||
-        // (item.title === 'Leave Balance' && item.parentId === 8)||
-        (item.title === 'Payroll' && !item.parentId) ||
-        (item.title === 'Advance Salary' && item.parentId === 13) ||
-        (item.title === 'Payslip' && item.parentId === 13)
-        // ||
-        // (item.title === 'Pay Details' && item.parentId === 13)
-      );
-
-    }
-
-    else if (role === 'HR Administrator') {
+    } else if (role === 'HR Administrator') {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
         (item.title === 'Employee' && !item.parentId) ||
         (item.title === 'Directory' && item.parentId === 3) ||
         (item.title === 'Confirmation' && item.parentId === 3)||
+        
         (item.title === 'Payroll' && !item.parentId) ||
         (item.title === 'Advance Salary' && item.parentId === 13) ||
         (item.title === 'Month End' && item.parentId === 13) ||
+        (item.title === 'Payslip' && item.parentId === 13) ||
+
         (item.title === 'Expense' && !item.parentId) ||
         (item.title === 'Add' && item.parentId === 26) ||
         (item.title === 'View' && item.parentId === 26)||
@@ -210,16 +145,12 @@ users:User;
         // (item.title === 'Salary Statement' && item.parentId === 13) ||
         // (item.title === 'YTD Reports' && item.parentId === 13)
       );
-    }
-    else if (role === 'Super Administrator') {
-
+    } else if (role === 'Super Administrator') {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||
-        // item.title === 'Role' ||
         (item.title === 'Employee' && !item.parentId) ||
         (item.title === 'Directory' && item.parentId === 3) ||
         (item.title === 'Confirmation' && item.parentId === 3) ||
-        // item.title === 'Team' ||
         (item.title === 'Proforma' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5) ||
 
@@ -254,11 +185,106 @@ users:User;
         item.title === 'Backup'
       );
 
-    }
-     else {
-      this.filteredMenuItems = [];
-    }
+    } else if ( role === 'Accountant' ) {
+      this.filteredMenuItems = allMenuItems.filter(item =>
+        item.title === 'Dashboard' ||
+        (item.title === 'Proforma' && !item.parentId) ||
+        (item.title === 'View' && item.parentId === 5) ||
+        (item.title === 'Excel' && item.parentId === 5) ||
 
+        (item.title === 'Expense' && !item.parentId) ||
+        (item.title === 'Add' && item.parentId === 26) ||
+        (item.title === 'View' && item.parentId === 26) ||
+
+        (item.title === 'Reports' && !item.parentId) ||
+        (item.title === 'Proforma' && item.parentId === 21) ||
+        (item.title === 'View' && item.parentId === 22) ||
+        (item.title === 'Excel' && item.parentId === 22) ||
+
+        (item.title === 'Expense' && item.parentId === 21)||
+        (item.title === 'View' && item.parentId === 24) ||
+        (item.title === 'Excel' && item.parentId === 24)||
+
+        (item.title === 'Payroll' && !item.parentId) ||
+        (item.title === 'Advance Salary' && item.parentId === 13) ||
+        (item.title === 'Month End' && item.parentId === 13) ||
+        (item.title === 'Payslip' && item.parentId === 13) 
+
+        // (item.title === 'Leave' && !item.parentId)||
+        // (item.title === 'Apply Leave' && item.parentId === 8) ||
+        // (item.title === 'Leave Balance' && item.parentId === 8)||
+        // (item.title === 'Payroll' && !item.parentId) ||
+        // (item.title === 'Advance Salary' && item.parentId === 13) ||
+        // (item.title === 'Payslip' && item.parentId === 13) ||
+        // (item.title === 'Pay Details' && item.parentId === 13)
+
+      );
+    } else if ( role === 'Sales Executive' || role === 'Key Account Manager' || role === 'Manager' || role === 'Team Lead') {
+      this.filteredMenuItems = allMenuItems.filter(item =>
+        item.title === 'Dashboard' ||
+        (item.title === 'Proforma' && !item.parentId) ||
+        (item.title === 'View' && item.parentId === 5)||
+        (item.title === 'Add' && item.parentId === 5) ||
+        (item.title === 'Expense' && !item.parentId) ||
+        (item.title === 'Add' && item.parentId === 26) ||
+        (item.title === 'View' && item.parentId === 26) ||
+
+        (item.title === 'Payroll' && !item.parentId) ||
+        (item.title === 'Advance Salary' && item.parentId === 13) ||
+        (item.title === 'Payslip' && item.parentId === 13) 
+        // (item.title === 'Leave' && !item.parentId)||
+        // (item.title === 'Leave' && !item.parentId)||
+        // (item.title === 'Apply Leave' && item.parentId === 8) ||
+        // (item.title === 'Leave Balance' && item.parentId === 8)||
+        // (item.title === 'Payroll' && !item.parentId) ||
+        // (item.title === 'Payslip' && item.parentId === 13) ||
+        // (item.title === 'Pay Details' && item.parentId === 13)
+
+      ) 
+    }
+    else if (role === 'Employee') {
+      this.filteredMenuItems = allMenuItems.filter(item =>
+        item.title === 'Dashboard' ||
+        (item.title === 'Expense' && !item.parentId) ||
+        (item.title === 'Add' && item.parentId === 26) ||
+        (item.title === 'View' && item.parentId === 26)||
+
+        // (item.title === 'Leave' && !item.parentId) ||
+        // (item.title === 'Leave' && !item.parentId)||
+        // (item.title === 'Apply Leave' && item.parentId === 8) ||
+        // (item.title === 'Leave Balance' && item.parentId === 8)||
+        (item.title === 'Payroll' && !item.parentId) ||
+        (item.title === 'Advance Salary' && item.parentId === 13) ||
+        (item.title === 'Payslip' && item.parentId === 13)
+        // ||
+        // (item.title === 'Pay Details' && item.parentId === 13)
+      );
+
+    }
+    
+    else {
+      this.filteredMenuItems = allMenuItems.filter(item =>
+        item.title === 'Dashboard' ||
+        
+        (item.title === 'Payroll' && !item.parentId) ||
+        (item.title === 'Advance Salary' && item.parentId === 13) ||
+        (item.title === 'Payslip' && item.parentId === 13) ||
+
+        (item.title === 'Expense' && !item.parentId) ||
+        (item.title === 'Add' && item.parentId === 26) ||
+        (item.title === 'View' && item.parentId === 26)||
+
+        item.title === 'Backup'
+        // item.title === 'Team' ||
+        // (item.title === 'Leave' && !item.parentId) ||
+        // (item.title === 'Calendar' && item.parentId === 8) ||
+        // (item.title === 'View' && item.parentId === 8) ||
+        // (item.title === 'User Leave' && item.parentId === 8) ||
+        // (item.title === 'Emergency' && item.parentId === 8) ||
+        // (item.title === 'Salary Statement' && item.parentId === 13) ||
+        // (item.title === 'YTD Reports' && item.parentId === 13)
+        
+      )};
   }
 
   private router = inject(Router);

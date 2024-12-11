@@ -21,7 +21,7 @@ const StatutoryInfo = sequelize.define('statutoryinfo',{
 })
 
 User.hasOne(StatutoryInfo, { foreignKey: 'userId', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-StatutoryInfo.belongsTo(User, { foreignKey: 'userId', as: 'manager'  });
+StatutoryInfo.belongsTo(User, { foreignKey: 'userId'});
 
 
 StatutoryInfo.sync({ alter: true })

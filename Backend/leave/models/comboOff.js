@@ -4,7 +4,7 @@
 const {DataTypes} =  require('sequelize')
 const sequelize = require('../../utils/db')
 
- const ComboOff = sequelize.define('combooff',{
+ const ComboOff = sequelize.define('comboOff',{
     userId: { type: DataTypes.ARRAY(DataTypes.INTEGER), allowNull: true },
     holidayId : { type : DataTypes.INTEGER, allowNull :true}
  },{

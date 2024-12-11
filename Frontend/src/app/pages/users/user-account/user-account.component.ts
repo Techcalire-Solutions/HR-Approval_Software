@@ -91,7 +91,9 @@ export class UserAccountComponent implements OnInit, OnDestroy {
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })}
     else{
-      this.submitSub = this.userService.addUserAccountDetails(submit).subscribe(() => {
+      this.submitSub = this.userService.addUserAccountDetails(submit).subscribe((res) => {        
+        this.editStatus = true;
+        this.id = res.id;
         this.snackBar.open("Account Details added succesfully...","" ,{duration:3000})
       })}
   }

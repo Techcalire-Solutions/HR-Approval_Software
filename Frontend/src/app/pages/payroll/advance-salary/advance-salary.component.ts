@@ -14,11 +14,16 @@ import { Router } from '@angular/router';
 import { CloseAdvanceComponent } from './close-advance/close-advance.component';
 import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-advance-salary',
   standalone: true,
-  imports: [MatButtonToggleModule, MatIconModule, MatSlideToggleModule, CommonModule],
+  imports: [MatButtonToggleModule, MatIconModule, MatSlideToggleModule, CommonModule, MatFormFieldModule, MatInputModule, 
+    MatPaginatorModule
+  ],
   templateUrl: './advance-salary.component.html',
   styleUrl: './advance-salary.component.scss',
   encapsulation: ViewEncapsulation.None,
@@ -33,10 +38,9 @@ export class AdvanceSalaryComponent implements OnInit , OnDestroy{
   advanceSalaries: AdvanceSalary[] = [];
   salarySub!: Subscription;
   public getAdvanceSalary(): void {
-    this.salarySub = this.payrollService.getNotCompletedAdvanceSalary().subscribe((advanceSalary: any) =>{
-      console.log(advanceSalary);
-      
-      this.advanceSalaries = advanceSalary
+    this.salarySub = this.payrollService.getNotCompletedAdvanceSalary(this.searchText, this.currentPage, this.pageSize).subscribe((advanceSalary: any) =>{     
+      this.advanceSalaries = advanceSalary.items;
+      this.totalItems = advanceSalary.count;
     });
   }
   
@@ -65,20 +69,17 @@ export class AdvanceSalaryComponent implements OnInit , OnDestroy{
     });
   }
 
+  public searchText!: string;
+  search(event: Event){
+    this.searchText = (event.target as HTMLInputElement).value.trim()
+    this.getAdvanceSalary()
+  }
+
+
   ngOnDestroy(): void {
     this.salarySub?.unsubscribe();
   }
 
-  // public onPageChanged(event: any){
-  //   this.page = event;
-  //   // this.getTeam();
-  //   if(this.settings.fixedHeader){
-  //       document.getElementById('main-content')!.scrollTop = 0;
-  //   }
-  //   else{
-  //       document.getElementsByClassName('mat-drawer-content')[0].scrollTop = 0;
-  //   }
-  // }
   delete!: Subscription;
   private snackBar = inject(MatSnackBar);
   deleteTeam(id: number){
@@ -93,6 +94,15 @@ export class AdvanceSalaryComponent implements OnInit , OnDestroy{
         });
       }
     });
+  }
+
+  pageSize = 10;
+  currentPage = 1;
+  totalItems = 0;
+  public onPageChanged(event: any){
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.getAdvanceSalary()
   }
 
 }

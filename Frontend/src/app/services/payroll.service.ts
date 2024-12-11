@@ -41,8 +41,8 @@ export class PayrollService {
     return this.http.patch<AdvanceSalary>(`${this.apiUrl}/advanceSalary/closeadvance/${id}`, data);
   }
 
-  getNotCompletedAdvanceSalary(): Observable<AdvanceSalary[]> {
-    return this.http.get<AdvanceSalary[]>(`${this.apiUrl}/advanceSalary/notcompleted`);
+  getNotCompletedAdvanceSalary(search?: string, page?: number, pageSize?: number): Observable<AdvanceSalary[]> {
+    return this.http.get<AdvanceSalary[]>(`${this.apiUrl}/advanceSalary/notcompleted?search=${search}&page=${page}&pageSize=${pageSize}`);
   }
 
   addAdvanceSalary(data: any) {

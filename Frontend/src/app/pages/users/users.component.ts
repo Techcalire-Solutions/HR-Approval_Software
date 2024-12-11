@@ -92,8 +92,6 @@ export class UsersComponent implements OnInit, OnDestroy {
   public searchText!: string;
   search(event: Event){
     this.searchText = (event.target as HTMLInputElement).value.trim()
-    console.log(this.searchText);
-    
     this.getUsers()
   }
 

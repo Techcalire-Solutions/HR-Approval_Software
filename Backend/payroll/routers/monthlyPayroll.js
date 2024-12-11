@@ -20,6 +20,7 @@ const upload = multer({ dest: 'uploads/' });
 const Notification = require('../../invoices/models/notification')
 const puppeteer = require("puppeteer");
 const Payroll = require("../models/payroll");
+const Role = require("../../users/models/role");
 
 router.post("/save", authenticateToken, async (req, res) => {
   const data = req.body.payrolls;
@@ -202,8 +203,6 @@ router.post("/update", authenticateToken, async (req, res) => {
     return res.send(error.message);
   }
 });
-
-
 
 // router.post("/update", authenticateToken, async (req, res) => {
 //   const data = req.body.payrolls;
@@ -395,14 +394,22 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
           return res.send("Basic Payroll is not added for the employee");
         }
 
-        let user = await User.findByPk(req.user.id, { include: 
+        let user = await User.findByPk(req.user.id, { include:[ 
           {model: UserPosition, attributes: ['designationId'], include: {
             model: Designation, attributes: ['designationName']
-          }}
+          }},
+          {model: Role, attributes: ['roleName']}]
         });
-        if(!user.userPosition || !user.userPosition.designationId){
-          return res.send(`Designation od the sender ${user.name} is not added`)
-        }
+        let designation;
+        if(user.role.roleName !== 'Super Administrator' && user.role.roleName !== 'HR Administrator'){
+          if(!user.userPosition || !user.userPosition.designationId){
+            return res.send(`Designation of the sender ${user.name} is not added`)
+          }
+          designation = user.userPosition.designation.designationName;
+        }else{
+          designation = user.role.roleName;
+        } 
+
 
         // mp.status = status;
         // await mp.save({ transaction });
@@ -720,7 +727,7 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
         `;
 
         const pdfBuffer = await generatePDF(pdfContent);
-        await sendEmail(mp.user.email, pdfBuffer, `Payslip for - ${mp.payedFor}`, mp.payedFor, mp.user.name, user.userPosition.designation.designationName, user.name);
+        await sendEmail(mp.user.email, pdfBuffer, `Payslip for - ${mp.payedFor}`, mp.payedFor, mp.user.name, designation, user.name);
         });
 
       // Wait for all updates and emails to complete
@@ -847,14 +854,24 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
       await mp.save();
     }
     
-    let user = await User.findByPk(req.user.id, { include: 
+    let user = await User.findByPk(req.user.id, { include:[ 
       {model: UserPosition, attributes: ['designationId'], include: {
         model: Designation, attributes: ['designationName']
-      }}
+      }},
+      {model: Role, attributes: ['roleName']}]
     });
-    if(!user.userPosition || !user.userPosition.designationId){
-      return res.send(`Designation of the sender ${user.name} is not added`)
-    }
+    console.log(user);
+    
+    let designation;
+    if(user.role.roleName !== 'Super Administrator' && user.role.roleName !== 'HR Administrator'){
+      if(!user.userPosition || !user.userPosition.designationId){
+        return res.send(`Designation of the sender ${user.name} is not added`)
+      }
+      designation = user.userPosition.designation.designationName;
+    }else{
+      designation = user.role.roleName;
+    } 
+    console.log(designation);
     
     const file = req.file;
 
@@ -903,7 +920,6 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
           </a>
         </div>
         <br/>
-        <hr style="border: 0; border-top: 1px solid #ccc; margin: 20px 0;">
         <table>
             <tr>
                 <td style="padding-left: 5px; vertical-align: top;">
@@ -913,7 +929,7 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
                           ${req.user.name}
                         </p>
                         <p style="font-size: 14px; margin: 0; text-align:justify;">
-                          ${user.userPosition.designation.designationName}
+                          ${designation}
                         </p>
                             <img src="https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/images/OAC-+LOGO+edited.jpg" 
                             alt="Onboard Aero Consultant Logo" style="width: 280px;">

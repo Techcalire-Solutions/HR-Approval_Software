@@ -49,7 +49,7 @@ router.get("/:id", async (req, res) => {
 
 
 router.patch("/:id", async (req, res) => {
-  const { basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance, pfDeduction } = req.body;
+  const { basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance, pfDeduction, esi } = req.body;
   try {
     const payroll = await Payroll.findOne({ where: { id: req.params.id } });
     if (!payroll) {
