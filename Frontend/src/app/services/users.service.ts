@@ -11,6 +11,7 @@ import { UserDocument } from '../common/interfaces/users/user-document';
 import { UserPersonal } from '../common/interfaces/users/user-personal';
 import { UserPosition } from '../common/interfaces/users/user-position';
 import { UserQualification } from '../common/interfaces/users/user-qualification';
+import { Nominee } from '../common/interfaces/users/nominee';
 
 
 @Injectable({
@@ -77,9 +78,6 @@ export class UsersService {
     return this.http.post( this.apiUrl + '/statutoryinfo/add', data);
   }
 
-  addUserAccountDetails(data: any): Observable<any> {
-    return this.http.post( this.apiUrl + '/account/add', data);
-  }
 
   addUserPositionDetails(data: any): Observable<any> {
     return this.http.post( this.apiUrl + '/position/add', data);
@@ -99,10 +97,6 @@ export class UsersService {
 
   getUserStatutoryuDetailsByUser(id: number): Observable<StatutoryInfo> {
     return this.http.get<StatutoryInfo>( this.apiUrl + '/statutoryinfo/findbyuser/' + id);
-  }
-
-  getUserAcoountDetailsByUser(id: number): Observable<UserAccount> {
-    return this.http.get<UserAccount>( this.apiUrl + '/account/findbyuser/' + id);
   }
 
   getUserQualDetailsByUser(id: number): Observable<UserQualification> {
@@ -127,6 +121,14 @@ export class UsersService {
 
   updateUserPersonal(id: number, data: any){
     return this.http.patch(this.apiUrl + '/personal/update/' + id, data);
+  }
+
+  addUserAccountDetails(data: any): Observable<any> {
+    return this.http.post( this.apiUrl + '/account/add', data);
+  }
+
+  getUserAcoountDetailsByUser(id: number): Observable<UserAccount> {
+    return this.http.get<UserAccount>( this.apiUrl + '/account/findbyuser/' + id);
   }
 
   updateUserAccount(id: number, data: any){
@@ -240,5 +242,18 @@ export class UsersService {
   updateUserQualification(data: any, id: number): Observable<UserQualification[]>{
     return this.http.patch<UserQualification[]>(this.apiUrl + `/qualification/update/${id}`, data)
   }
+
+  addUserNomineeDetails(data: any): Observable<any> {
+    return this.http.post( this.apiUrl + '/nominee/add', data);
+  }
+
+  getUserNomineeDetailsByUser(id: number): Observable<Nominee> {
+    return this.http.get<Nominee>( this.apiUrl + '/nominee/findbyuser/' + id);
+  }
+  
+  updateUserNominee(id: number, data: any){
+    return this.http.patch(this.apiUrl + '/nominee/update/' + id, data);
+  }
+
 
 }

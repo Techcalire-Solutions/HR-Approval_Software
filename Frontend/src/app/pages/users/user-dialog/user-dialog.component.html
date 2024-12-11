@@ -158,12 +158,19 @@
     <app-user-account [accountData]="dataToPass" (dataSubmitted)="accountSubmit($event)" (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-user-account>
   </mat-tab>
 
-  <mat-tab [disabled]="!isQualFormSubmitted">
+  <mat-tab [disabled]="!isNomineeFormSubmitted">
+    <ng-template mat-tab-label>
+      <mat-icon>supervised_user_circle</mat-icon>
+    </ng-template>
+    <app-user-nominee [nomineeData]="dataToPass" (dataSubmitted)="nomineeSubmit($event)" (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-user-nominee>
+  </mat-tab>
+
+  <!-- <mat-tab [disabled]="!isQualFormSubmitted">
     <ng-template mat-tab-label>
       <mat-icon>school</mat-icon>
     </ng-template>
     <app-user-qualification [qualData]="dataToPass" (dataSubmitted)="qualSubmit($event)" (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-user-qualification>
-  </mat-tab>
+  </mat-tab> -->
 
   <mat-tab [disabled]="!isAccountFormSubmitted">
     <ng-template mat-tab-label>
