@@ -14,7 +14,7 @@ const Holiday = sequelize.define('holiday',{
     timestamps : false
 })
 
-Holiday.sync({ force: true })
+Holiday.sync({ alter: true })
   .then(() => console.log("Holiday table Sync"))
   .catch((err) => console.log("Error syncing table Holiday:", err));
 

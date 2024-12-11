@@ -17,6 +17,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { RoleService } from '@services/role.service';
 
 @Component({
   selector: 'app-advance-salary',
@@ -31,7 +32,38 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 })
 export class AdvanceSalaryComponent implements OnInit , OnDestroy{
   ngOnInit() {
-    this.getAdvanceSalary();
+    const token: any = localStorage.getItem('token')
+    const user = JSON.parse(token)
+    this.getRoleById(user.role, user.id)
+  }
+
+  private roleService = inject(RoleService);
+  private roleSub!: Subscription;
+  getRoleById(id: number, userId: number){
+    this.roleSub = this.roleService.getRoleById(id).subscribe(role => {
+      console.log(role);
+      if(role.roleName === 'Super Administrator' || role.roleName === 'HR Administrator'){  
+        this.getAdvanceSalary();
+      }else{
+        this.getUserById(userId)
+      }
+    });
+  }
+
+  private usersService = inject(UsersService);
+  private userSub!: Subscription;
+  admin: boolean = true;
+  getUserById(id: number){
+    this.userSub = this.usersService.getUserById(id).subscribe(user => {
+      console.log(user);
+      if(!user.userPosition || 
+      (user.userPosition && user.userPosition.designation?.designationName !== 'FINANCE MANAGER')){
+        this.admin = false;
+        this.getAdvanceSalaryByUserId(id)
+      }else{
+        this.getAdvanceSalary()
+      }
+    });
   }
 
   private payrollService = inject(PayrollService);
@@ -39,6 +71,14 @@ export class AdvanceSalaryComponent implements OnInit , OnDestroy{
   salarySub!: Subscription;
   public getAdvanceSalary(): void {
     this.salarySub = this.payrollService.getNotCompletedAdvanceSalary(this.searchText, this.currentPage, this.pageSize).subscribe((advanceSalary: any) =>{     
+      this.advanceSalaries = advanceSalary.items;
+      this.totalItems = advanceSalary.count;
+    });
+  }
+
+  salaryUserSub!: Subscription;
+  public getAdvanceSalaryByUserId(id: number): void {
+    this.salaryUserSub = this.payrollService.getAllAdvanceSalaryByUserId(id, this.searchText, this.currentPage, this.pageSize).subscribe((advanceSalary: any) =>{     
       this.advanceSalaries = advanceSalary.items;
       this.totalItems = advanceSalary.count;
     });
@@ -78,13 +118,14 @@ export class AdvanceSalaryComponent implements OnInit , OnDestroy{
 
   ngOnDestroy(): void {
     this.salarySub?.unsubscribe();
+    this.roleSub?.unsubscribe();
+    this.userSub?.unsubscribe();
+    this.salaryUserSub?.unsubscribe();
   }
 
   delete!: Subscription;
   private snackBar = inject(MatSnackBar);
   deleteTeam(id: number){
-    console.log(id);
-    
     const dialogRef = this.dialog.open(DeleteDialogueComponent, {});
     dialogRef.afterClosed().subscribe(res => {
       if(res){
