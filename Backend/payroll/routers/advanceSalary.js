@@ -5,6 +5,8 @@ const router = express.Router();
 const AdvanceSalary = require("../models/advanceSalary");
 const User = require('../../users/models/user');
 const authenticateToken = require('../../middleware/authorization');
+const { Op } = require('sequelize');
+const sequelize = require('../../utils/db');
 
 router.post("/", authenticateToken, async (req, res) => {
   try {
@@ -20,24 +22,70 @@ router.post("/", authenticateToken, async (req, res) => {
 
 router.get("/notcompleted", authenticateToken, async (req, res) => {
   try {
-    const advanceSalary = await AdvanceSalary.findAll({ 
-        where: {status: true},
-        include:[
-            { model: User, attributes: ['name','empNo']}
-        ],
-      order: [['createdAt', 'DESC']],
+    let whereClause = { status: true };
+    let limit;
+    let offset;
+
+    if (req.query.search && req.query.search !== 'undefined') {
+      const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+      whereClause = {
+        [Op.and]: [
+          {
+            [Op.or]: [
+              sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.name'), ' ', '')),
+                { [Op.like]: `%${searchTerm}%` }
+              ),
+              sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.empNo'), ' ', '')),
+                { [Op.like]: `%${searchTerm}%` }
+              )
+            ]
+          },
+          { status: true },
+        ]
+      };
+    } else {
+      if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+        limit = parseInt(req.query.pageSize, 10);
+        offset = (parseInt(req.query.page, 10) - 1) * limit;
+      }
+    }
+
+    const advanceSalary = await AdvanceSalary.findAll({
+      where: whereClause,
+      include: [
+        {
+          model: User,
+          attributes: ['name', 'empNo'],
+        }
+      ],
+      order: [['createdAt', 'DESC']], 
+      limit, offset
     });
-    res.send(advanceSalary);
+
+    const totalCount = await AdvanceSalary.count({ where: whereClause });
+    if (req.query.page !== 'undefined' && req.query.pageSize !== 'undefined') {
+      const response = {
+        count: totalCount,
+        items: advanceSalary 
+      };
+
+      res.json(response);
+    } else {
+      res.send(advanceSalary)
+    }
   } catch (error) {
     res.send(error.message);
   }
 });
 
+
 router.get("/findall", authenticateToken, async (req, res) => {
   try {
     const advanceSalary = await AdvanceSalary.findAll({ 
         include:[
-            { model: User, attributes: ['name','empNo']}
+            { model: User, as: 'user', attributes: ['name','empNo']}
         ],
       order: [['createdAt', 'DESC']],
     });

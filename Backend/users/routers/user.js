@@ -66,12 +66,8 @@ router.get('/find/', async (req, res) => {
     let limit;
     let offset;
 
-    // Add search condition if provided
     if (req.query.search && req.query.search !== 'undefined') {
       const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
-      console.log(searchTerm);
-
-      // Update the whereClause to include the search filter
       whereClause = {
         [Op.and]: [
           {
@@ -185,7 +181,7 @@ router.get('/findone/:id', async (req, res) => {
       include: [
         { model: Role, attributes: ['id', 'roleName'] },
         { model: UserPosition, attributes: ['designationId'],
-            include: [{ model: Designation, attributes: ['designationName']}]
+            include: [{ model: Designation, include: {model: Role} }]
         }
       ]
     });

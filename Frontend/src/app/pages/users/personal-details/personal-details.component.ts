@@ -56,9 +56,7 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
   triggerNew(data?: any): void {
     this.getReportingManager()
     if(data){
-      // if(data.updateStatus){
-        this.getPersonalDetailsByUser(data.id)
-      // }
+      this.getPersonalDetailsByUser(data.id)
     }
   }
 
@@ -143,13 +141,13 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     if(this.editStatus){
       this.submitSub = this.userService.updateUserPersonal(this.id, submit).subscribe(() => {
         this.snackBar.open("Personal Details updated succesfully...","" ,{duration:3000})
-        // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }
     else{
-      this.submitSub = this.userService.addUserPersonalDetails(submit).subscribe(() => {
+      this.submitSub = this.userService.addUserPersonalDetails(submit).subscribe((res) => {
+        this.editStatus = true;
+        this.id = res.id;
         this.snackBar.open("Personal Details added succesfully...","" ,{duration:3000})
-        // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }
   }

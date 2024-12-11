@@ -157,7 +157,9 @@ export class UserPositionComponent implements OnDestroy {
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }else{
-      this.submitSub = this.userService.addUserPositionDetails(submit).subscribe(() => {
+      this.submitSub = this.userService.addUserPositionDetails(submit).subscribe((res) => {        
+        this.editStatus = true;
+        this.id = res.id;
         this.snackBar.open("Postion Details added succesfully...","" ,{duration:3000})
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })

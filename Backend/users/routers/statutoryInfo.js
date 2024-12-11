@@ -5,6 +5,7 @@ const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const StatutoryInfo = require('../models/statutoryInfo');
 const {Op} = require('sequelize');
+const User = require('../models/user');
 
 router.post('/add', authenticateToken, async (req, res) => {
   const { userId, adharNo, panNumber, esiNumber, uanNumber, insuranceNumber, pfNumber, passportNumber, passportExpiry }  = req.body;
@@ -38,14 +39,16 @@ router.post('/add', authenticateToken, async (req, res) => {
     }
 
 
-    // If no conditions were added, skip the userExist check
     if (whereCondition[Op.or].length > 0) {
       const userExist = await StatutoryInfo.findOne({
-        where: whereCondition
+        where: whereCondition,
+        include: [
+          {model: User}
+        ]
       });
-
+      
       if (userExist) {
-        return res.send("User with given statutory information already exists");
+        return res.send(`User with given statutory information already exists for the user ${userExist.user.name}`)
       }
     }
 
