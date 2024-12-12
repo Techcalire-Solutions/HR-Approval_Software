@@ -14,6 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { MatIconModule } from '@angular/material/icon';
+
 @Component({
   selector: 'app-add-payroll',
   standalone: true,
@@ -21,8 +22,9 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [ReactiveFormsModule, CommonModule, MatButtonModule, MatIconModule, MatButtonModule],  // Include ReactiveFormsModule
   styleUrls: ['./add-payroll.component.scss']
 })
+
 export class AddPayrollComponent implements OnInit, OnDestroy {
-  userSub: Subscription;
+  private userSub: Subscription;
   user: any;
   payroll: Payroll;
   private fb = inject(FormBuilder);
@@ -56,17 +58,21 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
     yearEsi: <any>[{ value: null, disabled: true }],
   });
 
+  private changeSub!: Subscription;
   ngOnInit(): void {
     this.getUserById();
     this.getPayrollDetailsByUserId();
 
-    this.payrollForm.valueChanges.subscribe(() => {
+    this.changeSub = this.payrollForm.valueChanges.subscribe(() => {
       this.calculatePayroll();
     });
   }
 
   ngOnDestroy(): void {
-    if (this.userSub) this.userSub.unsubscribe();
+    this.userSub?.unsubscribe();
+    this.payrollSub?.unsubscribe();
+    this.dialogSub?.unsubscribe();
+    this.updatePaySub?.unsubscribe();
   }
 
   private userService = inject(UsersService);
@@ -85,11 +91,10 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
   editStaus: boolean = false;
   userName: string;
   empNo: string;
+  private payrollSub!: Subscription;
   getPayrollDetailsByUserId() {
-    this.payrollService.getPayrollDetailsByUserId(this.route.snapshot.params['id']).subscribe({
+    this.payrollSub = this.payrollService.getPayrollDetailsByUserId(this.route.snapshot.params['id']).subscribe({
       next: (res) => {
-        console.log(res);
-        
         if (res) {
           this.editStaus = true;
           this.payroll = res;
@@ -217,27 +222,27 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
     const insurance: number = Number(this.payrollForm.get('insurance')?.value) || 0;
     const pf: number = Number(this.payrollForm.get('pf')?.value) || 0;
 
-      const grossPay: any = basic + hra + conveyanceAllowance + lta + specialAllowance;
-      const netPay: any = grossPay + gratuity + insurance + pf;
-      
-      this.payrollForm.patchValue({ 
-        grossPay: grossPay, yeargrossPay: grossPay * 12, netPay: netPay, yearnetPay: netPay * 12 
-      }, { emitEvent: false });
+    const grossPay: any = basic + hra + conveyanceAllowance + lta + specialAllowance;
+    const netPay: any = grossPay + gratuity + insurance + pf;
+    
+    this.payrollForm.patchValue({ 
+      grossPay: grossPay, yeargrossPay: grossPay * 12, netPay: netPay, yearnetPay: netPay * 12 
+    }, { emitEvent: false });
   }
 
   private dialog = inject(MatDialog);
+  private updatePaySub!: Subscription;
+  dialogSub!: Subscription;
   savePayrollDetails() {
     if(this.editStaus){
       const dialogRef = this.dialog.open(PayrollUpdateVerificationComponent, {
         data: { userName: this.user.name, currentPay: this.netPay, updated: this.payrollForm.get('netPay')?.value }
       });
-      dialogRef.afterClosed().subscribe((res) => {
+      this.dialogSub = dialogRef.afterClosed().subscribe((res) => {
         if(res){
           const payrollData = { ...this.payrollForm.getRawValue() };
-          this.payrollService.updatePayroll(this.id, payrollData).subscribe({
-            next: (res) => {
-              console.log(res);
-              
+          this.updatePaySub = this.payrollService.updatePayroll(this.id, payrollData).subscribe({
+            next: () => {
               alert('Payroll details updated successfully!')
               history.back();
             },
@@ -253,14 +258,13 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
       });
     }else{
       const payrollData = { ...this.payrollForm.getRawValue(), userId: this.user.id };
-      this.payrollService.savePayroll(payrollData).subscribe({
+      this.updatePaySub = this.payrollService.savePayroll(payrollData).subscribe({
         next: () => {
           alert('Payroll details saved successfully!')
           history.back();
         },
-        error: (error) => {
+        error: () => {
           alert('Error saving payroll details.');
-          console.error(error);
         }
       });
     }

@@ -24,16 +24,15 @@ export class ViewLogComponent implements OnInit, OnDestroy{
   advanceSalaries: AdvanceSalary[] = [];
   salarySub!: Subscription;
   private getAdvanceSalary(): void {
-    this.salarySub = this.payrollService.getAdvanceSalary().subscribe((advanceSalary: AdvanceSalary[]) =>{
+    this.salarySub = this.payrollService.getAdvanceSalary(this.searchText).subscribe((advanceSalary: AdvanceSalary[]) =>{
       this.advanceSalaries = advanceSalary
-      console.log(advanceSalary);
-      
     });
   }
 
+  private searchText: string;
   search(event: Event){
-    console.log(event);
-    
+    this.searchText = (event.target as HTMLInputElement).value.trim()
+    this.getAdvanceSalary()
   }
 
   ngOnDestroy(): void {

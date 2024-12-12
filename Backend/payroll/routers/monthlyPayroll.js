@@ -42,17 +42,16 @@ router.post("/save", authenticateToken, async (req, res) => {
 
       results.push(monthlyPayroll);
 
-      // Update advance salary if applicable
-      const advanceSalary = await AdvanceSalary.findOne({ where: { userId, status: true } });
-      if (advanceSalary) {
-        advanceSalary.completed += 1;
-        if (advanceSalary.duration === advanceSalary.completed) {
-          advanceSalary.status = false;
-          advanceSalary.completedDate = new Date();
-          advanceSalary.closeNote = 'Advance Payment is completed successfully';
-        }
-        await advanceSalary.save();
-      }
+      // const advanceSalary = await AdvanceSalary.findOne({ where: { userId, status: true } });
+      // if (advanceSalary) {
+      //   advanceSalary.completed += 1;
+      //   if (advanceSalary.duration === advanceSalary.completed) {
+      //     advanceSalary.status = false;
+      //     advanceSalary.completedDate = new Date();
+      //     advanceSalary.closeNote = 'Advance Payment is completed successfully';
+      //   }
+      //   await advanceSalary.save();
+      // }
     }
 
     res.status(200).send({ message: "Payrolls saved successfully", payrolls: results });
@@ -61,8 +60,6 @@ router.post("/save", authenticateToken, async (req, res) => {
   }
 });
 
-
-
 router.get("/find", authenticateToken, async (req, res) => {
   let whereClause = { status: 'Locked' };
   let limit;
@@ -70,19 +67,18 @@ router.get("/find", authenticateToken, async (req, res) => {
   if (req.query.search !== 'undefined') {
     const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
     whereClause = {
-      [Op.or]: [
-        sequelize.where(
-          sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('payedFor'), ' ', '')),
-          {
-            [Op.like]: `%${searchTerm}%`
-          }
-        ),
-        sequelize.where(
-          sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.name'), ' ', '')),
-          {
-            [Op.like]: `%${searchTerm}%`
-          }
-        )
+      [Op.and]: [
+        {
+          [Op.or]: [
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('payedFor'), ' ', '')),
+              {
+                [Op.like]: `%${searchTerm}%`
+              }
+            )
+          ]
+        },
+        { status: 'Locked', userId: req.params.id },
       ]
     };
   }
@@ -117,18 +113,70 @@ router.get("/find", authenticateToken, async (req, res) => {
 });
 
 router.get("/findbyuser/:id", authenticateToken, async (req, res) => {
+  let whereClause = { status: 'Locked', userId: req.params.id };
+  let limit;
+  let offset;
+  if (req.query.search !== 'undefined') {
+    const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+    whereClause = {
+      [Op.and]: [
+        {
+          [Op.or]: [
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('payedFor'), ' ', '')),
+              {
+                [Op.like]: `%${searchTerm}%`
+              }
+            )
+          ]
+        },
+        { status: 'Locked', userId: req.params.id },
+      ]
+    };
+  }
+
+  if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+    limit = req.query.pageSize;
+    offset = (req.query.page - 1) * req.query.pageSize;
+  }
+
   try {
-    const monthlyPayroll = await MonthlyPayroll.findAll({
-        where: {userId: req.params.id}, 
-        include:[
-            { model: User, attributes: ['name','empNo']}
-        ],
+    const monthlyPayroll = await MonthlyPayroll.findAll({ 
+      where: whereClause, limit: limit, offset: offset,
+      include:[
+          { model: User, attributes: ['name','empNo']}
+      ], order: [['id', 'DESC']]
     });
-    res.send(monthlyPayroll);
+    totalCount = await MonthlyPayroll.count({where: whereClause});
+
+    if (req.query.page != 'undefined' && req.query.pageSize != 'undefined') {
+      const response = {
+        count: totalCount,
+        items: monthlyPayroll,
+      };
+
+      res.json(response);
+    } else {
+      res.json(monthlyPayroll);
+    }
   } catch (error) {
     res.send(error.message);
   }
 });
+
+// router.get("/findbyuser/:id", authenticateToken, async (req, res) => {
+//   try {
+//     const monthlyPayroll = await MonthlyPayroll.findAll({
+//         where: {userId: req.params.id}, 
+//         include:[
+//             { model: User, attributes: ['name','empNo']}
+//         ],
+//     });
+//     res.send(monthlyPayroll);
+//   } catch (error) {
+//     res.send(error.message);
+//   }
+// });
 
 router.get("/bypayedfor", authenticateToken, async (req, res) => {
   try {
@@ -266,6 +314,24 @@ router.get('/findbyid/:id', authenticateToken, async (req, res) => {
 
 router.patch('/statusupdate', authenticateToken, async (req, res) => {
   const { payrollData, status } = req.body;
+
+  for (let i = 0; i < payrollData.length; i++) {
+    const { userId } = payrollData[i];
+    console.log(userId);
+    
+    const advanceSalary = await AdvanceSalary.findOne({ where: { userId, status: true } });
+    if (advanceSalary) {
+      advanceSalary.completed += 1;
+      if (advanceSalary.duration === advanceSalary.completed) {
+        advanceSalary.status = false;
+        advanceSalary.completedDate = new Date();
+        advanceSalary.closeNote = 'Advance Payment is completed successfully';
+      }
+      await advanceSalary.save();
+    }
+  }
+
+
 
   function toNumber(value) {
     return Number(value) || 0;
