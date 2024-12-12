@@ -96,7 +96,7 @@ users:User;
   private menuService = inject(MenuService);
   filterMenuItemsByRole(role: string) {
     console.log(role);
-    
+
     const allMenuItems = this.menuService.getVerticalMenuItems();
     if (role === 'Administrator'){
       this.filteredMenuItems = allMenuItems.filter(item =>
@@ -126,14 +126,14 @@ users:User;
         (item.title === 'Add' && item.parentId === 5) ||
         (item.title === 'Expense' && !item.parentId) ||
         (item.title === 'Add' && item.parentId === 26) ||
-        (item.title === 'View' && item.parentId === 26)
-        // (item.title === 'Leave' && !item.parentId)||
-        // (item.title === 'Leave' && !item.parentId)||
-        // (item.title === 'Apply Leave' && item.parentId === 8) ||
-        // (item.title === 'Leave Balance' && item.parentId === 8)||
-        // (item.title === 'Payroll' && !item.parentId) ||
-        // (item.title === 'Payslip' && item.parentId === 13) ||
-        // (item.title === 'Pay Details' && item.parentId === 13)
+        (item.title === 'View' && item.parentId === 26) ||
+        (item.title === 'Leave' && !item.parentId)||
+        (item.title === 'Leave' && !item.parentId)||
+        (item.title === 'Apply Leave' && item.parentId === 8) ||
+        (item.title === 'Leave Balance' && item.parentId === 8)||
+        (item.title === 'Payroll' && !item.parentId) ||
+        (item.title === 'Payslip' && item.parentId === 13) ||
+        (item.title === 'Pay Details' && item.parentId === 13)
 
       );
     }
@@ -174,10 +174,10 @@ users:User;
         (item.title === 'Add' && item.parentId === 26) ||
         (item.title === 'View' && item.parentId === 26)||
 
-        // (item.title === 'Leave' && !item.parentId) ||
-        // (item.title === 'Leave' && !item.parentId)||
-        // (item.title === 'Apply Leave' && item.parentId === 8) ||
-        // (item.title === 'Leave Balance' && item.parentId === 8)||
+        (item.title === 'Leave' && !item.parentId) ||
+        (item.title === 'Leave' && !item.parentId)||
+        (item.title === 'Apply Leave' && item.parentId === 8) ||
+        (item.title === 'Leave Balance' && item.parentId === 8)||
         (item.title === 'Payroll' && !item.parentId) ||
         (item.title === 'Advance Salary' && item.parentId === 13) ||
         (item.title === 'Payslip' && item.parentId === 13)
@@ -200,15 +200,15 @@ users:User;
         (item.title === 'Add' && item.parentId === 26) ||
         (item.title === 'View' && item.parentId === 26)||
 
-        item.title === 'Backup'
-        // item.title === 'Team' ||
-        // (item.title === 'Leave' && !item.parentId) ||
-        // (item.title === 'Calendar' && item.parentId === 8) ||
-        // (item.title === 'View' && item.parentId === 8) ||
-        // (item.title === 'User Leave' && item.parentId === 8) ||
-        // (item.title === 'Emergency' && item.parentId === 8) ||
-        // (item.title === 'Salary Statement' && item.parentId === 13) ||
-        // (item.title === 'YTD Reports' && item.parentId === 13)
+        item.title === 'Backup'||
+        item.title === 'Team' ||
+        (item.title === 'Leave' && !item.parentId) ||
+        (item.title === 'Calendar' && item.parentId === 8) ||
+        (item.title === 'View' && item.parentId === 8) ||
+        (item.title === 'User Leave' && item.parentId === 8) ||
+        (item.title === 'Emergency' && item.parentId === 8) ||
+        (item.title === 'Salary Statement' && item.parentId === 13) ||
+        (item.title === 'YTD Reports' && item.parentId === 13)
       );
     }
     else if (role === 'Super Administrator') {

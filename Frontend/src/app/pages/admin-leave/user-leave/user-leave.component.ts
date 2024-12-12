@@ -34,6 +34,7 @@ export class UserLeaveComponent implements OnInit, OnDestroy {
     return this.fb.group({
       userId: [this.data.id],
       leaveTypeId: [initialValue ? initialValue.id : ''],
+      addDays: [], // Add co
       typeName: [initialValue ? initialValue.leaveTypeName : ''],
       noOfDays: [userLeave ? Number(userLeave.noOfDays) : 0],
       takenLeaves: [userLeave ? userLeave.takenLeaves : 0],
@@ -125,4 +126,43 @@ export class UserLeaveComponent implements OnInit, OnDestroy {
     this.leaveTypeSub?.unsubscribe();
     this.submit?.unsubscribe();
   }
+
+  updateAllotted(index: number): void {
+    const row = this.newData().at(index) as FormGroup;
+
+    // Get the initial value of noOfDays (stored at initialization)
+    const initialNoOfDays = row.get('initialNoOfDays')?.value || row.get('noOfDays')?.value;
+
+    // Get the current value from the "Add" column
+    let addDays = row.get('addDays')?.value;
+
+    // If the "Add" field is empty or cleared, reset noOfDays to the original value
+    if (addDays === null || addDays === '' || addDays === undefined) {
+      row.get('noOfDays')?.setValue(initialNoOfDays); // Reset to initial value
+    } else {
+      // If a value is entered in the "Add" field, add it to the original noOfDays
+      addDays = Number(addDays) || 0; // Ensure we get a valid number
+      row.get('noOfDays')?.setValue(initialNoOfDays + addDays); // Update noOfDays
+    }
+
+    // Calculate the leave balance based on updated noOfDays
+    const takenLeaves = row.get('takenLeaves')?.value || 0;
+    const leaveBalance = row.get('noOfDays')?.value - takenLeaves;
+
+    // Update the leave balance
+    row.get('leaveBalance')?.setValue(leaveBalance);
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

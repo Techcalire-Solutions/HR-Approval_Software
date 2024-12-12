@@ -4,7 +4,6 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 
-
 @Component({
   selector: 'app-leave-info-dialog',
   standalone: true,
@@ -12,39 +11,48 @@ import { MatIconModule } from '@angular/material/icon';
     MatDialogModule,
     MatIconModule,
     CommonModule
-
   ],
   templateUrl: './leave-info-dialog.component.html',
   styleUrls: ['./leave-info-dialog.component.scss']
 })
 export class LeaveInfoDialogComponent {
-  message: string = '';
+
   showOkButton: boolean = true;
+  showCancelButton: boolean = false;
+
+  message: string = '';
+  appliedLeaveDates: { date: string; session1: boolean; session2: boolean }[] = [];
+  lopDates: { date: string; session1: boolean; session2: boolean }[] = [];
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    @Inject(MAT_DIALOG_DATA) public data: {
+      message: string;
+      leaveDatesApplied?: { date: string; session1: boolean; session2: boolean }[];
+      lopDates?: { date: string; session1: boolean; session2: boolean }[];
+    },
     private dialogRef: MatDialogRef<LeaveInfoDialogComponent>
   ) {
-    if (data && data.message) {
+    if (data) {
       this.message = data.message;
-      this.setOkButtonVisibility();
+      this.appliedLeaveDates = data.leaveDatesApplied || [];
+      this.lopDates = data.lopDates || [];
+    }
+    this.setOkButtonVisibility();
+  }
+
+  private setOkButtonVisibility() {
+    if (
+      this.message.includes('balance is 0') ||
+      this.message.includes('No leave will be applied') ||
+      this.message.includes('You do not have')
+    ) {
+      this.showOkButton = false;
+      this.showCancelButton = true;
+    } else {
+      this.showOkButton = true;
+      this.showCancelButton = false;
     }
   }
-
-
-private setOkButtonVisibility() {
-
-  if (this.message.includes('balance is 0') && this.message.includes('No leave will be applied')) {
-    this.showOkButton = false;
-        //  message: `You do not have ${leaveType.leaveTypeName} leave allotted.`
-  // } else if (this.message.includes('User leave record not found')) {
-  } else if (this.message.includes('You do not have')) {
-    this.showOkButton = false;
-  } else {
-    this.showOkButton = true;
-  }
-}
-
 
   onBack() {
     this.dialogRef.close({ action: 'back' });

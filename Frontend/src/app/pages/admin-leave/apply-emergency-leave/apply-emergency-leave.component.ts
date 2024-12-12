@@ -25,7 +25,9 @@ import { UsersService } from '@services/users.service';
 import { MatChipsModule } from '@angular/material/chips';
 import { UserLeave } from '../../../common/interfaces/leaves/userLeave';
 import { User } from '../../../common/interfaces/users/user';
-// Custom validator to check if at least one session is selected
+import { NativeDateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, MatNativeDateModule } from '@angular/material/core';
+import { DateAdapter } from 'angular-calendar';
+
 function sessionSelectionValidator(group: FormGroup) {
   const session1 = group.get('session1')?.value;
   const session2 = group.get('session2')?.value;
@@ -51,10 +53,16 @@ function sessionSelectionValidator(group: FormGroup) {
     MatCheckboxModule,
     MatDatepickerModule,
     MatTableModule,
-    LeaveCountCardsComponent, MatChipsModule
+    LeaveCountCardsComponent, MatChipsModule,
+    MatNativeDateModule,
+    MatDatepickerModule,
   ],
   templateUrl: './apply-emergency-leave.component.html',
-  styleUrl: './apply-emergency-leave.component.scss'
+  styleUrl: './apply-emergency-leave.component.scss',
+  providers: [
+    { provide: DateAdapter, useClass: NativeDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
+  ],
 })
 export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
   ngOnDestroy(): void {
