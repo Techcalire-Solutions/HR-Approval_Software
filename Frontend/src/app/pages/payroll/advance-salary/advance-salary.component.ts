@@ -41,7 +41,6 @@ export class AdvanceSalaryComponent implements OnInit , OnDestroy{
   private roleSub!: Subscription;
   getRoleById(id: number, userId: number){
     this.roleSub = this.roleService.getRoleById(id).subscribe(role => {
-      console.log(role);
       if(role.roleName === 'Super Administrator' || role.roleName === 'HR Administrator'){  
         this.getAdvanceSalary();
       }else{
@@ -53,9 +52,10 @@ export class AdvanceSalaryComponent implements OnInit , OnDestroy{
   private usersService = inject(UsersService);
   private userSub!: Subscription;
   admin: boolean = true;
+  private id: number = 0;
   getUserById(id: number){
+    this.id = id;
     this.userSub = this.usersService.getUserById(id).subscribe(user => {
-      console.log(user);
       if(!user.userPosition || 
       (user.userPosition && user.userPosition.designation?.designationName !== 'FINANCE MANAGER')){
         this.admin = false;
@@ -85,26 +85,26 @@ export class AdvanceSalaryComponent implements OnInit , OnDestroy{
   }
   
   private dialog = inject(MatDialog);
+  private dialogSub!: Subscription;
   public openAdvanceDialog(salary?: any){
     const dialogRef = this.dialog.open(AddAdvanceSalaryComponent, {
       data: {salary: salary}
     });
-    dialogRef.afterClosed().subscribe(() => {
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
       this.getAdvanceSalary()
     });
   }
 
   private router = inject(Router);
   openAdvanceLog(){
-      this.router.navigateByUrl('/login/payroll/advance-salary/viewlogs')
+    this.router.navigateByUrl('/login/payroll/advance-salary/viewlogs')
   }
 
   onToggleChange(event: any, id: number){
-    console.log(event.checked);
     const dialogRef = this.dialog.open(CloseAdvanceComponent, {
       data: {id: id}
     });
-    dialogRef.afterClosed().subscribe(() => {
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
       this.getAdvanceSalary()
     });
   }
@@ -112,7 +112,12 @@ export class AdvanceSalaryComponent implements OnInit , OnDestroy{
   public searchText!: string;
   search(event: Event){
     this.searchText = (event.target as HTMLInputElement).value.trim()
-    this.getAdvanceSalary()
+    if(this.admin) {
+      this.getAdvanceSalary()
+    }
+    else {
+      this.getAdvanceSalaryByUserId(this.id);
+    }
   }
 
 
@@ -121,13 +126,15 @@ export class AdvanceSalaryComponent implements OnInit , OnDestroy{
     this.roleSub?.unsubscribe();
     this.userSub?.unsubscribe();
     this.salaryUserSub?.unsubscribe();
+    this.dialogSub?.unsubscribe();
+    this.delete?.unsubscribe(); 
   }
 
   delete!: Subscription;
   private snackBar = inject(MatSnackBar);
   deleteTeam(id: number){
     const dialogRef = this.dialog.open(DeleteDialogueComponent, {});
-    dialogRef.afterClosed().subscribe(res => {
+    this.dialogSub = dialogRef.afterClosed().subscribe(res => {
       if(res){
         this.delete = this.payrollService.deleteAdvanceSalary(id).subscribe(() => {
           this.snackBar.open("Advance Salary deleted successfully...","" ,{duration:3000})
@@ -143,7 +150,12 @@ export class AdvanceSalaryComponent implements OnInit , OnDestroy{
   public onPageChanged(event: any){
     this.currentPage = event.pageIndex + 1;
     this.pageSize = event.pageSize;
-    this.getAdvanceSalary()
+    if(this.admin) {
+      this.getAdvanceSalary()
+    }
+    else {
+      this.getAdvanceSalaryByUserId(this.id);
+    }
   }
 
 }

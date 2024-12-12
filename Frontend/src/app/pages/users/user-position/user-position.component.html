@@ -114,10 +114,25 @@
         </div>
 
         <div class="col">
-          <mat-form-field class="w-100" appearance="outline">
-            <mat-label>Probation Period(in days)</mat-label>
-            <input matInput formControlName="probationPeriod"  type="number">
-          </mat-form-field>
+          <div class="row">
+            <div class="col">
+              <mat-form-field class="w-100" appearance="outline">
+                <mat-label>Probation Period(in days)</mat-label>
+                <input matInput formControlName="probationPeriod"  type="number">
+              </mat-form-field>
+            </div>
+            @if (form.controls.probationPeriod.value === 0) {
+              <div class="col">
+                <mat-form-field class="w-100" appearance="outline">
+                  <mat-label>Confirmed at</mat-label>
+                  <input matInput [matDatepicker]="dp" formControlName="confirmationDate">
+                  <mat-hint>DD/MM/YYYY</mat-hint>
+                  <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
+                  <mat-datepicker #dp></mat-datepicker>
+                </mat-form-field> 
+              </div>
+            } 
+          </div>
         </div>
       </div>
     </div>

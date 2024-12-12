@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, EventEmitter, Input, Output, inject, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,15 +17,20 @@ import { RoleService } from '@services/role.service';
 import { MatDialog } from '@angular/material/dialog';
 import { Team } from '../../../common/interfaces/users/team';
 import { TeamService } from '@services/team.service';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
+import { MY_FORMATS } from '../personal-details/personal-details.component';
 
 @Component({
   selector: 'app-user-position',
   standalone: true,
   imports: [ MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule, MatCardModule, MatOptionModule, MatSelectModule,
-    MatAutocompleteModule, MatIconModule
+    MatAutocompleteModule, MatIconModule, MatDatepickerModule
    ],
   templateUrl: './user-position.component.html',
-  styleUrl: './user-position.component.scss'
+  styleUrl: './user-position.component.scss',
+  providers: [provideMomentDateAdapter(MY_FORMATS)],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserPositionComponent implements OnDestroy {
   ngOnDestroy(): void {
@@ -100,7 +105,8 @@ export class UserPositionComponent implements OnDestroy {
     officialMailId: ['', Validators.email],
     projectMailId: ['', Validators.email],
     designationId: <any>[ Validators.required],
-    teamId: <any>[]
+    teamId: <any>[],
+    confirmationDate: [new Date()]
   });
 
   editStatus: boolean = false;
@@ -136,7 +142,8 @@ export class UserPositionComponent implements OnDestroy {
           projectMailId: data.projectMailId,
           designationId: data.designationId,
           designationName: data.designation?.designationName,
-          teamId: data.teamId
+          teamId: data.teamId,
+          confirmationDate: data.confirmationDate
         })
       }
     })

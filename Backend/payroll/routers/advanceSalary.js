@@ -45,11 +45,9 @@ router.get("/notcompleted", authenticateToken, async (req, res) => {
           { status: true },
         ]
       };
-    } else {
-      if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
-        limit = parseInt(req.query.pageSize, 10);
-        offset = (parseInt(req.query.page, 10) - 1) * limit;
-      }
+    } else if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+      limit = parseInt(req.query.pageSize, 10);
+      offset = (parseInt(req.query.page, 10) - 1) * limit;
     }
 
     const advanceSalary = await AdvanceSalary.findAll({
@@ -60,30 +58,59 @@ router.get("/notcompleted", authenticateToken, async (req, res) => {
           attributes: ['name', 'empNo'],
         }
       ],
-      order: [['createdAt', 'DESC']], 
-      limit, offset
+      order: [['createdAt', 'DESC']],
+      limit,
+      offset
     });
 
-    const totalCount = await AdvanceSalary.count({ where: whereClause });
-    if (req.query.page !== 'undefined' && req.query.pageSize !== 'undefined') {
-      const response = {
-        count: totalCount,
-        items: advanceSalary 
-      };
+    const totalCount = await AdvanceSalary.count({
+      where: whereClause,
+      include: [
+        {
+          model: User,
+          attributes: [],
+        }
+      ],
+    });
 
-      res.json(response);
-    } else {
-      res.send(advanceSalary)
-    }
+    const response = req.query.page !== 'undefined' && req.query.pageSize !== 'undefined'
+      ? { count: totalCount, items: advanceSalary }
+      : advanceSalary;
+
+    res.json(response);
   } catch (error) {
-    res.send(error.message);
+    res.status(500).send(error.message);
   }
 });
 
 
+
 router.get("/findall", authenticateToken, async (req, res) => {
   try {
-    const advanceSalary = await AdvanceSalary.findAll({ 
+    let whereClause = { };
+
+    if (req.query.search && req.query.search !== 'undefined') {
+      const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+      whereClause = {
+        [Op.and]: [
+          {
+            [Op.or]: [
+              sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.name'), ' ', '')),
+                { [Op.like]: `%${searchTerm}%` }
+              ),
+              sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.empNo'), ' ', '')),
+                { [Op.like]: `%${searchTerm}%` }
+              )
+            ]
+          }
+        ]
+      };
+    } 
+
+    const advanceSalary = await AdvanceSalary.findAll({
+      where: whereClause, 
         include:[
             { model: User, as: 'user', attributes: ['name','empNo']}
         ],
@@ -137,20 +164,18 @@ router.get("/findbyuseridall/:id", authenticateToken, async (req, res) => {
                 sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('amount'), ' ', '')),
                 { [Op.like]: `%${searchTerm}%` }
               ),
-              // sequelize.where(
-              //   sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.empNo'), ' ', '')),
-              //   { [Op.like]: `%${searchTerm}%` }
-              // )
+              sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('createdAt'), ' ', '')),
+                { [Op.like]: `%${searchTerm}%` }
+              )
             ]
           },
-          { userId: req.params.id },
+          { status: true },
         ]
       };
-    } else {
-      if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
-        limit = parseInt(req.query.pageSize, 10);
-        offset = (parseInt(req.query.page, 10) - 1) * limit;
-      }
+    } else if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+      limit = parseInt(req.query.pageSize, 10);
+      offset = (parseInt(req.query.page, 10) - 1) * limit;
     }
 
     const advanceSalary = await AdvanceSalary.findAll({ 
@@ -162,6 +187,8 @@ router.get("/findbyuseridall/:id", authenticateToken, async (req, res) => {
         }
       ],
     });
+    console.log(advanceSalary, "Salarysalaryyyyyyyy");
+    
     const totalCount = await AdvanceSalary.count({ where: whereClause });
     if (req.query.page !== 'undefined' && req.query.pageSize !== 'undefined') {
       const response = {

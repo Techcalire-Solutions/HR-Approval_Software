@@ -25,7 +25,7 @@ import { MatIconModule } from '@angular/material/icon';
 export class MonthendComponent implements OnInit, OnDestroy{
   daysInMonth: number;
   currentYear: number;
-
+  changeSub!: Subscription;
   ngOnInit(): void {
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
@@ -42,7 +42,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
       const payrollArray = this.payrollForm.get('payrolls') as FormArray;
 
       payrollArray.controls.forEach((control, index) => {
-          control.valueChanges.subscribe(() => {
+          this.changeSub = control.valueChanges.subscribe(() => {
             this.calculateTotalSalary(index);
           });
       });
@@ -52,7 +52,6 @@ export class MonthendComponent implements OnInit, OnDestroy{
   }
 
   private cdr = inject(ChangeDetectorRef)
-
   ngAfterViewInit() {
     this.cdr.detectChanges();
   }
@@ -119,8 +118,6 @@ export class MonthendComponent implements OnInit, OnDestroy{
   }
 
   newDoc(initialValue?: any): FormGroup {
-    console.log(initialValue);
-    
     const payedForValue = `${this.month} ${this.currentYear}`;
     return this.fb.group({
       id: [initialValue ? initialValue.id : '', Validators.required],
@@ -215,11 +212,12 @@ export class MonthendComponent implements OnInit, OnDestroy{
 
   isSave: boolean = false;
   private snackBar = inject(MatSnackBar);
+  submit!: Subscription;
   savePayroll(){
     this.isLoading = true;
     this.isSave = true;
     if(this.updateStatus || this.isRejected || this.isApproved){
-      this.payrollService.updateMonthlyPayroll(this.payrollForm.getRawValue()).subscribe(() => {
+      this.submit = this.payrollService.updateMonthlyPayroll(this.payrollForm.getRawValue()).subscribe(() => {
         this.isLoading = false;
         this.approval = false;
         this.isApproved = false;
@@ -229,7 +227,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
         this.getPayroll()
       });
     }else{
-      this.payrollService.monthlyPayroll(this.payrollForm.getRawValue()).subscribe(() => {
+      this.submit = this.payrollService.monthlyPayroll(this.payrollForm.getRawValue()).subscribe(() => {
         this.isLoading = false
         this.snackBar.open('Payroll is saved successfully...', '', { duration: 3000 });
         this.getPayroll()
@@ -248,6 +246,8 @@ export class MonthendComponent implements OnInit, OnDestroy{
   isApproved: boolean = false;
   private dialog = inject(MatDialog);
   isLoading: boolean = false;
+  mailSendSub!: Subscription;
+  dialogSub!: Subscription;
   downloadExcel() {
     const payrollData = (this.payrollForm.get('payrolls') as FormArray).getRawValue();
     const formattedData = payrollData.map((row: any, index: number) => ({
@@ -284,7 +284,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
       data: {}
     });
   
-    dialogRef.afterClosed().subscribe((email) => {
+    this.dialogSub = dialogRef.afterClosed().subscribe((email) => {
       if (email) {
         if(!this.validateEmail(email)){
           return alert('Invalid email address. Please enter a valid email.')
@@ -296,9 +296,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
         formData.append('month', `${this.month} ${this.currentYear}`);
         formData.append('payrollData', JSON.stringify(payrollData));
   
-        this.payrollService.sendEmailWithExcel(formData).subscribe((res) => {
-          console.log(res);
-          
+        this.mailSendSub = this.payrollService.sendEmailWithExcel(formData).subscribe(() => {
           this.isLoading = false;
           
           this.snackBar.open(`Email sent successfully to ${email}!...`, '', { duration: 3000 });
@@ -314,6 +312,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
     return emailRegex.test(email);
   }
 
+  updateSub!: Subscription;
   lockData(){
     this.isApproved = false;
     this.isLoading = true;
@@ -321,7 +320,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
       payrollData: this.payrolls,
       status: 'Locked'
     }
-    this.payrollService.updateMPStatus(data).subscribe(() => {
+    this.updateSub = this.payrollService.updateMPStatus(data).subscribe(() => {
       this.isLoading = false;
       this.snackBar.open(`Payslip has been successfully generated and emailed!...`, '', { duration: 3000 });         
       this.getPayroll();
@@ -381,6 +380,13 @@ export class MonthendComponent implements OnInit, OnDestroy{
     this.advanceSUb?.unsubscribe();
     this.paySub?.unsubscribe();
     this.payrollSub?.unsubscribe();
+    this.updateSub?.unsubscribe();
+    this.mailSendSub?.unsubscribe();
+    this.submit?.unsubscribe();
+    this.advanceSUb?.unsubscribe();
+    this.paySub?.unsubscribe();
+    this.payrollSub?.unsubscribe();
+    this.changeSub?.unsubscribe();
   }
 
 }

@@ -15,15 +15,13 @@
 
         </mat-button-toggle-group>
     </div>
-    @if(admin){
-      <div fxLayout="row" class="col">
-        <form class="user-search" [class.show]="controls.value == 'search'">
-          <mat-form-field class="user-search-input">
-              <input matInput placeholder="Search..." name="search" (keyup)="search($event)">
-          </mat-form-field>
-        </form>
-      </div>
-    }
+    <div fxLayout="row" class="col">
+      <form class="user-search" [class.show]="controls.value == 'search'">
+        <mat-form-field class="user-search-input">
+            <input matInput placeholder="Search..." name="search" (keyup)="search($event)">
+        </mat-form-field>
+      </form>
+    </div>
 
   </div>
 

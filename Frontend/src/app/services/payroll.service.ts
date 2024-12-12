@@ -33,8 +33,8 @@ export class PayrollService {
     return this.http.get(`${this.apiUrl}/payroll`);
   }
 
-  getAdvanceSalary(): Observable<AdvanceSalary[]> {
-    return this.http.get<AdvanceSalary[]>(`${this.apiUrl}/advanceSalary/findall`);
+  getAdvanceSalary(search: string): Observable<AdvanceSalary[]> {
+    return this.http.get<AdvanceSalary[]>(`${this.apiUrl}/advanceSalary/findall?search=${search}`);
   }
 
   closeAdvanceSalary(id: number, data: any): Observable<AdvanceSalary> {
@@ -88,9 +88,14 @@ export class PayrollService {
     return this.http.get(this.apiUrl+`/monthlypayroll/find?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
   }
 
-  getMonthlyPayrollByUser(id: number): Observable<any> {
-    return this.http.get(this.apiUrl+"/monthlypayroll/findbyuser/" + id);
+  getMonthlyPayrollByUser(id: number, filterValue?: string, page?: number, pagesize?:number): Observable<any> {
+    return this.http.get(this.apiUrl+`/monthlypayroll/findbyuser/${id}?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
   }
+
+
+  // getMonthlyPayrollByUser(id: number): Observable<any> {
+  //   return this.http.get(this.apiUrl+"/monthlypayroll/findbyuser/" + id);
+  // }
 
   getMonthlyPayrollById(id: number): Observable<any> {
     return this.http.get(this.apiUrl+"/monthlypayroll/findbyid/" + id);

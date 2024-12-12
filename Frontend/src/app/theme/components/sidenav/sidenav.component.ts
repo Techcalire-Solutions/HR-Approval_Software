@@ -130,6 +130,7 @@ users:User;
         (item.title === 'Advance Salary' && item.parentId === 13) ||
         (item.title === 'Month End' && item.parentId === 13) ||
         (item.title === 'Payslip' && item.parentId === 13) ||
+        (item.title === 'Process Payslip' && item.parentId === 13) ||
 
         (item.title === 'Expense' && !item.parentId) ||
         (item.title === 'Add' && item.parentId === 26) ||
@@ -158,6 +159,7 @@ users:User;
         (item.title === 'Advance Salary' && item.parentId === 13) ||
         (item.title === 'Month End' && item.parentId === 13) ||
         (item.title === 'Payslip' && item.parentId === 13) ||
+        (item.title === 'Process Payslip' && item.parentId === 13) ||
         // (item.title === 'Pay Details' && item.parentId === 13)||
         // (item.title === 'Leave' && !item.parentId) ||
         // (item.title === 'Calendar' && item.parentId === 8) ||
