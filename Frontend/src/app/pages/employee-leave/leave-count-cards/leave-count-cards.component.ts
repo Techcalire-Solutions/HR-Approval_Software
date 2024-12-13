@@ -65,6 +65,11 @@ export class LeaveCountCardsComponent {
       return Math.max(leave.noOfDays - leave.takenLeaves, 0);
     }
   }
+
+  isLOP(leave: any): boolean {
+    return leave.leaveType.leaveTypeName === 'LOP' || leave.leaveBalance === null || leave.leaveBalance < 0;
+  }
+  
   
   ngOnDestroy() {
     if (this.leaveCountsSubscription) {

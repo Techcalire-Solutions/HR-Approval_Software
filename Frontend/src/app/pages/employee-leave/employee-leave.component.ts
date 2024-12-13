@@ -94,7 +94,9 @@ userId:number
 
 }
 
-
+totalSickLeave: number = 0; // New variable to store total Sick Leave
+isButtonVisible: boolean = false;
+selectedLeaveDays: number = 0;
 leaves:any[]=[]
   leaveSub :Subscription
   private getLeaveByUser(): void {
@@ -103,6 +105,21 @@ leaves:any[]=[]
       (res: any) => {
         this.leaves = res.items;
         this.totalItems = res.count;
+
+        console.log(this.leaves)
+
+        // Calculate the total Sick Leave (SL) days here
+// Calculate the total Sick Leave (SL) days here
+this.totalSickLeave = this.leaves
+  .filter(leave => leave.leaveType?.leaveTypeName === 'Sick Leave') // Ensure nested access
+  .reduce((total, leave) => total + (leave.noOfDays || 0), 0);
+
+console.log('Total Sick Leave:', this.totalSickLeave);
+
+// Set button visibility based on the total sick leave
+this.isButtonVisible = this.totalSickLeave >= 3;
+console.log('Is Button Visible:', this.isButtonVisible);
+
       },
       (error) => {
         this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
@@ -139,8 +156,18 @@ leaves:any[]=[]
   editLeave(item:any) {
  this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item.id } });
   }
+  // Check if the selected leave type is 'Sick Leave'
 
+  isSickLeave(){
+    // const selectedLeaveType = this.leaveRequestForm.get('leaveTypeId')?.value;
+    // return selectedLeaveType === 'Sick Leave';
+  }
+  uploadFile(item:any){
+    console.log(item.id)
+    console.log(item)
+    this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item} });
 
+  }
 
 delete!: Subscription;
 deleteLeaveStableFunction(id: number){
