@@ -93,47 +93,102 @@ async function getReportingManagerEmailForUser(userId) {
 
 
 //-------------------------------------Mail sending function------------------------------------------
-async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates) {
-  // const hrAdminEmail = await getHREmail();
-  // const reportingManagerEmail = await getReportingManagerEmailForUser(user.id);
 
 
-  if (!Array.isArray(leaveDates)) {
-    throw new Error('leaveDates must be an array');
+async function sendLeaveEmail(leaveId, user, leaveType, startDate, endDate, notes, noOfDays, leaveDates) {
+  const hrAdminEmail = await getHREmail();
+  const reportingManagerEmail = await getReportingManagerEmailForUser(user.id);
+
+  console.log("reportingManagerEmail:", reportingManagerEmail);
+
+
+
+  // Validate and format endDate
+  let formattedEndDate = 'N/A'; // Default value if endDate is invalid
+  if (endDate) {
+    try {
+      const dateInstance = new Date(endDate);
+      if (!isNaN(dateInstance)) {
+        formattedEndDate = dateInstance.toISOString().split('T')[0];
+      } else {
+        console.warn(`Invalid endDate provided: ${endDate}`);
+      }
+    } catch (error) {
+      console.warn(`Error processing endDate: ${endDate}`, error);
+    }
+  } else {
+    console.warn('endDate is not provided or is null');
   }
 
-   const formattedStartDate = new Date(new Date(startDate).setDate(new Date(startDate).getDate() + 1))
-  .toISOString()
-  .split('T')[0];
-   const formattedEndDate = new Date(new Date(endDate).setDate(new Date(endDate).getDate() + 1))
-  .toISOString()
-  .split('T')[0];
-
+  const approveUrl = `http://localhost:8000/leave/approveLeave/${leaveId}`;
+  const rejectUrl = `http://localhost:8000/leave/rejectLeave/${leaveId}`;
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to:process.env.EMAIL_USER,
-    cc:   process.env.EMAIL_USER,
-    subject: `New Leave Request Submitted by ${user.name}`,
-    text: `A new leave request has been submitted:
-    - Username: ${user.name}
-    - Leave Type: ${leaveType.leaveTypeName}
-    - Start Date: ${formattedStartDate}
-    - End Date: ${formattedEndDate}
-    - Notes: ${notes}
-    - Number of Days: ${noOfDays}
-    - Leave Dates: ${leaveDates.map(item => {
-        const sessionString = [
-          item.session1 ? 'session1' : '',
-          item.session2 ? 'session2' : ''
-        ].filter(Boolean).join(', '); 
-        return `${item.date} (${sessionString || 'No sessions selected'})`;
-      }).join(', ')}` 
+    to: reportingManagerEmail,
+    cc: [hrAdminEmail, process.env.EMAIL_USER],
+    subject: 'Leave Request Updated',
+    html: `
+<h3>A leave request has been updated:</h3>
+<ul>
+  <li><strong>Username:</strong> ${user.name}</li>
+  <li><strong>Leave Type:</strong> ${leaveType.leaveTypeName}</li>
+  <li><strong>Start Date:</strong> ${startDate}</li>
+  <li><strong>End Date:</strong> ${formattedEndDate}</li>
+  <li><strong>Notes:</strong> ${notes || 'No additional notes provided'}</li>
+  <li><strong>Number of Days:</strong> ${noOfDays}</li>
+  <li><strong>Leave Dates:</strong>
+
+  </li>
+</ul>
+<div style="margin-top: 20px;">
+  <a href="${approveUrl}"
+    style="
+      display: inline-block;
+      padding: 12px 25px;
+      font-size: 16px;
+      color: white;
+      background-color: #28a745;
+      text-decoration: none;
+      border-radius: 50px;
+      border: 2px solid #28a745;
+      margin: 10px;
+      transition: background-color 0.3s ease;
+    "
+    onmouseover="this.style.backgroundColor='#218838';"
+    onmouseout="this.style.backgroundColor='#28a745';">
+    Approve
+  </a>
+  <a href="${rejectUrl}"
+    style="
+      display: inline-block;
+      padding: 12px 25px;
+      font-size: 16px;
+      color: white;
+      background-color: #dc3545;
+      text-decoration: none;
+      border-radius: 50px;
+      border: 2px solid #dc3545;
+      margin: 10px;
+      transition: background-color 0.3s ease;
+    "
+    onmouseover="this.style.backgroundColor='#c82333';"
+    onmouseout="this.style.backgroundColor='#dc3545';">
+    Reject
+  </a>
+</div>
+    `
   };
 
-  return transporter.sendMail(mailOptions);
+  try {
+    if (reportingManagerEmail && hrAdminEmail) {
+      await transporter.sendMail(mailOptions);
+    }
+    console.log('Leave update email sent successfully');
+  } catch (error) {
+    console.error('Error sending leave update email:', error);
+  }
 }
-
 
 async function sendLeaveUpdatedEmail(leaveId,user, leaveType, startDate, endDate, notes, noOfDays, leaveDates) {
   // const hrAdminEmail = await getHREmail();
