@@ -46,8 +46,6 @@ export class HolidayCalendarComponent implements OnInit, OnDestroy{
   holidays: Holidays[] = [];
   getHolidaysForYear(): void {
     this.holidaySub = this.leaveService.getHolidays(this.searchText, this.currentPage, this.pageSize).subscribe((res: any) => {
-      console.log(res);
-
       this.holidays = res.items
       this.totalItems = res.count;
     })

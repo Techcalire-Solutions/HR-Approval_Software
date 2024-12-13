@@ -84,8 +84,6 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
       }
 
       this.submit = this.leaveService.updateUpdatedCompoOff( this.route.snapshot.params['id'], data).subscribe((res: any) => {
-        console.log(res);
-
         this.snackBar.open(res.message, 'Close', { duration: 3000 });
         history.back()
       })
@@ -109,8 +107,6 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
   getComboOff(){
     this.comboOffSub = this.leaveService.getCompoOff(this.route.snapshot.params['id']).subscribe(res => {
       this.co = res;
-      console.log(res);
-
       if(this.co){
         this.editStatus = true;
         this.setInitialCheckboxes(this.co.userId);

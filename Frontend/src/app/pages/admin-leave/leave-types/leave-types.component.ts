@@ -70,8 +70,6 @@ export class LeaveTypesComponent {
     this.roleSub = this.leaveService.getLeaveType(this.searchText, this.currentPage, this.pageSize).subscribe((res: any)=>{
       this.leaveTypes = res.items;
       this.totalItems = res.count;
-      console.log('hiii',res);
-
     })
   }
 
@@ -103,8 +101,6 @@ export class LeaveTypesComponent {
     const dialogRef = this.dialog.open(AddLeaveTypeDialogueComponent, {
       data: leaveType
     });
-    console.log('leaveType',leaveType);
-
     dialogRef.afterClosed().subscribe(() => {
       this.getLeaveTypes()
     });

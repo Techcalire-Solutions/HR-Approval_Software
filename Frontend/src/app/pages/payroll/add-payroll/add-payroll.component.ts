@@ -14,6 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { MatIconModule } from '@angular/material/icon';
+
 @Component({
   selector: 'app-add-payroll',
   standalone: true,
@@ -21,8 +22,9 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [ReactiveFormsModule, CommonModule, MatButtonModule, MatIconModule, MatButtonModule],  // Include ReactiveFormsModule
   styleUrls: ['./add-payroll.component.scss']
 })
+
 export class AddPayrollComponent implements OnInit, OnDestroy {
-  userSub: Subscription;
+  private userSub: Subscription;
   user: any;
   payroll: Payroll;
   private fb = inject(FormBuilder);
@@ -56,17 +58,22 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
     yearEsi: <any>[{ value: null, disabled: true }],
   });
 
+  private changeSub!: Subscription;
   ngOnInit(): void {
     this.getUserById();
     this.getPayrollDetailsByUserId();
 
-    this.payrollForm.valueChanges.subscribe(() => {
+    this.changeSub = this.payrollForm.valueChanges.subscribe(() => {
       this.calculatePayroll();
     });
   }
 
   ngOnDestroy(): void {
-    if (this.userSub) this.userSub.unsubscribe();
+    this.userSub?.unsubscribe();
+    this.payrollSub?.unsubscribe();
+    this.dialogSub?.unsubscribe();
+    this.updatePaySub?.unsubscribe();
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   private userService = inject(UsersService);
@@ -85,10 +92,10 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
   editStaus: boolean = false;
   userName: string;
   empNo: string;
+  private payrollSub!: Subscription;
   getPayrollDetailsByUserId() {
-    this.payrollService.getPayrollDetailsByUserId(this.route.snapshot.params['id']).subscribe({
+    this.payrollSub = this.payrollService.getPayrollDetailsByUserId(this.route.snapshot.params['id']).subscribe({
       next: (res) => {
-        
         if (res) {
           this.editStaus = true;
           this.payroll = res;
@@ -134,76 +141,70 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
     })
   }
 
+  private subscriptions: any[] = [];
   calculatePayroll() {
-    this.payrollForm.get('basic')?.valueChanges.subscribe(() => {
-      const bp: any = this.payrollForm.get('basic')?.value;
-      const ybp = 12 * bp;
-      this.payrollForm.patchValue({ yearbasicPay: ybp }, { emitEvent: false });
-      this.calculateGrossPay();
-    });
-
-    this.payrollForm.get('hra')?.valueChanges.subscribe(() => {
-      const hr: any = this.payrollForm.get('hra')?.value;
-      const yhr = 12 * hr;
-      this.payrollForm.patchValue({ yearhra: yhr }, { emitEvent: false });
-      this.calculateGrossPay();
-    });
-
-    this.payrollForm.get('conveyanceAllowance')?.valueChanges.subscribe(() => {
-      const conveyanceAllowance: any = this.payrollForm.get('conveyanceAllowance')?.value;
-      const yca = 12 * conveyanceAllowance;
-      this.payrollForm.patchValue({ yearconveyanceAllowance: yca }, { emitEvent: false });
-      this.calculateGrossPay();
-    });
-
-    this.payrollForm.get('lta')?.valueChanges.subscribe(() => {
-      const lta: any = this.payrollForm.get('lta')?.value;
-      const ylta = 12 * lta;
-      this.payrollForm.patchValue({ yearlta: ylta }, { emitEvent: false });
-      this.calculateGrossPay();
-    });
-
-    this.payrollForm.get('specialAllowance')?.valueChanges.subscribe(() => {
-      const specialAllowance: any = this.payrollForm.get('specialAllowance')?.value;
-      const yearspecialAllowance = 12 * specialAllowance;
-      this.payrollForm.patchValue({ yearspecialAllowance: yearspecialAllowance }, { emitEvent: false });
-      this.calculateGrossPay();
-    });
-
-    this.payrollForm.get('gratuity')?.valueChanges.subscribe(() => {
-      const gratuity: any = this.payrollForm.get('gratuity')?.value;
-      const ygratuity = 12 * gratuity;
-      this.payrollForm.patchValue({ yearGratuity: ygratuity }, { emitEvent: false });
-      this.calculateGrossPay();
-    });
-
-    this.payrollForm.get('insurance')?.valueChanges.subscribe(() => {
-      const insurance: any = this.payrollForm.get('insurance')?.value;
-      const yinsurance = 12 * insurance;
-      this.payrollForm.patchValue({ yearinsurance: yinsurance }, { emitEvent: false });
-      this.calculateGrossPay();
-    });
-
-    this.payrollForm.get('pf')?.valueChanges.subscribe(() => {
-      const pf: any = this.payrollForm.get('pf')?.value;
-      const ypf = 12 * pf;
-      this.payrollForm.patchValue({ yearpf: ypf }, { emitEvent: false });
-      this.calculateGrossPay();
-    });
-
-    this.payrollForm.get('pfDeduction')?.valueChanges.subscribe(() => {
-      const pf: any = this.payrollForm.get('pfDeduction')?.value;
-      const ypf = 12 * pf;
-      this.payrollForm.patchValue({ yearPfDeduction: ypf }, { emitEvent: false });
-      this.calculateGrossPay();
-    });
-
-    this.payrollForm.get('esi')?.valueChanges.subscribe(() => {
-      const pf: any = this.payrollForm.get('esi')?.value;
-      const ypf = 12 * pf;
-      this.payrollForm.patchValue({ yearEsi: ypf }, { emitEvent: false });
-      this.calculateGrossPay();
-    });
+    this.subscriptions.push(
+      this.payrollForm.get('basic')?.valueChanges.subscribe(() => {
+        const bp: any = this.payrollForm.get('basic')?.value;
+        const ybp = 12 * bp;
+        this.payrollForm.patchValue({ yearbasicPay: ybp }, { emitEvent: false });
+        this.calculateGrossPay();
+      }),
+      this.payrollForm.get('hra')?.valueChanges.subscribe(() => {
+        const hr: any = this.payrollForm.get('hra')?.value;
+        const yhr = 12 * hr;
+        this.payrollForm.patchValue({ yearhra: yhr }, { emitEvent: false });
+        this.calculateGrossPay();
+      }),
+      this.payrollForm.get('conveyanceAllowance')?.valueChanges.subscribe(() => {
+        const conveyanceAllowance: any = this.payrollForm.get('conveyanceAllowance')?.value;
+        const yca = 12 * conveyanceAllowance;
+        this.payrollForm.patchValue({ yearconveyanceAllowance: yca }, { emitEvent: false });
+        this.calculateGrossPay();
+      }),
+      this.payrollForm.get('lta')?.valueChanges.subscribe(() => {
+        const lta: any = this.payrollForm.get('lta')?.value;
+        const ylta = 12 * lta;
+        this.payrollForm.patchValue({ yearlta: ylta }, { emitEvent: false });
+        this.calculateGrossPay();
+      }),
+      this.payrollForm.get('specialAllowance')?.valueChanges.subscribe(() => {
+        const specialAllowance: any = this.payrollForm.get('specialAllowance')?.value;
+        const yearspecialAllowance = 12 * specialAllowance;
+        this.payrollForm.patchValue({ yearspecialAllowance: yearspecialAllowance }, { emitEvent: false });
+        this.calculateGrossPay();
+      }),
+      this.payrollForm.get('gratuity')?.valueChanges.subscribe(() => {
+        const gratuity: any = this.payrollForm.get('gratuity')?.value;
+        const ygratuity = 12 * gratuity;
+        this.payrollForm.patchValue({ yearGratuity: ygratuity }, { emitEvent: false });
+        this.calculateGrossPay();
+      }),
+      this.payrollForm.get('insurance')?.valueChanges.subscribe(() => {
+        const insurance: any = this.payrollForm.get('insurance')?.value;
+        const yinsurance = 12 * insurance;
+        this.payrollForm.patchValue({ yearinsurance: yinsurance }, { emitEvent: false });
+        this.calculateGrossPay();
+      }),
+      this.payrollForm.get('pf')?.valueChanges.subscribe(() => {
+        const pf: any = this.payrollForm.get('pf')?.value;
+        const ypf = 12 * pf;
+        this.payrollForm.patchValue({ yearpf: ypf }, { emitEvent: false });
+        this.calculateGrossPay();
+      }),
+      this.payrollForm.get('pfDeduction')?.valueChanges.subscribe(() => {
+        const pf: any = this.payrollForm.get('pfDeduction')?.value;
+        const ypf = 12 * pf;
+        this.payrollForm.patchValue({ yearPfDeduction: ypf }, { emitEvent: false });
+        this.calculateGrossPay();
+      }),
+      this.payrollForm.get('esi')?.valueChanges.subscribe(() => {
+        const pf: any = this.payrollForm.get('esi')?.value;
+        const ypf = 12 * pf;
+        this.payrollForm.patchValue({ yearEsi: ypf }, { emitEvent: false });
+        this.calculateGrossPay();
+      })
+    );
   }
 
   calculateGrossPay() {
@@ -216,33 +217,32 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
     const insurance: number = Number(this.payrollForm.get('insurance')?.value) || 0;
     const pf: number = Number(this.payrollForm.get('pf')?.value) || 0;
 
-      const grossPay: any = basic + hra + conveyanceAllowance + lta + specialAllowance;
-      const netPay: any = grossPay + gratuity + insurance + pf;
-      
-      this.payrollForm.patchValue({ 
-        grossPay: grossPay, yeargrossPay: grossPay * 12, netPay: netPay, yearnetPay: netPay * 12 
-      }, { emitEvent: false });
+    const grossPay: any = basic + hra + conveyanceAllowance + lta + specialAllowance;
+    const netPay: any = grossPay + gratuity + insurance + pf;
+    
+    this.payrollForm.patchValue({ 
+      grossPay: grossPay, yeargrossPay: grossPay * 12, netPay: netPay, yearnetPay: netPay * 12 
+    }, { emitEvent: false });
   }
 
   private dialog = inject(MatDialog);
+  private updatePaySub!: Subscription;
+  dialogSub!: Subscription;
   savePayrollDetails() {
     if(this.editStaus){
       const dialogRef = this.dialog.open(PayrollUpdateVerificationComponent, {
         data: { userName: this.user.name, currentPay: this.netPay, updated: this.payrollForm.get('netPay')?.value }
       });
-      dialogRef.afterClosed().subscribe((res) => {
+      this.dialogSub = dialogRef.afterClosed().subscribe((res) => {
         if(res){
           const payrollData = { ...this.payrollForm.getRawValue() };
-          this.payrollService.updatePayroll(this.id, payrollData).subscribe({
-            next: (res) => {
-              console.log(res);
-              
+          this.updatePaySub = this.payrollService.updatePayroll(this.id, payrollData).subscribe({
+            next: () => {
               alert('Payroll details updated successfully!')
               history.back();
             },
             error: (error) => {
               alert('Error saving payroll details.');
-              console.error(error);
             }
           });
         }else{
@@ -252,14 +252,13 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
       });
     }else{
       const payrollData = { ...this.payrollForm.getRawValue(), userId: this.user.id };
-      this.payrollService.savePayroll(payrollData).subscribe({
+      this.updatePaySub = this.payrollService.savePayroll(payrollData).subscribe({
         next: () => {
           alert('Payroll details saved successfully!')
           history.back();
         },
-        error: (error) => {
+        error: () => {
           alert('Error saving payroll details.');
-          console.error(error);
         }
       });
     }

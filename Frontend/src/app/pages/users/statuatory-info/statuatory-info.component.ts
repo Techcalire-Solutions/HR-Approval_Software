@@ -105,7 +105,9 @@ export class StatuatoryInfoComponent implements OnDestroy {
       })
     }
     else{
-      this.submitSub = this.userService.addStautoryInfo(submit).subscribe(() => {
+      this.submitSub = this.userService.addStautoryInfo(submit).subscribe((res) => {        
+        this.editStatus = true;
+        this.id = res.id;
         this.snackBar.open("Statutory Details added succesfully...","" ,{duration:3000})
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })

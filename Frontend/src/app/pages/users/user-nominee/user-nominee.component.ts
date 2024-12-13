@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -14,24 +14,22 @@ import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-user-account',
+  selector: 'app-user-nominee',
   standalone: true,
-  imports: [MatFormFieldModule, ReactiveFormsModule, MatOptionModule, MatSelectModule, MatInputModule, MatButtonModule,
-     MatCardModule, MatIconModule],
-  templateUrl: './user-account.component.html',
-  styleUrl: './user-account.component.scss'
+  imports: [MatCardModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule, MatIconModule, MatButtonModule,
+    MatOptionModule, MatSelectModule
+  ],
+  templateUrl: './user-nominee.component.html',
+  styleUrl: './user-nominee.component.scss'
 })
-export class UserAccountComponent implements OnInit, OnDestroy {
+export class UserNomineeComponent {
+  relations = ['Father', 'Mother', 'Sister', 'Brother', 'Spouse', 'Friend', 'Other'];
   ngOnDestroy(): void {
     this.pUSub?.unsubscribe();
     this.submitSub?.unsubscribe();
   }
-  ngOnInit(): void {
-    this.form.get('paymentFrequency')?.setValue('Monthly');
-    this.form.get('modeOfPayment')?.setValue('BankTransfer')
-  }
 
-  @Input() accountData: any;
+  @Input() nomineeData: any;
 
   private fb = inject(FormBuilder);
   private userService = inject(UsersService);
@@ -39,13 +37,11 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   private router = inject(Router);
 
   form = this.fb.group({
-    userId : [''],
-    accountNo : [''],
-    ifseCode : [''],
-    paymentFrequency : [''],
-    modeOfPayment : [''],
-    branchName : ['Vyttila'],
-    bankName: ['Axis']
+    userId: [''],
+    nomineeName: [''],
+    nomineeContactNumber: [''],
+    nomineeRelation: [''],
+    aadhaarNumber: ['']
   });
 
   editStatus: boolean = false;
@@ -60,17 +56,15 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   private pUSub!: Subscription;
   id: number;
   getPositionDetailsByUser(id: number){
-    this.pUSub = this.userService.getUserAcoountDetailsByUser(id).subscribe(data=>{
+    this.pUSub = this.userService.getUserNomineeDetailsByUser(id).subscribe(data=>{
       if(data){
         this.id = data.id;
         this.editStatus = true;
         this.form.patchValue({
-          accountNo : data.accountNo,
-          ifseCode : data.ifseCode,
-          paymentFrequency : data.paymentFrequency,
-          modeOfPayment : data.modeOfPayment,
-          branchName : data.branchName,
-          bankName : data.bankName
+          nomineeName : data.nomineeName,
+          nomineeContactNumber : data.nomineeContactNumber,
+          nomineeRelation : data.nomineeRelation,
+          aadhaarNumber : data.aadhaarNumber
         })
       }
     })
@@ -84,17 +78,17 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     const submit = {
       ...this.form.getRawValue()
     }
-    submit.userId = submit.userId ? submit.userId : this.accountData.id;
+    submit.userId = submit.userId ? submit.userId : this.nomineeData.id;
     if(this.editStatus){
-      this.submitSub = this.userService.updateUserAccount(this.id, submit).subscribe(() => {
-        this.snackBar.open("Account Details updated succesfully...","" ,{duration:3000})
+      this.submitSub = this.userService.updateUserNominee(this.id, submit).subscribe(() => {
+        this.snackBar.open("Nominee Details updated succesfully...","" ,{duration:3000})
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })}
     else{
-      this.submitSub = this.userService.addUserAccountDetails(submit).subscribe((res) => {        
+      this.submitSub = this.userService.addUserNomineeDetails(submit).subscribe((res) => {        
         this.editStatus = true;
         this.id = res.id;
-        this.snackBar.open("Account Details added succesfully...","" ,{duration:3000})
+        this.snackBar.open("Nominee Details added succesfully...","" ,{duration:3000})
       })}
   }
 

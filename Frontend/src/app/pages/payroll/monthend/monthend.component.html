@@ -1,9 +1,25 @@
+
+<div class="payroll-header">
+    <h2>Monthend Calculation - @if (updateStatus) {Update} 
+        {{month}} {{daysInMonth}} 
+        @if (approval){- Sent for Approval} 
+        @if (isApproved){- Approved} 
+        @if (isRejected) {- Rejected}
+        @if( isLocked ) {- Payroll Completed}
+    </h2>
+    <button mat-mini-fab color="primary" type="button" aria-label="Example icon button with a home icon" 
+        class="d-block mr-0 ml-auto" (click)="downloadExcelOnly()" style="margin-left: auto; ">
+    <mat-icon>download</mat-icon>
+  </button>
+</div>
+
 <form [formGroup]="payrollForm">
-    <h2> @if (updateStatus) {Update} {{month}}-{{daysInMonth}}</h2>
+
     @if(doc().controls && doc().controls.length){
         <table formArrayName="payrolls">
             <tr>
                 <th rowspan="2">Employee Name</th>
+                <th rowspan="2">Employee ID</th>
                 <th rowspan="2">PerDay</th>
                 <th colspan="8">Earnings</th>
                 <th colspan="6">Deductions</th>
@@ -30,6 +46,7 @@
             @for (payroll of doc().controls; track $index; let i = $index) {
                 <tr [formGroupName]="i">
                     <td><input type="text" placeholder="Employee" formControlName="userName"></td>
+                    <td><input type="text" placeholder="EmployeeId" formControlName="employeeId"></td>
                     <td><input type="text" placeholder="PerDay" formControlName="perDay"></td>
                     <td><input type="number" placeholder="Basic" formControlName="basic"></td>
                     <td><input type="number" placeholder="HRA" formControlName="hra"></td>
@@ -40,7 +57,7 @@
                     <td><input type="number" placeholder="Incentive" formControlName="incentive"></td>
                     <td><input type="number" placeholder="PayOut" formControlName="payOut"></td>
                     <td><input type="number" placeholder="PF" formControlName="pfDeduction"></td>
-                    <td><input type="number" placeholder="ESI" formControlName="insurance"></td>
+                    <td><input type="number" placeholder="ESI" formControlName="esi"></td>
                     <td><input type="number" placeholder="TDS" formControlName="tds"></td>
                     <td><input type="number" placeholder="Advance" formControlName="advanceAmount"></td>
                     <td><input type="number" placeholder="LeaveDays" formControlName="leaveDays"></td>
@@ -52,11 +69,30 @@
             }
         </table>
     }<br>
-    <button type="button" (click)="savePayroll()" class="calculate-btn">
-        @if(updateStatus){
-            Update
-        }@else{
-            Save
-        }
-        Payroll</button>
+    @if(!isLocked){
+        <button mat-raised-button type="button" (click)="savePayroll()" class="calculate-btn" color="primary"
+        [disabled]="approval">
+            @if(updateStatus || isRejected || isApproved){
+                Update
+            }@else{
+                Save
+            }
+            Payroll
+        </button>&nbsp;&nbsp;
+        <button mat-raised-button type="button" (click)="downloadExcel()" class="calculate-btn" color="primary"
+        [disabled]="!isSave || approval">
+           Send For Verifictaion
+        </button>&nbsp;&nbsp;
+        <button mat-raised-button type="button" (click)="lockData()" class="calculate-btn" color="primary"
+        [disabled]="!isApproved || !payrollControls.pristine">
+            Lock And Send
+        </button>
+    }
+
 </form>
+
+@if(isLoading) {
+    <div fxLayout="column" fxLayoutAlign="center center" class="user-spinner">
+        <mat-spinner color="primary"></mat-spinner>
+    </div>
+}

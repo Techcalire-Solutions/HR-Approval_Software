@@ -110,8 +110,6 @@ export class ExpenseComponent implements OnInit{
     const input = event.target as HTMLInputElement;
     const file: any = input.files?.[0];
     this.fileType[i] = file.type.split('/')[1]
-    console.log(this.fileType[i]);
-
     if (!this.allowedFileTypes.includes(this.fileType[i])) {
       alert('Invalid file type. Please select a PDF, JPEG, JPG, TXT or PNG file.');
       return;
@@ -188,7 +186,7 @@ export class ExpenseComponent implements OnInit{
         this.imageUrl.splice(index, 1);
         this.savedImageUrl.splice(index, 1);
     } else {
-        console.warn(`Index ${index} is out of bounds for removal`);
+       alert(`Index ${index} is out of bounds for removal`);
     }
   }
 
@@ -230,8 +228,6 @@ export class ExpenseComponent implements OnInit{
   onSubmit(){
     if(this.editStatus){
       this.submit = this.expenseService.updateExpense(this.expenseForm.getRawValue(), this.id).subscribe(res =>{
-        console.log(res);
-
         this.snackBar.open("Expense updated succesfully...","" ,{duration:3000})
         if(this.roleName === 'Super Administrator' || this.roleName === 'Administrator'){
           this.router.navigateByUrl('login/viewApproval/view');

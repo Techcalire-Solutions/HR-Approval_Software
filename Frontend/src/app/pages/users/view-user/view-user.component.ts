@@ -22,6 +22,7 @@ import { PayrollLog } from '../../../common/interfaces/payRoll/payroll-log';
 import { MonthlyPayroll } from '../../../common/interfaces/payRoll/monthlyPayroll';
 import { SafePipe } from "../../../common/safe.pipe";
 import { UserQualification } from '../../../common/interfaces/users/user-qualification';
+import { Nominee } from '../../../common/interfaces/users/nominee';
 
 @Component({
   selector: 'app-view-user',
@@ -59,7 +60,8 @@ export class ViewUserComponent implements OnInit, OnDestroy{
       this.getAssets(x.id);
       this.getPayrollLog(x.id);
       this.getMonthlySalary(x.id);
-      this.getQualData(x.id)
+      this.getQualData(x.id);
+      this.getNomineeData(x.id);
     });
   }
 
@@ -86,6 +88,15 @@ export class ViewUserComponent implements OnInit, OnDestroy{
       this.accounts = x;
     })
   }
+
+  nomineeSub!: Subscription;
+  nominee: Nominee
+  getNomineeData(id: number){
+    this.nomineeSub = this.userService.getUserNomineeDetailsByUser(id).subscribe(x => {
+      this.nominee = x;
+    })
+  }
+
 
   posuSub!: Subscription;
   positions: UserPosition;
@@ -134,8 +145,6 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   getMonthlySalary(id: number){
     this.monthSalarySub = this.payrollService.getMonthlyPayrollByUser(id).subscribe(x => {
       this.monthlySalary = x;
-      console.log(this.monthlySalary);
-
     });
   }
 
@@ -150,6 +159,7 @@ export class ViewUserComponent implements OnInit, OnDestroy{
     this.payLogSUb?.unsubscribe();
     this.assetSub?.unsubscribe();
     this.docSub?.unsubscribe();
+    this.nomineeSub?.unsubscribe();
   }
 
   private router = inject(Router);

@@ -53,7 +53,6 @@ export class InfoCardsComponent implements OnInit, OnDestroy {
   getPiCOunt(){
     this.countSub = this.invoiceService.getPICount().subscribe(res =>{
       this.counts = res.counts;
-      console.log(this.counts);
     })
   }
 

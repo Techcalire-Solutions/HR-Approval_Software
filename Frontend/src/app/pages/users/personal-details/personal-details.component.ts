@@ -16,6 +16,7 @@ import { Subscription } from 'rxjs';
 import { User } from '../../../common/interfaces/users/user';
 import { MatIconModule } from '@angular/material/icon';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 export const MY_FORMATS = {
   parse: {
@@ -34,13 +35,13 @@ export const MY_FORMATS = {
   selector: 'app-personal-details',
   standalone: true,
   imports: [ MatFormFieldModule, MatDatepickerModule, MatRadioModule, ReactiveFormsModule, MatOptionModule, MatSelectModule,
-    MatInputModule, MatSlideToggleModule, MatButtonModule, MatCardModule, MatIconModule],
+    MatInputModule, MatSlideToggleModule, MatButtonModule, MatCardModule, MatIconModule, MatAutocompleteModule],
   templateUrl: './personal-details.component.html',
   styleUrl: './personal-details.component.scss',
   providers: [provideMomentDateAdapter(MY_FORMATS)],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PersonalDetailsComponent implements OnInit, OnDestroy {
+export class PersonalDetailsComponent implements OnDestroy {
   private fb = inject(FormBuilder);
   private userService = inject(UsersService);
   private snackBar = inject(MatSnackBar);
@@ -48,17 +49,15 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
   @Input() data: any;
   @Output() dataSubmitted = new EventEmitter<any>();
 
-  ngOnInit(): void {
-    this.getReportingManager()
-  }
+  // ngOnInit(): void {
+  //   this.getReportingManager()
+  // }
 
   editStatus: boolean = false;
   triggerNew(data?: any): void {
-    this.getReportingManager()
+    this.getReportingManager(data.id)
     if(data){
-      // if(data.updateStatus){
-        this.getPersonalDetailsByUser(data.id)
-      // }
+      this.getPersonalDetailsByUser(data.id)
     }
   }
 
@@ -73,7 +72,6 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
           userId: data.userId,
           dateOfJoining: data.dateOfJoining,
           probationPeriod: data.probationPeriod,
-          confirmationDate: data.confirmationDate,
           maritalStatus: data.maritalStatus,
           dateOfBirth: data.dateOfBirth,
           gender: data.gender,
@@ -103,7 +101,6 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     userId: <any>[],
     dateOfJoining: <any>[],
     probationPeriod: [''],
-    confirmationDate: <any>[],
     maritalStatus: [''],
     dateOfBirth: <any>[],
     gender: [''],
@@ -123,7 +120,8 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     temporaryAddress: [''], 
     permanentAddress: [''],
     qualification: [''], 
-    experience: ['']
+    experience: [''],
+    reportingMangerName: ['']
   });
 
   copyAddress(): void {
@@ -143,13 +141,13 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     if(this.editStatus){
       this.submitSub = this.userService.updateUserPersonal(this.id, submit).subscribe(() => {
         this.snackBar.open("Personal Details updated succesfully...","" ,{duration:3000})
-        // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }
     else{
-      this.submitSub = this.userService.addUserPersonalDetails(submit).subscribe(() => {
+      this.submitSub = this.userService.addUserPersonalDetails(submit).subscribe((res) => {
+        this.editStatus = true;
+        this.id = res.id;
         this.snackBar.open("Personal Details added succesfully...","" ,{duration:3000})
-        // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }
   }
@@ -192,10 +190,25 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
 
   rmSub!: Subscription;
   rm: User[] = [];
-  getReportingManager(){
+  getReportingManager(id: number){
     this.rmSub = this.userService.getUser().subscribe(res=>{
-      this.rm = res;
+      this.rm = res.filter(user => user.id != id);
+      this.filteredRm = this.rm;
     })
+  }
+
+  filterValue: string;
+  filteredRm: User[] = [];
+  search(event: Event) {
+    this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
+    this.filteredRm = this.rm.filter(option =>
+      option.name.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
+      option.empNo.toString().replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
+    );
+  }
+
+  patch(selectedSuggestion: User) {
+    this.form.patchValue({ reportingMangerId: selectedSuggestion.id, reportingMangerName: selectedSuggestion.name });
   }
 }
 

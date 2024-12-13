@@ -32,12 +32,13 @@ export const verticalMenuItems = [
   new Menu(12, 'Leave Balance', '/login/employee-leave/balance', null, 'visibility', null, false, 8),
 
 
-  new Menu(13, 'Payroll', '', null, 'payments', null, true, 0),
+  new Menu(13, 'Payroll', '', null, 'price_check', null, true, 0),
   new Menu(25, 'Advance Salary', '/login/payroll/advance-salary', null, 'money_off', null, false, 13),
   new Menu(33, 'Month End', '/login/payroll/month-end', null, 'event', null, false, 13),
-  new Menu(14, 'Process Payroll', '/login/process-monthly-payroll', null, 'add_circle', null, false, 13),
-  new Menu(15, 'Salary Statement', '/login/viewApproval', null, 'visibility', null, false, 13),
   new Menu(16, 'Payslip', '/login/payroll/month-end/payslip', null, 'receipt', null, false, 13),
+  new Menu(14, 'Process Payslip', '/login/payroll/process-payslip', null, 'add_circle', null, false, 13),
+
+  new Menu(15, 'Salary Statement', '/login/viewApproval', null, 'visibility', null, false, 13),
   new Menu(17, 'YTD Reports', '/login/viewApproval', null, 'visibility', null, false, 13),
   // new Menu(17, 'Pay Details', '/login/viewApproval', null, 'visibility', null, false, 13),
   new Menu(18, 'User leave', '/login/userLeave', null, 'visibility', null, false, 8),

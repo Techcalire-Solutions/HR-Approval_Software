@@ -6,10 +6,8 @@ const User = require('../models/user');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const Role = require('../models/role')
-const { Op, where } = require('sequelize');
+const { Op } = require('sequelize');
 const sequelize = require('../../utils/db');
-const Team = require('../models/team')
-const TeamMember = require('../models/teamMember');
 const upload = require('../../utils/userImageMulter'); 
 const s3 = require('../../utils/s3bucket');
 const UserLeave = require('../../leave/models/userLeave');
@@ -17,6 +15,7 @@ const LeaveType = require('../../leave/models/leaveType');
 const UserPersonal = require('../models/userPersonal');
 const UserPosition = require('../models/userPosition');
 const Designation = require('../models/designation');
+const StatutoryInfo = require('../models/statutoryInfo');
 
 router.post('/add', async (req, res) => {
   const { name, email, phoneNumber, password, status, userImage, url, empNo, director } = req.body;
@@ -26,8 +25,6 @@ router.post('/add', async (req, res) => {
     if(roleId === '' || roleId === null || roleId === undefined){
       try {
         const role = await Role.findOne({ where: {roleName: 'Employee'}})
-        console.log(role);
-        
         roleId = role.id;
       } catch (error) {
         res.send(error.message)
@@ -66,12 +63,8 @@ router.get('/find/', async (req, res) => {
     let limit;
     let offset;
 
-    // Add search condition if provided
     if (req.query.search && req.query.search !== 'undefined') {
       const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
-      console.log(searchTerm);
-
-      // Update the whereClause to include the search filter
       whereClause = {
         [Op.and]: [
           {
@@ -87,6 +80,14 @@ router.get('/find/', async (req, res) => {
               sequelize.where(
                 sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('email'), ' ', '')),
                 { [Op.like]: `%${searchTerm}%` }
+              ),
+              sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('statutoryinfo.adharNo'), ' ', '')),
+                { [Op.like]: `%${searchTerm}%` }
+              ),
+              sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('statutoryinfo.panNumber'), ' ', '')),
+                { [Op.like]: `%${searchTerm}%` }
               )
             ]
           },
@@ -94,7 +95,7 @@ router.get('/find/', async (req, res) => {
           { separated: false }
         ]
       };
-    }else{
+    } else {
       if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
         limit = parseInt(req.query.pageSize, 10);
         offset = (parseInt(req.query.page, 10) - 1) * limit;
@@ -107,9 +108,9 @@ router.get('/find/', async (req, res) => {
       order: [['id']],
       include: [
         { model: Role, as: 'role', attributes: ['id', 'roleName'] },
+        { model: StatutoryInfo, as: 'statutoryinfo', required: false }, // Ensure alias matches the association
         {
           model: UserPosition,
-          required: false,
           attributes: ['designationId'],
           include: [{ model: Designation, attributes: ['designationName'] }]
         }
@@ -119,7 +120,12 @@ router.get('/find/', async (req, res) => {
     });
 
     // Count total records that match the search condition
-    const totalCount = await User.count({ where: whereClause });
+    const totalCount = await User.count({
+      where: whereClause,
+      include: [
+        { model: StatutoryInfo, as: 'statutoryinfo', required: false } // Ensure consistent inclusion
+      ]
+    });
 
     // Return the response
     if (req.query.page !== 'undefined' && req.query.pageSize !== 'undefined') {
@@ -130,12 +136,13 @@ router.get('/find/', async (req, res) => {
 
       res.json(response);
     } else {
-      res.send(users)
+      res.send(users);
     }
   } catch (error) {
-    res.status(500).send(error.message);
+    res.send(error.message);
   }
 });
+
 
 router.get('/search/name', async (req, res) => {
   try {
@@ -185,7 +192,7 @@ router.get('/findone/:id', async (req, res) => {
       include: [
         { model: Role, attributes: ['id', 'roleName'] },
         { model: UserPosition, attributes: ['designationId'],
-            include: [{ model: Designation, attributes: ['designationName']}]
+            include: [{ model: Designation, include: {model: Role} }]
         }
       ]
     });
@@ -450,21 +457,14 @@ router.get('/confirmemployee/:id', async (req, res) => {
   try {
       let result = await User.findByPk(req.params.id);
 
-      let up = await UserPersonal.findOne({
-        where: { userId: req.params.id}
-      })
-      if(!up){
-        return res.send(`Personal data is not added for the employee ${result.name}`)
-      }
-      up.confirmationDate = new Date()
-      await up.save()
       let post = await UserPosition.findOne({
         where: { userId: req.params.id}
       })
       if(!post){
-        return res.send(`Position data is not added for the employee ${result.name}`)
+        return res.send(`Employment data is not added for the employee ${result.name}`)
       }
       post.probationNote = req.query.note;
+      post.confirmationDate = new Date();
       await post.save();
       
       if (!result) {

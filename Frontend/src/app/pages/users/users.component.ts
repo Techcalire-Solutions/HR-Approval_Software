@@ -72,11 +72,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   userSub!: Subscription;
   getUsers(): void {
-    console.log(this.searchText);
-    
     this.userSub = this.usersService.getUser(this.searchText, this.currentPage, this.pageSize).subscribe((users: any) =>{
-      console.log(users);
-      
       this.users = users.items;
       this.totalItems = users.count
     });
@@ -94,8 +90,6 @@ export class UsersComponent implements OnInit, OnDestroy {
   public searchText!: string;
   search(event: Event){
     this.searchText = (event.target as HTMLInputElement).value.trim()
-    console.log(this.searchText);
-    
     this.getUsers()
   }
 

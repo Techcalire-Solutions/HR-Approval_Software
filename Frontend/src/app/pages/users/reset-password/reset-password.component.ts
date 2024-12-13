@@ -72,7 +72,7 @@ export class ResetPasswordComponent implements OnInit, OnDestroy{
       const textToCopy = `Emp ID: ${empNo}\nPassword: ${password}`;
       navigator.clipboard.writeText(textToCopy).then(
         () => {
-          console.log('Email and password copied to clipboard');
+          this.snackBar.open('Email and password copied to clipboard',"" ,{duration:3000});
         },
         (err) => {
           console.error('Could not copy text: ', err);

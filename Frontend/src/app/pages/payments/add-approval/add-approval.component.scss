@@ -110,3 +110,18 @@ mat-progress-bar {
 //         flex-direction: column;
 //     }
 // }
+
+.drag-drop-area {
+  border: 2px dashed #ccc;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.drag-drop-area:hover {
+  border-color: #aaa;
+}
+
+.file-upload-text {
+  cursor: pointer;
+}

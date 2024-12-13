@@ -8,11 +8,36 @@ const User = require('../models/user');
 const Designation = require('../models/designation');
 const Team = require('../models/team');
 const TeamMember = require('../models/teamMember');
+const LeaveType = require('../../leave/models/leaveType');
+const UserLeave = require('../../leave/models/userLeave');
 
 router.post('/add', authenticateToken, async (req, res) => {
-  const { userId, division, costCentre, grade, location, department, office, salary, probationPeriod, 
+  const { userId, division, costCentre, grade, location, department, office, salary, probationPeriod, confirmationDate,
     officialMailId, projectMailId, designationId, teamId }  = req.body;
   try {
+    if(probationPeriod === 0){
+      let result = await User.findByPk(userId);
+      if (!result) {
+          return res.send("Employee not found");
+      }
+
+      result.isTemporary = false;
+      await result.save();
+
+      const leaveTypes = await LeaveType.findAll({});
+      const sl = leaveTypes.find(x => x.leaveTypeName === 'Sick Leave');
+      const cl = leaveTypes.find(x => x.leaveTypeName === 'Casual Leave');
+      const slId = sl ? sl.id : null;
+      const clId = cl ? cl.id : null;
+      
+      let data = [
+        {userId: userId, leaveTypeId: slId, noOfDays : 1, leaveBalance : 1},
+        {userId: userId, leaveTypeId: clId, noOfDays : 1, leaveBalance : 1},
+      ]
+      for(let i = 0; i < data.length; i++){
+        UserLeave.bulkCreate([data[i]]);
+      }
+    }
     try {
       const userExist = await UserPosition.findOne({
         where: { userId: userId}
@@ -26,19 +51,6 @@ router.post('/add', authenticateToken, async (req, res) => {
 
     const desi = await Designation.findByPk(designationId);
     const roleId = desi?.roleId;
-    // if(designationName === 'SENIOR SALES ASSOCIATE' || designationName === 'SALES ASSOCIATE'){
-    //   const role = await Role.findOne({ where: {roleName: 'Sales Executive'}})
-    //   roleId = role.id;
-    // }else if(designationName === 'KEY ACCOUNT MANAGER'){
-    //   const role = await Role.findOne({ where: {roleName: 'Key Account Manager'}})
-    //   roleId = role.id;
-    // }else if(designationName === 'FINANCE MANAGER' || designationName === 'ACCOUNTS EXECUTIVE'){
-    //   const role = await Role.findOne({ where: {roleName: 'Accountant'}})
-    //   roleId = role.id;
-    // }else if(designationName === 'MANAGING DIRECTOR'){
-    //   const role = await Role.findOne({ where: {roleName: 'Manager'}})
-    //   roleId = role.id;
-    // }
     
     if(roleId != null || roleId === ''){
       try {
@@ -51,7 +63,7 @@ router.post('/add', authenticateToken, async (req, res) => {
     }
 
         
-    const user = new UserPosition({ userId, division, costCentre, grade, location, department, office, salary, 
+    const user = new UserPosition({ userId, division, costCentre, grade, location, department, office, salary, confirmationDate,
       probationPeriod, officialMailId, projectMailId, designationId, teamId });
     await user.save();
     
@@ -92,10 +104,35 @@ router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
 });
 
 router.patch('/update/:id', async(req,res)=>{
-  const { division, costCentre, grade, teamId, location, department, office, salary, probationPeriod, projectMailId, designationId } = req.body
+  const { division, costCentre, grade, teamId, location, department, office, salary, probationPeriod, projectMailId,
+    designationId, confirmationDate } = req.body
   try {
     
     let result = await UserPosition.findByPk(req.params.id);
+    if( probationPeriod === 0)
+    // if(result.probationPeriod !== 0 && probationPeriod === 0)
+      {
+      let user = await User.findByPk(result.userId);
+      if (!user) {
+          return res.send("Employee not found");
+      }
+      user.isTemporary = false;
+      await user.save();
+
+      const leaveTypes = await LeaveType.findAll({});
+      const sl = leaveTypes.find(x => x.leaveTypeName === 'Sick Leave');
+      const cl = leaveTypes.find(x => x.leaveTypeName === 'Casual Leave');
+      const slId = sl ? sl.id : null;
+      const clId = cl ? cl.id : null;
+      
+      let data = [
+        {userId: result.userId, leaveTypeId: slId, noOfDays : 1, leaveBalance : 1},
+        {userId: result.userId, leaveTypeId: clId, noOfDays : 1, leaveBalance : 1},
+      ]
+      for(let i = 0; i < data.length; i++){
+        UserLeave.bulkCreate([data[i]]);
+      }
+    }
     const desi = await Designation.findByPk(req.body.designationId);
     const roleId = desi?.roleId;
     
@@ -119,6 +156,7 @@ router.patch('/update/:id', async(req,res)=>{
     result.probationPeriod = probationPeriod;
     result.projectMailId = projectMailId;
     result.teamId = teamId;
+    result.confirmationDate = confirmationDate;
 
     await result.save();
     res.send(result);
@@ -165,19 +203,7 @@ router.get('/', async (req, res) => {
 
 router.patch('/updaterole/:id', async (req, res) => {
   try {
-    // if(req.body.designationName === 'SENIOR SALES ASSOCIATE' || req.body.designationName === 'SALES ASSOCIATE'){
-    //   const role = await Role.findOne({ where: {roleName: 'Sales Executive'}})
-    //   roleId = role.id;
-    // }else if(req.body.designationName === 'KEY ACCOUNT MANAGER'){
-    //   const role = await Role.findOne({ where: {roleName: 'Key Account Manager'}})
-    //   roleId = role.id;
-    // }else if(req.body.designationName === 'FINANCE MANAGER' || req.body.designationName === 'ACCOUNTS EXECUTIVE'){
-    //   const role = await Role.findOne({ where: {roleName: 'Accountant'}})
-    //   roleId = role.id;
-    // }else if(req.body.designationName === 'MANAGING DIRECTOR'){
-    //   const role = await Role.findOne({ where: {roleName: 'Manager'}})
-    //   roleId = role.id;
-    // }
+
     const desi = await Designation.findByPk(req.body.designationId);
     const roleId = desi?.roleId;
 

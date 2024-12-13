@@ -54,6 +54,15 @@ export const routes: Routes = [
       // }
     ]
   },
-  
+  { path: 'process-payslip', data: { breadcrumb: 'Process Payslip' },
+  children: [
+    {path: '', loadComponent: () => import('./process-monthly-payroll/process-monthly-payroll.component').then(c => c.ProcessMonthlyPayrollComponent),
+      canActivate: [AuthGuard]
+    },
+    // { path: 'add',  loadComponent: () => import('./advance-salary/add-advance-salary/add-advance-salary.component').then(c => c.AddAdvanceSalaryComponent),
+    //   data: { breadcrumb: 'ADD' } , canActivate: [AuthGuard]
+    // }
+  ]
+},
 
 ];

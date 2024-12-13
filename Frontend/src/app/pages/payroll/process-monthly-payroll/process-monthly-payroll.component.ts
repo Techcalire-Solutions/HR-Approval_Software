@@ -1,9 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';  // Import CommonModule
 import { MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
-import { BrowserModule } from '@angular/platform-browser';
 import { Payroll } from '../../../common/interfaces/payRoll/payroll';
 import { PayrollService } from '@services/payroll.service';
 
@@ -76,9 +75,8 @@ export class ProcessMonthlyPayrollComponent implements OnInit {
   }
   public allEmployeesPayroll: Payroll[] | null;
   public getPayroll(): void {
-    this.payrollService.getPayroll().subscribe((advanceSalary: any) =>{
+    this.payrollService.getPayroll().subscribe((advanceSalary: Payroll[]) =>{
       this.allEmployeesPayroll = advanceSalary
-      console.log('this.allEmployeesPayroll',this.allEmployeesPayroll);
 
     });
   }

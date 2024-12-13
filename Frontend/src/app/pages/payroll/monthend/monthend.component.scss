@@ -64,14 +64,14 @@ th[rowspan="2"], th[colspan] {
 /* Input field styling */
 input[type="text"],
 input[type="number"] {
-    width: 75%; /* Reduced width */
-    padding: 2px; /* Smaller padding */
+    width: 100%; /* Reduced width */
+    // padding: 2px; /* Smaller padding */
     margin: 0;
     box-sizing: border-box;
-    border: 1px solid #ccc;
+    border: 1px solid #ffffff;
     border-radius: 2px;
     outline: none;
-    font-size: 9px; /* Smaller input font */
+    font-size: 11px; /* Smaller input font */
 }
 
 input[type="text"]:focus,
@@ -81,15 +81,15 @@ input[type="number"]:focus {
 }
 
 /* Button styling */
-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 2px;
-    padding: 5px 8px; /* Reduced padding */
-    cursor: pointer;
-    font-size: 10px; /* Smaller font size */
-}
+// button {
+//     background-color: #007bff;
+//     color: white;
+//     border: none;
+//     border-radius: 2px;
+//     padding: 5px 8px; /* Reduced padding */
+//     cursor: pointer;
+//     font-size: 14px; /* Smaller font size */
+// }
 
 button:hover {
     background-color: #0056b3;
@@ -100,7 +100,7 @@ h2 {
     text-align: center;
     color: #007bff;
     margin-bottom: 8px; /* Reduced margin */
-    font-size: 12px; /* Smaller heading */
+    font-size: 20px; /* Smaller heading */
 }
 
 /* Responsive design for smaller screens */
@@ -114,3 +114,28 @@ h2 {
         width: 100%; /* Full-width inputs for smaller screens */
     }
 }
+
+.user-spinner {
+    position: absolute; /* Ensures it's positioned relative to the component */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex; /* Allows centering the spinner */
+    justify-content: center; /* Horizontal centering */
+    align-items: center; /* Vertical centering */
+    background-color: rgba(255, 255, 255, 0.8); /* Optional: Adds a translucent background */
+    z-index: 10; /* Ensures it overlays other content */
+}
+
+.payroll-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  mat-icon:hover{
+    color: #df1313;
+    cursor: pointer;
+  }

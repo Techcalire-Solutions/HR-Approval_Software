@@ -27,6 +27,8 @@ AdvanceSalary.sync({ alter: true })
   .catch(err => {
     console.error('Error syncing tables:', err);
   });
+
   User.hasMany(AdvanceSalary, {foreignKey: 'userId', onUpdate: 'CASCADE' });
   AdvanceSalary.belongsTo(User, {foreignKey: 'userId' });
+  
 module.exports = AdvanceSalary;

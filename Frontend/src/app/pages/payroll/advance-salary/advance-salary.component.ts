@@ -14,11 +14,17 @@ import { Router } from '@angular/router';
 import { CloseAdvanceComponent } from './close-advance/close-advance.component';
 import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { RoleService } from '@services/role.service';
 
 @Component({
   selector: 'app-advance-salary',
   standalone: true,
-  imports: [MatButtonToggleModule, MatIconModule, MatSlideToggleModule, CommonModule],
+  imports: [MatButtonToggleModule, MatIconModule, MatSlideToggleModule, CommonModule, MatFormFieldModule, MatInputModule, 
+    MatPaginatorModule
+  ],
   templateUrl: './advance-salary.component.html',
   styleUrl: './advance-salary.component.scss',
   encapsulation: ViewEncapsulation.None,
@@ -26,66 +32,109 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class AdvanceSalaryComponent implements OnInit , OnDestroy{
   ngOnInit() {
-    this.getAdvanceSalary();
+    const token: any = localStorage.getItem('token')
+    const user = JSON.parse(token)
+    this.getRoleById(user.role, user.id)
+  }
+
+  private roleService = inject(RoleService);
+  private roleSub!: Subscription;
+  getRoleById(id: number, userId: number){
+    this.roleSub = this.roleService.getRoleById(id).subscribe(role => {
+      if(role.roleName === 'Super Administrator' || role.roleName === 'HR Administrator'){  
+        this.getAdvanceSalary();
+      }else{
+        this.getUserById(userId)
+      }
+    });
+  }
+
+  private usersService = inject(UsersService);
+  private userSub!: Subscription;
+  admin: boolean = true;
+  private id: number = 0;
+  getUserById(id: number){
+    this.id = id;
+    this.userSub = this.usersService.getUserById(id).subscribe(user => {
+      if(!user.userPosition || 
+      (user.userPosition && user.userPosition.designation?.designationName !== 'FINANCE MANAGER')){
+        this.admin = false;
+        this.getAdvanceSalaryByUserId(id)
+      }else{
+        this.getAdvanceSalary()
+      }
+    });
   }
 
   private payrollService = inject(PayrollService);
   advanceSalaries: AdvanceSalary[] = [];
   salarySub!: Subscription;
   public getAdvanceSalary(): void {
-    this.salarySub = this.payrollService.getNotCompletedAdvanceSalary().subscribe((advanceSalary: any) =>{
-      console.log(advanceSalary);
-      
-      this.advanceSalaries = advanceSalary
+    this.salarySub = this.payrollService.getNotCompletedAdvanceSalary(this.searchText, this.currentPage, this.pageSize).subscribe((advanceSalary: any) =>{     
+      this.advanceSalaries = advanceSalary.items;
+      this.totalItems = advanceSalary.count;
+    });
+  }
+
+  salaryUserSub!: Subscription;
+  public getAdvanceSalaryByUserId(id: number): void {
+    this.salaryUserSub = this.payrollService.getAllAdvanceSalaryByUserId(id, this.searchText, this.currentPage, this.pageSize).subscribe((advanceSalary: any) =>{     
+      this.advanceSalaries = advanceSalary.items;
+      this.totalItems = advanceSalary.count;
     });
   }
   
   private dialog = inject(MatDialog);
+  private dialogSub!: Subscription;
   public openAdvanceDialog(salary?: any){
     const dialogRef = this.dialog.open(AddAdvanceSalaryComponent, {
       data: {salary: salary}
     });
-    dialogRef.afterClosed().subscribe(() => {
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
       this.getAdvanceSalary()
     });
   }
 
   private router = inject(Router);
   openAdvanceLog(){
-      this.router.navigateByUrl('/login/payroll/advance-salary/viewlogs')
+    this.router.navigateByUrl('/login/payroll/advance-salary/viewlogs')
   }
 
   onToggleChange(event: any, id: number){
-    console.log(event.checked);
     const dialogRef = this.dialog.open(CloseAdvanceComponent, {
       data: {id: id}
     });
-    dialogRef.afterClosed().subscribe(() => {
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
       this.getAdvanceSalary()
     });
   }
 
-  ngOnDestroy(): void {
-    this.salarySub?.unsubscribe();
+  public searchText!: string;
+  search(event: Event){
+    this.searchText = (event.target as HTMLInputElement).value.trim()
+    if(this.admin) {
+      this.getAdvanceSalary()
+    }
+    else {
+      this.getAdvanceSalaryByUserId(this.id);
+    }
   }
 
-  // public onPageChanged(event: any){
-  //   this.page = event;
-  //   // this.getTeam();
-  //   if(this.settings.fixedHeader){
-  //       document.getElementById('main-content')!.scrollTop = 0;
-  //   }
-  //   else{
-  //       document.getElementsByClassName('mat-drawer-content')[0].scrollTop = 0;
-  //   }
-  // }
+
+  ngOnDestroy(): void {
+    this.salarySub?.unsubscribe();
+    this.roleSub?.unsubscribe();
+    this.userSub?.unsubscribe();
+    this.salaryUserSub?.unsubscribe();
+    this.dialogSub?.unsubscribe();
+    this.delete?.unsubscribe(); 
+  }
+
   delete!: Subscription;
   private snackBar = inject(MatSnackBar);
   deleteTeam(id: number){
-    console.log(id);
-    
     const dialogRef = this.dialog.open(DeleteDialogueComponent, {});
-    dialogRef.afterClosed().subscribe(res => {
+    this.dialogSub = dialogRef.afterClosed().subscribe(res => {
       if(res){
         this.delete = this.payrollService.deleteAdvanceSalary(id).subscribe(() => {
           this.snackBar.open("Advance Salary deleted successfully...","" ,{duration:3000})
@@ -93,6 +142,20 @@ export class AdvanceSalaryComponent implements OnInit , OnDestroy{
         });
       }
     });
+  }
+
+  pageSize = 10;
+  currentPage = 1;
+  totalItems = 0;
+  public onPageChanged(event: any){
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    if(this.admin) {
+      this.getAdvanceSalary()
+    }
+    else {
+      this.getAdvanceSalaryByUserId(this.id);
+    }
   }
 
 }

@@ -127,7 +127,7 @@
                 </div>
 
                 <div class="flex-container">
-                  <div style="flex: 1;">Confirmed Date  :<strong>{{userPersonal?.confirmationDate | date:'dd/MM/yyyy'}}</strong></div>
+                  <div style="flex: 1;">Confirmed Date  :<strong>{{positions?.confirmationDate | date:'dd/MM/yyyy'}}</strong></div>
                   <div style="flex: 3;">Confirmation Note  :<strong >{{positions.probationNote}}</strong></div>
                 </div>
               </div>
@@ -194,6 +194,26 @@
 
           <mat-expansion-panel>
             <mat-expansion-panel-header class="custom-header">
+              <span class="panel-title"> Nominee Details </span>
+              <span class="spacer"></span>
+              <mat-icon style="margin-right: 10px;">supervised_user_circle</mat-icon>
+            </mat-expansion-panel-header>
+            @if(nominee){
+              <div class="p-3">
+                <div class="flex-container">
+                  <div>Name :<strong>{{nominee.nomineeName}}</strong></div>
+                  <div>Contact Number  :<strong>{{nominee.nomineeContactNumber}}</strong></div>
+                  <div>Relation  :<strong>{{nominee.nomineeRelation}}</strong></div>
+                  <div>Aadhar Number  :<strong>{{nominee.aadhaarNumber}}</strong></div>
+                </div>
+              </div>
+            }@else {
+              <p>No Data is added</p>
+            }
+          </mat-expansion-panel>
+<!-- 
+          <mat-expansion-panel>
+            <mat-expansion-panel-header class="custom-header">
               <span class="panel-title"> Qualifications </span>
               <span class="spacer"></span>
               <mat-icon style="margin-right: 10px;">school</mat-icon>
@@ -220,7 +240,7 @@
             }@else {
               <p>No Data is added</p>
             }
-          </mat-expansion-panel>
+          </mat-expansion-panel> -->
 
           <mat-expansion-panel>
             <mat-expansion-panel-header class="custom-header">
