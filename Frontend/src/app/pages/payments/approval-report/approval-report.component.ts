@@ -143,7 +143,6 @@ export class ApprovalReportComponent {
       startDate: this.startDate? this.startDate : null,
       endDate: this.endDate? this.endDate : null
     }
-    console.log(data);
 
     this.invoiceService.reportExport(data).subscribe((res:any)=>{
       if (res.message === 'File uploaded successfully') {

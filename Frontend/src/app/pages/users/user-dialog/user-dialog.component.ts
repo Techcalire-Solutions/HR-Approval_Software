@@ -351,7 +351,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   // editStatus: boolean = false;
   triggerNew(data?: any): void {
     if(data){
-      console.log(data);
       this.editStatus = true;
       this.getUser(data.id)
     }
@@ -425,7 +424,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
       const textToCopy = `Emp ID: ${empNo}\nPassword: ${password}`;
       navigator.clipboard.writeText(textToCopy).then(
         () => {
-          console.log('Email and password copied to clipboard');
+          this.snackBar.open('Email and password copied to clipboard',"" ,{duration:3000});
         },
         (err) => {
           console.error('Could not copy text: ', err);

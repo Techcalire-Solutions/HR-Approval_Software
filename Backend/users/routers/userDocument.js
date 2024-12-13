@@ -85,20 +85,14 @@ router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
 
 router.delete('/delete/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
-  console.log("Document ID to delete:", id);
-
   try {
     // Find the document by its primary key
     const userDoc = await UserDocument.findByPk(id);
-    console.log(userDoc);
-    
     if (!userDoc) {
       return res.send( "User document not found" );
     }
 
     await userDoc.destroy();
-    console.log("User document deleted successfully:", id);
-
     res.status(200).json({ message: "User document deleted successfully" });
   } catch (error) {
     res.send(error.message);

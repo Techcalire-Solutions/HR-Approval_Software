@@ -53,11 +53,8 @@ export class AddLeaveTypeDialogueComponent {
 
 
   ngOnInit(){
-    console.log('leaveType',this.leaveType);
     if (this.leaveType) {
-      console.log('leaveType',this.leaveType);
       this.patchLeaveType(this.leaveType);
-      console.log('leaveType',this.leaveType);
     }
     const token: any = localStorage.getItem('token');
     let user = JSON.parse(token);

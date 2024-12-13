@@ -126,8 +126,7 @@ export class AddAdvanceSalaryComponent implements OnInit, OnDestroy{
   submit!: Subscription;
   onSubmit(){
     if(this.dialogData.salary){
-      this.submit = this.payrollService.updateAdvanceSalary(this.dialogData.salary.id, this.advanceSalaryForm.getRawValue()).subscribe((res) => {
-        console.log(res);
+      this.submit = this.payrollService.updateAdvanceSalary(this.dialogData.salary.id, this.advanceSalaryForm.getRawValue()).subscribe(() => {
         
         if (this.dialogRef) this.dialogRef.close();
         this._snackBar.open("advance salary updated succesfully...","" ,{duration:1000})

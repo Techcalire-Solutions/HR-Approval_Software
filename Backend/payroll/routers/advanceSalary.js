@@ -183,7 +183,6 @@ router.get("/findbyuseridall/:id", authenticateToken, async (req, res) => {
         }
       ],
     });
-    console.log(advanceSalary, "Salarysalaryyyyyyyy");
     
     const totalCount = await AdvanceSalary.count({ where: whereClause });
     if (req.query.page !== 'undefined' && req.query.pageSize !== 'undefined') {
@@ -229,8 +228,6 @@ router.patch('/update/:id', authenticateToken, async(req,res)=>{
 
 router.patch('/closeadvance/:id', authenticateToken, async(req, res)=>{
   try {
-    console.log(req.params.id);
-    
     let as = await AdvanceSalary.findByPk(req.params.id)
     as.status = false;
     as.completedDate = new Date();

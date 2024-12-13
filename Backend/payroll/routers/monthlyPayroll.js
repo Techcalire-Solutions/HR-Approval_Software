@@ -317,8 +317,6 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
 
   for (let i = 0; i < payrollData.length; i++) {
     const { userId } = payrollData[i];
-    console.log(userId);
-    
     const advanceSalary = await AdvanceSalary.findOne({ where: { userId, status: true } });
     if (advanceSalary) {
       advanceSalary.completed += 1;
@@ -805,11 +803,7 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
 
     res.status(200).json({ message: "Successfully updated payroll statuses and sent emails." });
   } catch (error) {
-    console.error("Error updating payroll statuses:", error);
-    res.status(500).json({
-      message: "An error occurred while updating payroll statuses.",
-      error: error.message,
-    });
+    res.send(error.message);
   }
 });
 
@@ -929,7 +923,6 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
       }},
       {model: Role, attributes: ['roleName']}]
     });
-    console.log(user);
     
     let designation;
     if(user.role.roleName !== 'Super Administrator' && user.role.roleName !== 'HR Administrator'){
@@ -940,7 +933,6 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
     }else{
       designation = user.role.roleName;
     } 
-    console.log(designation);
     
     const file = req.file;
 
@@ -1075,8 +1067,6 @@ router.get('/approve', async (req, res) => {
   try {
     const { month, id } = req.query;
     const payrolls = await MonthlyPayroll.findAll({ where: { payedFor: month, status: 'SendforApproval' } });
-    console.log(payrolls,"month");
-    
     if (payrolls.length === 0) {
       return res.send("Already proccesed request")
     }

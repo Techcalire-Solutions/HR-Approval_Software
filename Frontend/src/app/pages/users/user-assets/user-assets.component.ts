@@ -83,8 +83,6 @@ export class UserAssetsComponent implements OnDestroy{
         }
       }else{
         this.userPosition = this.userService.getUserPositionDetailsByUser(id).subscribe(position=>{
-          console.log(position);
-          
           if(position=== null ||position.department === null){
             alert("Add department details...");
             history.back();

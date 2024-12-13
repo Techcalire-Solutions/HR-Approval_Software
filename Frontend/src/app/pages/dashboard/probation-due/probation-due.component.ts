@@ -24,8 +24,6 @@ export class ProbationDueComponent {
   getUsers(){
     this.usersSub = this.userService.getProbationDues().subscribe(res=>{
       this.dueUsers = res;
-      console.log(this.dueUsers);
-
     })
   }
 

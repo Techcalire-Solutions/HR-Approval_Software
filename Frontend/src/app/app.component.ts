@@ -24,8 +24,6 @@ export class AppComponent {
   ngAfterViewInit(){
     
     setTimeout(() => {
-      console.log(this.settings);
-      
       this.settings.loadingSpinner = false; 
     });  
   }

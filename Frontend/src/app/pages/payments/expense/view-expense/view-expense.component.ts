@@ -38,8 +38,6 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;
-      console.log(this.roleName);
-
     })
   }
 
@@ -65,7 +63,7 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
   loadData(data: any) {
     this.isFlow = true;
     if (!data) {
-      console.error("No data available for this tab.");
+      alert("No data available for this tab.");
       return;
     }
     this.data = data;
@@ -93,8 +91,6 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
               ...this.expenses[i],
               editButtonStatus: true
             };
-            console.log(expenses[i]);
-
           }else if (userId === invoiceUser || userId === invoiceAM  || userId === invoiceMA) {
             this.expenses[i] = {
               ...this.expenses[i],

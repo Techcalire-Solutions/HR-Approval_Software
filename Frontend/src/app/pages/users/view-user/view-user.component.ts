@@ -145,8 +145,6 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   getMonthlySalary(id: number){
     this.monthSalarySub = this.payrollService.getMonthlyPayrollByUser(id).subscribe(x => {
       this.monthlySalary = x;
-      console.log(this.monthlySalary);
-
     });
   }
 

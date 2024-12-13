@@ -122,13 +122,11 @@ export class UserQualificationComponent {
     submit.userId = submit.userId ? submit.userId : this.qualData.id;
     
     if (!this.editStaus) {
-      this.submit = this.userService.addUserQualification(submit).subscribe(result => {
-        console.log(result);
+      this.submit = this.userService.addUserQualification(submit).subscribe(() => {
         this.snackBar.open("Qualification for user added succesfully...","" ,{duration:3000})
       });
     } else {
-      this.submit = this.userService.updateUserQualification(submit, this.id).subscribe(result => {
-        console.log(result);
+      this.submit = this.userService.updateUserQualification(submit, this.id).subscribe(() => {
         this.snackBar.open("Qualification for user added succesfully...","" ,{duration:3000})
       });
     }

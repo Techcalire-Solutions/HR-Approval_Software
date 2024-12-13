@@ -88,8 +88,6 @@ export class PaymentsComponent implements OnInit{
         teamLead: this.teamLead,
         pageStatus: this.pageStatus
       }
-      console.log(this.data);
-      
       this.onTabChange(0)
     })
   }
@@ -241,37 +239,27 @@ export class PaymentsComponent implements OnInit{
       const activeComponent = this.viewExpenseComponent.toArray()[0]; // or correct index if it's not 0
       if (activeComponent) {
         activeComponent.loadData(this.data);
-      } else {
-        console.error("Expense component not found.");
-      }
+      } 
     }else if (event === 3 && this.viewExpenseComponent.length > 0 && this.roleName === 'Accountant') {
       const activeComponent = this.viewExpenseComponent.toArray()[0]; // or correct index if it's not 0
       if (activeComponent) {
         activeComponent.loadData(this.data);
-      } else {
-        console.error("Expense component not found.");
-      }
+      } 
     } else if (event === 0 && this.viewApprovalComponents.length > 0 && (this.roleName === 'Administrator' || this.roleName === 'Super Administrator')) {
       const activeComponent = this.viewApprovalComponents.toArray()[0]; 
       if (activeComponent) {
         activeComponent.loadData(this.data);
-      } else {
-        console.error("Expense component not found.");
-      }
+      } 
     }  else if (event === 1 && this.viewExpenseComponent.length > 0 && (this.roleName === 'Administrator' || this.roleName === 'Super Administrator')) {
       const activeComponent = this.viewExpenseComponent.toArray()[0]; 
       if (activeComponent) {
         activeComponent.loadData(this.data);
-      } else {
-        console.error("Expense component not found.");
-      }
+      } 
     } else if (this.viewApprovalComponents.length > 0) {
       const activeComponent = this.viewApprovalComponents.toArray()[event];
       if (activeComponent) {
         activeComponent.loadData(this.data);
-      } else {
-        console.error("Approval component not found.");
-      }
+      } 
     }
 
   }
