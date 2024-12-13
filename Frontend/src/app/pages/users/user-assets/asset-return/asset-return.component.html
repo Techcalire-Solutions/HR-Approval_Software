@@ -1,0 +1,39 @@
+
+
+<div class="reset-password-container">
+    <mat-toolbar class="bg-blue-900">       
+      Return Asset
+      <mat-icon (click)="onCancel()" style="margin-left: auto;">close</mat-icon>
+    </mat-toolbar>
+    <form [formGroup]="assetReturnForm" style="padding: 20px;">
+      <div mat-dialog-content>
+        <p style="font-size: 16px; margin-bottom: 15px;">
+            Are you sure you want to return?
+        </p>
+  
+        <mat-form-field appearance="outline" style="width: 100%;">
+          <mat-label>Note</mat-label>
+          <textarea matInput formControlName="note" rows="3" placeholder="Enter the reason for return" ></textarea>
+          @if(assetReturnForm.controls['note'].invalid){
+            <mat-error>
+              Separation note is required.
+            </mat-error>
+          }
+        </mat-form-field>
+  
+        <mat-form-field appearance="outline"  style="width: 100%;">
+          <mat-label>Return Date</mat-label>
+          <input matInput [matDatepicker]="startDatePicker" formControlName="returnDate" placeholder="Return Date" required >
+          <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #startDatePicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+  
+      <div mat-dialog-actions style="justify-content: space-between;">
+        <button mat-button color="warn" (click)="onConfirm()" [disabled]="assetReturnForm.invalid">
+          Confirm
+        </button>
+      </div>
+    </form>
+  </div>
+  
