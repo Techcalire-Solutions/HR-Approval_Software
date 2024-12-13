@@ -88,6 +88,10 @@ export class PayrollService {
     return this.http.get(this.apiUrl+`/monthlypayroll/find?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
   }
 
+  getMonthlyPayrollForYTD(fromDate?: any, toDate?: any): Observable<any> {
+    return this.http.get(this.apiUrl+`/monthlypayroll/ytd?fromDate=${fromDate}&toDate=${toDate}`);
+  }
+
   getMonthlyPayrollByUser(id: number, filterValue?: string, page?: number, pagesize?:number): Observable<any> {
     return this.http.get(this.apiUrl+`/monthlypayroll/findbyuser/${id}?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
   }

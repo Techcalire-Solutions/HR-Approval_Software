@@ -1108,5 +1108,37 @@ router.get('/reject', async (req, res) => {
   }
 });
 
+router.get('/ytd', async (req, res) => {
+  try {
+    const { fromDate, toDate } = req.query;
+
+    if (!fromDate || !toDate) {
+      const monthlyPayroll = await MonthlyPayroll.findAll({
+        include: [{ model: User, attributes: ['name'] }]
+      });
+      return res.send(monthlyPayroll);
+    }
+
+    const parsedFromDate = new Date(fromDate);
+    const parsedToDate = new Date(toDate);
+    console.log('Parsed From Date:', parsedFromDate);
+    console.log('Parsed To Date:', parsedToDate);
+
+    const monthlyPayroll = await MonthlyPayroll.findAll({
+      where: {
+        payedAt: {
+          [Op.gte]: parsedFromDate, // Use Op instead of sequelize.Op
+          [Op.lte]: parsedToDate,
+        }
+      },
+      include: [{ model: User, attributes: ['name'] }] // Include related User model
+    });
+    console.log('SQL Query:', monthlyPayroll);
+    res.send(monthlyPayroll);
+
+  } catch (error) {
+    res.send(error.message);
+  }
+});
 
 module.exports = router;
