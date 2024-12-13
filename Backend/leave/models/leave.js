@@ -16,6 +16,9 @@ const Leave = sequelize.define('leave', {
   fileUrl: { 
     type: DataTypes.STRING
    },
+   adminNotes: {
+    type: DataTypes.STRING, 
+  },
   leaveDates: {
     type: DataTypes.JSON, 
     allowNull: true,

@@ -149,8 +149,9 @@
                    @if (leave.leaveType.leaveTypeName == 'LOP') {
                      @for (color of colors; track color) {
                        <mat-card [class.bg-primary]="color=='primary'"
-                                 [class.bg-accent]="color=='accent'"
-                                 [class.bg-warn]="color=='warn'"
+                       [class.bg-warn]="color=='warn'"
+                           
+                                
                                  class="draggable p-3">
 
                          <!-- Display No of Days in Primary -->
@@ -162,15 +163,7 @@
                            </div>
                          }
 
-                         <!-- Display Leave Balance in Accent -->
-                         @if (color == 'accent') {
-                           <div fxLayout="row" fxLayoutAlign="start center">
-                             <div fxFlex="100">
-                               <strong>Leave Balance:</strong> {{ leave.leaveBalance || 0 }}
-                             </div>
-                           </div>
-                         }
-
+           
                          <!-- Display Days Taken in Warn -->
                          @if (color == 'warn') {
                            <div fxLayout="row" fxLayoutAlign="start center">

@@ -57,13 +57,17 @@ export class LeaveService {
 }
 
 
-  updateApproveLeaveStatus(leaveId: any) {
-    return this.http.put(`${this.apiUrl}/leave/approveLeave/${leaveId}`, {});
-  }
+updateApproveLeaveStatus(approvalData: any) {
+  const { leaveId, adminNotes } = approvalData; 
+  return this.http.put(`${this.apiUrl}/leave/approveLeave/${leaveId}`, { adminNotes });
+}
 
-  updateRejectLeaveStatus(leaveId: any) {
-    return this.http.put(`${this.apiUrl}/leave/rejectLeave/${leaveId}`, {});
-  }
+
+updateRejectLeaveStatus(rejectionData: any) {
+  const { leaveId, adminNotes } = rejectionData; 
+  return this.http.put(`${this.apiUrl}/leave/rejectLeave/${leaveId}`, { adminNotes });
+}
+
   uploadImage(file: any): Observable<any> {
     if (file instanceof File) {
       const formData = new FormData();
