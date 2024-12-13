@@ -64,10 +64,10 @@
             <td>
 
 <ng-container *ngIf="item.status !== 'AdminApproved' && item.status !== 'Rejected' && item.status !== 'Approved' && item.status !== 'AdminDeleted'&& item.status !== 'AdminUpdated'">
-  <button mat-raised-button class="approve-button" color="primary" (click)="approveLeave(item.id)" [disabled]="item.status === 'Approved'">
+  <button mat-raised-button class="approve-button" color="primary" (click)="openDialog('approve', item.id)" [disabled]="item.status === 'Approved'">
     APPROVE
   </button> &nbsp;
-  <button mat-raised-button class="reject-button" color="warn" (click)="rejectLeave(item.id)" [disabled]="item.status === 'Rejected' && item.status !== 'AdminDeleted' && item.status !== 'AdminUpdated'">
+  <button mat-raised-button class="reject-button" color="warn" (click)="openDialog('reject', item.id)" [disabled]="item.status === 'Rejected' && item.status !== 'AdminDeleted' && item.status !== 'AdminUpdated'">
     REJECT
   </button>
 </ng-container>
@@ -107,14 +107,17 @@
 
             <td>
               <ng-container>
-                <button mat-raised-button color="primary" class="edit-button" (click)="onEditLeave(item.id)">
-                  Edit
+                <button mat-icon-button color="primary" class="edit-button" (click)="onEditLeave(item.id)">
+              <mat-icon>mode_edit</mat-icon>
                 </button>
-                &nbsp;
-                <button mat-raised-button color="warn" class="delete-button" (click)="onDeleteLeave(item.id)">
-                  Delete
+         
+                <button mat-icon-button color="warn" class="delete-button" (click)="onDeleteLeave(item.id)">
+                  <mat-icon>delete</mat-icon>
                 </button>
+        
                 &nbsp;
+
+  
 
               </ng-container>
             </td>

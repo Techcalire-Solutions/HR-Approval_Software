@@ -95,105 +95,50 @@ async function getReportingManagerEmailForUser(userId) {
 //-------------------------------------Mail sending function------------------------------------------
 
 
-async function sendLeaveEmail(leaveId, user, leaveType, startDate, endDate, notes, noOfDays, leaveDates) {
+async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates) {
   const hrAdminEmail = await getHREmail();
   const reportingManagerEmail = await getReportingManagerEmailForUser(user.id);
 
-  console.log("reportingManagerEmail:", reportingManagerEmail);
 
-
-
-  // Validate and format endDate
-  let formattedEndDate = 'N/A'; // Default value if endDate is invalid
-  if (endDate) {
-    try {
-      const dateInstance = new Date(endDate);
-      if (!isNaN(dateInstance)) {
-        formattedEndDate = dateInstance.toISOString().split('T')[0];
-      } else {
-        console.warn(`Invalid endDate provided: ${endDate}`);
-      }
-    } catch (error) {
-      console.warn(`Error processing endDate: ${endDate}`, error);
-    }
-  } else {
-    console.warn('endDate is not provided or is null');
+  if (!Array.isArray(leaveDates)) {
+    throw new Error('leaveDates must be an array');
   }
-
-  const approveUrl = `http://localhost:8000/leave/approveLeave/${leaveId}`;
-  const rejectUrl = `http://localhost:8000/leave/rejectLeave/${leaveId}`;
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: reportingManagerEmail,
-    cc: [hrAdminEmail, process.env.EMAIL_USER],
-    subject: 'Leave Request Updated',
-    html: `
-<h3>A leave request has been updated:</h3>
-<ul>
-  <li><strong>Username:</strong> ${user.name}</li>
-  <li><strong>Leave Type:</strong> ${leaveType.leaveTypeName}</li>
-  <li><strong>Start Date:</strong> ${startDate}</li>
-  <li><strong>End Date:</strong> ${formattedEndDate}</li>
-  <li><strong>Notes:</strong> ${notes || 'No additional notes provided'}</li>
-  <li><strong>Number of Days:</strong> ${noOfDays}</li>
-  <li><strong>Leave Dates:</strong>
+    cc: hrAdminEmail,
+    subject: 'New Leave Request Submitted',
+    
 
-  </li>
-</ul>
-<div style="margin-top: 20px;">
-  <a href="${approveUrl}"
-    style="
-      display: inline-block;
-      padding: 12px 25px;
-      font-size: 16px;
-      color: white;
-      background-color: #28a745;
-      text-decoration: none;
-      border-radius: 50px;
-      border: 2px solid #28a745;
-      margin: 10px;
-      transition: background-color 0.3s ease;
-    "
-    onmouseover="this.style.backgroundColor='#218838';"
-    onmouseout="this.style.backgroundColor='#28a745';">
-    Approve
-  </a>
-  <a href="${rejectUrl}"
-    style="
-      display: inline-block;
-      padding: 12px 25px;
-      font-size: 16px;
-      color: white;
-      background-color: #dc3545;
-      text-decoration: none;
-      border-radius: 50px;
-      border: 2px solid #dc3545;
-      margin: 10px;
-      transition: background-color 0.3s ease;
-    "
-    onmouseover="this.style.backgroundColor='#c82333';"
-    onmouseout="this.style.backgroundColor='#dc3545';">
-    Reject
-  </a>
-</div>
-    `
+    html:`
+    <p>A new leave request has been submitted:</p>
+    <p>Username: ${user.name}</p>
+    <p> Leave Type: ${leaveType.leaveTypeName}</p>
+    <p> Start Date: ${startDate}</p>
+    <p>End Date: ${endDate}</p>
+    <p> Notes: ${notes}</p>
+   <p>Number of Days: ${noOfDays}</p>
+   <p>Leave Dates: ${leaveDates.map(item => {
+        const sessionString = [
+          item.session1 ? 'session1' : '',
+          item.session2 ? 'session2' : ''
+        ].filter(Boolean).join(', '); 
+        return `${item.date} (${sessionString || 'No sessions selected'})`;
+      }).join(', ')}</p>
+    `,
+
+      
   };
 
-  try {
-    if (reportingManagerEmail && hrAdminEmail) {
-      await transporter.sendMail(mailOptions);
-    }
-    console.log('Leave update email sent successfully');
-  } catch (error) {
-    console.error('Error sending leave update email:', error);
-  }
+  return transporter.sendMail(mailOptions);
 }
 
+
 async function sendLeaveUpdatedEmail(leaveId,user, leaveType, startDate, endDate, notes, noOfDays, leaveDates) {
-  // const hrAdminEmail = await getHREmail();
+  const hrAdminEmail = await getHREmail();
   const reportingManagerEmail = await getReportingManagerEmailForUser(user.id);
-  console.log("reportingManagerEmail",reportingManagerEmail);
+
   
 
   if (!Array.isArray(leaveDates)) {
@@ -204,9 +149,8 @@ async function sendLeaveUpdatedEmail(leaveId,user, leaveType, startDate, endDate
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: process.env.EMAIL_USER,
-    // cc: [hrAdminEmail, reportingManagerEmail],/
-    cc :process.env.EMAIL_USER,
+    to: reportingManagerEmail,
+    cc: hrAdminEmail,
     subject: 'Leave Request Updated',
     html: `
 <h3>A leave request has been updated:</h3>
@@ -277,21 +221,23 @@ async function sendLeaveUpdatedEmail(leaveId,user, leaveType, startDate, endDate
   }
 }
 
+
+//---------------------------------Mail Approval and Reject-----------------------------------------------------------
 router.get('/approveLeave/:id', async (req, res) => {
   const leaveId = req.params.id;
 
 
   try {
-    // Fetch leave record
+   
     const leave = await Leave.findByPk(leaveId);
     const userId = leave.userId
 
     if (!leave) {
-      return res.status(404).send({ message: 'Leave request not found' });
+      return res.send({ message: 'Leave request not found' });
     }
 
-    // Update the leave status to 'Approved'
-    leave.status = 'Approved'; // Assuming a 'status' field exists
+
+    leave.status = 'Approved';
     await leave.save();
 
     await Notification.create({
@@ -300,10 +246,8 @@ router.get('/approveLeave/:id', async (req, res) => {
       isRead: false,
   });
 
-    // Send a success message
-    // res.status(200).send('<h1>Leave Approved</h1><p>The leave has been approved successfully.</p>');
-        // Send an HTML response to show an alert
-        res.status(200).send(`
+
+        res.send(`
           <html>
             <body>
               <script>
@@ -315,7 +259,7 @@ router.get('/approveLeave/:id', async (req, res) => {
         `);
   } catch (error) {
     console.error('Error approving leave:', error);
-    res.status(500).send('<h1>Error</h1><p>An error occurred while approving the leave.</p>');
+    res.send('<h1>Error</h1><p>An error occurred while approving the leave.</p>');
   }
 });
 
@@ -323,17 +267,17 @@ router.get('/rejectLeave/:id', async (req, res) => {
   const leaveId = req.params.id;
 
   try {
-    // Fetch leave record
+ 
     const leave = await Leave.findByPk(leaveId);
 
     const userId = leave.userId;
 
     if (!leave) {
-      return res.status(404).send({ message: 'Leave request not found' });
+      return res.send({ message: 'Leave request not found' });
     }
 
-    // Update the leave status to 'Approved'
-    leave.status = 'Rejected'; // Assuming a 'status' field exists
+  
+    leave.status = 'Rejected';
     await leave.save();
 
     await Notification.create({
@@ -342,10 +286,8 @@ router.get('/rejectLeave/:id', async (req, res) => {
       isRead: false,
   });
 
-    // Send a success message
-    // res.status(200).send('<h1>Leave Approved</h1><p>The leave has been approved successfully.</p>');
-        // Send an HTML response to show an alert
-        res.status(200).send(`
+
+        res.send(`
           <html>
             <body>
               <script>
@@ -357,7 +299,7 @@ router.get('/rejectLeave/:id', async (req, res) => {
         `);
   } catch (error) {
     console.error('Error approving leave:', error);
-    res.status(500).send('<h1>Error</h1><p>An error occurred while approving the leave.</p>');
+    res.send('<h1>Error</h1><p>An error occurred while approving the leave.</p>');
   }
 });
 
@@ -452,7 +394,7 @@ router.post('/', authenticateToken, async (req, res) => {
 
 
     const leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
-    if (!leaveType) return res.status(404).json({ message: 'Leave type not found' });
+    if (!leaveType) return res.json({ message: 'Leave type not found' });
 
     if (leaveType.leaveTypeName === 'LOP') {
       await Leave.create({
@@ -530,7 +472,7 @@ router.post('/', authenticateToken, async (req, res) => {
     });
 
       return res.json({
-        message: `${availableLeaveDays} days applied as ${leaveType.leaveTypeName}.<br>${lopDays} days are beyond balance; apply for LOP separately.`,
+        message: `${availableLeaveDays} days applied as ${leaveType.leaveTypeName}.${lopDays} days are beyond balance; apply for LOP separately.`,
 
         leaveDatesApplied,
         lopDates: lopDates || [] 
@@ -564,7 +506,7 @@ router.post('/', authenticateToken, async (req, res) => {
         message: 'Leave request successful.',
         leaveDatesApplied: leaveDates,
         lopDates: [] ,
-        startDate: startDate,  // Directly using user-provided startDate
+        startDate: startDate,  
         endDate: endDate
       });
 
@@ -572,7 +514,7 @@ router.post('/', authenticateToken, async (req, res) => {
     
   } catch (error) {
     console.error('Error in leave request submission:', error.message);
-    res.status(500).json({ message: error.message });
+    res.json({ message: error.message });
   }
 });
 
@@ -584,14 +526,14 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
   const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
 
   if (!userId || !leaveTypeId || !startDate || !endDate || !leaveDates) {
-    return res.status(400).json({ message: 'Missing required fields' });
+    return res.json({ message: 'Missing required fields' });
   }
 
   let userLeave;
   let leaveType;
   try {
     leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
-    if (!leaveType) return res.status(404).json({ message: 'Leave type not found' });
+    if (!leaveType) return res.json({ message: 'Leave type not found' });
   } catch (error) {
     res.send(error.message)
   }
@@ -637,14 +579,14 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
   const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
 
   if (!userId || !leaveTypeId || !startDate || !endDate || !leaveDates) {
-    return res.status(400).json({ message: 'Missing required fields' });
+    return res.json({ message: 'Missing required fields' });
   }
 
   let userLeave;
   let leaveType;
   try {
     leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
-    if (!leaveType) return res.status(404).json({ message: 'Leave type not found' });
+    if (!leaveType) return res.json({ message: 'Leave type not found' });
   } catch (error) {
     res.send(error.message)
   }
@@ -707,7 +649,7 @@ router.get('/user/:userId', async (req, res) => {
 
     const user = await User.findByPk(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.json({ message: 'User not found' });
     }
 
     let whereClause = {
@@ -815,7 +757,7 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
       fileUrl: key
     });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.send({ message: error.message });
   }
 });
 
@@ -824,13 +766,14 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
 
 router.put('/approveLeave/:id', authenticateToken,async (req, res) => {
   const leaveId = req.params.id;
+  const { adminNotes } = req.body; 
 
 
   try {
     const leave = await Leave.findByPk(leaveId);
 
     if (!leave) {
-      return res.status(404).send({ message: 'Leave request not found' });
+      return res.send({ message: 'Leave request not found' });
     }
 
     const userId = leave.userId;
@@ -840,7 +783,7 @@ router.put('/approveLeave/:id', authenticateToken,async (req, res) => {
     });
 
     if (!leaveType) {
-      return res.status(404).send({ message: 'Leave type not found' });
+      return res.send({ message: 'Leave type not found' });
     }
 
 
@@ -853,13 +796,14 @@ router.put('/approveLeave/:id', authenticateToken,async (req, res) => {
 
 
     if (!userLeave && leaveType.leaveTypeName !== 'LOP') {
-      return res.status(404).send({ message: 'User leave record not found' });
+      return res.send({ message: 'User leave record not found' });
     }
 
 
     if (leaveType.leaveTypeName === 'LOP') {
      
       leave.status = 'Approved';
+      leave.adminNotes = adminNotes; 
       await leave.save();
 
       await Notification.create({
@@ -897,6 +841,7 @@ router.put('/approveLeave/:id', authenticateToken,async (req, res) => {
 
 
     leave.status = 'Approved';
+    leave.adminNotes = adminNotes; 
     await leave.save();
 
   
@@ -906,7 +851,7 @@ router.put('/approveLeave/:id', authenticateToken,async (req, res) => {
 
     res.send({ message: 'Leave approved successfully', leave });
   } catch (error) {
-    res.status(500).send({ message: 'An error occurred while approving the leave', error: error.message });
+    res.send({ message: 'An error occurred while approving the leave', error: error.message });
   }
 });
 
@@ -914,6 +859,7 @@ router.put('/approveLeave/:id', authenticateToken,async (req, res) => {
 
 router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
   const leaveId = req.params.id;
+  const { adminNotes } = req.body; 
 
   try {
     const leave = await Leave.findByPk(leaveId);
@@ -922,11 +868,12 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
 
    
     if (!leave) {
-      return res.status(404).send({ message: 'Leave request not found' });
+      return res.send({ message: 'Leave request not found' });
     }
 
    
     leave.status = 'Rejected';
+    leave.adminNotes = adminNotes; 
     await leave.save(); 
 
     await Notification.create({
@@ -939,7 +886,7 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
     res.send({ message: 'Leave approved successfully', leave });
   } catch (error) {
 
-    res.status(500).send({ message: 'An error occurred while approving the leave', error: error.message });
+    res.send({ message: 'An error occurred while approving the leave', error: error.message });
   }
 });
 
@@ -952,23 +899,21 @@ router.get('/:id', async (req, res) => {
     if (leave) {
       res.json(leave);
     } else {
-      res.status(404).json({ message: `Leave not found` });
+      res.json({ message: `Leave not found` });
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.json({ message: error.message });
   }
 });
 
 
 //-------------------------------------- UPDATE API---------------------------------------------------
-
-
 router.patch('/:id', authenticateToken, async (req, res) => {
   try {
     const leaveId = req.params.id;
     const { leaveDates, notes, leaveTypeId } = req.body;
     if (!leaveDates) {
-      return res.status(400).json({ message: 'leaveDates are required to update leave' });
+      return res.json({ message: 'leaveDates are required to update leave' });
     }
 
     const leave = await Leave.findByPk(req.params.id, {
@@ -976,7 +921,7 @@ router.patch('/:id', authenticateToken, async (req, res) => {
     });
 
     if (!leave) {
-      return res.status(404).json({ message: `Leave not found with id=${req.params.id}` });
+      return res.json({ message: `Leave not found with id=${req.params.id}` });
     }
 
     const leaveType = await LeaveType.findOne({
@@ -984,15 +929,14 @@ router.patch('/:id', authenticateToken, async (req, res) => {
     });
 
     if (!leaveType) {
-      return res.status(404).json({ message: 'Leave type not found' });
+      return res.json({ message: 'Leave type not found' });
     }
 
-    console.log('User ID:', leave.userId);
-    console.log('Leave Type ID:', leaveTypeId);
+
 
     let userLeave;
 
-    // Check UserLeave mapping for regular leave types
+
     if (leaveType.leaveTypeName !== 'LOP') {
       userLeave = await UserLeave.findOne({
         where: { userId: leave.userId, leaveTypeId },
@@ -1001,7 +945,7 @@ router.patch('/:id', authenticateToken, async (req, res) => {
       console.log('User Leave Mapping:', userLeave);
 
       if (!userLeave) {
-        return res.status(404).json({ message: 'User leave mapping not found' });
+        return res.json({ message: 'User leave mapping not found' });
       }
     }
 
@@ -1016,7 +960,7 @@ router.patch('/:id', authenticateToken, async (req, res) => {
 
     const noOfDays = calculateLeaveDays(filteredLeaveDates);
 
-    // Handle LOP case
+
     if (leaveType.leaveTypeName === 'LOP') {
       leave.leaveDates = filteredLeaveDates;
       leave.notes = notes || leave.notes;
@@ -1050,12 +994,10 @@ router.patch('/:id', authenticateToken, async (req, res) => {
       });
     }
 
-    // Check for leave balance for regular leave types
     if (userLeave.leaveBalance < noOfDays) {
       return res.json({ message: 'Not enough leave balance for this update' });
     }
 
-    // Update the leave record
     leave.leaveDates = filteredLeaveDates;
     leave.notes = notes || leave.notes;
     leave.noOfDays = noOfDays;
@@ -1093,7 +1035,7 @@ router.patch('/:id', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Error updating leave:', error);
-    res.status(500).json({ message: error.message });
+    res.json({ message: error.message });
   }
 });
 
@@ -1102,9 +1044,9 @@ router.patch('/:id', authenticateToken, async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const result = await Leave.destroy({ where: { id: req.params.id }, force: true });
-    result ? res.json({ message: `Leave with ID ${req.params.id} deleted successfully` }) : res.status(404).json({ message: "Leave not found" });
+    result ? res.json({ message: `Leave with ID ${req.params.id} deleted successfully` }) : res.json({ message: "Leave not found" });
   } catch (error) {
-    res.status(500).send(error.message);
+    res.send(error.message);
   }
 });
 
@@ -1186,7 +1128,7 @@ router.get('/', async (req, res) => {
       res.json(leave);
     }
   } catch (error){
-    res.status(500).send(error.message);
+    res.send(error.message);
   }
 });
 
@@ -1218,10 +1160,10 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
     // Delete the file from S3
     await s3.deleteObject(deleteParams).promise();
 
-    res.status(200).send({ message: 'File deleted successfully' });
+    res.send({ message: 'File deleted successfully' });
   } catch (error) {
     console.error('Error deleting file from S3:', error);
-    res.status(500).send({ message: error.message });
+    res.send({ message: error.message });
   }
 });
 
@@ -1243,10 +1185,10 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
       // Delete the file from S3
       await s3.deleteObject(deleteParams).promise();
 
-      res.status(200).send({ message: 'File deleted successfully' });
+      res.send({ message: 'File deleted successfully' });
     } catch (error) {
       console.error('Error deleting file from S3:', error);
-      res.status(500).send({ message: error.message });
+      res.send({ message: error.message });
     }
 });
 
@@ -1260,19 +1202,19 @@ router.get('/all/totalleaves', authenticateToken, async (req, res) => {
       include: [
         {
           model: LeaveType,
-          attributes: ['id', 'leaveTypeName'], // Include leave type details
+          attributes: ['id', 'leaveTypeName'], 
         },
         {
           model: User,
-          attributes: ['name'] // Include user name
+          attributes: ['name'] 
         }
       ]
     });
 
-    res.json(leaves); // Send the response as JSON
+    res.json(leaves); 
   } catch (error) {
-    console.error(error); // Log the error for debugging
-    res.json({ error: 'An error occurred while retrieving leaves' }); // Send an error response
+    console.error(error); 
+    res.json({ error: 'An error occurred while retrieving leaves' }); 
   }
 });
 

@@ -29,6 +29,7 @@ import { PipesModule } from '../../../theme/pipes/pipes.module';
 import { UserDialogComponent } from '../../users/user-dialog/user-dialog.component';
 import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
 import { EditLeaveComponent } from '../edit-leave/edit-leave.component';
+import { NoteDialogComponent } from '../note-dialog/note-dialog.component';
 @Component({
   selector: 'app-view-leave-request',
   standalone: true,
@@ -143,29 +144,7 @@ deleteLeave(id: number){
 
 
 
-  approveLeave(leaveId: any) {
-    this.leaveService.updateApproveLeaveStatus(leaveId).subscribe(
-      (res) => {
-        this.snackbar.open('Leave approved successfully', '', { duration: 3000 });
-        this.getPaginatedLeaves();
-      },
-      (error) => {
-        this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
-      }
-    );
-  }
 
-rejectLeave(leaveId: any){
-  this.leaveService.updateRejectLeaveStatus(leaveId).subscribe(
-    (res) => {
-      this.snackbar.open('Leave rejected successfully', '', { duration: 3000 });
-      this.getPaginatedLeaves();
-    },
-    (error) => {
-      this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
-    }
-  );
-}
 
 
 onDeleteLeave(leaveId: number): void {
@@ -202,8 +181,58 @@ onDeleteLeave(leaveId: number): void {
       queryParams: { leaveId: leaveId }, // Ensure `leaveId` is included
     });
   }
+  
+  openDialog(action: string, leaveId: string): void {
+    const dialogRef = this.dialog.open(NoteDialogComponent);
+
+    dialogRef.afterClosed().subscribe(note => {
+      if (note !== undefined) {
+        if (action === 'approve') {
+          this.approveLeave(leaveId, note);
+        } else if (action === 'reject') {
+          this.rejectLeave(leaveId, note);
+        }
+      }
+    });
+  }
 
 
 
 
+  handleApprovalOrRejection(action: string, note: string): void {
+    if (action === 'approve') {
+      // Logic for approval
+      console.log(`Approved with note: ${note}`);
+    } else if (action === 'reject') {
+      // Logic for rejection
+      console.log(`Rejected with note: ${note}`);
+    }
+  
+
+  }
+    approveLeave(leaveId: any, note: string) {
+      const approvalData = { leaveId: leaveId, adminNotes: note };
+      this.leaveService.updateApproveLeaveStatus(approvalData).subscribe(
+        (res) => {
+          this.snackbar.open('Leave approved successfully', '', { duration: 3000 });
+          this.getPaginatedLeaves();
+        },
+        (error) => {
+          this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
+        }
+      );
+    }
+  
+  rejectLeave(leaveId: any, note: string){
+    const rejectionData = { leaveId: leaveId, adminNotes: note };
+    this.leaveService.updateRejectLeaveStatus(rejectionData).subscribe(
+      (res) => {
+        this.snackbar.open('Leave rejected successfully', '', { duration: 3000 });
+        this.getPaginatedLeaves();
+      },
+      (error) => {
+        this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
+      }
+    );
+  }
 }
