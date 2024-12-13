@@ -111,7 +111,10 @@ router.patch('/update/:id', async(req,res)=>{
     }
     if (whereCondition[Op.or].length > 0) {
       const userExist = await StatutoryInfo.findOne({
-        where: whereCondition,
+        where: {
+          ...whereCondition,
+          id: { [Op.ne]: req.params.id }, 
+        },
         include: [
           {model: User}
         ]

@@ -163,10 +163,6 @@ router.get("/findbyuseridall/:id", authenticateToken, async (req, res) => {
               sequelize.where(
                 sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('amount'), ' ', '')),
                 { [Op.like]: `%${searchTerm}%` }
-              ),
-              sequelize.where(
-                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('createdAt'), ' ', '')),
-                { [Op.like]: `%${searchTerm}%` }
               )
             ]
           },

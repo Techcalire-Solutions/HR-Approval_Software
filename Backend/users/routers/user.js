@@ -95,7 +95,7 @@ router.get('/find/', async (req, res) => {
           { separated: false }
         ]
       };
-    }else{
+    } else {
       if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
         limit = parseInt(req.query.pageSize, 10);
         offset = (parseInt(req.query.page, 10) - 1) * limit;
@@ -108,10 +108,9 @@ router.get('/find/', async (req, res) => {
       order: [['id']],
       include: [
         { model: Role, as: 'role', attributes: ['id', 'roleName'] },
-        { model: StatutoryInfo, as: 'statutoryinfo' },
+        { model: StatutoryInfo, as: 'statutoryinfo', required: false }, // Ensure alias matches the association
         {
           model: UserPosition,
-          required: false,
           attributes: ['designationId'],
           include: [{ model: Designation, attributes: ['designationName'] }]
         }
@@ -121,7 +120,12 @@ router.get('/find/', async (req, res) => {
     });
 
     // Count total records that match the search condition
-    const totalCount = await User.count({ where: whereClause });
+    const totalCount = await User.count({
+      where: whereClause,
+      include: [
+        { model: StatutoryInfo, as: 'statutoryinfo', required: false } // Ensure consistent inclusion
+      ]
+    });
 
     // Return the response
     if (req.query.page !== 'undefined' && req.query.pageSize !== 'undefined') {
@@ -132,12 +136,13 @@ router.get('/find/', async (req, res) => {
 
       res.json(response);
     } else {
-      res.send(users)
+      res.send(users);
     }
   } catch (error) {
     res.send(error.message);
   }
 });
+
 
 router.get('/search/name', async (req, res) => {
   try {

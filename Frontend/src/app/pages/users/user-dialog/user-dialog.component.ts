@@ -174,10 +174,10 @@ export class UserDialogComponent implements OnInit, OnDestroy {
         this.id = res.id;
         this.userName = res.name
         this.dataToPass = { id: res.id, empNo: this.invNo, name: res.name, updateStatus: this.editStatus };
-        this.selectedTabIndex = 1;
-        if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
-          this.personalDetailsComponent.ngOnInit();
-        }
+        // this.selectedTabIndex = 1;
+        // if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
+        //   this.personalDetailsComponent.ngOnInit();
+        // }
         this.isFormSubmitted = true;
         this.formSubmitted = false;
         this.snackBar.open("User added succesfully...","" ,{duration:3000})

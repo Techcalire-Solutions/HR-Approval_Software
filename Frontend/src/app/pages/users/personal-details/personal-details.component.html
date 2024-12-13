@@ -135,7 +135,7 @@
 
       <div class="row box">
         <div class="col">
-          <mat-form-field class="w-100" appearance="outline">
+          <!-- <mat-form-field class="w-100" appearance="outline">
             <mat-label>Reporting Manger</mat-label>
             <mat-select formControlName="reportingMangerId" >
               <mat-option [value]="">No Option</mat-option>
@@ -145,6 +145,19 @@
                 </mat-option>
               }
             </mat-select>
+          </mat-form-field> -->
+
+          <mat-form-field class="w-100" appearance="outline" >
+            <mat-label>Reporting Manger</mat-label>
+            <input matInput placeholder="Select" formControlName="reportingMangerName" [matAutocomplete]="auto" (keyup)="search($event)">
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value)">
+              @for (item of filteredRm; track $index) {
+                <mat-option [value]="item">
+                  {{ item.name }}
+                </mat-option>
+              }
+            </mat-autocomplete>
+            
           </mat-form-field>
         </div>
 
