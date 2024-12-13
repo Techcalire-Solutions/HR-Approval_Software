@@ -1,12 +1,17 @@
 import { CommonModule, formatDate } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, FormArray, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { DomSanitizer } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
+import { LeaveService } from '@services/leave.service';
+import { UsersService } from '@services/users.service';
+import { Subscription } from 'rxjs';
+import { LeaveInfoDialogComponent } from '../../employee-leave/leave-info-dialog/leave-info-dialog.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-
-import { DateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS } from '@angular/material/core';
-import { NativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,17 +21,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { LeaveService } from '@services/leave.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { Subscription } from 'rxjs';
-import { DomSanitizer } from '@angular/platform-browser';
-import { LeaveCountCardsComponent } from '../leave-count-cards/leave-count-cards.component';
-import { UsersService } from '@services/users.service';
-import { MatDialog } from '@angular/material/dialog';
-import { LeaveInfoDialogComponent } from '../leave-info-dialog/leave-info-dialog.component';
-// Custom validator to check if at least one session is selected
+import { LeaveCountCardsComponent } from '../../employee-leave/leave-count-cards/leave-count-cards.component';
+import { NativeDateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, MatNativeDateModule } from '@angular/material/core';
+import { DateAdapter } from 'angular-calendar';
 function sessionSelectionValidator(group: FormGroup) {
   const session1 = group.get('session1')?.value;
   const session2 = group.get('session2')?.value;
@@ -34,7 +31,7 @@ function sessionSelectionValidator(group: FormGroup) {
   return (session1 || session2) ? null : { sessionRequired: true };
 }
 @Component({
-  selector: 'app-add-leave',
+  selector: 'app-edit-leave',
   standalone: true,
   imports: [
     CommonModule,
@@ -53,16 +50,19 @@ function sessionSelectionValidator(group: FormGroup) {
     MatDatepickerModule,
     MatTableModule,
     MatSnackBarModule,
-    LeaveCountCardsComponent
+    LeaveCountCardsComponent,
+    MatNativeDateModule,
   ],
-  templateUrl: './add-leave.component.html',
-  styleUrl: './add-leave.component.scss',
+  templateUrl: './edit-leave.component.html',
+  styleUrl: './edit-leave.component.scss',
   providers: [
     { provide: DateAdapter, useClass: NativeDateAdapter },
     { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
   ],
 })
-export class AddLeaveComponent {
+export class EditLeaveComponent {
+  isDateDisabled: boolean = true;
+
   isEditMode: boolean = false;
 
   leaveRequestForm: FormGroup;
@@ -78,57 +78,69 @@ leaveService = inject(LeaveService)
 sanitizer = inject(DomSanitizer);
 userService = inject(UsersService);
 dialog = inject(MatDialog);
-
+isPatchMode = false;
 
 
 leave : any
 userId : number
   ngOnInit() {
-    this.getLeaveType();
-    // this.getLeaves()
-    const token: any = localStorage.getItem('token')
-    let user = JSON.parse(token)
-    this.userId = user.id;
-    this.checkProbationStatus()
-
-const leaveId = this.route.snapshot.queryParamMap.get('id');
-if (leaveId) {
-  this.isEditMode = true;
-  this.leaveService.getLeaveById(+leaveId).subscribe((response: any) => {
-    this.leave = response;
+    this.isPatchMode = true;
+    console.log("isPatchMode:", this.isPatchMode); // Check if it's true/false
+    this.isPatchMode = this.checkIfPatchMode();
 
 
-    this.leaveRequestForm.patchValue({
-      leaveTypeId: this.leave.leaveTypeId,
-      startDate: this.leave.startDate,
-      endDate: this.leave.endDate,
-      notes: this.leave.notes
-    });
+      const leaveId = this.route.snapshot.params['id'];
+      this.isPatchMode = true;
+      console.log(leaveId);
 
 
-    const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
-    leaveDatesArray.clear();
-    this.leave.leaveDates.forEach((leaveDate: any) => {
-      leaveDatesArray.push(this.fb.group({
-        date: [leaveDate.date],
-        session1: [leaveDate.session1],
-        session2: [leaveDate.session2]
-      }));
-    });
-  });
-}
+      if (leaveId) {
+          this.isEditMode = true;
+          console.log(this.isEditMode);
+
+          this.leaveService.getLeaveById(+leaveId).subscribe((response: any) => {
+              this.leave = response;
+              console.log(this.leave);
 
 
-this.leaveRequestForm = this.fb.group({
-  leaveTypeId: ['', Validators.required],
-  startDate: ['', Validators.required],
-  endDate: ['', Validators.required],
-  notes: ['', Validators.required],
-  fileUrl:[''],
-  leaveDates: this.fb.array([]),
-});
+              this.leaveRequestForm.patchValue({
+                  leaveTypeId: this.leave.leaveTypeId,
+                  startDate: this.leave.startDate,
+                  endDate: this.leave.endDate,
+                  notes: this.leave.notes
+              });
 
 
+
+              const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
+              leaveDatesArray.clear();
+              this.leave.leaveDates.forEach((leaveDate: any) => {
+                  leaveDatesArray.push(this.fb.group({
+                      date: [leaveDate.date],
+                      session1: [leaveDate.session1],
+                      session2: [leaveDate.session2]
+                  }));
+              });
+          });
+      }
+
+      this.leaveRequestForm = this.fb.group({
+          leaveTypeId: ['', Validators.required],
+          startDate: ['', Validators.required],
+          endDate: ['', Validators.required],
+          notes: ['', Validators.required],
+          leaveDates: this.fb.array([]),
+      });
+
+      if (this.isEditMode || this.isPatchMode) {
+        this.leaveRequestForm.get('startDate')?.disable();
+        this.leaveRequestForm.get('endDate')?.disable();
+      }
+  }
+
+  checkIfPatchMode(): boolean {
+    // Logic to check if it's patch mode (e.g., based on route or condition)
+    return true;  // Example, replace with actual logic
   }
 
 
@@ -137,14 +149,7 @@ this.leaveRequestForm = this.fb.group({
     return this.leaveRequestForm.get('leaveDates') as FormArray;
   }
 
-  onDateChange() {
-    const startDate = this.leaveRequestForm.get('startDate')!.value;
-    const endDate = this.leaveRequestForm.get('endDate')!.value;
 
-    if (startDate && endDate && this.validateDateRange()) {
-      this.updateLeaveDates(new Date(startDate), new Date(endDate));
-    }
-  }
 
   validateDateRange(): boolean {
     const startDate = this.leaveRequestForm.get('startDate')!.value;
@@ -184,68 +189,38 @@ this.leaveRequestForm = this.fb.group({
   }
 
   onSubmit() {
-    this.isLoading = true;
+    if (this.isPatchMode) {
+      const leaveId = this.route.snapshot.params['id'];
+      this.isLoading = true;
 
-    const leaveRequest = {
-        ...this.leaveRequestForm.value,
-        leaveDates: this.leaveRequestForm.get('leaveDates')!.value
-    };
+      const leaveRequest = {
+          ...this.leaveRequestForm.value,
+          leaveDates: this.leaveRequestForm.get('leaveDates')!.value
+      };
 
-    const leaveId = this.route.snapshot.queryParamMap.get('id');
-
-
-    const request$ = this.isEditMode && leaveId
-        ? this.leaveService.updateLeave(+leaveId, leaveRequest)
-        : this.leaveService.addLeave(leaveRequest);
+      console.log( this.leaveRequestForm.get('leaveDates')!.value);
 
 
-    request$.subscribe(
-        (response: any) => {
-
-            this.openDialog(response.message,response.leaveDatesApplied,response.lopDates);
-            this.isLoading = false;
-        },
-        (error) => {
-            this.isLoading = false;
-            this.snackBar.open('An error occurred while submitting the leave request.', 'Close', { duration: 3000 });
-        }
-    );
-}
-
-
-openDialog(message: string, leaveDatesApplied: any[], lopDates: any[]) {
-  const dialogRef = this.dialog.open(LeaveInfoDialogComponent, {
-    data:{
-      message :message,
-      leaveDatesApplied:leaveDatesApplied,
-      lopDates:lopDates
+      this.leaveService.untakenLeaveUpdate(leaveId, leaveRequest).subscribe(
+          (response: any) => {
+            this.snackBar.open('Leave request updated successfully...', 'Close', { duration: 3000 });
+            window.history.back();
+              this.isLoading = false;
+          },
+          (error) => {
+              this.isLoading = false;
+              this.snackBar.open('An error occurred while updating the leave request.', 'Close', { duration: 3000 });
+          }
+      );
     }
-  });
 
-  dialogRef.afterClosed().subscribe(result => {
-    this.handleDialogResult(result);
-  });
 }
 
 
 
-handleDialogResult(result: any) {
-  if (result?.action === 'proceed') {
 
-    this.snackBar.open('Leave request submitted successfully!', 'Close', { duration: 3000 });
-    this.router.navigate(['/login/employee-leave']);
-  } else if (result?.action === 'back') {
 
-    this.isLoading = false;
 
-  } else if (result?.action === 'cancel') {
-
-    this.isLoading = false;
-    this.leaveRequestForm.reset();
-    this.snackBar.open('Leave request cancelled!', 'Close', { duration: 3000 });
-    this.router.navigate(['/login/employee-leave']);
-  }
-}
 
 
 

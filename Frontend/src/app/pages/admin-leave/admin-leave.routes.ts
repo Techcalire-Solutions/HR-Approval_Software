@@ -41,4 +41,9 @@ export const routes: Routes = [
     loadComponent: () => import('./add-combooff/add-combooff.component').then(c => c.AddCombooffComponent),
     data: { breadcrumb: 'Compo Off' }, canActivate: [AuthGuard]
   },
+  {
+    path: 'edit/:id',
+    loadComponent: () => import('./edit-leave/edit-leave.component').then(c => c.EditLeaveComponent),
+    data: { breadcrumb: 'Edit' }, canActivate: [AuthGuard]
+  },
 ];

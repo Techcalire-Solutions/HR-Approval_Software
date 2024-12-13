@@ -28,6 +28,7 @@ import { CamelCasePipe } from '../../../theme/pipes/camel-case.pipe';
 import { PipesModule } from '../../../theme/pipes/pipes.module';
 import { UserDialogComponent } from '../../users/user-dialog/user-dialog.component';
 import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
+import { EditLeaveComponent } from '../edit-leave/edit-leave.component';
 @Component({
   selector: 'app-view-leave-request',
   standalone: true,
@@ -69,8 +70,13 @@ export class ViewLeaveRequestComponent {
   leaveSub : Subscription
 
 userId:number
+
   ngOnInit(){
     this.getPaginatedLeaves()
+     // Get the leaveId from the route parameters
+  // Get the leaveId from the route parameters
+
+
   }
 
 pageSize = 5;
@@ -160,6 +166,42 @@ rejectLeave(leaveId: any){
     }
   );
 }
+
+
+onDeleteLeave(leaveId: number): void {
+
+  const dialogRef = this.dialog.open(DeleteDialogueComponent, {
+    data: { leaveId: leaveId }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    if (result === true) {
+      this.leaveService.deleteUntakenLeave(leaveId).subscribe(
+        (response) => {
+          this.snackBar.open('Leave request deleted successfully...', 'Close', { duration: 3000 });
+          console.log(response)
+          this.getPaginatedLeaves();
+        },
+        (error) => {
+          console.error('Error deleting leave:', error);
+
+        }
+      );
+    }
+  });
+}
+
+
+
+
+
+
+  onEditLeave(leaveId: number): void {
+    console.log('Navigating with Leave ID:', leaveId); // Debug Log
+    this.router.navigate(['/login/admin-leave/edit/',leaveId], {
+      queryParams: { leaveId: leaveId }, // Ensure `leaveId` is included
+    });
+  }
 
 
 
