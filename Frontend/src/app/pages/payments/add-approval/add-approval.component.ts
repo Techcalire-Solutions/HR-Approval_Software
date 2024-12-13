@@ -171,7 +171,7 @@ export class AddApprovalComponent {
     kamId: <any>[],
     amId:  <any>[],
     accountantId:  <any>[],
-    supplierId: <any>[, Validators.required],
+    supplierId: <any>['', Validators.required],
     supplierName: [''],
     supplierPoNo: ['', Validators.required],
     supplierSoNo:[''],
@@ -237,30 +237,77 @@ export class AddApprovalComponent {
   imageUrl: string[] = [];
   fileType: string[] = [];
   allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png', 'plain'];
+  // onFileSelected(event: any, i: number): void {
+  //   const input = event.target as HTMLInputElement;
+  //   const file: any = input.files?.[0];
+  //   this.fileType[i] = file.type.split('/')[1]
+  //   console.log(this.fileType[i]);
+    
+  //   if (!this.allowedFileTypes.includes(this.fileType[i])) {
+  //     alert('Invalid file type. Please select a PDF, JPEG, JPG, TXT or PNG file.');
+  //     return;
+  //   }
+  //   if (file) {
+  //       const inv = this.ivNum;
+  //       const name = `${inv}_${i}`;
+  //       const formData = new FormData();
+  //       formData.append('file', file);
+  //       formData.append('name', name);
+
+  //       this.uploadSub = this.invoiceService.uploadInvoice(formData).subscribe({
+  //           next: (invoice) => {
+
+  //               this.doc().at(i).get('url')?.setValue(invoice.fileUrl);
+  //               this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${invoice.fileUrl}`;
+  //           }
+  //       });
+  //   }
+  // }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  onFileDropped(event: DragEvent, i: number): void {
+    event.preventDefault();
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.processFile(files[0], i);
+    }
+  }
+
   onFileSelected(event: Event, i: number): void {
     const input = event.target as HTMLInputElement;
-    const file: any = input.files?.[0];
-    this.fileType[i] = file.type.split('/')[1]
+    const file = input.files?.[0];
+    if (file) {
+      this.processFile(file, i);
+    }
+  }
 
+  processFile(file: File, i: number): void {
+    this.fileType[i] = file.type.split('/')[1];
     if (!this.allowedFileTypes.includes(this.fileType[i])) {
-      alert('Invalid file type. Please select a PDF, JPEG, JPG, TXT or PNG file.');
+      alert('Invalid file type. Please select a PDF, JPEG, JPG, TXT, or PNG file.');
       return;
     }
-    if (file) {
-        const inv = this.ivNum;
-        const name = `${inv}_${i}`;
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('name', name);
 
-        this.uploadSub = this.invoiceService.uploadInvoice(formData).subscribe({
-            next: (invoice) => {
+    const inv = this.ivNum; 
+    const name = `${inv}_${i}`;
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('name', name);
 
-                this.doc().at(i).get('url')?.setValue(invoice.fileUrl);
-                this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${invoice.fileUrl}`;
-            }
-        });
-    }
+    this.uploadSub = this.invoiceService.uploadInvoice(formData).subscribe({
+      next: (invoice) => {
+        this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${invoice.fileUrl}`;
+        console.log('File uploaded successfully:', invoice.fileUrl);
+      },
+      error: (err) => {
+        console.error('File upload failed:', err);
+        alert('File upload failed. Please try again.');
+      },
+    });
   }
 
   invSub!: Subscription;
@@ -343,5 +390,6 @@ export class AddApprovalComponent {
     this.piForm.get('amId')?.setValue("")
     this.piForm.get('accountantId')?.setValue("")
   }
+
 
 }

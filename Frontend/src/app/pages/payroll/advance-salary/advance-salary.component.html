@@ -5,9 +5,12 @@
   <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
     <div fxLayout="row" class="col">
         <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-            <mat-button-toggle value="add" (click)="openAdvanceDialog()"><mat-icon>money_off</mat-icon>
-            </mat-button-toggle>
+
             @if(admin){
+              <mat-button-toggle value="add" (click)="openAdvanceDialog()">
+                <mat-icon>money_off</mat-icon>
+              </mat-button-toggle>
+              
               <mat-button-toggle value="add" (click)="openAdvanceLog()">
                 <mat-icon>layers</mat-icon>
               </mat-button-toggle>
@@ -16,7 +19,7 @@
         </mat-button-toggle-group>
     </div>
     <div fxLayout="row" class="col">
-      <form class="user-search" [class.show]="controls.value == 'search'">
+      <form class="user-search">
         <mat-form-field class="user-search-input">
             <input matInput placeholder="Search..." name="search" (keyup)="search($event)">
         </mat-form-field>
