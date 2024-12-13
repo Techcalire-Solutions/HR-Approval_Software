@@ -25,12 +25,12 @@
         <thead>
           <tr>
             <th>Leave Date</th>
-            <th>Leave Type</th>
+            <th>Leave Type Id</th>
             <th>User</th>
             <th>Reason</th>
             <th>Status</th>
              <th>Action</th>
-             <th>Manage</th>
+             <th>Untaken Leave</th>
           </tr>
         </thead>
         <tbody>
@@ -63,13 +63,14 @@
 
             <td>
 
-<ng-container *ngIf="item.status !== 'AdminApproved' && item.status !== 'Rejected' && item.status !== 'Approved' && item.status !== 'AdminDeleted'&& item.status !== 'AdminUpdated'">
-  <button mat-raised-button class="approve-button" color="primary" (click)="approveLeave(item.id)" [disabled]="item.status === 'Approved'">
+<ng-container *ngIf="item.status !== 'AdminApproved' && item.status !== 'Rejected' && item.status !== 'Approved'">
+  <button mat-raised-button class="approve-button" (click)="approveLeave(item.id)" [disabled]="item.status === 'Approved'">
     APPROVE
   </button> &nbsp;
-  <button mat-raised-button class="reject-button" color="warn" (click)="rejectLeave(item.id)" [disabled]="item.status === 'Rejected' && item.status !== 'AdminDeleted' && item.status !== 'AdminUpdated'">
+  <button mat-raised-button class="reject-button" (click)="rejectLeave(item.id)" [disabled]="item.status === 'Rejected'">
     REJECT
   </button>
+
 </ng-container>
 
 
@@ -77,6 +78,7 @@
   <span>
     <em>Leave Request Approved</em>
   </span>
+
 </ng-container>
 
 
@@ -84,6 +86,7 @@
   <span>
     <em>Leave Request Admin Approved</em>
   </span>
+ 
 </ng-container>
 
 
@@ -92,33 +95,14 @@
     <em>Leave Request Rejected</em>
   </span>
 </ng-container>
-<ng-container *ngIf="item.status === 'AdminDeleted'">
-  <span>
-    <em>Leave Request Deleted</em>
-  </span>
-</ng-container>
-<ng-container *ngIf="item.status === 'AdminUpdated'">
-  <span>
-    <em>Leave Request Admin Updated</em>
-  </span>
-</ng-container>
 
             </td>
 
             <td>
-              <ng-container>
-                <button mat-raised-button color="primary" class="edit-button" (click)="onEditLeave(item.id)">
-                  Edit
-                </button>
-                &nbsp;
-                <button mat-raised-button color="warn" class="delete-button" (click)="onDeleteLeave(item.id)">
-                  Delete
-                </button>
-                &nbsp;
-
+              <ng-container *ngIf="item.status === 'Approved' || item.status === 'AdminApproved'">
+                <button class="button-33" (click)="onDeleteLeave(item.id)" role="button">Untaken leave</button>
               </ng-container>
             </td>
-
 
 
           </tr>

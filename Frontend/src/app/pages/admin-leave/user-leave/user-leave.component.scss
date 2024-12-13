@@ -33,3 +33,25 @@ th:nth-child(5), td:nth-child(5) {
   width: 100%;
   color: rgb(221, 23, 23);
 }
+
+//-------------------------
+/* Styling the Add column */
+/* Standard Blue color for the Add column */
+/* Light dim color for the Add column */
+.add-column {
+  background-color: #d0e7ff; /* Light blue background */
+  color: #0066cc; /* Standard blue color for text */
+  font-weight: bold;
+  text-align: center;
+  border-radius: 4px; /* Optional for rounded corners */
+}
+
+.add-column input {
+  background-color: #cfe2f3; /* Lighter blue for input field */
+  color: #003366; /* Darker text for better contrast */
+  border: 1px solid #b6d7ea; /* Light border to make it soft */
+  border-radius: 4px;
+  padding: 5px;
+}
+
+

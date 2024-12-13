@@ -127,4 +127,16 @@ export class LeaveService {
   getCompoOff(id: number){
     return this.http.get<CompoOff>(`${this.apiUrl}/holidays/findcombooff/${id}`);
   }
+
+  // deleteLeave(id: number): Observable<any> {
+  //   return this.http.delete(`${this.apiUrl}/leave/${id}`);
+  // }
+
+  deleteUntakenLeave(leaveId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/leave/untakenLeaveDelete/${leaveId}`);
+  }
+
+  untakenLeaveUpdate(leaveId: number, updatedData: any): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/leave/untakenLeaveUpdate/${leaveId}`, updatedData);
+  }
 }
