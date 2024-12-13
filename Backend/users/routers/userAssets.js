@@ -48,7 +48,7 @@ router.get('/find', authenticateToken, async (req, res) => {
                             attributes: [],
                             required: true, // Ensures UserPositions must match the department filter
                             where: {
-                                'department.abbreviation': department // Matching the specified department
+                                department: department // Matching the specified department
                             }
                         }
                     ]

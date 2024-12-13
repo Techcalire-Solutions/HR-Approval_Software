@@ -1,5 +1,6 @@
+
 <div class="container">
-  <h2 class="title"> @if(updateStatus){Update} @else{Add} User Assets for {{userName}}  - <strong>{{assetCode}}</strong></h2>
+  <h2 class="title"> @if(updateStatus){Update} @else{Add} Assets for {{userName}}  - <strong>{{assetCode}}</strong></h2>
   <form [formGroup]="form" (ngSubmit)="addRow()" class="form">
     <div formGroupName="newRow" class="input-group">
       <mat-form-field appearance="outline" class="input-field full-width">
@@ -51,22 +52,30 @@
         <th>Description</th>
         <th>Assigned Date</th>
         <th>Actions</th>
+        <th>Return</th>
       </tr>
     </thead>
     <tbody>
       @for (row of rows; let i = $index; track $index) {
-        <tr class="table-row" (click)="editRow(row, i)">
+        <tr class="table-row" (click)="row.status && editRow(row, i)" [class.status-false]="!row.status">
           <td>{{ row.assetName }}</td>
           <td>{{ row.identifierType }}</td>
           <td>{{ row.identificationNumber }}</td>
           <td>{{ row.description }}</td>
           <td>{{ row.assignedDate | date: 'dd-MM-yyyy' }}</td>
-          <td>
-            <mat-icon (click)="removeRow(i)">remove_circle_outline</mat-icon>
-          </td>
+          @if(row.status){
+            <td>
+              <mat-icon (click)="removeRow(i)">remove_circle_outline</mat-icon>
+            </td>
+            <td>
+              <mat-icon (click)="returnAsset(i)" (click)="$event.stopPropagation()">assignment_return</mat-icon>
+            </td>
+          }@else {  
+            <td>{{ row.note }}</td>
+            <td>{{ row.returnDate | date: 'dd-MM-yyyy' }}</td>
+          }
         </tr>
       }
-
     </tbody>
   </table>
   @if(rows.length > 0){
