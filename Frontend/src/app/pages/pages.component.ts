@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { Component, ElementRef, HostListener, inject, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -86,11 +88,6 @@ export class PagesComponent implements OnInit {
     });
   }
 
-  handleSubmit(data: any) {
-    // Handle submission
-    console.log('Handling submit in Component B');
-  }
-
   ngAfterViewInit(){
     setTimeout(() => { this.settings.loadingSpinner = false }, 300);
     this.backToTop.nativeElement.style.display = 'none';
@@ -131,7 +128,7 @@ export class PagesComponent implements OnInit {
     (event.target.scrollTop > 300) ? this.backToTop.nativeElement.style.display = 'flex' : this.backToTop.nativeElement.style.display = 'none';
     if(this.settings.menu == 'horizontal'){
       if(this.settings.fixedHeader){
-        var currentScrollTop = (event.target.scrollTop > 56) ? event.target.scrollTop : 0;
+        const currentScrollTop = (event.target.scrollTop > 56) ? event.target.scrollTop : 0;
         if(currentScrollTop > this.lastScrollTop){
           document.querySelector('#horizontal-menu')!.classList.add('sticky');
           event.target.classList.add('horizontal-menu-hidden');
@@ -181,10 +178,10 @@ export class PagesComponent implements OnInit {
   }
 
   public closeSubMenus(){
-    let menu = document.querySelector(".sidenav-menu-outer");
+    const menu = document.querySelector(".sidenav-menu-outer");
     if(menu){
       for (let i = 0; i < menu.children[0].children.length; i++) {
-        let child = menu.children[0].children[i];
+        const child = menu.children[0].children[i];
         if(child){
           if(child.children[0].classList.contains('expanded')){
               child.children[0].classList.remove('expanded');

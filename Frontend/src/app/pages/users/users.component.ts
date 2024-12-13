@@ -73,8 +73,6 @@ export class UsersComponent implements OnInit, OnDestroy {
   userSub!: Subscription;
   getUsers(): void {
     this.userSub = this.usersService.getUser(this.searchText, this.currentPage, this.pageSize).subscribe((users: any) =>{
-      console.log(users);
-      
       this.users = users.items;
       this.totalItems = users.count
     });

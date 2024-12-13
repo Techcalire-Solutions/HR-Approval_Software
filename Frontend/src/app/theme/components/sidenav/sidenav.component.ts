@@ -88,7 +88,6 @@ users:User;
       if (!this.user.userPosition || !this.user.userPosition.designation) {
         this.invoiceService.getRoleById(this.roleId).subscribe((roleRes) => {
           this.role = roleRes.roleName;
-          console.log(this.role);
           this.filterMenuItemsByRole(this.role);
           
         });        

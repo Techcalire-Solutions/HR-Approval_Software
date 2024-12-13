@@ -214,9 +214,7 @@ export class AddApprovalComponent {
     if (index >= 0 && index < this.doc().length) {
         this.doc().removeAt(index);
         this.imageUrl.splice(index, 1);
-    } else {
-        console.warn(`Index ${index} is out of bounds for removal`);
-    }
+    } 
   }
 
   imageUploaded: boolean
@@ -301,10 +299,8 @@ export class AddApprovalComponent {
     this.uploadSub = this.invoiceService.uploadInvoice(formData).subscribe({
       next: (invoice) => {
         this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${invoice.fileUrl}`;
-        console.log('File uploaded successfully:', invoice.fileUrl);
       },
-      error: (err) => {
-        console.error('File upload failed:', err);
+      error: () => {
         alert('File upload failed. Please try again.');
       },
     });

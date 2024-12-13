@@ -168,7 +168,7 @@ export class UpdatePIComponent {
         this.imageUrl.splice(index, 1);
         this.newImageUrl.splice(index, 1);
     } else {
-        console.warn(`Index ${index} is out of bounds for removal`);
+        alert(`Index ${index} is out of bounds for removal`);
     }
   }
 
@@ -321,8 +321,6 @@ export class UpdatePIComponent {
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
       const inv = pi.pi;
       this.piNo = inv.piNo
-      console.log(inv);
-
       const remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
       this.piForm.patchValue({
         piNo: inv.piNo,

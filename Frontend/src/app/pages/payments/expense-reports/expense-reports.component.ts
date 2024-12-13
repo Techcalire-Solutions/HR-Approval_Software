@@ -127,7 +127,7 @@ export class ExpenseReportsComponent implements OnInit, OnDestroy{
   }
 
   makeExcel() {
-    let data = {
+    const data = {
       invoices: this.invoices,
       invoiceNo: this.filterValue? this.filterValue : '',
       addedBy: this.addedBy? this.addedBy : null,
@@ -135,7 +135,6 @@ export class ExpenseReportsComponent implements OnInit, OnDestroy{
       startDate: this.startDate? this.startDate : null,
       endDate: this.endDate? this.endDate : null
     }
-    console.log(data);
 
     this.expenseService.reportExport(data).subscribe((res:any)=>{
       if (res.message === 'File uploaded successfully') {

@@ -21,7 +21,6 @@ cron.schedule('0 0 1 * *', async () => {
     });
 
     if (leaveTypes.length === 0) {
-      console.log('No leave types found for Sick Leave or Casual Leave.');
       return;
     }
 

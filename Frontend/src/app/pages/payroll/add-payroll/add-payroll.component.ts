@@ -243,7 +243,6 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
             },
             error: (error) => {
               alert('Error saving payroll details.');
-              console.error(error);
             }
           });
         }else{

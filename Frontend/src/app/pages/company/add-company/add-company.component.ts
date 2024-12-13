@@ -81,8 +81,6 @@ export class AddCompanyComponent {
     }
     this.getCompany()
     if(this.dialogData){
-      console.log(this.dialogData);
-
       this.companyForm.get('companyName')?.setValue(this.dialogData.name);
       if(this.dialogData.type === 'sup') this.companyForm.get('supplier')?.setValue(true);
       else if(this.dialogData.type === 'cust') this.companyForm.get('customer')?.setValue(true);
@@ -117,7 +115,6 @@ export class AddCompanyComponent {
 
   // company: Company;
   patchCompany(company: any){
-    console.log('company',company);
     this.companyForm.patchValue({
       companyName: this.company.companyName,
       code: this.company?.code,

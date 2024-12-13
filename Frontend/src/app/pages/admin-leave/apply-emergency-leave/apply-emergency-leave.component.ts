@@ -209,8 +209,6 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
   leaveTypeSub!: Subscription;
   getLeaveType() {
     this.leaveTypeSub = this.leaveService.getLeaveType().subscribe( (leaveTypes: any) => {
-      console.log(leaveTypes);
-
         this.leaveTypes = leaveTypes;
       },(error) => {
         console.error('Error fetching leave types:', error);
@@ -226,8 +224,6 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
   isFileSelected: boolean = false; // Track if a file is selected
 
   uploadFile(event: Event) {
-    console.log(event);
-
     const input = event.target as HTMLInputElement;
     const selectedFile = input.files?.[0]; // Get the first file if it exists
 

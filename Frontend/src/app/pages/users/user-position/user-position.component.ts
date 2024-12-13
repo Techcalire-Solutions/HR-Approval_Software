@@ -113,8 +113,6 @@ export class UserPositionComponent implements OnDestroy {
   triggerNew(data?: any): void {
     this.getRoles();
     this.getTeam();
-    console.log(data);
-    
     if(data){
       // if(data.updateStatus){
         this.getPositionDetailsByUser(data.id)
