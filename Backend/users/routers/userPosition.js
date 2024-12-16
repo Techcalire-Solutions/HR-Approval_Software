@@ -109,8 +109,7 @@ router.patch('/update/:id', async(req,res)=>{
   try {
     
     let result = await UserPosition.findByPk(req.params.id);
-    if( probationPeriod === 0)
-    // if(result.probationPeriod !== 0 && probationPeriod === 0)
+    if(result.probationPeriod !== 0 && probationPeriod === 0)
       {
       let user = await User.findByPk(result.userId);
       if (!user) {

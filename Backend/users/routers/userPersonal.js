@@ -59,8 +59,8 @@ router.post('/add', authenticateToken, async (req, res) => {
     }
 
     const user = new UserPersonal({ 
-      userId, empNo, dateOfJoining: dateOfJoining ? formattedDateOfJoining[0] : null, probationPeriod, isTemporary, maritalStatus, 
-      dateOfBirth: dateOfBirth ? formattedDateOfBirth[0] : null,  gender,  parentName,  spouseName,  referredBy, 
+      userId, empNo, dateOfJoining: dateOfJoining ? dateOfJoining : null, probationPeriod, isTemporary, maritalStatus, 
+      dateOfBirth: dateOfBirth ? dateOfBirth : null,  gender,  parentName,  spouseName,  referredBy, 
       reportingMangerId, bloodGroup,  emergencyContactNo, emergencyContactName, emergencyContactRelation, 
       spouseContactNo, parentContactNo, motherName, motherContactNo, temporaryAddress, permanentAddress, qualification, experience
     });
@@ -123,11 +123,11 @@ router.patch('/update/:id', async(req,res)=>{
     }
     
     let result = await UserPersonal.findByPk(req.params.id);
-    result.dateOfJoining = dateOfJoining ? formattedDateOfJoining[0] : null;
+    result.dateOfJoining = dateOfJoining ? dateOfJoining : null;
     result.probationPeriod = probationPeriod;
     result.isTemporary = isTemporary;
     result.maritalStatus = maritalStatus;
-    result.dateOfBirth = dateOfBirth ? formattedDateOfBirth[0] : null;
+    result.dateOfBirth = dateOfBirth ? dateOfBirth : null;
     result.probationPeriod = probationPeriod;
     result.gender = gender;
     result.parentName = parentName;
