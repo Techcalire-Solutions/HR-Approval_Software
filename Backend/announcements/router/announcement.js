@@ -7,23 +7,26 @@ const Announcement = require('../model/announcement');
 const upload = require('../../utils/multer');
 const s3 = require('../../utils/s3bucket');
 const nodemailer = require('nodemailer');
-const UserPosition = require('../../users/models/userPosition')
+const UserPosition = require('../../users/models/userPosition');
+const User = require('../../users/models/user');
+const Notification = require('../../invoices/models/notification');
+const config = require('../../utils/config');
+const { Op, where } = require('sequelize');
+const sequelize = require('../../utils/db');
 
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: config.email.announcement_user,
+    pass: config.email.announcement_pwd,
   }
 
 });
 
 router.post('/add', authenticateToken, async (req, res) => {
   const { message, type, dismissible, fileUrl } = req.body;
-
   try {
-
     const userPosition = await UserPosition.findAll({})
 
     const userEmails = userPosition.map(userPosition => userPosition.officialMailId).filter(officialMailId => officialMailId);
@@ -32,13 +35,24 @@ router.post('/add', authenticateToken, async (req, res) => {
       return res.send("No recipients defined.");
     }
 
+    const users = await User.findAll({ attributes: ['id'] });
+
+    const userIds = users.map(user => user.id);
+
+    const notifications = userIds.map(userId => {
+      return Notification.create({
+        userId: userId,
+        message: `Important Announcement - ${message}`,
+        isRead: false,
+      });
+    });
+
+    await Promise.all(notifications);
     
     const ancmnts = new Announcement({ message, type, dismissible, fileUrl });
     await ancmnts.save();
 
-  
     let fileBuffer, contentType;
-
 
     if (fileUrl) {
       const fileKey = fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
@@ -53,9 +67,8 @@ router.post('/add', authenticateToken, async (req, res) => {
       contentType = s3File.ContentType;
     }
 
-
     const mailOptions = {
-      from: `HR Department <${process.env.EMAIL_USER}>`,
+      from: `HR Department`,
       to: userEmails,
       subject: 'Important Announcement',
       html: `
@@ -76,22 +89,36 @@ router.post('/add', authenticateToken, async (req, res) => {
       ] : [],
     };
 
-   
     await transporter.sendMail(mailOptions);
-
-
     res.send(ancmnts);
   } catch (error) {
     res.send( error.message );
   }
 });
 
-
-
-
 router.get('/find', authenticateToken, async(req, res) => {
     try {
-        let ancmnts = await Announcement.findAll({})
+      let whereClause = {  };
+      if (req.query.search && req.query.search !== 'undefined') {
+        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+        whereClause = {
+          [Op.and]: [
+            {
+              [Op.or]: [
+                sequelize.where(
+                  sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('message'), ' ', '')),
+                  { [Op.like]: `%${searchTerm}%` }
+                ),
+                sequelize.where(
+                  sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('type'), ' ', '')),
+                  { [Op.like]: `%${searchTerm}%` }
+                )
+              ]
+            }
+          ]
+        };
+      }
+        let ancmnts = await Announcement.findAll({ where: whereClause})
         res.send(ancmnts);
     } catch (error) {
        res.send(error.message) 
@@ -104,7 +131,6 @@ router.delete('/delete/:id', authenticateToken, async(req, res) => {
       let fileKey = ancmnt.fileUrl;
       if(fileKey){
         const deleteParams = {
-          // eslint-disable-next-line no-undef
           Bucket: process.env.AWS_BUCKET_NAME,
           Key: fileKey
         };
@@ -215,4 +241,5 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
       res.send({ message: error.message });
     }
 });
+
 module.exports = router;

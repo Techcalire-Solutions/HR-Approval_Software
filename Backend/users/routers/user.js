@@ -16,6 +16,7 @@ const UserPersonal = require('../models/userPersonal');
 const UserPosition = require('../models/userPosition');
 const Designation = require('../models/designation');
 const StatutoryInfo = require('../models/statutoryInfo');
+const nodemailer = require('nodemailer');
 
 router.post('/add', async (req, res) => {
   const { name, email, phoneNumber, password, status, userImage, url, empNo, director } = req.body;
@@ -408,7 +409,7 @@ router.patch('/resetpassword/:id', async (req, res) => {
   try {
       const hashedPassword = await bcrypt.hash(password, 10);
       let user = await User.findByPk(req.params.id);
-
+      
       if (!user) {
           return res.send('User not found');
       }
@@ -417,6 +418,34 @@ router.patch('/resetpassword/:id', async (req, res) => {
       user.paswordReset = paswordReset;
 
       await user.save();
+      
+        // Configure Nodemailer for sending emails
+        const transporter = nodemailer.createTransport({
+          service: 'Gmail', 
+          auth: {
+            user: 'nishida@onboardaero.com',
+            pass: 'jior rtdu epzr xadt',
+          },
+      });
+
+      // Email options
+      const mailOptions = {
+          from: 'nishida@onboardaero.com', // Replace with your email
+          to: user.email, // Assuming the User model has an `email` field
+          subject: 'Password Reset Successful',
+          text: `Hello ${user.name},\n\nYour password has been successfully reset.\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information safe.\n\nThank you!`,
+      };
+
+      // Send the email
+      transporter.sendMail(mailOptions, (err, info) => {
+          if (err) {
+              console.error('Error sending email:', err);
+              return res.send('Failed to send email');
+          } else {
+              console.log('Email sent:', info.response);
+              res.send('Password reset successful and email sent');
+          }
+      });
       
       res.send(user);
   } catch (error) {
