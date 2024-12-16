@@ -12,15 +12,18 @@ const UserPosition = require('../models/userPosition')
 
 async function saveDates(dateStrings) {
   try {
-    // Ensure dateStrings is an array
     if (!Array.isArray(dateStrings)) {
       dateStrings = [dateStrings]; // Convert to array if it's a single string
     }
 
     const formattedDates = dateStrings.map(dateString => {
-      // Split the date string and take the first part (before the space)
-      const [date] = dateString.split(' ');
-      return date; // Return the date part
+      // Parse the date as UTC to avoid time zone discrepancies
+      const date = new Date(dateString);
+      if (isNaN(date)) {
+        throw new Error(`Invalid date format: ${dateString}`);
+      }
+      // Format as 'YYYY-MM-DD' in UTC
+      return date.toISOString().split('T')[0];
     });
 
     return formattedDates;
@@ -28,6 +31,7 @@ async function saveDates(dateStrings) {
     throw error;
   }
 }
+
 
 router.post('/add', authenticateToken, async (req, res) => {
   const { userId, empNo, dateOfJoining, probationPeriod, isTemporary, maritalStatus, dateOfBirth, gender, 
@@ -59,8 +63,8 @@ router.post('/add', authenticateToken, async (req, res) => {
     }
 
     const user = new UserPersonal({ 
-      userId, empNo, dateOfJoining: dateOfJoining ? dateOfJoining : null, probationPeriod, isTemporary, maritalStatus, 
-      dateOfBirth: dateOfBirth ? dateOfBirth : null,  gender,  parentName,  spouseName,  referredBy, 
+      userId, empNo, dateOfJoining: dateOfJoining ? formattedDateOfJoining[0] : null, probationPeriod, isTemporary, maritalStatus, 
+      dateOfBirth: dateOfBirth ? formattedDateOfBirth[0] : null,  gender,  parentName,  spouseName,  referredBy, 
       reportingMangerId, bloodGroup,  emergencyContactNo, emergencyContactName, emergencyContactRelation, 
       spouseContactNo, parentContactNo, motherName, motherContactNo, temporaryAddress, permanentAddress, qualification, experience
     });
@@ -123,11 +127,11 @@ router.patch('/update/:id', async(req,res)=>{
     }
     
     let result = await UserPersonal.findByPk(req.params.id);
-    result.dateOfJoining = dateOfJoining ? dateOfJoining : null;
+    result.dateOfJoining = dateOfJoining ? new Date(dateOfJoining) : null;
     result.probationPeriod = probationPeriod;
     result.isTemporary = isTemporary;
     result.maritalStatus = maritalStatus;
-    result.dateOfBirth = dateOfBirth ? dateOfBirth : null;
+    result.dateOfBirth = dateOfBirth ? new Date(dateOfBirth) : null;
     result.probationPeriod = probationPeriod;
     result.gender = gender;
     result.parentName = parentName;
