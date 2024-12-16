@@ -20,6 +20,7 @@ import { TeamService } from '@services/team.service';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 import { MY_FORMATS } from '../personal-details/personal-details.component';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-user-position',
@@ -29,7 +30,7 @@ import { MY_FORMATS } from '../personal-details/personal-details.component';
    ],
   templateUrl: './user-position.component.html',
   styleUrl: './user-position.component.scss',
-  providers: [provideMomentDateAdapter(MY_FORMATS)],
+  providers: [provideMomentDateAdapter(MY_FORMATS), DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserPositionComponent implements OnDestroy {
@@ -106,7 +107,7 @@ export class UserPositionComponent implements OnDestroy {
     projectMailId: ['', Validators.email],
     designationId: <any>[ Validators.required],
     teamId: <any>[],
-    confirmationDate: [new Date()]
+    confirmationDate: []
   });
 
   editStatus: boolean = false;
@@ -115,7 +116,9 @@ export class UserPositionComponent implements OnDestroy {
     this.getTeam();
     if(data){
       // if(data.updateStatus){
-        this.getPositionDetailsByUser(data.id)
+        this.getPositionDetailsByUser(data.id);
+        const confirmationDate: any = this.form.get('confirmationDate')?.value;
+        this.form.get('confirmationDate')?.setValue(confirmationDate); 
       // }
     }
   }
@@ -150,12 +153,17 @@ export class UserPositionComponent implements OnDestroy {
   @Output() dataSubmitted = new EventEmitter<any>();
   submitSub!: Subscription;
   isNext: boolean = false;
+  private datePipe = inject(DatePipe);
   onSubmit(){
     this.isNext =true
     const submit = {
       ...this.form.getRawValue()
     }
     submit.userId = submit.userId ? submit.userId : this.positionData.id;
+    if (this.form.get('confirmationDate')?.value) {
+      const confirmationDate = this.form.get('confirmationDate')?.value; 
+      submit.confirmationDate = this.datePipe.transform(confirmationDate, 'yyyy-MM-dd') || null;
+    }
     if(this.editStatus){
       this.submitSub = this.userService.updateUserPosition(this.id, submit).subscribe(() => {
         this.snackBar.open("Postion Details updated succesfully...","" ,{duration:3000})

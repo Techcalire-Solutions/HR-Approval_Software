@@ -75,8 +75,6 @@ export class UserAssetsComponent implements OnDestroy{
   userPosition: Subscription;
   getUserById(id: number){
     this.userSub = this.userService.getUserAssetsByUser(id).subscribe(data =>{
-      console.log(data);
-      
       if(data){
         this.userName = data.user.name
         this.updateStatus = true;

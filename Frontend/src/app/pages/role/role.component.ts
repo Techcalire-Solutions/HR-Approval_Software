@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, inject, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
@@ -52,7 +53,7 @@ import { Role } from '../../common/interfaces/users/role';
   ]
 })
 export class RoleComponent implements OnInit, OnDestroy {
-  public page:any;
+  public page: number;
   snackBar = inject(MatSnackBar)
   constructor(private roleService:RoleService,public settingsService: SettingsService, public dialog: MatDialog,  public usersService: UsersService){}
 
@@ -98,10 +99,10 @@ export class RoleComponent implements OnInit, OnDestroy {
 
   delete!: Subscription;
   deleteRole(id: number){
-    let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+    const dialogRef = this.dialog.open(DeleteDialogueComponent, {});
     dialogRef.afterClosed().subscribe(res => {
       if(res){
-        this.delete = this.roleService.deleteRole(id).subscribe(res => {
+        this.delete = this.roleService.deleteRole(id).subscribe(() => {
           this.snackBar.open("Role deleted successfully...","" ,{duration:3000})
           this.getRoles()
         });
@@ -110,10 +111,10 @@ export class RoleComponent implements OnInit, OnDestroy {
   }
 
   public openRoleDialog(user: any){
-    let dialogRef = this.dialog.open(AddRoleDialogComponent, {
+    const dialogRef = this.dialog.open(AddRoleDialogComponent, {
       data: user
     });
-    dialogRef.afterClosed().subscribe(user => {
+    dialogRef.afterClosed().subscribe(() => {
       this.getRoles()
     });
   }

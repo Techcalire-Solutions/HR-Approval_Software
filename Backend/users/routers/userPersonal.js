@@ -17,13 +17,18 @@ async function saveDates(dateStrings) {
     }
 
     const formattedDates = dateStrings.map(dateString => {
-      // Parse the date as UTC to avoid time zone discrepancies
-      const date = new Date(dateString);
+      // Ensure the input is parsed correctly
+      const date = new Date(Date.parse(dateString)); // Parse the date string directly
       if (isNaN(date)) {
         throw new Error(`Invalid date format: ${dateString}`);
       }
-      // Format as 'YYYY-MM-DD' in UTC
-      return date.toISOString().split('T')[0];
+
+      // Format as 'YYYY-MM-DD' using UTC normalization
+      const year = date.getUTCFullYear();
+      const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Month is 0-based
+      const day = String(date.getUTCDate()).padStart(2, '0');
+
+      return `${year}-${month}-${day}`; // Return formatted date
     });
 
     return formattedDates;
@@ -31,6 +36,8 @@ async function saveDates(dateStrings) {
     throw error;
   }
 }
+
+
 
 
 router.post('/add', authenticateToken, async (req, res) => {
@@ -127,11 +134,11 @@ router.patch('/update/:id', async(req,res)=>{
     }
     
     let result = await UserPersonal.findByPk(req.params.id);
-    result.dateOfJoining = dateOfJoining ? new Date(dateOfJoining) : null;
+    result.dateOfJoining = dateOfJoining ? formattedDateOfJoining[0] : null;
     result.probationPeriod = probationPeriod;
     result.isTemporary = isTemporary;
     result.maritalStatus = maritalStatus;
-    result.dateOfBirth = dateOfBirth ? new Date(dateOfBirth) : null;
+    result.dateOfBirth = dateOfBirth ? formattedDateOfBirth[0] : null;
     result.probationPeriod = probationPeriod;
     result.gender = gender;
     result.parentName = parentName;

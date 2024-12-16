@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnDestroy, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -17,6 +17,7 @@ import { User } from '../../../common/interfaces/users/user';
 import { MatIconModule } from '@angular/material/icon';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { DatePipe } from '@angular/common';
 
 export const MY_FORMATS = {
   parse: {
@@ -38,7 +39,7 @@ export const MY_FORMATS = {
     MatInputModule, MatSlideToggleModule, MatButtonModule, MatCardModule, MatIconModule, MatAutocompleteModule],
   templateUrl: './personal-details.component.html',
   styleUrl: './personal-details.component.scss',
-  providers: [provideMomentDateAdapter(MY_FORMATS)],
+  providers: [provideMomentDateAdapter(MY_FORMATS), DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PersonalDetailsComponent implements OnDestroy {
@@ -99,10 +100,10 @@ export class PersonalDetailsComponent implements OnDestroy {
 
   form = this.fb.group({
     userId: <any>[],
-    dateOfJoining: <any>[],
+    dateOfJoining: <any>[null],
     probationPeriod: [''],
     maritalStatus: [''],
-    dateOfBirth: <any>[],
+    dateOfBirth: <any>[null],
     gender: [''],
     isTemporary: [true],
     parentName: [''],
@@ -131,12 +132,21 @@ export class PersonalDetailsComponent implements OnDestroy {
 
   submitSub!: Subscription;
   isNext: boolean = false;
+  private datePipe = inject(DatePipe)
   onSubmit(){
     this.isNext = true
     const submit = {
       ...this.form.getRawValue()
     }
     submit.userId = submit.userId ? submit.userId : this.data.id;
+    if (this.form.get('dateOfBirth')?.value) {
+      const dateOfBirth = this.form.get('dateOfBirth')?.value as string | number | Date;
+      submit.dateOfBirth = this.datePipe.transform(dateOfBirth, 'yyyy-MM-dd');
+    }
+    if (this.form.get('dateOfJoining')?.value) {
+      const dateOfJoining = this.form.get('dateOfJoining')?.value as string | number | Date;
+      submit.dateOfJoining = this.datePipe.transform(dateOfJoining, 'yyyy-MM-dd');
+    }
 
     if(this.editStatus){
       this.submitSub = this.userService.updateUserPersonal(this.id, submit).subscribe(() => {
