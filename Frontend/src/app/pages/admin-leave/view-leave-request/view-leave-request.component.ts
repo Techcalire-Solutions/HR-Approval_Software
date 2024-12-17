@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { LeaveService } from '@services/leave.service';
 import { RoleService } from '@services/role.service';
 import { SettingsService } from '@services/settings.service';
@@ -53,7 +53,8 @@ import { NoteDialogComponent } from '../note-dialog/note-dialog.component';
     UserDialogComponent,
     CommonModule,
     MatPaginatorModule,
-    CamelCasePipe
+    CamelCasePipe,
+    RouterModule
   ],
   templateUrl: './view-leave-request.component.html',
   styleUrl: './view-leave-request.component.scss'
@@ -181,7 +182,7 @@ onDeleteLeave(leaveId: number): void {
       queryParams: { leaveId: leaveId }, // Ensure `leaveId` is included
     });
   }
-  
+
   openDialog(action: string, leaveId: string): void {
     const dialogRef = this.dialog.open(NoteDialogComponent);
 
@@ -207,7 +208,7 @@ onDeleteLeave(leaveId: number): void {
       // Logic for rejection
       console.log(`Rejected with note: ${note}`);
     }
-  
+
 
   }
     approveLeave(leaveId: any, note: string) {
@@ -222,7 +223,7 @@ onDeleteLeave(leaveId: number): void {
         }
       );
     }
-  
+
   rejectLeave(leaveId: any, note: string){
     const rejectionData = { leaveId: leaveId, adminNotes: note };
     this.leaveService.updateRejectLeaveStatus(rejectionData).subscribe(
@@ -234,5 +235,11 @@ onDeleteLeave(leaveId: number): void {
         this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
       }
     );
+  }
+  viewLeaveDetails(leaveId:number){
+    this.router.navigate(['/login/admin-leave/view/',leaveId], {
+      queryParams: { leaveId: leaveId },
+    });
+
   }
 }

@@ -14,6 +14,8 @@ import { LeaveService } from '@services/leave.service';
 import { CommonModule } from '@angular/common';
 import { TimeAgoPipe } from '../pipes/time-ago.pipe';
 import { RoleService } from '@services/role.service';
+import { DomSanitizer } from '@angular/platform-browser';
+
 
 @Component({
   selector: 'app-messages',
@@ -53,6 +55,11 @@ export class MessagesComponent implements OnInit {
   messagesService = inject(MessagesService)
   userRole: string;
   roleService = inject(RoleService)
+  constructor(private sanitizer: DomSanitizer) {}
+
+  sanitizeMessage(message: string) {
+    return this.sanitizer.bypassSecurityTrustHtml(message);
+  }
 
 
   async ngOnInit() {
@@ -121,7 +128,7 @@ export class MessagesComponent implements OnInit {
    this.messageNotfiSub =  this.messagesService.getUserNotifications(this.userId).subscribe(
       (data: any) => {
         this.notifications = data.notifications || [];
-        console.log(this.notifications)
+        // console.log(this.notifications)
         this.checkForNewNotifications(data);
         this.updateUnreadCount();
       },
@@ -201,5 +208,16 @@ export class MessagesComponent implements OnInit {
     if(this.markReadSub) this.markReadSub.unsubscribe();
     if(this.messageNotfiSub) this.messageNotfiSub.unsubscribe();
   }
+  // constructor(private router: Router) {}
+
+  // onNotificationClick(message) {
+
+  //   const route = message.route;
+
+  //   if (route) {
+
+  //     this.router.navigate([route]);
+  //   }
+  // }
 }
 

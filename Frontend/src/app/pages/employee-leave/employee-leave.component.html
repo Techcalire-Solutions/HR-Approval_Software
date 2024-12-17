@@ -53,15 +53,22 @@
             </td>
 
             <td>
-        
-                <button  *ngIf="isButtonVisible" mat-raised-button color="primary" (click)="uploadFile(item.id)">
-                  Upload Medical Certificate
+              <ng-container *ngIf="item.leaveType?.leaveTypeName === 'Sick Leave'">
+                <button mat-raised-button color="primary" (click)="openDialog('approve', item.id)">
+                  <mat-icon>cloud_upload</mat-icon>
                 </button>
-          
+              </ng-container>
+
+
+
+
+
+
+
 
             </td>
- 
-      
+
+
 
 
              <td>{{item.notes}}</td>
