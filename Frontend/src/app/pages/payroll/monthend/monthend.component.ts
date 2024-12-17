@@ -14,11 +14,15 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-monthend',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, MatButtonModule, MatProgressSpinnerModule, MatIconModule],
+  imports: [ReactiveFormsModule, CommonModule, MatButtonModule, MatProgressSpinnerModule, MatIconModule, MatFormFieldModule,
+    MatSelectModule
+  ],
   templateUrl: './monthend.component.html',
   styleUrl: './monthend.component.scss'
 })
@@ -155,6 +159,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
   isRejected: boolean = false;
   isLocked: boolean = false;
   approval: boolean = false;
+  saved: boolean = false;
   getPayroll() {
     this.payrolls = [];
     const payedForValue = `${this.month} ${this.currentYear}`;
@@ -190,7 +195,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
             this.isRejected = true;
           } else if (payrollItem.status === 'Locked') {
             this.isLocked = true;
-          } else{
+          }else{
             this.updateStatus = true;
           }
     
@@ -374,6 +379,38 @@ export class MonthendComponent implements OnInit, OnDestroy{
     window.URL.revokeObjectURL(url);
   }
   
+  months = [
+    { name: 'January', value: 0 },
+    { name: 'February', value: 1 },
+    { name: 'March', value: 2 },
+    { name: 'April', value: 3 },
+    { name: 'May', value: 4 },
+    { name: 'June', value: 5 },
+    { name: 'July', value: 6 },
+    { name: 'August', value: 7 },
+    { name: 'September', value: 8 },
+    { name: 'October', value: 9 },
+    { name: 'November', value: 10 },
+    { name: 'December', value: 11 },
+  ];
+
+  onMonthYearChange(value: number): void {
+    this.calculateIfPreviousMonth(value);
+  }
+
+  isPreviousMonth: boolean = false;
+  calculateIfPreviousMonth(value: number): void {
+    const currentMonth = new Date().getMonth();
+    const selectedMonth: any = value;
+    this.isPreviousMonth = (selectedMonth < currentMonth);
+    this.month = this.months[selectedMonth].name;
+    this.daysInMonth = new Date(this.currentYear, selectedMonth+1, 0).getDate();
+    console.log(this.isPreviousMonth);
+    this.clearAllRows()
+    this.isLocked = false;
+    this.updateStatus = false;
+    this.getPayroll()
+  }
   
 
   ngOnDestroy(): void {

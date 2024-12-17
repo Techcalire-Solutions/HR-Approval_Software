@@ -12,15 +12,23 @@ const UserPosition = require('../models/userPosition')
 
 async function saveDates(dateStrings) {
   try {
-    // Ensure dateStrings is an array
     if (!Array.isArray(dateStrings)) {
       dateStrings = [dateStrings]; // Convert to array if it's a single string
     }
 
     const formattedDates = dateStrings.map(dateString => {
-      // Split the date string and take the first part (before the space)
-      const [date] = dateString.split(' ');
-      return date; // Return the date part
+      // Ensure the input is parsed correctly
+      const date = new Date(Date.parse(dateString)); // Parse the date string directly
+      if (isNaN(date)) {
+        throw new Error(`Invalid date format: ${dateString}`);
+      }
+
+      // Format as 'YYYY-MM-DD' using UTC normalization
+      const year = date.getUTCFullYear();
+      const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Month is 0-based
+      const day = String(date.getUTCDate()).padStart(2, '0');
+
+      return `${year}-${month}-${day}`; // Return formatted date
     });
 
     return formattedDates;
@@ -28,6 +36,9 @@ async function saveDates(dateStrings) {
     throw error;
   }
 }
+
+
+
 
 router.post('/add', authenticateToken, async (req, res) => {
   const { userId, empNo, dateOfJoining, probationPeriod, isTemporary, maritalStatus, dateOfBirth, gender, 

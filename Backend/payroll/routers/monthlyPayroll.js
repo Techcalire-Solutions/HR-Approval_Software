@@ -21,13 +21,13 @@ const Notification = require('../../invoices/models/notification')
 const puppeteer = require("puppeteer");
 const Payroll = require("../models/payroll");
 const Role = require("../../users/models/role");
+const config = require('../../utils/config');
 
 router.post("/save", authenticateToken, async (req, res) => {
   const data = req.body.payrolls;
 
   try {
     const results = []; 
-
     for (let i = 0; i < data.length; i++) {
       const {
         userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, esi, tds,
@@ -822,13 +822,13 @@ async function sendEmail(to, pdfBuffer, subject, payedFor, name, designation, se
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: 'nishida@onboardaero.com',
-      pass: 'jior rtdu epzr xadt',
+      user: config.email.payroll_payslip_user,
+      pass: config.email.payroll_payslip_pwd,
     },
   });
 
   await transporter.sendMail({
-    from: 'nishida@onboardaero.com',
+    from: 'Accounts Department',
     to: to,
     subject: subject,
     html: `<p>Attached is your payslip for the month of ${payedFor}. Please review it at your convenience.</p>
@@ -939,14 +939,14 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
     const transporter = nodemailer.createTransport({
       service: 'Gmail',
       auth: {
-        user: 'nishida@onboardaero.com',
-        pass: 'jior rtdu epzr xadt',
+          user: config.email.payroll_approval_user,
+          pass: config.email.payroll_approval_pwd,
       },
     });
 
     // Send email
     const mailOptions = {
-      from: 'nishida@onboardaero.com',
+      from: 'HR Department',
       to: email,
       subject: `Payroll Data for ${month}`,
       html: `
@@ -1108,5 +1108,37 @@ router.get('/reject', async (req, res) => {
   }
 });
 
+router.get('/ytd', async (req, res) => {
+  try {
+    const { fromDate, toDate } = req.query;
+
+    if (!fromDate || !toDate) {
+      const monthlyPayroll = await MonthlyPayroll.findAll({
+        include: [{ model: User, attributes: ['name'] }]
+      });
+      return res.send(monthlyPayroll);
+    }
+
+    const parsedFromDate = new Date(fromDate);
+    const parsedToDate = new Date(toDate);
+    console.log('Parsed From Date:', parsedFromDate);
+    console.log('Parsed To Date:', parsedToDate);
+
+    const monthlyPayroll = await MonthlyPayroll.findAll({
+      where: {
+        payedAt: {
+          [Op.gte]: parsedFromDate, // Use Op instead of sequelize.Op
+          [Op.lte]: parsedToDate,
+        }
+      },
+      include: [{ model: User, attributes: ['name'] }] // Include related User model
+    });
+    console.log('SQL Query:', monthlyPayroll);
+    res.send(monthlyPayroll);
+
+  } catch (error) {
+    res.send(error.message);
+  }
+});
 
 module.exports = router;

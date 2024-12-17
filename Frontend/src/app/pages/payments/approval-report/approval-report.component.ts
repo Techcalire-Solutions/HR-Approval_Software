@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, Inject, inject, Input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
 import { LoginService } from '@services/login.service';
@@ -15,7 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatDividerModule } from '@angular/material/divider';
@@ -25,7 +25,6 @@ import { DateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, NativeDateAdapt
 import { MatChipsModule } from '@angular/material/chips';
 import { SafePipe } from '../../../common/safe.pipe';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
-import { HttpClient, HttpRequest } from '@angular/common/http';
 import { PerformaInvoice } from '../../../common/interfaces/payments/performaInvoice';
 import { User } from '../../../common/interfaces/users/user';
 
@@ -40,7 +39,7 @@ import { User } from '../../../common/interfaces/users/user';
   styleUrl: './approval-report.component.scss',
   providers: [
     { provide: DateAdapter, useClass: NativeDateAdapter },
-    { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
+    { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }, DatePipe
   ],
 })
 export class ApprovalReportComponent {
@@ -76,13 +75,13 @@ export class ApprovalReportComponent {
   invoiceSub!: Subscription;
   totalItems = 0;
   getByFilter(){
-    let data = {
+    const data = {
       invoices: this.invoices,
       invoiceNo: this.filterValue ? this.filterValue : '',
       addedBy: this.addedBy ? this.addedBy : null,
       status: this.status ? this.status : null,
-      startDate: this.startDate ? this.startDate : null,
-      endDate: this.endDate ? this.endDate : null
+      startDate: this.startDate ? this.datePipe.transform(this.startDate, 'yyyy-MM-dd') : null,
+      endDate: this.endDate ? this.datePipe.transform(this.endDate, 'yyyy-MM-dd') : null
     };
 
     this.invoiceSub = this.invoiceService.getAdminReports(data).subscribe(res=>{
@@ -134,14 +133,15 @@ export class ApprovalReportComponent {
     });
   }
 
+  private datePipe = inject(DatePipe);
   makeExcel() {
-    let data = {
+    const data = {
       invoices: this.invoices,
       invoiceNo: this.filterValue? this.filterValue : '',
       addedBy: this.addedBy? this.addedBy : null,
       status: this.status? this.status : null,
-      startDate: this.startDate? this.startDate : null,
-      endDate: this.endDate? this.endDate : null
+      startDate: this.startDate? this.datePipe.transform(this.startDate, 'yyyy-MM-dd') : null,
+      endDate: this.endDate? this.datePipe.transform(this.endDate, 'yyyy-MM-dd') : null
     }
 
     this.invoiceService.reportExport(data).subscribe((res:any)=>{

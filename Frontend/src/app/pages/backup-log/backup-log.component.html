@@ -1,18 +1,25 @@
-<table>
-    <thead>
-      <tr>
-        <th>Table</th>
-        <th>BackUpTime</th>
-        <th>Url</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for ( row of backLogs; track $index) {
+<mat-accordion>
+  <mat-expansion-panel *ngFor="let group of groupedLogs">
+    <!-- Date as Panel Title -->
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        {{ group.date | date: 'dd/MM/yyyy' }}
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <table>
+      <thead>
         <tr>
-            <td>{{ row.tableName }}</td>
-            <td>{{ row.backUpTime | date: 'dd/MM/yyyy' }}</td>
-            <td>{{ row.url }}</td>
-          </tr>
-      }
-    </tbody>
-  </table>
+          <th>Table</th>
+          <th>URL</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let log of group.logs">
+          <td>{{ log.tableName }}</td>
+          <td><a [href]="log.url" target="_blank">{{log.url}}</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </mat-expansion-panel>
+</mat-accordion>

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
@@ -34,7 +34,7 @@ export const MY_FORMATS = {
     MatDatepickerModule, MatToolbarModule, MatIconModule],
   templateUrl: './separation.component.html',
   styleUrl: './separation.component.scss',
-  providers: [provideMomentDateAdapter(MY_FORMATS)],
+  providers: [provideMomentDateAdapter(MY_FORMATS), DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SeparationComponent implements OnInit, OnDestroy{
@@ -73,10 +73,11 @@ export class SeparationComponent implements OnInit, OnDestroy{
     this.dialogRef.close({ confirmed: false });
   }
 
+  datePipe = inject( DatePipe )
   onConfirm(): void {
     if (this.separationForm.valid) {
       this.dialogRef.close({
-        confirmed: true, note: this.separationForm.value.note, date: new Date()
+        confirmed: true, note: this.separationForm.value.note, date: this.datePipe.transform(new Date(), 'yyyy-MM-dd')
       });
     }
   }
