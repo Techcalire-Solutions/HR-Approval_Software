@@ -46,4 +46,9 @@ export const routes: Routes = [
     loadComponent: () => import('./edit-leave/edit-leave.component').then(c => c.EditLeaveComponent),
     data: { breadcrumb: 'Edit' }, canActivate: [AuthGuard]
   },
+  {
+    path: 'view/:id',
+    loadComponent: () => import('./view-leave-details/view-leave-details.component').then(c => c.ViewLeaveDetailsComponent),
+    data: { breadcrumb: 'View' }, canActivate: [AuthGuard]
+  },
 ];

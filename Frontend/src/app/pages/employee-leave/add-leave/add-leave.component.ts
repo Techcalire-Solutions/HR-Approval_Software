@@ -66,6 +66,7 @@ export class AddLeaveComponent {
   isEditMode: boolean = false;
 
   leaveRequestForm: FormGroup;
+  fb = inject(FormBuilder)
   leaveTypes: any[] = [];
   isLoading = false;
 
@@ -73,7 +74,7 @@ export class AddLeaveComponent {
 snackBar = inject(MatSnackBar);
 router = inject(Router)
 route = inject(ActivatedRoute)
-fb = inject(FormBuilder)
+
 leaveService = inject(LeaveService)
 sanitizer = inject(DomSanitizer);
 userService = inject(UsersService);
@@ -97,12 +98,15 @@ if (leaveId) {
   this.leaveService.getLeaveById(+leaveId).subscribe((response: any) => {
     this.leave = response;
 
+    console.log(this.leave)
+
 
     this.leaveRequestForm.patchValue({
       leaveTypeId: this.leave.leaveTypeId,
       startDate: this.leave.startDate,
       endDate: this.leave.endDate,
-      notes: this.leave.notes
+      notes: this.leave.notes,
+      fileUrl : this.leave.fileUrl,
     });
 
 

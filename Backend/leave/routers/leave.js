@@ -1395,17 +1395,82 @@ router.patch('/untakenLeaveUpdate/:id', authenticateToken, async (req, res) => {
 
 
 
+router.patch('/updateLeaveFileUrl/:leaveId', authenticateToken, async (req, res) => {
+  console.log('Request received to update file URL');
+  try {
+    const leaveId = req.params.leaveId;
+    const fileUrl = req.body.fileUrl;
 
+    // Check for required parameters
+    if (!leaveId || !fileUrl) {
+      return res.status(400).send({ message: 'Leave ID and File URL are required' });
+    }
 
+    // Update the leave file URL in the database
+    const result = await Leave.update(
+      { fileUrl: fileUrl },
+      { where: { id: leaveId } }
+    );
 
+    // Check if the leave record was updated
+    if (result[0] === 0) {
+      return res.status(404).send({ message: 'Leave request not found or already updated' });
+    }
 
+    // Get the user info and related roles
+    const userId = req.user.id;
+    const userName = req.user.name;
 
+    // Fetch HR Admin Role
+    const hrAdminRole = await Role.findOne({ where: { roleName: 'HR Administrator' } });
+    if (!hrAdminRole) {
+      return res.status(404).send({ message: 'HR Admin role not found' });
+    }
 
+    // Fetch HR Admin User
+    const hrAdminUser = await User.findOne({ where: { roleId: hrAdminRole.id, status: true } });
+    if (!hrAdminUser) {
+      return res.status(404).send({ message: 'HR Admin user not found' });
+    }
 
+    const hrAdminId = hrAdminUser.id;
 
+    // Fetch Reporting Manager ID for the user
+    const userPersonal = await UserPersonal.findOne({
+      where: { userId },
+      attributes: ['reportingMangerId'],
+    });
 
+    if (!userPersonal || !userPersonal.reportingMangerId) {
+      return res.status(404).send({ message: `No reporting manager found for userId ${userId}` });
+    }
+
+    const reportingManagerId = userPersonal.reportingMangerId;
+
+    // Generate the relative leave request URL
+    const leaveRequestUrl = `/login/admin-leave/edit/${leaveId}`;
+
+    // Send notifications to both HR Admin and Reporting Manager
+    await Notification.create({
+      userId: hrAdminId,
+      message: `Leave file URL updated. <a href="${leaveRequestUrl}">Click here to view details</a>`,
+      route: leaveRequestUrl // This is the relative URL to be used in frontend routing
+    });
+
+    await Notification.create({
+      userId: reportingManagerId,
+      message: `Leave file URL updated. <a href="${leaveRequestUrl}">Click here to view details</a>`,
+      route: leaveRequestUrl // This is the relative URL to be used in frontend routing
+    });
+
+    // Send a success response
+    return res.status(200).send({ message: 'Leave file URL updated and notifications sent' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({ message: 'Internal server error' });
+  }
+});
 
 
 
 module.exports = router;
-
