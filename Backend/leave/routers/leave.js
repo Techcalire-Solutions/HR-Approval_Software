@@ -1433,7 +1433,7 @@ router.patch('/updateLeaveFileUrl/:leaveId', authenticateToken, async (req, res)
 
     const hrAdminId = hrAdminUser.id;
 
-    // Fetch Reporting Manager ID for the user
+
     const userPersonal = await UserPersonal.findOne({
       where: { userId },
       attributes: ['reportingMangerId'],
