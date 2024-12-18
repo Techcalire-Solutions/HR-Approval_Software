@@ -13,7 +13,7 @@ const LeaveType = require('../models/leaveType')
  const s3 = require('../../utils/s3bucket');
  const UserPersonal = require('../../users/models/userPersonal');
  const UserPosition = require('../../users/models/userPosition');
-const Notification = require('../../invoices/models/notification');
+const Notification = require('../../notification/models/notification');
 
  
 //-----------------------------------Mail code-------------------------------------------------------
@@ -1453,14 +1453,21 @@ router.patch('/updateLeaveFileUrl/:leaveId', authenticateToken, async (req, res)
     // Send notifications to both HR Admin and Reporting Manager
     await Notification.create({
       userId: hrAdminId,
-      message: `Leave file URL updated. <a href="${leaveRequestUrl}">Click here to view details</a>`,
-      route: leaveRequestUrl // This is the relative URL to be used in frontend routing
+
+      message: `Medical Certificate uploaded by ${userName}`,
+      route: leaveRequestUrl
+
+
     });
 
     await Notification.create({
       userId: reportingManagerId,
-      message: `Leave file URL updated. <a href="${leaveRequestUrl}">Click here to view details</a>`,
-      route: leaveRequestUrl // This is the relative URL to be used in frontend routing
+
+      message: `Medical Certificate uploaded by ${userName}`,
+      route: leaveRequestUrl
+
+  
+
     });
 
     // Send a success response

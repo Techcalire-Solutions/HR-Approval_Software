@@ -26,6 +26,10 @@ const Notification = sequelize.define('notification', {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
     },
+    route: {
+        type: DataTypes.STRING,
+        allowNull: true, 
+    },
 }, {
     freezeTableName: true,
     timestamps: false,
