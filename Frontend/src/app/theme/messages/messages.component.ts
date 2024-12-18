@@ -15,9 +15,12 @@ import { CommonModule } from '@angular/common';
 import { TimeAgoPipe } from '../pipes/time-ago.pipe';
 import { RoleService } from '@services/role.service';
 import { DomSanitizer } from '@angular/platform-browser';
+
 import { Router, RouterModule } from '@angular/router';
 import { NotificationSocketService } from '@services/notification-socket.service';
 import { NewNotificationService } from '@services/new-notification.service';
+
+
 
 
 @Component({
@@ -60,9 +63,13 @@ export class MessagesComponent implements OnInit {
   userRole: string;
   roleService = inject(RoleService)
   constructor(private sanitizer: DomSanitizer) {}
+
   router = inject(Router)
   notificationService = inject(NotificationSocketService)
   newNotificationService = inject(NewNotificationService)
+
+
+
   sanitizeMessage(message: string) {
     return this.sanitizer.bypassSecurityTrustHtml(message);
   }
@@ -149,7 +156,7 @@ export class MessagesComponent implements OnInit {
    this.messageNotfiSub =  this.messagesService.getUserNotifications(this.userId).subscribe(
       (data: any) => {
         this.notifications = data.notifications || [];
-        console.log(this.notifications)
+        // console.log(this.notifications)
         this.checkForNewNotifications(data);
         this.updateUnreadCount();
       },
@@ -232,6 +239,7 @@ export class MessagesComponent implements OnInit {
   }
   // constructor(private router: Router) {}
 
+
 // Function to extract the link from the message (if available)
 extractLink(route: string): boolean {
   // Ensure that the return value is always a boolean
@@ -256,5 +264,16 @@ onMessageClick(route: string): void {
   // Close or destroy the component if necessary
   // You can also do other things like emitting an event to parent components, etc.
 }
+
+  // onNotificationClick(message) {
+
+  //   const route = message.route;
+
+  //   if (route) {
+
+  //     this.router.navigate([route]);
+  //   }
+  // }
+
 }
 

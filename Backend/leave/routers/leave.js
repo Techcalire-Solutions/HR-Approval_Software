@@ -1453,14 +1453,21 @@ router.patch('/updateLeaveFileUrl/:leaveId', authenticateToken, async (req, res)
     // Send notifications to both HR Admin and Reporting Manager
     await Notification.create({
       userId: hrAdminId,
+
       message: `Medical Certificate uploaded by ${userName}`,
       route: leaveRequestUrl
+
+
     });
 
     await Notification.create({
       userId: reportingManagerId,
+
       message: `Medical Certificate uploaded by ${userName}`,
       route: leaveRequestUrl
+
+  
+
     });
 
     // Send a success response
