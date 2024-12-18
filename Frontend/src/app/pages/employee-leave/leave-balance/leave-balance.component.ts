@@ -1,6 +1,6 @@
 
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -28,9 +28,9 @@ import { LeaveGraphsComponent } from '../leave-graphs/leave-graphs.component';
   templateUrl: './leave-balance.component.html',
   styleUrl: './leave-balance.component.scss'
 })
-export class LeaveBalanceComponent {
+export class LeaveBalanceComponent implements OnInit, OnDestroy{
 
-  selectedView: string = 'list'; 
+  selectedView: string = 'list';
 
   // Function triggered on toggle change
   onToggleView(event: any): void {
