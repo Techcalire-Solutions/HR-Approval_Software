@@ -1411,7 +1411,7 @@ router.patch('/updateLeaveFileUrl/:leaveId', authenticateToken, async (req, res)
       { fileUrl: fileUrl },
       { where: { id: leaveId } }
     );
-    // Check if the leave record was updated
+
     if (result[0] === 0) {
       return res.send({ message: 'Leave request not found or already updated' });
     }
@@ -1425,7 +1425,7 @@ router.patch('/updateLeaveFileUrl/:leaveId', authenticateToken, async (req, res)
       return res.send({ message: 'HR Admin role not found' });
     }
 
-    // Fetch HR Admin User
+
     const hrAdminUser = await User.findOne({ where: { roleId: hrAdminRole.id, status: true } });
     if (!hrAdminUser) {
       return res.send({ message: 'HR Admin user not found' });
@@ -1445,7 +1445,7 @@ router.patch('/updateLeaveFileUrl/:leaveId', authenticateToken, async (req, res)
 
     const reportingManagerId = userPersonal.reportingMangerId;
 
-    // Generate the relative leave request URL
+ 
     const leaveRequestUrl = `/login/admin-leave/view/${leaveId}`;
 
     await Notification.create({
