@@ -58,13 +58,13 @@ export class LeaveService {
 
 
 updateApproveLeaveStatus(approvalData: any) {
-  const { leaveId, adminNotes } = approvalData; 
+  const { leaveId, adminNotes } = approvalData;
   return this.http.put(`${this.apiUrl}/leave/approveLeave/${leaveId}`, { adminNotes });
 }
 
 
 updateRejectLeaveStatus(rejectionData: any) {
-  const { leaveId, adminNotes } = rejectionData; 
+  const { leaveId, adminNotes } = rejectionData;
   return this.http.put(`${this.apiUrl}/leave/rejectLeave/${leaveId}`, { adminNotes });
 }
 
@@ -142,5 +142,9 @@ updateRejectLeaveStatus(rejectionData: any) {
 
   untakenLeaveUpdate(leaveId: number, updatedData: any): Observable<any> {
     return this.http.patch(`${this.apiUrl}/leave/untakenLeaveUpdate/${leaveId}`, updatedData);
+  }
+
+updateLeaveFileUrl(leaveId: string, fileUrl: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/leave/updateLeaveFileUrl/${leaveId}`, { fileUrl });
   }
 }

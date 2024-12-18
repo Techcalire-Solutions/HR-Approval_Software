@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 const cors = require('cors')
 const cron = require('node-cron');
 
+const WebSocket = require('ws'); 
 dotenv.config();
 app.use(cors({ origin: '*' }));
 app.use(express.json());
@@ -52,7 +53,7 @@ app.use('/invoice', invoice);
 app.use('/performaInvoice', pi);
 app.use('/invoiceStatus', piStatus);
 app.use('/excelLog', excelLog);
-
+const http = require('http');
 const company = require('../invoices/routers/company');
 app.use('/company', company);
 
@@ -84,7 +85,7 @@ app.use('/advanceSalary', advanceSalary);
 const holiday = require('../leave/routers/holiday');
 app.use('/holidays', holiday);
 
-const notification = require('../invoices/routers/notification')
+const notification = require('../notification/routers/notification')
 app.use('/notification',notification)
 
 const chat = require('../chat/router/chat');
@@ -108,8 +109,32 @@ cron.schedule('0 0 5 * *', () => {
 
 const backUpLogRouter = require('./backupLogRouter');
 app.use('/backup', backUpLogRouter);
+const wss = new WebSocket.Server({ noServer: true });
+
+wss.on('connection', (ws) => {
+    console.log('Client connected');
+    ws.send(JSON.stringify({ message: 'Connected to WebSocket server' }));
+
+    ws.on('message', (message) => {
+        console.log('Received:', message);
+    });
+
+    ws.on('close', () => {
+        console.log('Client disconnected');
+    });
+});
+
+const server = http.createServer(app);
+
+// WebSocket upgrade handling
+server.on('upgrade', (request, socket, head) => {
+    console.log('Upgrade request received');
+    wss.handleUpgrade(request, socket, head, (ws) => {
+        wss.emit('connection', ws, request);
+    });
+});
 
 const port = process.env.PORT || 8000;
-app.listen(port, () => {
-    console.log(`server started on port ${port}`);
-})
+server.listen(port, () => {
+    console.log(`Server started on port ${port}`);
+});

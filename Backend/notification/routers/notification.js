@@ -8,12 +8,13 @@ const Notification = require('../models/notification')
 
 
 router.post('/create', authenticateToken, async (req, res) => {
-    const { userId, message } = req.body;
+    const { userId, message,route } = req.body;
 
     try {
         const notification = await Notification.create({
             userId,
             message,
+            route
         });
         res.status(201).json({ notification });
     } catch (error) {

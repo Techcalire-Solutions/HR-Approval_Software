@@ -9,7 +9,7 @@ const PerformaInvoice = require('../models/performaInvoice');
 const sequelize = require('../../utils/db');
 const nodemailer = require('nodemailer');
 const s3 = require('../../utils/s3bucket');
-const Notification = require('../models/notification');
+const Notification = require('../../notification/models/notification');
 const UserPosition = require('../../users/models/userPosition');
 
 

@@ -30,6 +30,7 @@ import { UserDialogComponent } from '../users/user-dialog/user-dialog.component'
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 import { Router } from '@angular/router';
 import { LeaveGraphsComponent } from './leave-graphs/leave-graphs.component';
+import { UplaodDialogComponent } from './uplaod-dialog/uplaod-dialog.component';
 
 @Component({
   selector: 'app-employee-leave',
@@ -107,18 +108,17 @@ leaves:any[]=[]
         this.totalItems = res.count;
 
         console.log(this.leaves)
-
-        // Calculate the total Sick Leave (SL) days here
-// Calculate the total Sick Leave (SL) days here
+                     // Filter Sick Leave entries and calculate the total Sick Leave days
 this.totalSickLeave = this.leaves
-  .filter(leave => leave.leaveType?.leaveTypeName === 'Sick Leave') // Ensure nested access
-  .reduce((total, leave) => total + (leave.noOfDays || 0), 0);
+.filter(leave => leave.leaveType?.leaveTypeName === 'Sick Leave') // Ensure nested access
+.reduce((total, leave) => total + (leave.noOfDays || 0), 0);
 
 console.log('Total Sick Leave:', this.totalSickLeave);
 
-// Set button visibility based on the total sick leave
+// Set button visibility only if total Sick Leave is >= 3
 this.isButtonVisible = this.totalSickLeave >= 3;
 console.log('Is Button Visible:', this.isButtonVisible);
+
 
       },
       (error) => {
@@ -220,6 +220,43 @@ deleteLeaveStableFunction(id: number){
 
     this.leaves = this.leaves.filter(item => item.id !== id);
   }
+
+  uploadMedicalCertificate(leaveId: any, note: string): void {
+
+
+  }
+  openDialog(action: string, leaveId: string): void {
+    const dialogRef = this.dialog.open(UplaodDialogComponent, {
+      data: { leaveId } , // Pass leaveId as part of the dialog data
+      width: '400px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.fileUrl) {
+        // If fileUrl is returned, you can update it in the backend or UI
+        console.log('File URL returned:', result.fileUrl);
+
+        // You can call your API to update the leave record with the file URL
+        this.updateLeaveFileUrl(leaveId, result.fileUrl);
+      } else {
+        console.log('No file URL returned');
+      }
+    });
+  }
+
+  updateLeaveFileUrl(leaveId: string, fileUrl: string): void {
+    // Call your backend API to update the file URL for the leave request
+    this.leaveService.updateLeaveFileUrl(leaveId, fileUrl).subscribe({
+      next: (res) => {
+        console.log('File URL updated successfully');
+      },
+      error: (err) => {
+        console.error('Failed to update file URL', err);
+      }
+    });
+  }
+
+
 
 
 
