@@ -127,9 +127,15 @@ export const routes: Routes = [
             canActivate: [AuthGuard]
           }
         ]
-      }
+      },
+      {
+        path: 'chat',
+        loadComponent: () => import('../theme/components/chat/chat.component').then(c => c.ChatComponent),
+        data: { breadcrumb: 'Profile' }, canActivate: [AuthGuard]
+      },
 
     ]
-  }
+  },
+
 ];
 

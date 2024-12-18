@@ -88,6 +88,10 @@ app.use('/holidays', holiday);
 const notification = require('../notification/routers/notification')
 app.use('/notification',notification)
 
+const chat = require('../chat/router/chat');
+app.use('/chat', chat);
+
+
 const backup = require('./backUp')
 cron.schedule('0 0 5 * *', () => {
     backup();

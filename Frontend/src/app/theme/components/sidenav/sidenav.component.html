@@ -37,8 +37,7 @@
       @if(settings.menuType == 'default'){
         <p class="position">
           {{ user.userPosition?.designation ? user.userPosition.designation.designationName : user.role.roleName }}<br />
-          <small class="muted-text">Member since {{user.createdAt | date:'dd MMM yyyy'}}</small>
-
+          <!-- <small class="muted-text">Member since {{user.createdAt | date:'dd MMM yyyy'}}</small> -->
         </p>
       }
 
@@ -50,9 +49,9 @@
       <button mat-icon-button  (click)="openProfile()">
         <mat-icon>person_outline</mat-icon>
       </button>
-      <a mat-icon-button >
+      <!-- <a mat-icon-button (click)="openChat()">
         <mat-icon>mail_outline</mat-icon>
-      </a>
+      </a> -->
       <a mat-icon-button (click)="logout()">
         <mat-icon>power_settings_new</mat-icon>
       </a>
@@ -69,14 +68,6 @@
       <app-vertical-menu [menuItems]="filteredMenuItems" [menuParentId]="0"></app-vertical-menu>
     </ng-container>
    }
-
-
-
-  <!-- Show filtered menu for other roles -->
-   <!-- @if(role === 'Sales Executive' || role === 'Key Account Manager' ||role === 'HR' || role === 'Manager' ||role==='Team Lead'|| role === 'Accountant'){
-
-   } -->
-
 </div>
 
 </ng-scrollbar>

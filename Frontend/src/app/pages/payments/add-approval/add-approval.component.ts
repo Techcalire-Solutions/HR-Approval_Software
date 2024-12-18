@@ -25,11 +25,12 @@ import { Company } from '../../../common/interfaces/company';
 import { PerformaInvoice } from '../../../common/interfaces/payments/performaInvoice';
 import { AddCompanyComponent } from '../../company/add-company/add-company.component';
 import { User } from '../../../common/interfaces/users/user';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 @Component({
   selector: 'app-add-approval',
   standalone: true,
   imports: [ReactiveFormsModule, MatFormFieldModule, MatCardModule, MatToolbarModule, MatIconModule, MatButtonModule,
-    MatSelectModule, MatInputModule, SafePipe, CommonModule, MatAutocompleteModule],
+    MatSelectModule, MatInputModule, SafePipe, CommonModule, MatAutocompleteModule, MatProgressSpinnerModule],
   templateUrl: './add-approval.component.html',
   styleUrl: './add-approval.component.scss'
 })
@@ -58,8 +59,6 @@ export class AddApprovalComponent {
     this.getKAM();
     this.getAM();
     this.getAccountants();
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const token: any = localStorage.getItem('token');
     const user = JSON.parse(token)
 
@@ -298,6 +297,7 @@ export class AddApprovalComponent {
 
     this.uploadSub = this.invoiceService.uploadInvoice(formData).subscribe({
       next: (invoice) => {
+        this.doc().at(i).get('url')?.setValue(invoice.fileUrl);
         this.imageUrl[i] = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${invoice.fileUrl}`;
       },
       error: () => {
@@ -340,7 +340,9 @@ export class AddApprovalComponent {
   }
 
   submit : Subscription
+  submitted: boolean = false;
   onSubmit() {
+    this.submitted = true;
     let submitMethod;
     if (this.roleName === 'Sales Executive') {
         submitMethod = this.invoiceService.addPI(this.piForm.getRawValue());
@@ -357,6 +359,7 @@ export class AddApprovalComponent {
 
                 if (piNo) {
                     this.snackBar.open(`Proforma Invoice ${piNo} uploaded successfully...`, "", { duration: 3000 });
+                    this.submitted = false;
                     this.router.navigateByUrl('login/viewApproval/view?isSubmitted=true');
                 } else {
                     this.snackBar.open('Failed to upload the invoice. Please try again.', "", { duration: 3000 });
@@ -364,6 +367,7 @@ export class AddApprovalComponent {
             },
             error: (err) => {
                 const errorMessage = err?.error?.message || 'An error occurred while uploading the invoice.';
+                this.submitted = false;
                 this.snackBar.open(`Error: ${errorMessage}`, "", { duration: 3000 });
             }
         });
