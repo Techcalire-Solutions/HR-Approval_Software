@@ -2,7 +2,6 @@
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { Component, inject, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { UsersService } from '../../services/users.service';
-import { Settings, SettingsService } from '../../services/settings.service';
 import { MatDialog } from '@angular/material/dialog';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,8 +15,6 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCardModule } from '@angular/material/card';
-import { DomSanitizer } from '@angular/platform-browser';
-import { CommonModule } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
