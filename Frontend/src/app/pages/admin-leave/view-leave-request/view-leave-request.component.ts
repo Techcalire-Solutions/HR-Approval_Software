@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -59,7 +59,7 @@ import { NoteDialogComponent } from '../note-dialog/note-dialog.component';
   templateUrl: './view-leave-request.component.html',
   styleUrl: './view-leave-request.component.scss'
 })
-export class ViewLeaveRequestComponent {
+export class ViewLeaveRequestComponent implements OnInit, OnDestroy {
   public page:any;
   snackBar = inject(MatSnackBar);
   roleService = inject(RoleService);
@@ -242,4 +242,5 @@ onDeleteLeave(leaveId: number): void {
     });
 
   }
+
 }

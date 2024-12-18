@@ -1,5 +1,5 @@
 import { CommonModule, formatDate } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormArray, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -62,7 +62,7 @@ function sessionSelectionValidator(group: FormGroup) {
     { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
   ],
 })
-export class AddLeaveComponent {
+export class AddLeaveComponent implements OnInit, OnDestroy {
   isEditMode: boolean = false;
 
   leaveRequestForm: FormGroup;

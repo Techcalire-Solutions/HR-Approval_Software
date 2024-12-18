@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,7 +21,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./leave-count-cards.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class LeaveCountCardsComponent {
+export class LeaveCountCardsComponent implements OnInit, OnDestroy{
 
   @ViewChild('resizedDiv') resizedDiv: ElementRef;
   public leaveCounts: any[] = [];
@@ -69,8 +69,8 @@ export class LeaveCountCardsComponent {
   isLOP(leave: any): boolean {
     return leave.leaveType.leaveTypeName === 'LOP' || leave.leaveBalance === null || leave.leaveBalance < 0;
   }
-  
-  
+
+
   ngOnDestroy() {
     if (this.leaveCountsSubscription) {
       this.leaveCountsSubscription.unsubscribe();

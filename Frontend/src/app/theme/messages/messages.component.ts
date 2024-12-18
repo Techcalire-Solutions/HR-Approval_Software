@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, ViewChild, inject, OnDestroy } from '@angular/core';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MessagesService } from '../../services/messages.service';
@@ -16,8 +16,6 @@ import { TimeAgoPipe } from '../pipes/time-ago.pipe';
 import { RoleService } from '@services/role.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router, RouterModule } from '@angular/router';
-import { NotificationSocketService } from '@services/notification-socket.service';
-import { NewNotificationService } from '@services/new-notification.service';
 
 
 @Component({
@@ -42,7 +40,7 @@ import { NewNotificationService } from '@services/new-notification.service';
   encapsulation: ViewEncapsulation.None,
   providers: [MessagesService]
 })
-export class MessagesComponent implements OnInit {
+export class MessagesComponent implements OnInit, OnDestroy {
   @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
   public selectedTab: number = 1;
   public messages: Array<any>;
@@ -61,32 +59,54 @@ export class MessagesComponent implements OnInit {
   roleService = inject(RoleService)
   constructor(private sanitizer: DomSanitizer) {}
   router = inject(Router)
-  notificationService = inject(NotificationSocketService)
-  newNotificationService = inject(NewNotificationService)
+
   sanitizeMessage(message: string) {
     return this.sanitizer.bypassSecurityTrustHtml(message);
   }
 
-
-  async ngOnInit() {
-    this.newNotificationService.receiveNewNotification({
-      id: '12345',
-      message: 'You have a new notification!',
-      isRead: false,
-    });
-
-    this.notificationService.connect();
-    this.notificationService.getNotifications().subscribe((notifications) => {
-      this.notifications = notifications;
-    });
-
-    this.initializeComponent();
-    // setInterval(() => {
-    //   this.getNotificationsForUser();
-    // }, 10000);
-
+  ngOnInit(){
+this.initializeComponent()
   }
 
+
+  messageNotfiSub:Subscription
+  getNotificationsForUser() {
+   this.messageNotfiSub =  this.messagesService.getUserNotifications(this.userId).subscribe(
+      (data: any) => {
+        this.notifications = data.notifications || [];
+        console.log(this.notifications)
+        this.checkForNewNotifications(data);
+        this.updateUnreadCount();
+      },
+      (error) => {
+        console.error('Error fetching notifications:', error);
+      }
+    );
+  }
+
+   // Function to subscribe to notifications using the service's refreshData
+   private notificationsSubscription: Subscription;
+   subscribeToNotifications(): void {
+    this.notificationsSubscription = this.messagesService.refreshData(this.userId).subscribe(
+      (notifications: any[]) => {
+        // Filter out duplicate notifications based on their ID
+        const newNotifications = notifications.filter((notification) => {
+          return !this.previousNotificationIds.has(notification.id);
+        });
+
+        // Add new notifications and update the previousNotificationIds set
+        this.notifications.push(...newNotifications);
+        newNotifications.forEach((notification) => {
+          this.previousNotificationIds.add(notification.id);
+        });
+
+        console.log('Updated Notifications:', this.notifications);
+      },
+      (error: any) => {
+        console.error('Error fetching notifications:', error);
+      }
+    );
+  }
    async initializeComponent(){
     this.messages = this.messagesService.getMessages();
     this.files = this.messagesService.getFiles();
@@ -144,20 +164,7 @@ export class MessagesComponent implements OnInit {
 
 
 
-  messageNotfiSub:Subscription
-  getNotificationsForUser() {
-   this.messageNotfiSub =  this.messagesService.getUserNotifications(this.userId).subscribe(
-      (data: any) => {
-        this.notifications = data.notifications || [];
-        console.log(this.notifications)
-        this.checkForNewNotifications(data);
-        this.updateUnreadCount();
-      },
-      (error) => {
-        console.error('Error fetching notifications:', error);
-      }
-    );
-  }
+
   allNotSub: Subscription;
 
   getAllNot() {

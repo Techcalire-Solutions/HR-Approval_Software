@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
@@ -18,7 +18,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './leave-graphs.component.html',
   styleUrl: './leave-graphs.component.scss'
 })
-export class LeaveGraphsComponent {
+export class LeaveGraphsComponent implements OnInit, OnDestroy{
 
   public single: any[];
   public multi: any[];
@@ -90,6 +90,9 @@ userId : number;
 
   getChartData(){
 
+  }
+  ngOnDestroy(){
+    
   }
 }
 

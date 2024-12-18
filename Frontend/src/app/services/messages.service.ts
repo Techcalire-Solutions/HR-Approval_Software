@@ -1,7 +1,7 @@
 import {inject, Injectable} from '@angular/core'
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +18,13 @@ export class MessagesService {
   getUserNotifications(userId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/user/${userId}`);
   }
+  private notificationsSubject = new Subject<any[]>(); // Subject to emit notifications
+  public notifications$ = this.notificationsSubject.asObservable();
 
+  refreshData(userId: number): Observable<any[]> {
+    // Return the observable from getUserNotifications
+    return this.getUserNotifications(userId);
+  }
  // Mark notification as read
  markAsRead(notificationId: string): Observable<any> {
   return this.http.put(`${this.apiUrl}/mark-read/${notificationId}`, {});
@@ -43,6 +49,8 @@ getUnreadCount(): Observable<any> {
   deleteNotification(notificationId: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/delete/${notificationId}`);
   }
+
+
 
   // Sample static data (if still needed)
   private messages = [

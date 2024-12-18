@@ -53,7 +53,7 @@ app.use('/invoice', invoice);
 app.use('/performaInvoice', pi);
 app.use('/invoiceStatus', piStatus);
 app.use('/excelLog', excelLog);
-const http = require('http');
+
 const company = require('../invoices/routers/company');
 app.use('/company', company);
 
@@ -105,32 +105,10 @@ cron.schedule('0 0 5 * *', () => {
 
 const backUpLogRouter = require('./backupLogRouter');
 app.use('/backup', backUpLogRouter);
-const wss = new WebSocket.Server({ noServer: true });
 
-wss.on('connection', (ws) => {
-    console.log('Client connected');
-    ws.send(JSON.stringify({ message: 'Connected to WebSocket server' }));
-
-    ws.on('message', (message) => {
-        console.log('Received:', message);
-    });
-
-    ws.on('close', () => {
-        console.log('Client disconnected');
-    });
-});
-
-const server = http.createServer(app);
-
-// WebSocket upgrade handling
-server.on('upgrade', (request, socket, head) => {
-    console.log('Upgrade request received');
-    wss.handleUpgrade(request, socket, head, (ws) => {
-        wss.emit('connection', ws, request);
-    });
-});
 
 const port = process.env.PORT || 8000;
-server.listen(port, () => {
-    console.log(`Server started on port ${port}`);
-});
+
+app.listen(port, () => {
+    console.log(`server started on port ${port}`);
+})
