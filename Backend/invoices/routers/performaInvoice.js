@@ -14,7 +14,7 @@ const nodemailer = require('nodemailer');
 const TeamMember = require('../../users/models/teamMember');
 const Team = require('../../users/models/team');
 const Company = require('../models/company');
-const Notification = require('../../invoices/models/notification')
+const Notification = require('../../notification/models/notification')
 const UserPosition = require('../../users/models/userPosition')
 
 

@@ -15,6 +15,9 @@ import { CommonModule } from '@angular/common';
 import { TimeAgoPipe } from '../pipes/time-ago.pipe';
 import { RoleService } from '@services/role.service';
 import { DomSanitizer } from '@angular/platform-browser';
+import { Router, RouterModule } from '@angular/router';
+import { NotificationSocketService } from '@services/notification-socket.service';
+import { NewNotificationService } from '@services/new-notification.service';
 
 
 @Component({
@@ -31,7 +34,8 @@ import { DomSanitizer } from '@angular/platform-browser';
     NgScrollbarModule,
     PipesModule,
     CommonModule,
-    TimeAgoPipe
+    TimeAgoPipe,
+    RouterModule
   ],
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.scss'],
@@ -56,14 +60,31 @@ export class MessagesComponent implements OnInit {
   userRole: string;
   roleService = inject(RoleService)
   constructor(private sanitizer: DomSanitizer) {}
-
+  router = inject(Router)
+  notificationService = inject(NotificationSocketService)
+  newNotificationService = inject(NewNotificationService)
   sanitizeMessage(message: string) {
     return this.sanitizer.bypassSecurityTrustHtml(message);
   }
 
 
   async ngOnInit() {
-    this.initializeComponent()
+    this.newNotificationService.receiveNewNotification({
+      id: '12345',
+      message: 'You have a new notification!',
+      isRead: false,
+    });
+
+    this.notificationService.connect();
+    this.notificationService.getNotifications().subscribe((notifications) => {
+      this.notifications = notifications;
+    });
+
+    this.initializeComponent();
+    // setInterval(() => {
+    //   this.getNotificationsForUser();
+    // }, 10000);
+
   }
 
    async initializeComponent(){
@@ -128,7 +149,7 @@ export class MessagesComponent implements OnInit {
    this.messageNotfiSub =  this.messagesService.getUserNotifications(this.userId).subscribe(
       (data: any) => {
         this.notifications = data.notifications || [];
-        // console.log(this.notifications)
+        console.log(this.notifications)
         this.checkForNewNotifications(data);
         this.updateUnreadCount();
       },
@@ -173,6 +194,7 @@ export class MessagesComponent implements OnInit {
 
     }
     this.previousNotificationIds = new Set(extractedNotifications.map(n => n.id));
+    this.updateUnreadCount();
   }
 
 
@@ -210,14 +232,29 @@ export class MessagesComponent implements OnInit {
   }
   // constructor(private router: Router) {}
 
-  // onNotificationClick(message) {
+// Function to extract the link from the message (if available)
+extractLink(route: string): boolean {
+  // Ensure that the return value is always a boolean
+  return !!route && route.length > 0;
+}
 
-  //   const route = message.route;
 
-  //   if (route) {
 
-  //     this.router.navigate([route]);
-  //   }
-  // }
+// Function to handle message click
+onNotificationClick(message: any) {
+  const link = this.extractLink(message.route);
+
+  if (link) {
+    // Navigate using Angular Router to the extracted link
+    this.router.navigate([link]);
+  }
+}
+onMessageClick(route: string): void {
+  // Navigate to the route (this can be the same route or a different one)
+  this.router.navigate([route]);
+
+  // Close or destroy the component if necessary
+  // You can also do other things like emitting an event to parent components, etc.
+}
 }
 

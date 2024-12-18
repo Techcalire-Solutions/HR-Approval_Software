@@ -13,7 +13,7 @@ const { Op } = require('sequelize');
 const sequelize = require('../../utils/db');
 const nodemailer = require('nodemailer');
 const UserPosition = require('../../users/models/userPosition')
-const Notification = require('../../invoices/models/notification')
+const Notification = require('../../notification/models/notification')
 const ExcelJS = require('exceljs');
 const ExcelLog = require('../../invoices/models/excelLog');
 
