@@ -6,7 +6,7 @@ const User = require('../models/user');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const Role = require('../models/role')
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const sequelize = require('../../utils/db');
 const upload = require('../../utils/userImageMulter'); 
 const s3 = require('../../utils/s3bucket');
@@ -17,6 +17,7 @@ const UserPosition = require('../models/userPosition');
 const Designation = require('../models/designation');
 const StatutoryInfo = require('../models/statutoryInfo');
 const nodemailer = require('nodemailer');
+const UserDocument = require('../models/userDocuments');
 
 router.post('/add', async (req, res) => {
   const { name, email, phoneNumber, password, status, userImage, url, empNo, director } = req.body;
@@ -224,6 +225,27 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
   const id = req.params.id
   try {
     const user = await User.findByPk(id)
+    const fileKey = user.url;
+
+    if(fileKey){
+      const deleteParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileKey
+      };
+      await s3.deleteObject(deleteParams).promise();
+    }
+
+    const userDoc = await UserDocument.findAll({ where: {userId: user.id} });
+    if(userDoc.length > 0){
+        for(let i = 0; i < userDoc.length; i++) {
+          const docKey = userDoc[i].docUrl;
+          const deleteParams = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: docKey
+          };
+          await s3.deleteObject(deleteParams).promise();
+        }
+    }
 
     const result = await user.destroy({
       force: true

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-wrapper-object-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ChangeDetectorRef, Component, inject, OnInit, PipeTransform, ViewEncapsulation } from '@angular/core';
+import { Component, inject, OnInit, PipeTransform, ViewEncapsulation } from '@angular/core';
 import { Settings, SettingsService } from '../../../services/settings.service';
 import { VerticalMenuComponent } from '../menu/vertical-menu/vertical-menu.component';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
@@ -286,6 +286,10 @@ users:User;
 
   openProfile(){
     this.router.navigateByUrl('login/profile')
+  }
+
+  openChat(){
+    this.router.navigateByUrl('login/chat')
   }
 
 }

@@ -105,7 +105,7 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
   try {
     try {
         let user = await UserDocument.findByPk(id);
-        fileKey = user.docUrl ;
+        fileKey = user.docUrl;
         user.url = '';
         await user.save();
     } catch (error) {

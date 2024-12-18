@@ -23,6 +23,10 @@ import { MonthlyPayroll } from '../../../common/interfaces/payRoll/monthlyPayrol
 import { SafePipe } from "../../../common/safe.pipe";
 import { UserQualification } from '../../../common/interfaces/users/user-qualification';
 import { Nominee } from '../../../common/interfaces/users/nominee';
+import { MatDialog } from '@angular/material/dialog';
+import { EditUserPersonalComponent } from './edit-user-personal/edit-user-personal.component';
+import { EditUserPositionComponent } from './edit-user-position/edit-user-position.component';
+import { EditUserStatutoryComponent } from './edit-user-statutory/edit-user-statutory.component';
 
 @Component({
   selector: 'app-view-user',
@@ -165,5 +169,49 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   private router = inject(Router);
   openPayroll(id: number){
     this.router.navigateByUrl('login/payroll/month-end/payslip/open/'+ id)
+  }
+
+  private dialog = inject(MatDialog);
+  dialogSub: Subscription;
+  onEditClick(): void {
+    this.router.navigate(['/login/users/edit/' + this.user.id])
+  }
+
+  editPersonal(event: MouseEvent){
+    event.stopPropagation();
+    const dialogRef = this.dialog.open(EditUserPersonalComponent, {
+      width: '90%',
+      maxHeight: '90vh',
+      data: {id: this.user.id},
+    });
+
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
+      this.getPersonsalData(this.user.id)
+    });
+  }
+
+  editPosition(event: MouseEvent){
+    event.stopPropagation();
+    const dialogRef = this.dialog.open(EditUserPositionComponent, {
+      width: '90%',
+      maxHeight: '90vh',
+      data: {id: this.user.id},
+    });
+
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
+      this.getPositionData(this.user.id)
+    });
+  }
+  editStatutory(event: MouseEvent){
+    event.stopPropagation();
+    const dialogRef = this.dialog.open(EditUserStatutoryComponent, {
+      width: '90%',
+      maxHeight: '90vh',
+      data: {id: this.user.id},
+    });
+
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
+      this.getStatutoryData(this.user.id)
+    });
   }
 }
