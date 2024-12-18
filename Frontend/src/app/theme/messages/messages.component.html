@@ -23,11 +23,11 @@
                                           <span class="info"><mat-icon>access_time</mat-icon>     {{ message.createdAt | timeAgo }}</span>
                                       </div>
 
-                         
+
                                       <span *ngIf="extractLink(message.route)" (click)="onMessageClick(message.route)" class="text muted-text" [innerHTML]="message.message">
                                       </span>
-                        
-                                      
+
+
 
                                   </div>
 
@@ -66,7 +66,6 @@
                   </ng-scrollbar>
               </mat-card>
           </mat-tab>
-          <mat-tab>
-          </mat-tab>
+
       </mat-tab-group>
 </mat-menu>

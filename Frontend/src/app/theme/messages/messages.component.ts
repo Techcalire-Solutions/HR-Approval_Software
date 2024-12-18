@@ -86,33 +86,9 @@ this.initializeComponent()
     );
   }
 
-   // Function to subscribe to notifications using the service's refreshData
-   private notificationsSubscription: Subscription;
-   subscribeToNotifications(): void {
-    this.notificationsSubscription = this.messagesService.refreshData(this.userId).subscribe(
-      (notifications: any[]) => {
-        // Filter out duplicate notifications based on their ID
-        const newNotifications = notifications.filter((notification) => {
-          return !this.previousNotificationIds.has(notification.id);
-        });
 
-        // Add new notifications and update the previousNotificationIds set
-        this.notifications.push(...newNotifications);
-        newNotifications.forEach((notification) => {
-          this.previousNotificationIds.add(notification.id);
-        });
-
-        console.log('Updated Notifications:', this.notifications);
-      },
-      (error: any) => {
-        console.error('Error fetching notifications:', error);
-      }
-    );
-  }
    async initializeComponent(){
-    this.messages = this.messagesService.getMessages();
-    this.files = this.messagesService.getFiles();
-    this.meetings = this.messagesService.getMeetings();
+
     const token: any = localStorage.getItem('token');
     const user = JSON.parse(token);
     if (user && typeof user.role === 'number') {
