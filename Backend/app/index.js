@@ -6,7 +6,6 @@ const dotenv = require('dotenv');
 const cors = require('cors')
 const cron = require('node-cron');
 
-
 dotenv.config();
 app.use(cors({ origin: '*' }));
 app.use(express.json());
@@ -87,6 +86,10 @@ app.use('/holidays', holiday);
 
 const notification = require('../invoices/routers/notification')
 app.use('/notification',notification)
+
+const chat = require('../chat/router/chat');
+app.use('/chat', chat);
+
 
 const backup = require('./backUp')
 cron.schedule('0 0 5 * *', () => {

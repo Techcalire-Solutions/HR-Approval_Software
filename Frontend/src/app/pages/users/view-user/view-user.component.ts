@@ -23,6 +23,8 @@ import { MonthlyPayroll } from '../../../common/interfaces/payRoll/monthlyPayrol
 import { SafePipe } from "../../../common/safe.pipe";
 import { UserQualification } from '../../../common/interfaces/users/user-qualification';
 import { Nominee } from '../../../common/interfaces/users/nominee';
+import { PersonalDetailsComponent } from '../personal-details/personal-details.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-view-user',
@@ -165,5 +167,12 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   private router = inject(Router);
   openPayroll(id: number){
     this.router.navigateByUrl('login/payroll/month-end/payslip/open/'+ id)
+  }
+
+  private dialog = inject(MatDialog);
+  dialogSub: Subscription;
+  onEditClick(event: MouseEvent): void {
+    event.stopPropagation();
+    this.router.navigate(['/login/users/edit/' + this.user.id])
   }
 }

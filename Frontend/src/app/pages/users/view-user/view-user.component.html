@@ -29,15 +29,12 @@
             </div>
           </div>
 
-
-
-          <!-- <h4 class="muted-text py-1">About:</h4>
-          <p class="text-justify">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-          <div fxLayoutAlign="end center">
-              <a routerLink="user-info" mat-stroked-button color="primary">
-                  More <mat-icon>arrow_right_alt</mat-icon>
-              </a>
-          </div> -->
+          <div style="height: 100%; display: flex; justify-content: center; align-items: center;">
+            <a mat-stroked-button color="primary" (click)="onEditClick($event)">
+              Edit <mat-icon>edit_note</mat-icon>
+            </a>
+          </div>
+          
       </mat-card-content>
       <mat-divider></mat-divider>
       <div class="p-3">
@@ -50,6 +47,7 @@
             <mat-expansion-panel-header class="custom-header">
               <span class="panel-title"> Personal data </span>
               <span class="spacer"></span>
+              <mat-icon style="margin-right: 10px;" >edit_note</mat-icon>
               <mat-icon style="margin-right: 10px;">person</mat-icon>
             </mat-expansion-panel-header>
             @if(userPersonal){
