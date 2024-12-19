@@ -167,7 +167,7 @@
             <mat-expansion-panel-header class="custom-header">
               <span class="panel-title"> Account Details </span>
               <span class="spacer"></span>
-              <mat-icon style="margin-right: 10px;" (click)="editPersonal($event)">edit_note</mat-icon>
+              <mat-icon style="margin-right: 10px;" (click)="editAccount($event)">edit_note</mat-icon>
               <mat-icon style="margin-right: 10px;">savings</mat-icon>
             </mat-expansion-panel-header>
             @if(accounts){
@@ -193,7 +193,7 @@
             <mat-expansion-panel-header class="custom-header">
               <span class="panel-title"> Nominee Details </span>
               <span class="spacer"></span>
-              <mat-icon style="margin-right: 10px;" (click)="editPersonal($event)">edit_note</mat-icon>
+              <mat-icon style="margin-right: 10px;" (click)="editNominee($event)">edit_note</mat-icon>
               <mat-icon style="margin-right: 10px;">supervised_user_circle</mat-icon>
             </mat-expansion-panel-header>
             @if(nominee){
@@ -244,7 +244,7 @@
             <mat-expansion-panel-header class="custom-header">
               <span class="panel-title"> Documents Uploaded </span>
               <span class="spacer"></span>
-              <mat-icon style="margin-right: 10px;" (click)="editPersonal($event)">edit_note</mat-icon>
+              <mat-icon style="margin-right: 10px;" (click)="editDocument($event)">edit_note</mat-icon>
               <mat-icon style="margin-right: 10px;">document_scanner</mat-icon>
             </mat-expansion-panel-header>
             @if(documents.length>0){
@@ -267,8 +267,8 @@
             <mat-expansion-panel-header class="custom-header">
               <span class="panel-title"> Assets Allotted </span>
               <span class="spacer"></span>
-              <mat-icon style="margin-right: 10px;" (click)="editPersonal($event)">edit_note</mat-icon>
-              <mat-icon style="margin-right: 10px;">person</mat-icon>
+              <mat-icon style="margin-right: 10px;" (click)="editAssets($event)">edit_note</mat-icon>
+              <mat-icon style="margin-right: 10px;">devices</mat-icon>
             </mat-expansion-panel-header>
             @if(assets){
               <div class="p-3">
@@ -295,7 +295,7 @@
             <mat-expansion-panel-header class="custom-header">
               <span class="panel-title"> Payroll Log </span>
               <span class="spacer"></span>
-              <mat-icon style="margin-right: 10px;" (click)="editPersonal($event)">edit_note</mat-icon>
+              <mat-icon style="margin-right: 10px;" (click)="editPayroll($event)">edit_note</mat-icon>
               <mat-icon style="margin-right: 10px;">price_change</mat-icon>
             </mat-expansion-panel-header>
             @if(payrollLog){
@@ -317,7 +317,6 @@
             <mat-expansion-panel-header class="custom-header">
               <span class="panel-title"> PaySlips </span>
               <span class="spacer"></span>
-              <mat-icon style="margin-right: 10px;" (click)="editPersonal($event)">edit_note</mat-icon>
               <mat-icon style="margin-right: 10px;">receipt</mat-icon>
             </mat-expansion-panel-header>
             @if(payrollLog){

@@ -107,7 +107,7 @@ export class UsersComponent implements OnInit, OnDestroy {
       data: {id: id, name: name, empNo: empNo}
     });
 
-    this.dialogSub = dialogRef.afterClosed().subscribe((result) => {
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
       this.getUsers()
     });
   }

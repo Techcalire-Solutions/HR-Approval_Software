@@ -5,7 +5,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatDialog } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -40,6 +40,8 @@ export const MY_FORMATS = {
   providers: [provideMomentDateAdapter(MY_FORMATS)]
 })
 export class UserAssetsComponent implements OnDestroy{
+  dialogRef = inject(MatDialogRef<UserAssetsComponent>, { optional: true })
+  assetData = inject(MAT_DIALOG_DATA, { optional: true });
   ngOnDestroy(): void {
     this.userAssetSub?.unsubscribe();
     this.assetSub?.unsubscribe();
@@ -63,7 +65,10 @@ export class UserAssetsComponent implements OnDestroy{
 
   private route = inject(ActivatedRoute);
   ngOnInit(): void {
-    const id = this.route.snapshot.params['id'];
+    let id = this.route.snapshot.params['id'];
+    if(!id){
+      id = this.assetData.id
+    }
     this.getUserById(id)
   }
 
@@ -120,17 +125,19 @@ export class UserAssetsComponent implements OnDestroy{
   assetSub!: Subscription;
   saveAssets() {
     const data = {
-      userId: this.route.snapshot.params['id'],
+      userId: this.route.snapshot.params['id']?this.route.snapshot.params['id']:this.assetData.id,
       assetCode: this.assetCode,
       assets: this.rows
     }
     if(this.updateStatus){
       this.assetSub = this.userService.updateUserAssets(data, this.id).subscribe(() => {
+        this.dialogRef?.close();
         this.snackbar.open("Assets updated successfully...","" ,{duration:3000})
       })
     }else{
       this.assetSub = this.userService.addUserAssets(data).subscribe(() => {
         this.updateStatus = true;
+        this.dialogRef?.close();
         this.snackbar.open("Assets saved successfully...","" ,{duration:3000})
       })
     }
