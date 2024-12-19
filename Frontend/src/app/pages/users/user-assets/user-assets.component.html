@@ -82,5 +82,8 @@
     <button (click)="saveAssets()" class="btn save-btn">
       @if(updateStatus){Update} @else {Save} Assets
     </button>
+    @if(dialogRef){
+      <button (click)="dialogRef?.close()" class="btn save-btn"> Exit </button>
+    }
   }
 </div>

@@ -9,7 +9,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
 
@@ -17,8 +16,7 @@ import { Subscription } from 'rxjs';
   selector: 'app-user-nominee',
   standalone: true,
   imports: [MatCardModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule, MatIconModule, MatButtonModule,
-    MatOptionModule, MatSelectModule
-  ],
+    MatOptionModule, MatSelectModule],
   templateUrl: './user-nominee.component.html',
   styleUrl: './user-nominee.component.scss'
 })
@@ -34,8 +32,6 @@ export class UserNomineeComponent {
   private fb = inject(FormBuilder);
   private userService = inject(UsersService);
   private snackBar = inject(MatSnackBar);
-  private router = inject(Router);
-
   form = this.fb.group({
     userId: [''],
     nomineeName: [''],

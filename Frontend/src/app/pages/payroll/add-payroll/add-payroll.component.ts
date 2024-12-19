@@ -10,7 +10,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { PayrollUpdateVerificationComponent } from './payroll-update-verification/payroll-update-verification.component';
-import { MatDialog } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,6 +24,9 @@ import { MatIconModule } from '@angular/material/icon';
 })
 
 export class AddPayrollComponent implements OnInit, OnDestroy {
+    dialogRef = inject(MatDialogRef<AddPayrollComponent>, { optional: true })
+    payrollData = inject(MAT_DIALOG_DATA, { optional: true });
+
   private userSub: Subscription;
   user: any;
   payroll: Payroll;
@@ -79,7 +82,8 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
   private userService = inject(UsersService);
   private route = inject(ActivatedRoute);
   getUserById() {
-    this.userSub = this.userService.getUserById(this.route.snapshot.params['id']).subscribe((res) => {
+    const id = this.route.snapshot.params['id'] ? this.route.snapshot.params['id'] : this.payrollData.id;
+    this.userSub = this.userService.getUserById(id).subscribe((res) => {
       this.user = res;
       this.userName = res.name;
       this.empNo = res.empNo;
@@ -94,7 +98,8 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
   empNo: string;
   private payrollSub!: Subscription;
   getPayrollDetailsByUserId() {
-    this.payrollSub = this.payrollService.getPayrollDetailsByUserId(this.route.snapshot.params['id']).subscribe({
+    const id = this.route.snapshot.params['id'] ? this.route.snapshot.params['id'] : this.payrollData.id;
+    this.payrollSub = this.payrollService.getPayrollDetailsByUserId(id).subscribe({
       next: (res) => {
         if (res) {
           this.editStaus = true;
@@ -239,9 +244,10 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
           this.updatePaySub = this.payrollService.updatePayroll(this.id, payrollData).subscribe({
             next: () => {
               alert('Payroll details updated successfully!')
-              history.back();
+              if(this.dialogRef) this.dialogRef.close();
+              else history.back();
             },
-            error: (error) => {
+            error: () => {
               alert('Error saving payroll details.');
             }
           });
@@ -255,7 +261,8 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
       this.updatePaySub = this.payrollService.savePayroll(payrollData).subscribe({
         next: () => {
           alert('Payroll details saved successfully!')
-          history.back();
+          if(this.dialogRef) this.dialogRef.close();
+          else history.back();
         },
         error: () => {
           alert('Error saving payroll details.');
