@@ -1,0 +1,68 @@
+.upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%; /* Full width of the screen */
+    // padding: 0 16px; /* Optional: Add some padding if needed */
+    box-sizing: border-box; /* Ensure padding is included in the width */
+  }
+  
+  form {
+    width: 100%;
+  }
+  
+  .form-instance {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    width: 100%; /* Full width for each form instance */
+    box-sizing: border-box; /* Ensure padding and borders are included in the width */
+  }
+  
+  .mat-form-field {
+    flex: 1;
+    margin-right: 8px;
+  }
+  
+  .file-upload-icon, .file-upload-text {
+    cursor: pointer;
+    margin-right: 8px;
+  }
+  
+  .progress-container {
+    margin-right: 8px;
+  }
+  
+  .upload-success {
+    margin-right: 8px;
+  }
+  
+  button {
+    margin-right: 8px;
+  }
+  
+  button.mat-icon-button {
+    margin-left: 8px;
+  }
+  
+  button.mat-raised-button.color-accent {
+    margin-top: 16px;
+  }
+  
+  .row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .col {
+    flex: 1;
+    margin-right: 20px;
+  }
+  
+  .text-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: blue
+  }
