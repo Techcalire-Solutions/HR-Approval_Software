@@ -316,6 +316,8 @@ isSickLeave(): boolean {
     this.isProbationEmployee = employees.some((emp: any) => emp.id === this.userId);
     if (this.isProbationEmployee) {
       this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
+      console.log("LEAVEEEEEEEEEEEEEEEEEEE",this.leaveTypes);
+
     }
   });
 }
