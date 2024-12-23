@@ -51,4 +51,10 @@ export const routes: Routes = [
     loadComponent: () => import('./view-leave-details/view-leave-details.component').then(c => c.ViewLeaveDetailsComponent),
     data: { breadcrumb: 'View' }, canActivate: [AuthGuard]
   },
+  {
+    path: 'encash',
+    loadComponent: () => import('./leave-encashment/leave-encashment.component').then(c => c.LeaveEncashmentComponent),
+    data: { breadcrumb: 'Encash' }, canActivate: [AuthGuard]
+  },
+
 ];

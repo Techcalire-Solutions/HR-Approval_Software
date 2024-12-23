@@ -232,7 +232,11 @@ users:User;
     }
     else if (role === 'Employee') {
       this.filteredMenuItems = allMenuItems.filter(item =>
-        item.title === 'Dashboard'
+        item.title === 'Dashboard' ||
+        (item.title === 'Leave' && !item.parentId)||
+        (item.title === 'Leave' && !item.parentId)||
+        (item.title === 'Apply Leave' && item.parentId === 8) ||
+        (item.title === 'Leave Balance' && item.parentId === 8)
 
       );
 
@@ -253,7 +257,7 @@ users:User;
         (item.title === 'Apply Leave' && item.parentId === 8) ||
         (item.title === 'Leave Balance' && item.parentId === 8)
 
-      
+
 
       )};
   }

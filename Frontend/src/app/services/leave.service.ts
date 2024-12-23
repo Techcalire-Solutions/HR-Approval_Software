@@ -132,9 +132,7 @@ updateRejectLeaveStatus(rejectionData: any) {
     return this.http.get<CompoOff>(`${this.apiUrl}/holidays/findcombooff/${id}`);
   }
 
-  // deleteLeave(id: number): Observable<any> {
-  //   return this.http.delete(`${this.apiUrl}/leave/${id}`);
-  // }
+
 
   deleteUntakenLeave(leaveId: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/leave/untakenLeaveDelete/${leaveId}`);
@@ -146,5 +144,10 @@ updateRejectLeaveStatus(rejectionData: any) {
 
 updateLeaveFileUrl(leaveId: string, fileUrl: string): Observable<any> {
     return this.http.patch(`${this.apiUrl}/leave/updateLeaveFileUrl/${leaveId}`, { fileUrl });
+  }
+
+  
+encashLeave(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/encash`, data);
   }
 }
