@@ -89,8 +89,6 @@ export class ChatComponent implements OnInit {
 
   getUnreadMessages(userId: number) {
     this.chatService.getChatByUserTo(this.loginId, userId).subscribe((response: any) => {
-      console.log(response);
-      
       const unreadMessagesCount = response.unreadMessagesCount;
       const user = this.users.find(u => u.id === userId);
       if (user) {
@@ -140,6 +138,8 @@ export class ChatComponent implements OnInit {
       fromId: this.loginId,
       message: this.message
     }
+    console.log(data);
+    
     this.submit = this.chatService.addChat(data).subscribe(() =>{
       this.getChat(this.currentUser.id);
       this.message = ''
