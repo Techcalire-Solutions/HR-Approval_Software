@@ -22,6 +22,11 @@
                                         <img matListItemAvatar [src]="apiUrl + chat.url">
                                       }
                                     <h6 matListItemTitle> {{chat.name}} </h6>
+                                    @if(chat.unreadMessagesCount > 0){
+                                        <span class="message-count">
+                                            {{ chat.unreadMessagesCount }}
+                                        </span>
+                                    }
                                     <p matListItemLine fxLayout="row" fxLayoutAlign="none center" class="muted-text pt-1"> 
                                         <mat-icon class="chat-status-icon">
                                             <!-- @switch (chat.authorStatus) {
@@ -39,9 +44,7 @@
                                                 } 
                                             }  -->
                                         </mat-icon>
-                                        <span class="message-count" *ngIf="chat.sentMessageCount > 0">
-                                            {{ chat.unreadMessagesCount }} Messages Sent
-                                        </span>
+
                                         <!-- <span class="author-status">{{chat.authorStatus}}</span>  -->
                                     </p>
                                 </mat-list-item>

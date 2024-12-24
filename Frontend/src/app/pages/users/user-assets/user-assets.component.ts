@@ -92,7 +92,8 @@ export class UserAssetsComponent implements OnDestroy{
         this.userPosition = this.userService.getUserPositionDetailsByUser(id).subscribe(position=>{
           if(position=== null || !position.department){
             alert("Add department details...");
-            history.back();
+            if(this.dialogRef) this.dialogRef.close();
+            else history.back();
           }
           this.userName = position.user.name
           this.generateCode(position?.department)

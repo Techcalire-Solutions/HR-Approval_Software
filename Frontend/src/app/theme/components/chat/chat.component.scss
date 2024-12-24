@@ -140,3 +140,13 @@
 
 
 
+  .message-count {
+    background-color: blue; /* Change background color for unread messages */
+    color: white; /* Ensure text is visible on red background */
+    font-weight: bold; /* Make unread count more prominent */
+    padding: 2px 5px; /* Add some padding for better readability */
+    border-radius: 50%; /* Create a circular shape for the count */
+    position: absolute; /* Position the count near the chat name */
+    top: 5px; /* Adjust vertical position as needed */
+    right: 10px; /* Adjust horizontal position as needed */
+  }

@@ -642,7 +642,7 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
                               </td>
                               <td>
                                   <div style="display: flex; align-items: center; width: 100%;">
-                                      <span style="flex: 1;">PAN Numbe</span>
+                                      <span style="flex: 1;">PAN Number</span>
                                       <span style="width: 20px; text-align: center;">:</span>
                                       <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.statutoryinfo?.panNumber ?? ''}</span>
                                   </div>

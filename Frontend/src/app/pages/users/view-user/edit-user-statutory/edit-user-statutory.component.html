@@ -2,7 +2,7 @@
     <mat-card>
       <mat-card-header><mat-card-title>Statutory Info</mat-card-title></mat-card-header>
   
-      <div fxLayout="column" class="form-field-outer" style="margin-top: 20px;">
+      <div fxLayout="column" class="form-field-outer" style="margin-top: 20px; margin-left: 15px;">
         <div class="row box">
           <div class="col">
             <mat-form-field class="w-100" appearance="outline">
@@ -66,9 +66,9 @@
         </div>
       </div>
   
-      <div class="col" style="text-align: right;">
+      <div class="col" style="text-align: right; margin-bottom: 15px;">
         <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.pristine || form.invalid"
-        style="margin-left: 10px;" >
+        style="margin-right: 10px;" >
           @if (editStatus) {
               Update
           } @else {

@@ -1,10 +1,18 @@
 
 
 <div class="payroll-header">
-  <h2>Payroll Calculation</h2>
-  <button class="download-button exclude-from-pdf" mat-raised-button (click)="downloadPDF()">
-    <mat-icon>picture_as_pdf</mat-icon>
-  </button>
+  <h2>Basic Payroll</h2>
+  <div>
+    <button class="download-button exclude-from-pdf" mat-raised-button (click)="downloadPDF()">
+      <mat-icon>picture_as_pdf</mat-icon>
+    </button>
+    @if(dialogRef){
+      <button class="close-button exclude-from-pdf"  mat-raised-button color="primary" (click)="dialogRef?.close()">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+  
+  </div>
 </div>
 <div class="payroll-container">
     <form [formGroup]="payrollForm">
