@@ -16,6 +16,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { LeaveService } from '@services/leave.service';
 
 @Component({
   selector: 'app-monthend',
@@ -100,14 +101,19 @@ export class MonthendComponent implements OnInit, OnDestroy{
     const leaveDays: number = Number(payrollGroup.get('leaveDays')?.value || 0);
     const advanceAmount: number = Number(payrollGroup.get('advanceAmount')?.value || 0);
     const incentiveDeduction: number = Number(payrollGroup.get('incentiveDeduction')?.value || 0);
+    const leaveBal: number = Number(payrollGroup.get('leaveEncashment')?.value || 0);
 
     const gross = basic + hra + conveyanceAllowance + lta + specialAllowance;
+    
+    const perDayEncash = gross/30;
+    const leaveEncash = perDayEncash * leaveBal
+
     const roundedGross = Math.round(gross); 
     payrollGroup.get('perDay')?.setValue((roundedGross / this.daysInMonth).toFixed(2), { emitEvent: false });
     payrollGroup.get('daysInMonth')?.setValue((this.daysInMonth), { emitEvent: false });
 
     const deduction = pf + insurance + tds + advanceAmount + incentiveDeduction;
-    const grossTotal = Math.round(gross + ot + incentive + payOut - deduction); 
+    const grossTotal = Math.round(gross + ot + incentive + payOut + leaveEncash - deduction); 
     const perDaySalary = gross / this.daysInMonth;
     const leaveDeduction = perDaySalary * leaveDays
 
@@ -146,7 +152,8 @@ export class MonthendComponent implements OnInit, OnDestroy{
       incentiveDeduction: [initialValue ? initialValue.incentiveDeduction : 0,],
       toPay: [{ value: 0, disabled: true }],
       payedFor: [payedForValue],
-      daysInMonth : [ initialValue ? initialValue.daysInMonth : 0]
+      daysInMonth : [ initialValue ? initialValue.daysInMonth : 0],
+      leaveEncashment : [initialValue ? initialValue.leaveEncashment : 0]
     });
   }
 
@@ -160,26 +167,45 @@ export class MonthendComponent implements OnInit, OnDestroy{
   isLocked: boolean = false;
   approval: boolean = false;
   saved: boolean = false;
+  private leaveService = inject(LeaveService);
+  private enchashSub: Subscription;
   getPayroll() {
     this.payrolls = [];
     const payedForValue = `${this.month} ${this.currentYear}`;
+    const isDecember = this.month.toLowerCase() === 'december';
+
     this.paySub = this.payrollService.getMonthlyPayrollByPayedFor(payedForValue).subscribe(payroll =>{
       if(payroll.length === 0){
         this.payrollSub = this.payrollService.getPayroll().subscribe((payroll) => {
           this.payrolls = payroll;
-          
-          this.payrolls.forEach((payrollItem: any) => {
-            const userId = payrollItem.userId;
 
-            this.advanceSUb = this.payrollService.getAdvanceSalaryByUserId(userId).subscribe((advanceSalary: AdvanceSalary) => {
-              if(advanceSalary){
-                payrollItem.advanceAmount = advanceSalary.monthlyPay;
-              }else{
-                payrollItem.advanceAmount = 0;
+          this.enchashSub = this.leaveService.getUserLeaveForEncash().subscribe(leaveBalances => {
+            this.payrolls.forEach((payrollItem: any) => {
+              const userId = payrollItem.userId;
+  
+              // Attach leave data to payroll item
+              const leaveData = leaveBalances.find(leave => leave.userId === userId);
+              if (leaveData) {
+                payrollItem.leaveEncashment = isDecember ? leaveData.totalLeave : 0; 
+                // payrollItem.casualLeave = leaveData.casualLeave || 0;
+                // payrollItem.combOff = leaveData.combOff || 0;
+              } else {
+                payrollItem.leaveEncashment = 0;
+                // payrollItem.casualLeave = 0;
+                // payrollItem.combOff = 0;
               }
-              this.addDoc(payrollItem);
-            });
-          });
+
+              this.advanceSUb = this.payrollService.getAdvanceSalaryByUserId(userId).subscribe((advanceSalary: AdvanceSalary) => {
+                if(advanceSalary){
+                  payrollItem.advanceAmount = advanceSalary.monthlyPay;
+                }else{
+                  payrollItem.advanceAmount = 0;
+                }
+  
+                this.addDoc(payrollItem);
+              });
+            })
+          })
         });
       }else{
         // this.updateStatus = true;
@@ -198,18 +224,11 @@ export class MonthendComponent implements OnInit, OnDestroy{
           }else{
             this.updateStatus = true;
           }
-    
           this.addDoc(payrollItem);
         });
-        // this.updateStatus = true;
-        // this.payrolls = payroll;
-        // this.payrolls.forEach((payrollItem: any) => {
-        //   this.addDoc(payrollItem);
-        // })
       }
     });
   }
-
 
   get payrollControls(): FormArray {
     return this.payrollForm.get('payrolls') as FormArray;
@@ -405,7 +424,6 @@ export class MonthendComponent implements OnInit, OnDestroy{
     this.isPreviousMonth = (selectedMonth < currentMonth);
     this.month = this.months[selectedMonth].name;
     this.daysInMonth = new Date(this.currentYear, selectedMonth+1, 0).getDate();
-    console.log(this.isPreviousMonth);
     this.clearAllRows()
     this.isLocked = false;
     this.updateStatus = false;
@@ -424,6 +442,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
     this.paySub?.unsubscribe();
     this.payrollSub?.unsubscribe();
     this.changeSub?.unsubscribe();
+    this.enchashSub?.unsubscribe();
   }
 
 }

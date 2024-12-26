@@ -2,10 +2,12 @@ const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const UserLeave = require('../models/userLeave');
+const User = require('../../users/models/user');
 
 const cron = require('node-cron');
 
-const LeaveType = require('../models/leaveType')
+const LeaveType = require('../models/leaveType');
+const { where } = require('sequelize');
 
 
 
@@ -218,6 +220,57 @@ router.patch('/update', authenticateToken, async (req, res) => {
     res.send(error.message)
   }
 })
+
+router.get('/forencashment', async (req, res) => {
+  try {
+    const leaveTypes = await LeaveType.findAll({
+      where: { leaveTypeName: ['Casual Leave', 'Comb Off'] },
+      attributes: ['id', 'leaveTypeName']
+    });
+
+    const cl = leaveTypes.find(type => type.leaveTypeName === 'Casual Leave')?.id;
+    const co = leaveTypes.find(type => type.leaveTypeName === 'Comb Off')?.id;
+    if (!cl || !co) {
+      return res.send("Required leave types not found");
+    }
+
+    const userLeaves = await UserLeave.findAll({
+      where: { leaveTypeId: [cl, co] },
+      include: {
+        model: User,
+        attributes: ['id', 'name'],
+      },
+      attributes: ['userId', 'leaveTypeId', 'leaveBalance'],
+    });
+    const encashment = [];
+    const userMap = {};
+
+    userLeaves.forEach(leave => {
+      const userId = leave.userId;
+      if (!userMap[userId]) {
+        userMap[userId] = { userId, casualLeave: 0, combOff: 0, totalLeave: 0 };
+      }
+
+      if (leave.leaveTypeId === cl) {
+        userMap[userId].casualLeave = leave.leaveBalance;
+      } else if (leave.leaveTypeId === co) {
+        userMap[userId].combOff = leave.leaveBalance;
+      }
+
+      userMap[userId].totalLeave =
+        (userMap[userId].casualLeave || 0) + (userMap[userId].combOff || 0);
+    });
+
+    for (const user of Object.values(userMap)) {
+      encashment.push(user);
+    }
+
+    res.send(encashment);
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
 
 
 module.exports = router;

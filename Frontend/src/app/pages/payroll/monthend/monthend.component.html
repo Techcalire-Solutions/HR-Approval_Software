@@ -27,7 +27,11 @@
                 <th rowspan="2">Employee Name</th>
                 <th rowspan="2">Employee ID</th>
                 <th rowspan="2">PerDay</th>
-                <th colspan="8">Earnings</th>
+                @if(month === 'December'){
+                     <th colspan="9">Earnings</th>
+                }@else {
+                    <th colspan="8">Earnings</th>
+                }
                 <th colspan="6">Deductions</th>
                 <th>Net Salary</th>
             </tr>
@@ -41,6 +45,9 @@
                 <th class="earnings">OT</th>
                 <th class="earnings">Incentive</th>
                 <th class="earnings">PayOut</th>
+                @if(month === 'December'){
+                    <th class="earnings">LeaveDays</th>
+                }
                 <th class="deductions">PF</th>
                 <th class="deductions">ESI</th>
                 <th class="deductions">TDS</th>
@@ -62,6 +69,9 @@
                     <td><input type="number" placeholder="OT" formControlName="ot"></td>
                     <td><input type="number" placeholder="Incentive" formControlName="incentive"></td>
                     <td><input type="number" placeholder="PayOut" formControlName="payOut"></td>
+                    @if(month === 'December'){
+                        <td><input type="number" placeholder="LeaveDays" formControlName="leaveEncashment"></td>
+                    }
                     <td><input type="number" placeholder="PF" formControlName="pfDeduction"></td>
                     <td><input type="number" placeholder="ESI" formControlName="esi"></td>
                     <td><input type="number" placeholder="TDS" formControlName="tds"></td>

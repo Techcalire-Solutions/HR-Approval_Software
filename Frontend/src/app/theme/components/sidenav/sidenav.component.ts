@@ -128,7 +128,7 @@ users:User;
         (item.title === 'Advance Salary' && item.parentId === 13) ||
         (item.title === 'Month End' && item.parentId === 13) ||
         (item.title === 'Payslip' && item.parentId === 13) ||
-        (item.title === 'Process Payslip' && item.parentId === 13) ||
+        // (item.title === 'Process Payslip' && item.parentId === 13) ||
 
         (item.title === 'Expense' && !item.parentId) ||
         (item.title === 'Add' && item.parentId === 26) ||
@@ -138,7 +138,10 @@ users:User;
         (item.title === 'Calendar' && item.parentId === 8) ||
         (item.title === 'View' && item.parentId === 8) ||
         (item.title === 'User Leave' && item.parentId === 8) ||
-        (item.title === 'Emergency' && item.parentId === 8)
+        (item.title === 'Emergency' && item.parentId === 8)||
+
+        (item.title === 'Reports' && !item.parentId) ||
+        (item.title === 'YTD' && item.parentId === 21)
 
       );
     } else if (role === 'Super Administrator') {
@@ -147,6 +150,7 @@ users:User;
         (item.title === 'Employee' && !item.parentId) ||
         (item.title === 'Directory' && item.parentId === 3) ||
         (item.title === 'Confirmation' && item.parentId === 3) ||
+
         (item.title === 'Proforma' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 5) ||
 
@@ -154,7 +158,8 @@ users:User;
         (item.title === 'Advance Salary' && item.parentId === 13) ||
         (item.title === 'Month End' && item.parentId === 13) ||
         (item.title === 'Payslip' && item.parentId === 13) ||
-        (item.title === 'Process Payslip' && item.parentId === 13) ||
+        // (item.title === 'Process Payslip' && item.parentId === 13) ||
+        
         (item.title === 'Leave' && !item.parentId) ||
         (item.title === 'Calendar' && item.parentId === 8) ||
         (item.title === 'View' && item.parentId === 8) ||
@@ -232,12 +237,7 @@ users:User;
     }
     else if (role === 'Employee') {
       this.filteredMenuItems = allMenuItems.filter(item =>
-        item.title === 'Dashboard' ||
-        (item.title === 'Leave' && !item.parentId)||
-        (item.title === 'Leave' && !item.parentId)||
-        (item.title === 'Apply Leave' && item.parentId === 8) ||
-        (item.title === 'Leave Balance' && item.parentId === 8)
-
+        item.title === 'Dashboard'
       );
 
     }

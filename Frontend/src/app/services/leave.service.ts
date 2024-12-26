@@ -115,6 +115,11 @@ updateRejectLeaveStatus(rejectionData: any) {
     return this.http.get<UserLeave[]>(`${this.apiUrl}/userLeave/byuser/${id}`);
   }
 
+  getUserLeaveForEncash(){
+    return this.http.get<any[]>(`${this.apiUrl}/userLeave/forencashment/`);
+  }
+
+
 
   getHolidays(filterValue?: string, page?: number, pagesize?:number){
     return this.http.get<Holidays[]>(`${this.apiUrl}/holidays/find?search=${filterValue}&page=${page}&pageSize=${pagesize}`);

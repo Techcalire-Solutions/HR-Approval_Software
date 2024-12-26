@@ -481,10 +481,9 @@ router.get('/underprobation', async (req, res) => {
       include: [
         {
           model: Role,
-          attributes: ['id', 'roleName']
+          attributes: ['roleName']
         },
-
-      ],
+      ], order: ['id'],
       where: { isTemporary: true, separated: false }
     })
     res.send(user);
@@ -496,6 +495,12 @@ router.get('/underprobation', async (req, res) => {
 router.get('/confirmed', async (req, res) => {
   try {
     const user = await User.findAll({
+      include: [
+        {
+          model: Role,
+          attributes: ['roleName']
+        },
+      ],
       where: { isTemporary: false, separated: false }
     })
     res.send(user);

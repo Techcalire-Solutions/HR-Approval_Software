@@ -39,7 +39,9 @@ export class ConfirmationComponent implements OnInit, OnDestroy{
   permanentEmp: User[] = [];
   getPermanentEmployees(){
     this.permanentStaffSub = this.userService.getConfirmedEmployees().subscribe((data) => {
-      this.permanentEmp = data;
+      console.log(data);
+      
+      this.permanentEmp = data.filter(emp => emp.role.roleName !== 'Administrator' && emp.role.roleName !== 'HR Administrator' && emp.role.roleName !== 'Super Administrator');;
     });
   }
 
