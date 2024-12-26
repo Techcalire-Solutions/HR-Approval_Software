@@ -94,14 +94,25 @@ async function getReportingManagerEmailForUser(userId) {
 
 //-------------------------------------Mail sending function------------------------------------------
 
-
 async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates) {
-  const hrAdminEmail = await getHREmail();
-  const reportingManagerEmail = await getReportingManagerEmailForUser(user.id);
+  let hrAdminEmail;
+  let reportingManagerEmail;
 
-
+  try {
+    hrAdminEmail = await getHREmail();
+    reportingManagerEmail = await getReportingManagerEmailForUser(user.id);
+  } catch (error) {
+    console.error('Error fetching emails:', error);
+    return;
+  }
   if (!Array.isArray(leaveDates)) {
     throw new Error('leaveDates must be an array');
+  }
+
+  
+  if (!hrAdminEmail || !reportingManagerEmail) {
+    console.warn('Missing email(s): HR Admin:', !!hrAdminEmail, ', Reporting Manager:', !!reportingManagerEmail);
+    return; 
   }
 
   const mailOptions = {
@@ -136,10 +147,23 @@ async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDa
 
 
 async function sendLeaveUpdatedEmail(leaveId,user, leaveType, startDate, endDate, notes, noOfDays, leaveDates) {
-  const hrAdminEmail = await getHREmail();
-  const reportingManagerEmail = await getReportingManagerEmailForUser(user.id);
 
-  
+  let hrAdminEmail;
+  let reportingManagerEmail;
+
+  try {
+    hrAdminEmail = await getHREmail();
+    reportingManagerEmail = await getReportingManagerEmailForUser(user.id);
+  } catch (error) {
+    console.error('Error fetching emails:', error);
+    return;
+  }
+    
+  if (!hrAdminEmail || !reportingManagerEmail) {
+    console.warn('Missing email(s): HR Admin:', !!hrAdminEmail, ', Reporting Manager:', !!reportingManagerEmail);
+    return; 
+  }
+
 
   if (!Array.isArray(leaveDates)) {
     throw new Error('leaveDates must be an array');
@@ -147,71 +171,76 @@ async function sendLeaveUpdatedEmail(leaveId,user, leaveType, startDate, endDate
   const approveUrl = `http://localhost:8000/leave/approveLeave/${leaveId}`
   const rejectUrl = `http://localhost:8000/leave/rejectLeave/${leaveId}`;
 
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: reportingManagerEmail,
-    cc: hrAdminEmail,
-    subject: 'Leave Request Updated',
-    html: `
-<h3>A leave request has been updated:</h3>
-      <ul>
-        <li><strong>Username:</strong> ${user.name}</li>
-        <li><strong>Leave Type:</strong> ${leaveType.leaveTypeName}</li>
-        <li><strong>Start Date:</strong> ${startDate}</li>
-        <li><strong>End Date:</strong> ${endDate}</li>
-        <li><strong>Notes:</strong> ${notes || 'No additional notes provided'}</li>
-        <li><strong>Number of Days:</strong> ${noOfDays}</li>
-        <li><strong>Leave Dates:</strong>
-          <ul>
-            ${leaveDates.map(item => {
-              const sessionString = [
-                item.session1 ? 'session1' : '',
-                item.session2 ? 'session2' : ''
-              ].filter(Boolean).join(', ');
-              return `<li>${item.date} (${sessionString || 'No sessions selected'})</li>`;
-            }).join('')}
-          </ul>
-        </li>
-      </ul>
-        <div style= margin-top: 20px;">
-      <a href="${approveUrl}"
-       style="
-                display: inline-block;
-                padding: 12px 25px;
-                font-size: 16px;
-                color: white;
-                background-color: #28a745;
-                text-decoration: none;
-                border-radius: 50px; /* Oval shape */
-                border: 2px solid #28a745;
-                margin: 10px;
-                transition: background-color 0.3s ease;
-              "
-              onmouseover="this.style.backgroundColor='#218838';"
-              onmouseout="this.style.backgroundColor='#28a745';">
-              Approve
-            </a>
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: reportingManagerEmail,
+      cc: hrAdminEmail,
+      subject: 'Leave Request Updated',
+      html: `
+  <h3>A leave request has been updated:</h3>
+        <ul>
+          <li><strong>Username:</strong> ${user.name}</li>
+          <li><strong>Leave Type:</strong> ${leaveType.leaveTypeName}</li>
+          <li><strong>Start Date:</strong> ${startDate}</li>
+          <li><strong>End Date:</strong> ${endDate}</li>
+          <li><strong>Notes:</strong> ${notes || 'No additional notes provided'}</li>
+          <li><strong>Number of Days:</strong> ${noOfDays}</li>
+          <li><strong>Leave Dates:</strong>
+            <ul>
+              ${leaveDates.map(item => {
+                const sessionString = [
+                  item.session1 ? 'session1' : '',
+                  item.session2 ? 'session2' : ''
+                ].filter(Boolean).join(', ');
+                return `<li>${item.date} (${sessionString || 'No sessions selected'})</li>`;
+              }).join('')}
+            </ul>
+          </li>
+        </ul>
+          <div style= margin-top: 20px;">
+        <a href="${approveUrl}"
+         style="
+                  display: inline-block;
+                  padding: 12px 25px;
+                  font-size: 16px;
+                  color: white;
+                  background-color: #28a745;
+                  text-decoration: none;
+                  border-radius: 50px; /* Oval shape */
+                  border: 2px solid #28a745;
+                  margin: 10px;
+                  transition: background-color 0.3s ease;
+                "
+                onmouseover="this.style.backgroundColor='#218838';"
+                onmouseout="this.style.backgroundColor='#28a745';">
+                Approve
+              </a>
+    
+        <a href="${rejectUrl}"
+               style="
+                  display: inline-block;
+                  padding: 12px 25px;
+                  font-size: 16px;
+                  color: white;
+                  background-color: #dc3545;
+                  text-decoration: none;
+                  border-radius: 50px; /* Oval shape */
+                  border: 2px solid #dc3545;
+                  margin: 10px;
+                  transition: background-color 0.3s ease;
+                "
+                onmouseover="this.style.backgroundColor='#c82333';"
+                onmouseout="this.style.backgroundColor='#dc3545';">
+                Reject
+        </a>
+      </div>
+      `
+    };
   
-      <a href="${rejectUrl}"
-             style="
-                display: inline-block;
-                padding: 12px 25px;
-                font-size: 16px;
-                color: white;
-                background-color: #dc3545;
-                text-decoration: none;
-                border-radius: 50px; /* Oval shape */
-                border: 2px solid #dc3545;
-                margin: 10px;
-                transition: background-color 0.3s ease;
-              "
-              onmouseover="this.style.backgroundColor='#c82333';"
-              onmouseout="this.style.backgroundColor='#dc3545';">
-              Reject
-      </a>
-    </div>
-    `
-  };
+
+
+
 
   try {
     await transporter.sendMail(mailOptions);
