@@ -28,7 +28,7 @@
                 <th rowspan="2">Employee ID</th>
                 <th rowspan="2">PerDay</th>
                 @if(month === 'December'){
-                     <th colspan="9">Earnings</th>
+                    <th colspan="12">Earnings</th>
                 }@else {
                     <th colspan="8">Earnings</th>
                 }
@@ -46,7 +46,7 @@
                 <th class="earnings">Incentive</th>
                 <th class="earnings">PayOut</th>
                 @if(month === 'December'){
-                    <th class="earnings">LeaveDays</th>
+                    <th class="earnings" colspan="4">LeaveBalance</th>
                 }
                 <th class="deductions">PF</th>
                 <th class="deductions">ESI</th>
@@ -70,7 +70,10 @@
                     <td><input type="number" placeholder="Incentive" formControlName="incentive"></td>
                     <td><input type="number" placeholder="PayOut" formControlName="payOut"></td>
                     @if(month === 'December'){
-                        <td><input type="number" placeholder="LeaveDays" formControlName="leaveEncashment"></td>
+                        <td><input type="number" placeholder="CL" formControlName="cl" style="width: 25px;"></td>
+                        <td><input type="number" placeholder="CombOff" formControlName="combOff" style="width: 25px;"></td>
+                        <td><input type="number" placeholder="LeaveEncashment" formControlName="leaveEncashment" style="width: 25px;"></td>
+                        <td><input type="number" placeholder="LeaveEncashmentAmount" formControlName="leaveEncashmentAmount"></td>
                     }
                     <td><input type="number" placeholder="PF" formControlName="pfDeduction"></td>
                     <td><input type="number" placeholder="ESI" formControlName="esi"></td>

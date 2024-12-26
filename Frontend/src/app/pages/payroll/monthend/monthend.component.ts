@@ -106,7 +106,8 @@ export class MonthendComponent implements OnInit, OnDestroy{
     const gross = basic + hra + conveyanceAllowance + lta + specialAllowance;
     
     const perDayEncash = gross/30;
-    const leaveEncash = perDayEncash * leaveBal
+    const leaveEncash: any = (perDayEncash * leaveBal).toFixed(2)
+    payrollGroup.get('leaveEncashmentAmount')?.setValue(leaveEncash, { emitEvent: false });
 
     const roundedGross = Math.round(gross); 
     payrollGroup.get('perDay')?.setValue((roundedGross / this.daysInMonth).toFixed(2), { emitEvent: false });
@@ -153,7 +154,10 @@ export class MonthendComponent implements OnInit, OnDestroy{
       toPay: [{ value: 0, disabled: true }],
       payedFor: [payedForValue],
       daysInMonth : [ initialValue ? initialValue.daysInMonth : 0],
-      leaveEncashment : [initialValue ? initialValue.leaveEncashment : 0]
+      leaveEncashment : [initialValue ? initialValue.leaveEncashment : 0],
+      cl : [initialValue ? initialValue.casualLeave : 0],
+      combOff : [initialValue ? initialValue.combOff : 0],
+      leaveEncashmentAmount : []
     });
   }
 
@@ -182,18 +186,18 @@ export class MonthendComponent implements OnInit, OnDestroy{
           this.enchashSub = this.leaveService.getUserLeaveForEncash().subscribe(leaveBalances => {
             this.payrolls.forEach((payrollItem: any) => {
               const userId = payrollItem.userId;
-  
-              // Attach leave data to payroll item
-              const leaveData = leaveBalances.find(leave => leave.userId === userId);
-              if (leaveData) {
-                payrollItem.leaveEncashment = isDecember ? leaveData.totalLeave : 0; 
-                // payrollItem.casualLeave = leaveData.casualLeave || 0;
-                // payrollItem.combOff = leaveData.combOff || 0;
-              } else {
-                payrollItem.leaveEncashment = 0;
-                // payrollItem.casualLeave = 0;
-                // payrollItem.combOff = 0;
-              }
+              if(isDecember){
+                const leaveData = leaveBalances.find(leave => leave.userId === userId);
+                if (leaveData) {
+                  payrollItem.leaveEncashment = leaveData.totalLeave; 
+                  payrollItem.casualLeave = leaveData.casualLeave;
+                  payrollItem.combOff = leaveData.combOff;
+                } else {
+                  payrollItem.leaveEncashment = 0;
+                  payrollItem.casualLeave = 0;
+                  payrollItem.combOff = 0;
+                }
+              } 
 
               this.advanceSUb = this.payrollService.getAdvanceSalaryByUserId(userId).subscribe((advanceSalary: AdvanceSalary) => {
                 if(advanceSalary){
