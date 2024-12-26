@@ -85,8 +85,7 @@ dialog = inject(MatDialog);
 leave : any
 userId : number
   ngOnInit() {
-    this.getLeaveType();
-    // this.getLeaves()
+
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
     this.userId = user.id;
@@ -253,23 +252,6 @@ handleDialogResult(result: any) {
 
 
 
-  getLeaveType() {
-    this.leaveService.getLeaveType().subscribe(
-      (leaveTypes: any) => {
-        this.leaveTypes = leaveTypes;
-
-      },
-      (error) => {
-        console.error('Error fetching leave types:', error);
-      }
-    );
-  }
-
-  getLeaveSub : Subscription
-  getLeaves(){
-       this.getLeaveSub= this.leaveService.getLeaves().subscribe((res)=>{
-         })
-  }
 
   uploadProgress: number | null = null;
   file!: File;
@@ -311,19 +293,31 @@ isSickLeave(): boolean {
 
  isProbationEmployee: boolean = false;
  checkProbationStatus() {
+  this.leaveService.getLeaveType().subscribe(
+    (leaveTypes: any) => {
+      this.leaveTypes = leaveTypes;
+
+    },
+    (error) => {
+      console.error('Error fetching leave types:', error);
+    }
+  );
 
   this.userService.getProbationEmployees().subscribe((employees) => {
     this.isProbationEmployee = employees.some((emp: any) => emp.id === this.userId);
     if (this.isProbationEmployee) {
       this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
+
+
+    }
+    else{
+      this.leaveTypes = this.leaveTypes
     }
   });
 }
 
 ngOnDestroy(){
-  if(this.getLeaveSub){
-    this.getLeaveSub.unsubscribe();
-  }
+
 
 
 

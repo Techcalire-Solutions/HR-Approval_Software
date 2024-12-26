@@ -257,7 +257,7 @@ users:User;
         (item.title === 'Apply Leave' && item.parentId === 8) ||
         (item.title === 'Leave Balance' && item.parentId === 8)
 
-      
+
 
       )};
   }

@@ -220,5 +220,26 @@ mat-button-toggle:hover {
 }
 
 mat-button-toggle:focus {
-  outline: none; 
+  outline: none;
+}
+
+
+//----------------upload button css
+.icon-btn {
+  display: flex;
+  align-items: center;
+}
+
+.done-btn {
+  color: green; /* Color for 'done' icon */
+}
+
+.upload-btn {
+  color: blue; /* Color for upload button */
+}
+
+.action-button-container {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between elements */
 }
