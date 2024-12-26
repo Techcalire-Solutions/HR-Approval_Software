@@ -1,6 +1,7 @@
 const {DataTypes} =  require('sequelize')
 const sequelize = require('../../utils/db')
-const LeaveType = require('../models/leaveType')
+const LeaveType = require('../models/leaveType');
+const User = require('../../users/models/user');
 
  const UserLeave = sequelize.define('userLeave',{
    userId : {type : DataTypes.INTEGER, allowNull : true},
@@ -17,6 +18,8 @@ const LeaveType = require('../models/leaveType')
  LeaveType.hasMany(UserLeave, { foreignKey: 'leaveTypeId', onUpdate: 'CASCADE' });
  UserLeave.belongsTo(LeaveType);
  
+ User.hasMany(UserLeave, { foreignKey: 'userId', onUpdate: 'CASCADE' });
+ UserLeave.belongsTo(User);
 
  UserLeave.sync({alter:true})
 .then(()=>console.log)

@@ -43,21 +43,21 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
     yearlta: <any>[{ value: null, disabled: true }],
     specialAllowance: <any>[null, Validators.required],
     yearspecialAllowance: <any>[{ value: null, disabled: true }],
-    pf: <any>[null, Validators.required],
-    yearpf: <any>[{ value: null, disabled: true }],
-    insurance: <any>[null],
-    gratuity: <any>[null],
+    // pf: <any>[null, Validators.required],
+    // yearpf: <any>[{ value: null, disabled: true }],
+    // insurance: <any>[null],
+    // gratuity: <any>[null],
     yeargrossPay:  <any>[{ value: null, disabled: true }],
     grossPay: [{ value: null, disabled: true }],
-    yearGratuity:  <any>[{ value: null, disabled: true }],
-    yearinsurance:  <any>[{ value: null, disabled: true }],
-    netPay:  <any>[{ value: null, disabled: true }],
-    yearnetPay:  <any>[{ value: null, disabled: true }],
+    // yearGratuity:  <any>[{ value: null, disabled: true }],
+    // yearinsurance:  <any>[{ value: null, disabled: true }],
+    // netPay:  <any>[{ value: null, disabled: true }],
+    // yearnetPay:  <any>[{ value: null, disabled: true }],
     userName: [''],
     userRole: [''],
-    pfDeduction: <any>[null, Validators.required],
+    pfDeduction: <any>[null],
     yearPfDeduction: <any>[{ value: null, disabled: true }],
-    esi: <any>[null, Validators.required],
+    esi: <any>[null],
     yearEsi: <any>[{ value: null, disabled: true }],
   });
 
@@ -129,16 +129,17 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
       yearlta: value.lta * 12,
       specialAllowance: value.specialAllowance,
       yearspecialAllowance: value.specialAllowance * 12,
-      pf: value.pf,
-      yearpf: value.pf * 12,
-      insurance: value.insurance,
-      gratuity: value.gratuity,
+
+      // pf: value.pf,
+      // yearpf: value.pf * 12,
+      // insurance: value.insurance,
+      // gratuity: value.gratuity,
       grossPay: value.grossPay,
       yeargrossPay: value.grossPay * 12,
-      yearGratuity: value.gratuity * 12,
-      yearinsurance:  value.insurance * 12,
-      netPay:  value.netPay,
-      yearnetPay:  value.netPay * 12,
+      // yearGratuity: value.gratuity * 12,
+      // yearinsurance:  value.insurance * 12,
+      // netPay:  value.netPay,
+      // yearnetPay:  value.netPay * 12,
       pfDeduction: value.pfDeduction,
       yearPfDeduction: value.pfDeduction * 12,
       esi: value.esi,
@@ -179,24 +180,24 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
         this.payrollForm.patchValue({ yearspecialAllowance: yearspecialAllowance }, { emitEvent: false });
         this.calculateGrossPay();
       }),
-      this.payrollForm.get('gratuity')?.valueChanges.subscribe(() => {
-        const gratuity: any = this.payrollForm.get('gratuity')?.value;
-        const ygratuity = 12 * gratuity;
-        this.payrollForm.patchValue({ yearGratuity: ygratuity }, { emitEvent: false });
-        this.calculateGrossPay();
-      }),
-      this.payrollForm.get('insurance')?.valueChanges.subscribe(() => {
-        const insurance: any = this.payrollForm.get('insurance')?.value;
-        const yinsurance = 12 * insurance;
-        this.payrollForm.patchValue({ yearinsurance: yinsurance }, { emitEvent: false });
-        this.calculateGrossPay();
-      }),
-      this.payrollForm.get('pf')?.valueChanges.subscribe(() => {
-        const pf: any = this.payrollForm.get('pf')?.value;
-        const ypf = 12 * pf;
-        this.payrollForm.patchValue({ yearpf: ypf }, { emitEvent: false });
-        this.calculateGrossPay();
-      }),
+      // this.payrollForm.get('gratuity')?.valueChanges.subscribe(() => {
+      //   const gratuity: any = this.payrollForm.get('gratuity')?.value;
+      //   const ygratuity = 12 * gratuity;
+      //   this.payrollForm.patchValue({ yearGratuity: ygratuity }, { emitEvent: false });
+      //   this.calculateGrossPay();
+      // }),
+      // this.payrollForm.get('insurance')?.valueChanges.subscribe(() => {
+      //   const insurance: any = this.payrollForm.get('insurance')?.value;
+      //   const yinsurance = 12 * insurance;
+      //   this.payrollForm.patchValue({ yearinsurance: yinsurance }, { emitEvent: false });
+      //   this.calculateGrossPay();
+      // }),
+      // this.payrollForm.get('pf')?.valueChanges.subscribe(() => {
+      //   const pf: any = this.payrollForm.get('pf')?.value;
+      //   const ypf = 12 * pf;
+      //   this.payrollForm.patchValue({ yearpf: ypf }, { emitEvent: false });
+      //   this.calculateGrossPay();
+      // }),
       this.payrollForm.get('pfDeduction')?.valueChanges.subscribe(() => {
         const pf: any = this.payrollForm.get('pfDeduction')?.value;
         const ypf = 12 * pf;
@@ -218,15 +219,15 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
     const conveyanceAllowance: number = Number(this.payrollForm.get('conveyanceAllowance')?.value) || 0;
     const lta: number = Number(this.payrollForm.get('lta')?.value) || 0;
     const specialAllowance: number = Number(this.payrollForm.get('specialAllowance')?.value) || 0;
-    const gratuity: number = Number(this.payrollForm.get('gratuity')?.value) || 0;
-    const insurance: number = Number(this.payrollForm.get('insurance')?.value) || 0;
-    const pf: number = Number(this.payrollForm.get('pf')?.value) || 0;
+    // const gratuity: number = Number(this.payrollForm.get('gratuity')?.value) || 0;
+    // const insurance: number = Number(this.payrollForm.get('insurance')?.value) || 0;
+    // const pf: number = Number(this.payrollForm.get('pf')?.value) || 0;
 
     const grossPay: any = basic + hra + conveyanceAllowance + lta + specialAllowance;
-    const netPay: any = grossPay + gratuity + insurance + pf;
+    // const netPay: any = grossPay + gratuity + insurance + pf;
     
     this.payrollForm.patchValue({ 
-      grossPay: grossPay, yeargrossPay: grossPay * 12, netPay: netPay, yearnetPay: netPay * 12 
+      grossPay: grossPay, yeargrossPay: grossPay * 12,
     }, { emitEvent: false });
   }
 
