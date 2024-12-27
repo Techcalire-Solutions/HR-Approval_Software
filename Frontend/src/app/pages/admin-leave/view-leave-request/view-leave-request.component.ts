@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
@@ -177,14 +177,21 @@ onDeleteLeave(leaveId: number): void {
 
 
   onEditLeave(leaveId: number): void {
-    console.log('Navigating with Leave ID:', leaveId); // Debug Log
+    console.log('Navigating with Leave ID:', leaveId);
     this.router.navigate(['/login/admin-leave/edit/',leaveId], {
-      queryParams: { leaveId: leaveId }, // Ensure `leaveId` is included
+      queryParams: { leaveId: leaveId },
     });
   }
 
+
   openDialog(action: string, leaveId: string): void {
-    const dialogRef = this.dialog.open(NoteDialogComponent);
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.data = { action, leaveId };
+
+    const heading = action === 'approve' ? 'Approve Note' : 'Reject Note';
+    dialogConfig.data.heading = heading;
+
+    const dialogRef = this.dialog.open(NoteDialogComponent, dialogConfig);
 
     dialogRef.afterClosed().subscribe(note => {
       if (note !== undefined) {
@@ -198,20 +205,7 @@ onDeleteLeave(leaveId: number): void {
   }
 
 
-
-
-  handleApprovalOrRejection(action: string, note: string): void {
-    if (action === 'approve') {
-      // Logic for approval
-      console.log(`Approved with note: ${note}`);
-    } else if (action === 'reject') {
-      // Logic for rejection
-      console.log(`Rejected with note: ${note}`);
-    }
-
-
-  }
-    approveLeave(leaveId: any, note: string) {
+  approveLeave(leaveId: any, note: string) {
       const approvalData = { leaveId: leaveId, adminNotes: note };
       this.leaveService.updateApproveLeaveStatus(approvalData).subscribe(
         (res) => {
@@ -236,6 +230,10 @@ onDeleteLeave(leaveId: number): void {
       }
     );
   }
+
+
+
+
   viewLeaveDetails(leaveId:number){
     this.router.navigate(['/login/admin-leave/view/',leaveId], {
       queryParams: { leaveId: leaveId },

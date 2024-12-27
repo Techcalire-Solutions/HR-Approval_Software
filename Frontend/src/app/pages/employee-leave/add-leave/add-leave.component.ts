@@ -1,4 +1,4 @@
-import { CommonModule, formatDate } from '@angular/common';
+import { CommonModule, DatePipe, formatDate } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormArray, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,6 +26,7 @@ import { LeaveCountCardsComponent } from '../leave-count-cards/leave-count-cards
 import { UsersService } from '@services/users.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LeaveInfoDialogComponent } from '../leave-info-dialog/leave-info-dialog.component';
+import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 // Custom validator to check if at least one session is selected
 function sessionSelectionValidator(group: FormGroup) {
   const session1 = group.get('session1')?.value;
@@ -33,6 +34,18 @@ function sessionSelectionValidator(group: FormGroup) {
 
   return (session1 || session2) ? null : { sessionRequired: true };
 }
+
+export const MY_FORMATS = {
+  parse: {
+    dateInput: 'DD/MM/YYYY', // Change to desired format
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY', // Display format for the input field
+    monthYearLabel: 'MMM YYYY', // Format for month/year in the header
+    dateA11yLabel: 'DD/MM/YYYY', // Accessibility format for dates
+    monthYearA11yLabel: 'MMMM YYYY', // Accessibility format for month/year
+  },
+};
 @Component({
   selector: 'app-add-leave',
   standalone: true,
@@ -57,10 +70,7 @@ function sessionSelectionValidator(group: FormGroup) {
   ],
   templateUrl: './add-leave.component.html',
   styleUrl: './add-leave.component.scss',
-  providers: [
-    { provide: DateAdapter, useClass: NativeDateAdapter },
-    { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
-  ],
+  providers: [provideMomentDateAdapter(MY_FORMATS), DatePipe],
 })
 export class AddLeaveComponent implements OnInit, OnDestroy {
   isEditMode: boolean = false;
