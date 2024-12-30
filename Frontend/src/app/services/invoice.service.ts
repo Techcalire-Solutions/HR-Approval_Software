@@ -38,6 +38,10 @@ export class InvoiceService {
     return this._http.delete(`${this.url}/invoice/filedeletebyurl/?key=${key}`);
   }
 
+  deleteBSUploadByurl(key: string) {
+    return this._http.delete(`${this.url}/invoice/bsdeletebyurl/?key=${key}`);
+  }
+
   // deleteInvoice(id: number, fileName: string){
   //   return this._http.delete(this.url + `/invoice/filedelete/?id=${id}&fileName=${fileName}`);
   // }

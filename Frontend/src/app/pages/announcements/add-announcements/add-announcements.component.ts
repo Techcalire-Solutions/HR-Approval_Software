@@ -10,7 +10,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { AnnouncementsService } from '@services/announcements.service';
 import { Subscription } from 'rxjs';
-import { PagesComponent } from '../../pages.component';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,7 +19,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   selector: 'app-add-announcements',
   standalone: true,
   imports: [MatFormFieldModule, MatCheckboxModule, MatSelectModule, MatOptionModule, MatInputModule, MatButtonModule, MatCardModule,
-    ReactiveFormsModule, PagesComponent, MatIconModule, SafePipe, MatProgressSpinnerModule],
+    ReactiveFormsModule, MatIconModule, SafePipe, MatProgressSpinnerModule],
   templateUrl: './add-announcements.component.html',
   styleUrl: './add-announcements.component.scss'
 })

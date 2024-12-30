@@ -60,7 +60,8 @@ export class PayslipComponent implements OnInit, OnDestroy{
         this.toNumber(this.payroll.lta) +
         this.toNumber(this.payroll.ot) +
         this.toNumber(this.payroll.incentiveDeduction) +
-        this.toNumber(this.payroll.payOut)
+        this.toNumber(this.payroll.payOut) + 
+        this.toNumber(this.payroll.leaveEncashmentAmount)
     );
   }
 

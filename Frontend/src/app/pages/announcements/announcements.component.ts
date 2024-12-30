@@ -36,10 +36,11 @@ import { Role } from '../../common/interfaces/users/role';
   styleUrl: './announcements.component.scss'
 })
 export class AnnouncementsComponent implements OnInit, OnDestroy{
-  dialog = inject(MatDialog)
-  announcementService = inject(AnnouncementsService);
-  roleService = inject(RoleService);
-  snackBar = inject(MatSnackBar);
+  apiUrl ='https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/';
+  private dialog = inject(MatDialog)
+  private announcementService = inject(AnnouncementsService);
+  private roleService = inject(RoleService);
+  private snackBar = inject(MatSnackBar);
   ngOnInit(): void {
     this.getAnnouncement();
 
@@ -50,7 +51,7 @@ export class AnnouncementsComponent implements OnInit, OnDestroy{
     this.getRoleById(roleId)
   }
 
-  roleSub!: Subscription;
+  private roleSub!: Subscription;
   roleName: string;
   getRoleById(id: number){
     this.roleSub = this.roleService.getRoleById(id).subscribe((res: Role) => {
@@ -133,4 +134,11 @@ export class AnnouncementsComponent implements OnInit, OnDestroy{
     this.searchText = (event.target as HTMLInputElement).value.trim()
     this.getAnnouncement()
   }
+
+  enlargedItemId: number | null = null;
+
+  toggleImageSize(itemId: number) {
+    this.enlargedItemId = this.enlargedItemId === itemId ? null : itemId;
+  }
 }
+

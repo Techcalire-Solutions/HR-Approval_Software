@@ -86,42 +86,55 @@ export class MonthendComponent implements OnInit, OnDestroy{
   calculateTotalSalary(index: number): void {
     const payrollGroup = this.doc().at(index) as FormGroup;
 
-    const basic: number = Number(payrollGroup.get('basic')?.value || 0);
-    const hra: number = Number(payrollGroup.get('hra')?.value || 0);
-    const conveyanceAllowance: number = Number(payrollGroup.get('conveyanceAllowance')?.value || 0);
-    const lta: number = Number(payrollGroup.get('lta')?.value || 0);
-    const specialAllowance: number = Number(payrollGroup.get('specialAllowance')?.value || 0);
+    const parseValue = (field: string): number => {
+        const value = payrollGroup.get(field)?.value || '0';
+        return Number(value.toString().replace(/,/g, '')); // Remove commas before conversion
+    };
 
-    const ot: number = Number(payrollGroup.get('ot')?.value || 0);
-    const incentive: number = Number(payrollGroup.get('incentive')?.value || 0);
-    const payOut: number = Number(payrollGroup.get('payOut')?.value || 0);
-    const pf: number = Number(payrollGroup.get('pfDeduction')?.value || 0);
-    const insurance: number = Number(payrollGroup.get('esi')?.value || 0);
-    const tds: number = Number(payrollGroup.get('tds')?.value || 0);
-    const leaveDays: number = Number(payrollGroup.get('leaveDays')?.value || 0);
-    const advanceAmount: number = Number(payrollGroup.get('advanceAmount')?.value || 0);
-    const incentiveDeduction: number = Number(payrollGroup.get('incentiveDeduction')?.value || 0);
-    const leaveBal: number = Number(payrollGroup.get('leaveEncashment')?.value || 0);
+    const basic = parseValue('basic');
+    const hra = parseValue('hra');
+    const conveyanceAllowance = parseValue('conveyanceAllowance');
+    const lta = parseValue('lta');
+    const specialAllowance = parseValue('specialAllowance');
+    const ot = parseValue('ot');
+    const incentive = parseValue('incentive');
+    const payOut = parseValue('payOut');
+    const pf = parseValue('pfDeduction');
+    const insurance = parseValue('esi');
+    const tds = parseValue('tds');
+    const leaveDays = parseValue('leaveDays');
+    const advanceAmount = parseValue('advanceAmount');
+    const incentiveDeduction = parseValue('incentiveDeduction');
+    const leaveBal = parseValue('leaveEncashment');
 
     const gross = basic + hra + conveyanceAllowance + lta + specialAllowance;
-    
-    const perDayEncash = gross/30;
-    const leaveEncash: any = (perDayEncash * leaveBal).toFixed(2)
+
+    const perDayEncash = gross / 30;
+    const leaveEncash = (perDayEncash * leaveBal).toFixed(2);
+    console.log(leaveEncash);
+
     payrollGroup.get('leaveEncashmentAmount')?.setValue(leaveEncash, { emitEvent: false });
 
-    const roundedGross = Math.round(gross); 
+    const roundedGross = Math.round(gross);
     payrollGroup.get('perDay')?.setValue((roundedGross / this.daysInMonth).toFixed(2), { emitEvent: false });
-    payrollGroup.get('daysInMonth')?.setValue((this.daysInMonth), { emitEvent: false });
+    payrollGroup.get('daysInMonth')?.setValue(this.daysInMonth, { emitEvent: false });
 
     const deduction = pf + insurance + tds + advanceAmount + incentiveDeduction;
-    const grossTotal = Math.round(gross + ot + incentive + payOut + leaveEncash - deduction); 
+    const grossTotal = Math.round(gross + ot + incentive + payOut + Number(leaveEncash) - deduction);
+    console.log(grossTotal);
+
     const perDaySalary = gross / this.daysInMonth;
-    const leaveDeduction = perDaySalary * leaveDays
+    const leaveDeduction = perDaySalary * leaveDays;
 
     payrollGroup.get('leaveDeduction')?.setValue(leaveDeduction, { emitEvent: false });
-    const totalToPay = Number((grossTotal - leaveDeduction).toFixed(2))
+    console.log(grossTotal, leaveDeduction);
+
+    const totalToPay = Number((grossTotal - leaveDeduction).toFixed(2));
+    console.log(totalToPay);
+
     payrollGroup.get('toPay')?.setValue(totalToPay, { emitEvent: false });
-  }
+}
+
 
 
   removeData(index: number): void {
@@ -179,6 +192,8 @@ export class MonthendComponent implements OnInit, OnDestroy{
     const isDecember = this.month.toLowerCase() === 'december';
 
     this.paySub = this.payrollService.getMonthlyPayrollByPayedFor(payedForValue).subscribe(payroll =>{
+      console.log(payroll);
+      
       if(payroll.length === 0){
         this.payrollSub = this.payrollService.getPayroll().subscribe((payroll) => {
           this.payrolls = payroll;
@@ -212,7 +227,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
           })
         });
       }else{
-        // this.updateStatus = true;
+        this.updateStatus = true;
         this.payrolls = payroll;
         this.payrolls.forEach((payrollItem: any) => {
           if (payrollItem.status === 'SendforApproval') {
