@@ -6,7 +6,7 @@ const User = require('../models/user');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const Role = require('../models/role')
-const { Op, where } = require('sequelize');
+const { Op } = require('sequelize');
 const sequelize = require('../../utils/db');
 const upload = require('../../utils/userImageMulter'); 
 const s3 = require('../../utils/s3bucket');
@@ -16,8 +16,9 @@ const UserPersonal = require('../models/userPersonal');
 const UserPosition = require('../models/userPosition');
 const Designation = require('../models/designation');
 const StatutoryInfo = require('../models/statutoryInfo');
-const nodemailer = require('nodemailer');
 const UserDocument = require('../models/userDocuments');
+const { sendEmail } = require('../../app/emailService');
+const config = require('../../utils/config')
 
 router.post('/add', async (req, res) => {
   const { name, email, phoneNumber, password, status, userImage, url, empNo, director } = req.body;
@@ -41,7 +42,7 @@ router.post('/add', async (req, res) => {
         ]
       }
     });
-
+    
     if (userExist) {
       return res.send(`User already exists with the email or employee number and Role`);
     }
@@ -52,8 +53,18 @@ router.post('/add', async (req, res) => {
       name, empNo, email, phoneNumber, password: hashedPassword, roleId, status, userImage, url, director
     });
 
+    const emailText = `Dear ${user.name},\n\nCongratulations on joining our company!\nHere are your login credentials:\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information secure.\n\nWe are excited to have you onboard and look forward to working together.\n\nBest Regards,\nThe Team`;
+    const emailSubject = `Welcome to the Company!`;
+    const fromEmail = config.email.userAddUser;
+    const emailPassword = config.email.userAddPass;
+    const html = ''
+    const attachments = []
+    try {
+      await sendEmail(fromEmail, emailPassword, user.email, emailSubject, emailText ,html, attachments);
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError);
+    }
     res.send(user)
-
   } catch (error) {
     res.send(error.message);
   }
@@ -441,33 +452,46 @@ router.patch('/resetpassword/:id', async (req, res) => {
 
       await user.save();
       
-        // Configure Nodemailer for sending emails
-        const transporter = nodemailer.createTransport({
-          service: 'Gmail', 
-          auth: {
-            user: 'nishida@onboardaero.com',
-            pass: 'jior rtdu epzr xadt',
-          },
-      });
+      const emailText = `Hello ${user.name},\n\nYour password has been successfully reset.\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information safe.\n\nThank you!`;
+      const emailSubject = `Password Reset Successful`;
+      const fromEmail = config.email.userAddUser;
+      const emailPassword = config.email.userAddPass;    
+      const html = ''
+      const attachments = []
+      try {
+        await sendEmail(fromEmail, emailPassword, user.email, emailSubject, emailText ,html, attachments);
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+    
+      }
 
-      // Email options
-      const mailOptions = {
-          from: 'nishida@onboardaero.com', // Replace with your email
-          to: user.email, // Assuming the User model has an `email` field
-          subject: 'Password Reset Successful',
-          text: `Hello ${user.name},\n\nYour password has been successfully reset.\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information safe.\n\nThank you!`,
-      };
+      //   // Configure Nodemailer for sending emails
+      // const transporter = nodemailer.createTransport({
+      //     service: 'Gmail', 
+      //     auth: {
+      //       user: 'nishida@onboardaero.com',
+      //       pass: 'jior rtdu epzr xadt',
+      //     },
+      // });
 
-      // Send the email
-      transporter.sendMail(mailOptions, (err, info) => {
-          if (err) {
-              console.error('Error sending email:', err);
-              return res.send('Failed to send email');
-          } else {
-              console.log('Email sent:', info.response);
-              res.send('Password reset successful and email sent');
-          }
-      });
+      // // Email options
+      // const mailOptions = {
+      //     from: 'nishida@onboardaero.com', // Replace with your email
+      //     to: user.email, // Assuming the User model has an `email` field
+      //     subject: 'Password Reset Successful',
+      //     text: `Hello ${user.name},\n\nYour password has been successfully reset.\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information safe.\n\nThank you!`,
+      // };
+
+      // // Send the email
+      // transporter.sendMail(mailOptions, (err, info) => {
+      //     if (err) {
+      //         console.error('Error sending email:', err);
+      //         return res.send('Failed to send email');
+      //     } else {
+      //         console.log('Email sent:', info.response);
+      //         res.send('Password reset successful and email sent');
+      //     }
+      // });
       
       res.send(user);
   } catch (error) {

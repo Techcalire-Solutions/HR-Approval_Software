@@ -25,4 +25,7 @@ export interface MonthlyPayroll {
   payedAt: Date
 
   user: User
+
+  leaveEncashmentAmount: number
+  leaveEncashment: number
   }

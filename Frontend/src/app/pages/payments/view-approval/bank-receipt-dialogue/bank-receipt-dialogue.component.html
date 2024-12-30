@@ -12,28 +12,33 @@
   <div class="wrapper">
 
     <form action="#" #form class="form">
-      <input type="file" class="file-input" hidden #fileInput>
-      <p>{{dialogContent}}</p>
-    </form>
-    <section class="progress-area" #progressArea>
-      @if(file){
-        <li class="row">
-          <div class="content">
-            <div class="details">
-              @if(uploadComplete){
-                <span class="name">{{file.name}} . Uploading</span>
-                <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-              }
-              @if(!uploadComplete){
-              <span class="name">{{file.name}} . Uploaded</span>
-              }
-            </div>
+      <!-- <input type="file" class="file-input" hidden #fileInput> -->
+      @if(!imageUrl){
+        <div class="col">
+          <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event)">   
+          <div class="drag-drop-area"  (drop)="onFileDropped($event)"  (dragover)="onDragOver($event)">
+            <mat-icon (click)="fileInput.click()">cloud_upload</mat-icon>
+            <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
+            <p>Or drag & drop your file here</p>
           </div>
-        </li>
+        </div>
       }
-
-    </section>
+      @else{
+        <div class="col">
+          <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+            <iframe [src]="imageUrl | safe" width="100%" height="300px"></iframe>
+            <mat-icon style="color: red;" (click)="onDeleteImage()">delete</mat-icon>
+          </div>
+        </div>
+      }
+      <!-- <p>{{dialogContent}}</p> -->
+    </form>
 
   <button  mat-raised-button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="!piForm.valid">Save</button>
   <button class="cancel-button" (click)="onCancelClick()">Cancel</button>
   </div>
+  @if(submitted){
+    <div fxLayout="column" fxLayoutAlign="center center" class="user-spinner">
+      <mat-spinner color="primary"></mat-spinner>
+    </div>
+  }

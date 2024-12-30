@@ -28,7 +28,7 @@
                 <th rowspan="2">Employee ID</th>
                 <th rowspan="2">PerDay</th>
                 @if(month === 'December'){
-                     <th colspan="9">Earnings</th>
+                    <th colspan="12">Earnings</th>
                 }@else {
                     <th colspan="8">Earnings</th>
                 }
@@ -46,7 +46,7 @@
                 <th class="earnings">Incentive</th>
                 <th class="earnings">PayOut</th>
                 @if(month === 'December'){
-                    <th class="earnings">LeaveDays</th>
+                    <th class="earnings" colspan="4">LeaveBalance</th>
                 }
                 <th class="deductions">PF</th>
                 <th class="deductions">ESI</th>
@@ -61,25 +61,28 @@
                     <td><input type="text" placeholder="Employee" formControlName="userName"></td>
                     <td><input type="text" placeholder="EmployeeId" formControlName="employeeId"></td>
                     <td><input type="text" placeholder="PerDay" formControlName="perDay"></td>
-                    <td><input type="number" placeholder="Basic" formControlName="basic"></td>
-                    <td><input type="number" placeholder="HRA" formControlName="hra"></td>
-                    <td><input type="number" placeholder="CA" formControlName="conveyanceAllowance"></td>
-                    <td><input type="number" placeholder="LTA" formControlName="lta"></td>
-                    <td><input type="number" placeholder="SA" formControlName="specialAllowance"></td>
-                    <td><input type="number" placeholder="OT" formControlName="ot"></td>
-                    <td><input type="number" placeholder="Incentive" formControlName="incentive"></td>
-                    <td><input type="number" placeholder="PayOut" formControlName="payOut"></td>
+                    <td><input type="number" class="no-spinner"placeholder="Basic" formControlName="basic"></td>
+                    <td><input type="number" class="no-spinner"placeholder="HRA" formControlName="hra"></td>
+                    <td><input type="number" class="no-spinner"placeholder="CA" formControlName="conveyanceAllowance"></td>
+                    <td><input type="number" class="no-spinner"placeholder="LTA" formControlName="lta"></td>
+                    <td><input type="number" class="no-spinner"placeholder="SA" formControlName="specialAllowance"></td>
+                    <td><input type="number" class="no-spinner"placeholder="OT" formControlName="ot"></td>
+                    <td><input type="number" class="no-spinner"placeholder="Incentive" formControlName="incentive"></td>
+                    <td><input type="number" class="no-spinner"placeholder="PayOut" formControlName="payOut"></td>
                     @if(month === 'December'){
-                        <td><input type="number" placeholder="LeaveDays" formControlName="leaveEncashment"></td>
+                        <td><input type="number" class="no-spinner"placeholder="CL" formControlName="cl" style="width: 25px;"></td>
+                        <td><input type="number" class="no-spinner"placeholder="CombOff" formControlName="combOff" style="width: 25px;"></td>
+                        <td><input type="number" class="no-spinner"placeholder="LeaveEncashment" formControlName="leaveEncashment" style="width: 25px;"></td>
+                        <td><input type="number" class="no-spinner"placeholder="LeaveEncashmentAmount" formControlName="leaveEncashmentAmount"></td>
                     }
-                    <td><input type="number" placeholder="PF" formControlName="pfDeduction"></td>
-                    <td><input type="number" placeholder="ESI" formControlName="esi"></td>
-                    <td><input type="number" placeholder="TDS" formControlName="tds"></td>
-                    <td><input type="number" placeholder="Advance" formControlName="advanceAmount"></td>
-                    <td><input type="number" placeholder="LeaveDays" formControlName="leaveDays"></td>
-                    <td><input type="number" placeholder="Incentive" formControlName="incentiveDeduction"></td>
+                    <td><input type="number" class="no-spinner"placeholder="PF" formControlName="pfDeduction"></td>
+                    <td><input type="number" class="no-spinner"placeholder="ESI" formControlName="esi"></td>
+                    <td><input type="number" class="no-spinner"placeholder="TDS" formControlName="tds"></td>
+                    <td><input type="number" class="no-spinner"placeholder="Advance" formControlName="advanceAmount"></td>
+                    <td><input type="number" class="no-spinner"placeholder="LeaveDays" formControlName="leaveDays"></td>
+                    <td><input type="number" class="no-spinner"placeholder="Incentive" formControlName="incentiveDeduction"></td>
                     <td>
-                        <input type="number" [value]="payroll.get('toPay')?.value" disabled>
+                        <input type="number" class="no-spinner"[value]="payroll.get('toPay')?.value" disabled>
                       </td>
                 </tr>
             }

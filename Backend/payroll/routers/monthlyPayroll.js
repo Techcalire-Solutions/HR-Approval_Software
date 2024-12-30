@@ -21,41 +21,34 @@ const Notification = require('../../notification/models/notification')
 const puppeteer = require("puppeteer");
 const Payroll = require("../models/payroll");
 const Role = require("../../users/models/role");
-const config = require('../../utils/config');
+const { sendEmail } = require('../../app/emailService');
+const config = require('../../utils/config')
 
 router.post("/save", authenticateToken, async (req, res) => {
   const data = req.body.payrolls;
-
+  console.log(data,"dataaaaaaaaaa");
+  
   try {
     const results = []; 
     for (let i = 0; i < data.length; i++) {
       const {
         userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, esi, tds,
-        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, leaveDays, daysInMonth
+        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, leaveDays, daysInMonth, leaveEncashment, leaveEncashmentAmount,
       } = data[i];
 
       // Save the payroll
       const monthlyPayroll = await MonthlyPayroll.create({
         userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, esi, tds,
-        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt: new Date(), leaveDays, daysInMonth
+        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt: new Date(), leaveDays, daysInMonth, leaveEncashment, leaveEncashmentAmount,
       });
 
       results.push(monthlyPayroll);
-
-      // const advanceSalary = await AdvanceSalary.findOne({ where: { userId, status: true } });
-      // if (advanceSalary) {
-      //   advanceSalary.completed += 1;
-      //   if (advanceSalary.duration === advanceSalary.completed) {
-      //     advanceSalary.status = false;
-      //     advanceSalary.completedDate = new Date();
-      //     advanceSalary.closeNote = 'Advance Payment is completed successfully';
-      //   }
-      //   await advanceSalary.save();
-      // }
     }
 
     res.status(200).send({ message: "Payrolls saved successfully", payrolls: results });
   } catch (error) {
+    console.log(error);
+    
     res.send(error.message);
   }
 });
@@ -75,10 +68,14 @@ router.get("/find", authenticateToken, async (req, res) => {
               {
                 [Op.like]: `%${searchTerm}%`
               }
-            )
+            ),
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.name'), ' ', '')),
+              { [Op.like]: `%${searchTerm}%` }
+            ),
           ]
         },
-        { status: 'Locked', userId: req.params.id },
+        { status: 'Locked' },
       ]
     };
   }
@@ -92,7 +89,7 @@ router.get("/find", authenticateToken, async (req, res) => {
     const monthlyPayroll = await MonthlyPayroll.findAll({ 
       where: whereClause, limit: limit, offset: offset,
       include:[
-          { model: User, attributes: ['name','empNo']}
+          { model: User, attributes: ['name','empNo'], as: 'user', required: false}
       ], order: [['id', 'DESC']]
     });
     totalCount = await MonthlyPayroll.count({});
@@ -164,20 +161,6 @@ router.get("/findbyuser/:id", authenticateToken, async (req, res) => {
   }
 });
 
-// router.get("/findbyuser/:id", authenticateToken, async (req, res) => {
-//   try {
-//     const monthlyPayroll = await MonthlyPayroll.findAll({
-//         where: {userId: req.params.id}, 
-//         include:[
-//             { model: User, attributes: ['name','empNo']}
-//         ],
-//     });
-//     res.send(monthlyPayroll);
-//   } catch (error) {
-//     res.send(error.message);
-//   }
-// });
-
 router.get("/bypayedfor", authenticateToken, async (req, res) => {
   try {
     const { payedFor } = req.query;
@@ -210,7 +193,7 @@ router.post("/update", authenticateToken, async (req, res) => {
     for (const payroll of data) {
       const {
         userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, esi, tds,
-        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays, status = 'Added'
+        advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays, status = 'Added', leaveEncashment, leaveEncashmentAmount
       } = payroll;
 
       if (!userId || !payedFor) {
@@ -226,7 +209,7 @@ router.post("/update", authenticateToken, async (req, res) => {
         await existingPayroll.update(
           {
             basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, esi, tds,
-            advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedAt, leaveDays, status
+            advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedAt, leaveDays, status, leaveEncashment, leaveEncashmentAmount
           },
           { transaction }
         );
@@ -235,7 +218,7 @@ router.post("/update", authenticateToken, async (req, res) => {
         await MonthlyPayroll.create(
           {
             userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, esi, tds,
-            advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays, status
+            advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays, status, leaveEncashment, leaveEncashmentAmount
           },
           { transaction }
         );
@@ -252,44 +235,6 @@ router.post("/update", authenticateToken, async (req, res) => {
   }
 });
 
-// router.post("/update", authenticateToken, async (req, res) => {
-//   const data = req.body.payrolls;
-
-//   if (!Array.isArray(data) || data.length === 0) {
-//     return res.status(400).send("Invalid payroll data provided.");
-//   }
-
-//   const transaction = await sequelize.transaction();
-
-//   try {
-
-//     for (const payroll of data) {
-      
-//       const {userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
-//         advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays
-//       } = payroll;
-
-//       // Check if a payroll record exists for the given user and period
-//       const existingPayroll = await MonthlyPayroll.findOne({
-//         where: { userId, payedFor },
-//         transaction
-//       });
-
-//       if (existingPayroll) {
-//         await existingPayroll.update({ basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
-//           advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays }, { transaction });
-//       } else 
-//         await MonthlyPayroll.create({ basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, insurance, tds,
-//           advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, payedAt, leaveDays }, { transaction });
-//     }
-
-//     await transaction.commit();
-//     res.send("Payrolls updated successfully");
-//   } catch (error) {
-//     await transaction.rollback();
-//     res.send(error.message);
-//   }
-// })
 router.get('/findbyid/:id', authenticateToken, async (req, res) => {
   try {
     const monthlyPayroll = await MonthlyPayroll.findByPk(req.params.id,{ 
@@ -330,7 +275,6 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
   }
 
 
-
   function toNumber(value) {
     return Number(value) || 0;
   }
@@ -344,7 +288,8 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
       toNumber(payroll.lta) +
       toNumber(payroll.ot) +
       toNumber(payroll.incentiveDeduction) +
-      toNumber(payroll.payOut)
+      toNumber(payroll.payOut) + 
+      toNumber(payroll.leaveEncashmentAmount)
     );
   }
 
@@ -439,51 +384,89 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
     // Use a transaction for atomic updates
     await sequelize.transaction(async (transaction) => {
       const updatePromises = payrollData.map(async (element) => {
-        const mp = await MonthlyPayroll.findByPk(element.id, { transaction, include: [
-          {model: User, attributes: ['name','empNo', 'email'], include: [
-            {model: UserPersonal, attributes: ['dateOfJoining']},
-            {model: UserAccount},
-            {model: StatutoryInfo, attributes: ['panNumber', 'uanNumber', 'pfNumber']},
-            {model: UserPosition, attributes: ['designationId', 'department', 'location'], include:[
-              {model: Designation, attributes: ['designationName']}
-            ]}
-          ]}
-        ]});
-        if (!mp) {
-          throw new Error(`Payroll entry with ID ${element.id} not found.`);
-        }
-        mp.status = status;
-        await mp.save({ transaction });
-        const workingDays = mp.daysInMonth - mp.leaveDays
-
-        const fullValue = await Payroll.findOne({ where: { userId: mp.userId } });
-        if (!fullValue) {
-          return res.send("Basic Payroll is not added for the employee");
-        }
-
-        let user = await User.findByPk(req.user.id, { include:[ 
-          {model: UserPosition, attributes: ['designationId'], include: {
-            model: Designation, attributes: ['designationName']
-          }},
-          {model: Role, attributes: ['roleName']}]
-        });
-        let designation;
-        if(user.role.roleName !== 'Super Administrator' && user.role.roleName !== 'HR Administrator'){
-          if(!user.userPosition || !user.userPosition.designationId){
-            return res.send(`Designation of the sender ${user.name} is not added`)
+        try {
+          console.log(element.id);
+    
+          // Find the payroll entry
+          const mp = await MonthlyPayroll.findByPk(element.id, {
+            transaction,
+            include: [
+              {
+                model: User,
+                attributes: ['name', 'empNo', 'email'],
+                include: [
+                  { model: UserPersonal, attributes: ['dateOfJoining'] },
+                  { model: UserAccount },
+                  {
+                    model: StatutoryInfo,
+                    attributes: ['panNumber', 'uanNumber', 'pfNumber'],
+                  },
+                  {
+                    model: UserPosition,
+                    attributes: ['designationId', 'department', 'location'],
+                    include: [
+                      {
+                        model: Designation,
+                        attributes: ['designationName'],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          });
+    
+          if (!mp) {
+            throw new Error(`Payroll entry with ID ${element.id} not found.`);
           }
-          designation = user.userPosition.designation.designationName;
-        }else{
-          designation = user.role.roleName;
-        } 
+    
+          // Update the status and save the payroll entry
+          mp.status = status;
+          await mp.save({ transaction });
+    
+          const workingDays = mp.daysInMonth - mp.leaveDays;
+    
+          // Fetch full payroll data
+          const fullValue = await Payroll.findOne({ where: { userId: mp.userId } });
+          if (!fullValue) {
+            throw new Error("Basic Payroll is not added for the employee");
+          }
+    
+          // Fetch user and role information
+          const user = await User.findByPk(req.user.id, {
+            include: [
+              {
+                model: UserPosition,
+                attributes: ['designationId'],
+                include: {
+                  model: Designation,
+                  attributes: ['designationName'],
+                },
+              },
+              { model: Role, attributes: ['roleName'] },
+            ],
+          });
+    
+          let designation;
+          if (
+            user.role.roleName !== 'Super Administrator' &&
+            user.role.roleName !== 'HR Administrator'
+          ) {
+            if (!user.userPosition || !user.userPosition.designationId) {
+              throw new Error(`Designation of the sender ${user.name} is not added`);
+            }
+            designation = user.userPosition.designation.designationName;
+          } else {
+            designation = user.role.roleName;
+          }
+    
+          // Calculate earnings and deductions
+          const totalEarnings = calculateTotalEarnings(mp);
+          const totalDeductions = calculateTotalDeductions(mp);
+          const payedFor = mp.payedFor
+          const payedForWithoutYear = payedFor.replace(/\s*\d{4}$/, '');
 
-
-        // mp.status = status;
-        // await mp.save({ transaction });
-
-        const totalEarnings = calculateTotalEarnings(mp);
-        const totalDeductions = calculateTotalDeductions(mp);
-        const pdfContent = `
+          const pdfContent = `
           <html>
             <head>
               <style>
@@ -688,7 +671,15 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
                                       <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveDays ?? ''}</span>
                                   </div>
                               </td>
-                              <td></td>
+                              <td>
+                                ${payedForWithoutYear === 'December' ? `
+                                  <div style="display: flex; align-items: center; width: 100%;">
+                                      <span style="flex: 1;">Earned Leaves</span>
+                                      <span style="width: 20px; text-align: center;">:</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveEncashment ?? ''}</span>
+                                  </div>` : ''
+                                }
+                              </td>
                           </tr>       
                       </table>
 
@@ -761,6 +752,15 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
                               <td></td>
                               <td></td>
                             </tr>
+                            ${payedForWithoutYear === 'December' ? `
+                            <tr>
+                              <td>Earned Leave</td>
+                              <td></td>
+                              <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveEncashmentAmount ?? ''}</td>
+                              <td></td>
+                              <td></td>
+                            </tr>` : ''}
+
                               <tr>
                                   <td colspan="3"> 
                                       <div style="display: flex; align-items: center; width: 100%;">
@@ -791,16 +791,40 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
                   </div>
             </body>
           </html>
-        `;
-
-        const pdfBuffer = await generatePDF(pdfContent);
-        await sendEmail(mp.user.email, pdfBuffer, `Payslip for - ${mp.payedFor}`, mp.payedFor, mp.user.name, designation, user.name);
-        });
-
+          `;
+          const pdfBuffer = await generatePDF(pdfContent);
+    
+          // Send email with payslip
+          await sendPayrollEmail(
+            mp.user.email,
+            pdfBuffer,
+            `Payslip for - ${mp.payedFor}`,
+            mp.payedFor,
+            mp.user.name,
+            designation,
+            user.name
+          );
+    
+          // Create notification
+          await Notification.create(
+            {
+              userId: element.id,
+              message: `PaySlip for ${mp.payedFor} is generated`,
+              isRead: false,
+              route: `/login/payroll/payslip`,
+            },
+            { transaction }
+          );
+        } catch (error) {
+          console.error(`Error processing payroll for ID ${element.id}:`, error);
+          throw error; // Ensure rollback on error
+        }
+      });
+    
       // Wait for all updates and emails to complete
       await Promise.all(updatePromises);
     });
-
+    
     res.status(200).json({ message: "Successfully updated payroll statuses and sent emails." });
   } catch (error) {
     res.send(error.message);
@@ -818,92 +842,92 @@ async function generatePDF(html) {
 }
 
 // Function to send email
-async function sendEmail(to, pdfBuffer, subject, payedFor, name, designation, senderName) {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: config.email.payroll_payslip_user,
-      pass: config.email.payroll_payslip_pwd,
-    },
-  });
+async function sendPayrollEmail(to, pdfBuffer, subject, payedFor, name, designation, senderName) {
+    const html =  `
+      <p>Attached is your payslip for the month of ${payedFor}. Please review it at your convenience.</p>
+        <hr style="border: 0; border-top: 1px solid #ccc; margin: 20px 0;">
+      <table>
+          <tr>
+              <td style="padding-left: 5px; vertical-align: top;">
+                      <div class="signature-container">
+                      <p style=" font-weight: bold; color: #0a499b; margin-bottom: 5px; font-size:small;" >With Regards,</p>
+                      <p style="color: #0a499b; font-size: 16px; font-weight: bold; margin: 5px 0; text-align: justify;">
+                        ${senderName}
+                      </p>
+                      <p style="font-size: 14px; margin: 0; text-align:justify;">
+                        ${designation}
+                      </p>
+                          <img src="https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/images/OAC-+LOGO+edited.jpg" 
+                          alt="Onboard Aero Consultant Logo" style="width: 280px;">
 
-  await transporter.sendMail({
-    from: 'Accounts Department',
-    to: to,
-    subject: subject,
-    html: `<p>Attached is your payslip for the month of ${payedFor}. Please review it at your convenience.</p>
-                      <hr style="border: 0; border-top: 1px solid #ccc; margin: 20px 0;">
-                  <table>
-                      <tr>
-                          <td style="padding-left: 5px; vertical-align: top;">
-                                  <div class="signature-container">
-                                  <p style=" font-weight: bold; color: #0a499b; margin-bottom: 5px; font-size:small;" >With Regards,</p>
-                                  <p style="color: #0a499b; font-size: 16px; font-weight: bold; margin: 5px 0; text-align: justify;">
-                                    ${senderName}
-                                  </p>
-                                  <p style="font-size: 14px; margin: 0; text-align:justify;">
-                                    ${designation}
-                                  </p>
-                                      <img src="https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/images/OAC-+LOGO+edited.jpg" 
-                                      alt="Onboard Aero Consultant Logo" style="width: 280px;">
-
-                                      <hr style="border: 1px solid #0a499b; margin: 5px 0;">
-                                      
-                                      <table style="width: 100%; margin: 0;">
-                                          <tr>
-                                              <td style="vertical-align: top; padding-top: 5px; text-align: center;">
-                                                  <!-- <strong style="font-style: italic; color: #0a499b;">Address:</strong> -->
-                                                  <img src="https://img.icons8.com/material-outlined/24/000000/marker.png" alt="Address Icon" 
-                                                  class="icon" style="width: 15px;">
-                                              </td>
-                                              <td style="padding-left: 5px; font-size: 10px; text-align: justify;">
-                                                  <p style="margin: 0;">ONBOARD AERO CONSULTANT PRIVATE LIMITED.<br>
-                                                  Technolodge, 13/227, Kakkoor.P.O, Ernakulam- 686662</p>
-                                              </td>
-                                          </tr>
-                                          <tr>
-                                              <td style="vertical-align: top; text-align: center;">
-                                                  <!-- <strong style="font-style: italic; color: #0a499b;">Mobile:</strong> -->
-                                                  <img src="https://img.icons8.com/material-outlined/24/000000/phone.png" alt="Phone Icon" 
-                                                  class="icon" style="width: 15px;">
-                                              </td>
-                                              <td style="padding-left: 5px; font-size: 10px; text-align: justify;">
-                                                  <p style="margin: 0;">+91 62387 83025, +91 73064 30169</p>
-                                              </td>
-                                          </tr>
-                                          <tr>
-                                              <td style="vertical-align: top; text-align: center;">
-                                                  <!-- <strong style="font-style: italic; color: #0a499b;">Email:</strong> -->
-                                                  <img src="https://img.icons8.com/material-outlined/24/000000/email.png" alt="Email Icon" 
-                                                  class="icon" style="width: 15px;">
-                                              </td>
-                                              <td style="padding-left: 5px; font-size: 10px; text-align: justify;">
-                                                  <a href="mailto:hr@onboardaero.com" style="color: black; text-decoration: none;">hr@onboardaero.com</a>
-                                              </td>
-                                          </tr>
-                                          <tr>
-                                              <td style="vertical-align: top; text-align: center;">
-                                                  <!-- <strong style="font-style: italic; color: #0a499b;">Website:</strong> -->
-                                                  <img src="https://img.icons8.com/material-outlined/24/000000/internet.png" alt="Website Icon" 
-                                                  class="icon" style="width: 15px;">
-                                              </td>
-                                              <td style="padding-left: 5px; font-size: 10px; text-align: justify;">
-                                                  <a href="https://www.onboardaero.com" style="color: black; text-decoration: none;">www.onboardaero.com</a>
-                                              </td>
-                                          </tr>
-                                      </table>
-                                  </div>
-                          </td>
-                      </tr>
-                    </table>
-    `,
-    attachments: [
+                          <hr style="border: 1px solid #0a499b; margin: 5px 0;">
+                          
+                          <table style="width: 100%; margin: 0;">
+                              <tr>
+                                  <td style="vertical-align: top; padding-top: 5px; text-align: center;">
+                                      <!-- <strong style="font-style: italic; color: #0a499b;">Address:</strong> -->
+                                      <img src="https://img.icons8.com/material-outlined/24/000000/marker.png" alt="Address Icon" 
+                                      class="icon" style="width: 15px;">
+                                  </td>
+                                  <td style="padding-left: 5px; font-size: 10px; text-align: justify;">
+                                      <p style="margin: 0;">ONBOARD AERO CONSULTANT PRIVATE LIMITED.<br>
+                                      Technolodge, 13/227, Kakkoor.P.O, Ernakulam- 686662</p>
+                                  </td>
+                              </tr>
+                              <tr>
+                                  <td style="vertical-align: top; text-align: center;">
+                                      <!-- <strong style="font-style: italic; color: #0a499b;">Mobile:</strong> -->
+                                      <img src="https://img.icons8.com/material-outlined/24/000000/phone.png" alt="Phone Icon" 
+                                      class="icon" style="width: 15px;">
+                                  </td>
+                                  <td style="padding-left: 5px; font-size: 10px; text-align: justify;">
+                                      <p style="margin: 0;">+91 62387 83025, +91 73064 30169</p>
+                                  </td>
+                              </tr>
+                              <tr>
+                                  <td style="vertical-align: top; text-align: center;">
+                                      <!-- <strong style="font-style: italic; color: #0a499b;">Email:</strong> -->
+                                      <img src="https://img.icons8.com/material-outlined/24/000000/email.png" alt="Email Icon" 
+                                      class="icon" style="width: 15px;">
+                                  </td>
+                                  <td style="padding-left: 5px; font-size: 10px; text-align: justify;">
+                                      <a href="mailto:hr@onboardaero.com" style="color: black; text-decoration: none;">hr@onboardaero.com</a>
+                                  </td>
+                              </tr>
+                              <tr>
+                                  <td style="vertical-align: top; text-align: center;">
+                                      <!-- <strong style="font-style: italic; color: #0a499b;">Website:</strong> -->
+                                      <img src="https://img.icons8.com/material-outlined/24/000000/internet.png" alt="Website Icon" 
+                                      class="icon" style="width: 15px;">
+                                  </td>
+                                  <td style="padding-left: 5px; font-size: 10px; text-align: justify;">
+                                      <a href="https://www.onboardaero.com" style="color: black; text-decoration: none;">www.onboardaero.com</a>
+                                  </td>
+                              </tr>
+                          </table>
+                      </div>
+              </td>
+          </tr>
+        </table>
+    `
+    const emailSubject = subject
+    const fromEmail = config.email.payrollUser;
+    const emailPassword = config.email.payrollPass;
+    const attachments = [
       {
         filename: `PaySlip_${payedFor}_${name}.pdf`,
         content: pdfBuffer,
       },
-    ],
-  });
+    ]
+    
+    const text = ''
+    
+    try {
+      await sendEmail(fromEmail, emailPassword, to, emailSubject, text ,html, attachments);
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError);
+    }
+
 }
 
 router.post('/send-email', upload.single('file'), authenticateToken, async (req, res) => {
@@ -935,22 +959,9 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
     } 
     
     const file = req.file;
-
-    const transporter = nodemailer.createTransport({
-      service: 'Gmail',
-      auth: {
-          user: config.email.payroll_approval_user,
-          pass: config.email.payroll_approval_pwd,
-      },
-    });
-
-    // Send email
-    const mailOptions = {
-      from: 'HR Department',
-      to: email,
-      subject: `Payroll Data for ${month}`,
-      html: `
-        <p>Please find the attached payroll Excel file for your review.</p>
+    
+    const html =  `
+      <p>Please find the attached payroll Excel file for your review.</p>
         <p>Kindly click the button below to either approve or reject the payroll data as required.</p>
         <div style="text-align: center; margin-top: 20px;">
           <a href="http://localhost:8000/monthlypayroll/approve?month=${month}&id=${req.user.id}" 
@@ -1044,16 +1055,23 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
                 </td>
             </tr>
         </table>
-      `,
-      attachments: [
-        {
-          filename: file.originalname,
-          path: file.path,
-        },
-      ],
-    };
-
-    await transporter.sendMail(mailOptions);
+    `
+    const emailSubject = `Payroll Data for ${month}`
+    const fromEmail = config.email.payrollUser;
+    const emailPassword = config.email.payrollPass;
+    const attachments = 
+      {
+        filename: file.originalname,
+        path: file.path,  
+      }
+    
+    const text = ''
+    
+    try {
+      await sendEmail(fromEmail, emailPassword, email, emailSubject, text ,html, attachments);
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError);
+    }
 
     fs.unlinkSync(file.path);
 
@@ -1076,7 +1094,7 @@ router.get('/approve', async (req, res) => {
     });
 
     const not = await Notification.create({
-      userId: id, message:`Payroll for ${month} is approved`, isRead: false
+      userId: id, message:`Payroll for ${month} is approved`, isRead: false, route: `/login/payroll/month-end`
     })
     
     res.send(`Payroll for ${month} is approved`);
@@ -1099,7 +1117,7 @@ router.get('/reject', async (req, res) => {
     });
 
     const not = await Notification.create({
-      userId: id, message:`Payroll for ${month} is rejected`, isRead: false
+      userId: id, message:`Payroll for ${month} is rejected`, isRead: false, route: `/login/payroll/month-end`
     })
     
     res.send(`Payroll for ${month} is rejected`);
@@ -1121,8 +1139,6 @@ router.get('/ytd', async (req, res) => {
 
     const parsedFromDate = new Date(fromDate);
     const parsedToDate = new Date(toDate);
-    console.log('Parsed From Date:', parsedFromDate);
-    console.log('Parsed To Date:', parsedToDate);
 
     const monthlyPayroll = await MonthlyPayroll.findAll({
       where: {
@@ -1133,7 +1149,6 @@ router.get('/ytd', async (req, res) => {
       },
       include: [{ model: User, attributes: ['name'] }] // Include related User model
     });
-    console.log('SQL Query:', monthlyPayroll);
     res.send(monthlyPayroll);
 
   } catch (error) {

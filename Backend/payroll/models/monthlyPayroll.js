@@ -23,8 +23,11 @@ const MonthlyPayroll = sequelize.define('monthlyPayroll', {
   leaveDays: { type: DataTypes.DECIMAL(10, 2) },
   leaveDeduction: { type: DataTypes.DECIMAL(10, 2) },
   incentiveDeduction: { type: DataTypes.DECIMAL(10, 2) },
+
+  leaveEncashment: { type: DataTypes.DECIMAL(10, 2) },
+  leaveEncashmentAmount: { type: DataTypes.DECIMAL(10, 2) },
   
-  toPay: { type: DataTypes.DECIMAL(10, 2) },
+  toPay: { type: DataTypes.FLOAT },
   payedFor: { type: DataTypes.STRING },
   payedAt: { type: DataTypes.DATEONLY },
   daysInMonth: { type: DataTypes.INTEGER},
@@ -34,7 +37,7 @@ const MonthlyPayroll = sequelize.define('monthlyPayroll', {
   timestamps: true,
 });
 
-MonthlyPayroll.sync({ alter: true })
+MonthlyPayroll.sync({ force: true })
   .then(() => {
     console.log('Tables synced successfully.');
   })
