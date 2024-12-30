@@ -33,11 +33,20 @@ export class LeaveInfoDialogComponent {
     private dialogRef: MatDialogRef<LeaveInfoDialogComponent>
   ) {
     if (data) {
+      console.log(data);
+
       this.message = data.message;
-      this.appliedLeaveDates = data.leaveDatesApplied || [];
-      this.lopDates = data.lopDates || [];
+      this.appliedLeaveDates = this.formatDates(data.leaveDatesApplied || []);
+      this.lopDates = this.formatDates(data.lopDates || []);
     }
     this.setOkButtonVisibility();
+  }
+
+  private formatDates(dates: { date: string; session1: boolean; session2: boolean }[]): { date: string; session1: boolean; session2: boolean }[] {
+    return dates.map(dateObj => ({
+      ...dateObj,
+      date: new Date(dateObj.date).toLocaleDateString('en-GB') // Format to dd/mm/yyyy
+    }));
   }
 
   private setOkButtonVisibility() {

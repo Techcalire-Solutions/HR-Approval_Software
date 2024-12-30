@@ -14,6 +14,19 @@
           </mat-select>
         </mat-form-field>
 
+<!--
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Birthday</mat-label>
+            <input matInput [matDatepicker]="dp" formControlName="dateOfBirth">
+            <mat-hint>DD/MM/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
+            <mat-datepicker #dp></mat-datepicker>
+          </mat-form-field>
+        </div> -->
+
+
+
 
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Start Date</mat-label>
@@ -21,6 +34,7 @@
           <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
           <mat-datepicker #startDatePicker></mat-datepicker>
         </mat-form-field>
+
       </div>
 
       <div class="form-row">
