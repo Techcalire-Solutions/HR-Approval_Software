@@ -14,15 +14,14 @@ const Designation = require("../../users/models/designation");
 const { Op } = require('sequelize');
 const authenticateToken = require('../../middleware/authorization');
 const multer = require('multer');
-const nodemailer = require('nodemailer');
 const fs = require('fs');
 const upload = multer({ dest: 'uploads/' });
-const Notification = require('../../notification/models/notification')
 const puppeteer = require("puppeteer");
 const Payroll = require("../models/payroll");
 const Role = require("../../users/models/role");
 const { sendEmail } = require('../../app/emailService');
 const config = require('../../utils/config')
+const { createNotification } = require('../../app/notificationService');
 
 router.post("/save", authenticateToken, async (req, res) => {
   const data = req.body.payrolls;
@@ -804,17 +803,22 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
             designation,
             user.name
           );
+
+          const id = element.id;
+          const me = `PaySlip for ${mp.payedFor} is generated`;
+          const route = `/login/payroll/month-end/payslip`;
     
+          await createNotification({ id, me, route, transaction });
           // Create notification
-          await Notification.create(
-            {
-              userId: element.id,
-              message: `PaySlip for ${mp.payedFor} is generated`,
-              isRead: false,
-              route: `/login/payroll/payslip`,
-            },
-            { transaction }
-          );
+          // await Notification.create(
+          //   {
+          //     userId: element.id,
+          //     message: `PaySlip for ${mp.payedFor} is generated`,
+          //     isRead: false,
+          //     route: `/login/payroll/payslip`,
+          //   },
+          //   { transaction }
+          // );
         } catch (error) {
           console.error(`Error processing payroll for ID ${element.id}:`, error);
           throw error; // Ensure rollback on error
@@ -1092,10 +1096,14 @@ router.get('/approve', async (req, res) => {
       payroll.status = 'Approved';
       await payroll.save();
     });
+    const me = `Payroll for ${month} is approved`;
+    const route = `/login/payroll/month-end`;
 
-    const not = await Notification.create({
-      userId: id, message:`Payroll for ${month} is approved`, isRead: false, route: `/login/payroll/month-end`
-    })
+    await createNotification({ id, me, route });
+
+    // const not = await Notification.create({
+    //   userId: id, message:`Payroll for ${month} is approved`, isRead: false, route: `/login/payroll/month-end`
+    // })
     
     res.send(`Payroll for ${month} is approved`);
   } catch (error) {
@@ -1116,10 +1124,11 @@ router.get('/reject', async (req, res) => {
       await payroll.save();
     });
 
-    const not = await Notification.create({
-      userId: id, message:`Payroll for ${month} is rejected`, isRead: false, route: `/login/payroll/month-end`
-    })
-    
+    const me = `Payroll for ${month} is rejected`;
+    const route = `/login/payroll/month-end`;
+
+    await createNotification({ id, me, route });
+
     res.send(`Payroll for ${month} is rejected`);
   } catch (error) {
     res.status(500).send({ error: error.message });
