@@ -17,9 +17,24 @@
       <tbody>
         <tr *ngFor="let log of group.logs">
           <td>{{ log.tableName }}</td>
-          <td><a [href]="log.url" target="_blank">{{log.url}}</a></td>
+          <td>
+            <a (click)="extractData(log.url, log.tableName)">{{log.url}}</a>
+          </td>
         </tr>
       </tbody>
     </table>
   </mat-expansion-panel>
 </mat-accordion>
+
+@if (excelUrl) {
+  <div style="display: flex; align-items: center; justify-content: space-between;">
+    <h2>{{ name }}</h2>
+    <button mat-raised-button color="primary" (click)="downloadExcel()">
+      <span class="material-icons">download</span>
+    </button>
+  </div>
+  <div class="pdf-container" style="margin-top: 10px;">
+    <iframe [src]="excelUrl" width="100%" height="600px"></iframe>
+  </div>
+  
+}
