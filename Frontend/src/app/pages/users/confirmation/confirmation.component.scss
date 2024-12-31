@@ -73,3 +73,11 @@ body {
   // width: auto;
   margin-right: 5px;
 }
+
+thead .search-field {
+  width: 80%;
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  margin-right: 10px;
+}

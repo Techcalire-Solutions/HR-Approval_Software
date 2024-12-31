@@ -10,17 +10,22 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { User } from '../../../common/interfaces/users/user';
+import { SearchFilterPipe } from '../../../common/pipes/search-filter.pipe';
 
 @Component({
   selector: 'app-confirmation',
   standalone: true,
-  imports: [MatIconModule, FormsModule, MatFormFieldModule, MatButtonModule, MatInputModule],
+  imports: [MatIconModule, FormsModule, MatFormFieldModule, MatButtonModule, MatInputModule, SearchFilterPipe],
   templateUrl: './confirmation.component.html',
   styleUrl: './confirmation.component.scss'
 })
 export class ConfirmationComponent implements OnInit, OnDestroy{
   selectedEmployeeId: number | null = null;
   note: string = '';
+
+  probationSearch: string = '';
+  permanentSearch: string = '';
+
   ngOnInit(): void {
     this.getProbationEmployees();
     this.getPermanentEmployees();
