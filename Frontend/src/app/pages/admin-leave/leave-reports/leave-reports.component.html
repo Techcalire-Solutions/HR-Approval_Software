@@ -1,1 +1,36 @@
-<p>leave-reports works!</p>
+<div class="table-container">
+    <table border="1" style="width: 100%; border-collapse: collapse; text-align: center;">
+      <thead>
+        <tr>
+          <th>Employee ID</th>
+          <th>Name</th>
+          <th>Type of Leave</th>
+          <th>January</th>
+          <th>February</th>
+          <th>March</th>
+          <th>April</th>
+          <th>May</th>
+          <th>June</th>
+          <th>July</th>
+          <th>August</th>
+          <th>September</th>
+          <th>October</th>
+          <th>November</th>
+          <th>December</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let employee of employees">
+          <tr *ngFor="let leaveType of employee.leaveDetails">
+            <td *ngIf="leaveType === employee.leaveDetails[0]" rowspan="5">{{ employee.id }}</td>
+            <td *ngIf="leaveType === employee.leaveDetails[0]" rowspan="5">{{ employee.name }}</td>
+            <td>{{ leaveType.type }}</td>
+            <td *ngFor="let count of leaveType.monthlyData">{{ count }}</td>
+            <td>{{ leaveType.total }}</td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+  
