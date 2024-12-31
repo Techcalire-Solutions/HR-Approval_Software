@@ -1091,9 +1091,9 @@ router.get('/approve', async (req, res) => {
     const route = `/login/payroll/month-end`;
 
     await createNotification({ id, me, route });
-    const not = await Notification.create({
-      userId: id, message:`Payroll for ${month} is approved`, isRead: false, route: `/login/payroll/month-end`
-    })
+    // const not = await Notification.create({
+    //   userId: id, message:`Payroll for ${month} is approved`, isRead: false, route: `/login/payroll/month-end`
+    // })
     
     res.send(`Payroll for ${month} is approved`);
   } catch (error) {
