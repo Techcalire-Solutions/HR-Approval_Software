@@ -32,6 +32,9 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   }
 
   @Input() accountData: any;
+  @Input() data: any;  
+  @Input() loading = false;
+  @Output() loadingState = new EventEmitter<boolean>();
 
   private fb = inject(FormBuilder);
   private userService = inject(UsersService);
@@ -41,7 +44,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   form = this.fb.group({
     userId : [''],
     accountNo : [''],
-    ifseCode : [''],
+    ifseCode : ['UTIB0000827'],
     paymentFrequency : [''],
     modeOfPayment : [''],
     branchName : ['Vyttila'],
@@ -80,6 +83,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   private submitSub!: Subscription;
   isNext: boolean = false;
   onSubmit(){
+    this.loadingState.emit(true);
     this.isNext = true
     const submit = {
       ...this.form.getRawValue()
@@ -88,6 +92,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     if(this.editStatus){
       this.submitSub = this.userService.updateUserAccount(this.id, submit).subscribe(() => {
         this.snackBar.open("Account Details updated succesfully...","" ,{duration:3000})
+        this.loadingState.emit(false);
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })}
     else{
@@ -95,6 +100,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
         this.editStatus = true;
         this.id = res.id;
         this.snackBar.open("Account Details added succesfully...","" ,{duration:3000})
+        this.loadingState.emit(false);
       })}
   }
 

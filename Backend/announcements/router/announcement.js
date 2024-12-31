@@ -6,23 +6,13 @@ const authenticateToken = require('../../middleware/authorization');
 const Announcement = require('../model/announcement');
 const upload = require('../../utils/multer');
 const s3 = require('../../utils/s3bucket');
-const nodemailer = require('nodemailer');
 const UserPosition = require('../../users/models/userPosition');
 const User = require('../../users/models/user');
-const Notification = require('../../notification/models/notification');
 const config = require('../../utils/config');
 const { Op } = require('sequelize');
 const sequelize = require('../../utils/db');
-
-
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: config.email.announcement_user,
-    pass: config.email.announcement_pwd,
-  }
-
-});
+const { createNotification } = require('../../app/notificationService');
+const { sendEmail } = require('../../app/emailService');
 
 router.post('/add', authenticateToken, async (req, res) => {
   const { message, type, dismissible, fileUrl } = req.body;
@@ -35,16 +25,12 @@ router.post('/add', authenticateToken, async (req, res) => {
 
     const userIds = users.map(user => user.id);
 
-    const notifications = userIds.map(userId => {
-      return Notification.create({
-        userId: userId,
-        message: `Important Announcement - ${message}`,
-        isRead: false, route: '/login/announcements'
-      });
-    });
-
-    await Promise.all(notifications);
+    const id = userIds[0];
+    const me = `Important Announcement - ${message}`;
+    const route = `/login/announcements`;
     
+    createNotification({ id, me, route });
+
     const ancmnts = new Announcement({ message, type, dismissible, fileUrl });
     await ancmnts.save();
 
@@ -64,10 +50,7 @@ router.post('/add', authenticateToken, async (req, res) => {
     }
 
     if (userEmails.length != 0) {
-      const mailOptions = {
-        from: `HR Department`,
-        to: userEmails,
-        subject: 'Important Announcement',
+
         html: `
             <p>Dear Team,</p>
             <p>We would like to bring to your attention the following announcement:</p>
@@ -76,17 +59,25 @@ router.post('/add', authenticateToken, async (req, res) => {
             <br>
             <p>Best regards,</p>
             <p>HR Department</p>
-        `,
-        attachments: fileBuffer ? [
-          {
-            filename: fileUrl.split('/').pop(),
-            content: fileBuffer,
-            contentType: contentType,
-          }
-        ] : [],
-      };
-  
-      await transporter.sendMail(mailOptions);
+      `
+      const emailSubject = `Important Announcement`
+      const fromEmail = config.email.announcemntUser;
+      const emailPassword = config.email.announcementPass;
+      const attachments = fileBuffer ? [
+        {
+          filename: fileUrl.split('/').pop(),
+          content: fileBuffer,
+          contentType: contentType,
+        }
+      ] : []
+      
+      const text = ''
+      
+      try {
+        await sendEmail(fromEmail, emailPassword, userEmails, emailSubject, text ,html, attachments);
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+      }
     }
     res.send(ancmnts);
   } catch (error) {

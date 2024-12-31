@@ -27,17 +27,17 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { User } from '../../../common/interfaces/users/user';
-import { UserQualificationComponent } from "../user-qualification/user-qualification.component";
 import { UserNomineeComponent } from "../user-nominee/user-nominee.component";
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 
 @Component({
   selector: 'app-user-dialog',
   standalone: true,
   imports: [ReactiveFormsModule, FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule,
-    MatNativeDateModule, MatRadioModule, MatDialogModule, MatButtonModule, MatToolbarModule,
+    MatNativeDateModule, MatRadioModule, MatDialogModule, MatButtonModule, MatToolbarModule, MatProgressSpinnerModule,
     PersonalDetailsComponent, UserPositionComponent, StatuatoryInfoComponent, UserAccountComponent, UserDocumentsComponent, MatCardModule,
-    MatOptionModule, MatSelectModule, CommonModule, MatAutocompleteModule, UserQualificationComponent, UserNomineeComponent],
+    MatOptionModule, MatSelectModule, CommonModule, MatAutocompleteModule, UserNomineeComponent],
   templateUrl: './user-dialog.component.html',
   styleUrl: './user-dialog.component.scss'
 })
@@ -96,7 +96,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   patchUser(user: User){
     this.invNo = user.empNo
     if(user.url != null && user.url != '' && user.url != 'undefined'){
-
       this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${user.url}`
     }
     this.form.patchValue({
@@ -164,9 +163,11 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   isNomineeFormSubmitted: boolean = false;
   submit!: Subscription;
   onSubmit(){
+    this.isLoading = true;
     if(this.editStatus){
       this.submit = this.userService.updateUser(this.id, this.form.getRawValue()).subscribe(()=>{
         this.snackBar.open("User updated succesfully...","" ,{duration:3000})
+        this.isLoading = false;
       })
     }else{
       this.submit = this.userService.addUser(this.form.getRawValue()).subscribe((res) => {        
@@ -181,6 +182,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
         this.isFormSubmitted = true;
         this.formSubmitted = false;
         this.snackBar.open("User added succesfully...","" ,{duration:3000})
+        this.isLoading = false;
       })
     }
   }
@@ -447,6 +449,11 @@ export class UserDialogComponent implements OnInit, OnDestroy {
         this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
       });
     }
+  }
+
+  isLoading: boolean
+  updateLoadingState(isLoading: any): void {
+      this.isLoading = isLoading;
   }
 }
 

@@ -6,5 +6,7 @@ module.exports = {
     payrollPass: 'jior rtdu epzr xadt', 
     userAddUser: 'nishida@onboardaero.com',
     userAddPass: 'jior rtdu epzr xadt',
+    announcemntUser: 'nishida@onboardaero.com',
+    announcementPass: 'jior rtdu epzr xadt'
   },
 };

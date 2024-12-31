@@ -43,6 +43,9 @@ export class StatuatoryInfoComponent implements OnDestroy {
   }
 
   @Input() statuatoryData: StatutoryInfo;
+  @Input() data: any;  
+  @Input() loading = false;
+  @Output() loadingState = new EventEmitter<boolean>();
 
   private fb = inject(FormBuilder);
   private userService = inject(UsersService);
@@ -95,6 +98,7 @@ export class StatuatoryInfoComponent implements OnDestroy {
   isNext: boolean = false;
   private datePipe = inject(DatePipe);
   onSubmit(){
+    this.loadingState.emit(true);
     this.isNext = true
     const submit = {
       ...this.form.getRawValue()
@@ -107,6 +111,7 @@ export class StatuatoryInfoComponent implements OnDestroy {
     if(this.editStatus){
       this.submitSub = this.userService.updateUserStatutory(this.id, submit).subscribe(() => {
         this.snackBar.open("Statutory Details updated succesfully...","" ,{duration:3000})
+        this.loadingState.emit(false);
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }
@@ -115,6 +120,7 @@ export class StatuatoryInfoComponent implements OnDestroy {
         this.editStatus = true;
         this.id = res.id;
         this.snackBar.open("Statutory Details added succesfully...","" ,{duration:3000})
+        this.loadingState.emit(false);
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }

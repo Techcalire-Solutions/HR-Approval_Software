@@ -47,7 +47,9 @@ export class PersonalDetailsComponent implements OnDestroy {
   private userService = inject(UsersService);
   private snackBar = inject(MatSnackBar);
 
-  @Input() data: any;
+  @Input() data: any;  
+  @Input() loading = false;
+  @Output() loadingState = new EventEmitter<boolean>();
   @Output() dataSubmitted = new EventEmitter<any>();
 
   // ngOnInit(): void {
@@ -134,6 +136,7 @@ export class PersonalDetailsComponent implements OnDestroy {
   isNext: boolean = false;
   private datePipe = inject(DatePipe)
   onSubmit(){
+    this.loadingState.emit(true);
     this.isNext = true
     const submit = {
       ...this.form.getRawValue()
@@ -150,6 +153,7 @@ export class PersonalDetailsComponent implements OnDestroy {
 
     if(this.editStatus){
       this.submitSub = this.userService.updateUserPersonal(this.id, submit).subscribe(() => {
+        this.loadingState.emit(false);
         this.snackBar.open("Personal Details updated succesfully...","" ,{duration:3000})
       })
     }
@@ -157,6 +161,7 @@ export class PersonalDetailsComponent implements OnDestroy {
       this.submitSub = this.userService.addUserPersonalDetails(submit).subscribe((res) => {
         this.editStatus = true;
         this.id = res.id;
+        this.loadingState.emit(false);
         this.snackBar.open("Personal Details added succesfully...","" ,{duration:3000})
       })
     }
