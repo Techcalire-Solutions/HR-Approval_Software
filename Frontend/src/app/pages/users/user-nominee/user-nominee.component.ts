@@ -28,6 +28,8 @@ export class UserNomineeComponent {
   }
 
   @Input() nomineeData: any;
+  @Input() loading = false;
+  @Output() loadingState = new EventEmitter<boolean>();
 
   private fb = inject(FormBuilder);
   private userService = inject(UsersService);
@@ -70,6 +72,7 @@ export class UserNomineeComponent {
   private submitSub!: Subscription;
   isNext: boolean = false;
   onSubmit(){
+    this.loadingState.emit(true);
     this.isNext = true
     const submit = {
       ...this.form.getRawValue()
@@ -78,6 +81,7 @@ export class UserNomineeComponent {
     if(this.editStatus){
       this.submitSub = this.userService.updateUserNominee(this.id, submit).subscribe(() => {
         this.snackBar.open("Nominee Details updated succesfully...","" ,{duration:3000})
+        this.loadingState.emit(false);
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })}
     else{
@@ -85,6 +89,7 @@ export class UserNomineeComponent {
         this.editStatus = true;
         this.id = res.id;
         this.snackBar.open("Nominee Details added succesfully...","" ,{duration:3000})
+        this.loadingState.emit(false);
       })}
   }
 

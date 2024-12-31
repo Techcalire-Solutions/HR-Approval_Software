@@ -87,6 +87,8 @@ export class UserPositionComponent implements OnDestroy {
     { name: 'IT', abbreviation: 'IT' },
   ];
   @Input() positionData: any;
+  @Input() loading = false;
+  @Output() loadingState = new EventEmitter<boolean>();
 
   fb = inject(FormBuilder);
   userService = inject(UsersService);
@@ -155,6 +157,7 @@ export class UserPositionComponent implements OnDestroy {
   isNext: boolean = false;
   private datePipe = inject(DatePipe);
   onSubmit(){
+    this.loadingState.emit(true);
     this.isNext =true
     const submit = {
       ...this.form.getRawValue()
@@ -171,6 +174,7 @@ export class UserPositionComponent implements OnDestroy {
         console.log(x);
         
         this.snackBar.open("Postion Details updated succesfully...","" ,{duration:3000})
+        this.loadingState.emit(false);
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }else{
@@ -178,6 +182,7 @@ export class UserPositionComponent implements OnDestroy {
         this.editStatus = true;
         this.id = res.id;
         this.snackBar.open("Postion Details added succesfully...","" ,{duration:3000})
+        this.loadingState.emit(false);
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }

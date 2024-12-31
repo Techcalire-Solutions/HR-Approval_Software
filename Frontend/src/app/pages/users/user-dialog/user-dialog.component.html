@@ -134,7 +134,8 @@
     <ng-template mat-tab-label>
       <mat-icon>person</mat-icon>
     </ng-template>
-    <app-personal-details [data]="dataToPass" (dataSubmitted)="personalSubmit($event)" (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-personal-details>
+    <app-personal-details [data]="dataToPass" (dataSubmitted)="personalSubmit($event)" (loadingState)="updateLoadingState($event)" 
+    (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-personal-details>
   </mat-tab>
 
   <mat-tab [disabled]="!isWorkFormSubmitted">
@@ -179,3 +180,9 @@
     <app-user-documents [data]="dataToPass" (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-user-documents>
   </mat-tab>
 </mat-tab-group>
+
+@if(isLoading) {
+  <div fxLayout="column" fxLayoutAlign="center center" class="user-spinner">
+      <mat-spinner color="primary"></mat-spinner>
+  </div>
+}

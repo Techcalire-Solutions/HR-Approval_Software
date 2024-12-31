@@ -62,6 +62,8 @@ export class UserDocumentsComponent implements OnDestroy{
     this.deleteImageSub?.unsubscribe();
   }
   @Input() data: any;
+  @Input() loading = false;
+  @Output() loadingState = new EventEmitter<boolean>();
 
   private fb = inject(FormBuilder);
   private userSevice = inject(UsersService)
@@ -160,6 +162,7 @@ export class UserDocumentsComponent implements OnDestroy{
 
   submit!: Subscription;
   onSubmit(i: number): void {
+    this.loadingState.emit(true);
     const form = this.doc().at(i) as FormGroup
     this.clickedForms[i] = true;
     form.markAsPristine();
@@ -167,11 +170,13 @@ export class UserDocumentsComponent implements OnDestroy{
       this.submit = this.userSevice.updateUserDocumentDetails(this.id[i], form.value).subscribe(res => {
         this.id[i] = res.id
         this.snackBar.open(`${res.docName} is updated to employee data`,"" ,{duration:3000})
+        this.loadingState.emit(false);
       });
     }else{
       this.submit = this.userSevice.addUserDocumentDetails(form.value).subscribe(res => {
         this.id[i] = res.id
         this.snackBar.open(`${res.docName} is added to employee data`,"" ,{duration:3000})
+        this.loadingState.emit(false);
       });
     }
   }
