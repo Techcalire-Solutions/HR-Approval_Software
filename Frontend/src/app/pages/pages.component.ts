@@ -23,6 +23,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { AnnouncementsComponent } from "./announcements/announcements.component";
 import { AnnouncementsService } from '@services/announcements.service';
 import { MessagesComponent } from '../theme/messages/messages.component';
+import { ContactUsComponent } from "../theme/components/contact-us/contact-us.component";
 
 @Component({
   selector: 'app-pages',
@@ -46,8 +47,8 @@ import { MessagesComponent } from '../theme/messages/messages.component';
     HorizontalMenuComponent,
     BreadcrumbComponent,
     AnnouncementsComponent,
-    MessagesComponent
-
+    MessagesComponent,
+    ContactUsComponent
 ],
   templateUrl: './pages.component.html',
   styleUrl: './pages.component.scss'
