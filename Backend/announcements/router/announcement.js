@@ -24,13 +24,13 @@ router.post('/add', authenticateToken, async (req, res) => {
     const users = await User.findAll({ attributes: ['id'] });
 
     const userIds = users.map(user => user.id);
-    
+
     const id = userIds[0];
     const me = `Important Announcement - ${message}`;
     const route = `/login/announcements`;
     
     createNotification({ id, me, route });
-    
+
     const ancmnts = new Announcement({ message, type, dismissible, fileUrl });
     await ancmnts.save();
 
@@ -50,7 +50,8 @@ router.post('/add', authenticateToken, async (req, res) => {
     }
 
     if (userEmails.length != 0) {
-      const html =  `
+
+        html: `
             <p>Dear Team,</p>
             <p>We would like to bring to your attention the following announcement:</p>
             <p><strong style="font-size: 18px;">${message}</strong></p>
@@ -77,8 +78,6 @@ router.post('/add', authenticateToken, async (req, res) => {
       } catch (emailError) {
         console.error('Email sending failed:', emailError);
       }
-
-      // await transporter.sendMail(mailOptions);
     }
     res.send(ancmnts);
   } catch (error) {

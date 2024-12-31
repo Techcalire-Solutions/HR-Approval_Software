@@ -23,6 +23,7 @@ const { sendEmail } = require('../../app/emailService');
 const config = require('../../utils/config')
 const { createNotification } = require('../../app/notificationService');
 
+
 router.post("/save", authenticateToken, async (req, res) => {
   const data = req.body.payrolls;
   console.log(data,"dataaaaaaaaaa");
@@ -809,16 +810,6 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
           const route = `/login/payroll/month-end/payslip`;
     
           await createNotification({ id, me, route, transaction });
-          // Create notification
-          // await Notification.create(
-          //   {
-          //     userId: element.id,
-          //     message: `PaySlip for ${mp.payedFor} is generated`,
-          //     isRead: false,
-          //     route: `/login/payroll/payslip`,
-          //   },
-          //   { transaction }
-          // );
         } catch (error) {
           console.error(`Error processing payroll for ID ${element.id}:`, error);
           throw error; // Ensure rollback on error
@@ -1100,10 +1091,9 @@ router.get('/approve', async (req, res) => {
     const route = `/login/payroll/month-end`;
 
     await createNotification({ id, me, route });
-
-    // const not = await Notification.create({
-    //   userId: id, message:`Payroll for ${month} is approved`, isRead: false, route: `/login/payroll/month-end`
-    // })
+    const not = await Notification.create({
+      userId: id, message:`Payroll for ${month} is approved`, isRead: false, route: `/login/payroll/month-end`
+    })
     
     res.send(`Payroll for ${month} is approved`);
   } catch (error) {
@@ -1123,12 +1113,10 @@ router.get('/reject', async (req, res) => {
       payroll.status = 'Rejected';
       await payroll.save();
     });
-
     const me = `Payroll for ${month} is rejected`;
     const route = `/login/payroll/month-end`;
 
     await createNotification({ id, me, route });
-
     res.send(`Payroll for ${month} is rejected`);
   } catch (error) {
     res.status(500).send({ error: error.message });

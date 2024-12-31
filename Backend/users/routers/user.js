@@ -18,7 +18,7 @@ const Designation = require('../models/designation');
 const StatutoryInfo = require('../models/statutoryInfo');
 const UserDocument = require('../models/userDocuments');
 const { sendEmail } = require('../../app/emailService');
-const config = require('../../utils/config');
+const config = require('../../utils/config')
 
 router.post('/add', async (req, res) => {
   const { name, email, phoneNumber, password, status, userImage, url, empNo, director } = req.body;
