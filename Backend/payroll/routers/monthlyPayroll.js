@@ -429,7 +429,7 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
           // Fetch full payroll data
           const fullValue = await Payroll.findOne({ where: { userId: mp.userId } });
           if (!fullValue) {
-            throw new Error("Basic Payroll is not added for the employee");
+            throw new Error("Salary Details is not added for the employee");
           }
     
           // Fetch user and role information
@@ -959,7 +959,7 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
       <p>Please find the attached payroll Excel file for your review.</p>
         <p>Kindly click the button below to either approve or reject the payroll data as required.</p>
         <div style="text-align: center; margin-top: 20px;">
-          <a href="http://localhost:8000/monthlypayroll/approve?month=${month}&id=${req.user.id}" 
+          <a href="https://api-approval.techclaire.com/monthlypayroll/approve?month=${month}&id=${req.user.id}" 
             style="
               display: inline-block;
               padding: 10px 20px;
@@ -972,7 +972,7 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
             ">
             Approve
           </a>
-          <a href="http://localhost:8000/monthlypayroll/reject?month=${month}&id=${req.user.id}" 
+          <a href="https://api-approval.techclaire.com/monthlypayroll/reject?month=${month}&id=${req.user.id}" 
             style="
               display: inline-block;
               padding: 10px 20px;
