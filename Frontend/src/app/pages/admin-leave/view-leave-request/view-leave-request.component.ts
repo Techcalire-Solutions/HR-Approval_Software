@@ -184,31 +184,55 @@ onDeleteLeave(leaveId: number): void {
   }
 
 
+
+
   openDialog(action: string, leaveId: string): void {
-    const dialogConfig = new MatDialogConfig();
-    dialogConfig.data = { action, leaveId };
+    if (action === 'reject') {
+      this.openNoteDialog(action, leaveId);
+    } else if (action === 'approve') {
+      this.leaveService.getLeaveBalance(leaveId).subscribe(
+        (res: any) => {
+          console.log(res);
 
-    const heading = action === 'approve' ? 'Approve Note' : 'Reject Note';
-    dialogConfig.data.heading = heading;
+          if (res.isSufficient) {
+            this.openNoteDialog(action, leaveId);
+          } else {
+            this.snackbar.open('Insufficient leave balance. Cannot approve.', 'Close', { duration: 3000 });
+          }
+        },
+        () => {
+          this.snackbar.open('Error checking leave balance.', 'Close', { duration: 3000 });
+        }
+      );
+    }
+  }
 
-    const dialogRef = this.dialog.open(NoteDialogComponent, dialogConfig);
+  private openNoteDialog(action: string, leaveId: string): void {
+    const dialogRef = this.dialog.open(NoteDialogComponent, {
+      data: {
+        action,
+        leaveId,
+        heading: action === 'approve' ? 'Approve Note' : 'Reject Note',
+      },
+    });
 
     dialogRef.afterClosed().subscribe(note => {
-      if (note !== undefined) {
-        if (action === 'approve') {
-          this.approveLeave(leaveId, note);
-        } else if (action === 'reject') {
-          this.rejectLeave(leaveId, note);
-        }
+      if (note) {
+        action === 'approve' ? this.approveLeave(leaveId, note) : this.rejectLeave(leaveId, note);
       }
     });
   }
+
+
+
 
 
   approveLeave(leaveId: any, note: string) {
       const approvalData = { leaveId: leaveId, adminNotes: note };
       this.leaveService.updateApproveLeaveStatus(approvalData).subscribe(
         (res) => {
+          console.log(res);
+
           this.snackbar.open('Leave approved successfully', '', { duration: 3000 });
           this.getPaginatedLeaves();
         },

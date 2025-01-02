@@ -7,6 +7,52 @@ const { Op, where } = require('sequelize');
 const UserLeave = require('../models/userLeave');
 const LeaveType = require('../models/leaveType');
 const ComboOff = require('../models/comboOff');
+const xlsx = require('xlsx');
+const multer = require('multer');
+
+
+// Multer setup for file uploads
+const upload = multer({ storage: multer.memoryStorage() });
+
+
+
+
+
+
+
+
+
+// Route to upload Excel file
+router.post('/upload', authenticateToken, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded.' });
+    }
+
+    // Parse the uploaded Excel file
+    const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    // Validate and save holidays
+    const holidays = sheetData.map(row => ({
+      name: row['Name'],
+      type: row['Type'],
+      date: new Date(row['Date']),
+      comments: row['Comments'] || null
+    }));
+
+    // Bulk create holidays in the database
+    await Holiday.bulkCreate(holidays);
+
+    res.status(200).json({ message: 'Holidays uploaded successfully.', holidays });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
 
 router.post('/save', authenticateToken, async (req, res) => {
   const { name, type, comments, date } = req.body;
@@ -26,7 +72,7 @@ router.get('/find', async (req, res) => {
         let whereClause = {};
         let limit;
         let offset;
-        const today = new Date();
+        // const today = new Date();
 
         // Check if the search term is defined
         if (req.query.search && req.query.search !== 'undefined') {
@@ -40,11 +86,11 @@ router.get('/find', async (req, res) => {
                         }
                     )
                 ],
-                date: { [Op.gt]: today }
+                // date: { [Op.gt]: today }
             };
         } else {
             whereClause = {
-                date: { [Op.gt]: today }
+                // date: { [Op.gt]: today }
             };
         }
 
