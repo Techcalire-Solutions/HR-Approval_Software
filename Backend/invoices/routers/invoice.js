@@ -145,6 +145,29 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
     }
 });
 
+router.delete('/bsdeletebyurl', authenticateToken, async (req, res) => {
+  key = req.query.key;
+  fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+  try {
+    if (!fileKey) {
+      return res.send('No file key provided');
+    }
+
+    // Set S3 delete parameters
+    const deleteParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileKey
+    };
+
+    // Delete the file from S3
+    await s3.deleteObject(deleteParams).promise();
+
+    res.send({ message: 'File deleted successfully' });
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
 router.post('/excelupload', async (req, res) => {
   const jsonData = req.body;
   const piNo = jsonData.EntryNo;

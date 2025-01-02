@@ -72,7 +72,7 @@
                 </td>
                 <td>
                     <div style="display: flex; align-items: center; width: 100%;">
-                        <span style="flex: 1;">PAN Numbe</span>
+                        <span style="flex: 1;">PAN Number</span>
                         <span style="width: 20px; text-align: center;">:</span>
                         <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.statutoryinfo?.panNumber}}</span>
                     </div>
@@ -110,19 +110,22 @@
                     </div>
                 </td>
             </tr>
-            @if (payroll.leaveDays > 0) {
-                <tr>
-                    <td> 
-                        <div style="display: flex; align-items: center; width: 100%;">
-                            <span style="flex: 1;">LOP</span>
-                            <span style="width: 20px; text-align: center;">:</span>
-                            <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.leaveDays}}</span>
-                        </div>
-                    </td>
-                    <td></td>
-                </tr>       
-            }
-
+            <tr>
+                <td> 
+                    <div style="display: flex; align-items: center; width: 100%;">
+                        <span style="flex: 1;">LOP</span>
+                        <span style="width: 20px; text-align: center;">:</span>
+                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.leaveDays}}</span>
+                    </div>
+                </td>
+                <td>
+                    <div style="display: flex; align-items: center; width: 100%;">
+                        <span style="flex: 1;">Earned Leave</span>
+                        <span style="width: 20px; text-align: center;">:</span>
+                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.leaveEncashment}}</span>
+                    </div>
+                </td>
+            </tr> 
         </table>
 
         <div class="section-title">Earnings and Deductions</div>
@@ -191,6 +194,13 @@
                 <td>INCENTIVE</td>
                 <td></td>
                 <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.incentive}}</td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>EARNED LEAVE</td>
+                <td></td>
+                <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.leaveEncashmentAmount}}</td>
                 <td></td>
                 <td></td>
               </tr>

@@ -1,0 +1,10 @@
+<button mat-icon-button [matMenuTriggerFor]="userMenu" #userMenuTrigger="matMenuTrigger" >
+    <mat-icon>help_center</mat-icon>
+</button>
+<mat-menu #userMenu="matMenu" [overlapTrigger]="false" class="toolbar-dropdown-menu user-menu">
+    <div class="contact-info">
+      <h3>Contact Us</h3>
+      <p>Email: <a>info.techclaire&#64;gmail.com</a></p>
+      <p>Phone: <a>7012274767</a></p>
+    </div>
+  </mat-menu>

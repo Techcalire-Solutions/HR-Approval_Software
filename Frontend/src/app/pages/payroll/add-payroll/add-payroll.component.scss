@@ -101,3 +101,20 @@
   color: #9e9e9e; /* Disable text color */
   cursor: not-allowed; /* Disable the pointer */
 }
+
+/* For Chrome, Edge, and Safari */
+.no-spinner::-webkit-inner-spin-button, 
+.no-spinner::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* For Firefox */
+.no-spinner {
+    -moz-appearance: textfield;
+}
+
+/* For All Browsers (Fallback) */
+.no-spinner {
+    appearance: textfield;
+}

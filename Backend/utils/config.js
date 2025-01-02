@@ -1,11 +1,12 @@
+/* eslint-disable no-undef */
 module.exports = {
-    email: {
-      announcement_user: 'nishida@onboardaero.com',
-      announcement_pwd: 'jior rtdu epzr xadt',
-      payroll_approval_user: 'nishida@onboardaero.com',
-      payroll_approval_pwd: 'jior rtdu epzr xadt',
-      payroll_payslip_user: 'nishida@onboardaero.com',
-      payroll_payslip_pwd: 'jior rtdu epzr xadt',
-    }
+  email: {
+    service: 'Gmail',
+    payrollUser: 'nishida@onboardaero.com',
+    payrollPass: 'jior rtdu epzr xadt', 
+    userAddUser: 'nishida@onboardaero.com',
+    userAddPass: 'jior rtdu epzr xadt',
+    announcemntUser: 'nishida@onboardaero.com',
+    announcementPass: 'jior rtdu epzr xadt'
+  },
 };
-  

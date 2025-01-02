@@ -27,17 +27,17 @@ body {
   text-align: center;
 }
 
-.wrapper .form {
-  border: 2px dashed #6990f2;
-  height: 167px;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  margin: 30px 0;
-  cursor: pointer;
-}
+// .wrapper .form {
+//   border: 2px dashed #6990f2;
+//   height: 167px;
+//   border-radius: 5px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   flex-direction: column;
+//   margin: 30px 0;
+//   cursor: pointer;
+// }
 
 .form :where(span, p) {
   color: #6990f2;
@@ -161,4 +161,28 @@ section .details span {
   vertical-align: middle; /* Align the icon vertically in the middle */
   margin-right: 8px; /* Space between the icon and text */
   font-size: 25px; /* Size of the icon */
+}
+
+.drag-drop-area {
+  border: 2px dashed #ccc;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.drag-drop-area:hover {
+  border-color: #aaa;
+}
+
+.user-spinner {
+  position: absolute; /* Ensures it's positioned relative to the component */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex; /* Allows centering the spinner */
+  justify-content: center; /* Horizontal centering */
+  align-items: center; /* Vertical centering */
+  background-color: rgba(255, 255, 255, 0.8); /* Optional: Adds a translucent background */
+  z-index: 10; /* Ensures it overlays other content */
 }

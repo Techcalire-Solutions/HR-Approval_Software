@@ -6,23 +6,13 @@ const authenticateToken = require('../../middleware/authorization');
 const Announcement = require('../model/announcement');
 const upload = require('../../utils/multer');
 const s3 = require('../../utils/s3bucket');
-const nodemailer = require('nodemailer');
 const UserPosition = require('../../users/models/userPosition');
 const User = require('../../users/models/user');
-const Notification = require('../../notification/models/notification');
 const config = require('../../utils/config');
-const { Op, where } = require('sequelize');
+const { Op } = require('sequelize');
 const sequelize = require('../../utils/db');
-
-
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: config.email.announcement_user,
-    pass: config.email.announcement_pwd,
-  }
-
-});
+const { createNotification } = require('../../app/notificationService');
+const { sendEmail } = require('../../app/emailService');
 
 router.post('/add', authenticateToken, async (req, res) => {
   const { message, type, dismissible, fileUrl } = req.body;
@@ -31,24 +21,16 @@ router.post('/add', authenticateToken, async (req, res) => {
 
     const userEmails = userPosition.map(userPosition => userPosition.officialMailId).filter(officialMailId => officialMailId);
 
-    if (userEmails.length === 0) {
-      return res.send("No recipients defined.");
-    }
-
     const users = await User.findAll({ attributes: ['id'] });
 
     const userIds = users.map(user => user.id);
 
-    const notifications = userIds.map(userId => {
-      return Notification.create({
-        userId: userId,
-        message: `Important Announcement - ${message}`,
-        isRead: false,
-      });
-    });
-
-    await Promise.all(notifications);
+    const id = userIds[0];
+    const me = `Important Announcement - ${message}`;
+    const route = `/login/announcements`;
     
+    createNotification({ id, me, route });
+
     const ancmnts = new Announcement({ message, type, dismissible, fileUrl });
     await ancmnts.save();
 
@@ -67,29 +49,36 @@ router.post('/add', authenticateToken, async (req, res) => {
       contentType = s3File.ContentType;
     }
 
-    const mailOptions = {
-      from: `HR Department`,
-      to: userEmails,
-      subject: 'Important Announcement',
-      html: `
-          <p>Dear Team,</p>
-          <p>We would like to bring to your attention the following announcement:</p>
-          <p><strong style="font-size: 18px;">${message}</strong></p>
-          ${fileUrl ? '<p>Find attached the file.</p>' : ''}
-          <br>
-          <p>Best regards,</p>
-          <p>HR Department</p>
-      `,
-      attachments: fileBuffer ? [
+    if (userEmails.length != 0) {
+
+        html: `
+            <p>Dear Team,</p>
+            <p>We would like to bring to your attention the following announcement:</p>
+            <p><strong style="font-size: 18px;">${message}</strong></p>
+            ${fileUrl ? '<p>Find attached the file.</p>' : ''}
+            <br>
+            <p>Best regards,</p>
+            <p>HR Department</p>
+      `
+      const emailSubject = `Important Announcement`
+      const fromEmail = config.email.announcemntUser;
+      const emailPassword = config.email.announcementPass;
+      const attachments = fileBuffer ? [
         {
           filename: fileUrl.split('/').pop(),
           content: fileBuffer,
           contentType: contentType,
         }
-      ] : [],
-    };
-
-    await transporter.sendMail(mailOptions);
+      ] : []
+      
+      const text = ''
+      
+      try {
+        await sendEmail(fromEmail, emailPassword, userEmails, emailSubject, text ,html, attachments);
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+      }
+    }
     res.send(ancmnts);
   } catch (error) {
     res.send( error.message );
@@ -236,9 +225,9 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
       // Delete the file from S3
       await s3.deleteObject(deleteParams).promise();
 
-      res.send('File deleted successfully' );
+      res.status(200).json({ message: 'File deleted successfully' });
     } catch (error) {
-      res.send({ message: error.message });
+      res.send(error.message);
     }
 });
 
