@@ -823,10 +823,9 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
 
 //--------------------------------- Approve leave API-----------------------------------------------
 
-router.put('/approveLeave/:id', authenticateToken,async (req, res) => {
+router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
   const leaveId = req.params.id;
-  const { adminNotes } = req.body; 
-
+  const { adminNotes } = req.body;
 
   try {
     const leave = await Leave.findByPk(leaveId);
@@ -845,7 +844,6 @@ router.put('/approveLeave/:id', authenticateToken,async (req, res) => {
       return res.send({ message: 'Leave type not found' });
     }
 
-
     const userLeave = await UserLeave.findOne({
       where: {
         userId: leave.userId,
@@ -853,36 +851,30 @@ router.put('/approveLeave/:id', authenticateToken,async (req, res) => {
       }
     });
 
-
     if (!userLeave && leaveType.leaveTypeName !== 'LOP') {
       return res.send({ message: 'User leave record not found' });
     }
 
-
     if (leaveType.leaveTypeName === 'LOP') {
-     
       leave.status = 'Approved';
-      leave.adminNotes = adminNotes; 
+      leave.adminNotes = adminNotes;
       await leave.save();
 
       await Notification.create({
         userId: userId,
         message: `Leave Request Approved`,
         isRead: false,
-    });
-  
-
+      });
 
       if (!userLeave) {
- 
         await UserLeave.create({
           userId: leave.userId,
           leaveTypeId: leave.leaveTypeId,
-          noOfDays: 0, 
-          takenLeaves: leave.noOfDays 
+          noOfDays: 0,
+          takenLeaves: leave.noOfDays,
+          currentMonthLopDays: leave.noOfDays,
         });
       } else {
-     
         userLeave.takenLeaves += leave.noOfDays;
         await userLeave.save();
       }
@@ -890,23 +882,20 @@ router.put('/approveLeave/:id', authenticateToken,async (req, res) => {
       return res.send({ message: 'Leave approved successfully as LOP', leave });
     }
 
-
     if (userLeave.leaveBalance < leave.noOfDays) {
-
       return res.json({
         message: 'Insufficient leave balance',
-        openNoteDialog: true
-      })
+        openNoteDialog: true,
+        lowLeaveMessage:"lowwwwwwwwwwwwwwww"
+      });
     }
 
-
     leave.status = 'Approved';
-    leave.adminNotes = adminNotes; 
+    leave.adminNotes = adminNotes;
     await leave.save();
 
-  
     userLeave.leaveBalance -= leave.noOfDays;
-    userLeave.takenLeaves += leave.noOfDays; 
+    userLeave.takenLeaves += leave.noOfDays;
     await userLeave.save();
 
     res.send({ message: 'Leave approved successfully', leave });
@@ -914,6 +903,45 @@ router.put('/approveLeave/:id', authenticateToken,async (req, res) => {
     res.send({ message: 'An error occurred while approving the leave', error: error.message });
   }
 });
+
+router.get('/leaveBalance/:leaveId', authenticateToken, async (req, res) => {
+  const leaveId = req.params.leaveId;
+
+  try {
+    const leave = await Leave.findByPk(leaveId);
+
+    if (!leave) {
+      return res.json({ message: 'Leave request not found' });
+    }
+
+    const userLeave = await UserLeave.findOne({
+      where: {
+        userId: leave.userId,
+        leaveTypeId: leave.leaveTypeId,
+      },
+    });
+
+    if (!userLeave) {
+      return res.json({
+        isSufficient: false,
+        message: 'No leave balance record found for this leave type',
+      });
+    }
+
+    const isSufficient = userLeave.leaveBalance >= leave.noOfDays;
+
+    res.json({
+      isSufficient,
+      message: isSufficient
+        ? 'Leave balance is sufficient'
+        : 'Insufficient leave balance',
+    });
+  } catch (error) {
+    console.error('Error fetching leave balance:', error);
+    res.json({ message: 'Internal server error', error: error.message });
+  }
+});
+
 
 //------------------------------------Reject----------------------------------------------
 

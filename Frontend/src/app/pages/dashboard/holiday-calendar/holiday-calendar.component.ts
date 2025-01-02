@@ -10,6 +10,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { MatChipListbox, MatChipOption } from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-holiday-calendar',
@@ -34,6 +37,57 @@ export class HolidayCalendarComponent implements OnInit, OnDestroy{
     this.getRoleById(roleId)
   }
 
+  selectedFile: File | null = null;
+
+
+  constructor(private http: HttpClient, private snackBar: MatSnackBar) {}
+
+  // Handles file input change
+  onFileChange(event: any) {
+    const file = event.target.files[0];
+    if (file && file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      this.selectedFile = file;
+    } else {
+      this.snackBar.open('Please select a valid Excel file.', 'Close', { duration: 3000 });
+    }
+  }
+
+  // Uploads the file to the server
+  uploadFile() {
+    if (this.selectedFile) {
+      const formData = new FormData();
+      formData.append('file', this.selectedFile);
+
+      this.http.post(`${environment.apiUrl}/holidays/upload`, formData).subscribe(
+        (response: any) => {
+          console.log(response,"holoiiiiiiiiiiiiiiiiiiii");
+
+          this.snackBar.open('Holidays uploaded successfully!', 'Close', { duration: 3000 });
+
+          this.getHolidaysForYear();
+          this.router.navigateByUrl('/login')
+          this.resetPage();
+
+
+        },
+        (error) => {
+          this.snackBar.open('Failed to upload holidays. Please try again.', 'Close', { duration: 3000 });
+        }
+      );
+    } else {
+      this.snackBar.open('No file selected.', 'Close', { duration: 3000 });
+    }
+  }
+
+  resetPage(){
+
+
+    // Reset selected file
+    this.selectedFile = null;
+  }
+
+
+
   roleSub!: Subscription;
   roleName: string = '';
   getRoleById(id: number){
@@ -50,6 +104,8 @@ export class HolidayCalendarComponent implements OnInit, OnDestroy{
       this.totalItems = res.count;
     })
   }
+
+
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   pageSize = 5;

@@ -1,0 +1,59 @@
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.half-width {
+  width: 48%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.upload-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+//-----------------file upload css
+/* Container for file input and button */
+
+
+/* Style for the file input */
+input[type="file"] {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+/* Style for the file input when hovered */
+input[type="file"]:hover {
+  border-color: #888;
+}
+
+/* Style for the upload button */
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Style for the upload button when hovered */
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Optional: Display button centered if using flex */
+

@@ -62,6 +62,11 @@ updateApproveLeaveStatus(approvalData: any) {
   return this.http.put(`${this.apiUrl}/leave/approveLeave/${leaveId}`, { adminNotes });
 }
 
+getLeaveBalance(leaveId: string): Observable<any> {
+  return this.http.get(`${this.apiUrl}/leave/leaveBalance/${leaveId}`);
+}
+
+
 
 updateRejectLeaveStatus(rejectionData: any) {
   const { leaveId, adminNotes } = rejectionData;
@@ -119,7 +124,10 @@ updateRejectLeaveStatus(rejectionData: any) {
     return this.http.get<any[]>(`${this.apiUrl}/userLeave/forencashment/`);
   }
 
+addHolidays(data:any){
+  return this.http.post(this.apiUrl+'/holidays/save', data)
 
+}
 
   getHolidays(filterValue?: string, page?: number, pagesize?:number){
     return this.http.get<Holidays[]>(`${this.apiUrl}/holidays/find?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
@@ -151,7 +159,7 @@ updateLeaveFileUrl(leaveId: string, fileUrl: string): Observable<any> {
     return this.http.patch(`${this.apiUrl}/leave/updateLeaveFileUrl/${leaveId}`, { fileUrl });
   }
 
-  
+
 encashLeave(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/encash`, data);
   }
