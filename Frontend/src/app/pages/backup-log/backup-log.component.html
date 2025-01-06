@@ -28,7 +28,7 @@
 
 @if (excelUrl) {
   <div style="display: flex; align-items: center; justify-content: space-between;">
-    <h2>{{ name }}</h2>
+    <h2>{{ name | uppercase }}</h2>
     <button mat-raised-button color="primary" (click)="downloadExcel()">
       <span class="material-icons">download</span>
     </button>
