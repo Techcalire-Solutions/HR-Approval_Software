@@ -829,7 +829,7 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
 // Function to generate PDF
 async function generatePDF(html) {
   const browser = await puppeteer.launch({
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    ignoreDefaultArgs: ['--disable-extensions'],
   });
   const page = await browser.newPage();
   await page.setContent(html);
