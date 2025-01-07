@@ -28,7 +28,7 @@ import { LeaveGraphsComponent } from '../leave-graphs/leave-graphs.component';
   templateUrl: './leave-balance.component.html',
   styleUrl: './leave-balance.component.scss'
 })
-export class LeaveBalanceComponent implements OnInit, OnDestroy{
+export class LeaveBalanceComponent implements OnInit, OnDestroy {
 
   selectedView: string = 'list';
 
@@ -37,9 +37,9 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy{
     this.selectedView = event.value;
   }
 
-  public icons = [ "home", "person", "alarm", "work", "mail", "favorite"];
-  public colors = [ , "primary","accent", "warn" ];
-  userId : number;
+  public icons = ["home", "person", "alarm", "work", "mail", "favorite"];
+  public colors = [, "primary", "accent", "warn"];
+  userId: number;
 
   public leaveCounts: any[] = [];
   public hasLeaveCounts: boolean = false;
@@ -55,27 +55,9 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy{
   }
 
 
-  fetchLeaveCounts1() {
-    this.leaveCountsSubscription= this.leaveService.getLeaveCounts(this.userId).subscribe(
-       (res) => {
-        console.log(res)
-         if (res.userLeaves && res.userLeaves.length > 0) {
-           this.leaveCounts = res.userLeaves;
-           this.hasLeaveCounts = true;
-         } else {
-           this.leaveCounts = [];
-           this.hasLeaveCounts = false;
-           this.errorMessage = 'No leave records found for this user.';
-         }
-       },
-       (error) => {
-         this.errorMessage = 'Unable to fetch leave counts.';
-         this.hasLeaveCounts = false;
-       }
-     );
-   }
-errorFlag :boolean = false
-   fetchLeaveCounts() {
+
+  errorFlag: boolean = false
+  fetchLeaveCounts() {
     this.leaveCountsSubscription = this.leaveService.getLeaveCounts(this.userId).subscribe(
       (res) => {
         console.log('Response from leave service:', res); // Debugging line
@@ -102,16 +84,17 @@ errorFlag :boolean = false
 
 
 
- shouldDisplayLeaveType(leaveTypeName: string): boolean {
-  const leave = this.leaveCounts.find(leave => leave.leaveType.leaveTypeName === leaveTypeName);
-  // return leave && (leave.takenLeaves > 0 || leave.noOfDays > 0);
-  return leave && (leave.takenLeaves >= 0 || leave.noOfDays > 0);
+  shouldDisplayLeaveType(leaveTypeName: string): boolean {
+    const leave = this.leaveCounts.find(leave => leave.leaveType.leaveTypeName === leaveTypeName);
+    // return leave && (leave.takenLeaves > 0 || leave.noOfDays > 0);
+    return leave && (leave.takenLeaves >= 0 || leave.noOfDays > 0);
 
-}
-ngOnDestroy(){
-  if(this.leaveCountsSubscription){
-    this.leaveCountsSubscription.unsubscribe();
   }
-}
+
+  ngOnDestroy() {
+    if (this.leaveCountsSubscription) {
+      this.leaveCountsSubscription.unsubscribe();
+    }
+  }
 
 }

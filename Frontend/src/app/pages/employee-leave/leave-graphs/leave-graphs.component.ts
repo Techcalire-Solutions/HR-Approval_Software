@@ -18,7 +18,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './leave-graphs.component.html',
   styleUrl: './leave-graphs.component.scss'
 })
-export class LeaveGraphsComponent implements OnInit, OnDestroy{
+export class LeaveGraphsComponent implements OnInit, OnDestroy {
 
   public single: any[];
   public multi: any[];
@@ -38,9 +38,10 @@ export class LeaveGraphsComponent implements OnInit, OnDestroy{
   public hasLeaveCounts: boolean = false;
   leaveService = inject(LeaveService)
   public errorMessage: string | null = null;
-  leaveCountsSubscription :Subscription
-userId : number;
-  ngOnInit(){
+  leaveCountsSubscription: Subscription
+  userId: number;
+  
+  ngOnInit() {
     const token: any = localStorage.getItem('token');
     let user = JSON.parse(token);
     this.userId = user.id;
@@ -48,38 +49,38 @@ userId : number;
   }
 
 
-  errorFlag :boolean = false
+  errorFlag: boolean = false
   fetchLeaveCounts() {
     this.leaveCountsSubscription = this.leaveService.getLeaveCounts(this.userId).subscribe(
-        (res) => {
-            console.log('Response from leave service:', res); // Debugging line
+      (res) => {
+        console.log('Response from leave service:', res);
 
-            if (res.userLeaves && Array.isArray(res.userLeaves) && res.userLeaves.length > 0) {
-                this.leaveCounts = res.userLeaves;
-                this.hasLeaveCounts = true;
-                this.errorMessage = '';
+        if (res.userLeaves && Array.isArray(res.userLeaves) && res.userLeaves.length > 0) {
+          this.leaveCounts = res.userLeaves;
+          this.hasLeaveCounts = true;
+          this.errorMessage = '';
 
-                this.single = this.leaveCounts.map(leave => ({
-                    name: leave.leaveType.leaveTypeName,
-                    value: leave.leaveBalance
-                }));
-            } else {
+          this.single = this.leaveCounts.map(leave => ({
+            name: leave.leaveType.leaveTypeName,
+            value: leave.leaveBalance
+          }));
+        } else {
 
-                this.leaveCounts = [];
-                this.hasLeaveCounts = false;
-                this.errorMessage = 'No leave records found for this user.';
-                this.single = [];
-            }
-        },
-        (error) => {
-            console.error('Error fetching leave counts:', error);
-            this.errorMessage = 'Unable to fetch leave counts.';
-            this.hasLeaveCounts = false;
-            this.leaveCounts = [];
-            this.single = [];
+          this.leaveCounts = [];
+          this.hasLeaveCounts = false;
+          this.errorMessage = 'No leave records found for this user.';
+          this.single = [];
         }
+      },
+      (error) => {
+        console.error('Error fetching leave counts:', error);
+        this.errorMessage = 'Unable to fetch leave counts.';
+        this.hasLeaveCounts = false;
+        this.leaveCounts = [];
+        this.single = [];
+      }
     );
-}
+  }
 
 
 
@@ -88,11 +89,11 @@ userId : number;
     console.log(event);
   }
 
-  getChartData(){
+  getChartData() {
 
   }
-  ngOnDestroy(){
-    
+  ngOnDestroy() {
+
   }
 }
 
