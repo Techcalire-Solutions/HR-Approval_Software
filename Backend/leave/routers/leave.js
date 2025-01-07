@@ -429,8 +429,8 @@ router.post('/', authenticateToken, async (req, res) => {
   const userId = req.user.id;
 
 
-  const reportingManagerEmail = await getReportingManagerEmailForUser(req.user.id);
-  console.log("reportingManagerEmail",reportingManagerEmail);
+  // const reportingManagerEmail = await getReportingManagerEmailForUser(req.user.id);
+  // console.log("reportingManagerEmail",reportingManagerEmail);
 
   if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
     return res.send( 'Missing required fields' );
@@ -466,7 +466,7 @@ router.post('/', authenticateToken, async (req, res) => {
         userId: userId,
         message: `Leave request submitted`,
         isRead: false,
-    });
+      });
 
       return res.json({
         message: 'Leave request submitted successfully as LOP.',
@@ -497,9 +497,6 @@ router.post('/', authenticateToken, async (req, res) => {
       const lopDays = noOfDays - availableLeaveDays;
     
       const { leaveDatesApplied, lopDates } = splitLeaveDates(leaveDates, availableLeaveDays);
-
-    
-
 
       await Leave.create({
         userId,
@@ -1295,26 +1292,10 @@ router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => 
     if (!leave) {
       return res.send('Leave not found');
     }
-
-    console.log("leaveleave",leave)
-
-    // if (leave.status !== 'Approved' && leave.status !== 'AdminApproved') {
-    //   return res.send('Leave cannot be deleted unless approved or');
-    // }
-
   
     const userLeave = await UserLeave.findOne({ where: { userId: leave.userId, leaveTypeId: leave.leaveTypeId } });
 
-
-    console.log("userLeaveeeee",userLeave)
-
     if (userLeave) {
-      console.log('Before Deletion - UserLeave:', userLeave.dataValues); 
-
-
-
-
-   
       const leaveDays = leave.noOfDays > 0 ? leave.noOfDays : 1;
 
       if (leave.leaveType.leaveTypeName === 'LOP') {
@@ -1328,15 +1309,12 @@ router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => 
 
      
       await userLeave.save();
-
-   
-      console.log('After Deletion - UserLeave Updated:', userLeave.dataValues);
     }
 
    
     await leave.destroy();
 
-    res.send('Leave deleted and balance updated successfully');
+    res.status(204).json();
     // res.json({  message: 'Leave deleted and balance updated' });
 
   } catch (error) {

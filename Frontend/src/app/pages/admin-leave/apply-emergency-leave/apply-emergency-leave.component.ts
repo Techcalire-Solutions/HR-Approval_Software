@@ -266,11 +266,17 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
   file!: File;
   imageUrl: string = '';
   fileName: string = ''; // Holds the name of the file
-  isFileSelected: boolean = false; // Track if a file is selected
+  isFileSelected: boolean = false;
+  allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png'];
 
   uploadFile(event: Event) {
     const input = event.target as HTMLInputElement;
-    const selectedFile = input.files?.[0]; // Get the first file if it exists
+    const selectedFile = input.files?.[0]; 
+    const fileType: any = selectedFile?.type.split('/')[1];
+    if (!this.allowedFileTypes.includes(fileType)) {
+      alert('Invalid file type. Please select a PDF, JPEG, JPG, or PNG file.');
+      return;
+    }
 
     if (selectedFile) { // Check if a file was selected
       this.file = selectedFile; // Assign the file
