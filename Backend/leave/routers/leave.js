@@ -14,7 +14,7 @@ const s3 = require('../../utils/s3bucket');
 const UserPersonal = require('../../users/models/userPersonal');
 const UserPosition = require('../../users/models/userPosition');
 const Notification = require('../../notification/models/notification');
-const { log } = require('console');
+
 
 
 //-----------------------------------Mail code-------------------------------------------------------
@@ -478,6 +478,214 @@ router.post('/', authenticateToken, async (req, res) => {
   }
 });
 
+//-------------------------GET LEAVE BY USER ID-----------------------------------------------------------------------------
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.json({ message: 'User not found' });
+    }
+
+    let whereClause = {
+      userId: userId
+    };
+    let limit;
+    let offset;
+
+
+    if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+      limit = req.query.pageSize;
+      offset = (req.query.page - 1) * req.query.pageSize;
+    }
+    if (req.query.search && req.query.search !== 'undefined') {
+      const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+      whereClause = {
+        ...whereClause,
+        [Op.or]: [
+          sequelize.where(
+            sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('leaveTypeName'), ' ', '')),
+            { [Op.like]: `%${searchTerm}%` }
+          ),
+        ],
+      };
+    }
+
+    const leave = await Leave.findAll({
+      order: [['id', 'DESC']],
+      limit,
+      offset,
+      where: whereClause,
+      include: [
+        {
+          model: LeaveType,
+          attributes: ['id', 'leaveTypeName'],
+        }
+      ]
+    });
+
+
+    const totalCount = await Leave.count({ where: whereClause });
+
+    if (req.query.page !== 'undefined' && req.query.pageSize !== 'undefined') {
+      const response = {
+        count: totalCount,
+        items: leave,
+      };
+      res.json(response);
+    } else {
+
+      res.json(leave);
+    }
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
+
+//-------------------------------------- UPDATE API and Delete Leave-----------------------------------------------------------
+router.patch('/:id', authenticateToken, async (req, res) => {
+  try {
+    const leaveId = req.params.id;
+    const { leaveDates, notes, leaveTypeId } = req.body;
+    if (!leaveDates) {
+      return res.json({ message: 'leaveDates are required to update leave' });
+    }
+
+    const leave = await Leave.findByPk(req.params.id, {
+      include: [User],
+    });
+
+    if (!leave) {
+      return res.json({ message: `Leave not found with id=${req.params.id}` });
+    }
+
+    const leaveType = await LeaveType.findOne({
+      where: { id: leaveTypeId },
+    });
+
+    if (!leaveType) {
+      return res.json({ message: 'Leave type not found' });
+    }
+
+
+
+    let userLeave;
+
+
+    if (leaveType.leaveTypeName !== 'LOP') {
+      userLeave = await UserLeave.findOne({
+        where: { userId: leave.userId, leaveTypeId },
+      });
+
+      console.log('User Leave Mapping:', userLeave);
+
+      if (!userLeave) {
+        return res.json({ message: 'User leave mapping not found' });
+      }
+    }
+
+    const filteredLeaveDates = leaveDates.filter(leaveDate =>
+      leaveDate.session1 || leaveDate.session2
+    );
+
+    if (filteredLeaveDates.length === 0) {
+      await leave.destroy();
+      return res.json({ message: 'Leave record deleted as no valid sessions were provided.' });
+    }
+
+    const noOfDays = calculateLeaveDays(filteredLeaveDates);
+
+
+    if (leaveType.leaveTypeName === 'LOP') {
+      leave.leaveDates = filteredLeaveDates;
+      leave.notes = notes || leave.notes;
+      leave.noOfDays = noOfDays;
+
+      await leave.save();
+
+      const startDate = leave.leaveDates[0].date;
+      const endDate = leave.leaveDates[leave.leaveDates.length - 1].date;
+
+      await sendLeaveUpdatedEmail(
+        leaveId,
+        leave.user,
+        leaveType,
+        startDate,
+        endDate,
+        notes,
+        noOfDays,
+        filteredLeaveDates
+      );
+
+      return res.json({
+        message: 'Leave updated successfully (LOP)',
+        leave: {
+          userId: leave.userId,
+          leaveTypeId,
+          leaveDates: filteredLeaveDates,
+          noOfDays,
+          notes: leave.notes,
+        },
+      });
+    }
+
+    if (userLeave.leaveBalance < noOfDays) {
+      return res.json({ message: 'Not enough leave balance for this update' });
+    }
+
+    leave.leaveDates = filteredLeaveDates;
+    leave.notes = notes || leave.notes;
+    leave.noOfDays = noOfDays;
+
+    await leave.save();
+
+    const previousNoOfDays = leave.noOfDays;
+    userLeave.takenLeaves += noOfDays - previousNoOfDays;
+    userLeave.leaveBalance -= (noOfDays - previousNoOfDays);
+    await userLeave.save();
+
+    const startDate = leave.leaveDates[0].date;
+    const endDate = leave.leaveDates[leave.leaveDates.length - 1].date;
+
+    await sendLeaveUpdatedEmail(
+      leaveId,
+      leave.user,
+      leaveType,
+      startDate,
+      endDate,
+      notes,
+      noOfDays,
+      filteredLeaveDates
+    );
+
+    res.json({
+      message: 'Leave updated successfully',
+      leave: {
+        userId: leave.userId,
+        leaveTypeId,
+        leaveDates: filteredLeaveDates,
+        noOfDays,
+        notes: leave.notes,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating leave:', error);
+    res.json({ message: error.message });
+  }
+});
+
+router.delete('/:id', async (req, res) => {
+  try {
+    const result = await Leave.destroy({ where: { id: req.params.id }, force: true });
+    result ? res.json({ message: `Leave with ID ${req.params.id} deleted successfully` }) : res.json({ message: "Leave not found" });
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
+
 
 //---------------------------------Mail Approval and Reject-----------------------------------------------------------
 router.get('/approveLeave/:id', async (req, res) => {
@@ -679,73 +887,9 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
 
 });
 
-//-------------------------GET LEAVE BY USER ID-------------------------------------------------
-router.get('/user/:userId', async (req, res) => {
-  try {
-    const userId = req.params.userId;
-
-    const user = await User.findByPk(userId);
-    if (!user) {
-      return res.json({ message: 'User not found' });
-    }
-
-    let whereClause = {
-      userId: userId
-    };
-    let limit;
-    let offset;
 
 
-    if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
-      limit = req.query.pageSize;
-      offset = (req.query.page - 1) * req.query.pageSize;
-    }
-    if (req.query.search && req.query.search !== 'undefined') {
-      const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
-      whereClause = {
-        ...whereClause,
-        [Op.or]: [
-          sequelize.where(
-            sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('leaveTypeName'), ' ', '')),
-            { [Op.like]: `%${searchTerm}%` }
-          ),
-        ],
-      };
-    }
-
-    const leave = await Leave.findAll({
-      order: [['id', 'DESC']],
-      limit,
-      offset,
-      where: whereClause,
-      include: [
-        {
-          model: LeaveType,
-          attributes: ['id', 'leaveTypeName'],
-        }
-      ]
-    });
-
-
-    const totalCount = await Leave.count({ where: whereClause });
-
-    if (req.query.page !== 'undefined' && req.query.pageSize !== 'undefined') {
-      const response = {
-        count: totalCount,
-        items: leave,
-      };
-      res.json(response);
-    } else {
-
-      res.json(leave);
-    }
-  } catch (error) {
-    res.send(error.message);
-  }
-});
-
-
-//--------------------------------File upload--------------------------------------------------------
+//--------------------------------File upload/delete/update--------------------------------------------------------
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
     if (!req.file) {
@@ -775,6 +919,148 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
     });
   } catch (error) {
     res.send({ message: error.message });
+  }
+});
+
+
+router.delete('/filedelete', authenticateToken, async (req, res) => {
+  let id = req.query.id;
+  try {
+    try {
+      let result = await Leave.findByPk(id);
+      fileKey = result.url;
+      result.url = '';
+      await result.save();
+    } catch (error) {
+      res.send(error.message)
+    }
+    let key;
+    if (!fileKey) {
+      key = req.query.key;
+
+      fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+    }
+
+    // Set S3 delete parameters
+    const deleteParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileKey
+    };
+
+    // Delete the file from S3
+    await s3.deleteObject(deleteParams).promise();
+
+    res.send({ message: 'File deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting file from S3:', error);
+    res.send({ message: error.message });
+  }
+});
+
+
+router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
+  key = req.query.key;
+  fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+  try {
+    if (!fileKey) {
+      return res.send({ message: 'No file key provided' });
+    }
+
+    // Set S3 delete parameters
+    const deleteParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileKey
+    };
+
+    // Delete the file from S3
+    await s3.deleteObject(deleteParams).promise();
+
+    res.send({ message: 'File deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting file from S3:', error);
+    res.send({ message: error.message });
+  }
+});
+
+
+
+router.patch('/updateLeaveFileUrl/:leaveId', authenticateToken, async (req, res) => {
+
+  try {
+    const leaveId = req.params.leaveId;
+    const fileUrl = req.body.fileUrl;
+
+
+    if (!leaveId || !fileUrl) {
+      return res.send({ message: 'Leave ID and File URL are required' });
+    }
+
+
+    const result = await Leave.update(
+      { fileUrl: fileUrl },
+      { where: { id: leaveId } }
+    );
+
+    if (result[0] === 0) {
+      return res.send({ message: 'Leave request not found or already updated' });
+    }
+
+
+    const userId = req.user.id;
+    const userName = req.user.name;
+
+    const hrAdminRole = await Role.findOne({ where: { roleName: 'HR Administrator' } });
+    if (!hrAdminRole) {
+      return res.send({ message: 'HR Admin role not found' });
+    }
+
+
+    const hrAdminUser = await User.findOne({ where: { roleId: hrAdminRole.id, status: true } });
+    if (!hrAdminUser) {
+      return res.send({ message: 'HR Admin user not found' });
+    }
+
+    const hrAdminId = hrAdminUser.id;
+
+
+    const userPersonal = await UserPersonal.findOne({
+      where: { userId },
+      attributes: ['reportingMangerId'],
+    });
+
+    if (!userPersonal || !userPersonal.reportingMangerId) {
+      return res.send({ message: `No reporting manager found for userId ${userId}` });
+    }
+
+    const reportingManagerId = userPersonal.reportingMangerId;
+
+
+    const leaveRequestUrl = `/login/admin-leave/view/${leaveId}`;
+
+    await Notification.create({
+      userId: hrAdminId,
+
+      message: `Medical Certificate uploaded by ${userName}`,
+      route: leaveRequestUrl
+
+
+    });
+
+    await Notification.create({
+      userId: reportingManagerId,
+
+      message: `Medical Certificate uploaded by ${userName}`,
+      route: leaveRequestUrl
+
+
+
+    });
+
+
+    return res.send({ message: 'Leave file URL updated and notifications sent' });
+  } catch (error) {
+    console.error(error);
+    return res.send({ message: 'Internal server error' });
   }
 });
 
@@ -953,149 +1239,6 @@ router.get('/:id', async (req, res) => {
 });
 
 
-//-------------------------------------- UPDATE API---------------------------------------------------
-router.patch('/:id', authenticateToken, async (req, res) => {
-  try {
-    const leaveId = req.params.id;
-    const { leaveDates, notes, leaveTypeId } = req.body;
-    if (!leaveDates) {
-      return res.json({ message: 'leaveDates are required to update leave' });
-    }
-
-    const leave = await Leave.findByPk(req.params.id, {
-      include: [User],
-    });
-
-    if (!leave) {
-      return res.json({ message: `Leave not found with id=${req.params.id}` });
-    }
-
-    const leaveType = await LeaveType.findOne({
-      where: { id: leaveTypeId },
-    });
-
-    if (!leaveType) {
-      return res.json({ message: 'Leave type not found' });
-    }
-
-
-
-    let userLeave;
-
-
-    if (leaveType.leaveTypeName !== 'LOP') {
-      userLeave = await UserLeave.findOne({
-        where: { userId: leave.userId, leaveTypeId },
-      });
-
-      console.log('User Leave Mapping:', userLeave);
-
-      if (!userLeave) {
-        return res.json({ message: 'User leave mapping not found' });
-      }
-    }
-
-    const filteredLeaveDates = leaveDates.filter(leaveDate =>
-      leaveDate.session1 || leaveDate.session2
-    );
-
-    if (filteredLeaveDates.length === 0) {
-      await leave.destroy();
-      return res.json({ message: 'Leave record deleted as no valid sessions were provided.' });
-    }
-
-    const noOfDays = calculateLeaveDays(filteredLeaveDates);
-
-
-    if (leaveType.leaveTypeName === 'LOP') {
-      leave.leaveDates = filteredLeaveDates;
-      leave.notes = notes || leave.notes;
-      leave.noOfDays = noOfDays;
-
-      await leave.save();
-
-      const startDate = leave.leaveDates[0].date;
-      const endDate = leave.leaveDates[leave.leaveDates.length - 1].date;
-
-      await sendLeaveUpdatedEmail(
-        leaveId,
-        leave.user,
-        leaveType,
-        startDate,
-        endDate,
-        notes,
-        noOfDays,
-        filteredLeaveDates
-      );
-
-      return res.json({
-        message: 'Leave updated successfully (LOP)',
-        leave: {
-          userId: leave.userId,
-          leaveTypeId,
-          leaveDates: filteredLeaveDates,
-          noOfDays,
-          notes: leave.notes,
-        },
-      });
-    }
-
-    if (userLeave.leaveBalance < noOfDays) {
-      return res.json({ message: 'Not enough leave balance for this update' });
-    }
-
-    leave.leaveDates = filteredLeaveDates;
-    leave.notes = notes || leave.notes;
-    leave.noOfDays = noOfDays;
-
-    await leave.save();
-
-    const previousNoOfDays = leave.noOfDays;
-    userLeave.takenLeaves += noOfDays - previousNoOfDays;
-    userLeave.leaveBalance -= (noOfDays - previousNoOfDays);
-    await userLeave.save();
-
-    const startDate = leave.leaveDates[0].date;
-    const endDate = leave.leaveDates[leave.leaveDates.length - 1].date;
-
-    await sendLeaveUpdatedEmail(
-      leaveId,
-      leave.user,
-      leaveType,
-      startDate,
-      endDate,
-      notes,
-      noOfDays,
-      filteredLeaveDates
-    );
-
-    res.json({
-      message: 'Leave updated successfully',
-      leave: {
-        userId: leave.userId,
-        leaveTypeId,
-        leaveDates: filteredLeaveDates,
-        noOfDays,
-        notes: leave.notes,
-      },
-    });
-  } catch (error) {
-    console.error('Error updating leave:', error);
-    res.json({ message: error.message });
-  }
-});
-
-
-//-----------------------------Delete Leave---------------------------------------------------------
-router.delete('/:id', async (req, res) => {
-  try {
-    const result = await Leave.destroy({ where: { id: req.params.id }, force: true });
-    result ? res.json({ message: `Leave with ID ${req.params.id} deleted successfully` }) : res.json({ message: "Leave not found" });
-  } catch (error) {
-    res.send(error.message);
-  }
-});
-
 
 //------------------------------------------Get Leaves Pagination------------------------------------------------------------
 router.get('/', async (req, res) => {
@@ -1178,65 +1321,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-//--------------------------------------------File delete------------------------------------------------------
-router.delete('/filedelete', authenticateToken, async (req, res) => {
-  let id = req.query.id;
-  try {
-    try {
-      let result = await Leave.findByPk(id);
-      fileKey = result.url;
-      result.url = '';
-      await result.save();
-    } catch (error) {
-      res.send(error.message)
-    }
-    let key;
-    if (!fileKey) {
-      key = req.query.key;
-
-      fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
-    }
-
-    // Set S3 delete parameters
-    const deleteParams = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: fileKey
-    };
-
-    // Delete the file from S3
-    await s3.deleteObject(deleteParams).promise();
-
-    res.send({ message: 'File deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting file from S3:', error);
-    res.send({ message: error.message });
-  }
-});
-
-
-router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
-  key = req.query.key;
-  fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
-  try {
-    if (!fileKey) {
-      return res.send({ message: 'No file key provided' });
-    }
-
-    // Set S3 delete parameters
-    const deleteParams = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: fileKey
-    };
-
-    // Delete the file from S3
-    await s3.deleteObject(deleteParams).promise();
-
-    res.send({ message: 'File deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting file from S3:', error);
-    res.send({ message: error.message });
-  }
-});
 
 
 
@@ -1267,7 +1351,7 @@ router.get('/all/totalleaves', authenticateToken, async (req, res) => {
 
 
 
-//--------------------untaken approved leaves deleting---------------
+//--------------------Admin leave edit and Delete------------------------------------------------
 router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => {
   try {
     const leaveId = req.params.id;
@@ -1316,13 +1400,6 @@ router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => 
     res.send(error.message);
   }
 });
-
-
-//--------------------------untaken leaves updating / or doing updation-----------------
-
-
-
-
 
 router.patch('/untakenLeaveUpdate/:id', authenticateToken, async (req, res) => {
   try {
@@ -1420,87 +1497,6 @@ router.patch('/untakenLeaveUpdate/:id', authenticateToken, async (req, res) => {
 
 
 
-
-
-router.patch('/updateLeaveFileUrl/:leaveId', authenticateToken, async (req, res) => {
-
-  try {
-    const leaveId = req.params.leaveId;
-    const fileUrl = req.body.fileUrl;
-
-
-    if (!leaveId || !fileUrl) {
-      return res.send({ message: 'Leave ID and File URL are required' });
-    }
-
-
-    const result = await Leave.update(
-      { fileUrl: fileUrl },
-      { where: { id: leaveId } }
-    );
-
-    if (result[0] === 0) {
-      return res.send({ message: 'Leave request not found or already updated' });
-    }
-
-
-    const userId = req.user.id;
-    const userName = req.user.name;
-
-    const hrAdminRole = await Role.findOne({ where: { roleName: 'HR Administrator' } });
-    if (!hrAdminRole) {
-      return res.send({ message: 'HR Admin role not found' });
-    }
-
-
-    const hrAdminUser = await User.findOne({ where: { roleId: hrAdminRole.id, status: true } });
-    if (!hrAdminUser) {
-      return res.send({ message: 'HR Admin user not found' });
-    }
-
-    const hrAdminId = hrAdminUser.id;
-
-
-    const userPersonal = await UserPersonal.findOne({
-      where: { userId },
-      attributes: ['reportingMangerId'],
-    });
-
-    if (!userPersonal || !userPersonal.reportingMangerId) {
-      return res.send({ message: `No reporting manager found for userId ${userId}` });
-    }
-
-    const reportingManagerId = userPersonal.reportingMangerId;
-
-
-    const leaveRequestUrl = `/login/admin-leave/view/${leaveId}`;
-
-    await Notification.create({
-      userId: hrAdminId,
-
-      message: `Medical Certificate uploaded by ${userName}`,
-      route: leaveRequestUrl
-
-
-    });
-
-    await Notification.create({
-      userId: reportingManagerId,
-
-      message: `Medical Certificate uploaded by ${userName}`,
-      route: leaveRequestUrl
-
-
-
-    });
-
-
-    return res.send({ message: 'Leave file URL updated and notifications sent' });
-  } catch (error) {
-    console.error(error);
-    return res.send({ message: 'Internal server error' });
-  }
-});
 
 
 
