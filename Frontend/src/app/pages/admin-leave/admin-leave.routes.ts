@@ -31,6 +31,11 @@ export const routes: Routes = [
     data: { breadcrumb: 'Apply Emergency Leave' }, canActivate: [AuthGuard]
   },
   {
+    path: 'edit-emergency-leave/:id',
+    loadComponent: () => import('./apply-emergency-leave/apply-emergency-leave.component').then(c => c.ApplyEmergencyLeaveComponent),
+    data: { breadcrumb: 'Update Emergency Leave' }, canActivate: [AuthGuard]
+  },
+  {
     path: 'update-emergency-leave',
     loadComponent: () => import('./apply-emergency-leave/apply-emergency-leave.component').then(c => c.ApplyEmergencyLeaveComponent),
     data: { breadcrumb: 'Update Emergency Leave' }, canActivate: [AuthGuard]

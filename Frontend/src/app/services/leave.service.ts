@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { LeaveType } from '../common/interfaces/leaves/leaveType';
@@ -7,6 +8,7 @@ import { UserLeave } from '../common/interfaces/leaves/userLeave';
 import {  throwError } from 'rxjs';
 import { Holidays } from '../common/interfaces/leaves/holidays';
 import { CompoOff } from '../common/interfaces/leaves/compo-off';
+import { Leave } from '../common/interfaces/leaves/leave';
 
 @Injectable({
   providedIn: 'root'
@@ -40,7 +42,7 @@ export class LeaveService {
   }
 
   getLeaveById(id: number) {
-    return this.http.get(`${this.apiUrl}/leave/${id}`);
+    return this.http.get<Leave>(`${this.apiUrl}/leave/${id}`);
   }
 
   getLeaveCounts(userId: number): Observable<any> {
@@ -48,6 +50,8 @@ export class LeaveService {
   }
 
    getLeavesByUser(userId: number, search?: string, page?: number, pageSize?: number): Observable<any[]> {
+    console.log(userId);
+    
     return this.http.get<any[]>(`${this.apiUrl}/leave/user/${userId}?search=${search}&page=${page}&pageSize=${pageSize}`);
   }
 

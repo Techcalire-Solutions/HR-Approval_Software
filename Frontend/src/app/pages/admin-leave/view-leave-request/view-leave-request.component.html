@@ -47,9 +47,6 @@
                 @if(date.session2==true){
                   session 2<br>
                 }
-
-
-
               </ng-container>
             </td>
 
@@ -57,12 +54,7 @@
             <td>{{ item.leaveType.leaveTypeName }}</td>
             <td>{{ item.user.name }}</td>
             <td>{{ item.notes }}</td>
-
-
             <td>{{ item.status }}</td>
-
-
-
             <td (click)="$event.stopPropagation()">
               <ng-container>
                 <button mat-icon-button color="primary" class="edit-button" (click)="onEditLeave(item.id)">
@@ -81,7 +73,6 @@
             </td>
 
             <td (click)="$event.stopPropagation()">
-
               <ng-container *ngIf="item.status !== 'AdminApproved' && item.status !== 'Rejected' && item.status !== 'Approved' && item.status !== 'AdminDeleted'&& item.status !== 'AdminUpdated'">
                 <button mat-raised-button class="approve-button" color="primary" (click)="openDialog('approve', item.id)" [disabled]="item.status === 'Approved'">
                   APPROVE
@@ -123,15 +114,24 @@
                 </span>
               </ng-container>
 
-                          </td>
+            </td>
 
             <td (click)="$event.stopPropagation()">
-              <!-- <div class="popup-message">
-                <mat-icon *ngIf="item.fileUrl">check_circle</mat-icon>
-
-              </div> -->
               <div class="popup-message">
-                <mat-icon *ngIf="item.fileUrl" class="green-icon">check_circle</mat-icon>
+                @if(item.fileUrl){
+                  <div>
+                    <img 
+                        [src]="item.fileUrl" 
+                        class="transition-2" 
+                        [ngClass]="{ 'enlarged': enlargedItemId === item.id }"
+                        [style.width]="enlargedItemId === item.id ? '500px' : '50px'"
+                        [style.height]="enlargedItemId === item.id ? '500px' : '50px'"
+                        (click)="toggleImageSize(item.id)"
+                    />
+                </div>
+                }@else {
+                  <mat-icon *ngIf="item.fileUrl" class="green-icon">check_circle</mat-icon>
+                }
               </div>
 
             </td>

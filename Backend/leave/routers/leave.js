@@ -65,14 +65,11 @@ async function getReportingManagerEmailForUser(userId) {
     }
 
     const reportingMangerId = userPersonal.reportingMangerId;
-
-    console.log("reportingMangerIdreportingMangerId",reportingMangerId);
     
     if (!reportingMangerId) {
       return `No reporting manager found for userId ${userId}`;
     }
 
- 
     const reportingManagerPosition = await UserPosition.findOne({
       where: { userId: reportingMangerId },
       attributes: ['officialMailId'],  
@@ -84,13 +81,9 @@ async function getReportingManagerEmailForUser(userId) {
       return `Reporting manager position not found for reportingMangerId ${reportingMangerId}`;
     }
   } catch (error) {
-    console.error('Error fetching reporting manager email:', error);
     return 'Error fetching reporting manager email';
   }
 }
-
-
-
 
 
 //-------------------------------------Mail sending function------------------------------------------
@@ -436,8 +429,8 @@ router.post('/', authenticateToken, async (req, res) => {
   const userId = req.user.id;
 
 
-  const reportingManagerEmail = await getReportingManagerEmailForUser(req.user.id);
-  console.log("reportingManagerEmail",reportingManagerEmail);
+  // const reportingManagerEmail = await getReportingManagerEmailForUser(req.user.id);
+  // console.log("reportingManagerEmail",reportingManagerEmail);
 
   if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
     return res.send( 'Missing required fields' );
@@ -473,7 +466,7 @@ router.post('/', authenticateToken, async (req, res) => {
         userId: userId,
         message: `Leave request submitted`,
         isRead: false,
-    });
+      });
 
       return res.json({
         message: 'Leave request submitted successfully as LOP.',
@@ -504,9 +497,6 @@ router.post('/', authenticateToken, async (req, res) => {
       const lopDays = noOfDays - availableLeaveDays;
     
       const { leaveDatesApplied, lopDates } = splitLeaveDates(leaveDates, availableLeaveDays);
-
-    
-
 
       await Leave.create({
         userId,
@@ -585,14 +575,14 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
   const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
 
   if (!userId || !leaveTypeId || !startDate || !endDate || !leaveDates) {
-    return res.json({ message: 'Missing required fields' });
+    return res.send('Missing required fields');
   }
 
   let userLeave;
   let leaveType;
   try {
     leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
-    if (!leaveType) return res.json({ message: 'Leave type not found' });
+    if (!leaveType) return res.send( 'Leave type not found' );
   } catch (error) {
     res.send(error.message)
   }
@@ -600,11 +590,7 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
   const noOfDays = calculateLeaveDays(leaveDates);
   try {
     userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId } });
-
-    
     if(userLeave){
-
-      
       if(leaveType.leaveTypeName === 'LOP' || userLeave.leaveBalance >= noOfDays){
         if(userLeave.noOfDays) { userLeave.leaveBalance -= noOfDays; }
         userLeave.takenLeaves += noOfDays;
@@ -633,8 +619,7 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
   }
 });
 
-router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) => {
-  
+router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) => {  
   const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
 
   if (!userId || !leaveTypeId || !startDate || !endDate || !leaveDates) {
@@ -703,57 +688,35 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
 router.get('/user/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
-
-
-
+    
     const user = await User.findByPk(userId);
     if (!user) {
       return res.json({ message: 'User not found' });
     }
 
     let whereClause = {
-      userId: userId,
+      userId: userId
     };
     let limit;
     let offset;
 
 
-    if (req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+    if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
       limit = req.query.pageSize;
       offset = (req.query.page - 1) * req.query.pageSize;
-
- 
-      if (req.query.search && req.query.search !== 'undefined') {
-        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
-        whereClause = {
-          [Op.or]: [
-            sequelize.where(
-              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('status'), ' ', '')),
-              { [Op.like]: `%${searchTerm}%` }
-            ),
-      
-          ]
-        };
-      }
-    } else {
-
-      if (req.query.search && req.query.search !== 'undefined') {
-        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
-        whereClause = {
-          [Op.or]: [
-            sequelize.where(
-              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('status'), ' ', '')),
-              { [Op.like]: `%${searchTerm}%` }
-            ),
-            
-          ],
-          status: true
-        };
-      } else {
-        whereClause = { status: true };
-      }
+    }  
+    if (req.query.search && req.query.search !== 'undefined') {
+      const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+      whereClause = {
+        ...whereClause,
+        [Op.or]: [
+          sequelize.where(
+            sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('leaveTypeName'), ' ', '')),
+            { [Op.like]: `%${searchTerm}%` }
+          ),
+        ],
+      };
     }
-
    
     const leave = await Leave.findAll({
       order: [['id', 'DESC']], 
@@ -1329,26 +1292,10 @@ router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => 
     if (!leave) {
       return res.send('Leave not found');
     }
-
-    console.log("leaveleave",leave)
-
-    // if (leave.status !== 'Approved' && leave.status !== 'AdminApproved') {
-    //   return res.send('Leave cannot be deleted unless approved or');
-    // }
-
   
     const userLeave = await UserLeave.findOne({ where: { userId: leave.userId, leaveTypeId: leave.leaveTypeId } });
 
-
-    console.log("userLeaveeeee",userLeave)
-
     if (userLeave) {
-      console.log('Before Deletion - UserLeave:', userLeave.dataValues); 
-
-
-
-
-   
       const leaveDays = leave.noOfDays > 0 ? leave.noOfDays : 1;
 
       if (leave.leaveType.leaveTypeName === 'LOP') {
@@ -1362,15 +1309,12 @@ router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => 
 
      
       await userLeave.save();
-
-   
-      console.log('After Deletion - UserLeave Updated:', userLeave.dataValues);
     }
 
    
     await leave.destroy();
 
-    res.send('Leave deleted and balance updated successfully');
+    res.status(204).json();
     // res.json({  message: 'Leave deleted and balance updated' });
 
   } catch (error) {

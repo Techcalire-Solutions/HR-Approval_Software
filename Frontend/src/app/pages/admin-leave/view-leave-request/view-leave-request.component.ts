@@ -30,12 +30,13 @@ import { UserDialogComponent } from '../../users/user-dialog/user-dialog.compone
 import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
 import { EditLeaveComponent } from '../edit-leave/edit-leave.component';
 import { NoteDialogComponent } from '../note-dialog/note-dialog.component';
+import { SafePipe } from "../../../common/safe.pipe";
 @Component({
   selector: 'app-view-leave-request',
   standalone: true,
   imports: [
     MatTableModule,
-    MatInputModule ,
+    MatInputModule,
     FormsModule,
     FlexLayoutModule,
     MatButtonModule,
@@ -54,8 +55,9 @@ import { NoteDialogComponent } from '../note-dialog/note-dialog.component';
     CommonModule,
     MatPaginatorModule,
     CamelCasePipe,
-    RouterModule
-  ],
+    RouterModule,
+    SafePipe
+],
   templateUrl: './view-leave-request.component.html',
   styleUrl: './view-leave-request.component.scss'
 })
@@ -158,8 +160,7 @@ onDeleteLeave(leaveId: number): void {
     if (result === true) {
       this.leaveService.deleteUntakenLeave(leaveId).subscribe(
         (response) => {
-          this.snackBar.open('Leave request deleted successfully...', 'Close', { duration: 3000 });
-          console.log(response)
+          this.snackBar.open('Leave deleted and balance updated successfully...', 'Close', { duration: 3000 });
           this.getPaginatedLeaves();
         },
         (error) => {
@@ -178,13 +179,9 @@ onDeleteLeave(leaveId: number): void {
 
   onEditLeave(leaveId: number): void {
     console.log('Navigating with Leave ID:', leaveId);
-    this.router.navigate(['/login/admin-leave/edit/',leaveId], {
-      queryParams: { leaveId: leaveId },
-    });
+    // /login/admin-leave/edit/
+    this.router.navigate([`/login/admin-leave/edit-emergency-leave/${leaveId}`]);
   }
-
-
-
 
   openDialog(action: string, leaveId: string): void {
     if (action === 'reject') {
@@ -265,4 +262,9 @@ onDeleteLeave(leaveId: number): void {
 
   }
 
+  enlargedItemId: number | null = null;
+
+  toggleImageSize(itemId: number) {
+    this.enlargedItemId = this.enlargedItemId === itemId ? null : itemId;
+  }
 }

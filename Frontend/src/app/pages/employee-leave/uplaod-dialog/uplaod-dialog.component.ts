@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, Inject, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -59,10 +60,16 @@ export class UplaodDialogComponent {
   fileName: string = '';
   isFileSelected: boolean = false;
   leaveId: string = '';
+  allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png'];
 
   uploadFile(event: Event) {
     const input = event.target as HTMLInputElement;
-    const selectedFile = input.files?.[0];
+    const selectedFile = input.files?.[0];    
+    const fileType: any = selectedFile?.type.split('/')[1];
+    if (!this.allowedFileTypes.includes(fileType)) {
+      alert('Invalid file type. Please select a PDF, JPEG, JPG, or PNG file.');
+      return;
+    }
 
     if (selectedFile) {
       this.fileName = selectedFile.name;

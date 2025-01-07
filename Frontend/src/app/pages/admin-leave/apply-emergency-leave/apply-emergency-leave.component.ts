@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CommonModule, formatDate } from '@angular/common';
+import { CommonModule, DatePipe, formatDate } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormArray, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,21 +19,31 @@ import { LeaveService } from '@services/leave.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { DomSanitizer } from '@angular/platform-browser';
-import { LeaveCountCardsComponent } from '../../employee-leave/leave-count-cards/leave-count-cards.component';
 import { UsersService } from '@services/users.service';
 import { MatChipsModule } from '@angular/material/chips';
 import { UserLeave } from '../../../common/interfaces/leaves/userLeave';
 import { User } from '../../../common/interfaces/users/user';
-import { NativeDateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, MatNativeDateModule } from '@angular/material/core';
-import { DateAdapter } from 'angular-calendar';
+import { MatNativeDateModule } from '@angular/material/core';
+import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 
+export const MY_FORMATS = {
+  parse: {
+    dateInput: 'DD/MM/YYYY', // Change to desired format
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY', // Display format for the input field
+    monthYearLabel: 'MMM YYYY', // Format for month/year in the header
+    dateA11yLabel: 'DD/MM/YYYY', // Accessibility format for dates
+    monthYearA11yLabel: 'MMMM YYYY', // Accessibility format for month/year
+  },
+};
 function sessionSelectionValidator(group: FormGroup) {
   const session1 = group.get('session1')?.value;
   const session2 = group.get('session2')?.value;
 
   return (session1 || session2) ? null : { sessionRequired: true };
 }
+
 @Component({
   selector: 'app-apply-emergency-leave',
   standalone: true,
@@ -53,94 +63,135 @@ function sessionSelectionValidator(group: FormGroup) {
     MatCheckboxModule,
     MatDatepickerModule,
     MatTableModule,
-    LeaveCountCardsComponent, MatChipsModule,
+    MatChipsModule,
     MatNativeDateModule,
-    MatDatepickerModule,
-  ],
+    MatDatepickerModule
+],
   templateUrl: './apply-emergency-leave.component.html',
   styleUrl: './apply-emergency-leave.component.scss',
-  providers: [
-    { provide: DateAdapter, useClass: NativeDateAdapter },
-    { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
-  ],
+  providers: [ provideMomentDateAdapter(MY_FORMATS), DatePipe ]
 })
+
 export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
   ngOnDestroy(): void {
-    this.submit?.unsubscribe();
     this.usersSub?.unsubscribe();
-    this.leaveSub?.unsubscribe();
-    this.leaveTypeSub?.unsubscribe();
-    this.ulSub?.unsubscribe();
     this.employeeSub?.unsubscribe();
-  }
-  isEditMode: boolean = false;
+    this.submit?.unsubscribe();
+    this.leaveTypeSub?.unsubscribe();
 
-  leaveRequestForm: FormGroup;
-  leaveTypes: any[] = [];
-  isLoading = false;
-  snackBar = inject(MatSnackBar);
-  router = inject(Router)
-  route = inject(ActivatedRoute)
-  fb = inject(FormBuilder)
-  leaveService = inject(LeaveService)
-  sanitizer = inject(DomSanitizer);
-  userService = inject(UsersService)
+    this.leaveSub?.unsubscribe();
+    this.ulSub?.unsubscribe();
+  }
+
+  private fb = inject(FormBuilder)
+  leaveRequestForm = this.fb.group({
+    userId: ['', Validators.required],
+    leaveTypeId: ['', Validators.required],
+    startDate: ['', Validators.required],
+    endDate: ['', Validators.required],
+    notes: ['', Validators.required],
+    fileUrl:[''],
+    leaveDates: this.fb.array([]),
+  });
+
+  isEditMode: boolean = false;
+  private route = inject(ActivatedRoute)
+  ngOnInit() {
+    this.getUsers()
+    this.getLeaveType();
+    const leaveId = this.route.snapshot.params['id'];
+    if (leaveId) {
+      this.isEditMode = true;
+      this.getLeaveDetails(+leaveId)
+    }
+  }
 
   leave : any
   userId : number
+
+  get leaveDates(): FormArray {
+    return this.leaveRequestForm.get('leaveDates') as FormArray;
+  }
+
+  
+
+
   usersSub!: Subscription;
   Users: User[] = [];
+  private userService = inject(UsersService)
   getUsers(){
     this.usersSub = this.userService.getUser().subscribe(res=>{
       this.Users = res;
     })
   }
-  ngOnInit() {
-    this.getUsers()
-    this.getLeaveType();
-    const leaveId = this.route.snapshot.queryParamMap.get('id');
-    if (leaveId) {
-      this.isEditMode = true;
-      this.getLeaveDetails(+leaveId)
+
+  leaveTypeSub!: Subscription;
+  leaveTypes: any[] = [];
+  private leaveService = inject(LeaveService)
+  getLeaveType() {
+    this.leaveTypeSub = this.leaveService.getLeaveType().subscribe( (leaveTypes: any) => {
+        this.leaveTypes = leaveTypes;
+      },(error) => {
+        console.error('Error fetching leave types:', error);
+      }
+    );
+  }
+
+  private employeeSub!: Subscription;
+  checkProbationStatus(id: number) {
+     this.getLeaveType()
+     this.getUserLeaves(id)
+     this.employeeSub = this.userService.getProbationEmployees().subscribe((employees) => {
+       const isProbationEmployee = employees.some((emp: any) => emp.id === id);
+       if (isProbationEmployee) {
+         const id = this.leaveTypes.find(type => type.leaveTypeName === 'LOP').id
+         this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
+         this.leaveRequestForm.get('leaveTypeId')?.setValue(id)
+       }
+     });
+  }
+
+  endDateFilter = (date: Date | null): boolean => {
+    if (!date || !this.minEndDate) {
+      return false;
     }
+    return date >= this.minEndDate; // Only allow dates after the minimum date
+  };
 
-    this.leaveRequestForm = this.fb.group({
-      userId: ['', Validators.required],
-      leaveTypeId: ['', Validators.required],
-      startDate: ['', Validators.required],
-      endDate: ['', Validators.required],
-      notes: ['', Validators.required],
-      fileUrl:[''],
-      leaveDates: this.fb.array([]),
-    });
-  }
-
-  emergencyPrefix = 'Emergency: ';
-  displayedColumns: string[] = ['leaveType', 'startDate', 'endDate', 'reason', 'session'];
-  get leaveDates(): FormArray {
-    return this.leaveRequestForm.get('leaveDates') as FormArray;
-  }
-  prefixEmergency(): void {
-    const notesControl = this.leaveRequestForm.get('notes');
-    if (notesControl && !notesControl.value.startsWith(this.emergencyPrefix)) {
-      notesControl.setValue(this.emergencyPrefix + notesControl.value);
-    }
-  }
-
+  minEndDate: Date | null = null;
   onDateChange() {
     const startDate = this.leaveRequestForm.get('startDate')!.value;
-    const endDate = this.leaveRequestForm.get('endDate')!.value;
+    const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
+    leaveDatesArray.clear();
+    this.leaveRequestForm.get('endDate')?.reset();
+    if (startDate) {
+      this.minEndDate = new Date(startDate);
+      this.minEndDate.setDate(this.minEndDate.getDate() + 1); 
+    }
+  }
 
-    if (startDate && endDate && this.validateDateRange()) {
+  onEndDateChange() {
+    const startDate = this.leaveRequestForm.get('startDate')!.value;
+    const endDate = this.leaveRequestForm.get('endDate')!.value;
+    if (startDate && endDate) {
       this.updateLeaveDates(new Date(startDate), new Date(endDate));
     }
   }
 
-  validateDateRange(): boolean {
-    const startDate = this.leaveRequestForm.get('startDate')!.value;
-    const endDate = this.leaveRequestForm.get('endDate')!.value;
-    return new Date(startDate) <= new Date(endDate);
+  emergencyPrefix = 'Emergency: ';
+  prefixEmergency(): void {
+    const notesControl = this.leaveRequestForm.get('notes');
+    if (notesControl && !notesControl.value?.startsWith(this.emergencyPrefix)) {
+      notesControl.setValue(this.emergencyPrefix + notesControl.value);
+    }
   }
+
+
+  // validateDateRange(): boolean {
+  //   const startDate = this.leaveRequestForm.get('startDate')!.value;
+  //   const endDate = this.leaveRequestForm.get('endDate')!.value;
+  //   return new Date(startDate) <= new Date(endDate);
+  // }
 
   updateLeaveDates(start: Date, end: Date) {
     const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
@@ -148,9 +199,7 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
 
     for (let dt = new Date(start); dt <= end; dt.setDate(dt.getDate() + 1)) {
       const leaveDateGroup = this.fb.group({
-        date: [formatDate(dt, 'yyyy-MM-dd', 'en-US')],
-        session1: [false],
-        session2: [false]
+        date: [formatDate(dt, 'yyyy-MM-dd', 'en-US')], session1: [false], session2: [false]
       }, { validators: sessionSelectionValidator });
 
       leaveDatesArray.push(leaveDateGroup);
@@ -176,7 +225,6 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
         notes: this.leave.notes
       });
 
-
       const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
       leaveDatesArray.clear();
       this.leave.leaveDates.forEach((leaveDate: any) => {
@@ -190,50 +238,45 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
   }
 
   submit!: Subscription;
+  isLoading = false;
+  private snackBar = inject(MatSnackBar);
+  private router = inject(Router)
   onSubmit() {
     this.isLoading = true;
     const leaveRequest = {
       ...this.leaveRequestForm.value,
       leaveDates: this.leaveRequestForm.get('leaveDates')!.value
     };
-
-    const leaveId = this.route.snapshot.queryParamMap.get('id');
-
-    if (this.isEditMode && leaveId) {
-      const idAsNumber = +leaveId;
-
-      this.submit = this.leaveService.updatemergencyLeave(leaveRequest, this.leave.id).subscribe((response: any) => {
-        history.back()
+    if (this.isEditMode) {
+      this.submit = this.leaveService.updatemergencyLeave(leaveRequest, this.leave.id).subscribe(() => {
+        this.router.navigateByUrl('/login/admin-leave/view-leave-request')
         this.snackBar.open("Emergency leave updated succesfully...","" ,{duration:3000})
       });
     } else {
-      this.submit = this.leaveService.addEmergencyLeave(leaveRequest).subscribe((response: any) => {
-        history.back()
+      this.submit = this.leaveService.addEmergencyLeave(leaveRequest).subscribe(() => {
+        this.router.navigateByUrl('/login/admin-leave/view-leave-request')
         this.snackBar.open("Emergency leave added succesfully...","" ,{duration:3000})
       });
     }
   }
 
-  leaveTypeSub!: Subscription;
-  getLeaveType() {
-    this.leaveTypeSub = this.leaveService.getLeaveType().subscribe( (leaveTypes: any) => {
-        this.leaveTypes = leaveTypes;
-      },(error) => {
-        console.error('Error fetching leave types:', error);
-      }
-    );
-  }
 
 
   uploadProgress: number | null = null;
   file!: File;
   imageUrl: string = '';
   fileName: string = ''; // Holds the name of the file
-  isFileSelected: boolean = false; // Track if a file is selected
+  isFileSelected: boolean = false;
+  allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png'];
 
   uploadFile(event: Event) {
     const input = event.target as HTMLInputElement;
-    const selectedFile = input.files?.[0]; // Get the first file if it exists
+    const selectedFile = input.files?.[0]; 
+    const fileType: any = selectedFile?.type.split('/')[1];
+    if (!this.allowedFileTypes.includes(fileType)) {
+      alert('Invalid file type. Please select a PDF, JPEG, JPG, or PNG file.');
+      return;
+    }
 
     if (selectedFile) { // Check if a file was selected
       this.file = selectedFile; // Assign the file
@@ -242,7 +285,7 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
       this.leaveService.uploadImage(this.file).subscribe({
         next: (res) => {
           this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${res.fileUrl}`;
-          this.leaveRequestForm.get('url')?.setValue(res.fileUrl);
+          this.leaveRequestForm.get('fileUrl')?.setValue(res.fileUrl);
         },
         error: () => console.error('Upload failed'),
       });
@@ -263,26 +306,9 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
 
     if (leaveTypeId === sickLeaveTypeId && startDate && endDate) {
       const duration = (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 3600 * 24) + 1; // Calculate the duration in days
-      return duration > 3; // Return true if duration is greater than 3 days
+      return duration > 3; 
     }
     return false; // Return false if it's not sick leave or dates are invalid
-  }
-
-
- // Check if the user is on probation
- isProbationEmployee: boolean = false;
- employeeSub!: Subscription;
- checkProbationStatus(id: number) {
-    this.getLeaveType()
-    this.getUserLeaves(id)
-    this.employeeSub = this.userService.getProbationEmployees().subscribe((employees) => {
-
-      this.isProbationEmployee = employees.some((emp: any) => emp.id === id);
-
-      if (this.isProbationEmployee) {
-        this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
-      }
-    });
   }
 
   ulSub!: Subscription;

@@ -37,7 +37,7 @@ import { UplaodDialogComponent } from './uplaod-dialog/uplaod-dialog.component';
   standalone: true,
   imports: [
     MatTableModule,
-    MatInputModule ,
+    MatInputModule,
     FormsModule,
     FlexLayoutModule,
     MatButtonModule,
@@ -52,12 +52,9 @@ import { UplaodDialogComponent } from './uplaod-dialog/uplaod-dialog.component';
     NgxPaginationModule,
     PipesModule,
     DatePipe,
-    UserDialogComponent,
     CommonModule,
-    MatPaginatorModule,
-    CamelCasePipe,
-    LeaveGraphsComponent
-  ],
+    MatPaginatorModule
+],
   providers: [
     { provide: DateAdapter, useClass: NativeDateAdapter },
     { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS },
@@ -136,7 +133,6 @@ console.log('Is Button Visible:', this.isButtonVisible);
 
   openApplyLeave(){
     this.router.navigate(['/login/employee-leave/add'])
-
   }
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
