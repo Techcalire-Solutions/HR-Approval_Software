@@ -17,7 +17,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import {MatTableModule} from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatMenuModule } from '@angular/material/menu';
@@ -57,12 +57,12 @@ import { SafePipe } from "../../../common/safe.pipe";
     CamelCasePipe,
     RouterModule,
     SafePipe
-],
+  ],
   templateUrl: './view-leave-request.component.html',
   styleUrl: './view-leave-request.component.scss'
 })
 export class ViewLeaveRequestComponent implements OnInit, OnDestroy {
-  public page:any;
+  public page: any;
   snackBar = inject(MatSnackBar);
   roleService = inject(RoleService);
   settingsService = inject(SettingsService);
@@ -70,47 +70,44 @@ export class ViewLeaveRequestComponent implements OnInit, OnDestroy {
   usersService = inject(UsersService);
   router = inject(Router)
   leaveService = inject(LeaveService)
-  snackbar=inject(MatSnackBar)
-  leaveSub : Subscription
+  snackbar = inject(MatSnackBar)
+  leaveSub: Subscription
+  pageSize = 5;
+  currentPage = 1;
+  totalItems = 0;
+  searchText: string = '';
 
-userId:number
+  leaves: any[] = []
 
-  ngOnInit(){
+  userId: number
+
+  ngOnInit() {
     this.getPaginatedLeaves()
-     // Get the leaveId from the route parameters
-  // Get the leaveId from the route parameters
 
 
   }
 
-pageSize = 5;
-currentPage = 1;
-totalItems = 0;
-searchText: string = '';
-
-leaves:any[]=[]
-getPaginatedLeaves(): void {
- this.leaveSub = this.leaveService.getLeavesPaginated(this.searchText, this.currentPage, this.pageSize).subscribe((res:any) => {
-    console.log(res);
-    this.totalItems = res.count;
-    this.leaves = res.items;
-    console.log(this.leaves)
-  });
-}
+  getPaginatedLeaves(): void {
+    this.leaveSub = this.leaveService.getLeavesPaginated(this.searchText, this.currentPage, this.pageSize).subscribe((res: any) => {
+      console.log(res);
+      this.totalItems = res.count;
+      this.leaves = res.items;
+      console.log(this.leaves)
+    });
+  }
 
 
 
 
-onPageChange(event: PageEvent): void {
-  this.currentPage = event.pageIndex + 1;
-  this.pageSize = event.pageSize;
-  this.getPaginatedLeaves();
-}
+  onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.getPaginatedLeaves();
+  }
 
-search(event: Event){
-  this.searchText = (event.target as HTMLInputElement).value.trim()
-  // this.getLeaveByUser()
-}
+  search(event: Event) {
+    this.searchText = (event.target as HTMLInputElement).value.trim()
+  }
 
 
   editLeave(id: number, status: string) {
@@ -119,11 +116,11 @@ search(event: Event){
 
 
 
-delete!: Subscription;
-deleteLeave(id: number){
+  delete!: Subscription;
+  deleteLeave(id: number) {
     let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
     dialogRef.afterClosed().subscribe(res => {
-      if(res){
+      if (res) {
         this.delete = this.leaveService.deleteLeave(id).subscribe(res => {
           this.snackBar.open('Leave request deleted successfully!', 'Close', { duration: 3000 });
           this.getPaginatedLeaves()
@@ -131,14 +128,16 @@ deleteLeave(id: number){
       }
     });
   }
+
+
   ngOnDestroy(): void {
     this.leaveSub.unsubscribe();
 
 
-}
+  }
 
 
-  openCalendar(){
+  openCalendar() {
     this.router.navigate(['login/leave/leaveCalendar']);
 
   }
@@ -150,27 +149,27 @@ deleteLeave(id: number){
 
 
 
-onDeleteLeave(leaveId: number): void {
+  onDeleteLeave(leaveId: number): void {
 
-  const dialogRef = this.dialog.open(DeleteDialogueComponent, {
-    data: { leaveId: leaveId }
-  });
+    const dialogRef = this.dialog.open(DeleteDialogueComponent, {
+      data: { leaveId: leaveId }
+    });
 
-  dialogRef.afterClosed().subscribe(result => {
-    if (result === true) {
-      this.leaveService.deleteUntakenLeave(leaveId).subscribe(
-        (response) => {
-          this.snackBar.open('Leave deleted and balance updated successfully...', 'Close', { duration: 3000 });
-          this.getPaginatedLeaves();
-        },
-        (error) => {
-          console.error('Error deleting leave:', error);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        this.leaveService.deleteUntakenLeave(leaveId).subscribe(
+          (response) => {
+            this.snackBar.open('Leave deleted and balance updated successfully...', 'Close', { duration: 3000 });
+            this.getPaginatedLeaves();
+          },
+          (error) => {
+            console.error('Error deleting leave:', error);
 
-        }
-      );
-    }
-  });
-}
+          }
+        );
+      }
+    });
+  }
 
 
 
@@ -178,8 +177,6 @@ onDeleteLeave(leaveId: number): void {
 
 
   onEditLeave(leaveId: number): void {
-    console.log('Navigating with Leave ID:', leaveId);
-    // /login/admin-leave/edit/
     this.router.navigate([`/login/admin-leave/edit-emergency-leave/${leaveId}`]);
   }
 
@@ -225,21 +222,21 @@ onDeleteLeave(leaveId: number): void {
 
 
   approveLeave(leaveId: any, note: string) {
-      const approvalData = { leaveId: leaveId, adminNotes: note };
-      this.leaveService.updateApproveLeaveStatus(approvalData).subscribe(
-        (res) => {
-          console.log(res);
+    const approvalData = { leaveId: leaveId, adminNotes: note };
+    this.leaveService.updateApproveLeaveStatus(approvalData).subscribe(
+      (res) => {
+        console.log(res);
 
-          this.snackbar.open('Leave approved successfully', '', { duration: 3000 });
-          this.getPaginatedLeaves();
-        },
-        (error) => {
-          this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
-        }
-      );
-    }
+        this.snackbar.open('Leave approved successfully', '', { duration: 3000 });
+        this.getPaginatedLeaves();
+      },
+      (error) => {
+        this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
+      }
+    );
+  }
 
-  rejectLeave(leaveId: any, note: string){
+  rejectLeave(leaveId: any, note: string) {
     const rejectionData = { leaveId: leaveId, adminNotes: note };
     this.leaveService.updateRejectLeaveStatus(rejectionData).subscribe(
       (res) => {
@@ -255,8 +252,8 @@ onDeleteLeave(leaveId: number): void {
 
 
 
-  viewLeaveDetails(leaveId:number){
-    this.router.navigate(['/login/admin-leave/view/',leaveId], {
+  viewLeaveDetails(leaveId: number) {
+    this.router.navigate(['/login/admin-leave/view/', leaveId], {
       queryParams: { leaveId: leaveId },
     });
 
