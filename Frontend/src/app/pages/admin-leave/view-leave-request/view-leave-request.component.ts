@@ -178,13 +178,9 @@ onDeleteLeave(leaveId: number): void {
 
   onEditLeave(leaveId: number): void {
     console.log('Navigating with Leave ID:', leaveId);
-    this.router.navigate(['/login/admin-leave/edit/',leaveId], {
-      queryParams: { leaveId: leaveId },
-    });
+    // /login/admin-leave/edit/
+    this.router.navigate(['/login/admin-leave/apply-emergency-leave/',leaveId]);
   }
-
-
-
 
   openDialog(action: string, leaveId: string): void {
     if (action === 'reject') {

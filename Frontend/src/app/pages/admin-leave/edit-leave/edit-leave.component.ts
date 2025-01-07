@@ -8,7 +8,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { LeaveService } from '@services/leave.service';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
-import { LeaveInfoDialogComponent } from '../../employee-leave/leave-info-dialog/leave-info-dialog.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -21,7 +20,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { LeaveCountCardsComponent } from '../../employee-leave/leave-count-cards/leave-count-cards.component';
 import { NativeDateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, MatNativeDateModule } from '@angular/material/core';
 import { DateAdapter } from 'angular-calendar';
 function sessionSelectionValidator(group: FormGroup) {
@@ -50,9 +48,8 @@ function sessionSelectionValidator(group: FormGroup) {
     MatDatepickerModule,
     MatTableModule,
     MatSnackBarModule,
-    LeaveCountCardsComponent,
-    MatNativeDateModule,
-  ],
+    MatNativeDateModule
+],
   templateUrl: './edit-leave.component.html',
   styleUrl: './edit-leave.component.scss',
   providers: [
@@ -85,9 +82,7 @@ leave : any
 userId : number
   ngOnInit() {
     this.isPatchMode = true;
-    console.log("isPatchMode:", this.isPatchMode); // Check if it's true/false
-    this.isPatchMode = this.checkIfPatchMode();
-
+    this.isPatchMode = this.checkIfPatchMode()
 
       const leaveId = this.route.snapshot.params['id'];
       this.isPatchMode = true;
