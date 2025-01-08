@@ -13,7 +13,7 @@ export interface MonthlyPayroll {
   incentive: number
   payOut: number
   pfDeduction: number
-  insurance: number
+  esi: number
   tds: number
   advanceAmount: number
   leaveDays: number
@@ -25,4 +25,7 @@ export interface MonthlyPayroll {
   payedAt: Date
 
   user: User
+
+  leaveEncashmentAmount: number
+  leaveEncashment: number
   }

@@ -6,10 +6,8 @@ const User = require('../models/user');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const Role = require('../models/role')
-const { Op, where } = require('sequelize');
+const { Op } = require('sequelize');
 const sequelize = require('../../utils/db');
-const Team = require('../models/team')
-const TeamMember = require('../models/teamMember');
 const upload = require('../../utils/userImageMulter'); 
 const s3 = require('../../utils/s3bucket');
 const UserLeave = require('../../leave/models/userLeave');
@@ -17,6 +15,10 @@ const LeaveType = require('../../leave/models/leaveType');
 const UserPersonal = require('../models/userPersonal');
 const UserPosition = require('../models/userPosition');
 const Designation = require('../models/designation');
+const StatutoryInfo = require('../models/statutoryInfo');
+const UserDocument = require('../models/userDocuments');
+const { sendEmail } = require('../../app/emailService');
+const config = require('../../utils/config')
 
 router.post('/add', async (req, res) => {
   const { name, email, phoneNumber, password, status, userImage, url, empNo, director } = req.body;
@@ -26,8 +28,6 @@ router.post('/add', async (req, res) => {
     if(roleId === '' || roleId === null || roleId === undefined){
       try {
         const role = await Role.findOne({ where: {roleName: 'Employee'}})
-        console.log(role);
-        
         roleId = role.id;
       } catch (error) {
         res.send(error.message)
@@ -42,7 +42,7 @@ router.post('/add', async (req, res) => {
         ]
       }
     });
-
+    
     if (userExist) {
       return res.send(`User already exists with the email or employee number and Role`);
     }
@@ -53,8 +53,18 @@ router.post('/add', async (req, res) => {
       name, empNo, email, phoneNumber, password: hashedPassword, roleId, status, userImage, url, director
     });
 
+    const emailText = `Dear ${user.name},\n\nCongratulations on joining our company!\nHere are your login credentials:\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information secure.\n\nWe are excited to have you onboard and look forward to working together.\n\nBest Regards,\nThe Team`;
+    const emailSubject = `Welcome to the Company!`;
+    const fromEmail = config.email.userAddUser;
+    const emailPassword = config.email.userAddPass;
+    const html = ''
+    const attachments = []
+    try {
+      await sendEmail(fromEmail, emailPassword, user.email, emailSubject, emailText ,html, attachments);
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError);
+    }
     res.send(user)
-
   } catch (error) {
     res.send(error.message);
   }
@@ -66,12 +76,8 @@ router.get('/find/', async (req, res) => {
     let limit;
     let offset;
 
-    // Add search condition if provided
     if (req.query.search && req.query.search !== 'undefined') {
       const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
-      console.log(searchTerm);
-
-      // Update the whereClause to include the search filter
       whereClause = {
         [Op.and]: [
           {
@@ -87,6 +93,14 @@ router.get('/find/', async (req, res) => {
               sequelize.where(
                 sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('email'), ' ', '')),
                 { [Op.like]: `%${searchTerm}%` }
+              ),
+              sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('statutoryinfo.adharNo'), ' ', '')),
+                { [Op.like]: `%${searchTerm}%` }
+              ),
+              sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('statutoryinfo.panNumber'), ' ', '')),
+                { [Op.like]: `%${searchTerm}%` }
               )
             ]
           },
@@ -94,7 +108,7 @@ router.get('/find/', async (req, res) => {
           { separated: false }
         ]
       };
-    }else{
+    } else {
       if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
         limit = parseInt(req.query.pageSize, 10);
         offset = (parseInt(req.query.page, 10) - 1) * limit;
@@ -107,9 +121,9 @@ router.get('/find/', async (req, res) => {
       order: [['id']],
       include: [
         { model: Role, as: 'role', attributes: ['id', 'roleName'] },
+        { model: StatutoryInfo, as: 'statutoryinfo', required: false }, // Ensure alias matches the association
         {
           model: UserPosition,
-          required: false,
           attributes: ['designationId'],
           include: [{ model: Designation, attributes: ['designationName'] }]
         }
@@ -119,7 +133,12 @@ router.get('/find/', async (req, res) => {
     });
 
     // Count total records that match the search condition
-    const totalCount = await User.count({ where: whereClause });
+    const totalCount = await User.count({
+      where: whereClause,
+      include: [
+        { model: StatutoryInfo, as: 'statutoryinfo', required: false } // Ensure consistent inclusion
+      ]
+    });
 
     // Return the response
     if (req.query.page !== 'undefined' && req.query.pageSize !== 'undefined') {
@@ -130,12 +149,13 @@ router.get('/find/', async (req, res) => {
 
       res.json(response);
     } else {
-      res.send(users)
+      res.send(users);
     }
   } catch (error) {
-    res.status(500).send(error.message);
+    res.send(error.message);
   }
 });
+
 
 router.get('/search/name', async (req, res) => {
   try {
@@ -185,7 +205,7 @@ router.get('/findone/:id', async (req, res) => {
       include: [
         { model: Role, attributes: ['id', 'roleName'] },
         { model: UserPosition, attributes: ['designationId'],
-            include: [{ model: Designation, attributes: ['designationName']}]
+            include: [{ model: Designation, include: {model: Role} }]
         }
       ]
     });
@@ -216,6 +236,27 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
   const id = req.params.id
   try {
     const user = await User.findByPk(id)
+    const fileKey = user.url;
+
+    if(fileKey){
+      const deleteParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileKey
+      };
+      await s3.deleteObject(deleteParams).promise();
+    }
+
+    const userDoc = await UserDocument.findAll({ where: {userId: user.id} });
+    if(userDoc.length > 0){
+        for(let i = 0; i < userDoc.length; i++) {
+          const docKey = userDoc[i].docUrl;
+          const deleteParams = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: docKey
+          };
+          await s3.deleteObject(deleteParams).promise();
+        }
+    }
 
     const result = await user.destroy({
       force: true
@@ -401,7 +442,7 @@ router.patch('/resetpassword/:id', async (req, res) => {
   try {
       const hashedPassword = await bcrypt.hash(password, 10);
       let user = await User.findByPk(req.params.id);
-
+      
       if (!user) {
           return res.send('User not found');
       }
@@ -410,6 +451,47 @@ router.patch('/resetpassword/:id', async (req, res) => {
       user.paswordReset = paswordReset;
 
       await user.save();
+      
+      const emailText = `Hello ${user.name},\n\nYour password has been successfully reset.\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information safe.\n\nThank you!`;
+      const emailSubject = `Password Reset Successful`;
+      const fromEmail = config.email.userAddUser;
+      const emailPassword = config.email.userAddPass;    
+      const html = ''
+      const attachments = []
+      try {
+        await sendEmail(fromEmail, emailPassword, user.email, emailSubject, emailText ,html, attachments);
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+    
+      }
+
+      //   // Configure Nodemailer for sending emails
+      // const transporter = nodemailer.createTransport({
+      //     service: 'Gmail', 
+      //     auth: {
+      //       user: 'nishida@onboardaero.com',
+      //       pass: 'jior rtdu epzr xadt',
+      //     },
+      // });
+
+      // // Email options
+      // const mailOptions = {
+      //     from: 'nishida@onboardaero.com', // Replace with your email
+      //     to: user.email, // Assuming the User model has an `email` field
+      //     subject: 'Password Reset Successful',
+      //     text: `Hello ${user.name},\n\nYour password has been successfully reset.\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information safe.\n\nThank you!`,
+      // };
+
+      // // Send the email
+      // transporter.sendMail(mailOptions, (err, info) => {
+      //     if (err) {
+      //         console.error('Error sending email:', err);
+      //         return res.send('Failed to send email');
+      //     } else {
+      //         console.log('Email sent:', info.response);
+      //         res.send('Password reset successful and email sent');
+      //     }
+      // });
       
       res.send(user);
   } catch (error) {
@@ -423,10 +505,9 @@ router.get('/underprobation', async (req, res) => {
       include: [
         {
           model: Role,
-          attributes: ['id', 'roleName']
+          attributes: ['roleName']
         },
-
-      ],
+      ], order: ['id'],
       where: { isTemporary: true, separated: false }
     })
     res.send(user);
@@ -438,6 +519,12 @@ router.get('/underprobation', async (req, res) => {
 router.get('/confirmed', async (req, res) => {
   try {
     const user = await User.findAll({
+      include: [
+        {
+          model: Role,
+          attributes: ['roleName']
+        },
+      ],
       where: { isTemporary: false, separated: false }
     })
     res.send(user);
@@ -450,21 +537,14 @@ router.get('/confirmemployee/:id', async (req, res) => {
   try {
       let result = await User.findByPk(req.params.id);
 
-      let up = await UserPersonal.findOne({
-        where: { userId: req.params.id}
-      })
-      if(!up){
-        return res.send(`Personal data is not added for the employee ${result.name}`)
-      }
-      up.confirmationDate = new Date()
-      await up.save()
       let post = await UserPosition.findOne({
         where: { userId: req.params.id}
       })
       if(!post){
-        return res.send(`Position data is not added for the employee ${result.name}`)
+        return res.send(`Employment data is not added for the employee ${result.name}`)
       }
       post.probationNote = req.query.note;
+      post.confirmationDate = new Date();
       await post.save();
       
       if (!result) {

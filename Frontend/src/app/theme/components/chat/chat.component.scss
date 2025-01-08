@@ -1,0 +1,152 @@
+
+
+.chat{
+    .chat-content {
+        flex: 1; /* Allow chat content to fill available space */
+        padding: 12px;
+        overflow-y: auto; /* Enable vertical scrolling */
+        height: calc(100vh - 160px);
+        scroll-behavior: smooth;
+    }
+    .chat-actions{
+        padding: 12px;
+    }
+    .author-name{
+        font-size: 16px;
+        font-weight: 400;
+    }
+    .talk-item{
+        padding: 6px 0;
+        height: 100%;
+    }
+    .message{
+        white-space: unset;
+        text-overflow: unset;       
+        span{
+            padding: 6px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            font-size: 14px;
+        }
+    }
+    .message-date{
+        opacity: 0.8;
+    }
+    .empty{
+        mat-icon{
+            font-size: 220px;
+            height: 100%;
+            width: 220px;
+            opacity: 0.4;
+        }
+        p{
+            font-size: 18px;
+            opacity: 0.8;
+        }
+    }
+}
+// .chat-status-icon{
+//     font-size: 14px;
+//     height: 14px;
+//     width: 14px;
+//     line-height: 16px;
+//     margin-right: 6px;
+// }
+
+.chat-sidenav{
+    border-right: 1px solid transparent;
+    overflow: hidden;
+    width: 300px;
+    .mat-drawer-inner-container {
+        overflow: hidden;
+    } 
+}
+
+.chat-sidenav-list {
+    height: 100%;
+    // .mat-mdc-list-item {
+    //     height: 64px !important;
+    // }
+}
+
+/* Parent container */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+  }
+  
+  /* Left-aligned messages */
+  .chat-message.left {
+    display: flex;
+    justify-content: flex-start;
+    margin: 5px 0;
+  }
+  
+  /* Right-aligned messages */
+  .chat-message.right {
+    display: flex;
+    justify-content: flex-end;
+    margin: 5px 0;
+  }
+  
+  /* Common message styling */
+  .message-content {
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 60%;
+    word-wrap: break-word;
+    position: relative;
+  }
+  
+  /* Sender message (right) */
+  .message-content.sender {
+    background-color: #DCF8C6;
+    color: #000;
+  }
+  
+  /* Receiver message (left) */
+  .message-content.receiver {
+    background-color: #F1F0F0;
+    color: #000;
+  }
+  
+  /* Message text */
+  .message-text {
+    margin-bottom: 4px;
+  }
+  
+  /* Timestamp and status tick styling */
+  .message-info {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+  }
+  
+  .timestamp {
+    margin-right: 5px;
+  }
+  
+  .status-tick {
+    color: #888;
+  }
+  
+  /* Style read ticks differently */
+  .status-tick .read-tick {
+    color: #34B7F1; /* Blue color for 'read' status */
+  }
+
+
+
+  .message-count {
+    background-color: blue; /* Change background color for unread messages */
+    color: white; /* Ensure text is visible on red background */
+    font-weight: bold; /* Make unread count more prominent */
+    padding: 2px 5px; /* Add some padding for better readability */
+    border-radius: 50%; /* Create a circular shape for the count */
+    position: absolute; /* Position the count near the chat name */
+    top: 5px; /* Adjust vertical position as needed */
+    right: 10px; /* Adjust horizontal position as needed */
+  }

@@ -27,16 +27,17 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { User } from '../../../common/interfaces/users/user';
-import { UserQualificationComponent } from "../user-qualification/user-qualification.component";
+import { UserNomineeComponent } from "../user-nominee/user-nominee.component";
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 
 @Component({
   selector: 'app-user-dialog',
   standalone: true,
   imports: [ReactiveFormsModule, FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule,
-    MatNativeDateModule, MatRadioModule, MatDialogModule, MatButtonModule, MatToolbarModule,
+    MatNativeDateModule, MatRadioModule, MatDialogModule, MatButtonModule, MatToolbarModule, MatProgressSpinnerModule,
     PersonalDetailsComponent, UserPositionComponent, StatuatoryInfoComponent, UserAccountComponent, UserDocumentsComponent, MatCardModule,
-    MatOptionModule, MatSelectModule, CommonModule, MatAutocompleteModule, UserQualificationComponent],
+    MatOptionModule, MatSelectModule, CommonModule, MatAutocompleteModule, UserNomineeComponent],
   templateUrl: './user-dialog.component.html',
   styleUrl: './user-dialog.component.scss'
 })
@@ -95,7 +96,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   patchUser(user: User){
     this.invNo = user.empNo
     if(user.url != null && user.url != '' && user.url != 'undefined'){
-
       this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${user.url}`
     }
     this.form.patchValue({
@@ -160,23 +160,29 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   isSocialFormSubmitted: boolean = false;
   isAccountFormSubmitted: boolean = false;
   isQualFormSubmitted: boolean = false;
+  isNomineeFormSubmitted: boolean = false;
   submit!: Subscription;
   onSubmit(){
+    this.isLoading = true;
     if(this.editStatus){
       this.submit = this.userService.updateUser(this.id, this.form.getRawValue()).subscribe(()=>{
         this.snackBar.open("User updated succesfully...","" ,{duration:3000})
+        this.isLoading = false;
       })
     }else{
-      this.submit = this.userService.addUser(this.form.getRawValue()).subscribe((res)=>{
+      this.submit = this.userService.addUser(this.form.getRawValue()).subscribe((res) => {        
+        this.editStatus = true;
+        this.id = res.id;
         this.userName = res.name
         this.dataToPass = { id: res.id, empNo: this.invNo, name: res.name, updateStatus: this.editStatus };
-        this.selectedTabIndex = 1;
-        if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
-          this.personalDetailsComponent.ngOnInit();
-        }
+        // this.selectedTabIndex = 1;
+        // if (this.personalDetailsComponent && this.selectedTabIndex === 1) {
+        //   this.personalDetailsComponent.ngOnInit();
+        // }
         this.isFormSubmitted = true;
         this.formSubmitted = false;
         this.snackBar.open("User added succesfully...","" ,{duration:3000})
+        this.isLoading = false;
       })
     }
   }
@@ -206,22 +212,31 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   }
 
   accountSubmit(event: any){
-    this.isQualFormSubmitted = event.isFormSubmitted
+    this.isNomineeFormSubmitted = event.isFormSubmitted
     this.isSocialFormSubmitted = false;
     this.selectedTabIndex = 5
-    if (this.userQualificationComponent && this.selectedTabIndex === 5) {
-      this.userQualificationComponent.trigger();
-    }
+    // if (this.userNomineeComponent && this.selectedTabIndex === 5) {
+    //   this.userNomineeComponent.ngOnInit();
+    // }
   }
 
-  qualSubmit(event: any){
+  nomineeSubmit(event: any){
     this.isAccountFormSubmitted = event.isFormSubmitted
-    this.isQualFormSubmitted = false;
+    this.isNomineeFormSubmitted = false;
     this.selectedTabIndex = 6
     if (this.userDocumentsComponent && this.selectedTabIndex === 6) {
       this.userDocumentsComponent.trigger();
     }
   }
+
+  // qualSubmit(event: any){
+  //   this.isAccountFormSubmitted = event.isFormSubmitted
+  //   this.isQualFormSubmitted = false;
+  //   this.selectedTabIndex = 6
+  //   if (this.userDocumentsComponent && this.selectedTabIndex === 6) {
+  //     this.userDocumentsComponent.trigger();
+  //   }
+  // }
 
   dataToPass: any;
   positionData: any;
@@ -287,7 +302,8 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   @ViewChild(StatuatoryInfoComponent) statuatoryInfoComponent!: StatuatoryInfoComponent;
   @ViewChild(UserAccountComponent) userAccountComponent!: UserAccountComponent;
   @ViewChild(UserDocumentsComponent) userDocumentsComponent!: UserDocumentsComponent;
-  @ViewChild(UserQualificationComponent) userQualificationComponent!: UserQualificationComponent;
+  @ViewChild(UserNomineeComponent) userNomineeComponent!: UserNomineeComponent;
+  // @ViewChild(UserQualificationComponent) userQualificationComponent!: UserQualificationComponent;
   goToNextTab() {
     if (this.selectedTabIndex < 6) {
       if( this.dataToPass === undefined){
@@ -315,14 +331,19 @@ export class UserDialogComponent implements OnInit, OnDestroy {
         this.isSocialFormSubmitted = true;
         this.userAccountComponent.triggerNew(this.dataToPass);
       }
-      else if (this.userQualificationComponent && this.selectedTabIndex === 5) {
+      else if (this.userNomineeComponent && this.selectedTabIndex === 5) {
         this.isSocialFormSubmitted = false;
-        this.isQualFormSubmitted = true;
-        this.userQualificationComponent.triggerNew(this.dataToPass);
+        this.isNomineeFormSubmitted = true;
+        this.userNomineeComponent.triggerNew(this.dataToPass);
       }
+      // else if (this.userQualificationComponent && this.selectedTabIndex === 5) {
+      //   this.isSocialFormSubmitted = false;
+      //   this.isQualFormSubmitted = true;
+      //   this.userQualificationComponent.triggerNew(this.dataToPass);
+      // }
       
       else if (this.userDocumentsComponent && this.selectedTabIndex === 6) {
-        this.isQualFormSubmitted = false;
+        this.isNomineeFormSubmitted = false;
         this.isAccountFormSubmitted = true;
         this.userDocumentsComponent.triggerNew(this.dataToPass);
       }
@@ -331,10 +352,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
   // editStatus: boolean = false;
   triggerNew(data?: any): void {
-    console.log("hiiiiiiiiii");
-    
     if(data){
-      console.log(data);
       this.editStatus = true;
       this.getUser(data.id)
     }
@@ -370,11 +388,16 @@ export class UserDialogComponent implements OnInit, OnDestroy {
         this.isSocialFormSubmitted = true;
         this.userAccountComponent.triggerNew(this.dataToPass);
       }
-      else if (this.userQualificationComponent && this.selectedTabIndex === 5) {
+      else if (this.userNomineeComponent && this.selectedTabIndex === 5) {
         this.isSocialFormSubmitted = false;
-        this.isQualFormSubmitted = true;
-        this.userQualificationComponent.triggerNew(this.dataToPass);
+        this.isNomineeFormSubmitted = true;
+        this.userNomineeComponent.triggerNew(this.dataToPass);
       }
+      // else if (this.userQualificationComponent && this.selectedTabIndex === 5) {
+      //   this.isSocialFormSubmitted = false;
+      //   this.isQualFormSubmitted = true;
+      //   this.userQualificationComponent.triggerNew(this.dataToPass);
+      // }
       
       else if (this.userDocumentsComponent && this.selectedTabIndex === 6) {
         this.isQualFormSubmitted = false;
@@ -403,7 +426,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
       const textToCopy = `Emp ID: ${empNo}\nPassword: ${password}`;
       navigator.clipboard.writeText(textToCopy).then(
         () => {
-          console.log('Email and password copied to clipboard');
+          this.snackBar.open('Email and password copied to clipboard',"" ,{duration:3000});
         },
         (err) => {
           console.error('Could not copy text: ', err);
@@ -426,6 +449,11 @@ export class UserDialogComponent implements OnInit, OnDestroy {
         this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
       });
     }
+  }
+
+  isLoading: boolean
+  updateLoadingState(isLoading: any): void {
+      this.isLoading = isLoading;
   }
 }
 

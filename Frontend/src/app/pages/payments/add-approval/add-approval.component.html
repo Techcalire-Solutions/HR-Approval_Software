@@ -214,9 +214,12 @@
 
               @if(!imageUrl[i]){
                 <div class="col">
-                  <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">
-                  <mat-icon (click)="fileInput.click()">cloud_upload</mat-icon>
-                  <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
+                  <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">   
+                  <div class="drag-drop-area" (drop)="onFileDropped($event, i)" (dragover)="onDragOver($event)">
+                    <mat-icon (click)="fileInput.click()">cloud_upload</mat-icon>
+                    <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
+                    <p>Or drag & drop your file here</p>
+                  </div>
                 </div>
               }
               @else{
@@ -241,5 +244,11 @@
       </button>
     </div>
   </mat-card-content>
+
+  @if(submitted){
+    <div fxLayout="column" fxLayoutAlign="center center" class="user-spinner">
+      <mat-spinner color="primary"></mat-spinner>
+    </div>
+  }
 </mat-card>
 

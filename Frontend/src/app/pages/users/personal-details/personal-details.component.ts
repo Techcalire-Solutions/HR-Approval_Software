@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnDestroy, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -16,6 +16,8 @@ import { Subscription } from 'rxjs';
 import { User } from '../../../common/interfaces/users/user';
 import { MatIconModule } from '@angular/material/icon';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { DatePipe } from '@angular/common';
 
 export const MY_FORMATS = {
   parse: {
@@ -34,31 +36,31 @@ export const MY_FORMATS = {
   selector: 'app-personal-details',
   standalone: true,
   imports: [ MatFormFieldModule, MatDatepickerModule, MatRadioModule, ReactiveFormsModule, MatOptionModule, MatSelectModule,
-    MatInputModule, MatSlideToggleModule, MatButtonModule, MatCardModule, MatIconModule],
+    MatInputModule, MatSlideToggleModule, MatButtonModule, MatCardModule, MatIconModule, MatAutocompleteModule],
   templateUrl: './personal-details.component.html',
   styleUrl: './personal-details.component.scss',
-  providers: [provideMomentDateAdapter(MY_FORMATS)],
+  providers: [provideMomentDateAdapter(MY_FORMATS), DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PersonalDetailsComponent implements OnInit, OnDestroy {
+export class PersonalDetailsComponent implements OnDestroy {
   private fb = inject(FormBuilder);
   private userService = inject(UsersService);
   private snackBar = inject(MatSnackBar);
 
-  @Input() data: any;
+  @Input() data: any;  
+  @Input() loading = false;
+  @Output() loadingState = new EventEmitter<boolean>();
   @Output() dataSubmitted = new EventEmitter<any>();
 
-  ngOnInit(): void {
-    this.getReportingManager()
-  }
+  // ngOnInit(): void {
+  //   this.getReportingManager()
+  // }
 
   editStatus: boolean = false;
   triggerNew(data?: any): void {
-    this.getReportingManager()
+    this.getReportingManager(data.id)
     if(data){
-      // if(data.updateStatus){
-        this.getPersonalDetailsByUser(data.id)
-      // }
+      this.getPersonalDetailsByUser(data.id)
     }
   }
 
@@ -73,7 +75,6 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
           userId: data.userId,
           dateOfJoining: data.dateOfJoining,
           probationPeriod: data.probationPeriod,
-          confirmationDate: data.confirmationDate,
           maritalStatus: data.maritalStatus,
           dateOfBirth: data.dateOfBirth,
           gender: data.gender,
@@ -101,11 +102,10 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
 
   form = this.fb.group({
     userId: <any>[],
-    dateOfJoining: <any>[],
+    dateOfJoining: <any>[null],
     probationPeriod: [''],
-    confirmationDate: <any>[],
     maritalStatus: [''],
-    dateOfBirth: <any>[],
+    dateOfBirth: <any>[null],
     gender: [''],
     isTemporary: [true],
     parentName: [''],
@@ -123,7 +123,8 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
     temporaryAddress: [''], 
     permanentAddress: [''],
     qualification: [''], 
-    experience: ['']
+    experience: [''],
+    reportingMangerName: ['']
   });
 
   copyAddress(): void {
@@ -133,24 +134,35 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
 
   submitSub!: Subscription;
   isNext: boolean = false;
+  private datePipe = inject(DatePipe)
   onSubmit(){
+    this.loadingState.emit(true);
+    this.isNext = true
     const submit = {
       ...this.form.getRawValue()
     }
     submit.userId = submit.userId ? submit.userId : this.data.id;
+    if (this.form.get('dateOfBirth')?.value) {
+      const dateOfBirth = this.form.get('dateOfBirth')?.value as string | number | Date;
+      submit.dateOfBirth = this.datePipe.transform(dateOfBirth, 'yyyy-MM-dd');
+    }
+    if (this.form.get('dateOfJoining')?.value) {
+      const dateOfJoining = this.form.get('dateOfJoining')?.value as string | number | Date;
+      submit.dateOfJoining = this.datePipe.transform(dateOfJoining, 'yyyy-MM-dd');
+    }
 
     if(this.editStatus){
       this.submitSub = this.userService.updateUserPersonal(this.id, submit).subscribe(() => {
+        this.loadingState.emit(false);
         this.snackBar.open("Personal Details updated succesfully...","" ,{duration:3000})
-        this.isNext = true
-        // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }
     else{
-      this.submitSub = this.userService.addUserPersonalDetails(submit).subscribe(() => {
+      this.submitSub = this.userService.addUserPersonalDetails(submit).subscribe((res) => {
+        this.editStatus = true;
+        this.id = res.id;
+        this.loadingState.emit(false);
         this.snackBar.open("Personal Details added succesfully...","" ,{duration:3000})
-        this.isNext = true
-        // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }
   }
@@ -193,10 +205,25 @@ export class PersonalDetailsComponent implements OnInit, OnDestroy {
 
   rmSub!: Subscription;
   rm: User[] = [];
-  getReportingManager(){
+  getReportingManager(id: number){
     this.rmSub = this.userService.getUser().subscribe(res=>{
-      this.rm = res;
+      this.rm = res.filter(user => user.id != id);
+      this.filteredRm = this.rm;
     })
+  }
+
+  filterValue: string;
+  filteredRm: User[] = [];
+  search(event: Event) {
+    this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
+    this.filteredRm = this.rm.filter(option =>
+      option.name.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
+      option.empNo.toString().replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
+    );
+  }
+
+  patch(selectedSuggestion: User) {
+    this.form.patchValue({ reportingMangerId: selectedSuggestion.id, reportingMangerName: selectedSuggestion.name });
   }
 }
 

@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
@@ -52,7 +52,7 @@ import { LeaveType } from '../../../common/interfaces/leaves/leaveType';
   templateUrl: './leave-types.component.html',
   styleUrl: './leave-types.component.scss'
 })
-export class LeaveTypesComponent {
+export class LeaveTypesComponent implements OnInit, OnDestroy {
   public page:any;
   snackBar = inject(MatSnackBar)
   settingsService= inject(SettingsService)
@@ -64,14 +64,13 @@ export class LeaveTypesComponent {
     this.getLeaveTypes()
   }
 
+
   leaveTypes: LeaveType[] = [];
   roleSub!: Subscription;
   getLeaveTypes(){
     this.roleSub = this.leaveService.getLeaveType(this.searchText, this.currentPage, this.pageSize).subscribe((res: any)=>{
       this.leaveTypes = res.items;
       this.totalItems = res.count;
-      console.log('hiii',res);
-
     })
   }
 
@@ -103,8 +102,6 @@ export class LeaveTypesComponent {
     const dialogRef = this.dialog.open(AddLeaveTypeDialogueComponent, {
       data: leaveType
     });
-    console.log('leaveType',leaveType);
-
     dialogRef.afterClosed().subscribe(() => {
       this.getLeaveTypes()
     });

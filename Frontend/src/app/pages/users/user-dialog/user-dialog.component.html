@@ -134,7 +134,8 @@
     <ng-template mat-tab-label>
       <mat-icon>person</mat-icon>
     </ng-template>
-    <app-personal-details [data]="dataToPass" (dataSubmitted)="personalSubmit($event)" (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-personal-details>
+    <app-personal-details [data]="dataToPass" (dataSubmitted)="personalSubmit($event)" (loadingState)="updateLoadingState($event)" 
+    (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-personal-details>
   </mat-tab>
 
   <mat-tab [disabled]="!isWorkFormSubmitted">
@@ -158,12 +159,19 @@
     <app-user-account [accountData]="dataToPass" (dataSubmitted)="accountSubmit($event)" (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-user-account>
   </mat-tab>
 
-  <mat-tab [disabled]="!isQualFormSubmitted">
+  <mat-tab [disabled]="!isNomineeFormSubmitted">
+    <ng-template mat-tab-label>
+      <mat-icon>supervised_user_circle</mat-icon>
+    </ng-template>
+    <app-user-nominee [nomineeData]="dataToPass" (dataSubmitted)="nomineeSubmit($event)" (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-user-nominee>
+  </mat-tab>
+
+  <!-- <mat-tab [disabled]="!isQualFormSubmitted">
     <ng-template mat-tab-label>
       <mat-icon>school</mat-icon>
     </ng-template>
     <app-user-qualification [qualData]="dataToPass" (dataSubmitted)="qualSubmit($event)" (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-user-qualification>
-  </mat-tab>
+  </mat-tab> -->
 
   <mat-tab [disabled]="!isAccountFormSubmitted">
     <ng-template mat-tab-label>
@@ -172,3 +180,9 @@
     <app-user-documents [data]="dataToPass" (nextTab)="goToNextTab()" (previousTab)="goToPreviousTab()"></app-user-documents>
   </mat-tab>
 </mat-tab-group>
+
+@if(isLoading) {
+  <div fxLayout="column" fxLayoutAlign="center center" class="user-spinner">
+      <mat-spinner color="primary"></mat-spinner>
+  </div>
+}

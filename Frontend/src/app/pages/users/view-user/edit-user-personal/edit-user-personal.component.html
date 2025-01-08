@@ -1,0 +1,226 @@
+<form [formGroup]="form">
+    <div fxLayout="column" class="form-field-outer" style="margin-top: 20px;">
+      <mat-card style="margin-left: 15px;">
+        <mat-card-header><mat-card-title>Personal Details</mat-card-title></mat-card-header>
+        <div class="row box" style="margin-top: 20px; ">
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Joining Date</mat-label>
+              <input matInput [matDatepicker]="picker1" placeholder="Joining Date" formControlName="dateOfJoining">
+              <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+              <mat-datepicker #picker1></mat-datepicker>
+            </mat-form-field>
+          </div>
+  
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Birthday</mat-label>
+              <input matInput [matDatepicker]="dp" formControlName="dateOfBirth">
+              <mat-hint>DD/MM/YYYY</mat-hint>
+              <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
+              <mat-datepicker #dp></mat-datepicker>
+            </mat-form-field>
+          </div>
+        <!-- </div>
+  
+        <div class="row box"> -->
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Blood Group</mat-label>
+              <mat-select  formControlName="bloodGroup">
+                <mat-option value="A+">A+</mat-option>
+                <mat-option value="A-">A-</mat-option>
+                <mat-option value="B+">B+</mat-option>
+                <mat-option value="B-">B-</mat-option>
+                <mat-option value="AB+">AB+</mat-option>
+                <mat-option value="AB-">AB-</mat-option>
+                <mat-option value="O+">O+</mat-option>
+                <mat-option value="O-">O-</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+  
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Marital Status</mat-label>
+              <mat-select  formControlName="maritalStatus">
+                <mat-option value="married">Married</mat-option>
+                <mat-option value="unmarried">Unmarried</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+  
+          <div class="col">
+            <mat-radio-group formControlName="gender">
+              <mat-radio-button value="male" labelPosition="after">Male</mat-radio-button>
+              <mat-radio-button value="female" labelPosition="after">Female</mat-radio-button>
+            </mat-radio-group>
+          </div>
+        </div>
+  
+        <div class="row box">
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label> Father Name</mat-label>
+              <input matInput formControlName="parentName" >
+            </mat-form-field>
+          </div>
+  
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label> Father Contact Number</mat-label>
+              <input matInput formControlName="parentContactNo" >
+            </mat-form-field>
+          </div>
+  
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Mother Name</mat-label>
+              <input matInput formControlName="motherName">
+            </mat-form-field>
+          </div>
+  
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Mother Contact Number</mat-label>
+              <input matInput formControlName="motherContactNo">
+            </mat-form-field>
+          </div>
+        </div>
+  
+  
+        <div class="row box">
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Spouse Name</mat-label>
+              <input matInput formControlName="spouseName">
+            </mat-form-field>
+          </div>
+  
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Spouse Contact Number</mat-label>
+              <input matInput formControlName="spouseContactNo">
+            </mat-form-field>
+          </div>
+  
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Emergency Contact No</mat-label>
+              <input matInput formControlName="emergencyContactNo" >
+            </mat-form-field>
+          </div>
+  
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Emergency Contact Name</mat-label>
+              <input matInput formControlName="emergencyContactName">
+            </mat-form-field>
+          </div>
+  
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Emergency Contact Relation</mat-label>
+              <mat-select formControlName="emergencyContactRelation">
+                <mat-option [value]="">No Option</mat-option>
+                @for (relation of relations; track $index) {
+                  <mat-option [value]="relation">
+                    {{ relation }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+  
+        <div class="row box">
+          <div class="col">
+            <!-- <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Reporting Manger</mat-label>
+              <mat-select formControlName="reportingMangerId" >
+                <mat-option [value]="">No Option</mat-option>
+                @for (item of rm; track $index) {
+                  <mat-option [value]="item.id">
+                    {{ item.name }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field> -->
+  
+            <mat-form-field class="w-100" appearance="outline" >
+              <mat-label>Reporting Manger</mat-label>
+              <input matInput placeholder="Select" formControlName="reportingMangerName" [matAutocomplete]="auto" (keyup)="search($event)">
+              <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value)">
+                @for (item of filteredRm; track $index) {
+                  <mat-option [value]="item">
+                    {{ item.name }}
+                  </mat-option>
+                }
+              </mat-autocomplete>
+              
+            </mat-form-field>
+          </div>
+  
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Referred By</mat-label>
+              <input matInput formControlName="referredBy">
+            </mat-form-field>
+          </div>
+  
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Qualification</mat-label>
+              <input matInput formControlName="qualification">
+            </mat-form-field>
+          </div>
+  
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Experience</mat-label>
+              <input matInput formControlName="experience">
+            </mat-form-field>
+          </div>
+        </div>
+  
+        <div class="row box">
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Permanent Address</mat-label>
+              <textarea matInput formControlName="permanentAddress"></textarea>
+            </mat-form-field>
+          </div>
+          <div class="row">
+            <!-- <button mat-raised-button color="primary" (click)="copyAddress()"> -->
+              <mat-icon (click)="copyAddress()">repeat_one_on</mat-icon>
+            <!-- </button> -->
+          </div>&nbsp;&nbsp;
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Present Address</mat-label>
+              <textarea matInput formControlName="temporaryAddress"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+  
+        <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center" class="row">
+          <!-- <div class="col">
+            <mat-slide-toggle formControlName="isTemporary">Is Temporary</mat-slide-toggle>
+          </div> -->
+          <div class="col" style="text-align: right; margin-bottom: 15px;">
+            <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.pristine || form.invalid" style="margin-left: 10px;">
+              @if (editStatus) {
+                  Update
+              } @else {
+                  Save
+              }
+            </button>
+            <button mat-raised-button color="primary" (click)="dialogRef?.close()" [disabled]="!form.pristine && !form.invalid" style="margin-left: 10px;">
+              Exit
+            </button>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+  </form>
+  

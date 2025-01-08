@@ -15,7 +15,7 @@ import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
 import { ExpensesService } from '@services/expenses.service';
 import { Expense } from '../../../common/interfaces/payments/expense';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -32,7 +32,7 @@ import { User } from '../../../common/interfaces/users/user';
   styleUrl: './expense-reports.component.scss',
     providers: [
     { provide: DateAdapter, useClass: NativeDateAdapter },
-    { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
+    { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }, DatePipe
   ],
 })
 export class ExpenseReportsComponent implements OnInit, OnDestroy{
@@ -67,14 +67,15 @@ export class ExpenseReportsComponent implements OnInit, OnDestroy{
   invoices: Expense[] = [];
   invoiceSub!: Subscription;
   totalItems = 0;
+  private datePipe = inject(DatePipe);
   getByFilter(){
-    let data = {
+    const data = {
       invoices: this.invoices,
       exNo: this.filterValue ? this.filterValue : '',
       user: this.addedBy ? this.addedBy : null,
       status: this.status ? this.status : null,
-      startDate: this.startDate ? this.startDate : null,
-      endDate: this.endDate ? this.endDate : null
+      startDate: this.startDate ? this.datePipe.transform(this.startDate, 'yyyy-MM-dd') : null,
+      endDate: this.endDate ? this.datePipe.transform(this.endDate, 'yyyy-MM-dd') : null
     };
 
     this.invoiceSub = this.expenseService.getExpenseReports(data).subscribe(res=>{
@@ -127,15 +128,14 @@ export class ExpenseReportsComponent implements OnInit, OnDestroy{
   }
 
   makeExcel() {
-    let data = {
+    const data = {
       invoices: this.invoices,
       invoiceNo: this.filterValue? this.filterValue : '',
       addedBy: this.addedBy? this.addedBy : null,
       status: this.status? this.status : null,
-      startDate: this.startDate? this.startDate : null,
-      endDate: this.endDate? this.endDate : null
+      startDate: this.startDate? this.datePipe.transform(this.startDate, 'yyyy-MM-dd') : null,
+      endDate: this.endDate? this.datePipe.transform(this.endDate, 'yyyy-MM-dd') : null
     }
-    console.log(data);
 
     this.expenseService.reportExport(data).subscribe((res:any)=>{
       if (res.message === 'File uploaded successfully') {

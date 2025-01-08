@@ -1,24 +1,31 @@
 <div class="table-container">
+  <!-- Probation Employees Table -->
   <table class="styled-table">
     <thead>
+      <tr>
+        <th colspan="2">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search Probation Employees</mat-label>
+            <input matInput [(ngModel)]="probationSearch" placeholder="Type to search" />
+          </mat-form-field>
+        </th>
+      </tr>
       <tr>
         <th class="wide-header">Probation</th>
         <th class="narrow-header"></th>
       </tr>
     </thead>
     <tbody>
-      @for (temp of probEmp; track $index; let i = $index) {
+      @for (temp of probEmp | searchFilter: probationSearch; track $index; let i = $index) {
         <tr>
           <td class="wide-cell">{{ temp.name }}</td>
           <td class="narrow-cell">
-            
-            @if(selectedEmployeeId !== temp.id){
-              <mat-icon class="clickable-icon"  (click)="onConfirmClick(temp.id)">
+            @if (selectedEmployeeId !== temp.id) {
+              <mat-icon class="clickable-icon" (click)="onConfirmClick(temp.id)">
                 arrow_forward
               </mat-icon>
             }
-  
-            @if(selectedEmployeeId === temp.id){
+            @if (selectedEmployeeId === temp.id) {
               <div class="note-entry">
                 <mat-form-field appearance="outline" class="note-input">
                   <mat-label>Add a note</mat-label>
@@ -33,24 +40,32 @@
       }
     </tbody>
   </table>
-  
-  <table class="styled-table">
-      <thead>
-          <tr>
-              <th>Permanent</th>
-              <th>Leave</th>
-          </tr>
-      </thead>
-      <tbody>
-        @for(emp of permanentEmp; track $index){
-          <tr>
-            <td>{{emp.name}}</td>
-            <td class="narrow-cell" style="width: 30px;" (click)="updateUserLeave(emp.id, emp.name)">
-              <mat-icon>edit_note</mat-icon>
-            </td>
-          </tr>
-        }
 
-      </tbody>
+  <!-- Permanent Employees Table -->
+  <table class="styled-table">
+    <thead>
+      <tr>
+        <th colspan="2">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search Permanent Employees</mat-label>
+            <input matInput [(ngModel)]="permanentSearch" placeholder="Type to search" />
+          </mat-form-field>
+        </th>
+      </tr>
+      <tr>
+        <th>Permanent</th>
+        <th>Leave</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (emp of permanentEmp | searchFilter: permanentSearch; track $index) {
+        <tr>
+          <td>{{ emp.name }}</td>
+          <td class="narrow-cell" style="width: 30px;" (click)="updateUserLeave(emp.id, emp.name)">
+            <mat-icon>edit_note</mat-icon>
+          </td>
+        </tr>
+      }
+    </tbody>
   </table>
 </div>

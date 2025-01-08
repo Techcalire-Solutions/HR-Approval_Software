@@ -22,6 +22,16 @@ import { PayrollLog } from '../../../common/interfaces/payRoll/payroll-log';
 import { MonthlyPayroll } from '../../../common/interfaces/payRoll/monthlyPayroll';
 import { SafePipe } from "../../../common/safe.pipe";
 import { UserQualification } from '../../../common/interfaces/users/user-qualification';
+import { Nominee } from '../../../common/interfaces/users/nominee';
+import { MatDialog } from '@angular/material/dialog';
+import { EditUserPersonalComponent } from './edit-user-personal/edit-user-personal.component';
+import { EditUserPositionComponent } from './edit-user-position/edit-user-position.component';
+import { EditUserStatutoryComponent } from './edit-user-statutory/edit-user-statutory.component';
+import { EditUserAccountComponent } from './edit-user-account/edit-user-account.component';
+import { EditUserNomineeComponent } from './edit-user-nominee/edit-user-nominee.component';
+import { EditUserDocumentComponent } from './edit-user-document/edit-user-document.component';
+import { UserAssetsComponent } from '../user-assets/user-assets.component';
+import { AddPayrollComponent } from '../../payroll/add-payroll/add-payroll.component';
 
 @Component({
   selector: 'app-view-user',
@@ -59,7 +69,8 @@ export class ViewUserComponent implements OnInit, OnDestroy{
       this.getAssets(x.id);
       this.getPayrollLog(x.id);
       this.getMonthlySalary(x.id);
-      this.getQualData(x.id)
+      this.getQualData(x.id);
+      this.getNomineeData(x.id);
     });
   }
 
@@ -86,6 +97,15 @@ export class ViewUserComponent implements OnInit, OnDestroy{
       this.accounts = x;
     })
   }
+
+  nomineeSub!: Subscription;
+  nominee: Nominee
+  getNomineeData(id: number){
+    this.nomineeSub = this.userService.getUserNomineeDetailsByUser(id).subscribe(x => {
+      this.nominee = x;
+    })
+  }
+
 
   posuSub!: Subscription;
   positions: UserPosition;
@@ -134,8 +154,6 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   getMonthlySalary(id: number){
     this.monthSalarySub = this.payrollService.getMonthlyPayrollByUser(id).subscribe(x => {
       this.monthlySalary = x;
-      console.log(this.monthlySalary);
-
     });
   }
 
@@ -150,10 +168,120 @@ export class ViewUserComponent implements OnInit, OnDestroy{
     this.payLogSUb?.unsubscribe();
     this.assetSub?.unsubscribe();
     this.docSub?.unsubscribe();
+    this.nomineeSub?.unsubscribe();
   }
 
   private router = inject(Router);
   openPayroll(id: number){
     this.router.navigateByUrl('login/payroll/month-end/payslip/open/'+ id)
+  }
+
+  private dialog = inject(MatDialog);
+  dialogSub: Subscription;
+  onEditClick(): void {
+    this.router.navigate(['/login/users/edit/' + this.user.id])
+  }
+
+  editPersonal(event: MouseEvent){
+    event.stopPropagation();
+    const dialogRef = this.dialog.open(EditUserPersonalComponent, {
+      width: '90%',
+      maxHeight: '90vh',
+      data: {id: this.user.id},
+    });
+
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
+      this.getPersonsalData(this.user.id)
+    });
+  }
+
+  editPosition(event: MouseEvent){
+    event.stopPropagation();
+    const dialogRef = this.dialog.open(EditUserPositionComponent, {
+      width: '90%',
+      maxHeight: '90vh',
+      data: {id: this.user.id},
+    });
+
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
+      this.getPositionData(this.user.id)
+    });
+  }
+  editStatutory(event: MouseEvent){
+    event.stopPropagation();
+    const dialogRef = this.dialog.open(EditUserStatutoryComponent, {
+      width: '90%',
+      maxHeight: '90vh',
+      data: {id: this.user.id},
+    });
+
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
+      this.getStatutoryData(this.user.id)
+    });
+  }
+
+  editAccount(event: MouseEvent){
+    event.stopPropagation();
+    const dialogRef = this.dialog.open(EditUserAccountComponent, {
+      width: '90%',
+      maxHeight: '90vh',
+      data: {id: this.user.id},
+    });
+
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
+      this.getAccountData(this.user.id)
+    });
+  }
+
+  editNominee(event: MouseEvent){
+    event.stopPropagation();
+    const dialogRef = this.dialog.open(EditUserNomineeComponent, {
+      width: '90%',
+      maxHeight: '90vh',
+      data: {id: this.user.id},
+    });
+
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
+      this.getNomineeData(this.user.id)
+    });
+  }
+
+  editDocument(event: MouseEvent){
+    event.stopPropagation();
+    const dialogRef = this.dialog.open(EditUserDocumentComponent, {
+      width: '90%',
+      maxHeight: '90vh',
+      data: {id: this.user.id},
+    });
+
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
+      this.getDocuments(this.user.id)
+    });
+  }
+
+  editAssets(event: MouseEvent){
+    event.stopPropagation();
+    const dialogRef = this.dialog.open(UserAssetsComponent, {
+      width: '90%',
+      maxHeight: '90vh',
+      data: {id: this.user.id},
+    });
+
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
+      this.getAssets(this.user.id)
+    });
+  }
+
+  editPayroll(event: MouseEvent){
+    event.stopPropagation();
+    const dialogRef = this.dialog.open(AddPayrollComponent, {
+      width: '90%',
+      maxHeight: '90vh',
+      data: {id: this.user.id},
+    });
+
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
+      this.getAssets(this.user.id)
+    });
   }
 }

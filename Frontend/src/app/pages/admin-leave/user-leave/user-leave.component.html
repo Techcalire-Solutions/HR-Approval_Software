@@ -9,24 +9,30 @@
       <table>
         <thead>
           <tr>
-            <th>Type</th>
+            <th  style="width: 10%;">Type</th>
             <th style="width: 5%;">Allotted</th>
+
             <th style="width: 5%;">Taken</th>
             <th style="width: 5%;">Balance</th>
-            <th style="width: 5%;"></th>
+            <th class="add-column" style="width: 2.5%;">Add</th>
+            <!-- <th style="width: 5%;"></th> -->
           </tr>
         </thead>
         <tbody formArrayName="forms">
           @for (row of newData().controls; let i = $index; track $index) {
             <tr [formGroupName]="i">
-              <td><input formControlName="typeName" /></td>
-              <td style="width: 5%;"><input formControlName="noOfDays" /></td>
+              <td style="width: 10%;"><input formControlName="typeName" /></td>
+              <td style="width: 5%;" ><input formControlName="noOfDays"  readonly/></td>
+
               <td style="width: 5%;"><input formControlName="takenLeaves" /></td>
               <td style="width: 5%;"><input formControlName="leaveBalance" /></td>
-              <td style="width: 5%;">
+              <!-- <td style="width: 5%;">
                 <button type="button" (click)="removeData(i)" class="remove">
                   <mat-icon>remove_circle_outline</mat-icon>
                 </button>
+              </td> -->
+              <td class="add-column" style="width: 2.5%;"> <!-- Input field for addDays -->
+                <input formControlName="addDays" (input)="updateAllotted(i)" />
               </td>
             </tr>
           }

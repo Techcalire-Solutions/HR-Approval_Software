@@ -10,7 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { NativeDateAdapter } from '@angular/material/core';
 import { MAT_NATIVE_DATE_FORMATS } from '@angular/material/core';
-import {MatTableModule} from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -30,13 +30,14 @@ import { UserDialogComponent } from '../users/user-dialog/user-dialog.component'
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 import { Router } from '@angular/router';
 import { LeaveGraphsComponent } from './leave-graphs/leave-graphs.component';
+import { UplaodDialogComponent } from './uplaod-dialog/uplaod-dialog.component';
 
 @Component({
   selector: 'app-employee-leave',
   standalone: true,
   imports: [
     MatTableModule,
-    MatInputModule ,
+    MatInputModule,
     FormsModule,
     FlexLayoutModule,
     MatButtonModule,
@@ -51,11 +52,8 @@ import { LeaveGraphsComponent } from './leave-graphs/leave-graphs.component';
     NgxPaginationModule,
     PipesModule,
     DatePipe,
-    UserDialogComponent,
     CommonModule,
-    MatPaginatorModule,
-    CamelCasePipe,
-    LeaveGraphsComponent
+    MatPaginatorModule
   ],
   providers: [
     { provide: DateAdapter, useClass: NativeDateAdapter },
@@ -66,7 +64,7 @@ import { LeaveGraphsComponent } from './leave-graphs/leave-graphs.component';
   styleUrl: './employee-leave.component.scss'
 })
 export class EmployeeLeaveComponent {
-  public page:any;
+  public page: any;
   snackBar = inject(MatSnackBar);
   roleService = inject(RoleService);
   settingsService = inject(SettingsService);
@@ -75,34 +73,49 @@ export class EmployeeLeaveComponent {
   router = inject(Router)
   leaveService = inject(LeaveService)
 
-userId:number
-  ngOnInit(){
+  userId: number
+  ngOnInit() {
     this.getLeaveByUser()
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
     this.userId = user.id;
-   this.getLeaveByUser();
+    this.getLeaveByUser();
   }
 
 
 
   ngOnDestroy(): void {
     this.leaveSub.unsubscribe();
-    if(this.delete){
+    if (this.delete) {
       this.delete.unsubscribe();
     }
 
-}
+  }
 
-
-leaves:any[]=[]
-  leaveSub :Subscription
+  totalSickLeave: number = 0;
+  isButtonVisible: boolean = false;
+  selectedLeaveDays: number = 0;
+  leaves: any[] = []
+  leaveSub: Subscription
+  
   private getLeaveByUser(): void {
     if (!this.userId) return;
     this.leaveSub = this.leaveService.getLeavesByUser(this.userId, this.searchText, this.currentPage, this.pageSize).subscribe(
       (res: any) => {
         this.leaves = res.items;
         this.totalItems = res.count;
+
+        this.totalSickLeave = this.leaves
+          .filter(leave => leave.leaveType?.leaveTypeName === 'Sick Leave')
+          .reduce((total, leave) => total + (leave.noOfDays || 0), 0);
+
+
+
+
+        this.isButtonVisible = this.totalSickLeave >= 3;
+        console.log('Is Button Visible:', this.isButtonVisible);
+
+
       },
       (error) => {
         this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
@@ -112,14 +125,13 @@ leaves:any[]=[]
 
 
   public searchText!: string;
-  search(event: Event){
+  search(event: Event) {
     this.searchText = (event.target as HTMLInputElement).value.trim()
     this.getLeaveByUser()
   }
 
-  openApplyLeave(){
+  openApplyLeave() {
     this.router.navigate(['/login/employee-leave/add'])
-
   }
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -136,17 +148,26 @@ leaves:any[]=[]
 
 
 
-  editLeave(item:any) {
- this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item.id } });
+  editLeave(item: any) {
+    this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item.id } });
   }
 
 
+  isSickLeave() {
+  }
 
-delete!: Subscription;
-deleteLeaveStableFunction(id: number){
+  uploadFile(item: any) {
+    console.log(item.id)
+    console.log(item)
+    this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item } });
+
+  }
+
+  delete!: Subscription;
+  deleteLeaveStableFunction(id: number) {
     let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
     dialogRef.afterClosed().subscribe(res => {
-      if(res){
+      if (res) {
         this.delete = this.leaveService.deleteLeave(id).subscribe(res => {
           this.snackBar.open('Leave request deleted successfully!', 'Close', { duration: 3000 });
           this.getLeaveByUser()
@@ -193,6 +214,43 @@ deleteLeaveStableFunction(id: number){
 
     this.leaves = this.leaves.filter(item => item.id !== id);
   }
+
+  uploadMedicalCertificate(leaveId: any, note: string): void {
+  }
+
+
+  openDialog(action: string, leaveId: string): void {
+    const dialogRef = this.dialog.open(UplaodDialogComponent, {
+      data: { leaveId }, // Pass leaveId as part of the dialog data
+      width: '400px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.fileUrl) {
+
+        console.log('File URL returned:', result.fileUrl);
+
+
+        this.updateLeaveFileUrl(leaveId, result.fileUrl);
+      } else {
+        console.log('No file URL returned');
+      }
+    });
+  }
+
+  updateLeaveFileUrl(leaveId: string, fileUrl: string): void {
+
+    this.leaveService.updateLeaveFileUrl(leaveId, fileUrl).subscribe({
+      next: (res) => {
+        console.log('File URL updated successfully');
+      },
+      error: (err) => {
+        console.error('Failed to update file URL', err);
+      }
+    });
+  }
+
+
 
 
 

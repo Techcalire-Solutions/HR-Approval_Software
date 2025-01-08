@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, inject, ViewEncapsulation } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -75,8 +76,6 @@ export class CompanyComponent {
 
   }
 goToCompany(companyId: number) {
-  console.log('companyId', companyId);
-
     this.router.navigate(['/login/company/viewCompany/', companyId.toString()]);
   }
   pageSize = 10;
@@ -98,16 +97,11 @@ goToCompany(companyId: number) {
     this.companyService.getCompany(this.searchText, this.currentPage, this.pageSize).subscribe((res: any) =>{
       this.companies = res.items
       this.totalItems = res.count;
-      console.log(this.companies);
-
     });
   }
 
-  applyFilter(filterValue: string) {
-
-  }
   public addTeam(user:User){
-    this.companyService.addCompany(user).subscribe(user => this.getCompany());
+    this.companyService.addCompany(user).subscribe(_user => this.getCompany());
   }
 
   public openCompany(company: any) {
@@ -120,10 +114,10 @@ goToCompany(companyId: number) {
 
   delete!: Subscription;
   deleteCompany(id: number){
-    let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+    const dialogRef = this.dialog.open(DeleteDialogueComponent, {});
     dialogRef.afterClosed().subscribe(res => {
       if(res){
-        this.delete = this.companyService.deleteCompany(id).subscribe(res => {
+        this.delete = this.companyService.deleteCompany(id).subscribe(() => {
           this._snackbar.open("Company deleted successfully...","" ,{duration:3000})
           this.getCompany()
         });

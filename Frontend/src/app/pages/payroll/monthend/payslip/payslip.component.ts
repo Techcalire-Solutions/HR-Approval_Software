@@ -7,6 +7,7 @@ import { MonthlyPayroll } from '../../../../common/interfaces/payRoll/monthlyPay
 import { Payroll } from '../../../../common/interfaces/payRoll/payroll';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-payslip',
@@ -17,6 +18,8 @@ import html2canvas from 'html2canvas';
 })
 export class PayslipComponent implements OnInit, OnDestroy{
   ngOnDestroy(): void {
+    this.paySlipSub?.unsubscribe();
+    this.payrollSub?.unsubscribe();
   }
   ngOnInit(): void {
     this.getPaySlip();
@@ -27,9 +30,9 @@ export class PayslipComponent implements OnInit, OnDestroy{
   private route = inject(ActivatedRoute);
   payroll: MonthlyPayroll;
   workingDays: number;
+  paySlipSub!: Subscription;
   getPaySlip(){
-    this.payroleService.getMonthlyPayrollById(this.route.snapshot.params['id']).subscribe(payroll => {
-      console.log(payroll);
+    this.paySlipSub = this.payroleService.getMonthlyPayrollById(this.route.snapshot.params['id']).subscribe(payroll => {
       this.workingDays = payroll.daysInMonth - payroll.leaveDays
       this.payroll = payroll;
       this.getPayroll();
@@ -37,8 +40,9 @@ export class PayslipComponent implements OnInit, OnDestroy{
   }
 
   fullValue: Payroll;
+  payrollSub!: Subscription;
   getPayroll(){
-    this.payroleService.getPayrollDetailsByUserId(this.payroll.userId).subscribe(payroll =>{
+    this.payrollSub = this.payroleService.getPayrollDetailsByUserId(this.payroll.userId).subscribe(payroll =>{
       this.fullValue = payroll;
     });
   }
@@ -53,7 +57,11 @@ export class PayslipComponent implements OnInit, OnDestroy{
         this.toNumber(this.payroll.hra) +
         this.toNumber(this.payroll.specialAllowance) +
         this.toNumber(this.payroll.conveyanceAllowance) +
-        this.toNumber(this.payroll.lta)
+        this.toNumber(this.payroll.lta) +
+        this.toNumber(this.payroll.ot) +
+        this.toNumber(this.payroll.incentiveDeduction) +
+        this.toNumber(this.payroll.payOut) + 
+        this.toNumber(this.payroll.leaveEncashmentAmount)
     );
   }
 
@@ -62,7 +70,9 @@ export class PayslipComponent implements OnInit, OnDestroy{
           this.toNumber(this.payroll.pfDeduction) +
           this.toNumber(this.payroll.tds) +
           this.toNumber(this.payroll.advanceAmount) +
-          this.toNumber(this.payroll.leaveDeduction)
+          this.toNumber(this.payroll.leaveDeduction) +
+          this.toNumber(this.payroll.esi) +
+          this.toNumber(this.payroll.incentiveDeduction)
       );
   }
   
@@ -115,8 +125,15 @@ export class PayslipComponent implements OnInit, OnDestroy{
     return this.convertNumberToWords(this.payroll.toPay);
   }
 
-  convertNumberToWords(amount: number): string {
+  convertNumberToWords(amount: any): string {
+    if (isNaN(amount) || amount === null || amount === undefined) {
+        return "Invalid amount";
+    }
+
+    amount = Number(amount); // Ensure the amount is a number
+
     if (amount === 0) return "zero";
+
     const words = [
         "", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
         "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
@@ -145,16 +162,36 @@ export class PayslipComponent implements OnInit, OnDestroy{
         return res.trim() + (scale ? " " + scale : "");
     }
 
+    const [integerPart, fractionalPart] = amount.toFixed(2).split('.').map(Number);
+
+    // Convert integer part
     let scaleIndex = 0;
-    while (amount > 0) {
-        const chunk = amount % 1000;
+    let integerWord = "";
+    let tempIntPart = integerPart;
+
+    while (tempIntPart > 0) {
+        const chunk = tempIntPart % 1000;
         if (chunk > 0) {
-            word = getWord(chunk, scales[scaleIndex]) + " " + word;
+            integerWord = getWord(chunk, scales[scaleIndex]) + " " + integerWord;
         }
-        amount = Math.floor(amount / 1000);
+        tempIntPart = Math.floor(tempIntPart / 1000);
         scaleIndex++;
     }
 
+    // Convert fractional part
+    let fractionalWord = "";
+    if (fractionalPart > 0) {
+        fractionalWord = getWord(fractionalPart, "") + " paise";
+    }
+
+    // Combine integer and fractional parts
+    word = integerWord.trim();
+    if (fractionalWord) {
+        word += " and " + fractionalWord;
+    }
+
     return word.trim();
-}
+  }
+
+  
 }

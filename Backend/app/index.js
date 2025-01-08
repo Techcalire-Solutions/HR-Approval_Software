@@ -6,7 +6,7 @@ const dotenv = require('dotenv');
 const cors = require('cors')
 const cron = require('node-cron');
 
-
+const WebSocket = require('ws'); 
 dotenv.config();
 app.use(cors({ origin: '*' }));
 app.use(express.json());
@@ -25,6 +25,7 @@ const userPosition = require('../users/routers/userPosition');
 const userDocument = require('../users/routers/userDocument');
 const userAssets = require('../users/routers/userAssets');
 const userQual = require('../users/routers/userQualification');
+const Nominee = require('../users/routers/userNominee');
 const auth = require('../users/routers/auth');
 const team = require('../users/routers/team');
 const teamMember = require('../users/routers/teamMember');
@@ -39,6 +40,7 @@ app.use('/position', userPosition)
 app.use('/document', userDocument)
 app.use('/asset', userAssets)
 app.use('/qualification', userQual)
+app.use('/nominee', Nominee)
 app.use('/auth', auth);
 app.use('/team', team);
 app.use('/teamMember', teamMember);
@@ -83,8 +85,12 @@ app.use('/advanceSalary', advanceSalary);
 const holiday = require('../leave/routers/holiday');
 app.use('/holidays', holiday);
 
-const notification = require('../invoices/routers/notification')
+const notification = require('../notification/routers/notification')
 app.use('/notification',notification)
+
+const chat = require('../chat/router/chat');
+app.use('/chat', chat);
+
 
 const backup = require('./backUp')
 cron.schedule('0 0 5 * *', () => {
@@ -104,7 +110,9 @@ cron.schedule('0 0 5 * *', () => {
 const backUpLogRouter = require('./backupLogRouter');
 app.use('/backup', backUpLogRouter);
 
+
 const port = process.env.PORT || 8000;
+
 app.listen(port, () => {
     console.log(`server started on port ${port}`);
 })

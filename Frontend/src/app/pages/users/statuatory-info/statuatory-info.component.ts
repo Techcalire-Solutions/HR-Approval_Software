@@ -12,6 +12,7 @@ import { StatutoryInfo } from '../../../common/interfaces/users/statutory-info';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import {provideMomentDateAdapter} from '@angular/material-moment-adapter';
+import { DatePipe } from '@angular/common';
 export const MY_FORMATS = {
   parse: {
     dateInput: 'DD/MM/YYYY', // Change to desired format
@@ -31,7 +32,7 @@ export const MY_FORMATS = {
     MatDatepickerModule, MatIconModule ],
   templateUrl: './statuatory-info.component.html',
   styleUrl: './statuatory-info.component.scss',
-  providers: [provideMomentDateAdapter(MY_FORMATS)],
+  providers: [provideMomentDateAdapter(MY_FORMATS), DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 
@@ -42,6 +43,9 @@ export class StatuatoryInfoComponent implements OnDestroy {
   }
 
   @Input() statuatoryData: StatutoryInfo;
+  @Input() data: any;  
+  @Input() loading = false;
+  @Output() loadingState = new EventEmitter<boolean>();
 
   private fb = inject(FormBuilder);
   private userService = inject(UsersService);
@@ -92,22 +96,31 @@ export class StatuatoryInfoComponent implements OnDestroy {
   @Output() dataSubmitted = new EventEmitter<any>();
   private submitSub!: Subscription;
   isNext: boolean = false;
+  private datePipe = inject(DatePipe);
   onSubmit(){
+    this.loadingState.emit(true);
+    this.isNext = true
     const submit = {
       ...this.form.getRawValue()
     }
     submit.userId = submit.userId ? submit.userId : this.statuatoryData.id;
+    if (this.form.get('passportExpiry')?.value) {
+      const passportExpiry = this.form.get('passportExpiry')?.value as string | number | Date;
+      submit.passportExpiry = this.datePipe.transform(passportExpiry, 'yyyy-MM-dd');
+    }
     if(this.editStatus){
       this.submitSub = this.userService.updateUserStatutory(this.id, submit).subscribe(() => {
         this.snackBar.open("Statutory Details updated succesfully...","" ,{duration:3000})
-        this.isNext = true
+        this.loadingState.emit(false);
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }
     else{
-      this.submitSub = this.userService.addStautoryInfo(submit).subscribe(() => {
+      this.submitSub = this.userService.addStautoryInfo(submit).subscribe((res) => {        
+        this.editStatus = true;
+        this.id = res.id;
         this.snackBar.open("Statutory Details added succesfully...","" ,{duration:3000})
-        this.isNext = true
+        this.loadingState.emit(false);
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }

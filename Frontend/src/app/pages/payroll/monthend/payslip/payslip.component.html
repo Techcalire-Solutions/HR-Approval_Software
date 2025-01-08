@@ -1,6 +1,6 @@
 @if(payroll && fullValue){
     <div class="header">
-        <button class="download-button exclude-from-pdf" (click)="downloadPDF()">Download as PDF</button>
+        <button class="download-button exclude-from-pdf" (click)="downloadPDF()">Download</button>
     </div>
     <div class="payroll-container">
         <div class="header-row">
@@ -51,7 +51,7 @@
                     <div style="display: flex; align-items: center; width: 100%;">
                         <span style="flex: 1;">Designation</span>
                         <span style="width: 20px; text-align: center;">:</span>
-                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.userposition?.designation?.designationName}}</span>
+                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.userPosition?.designation?.designationName}}</span>
                       </div>
                 </td>
                 <td>
@@ -67,12 +67,12 @@
                     <div style="display: flex; align-items: center; width: 100%;">
                         <span style="flex: 1;">Department</span>
                         <span style="width: 20px; text-align: center;">:</span>
-                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.userposition?.department?.name}}</span>
+                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.userPosition?.department?.name}}</span>
                     </div>
                 </td>
                 <td>
                     <div style="display: flex; align-items: center; width: 100%;">
-                        <span style="flex: 1;">PAN Numbe</span>
+                        <span style="flex: 1;">PAN Number</span>
                         <span style="width: 20px; text-align: center;">:</span>
                         <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.statutoryinfo?.panNumber}}</span>
                     </div>
@@ -83,7 +83,7 @@
                     <div style="display: flex; align-items: center; width: 100%;">
                         <span style="flex: 1;">Location</span>
                         <span style="width: 20px; text-align: center;">:</span>
-                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.userposition?.location}}</span>
+                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.userPosition?.location}}</span>
                     </div>
                 </td>
                 <td>
@@ -110,19 +110,22 @@
                     </div>
                 </td>
             </tr>
-            @if (payroll.leaveDays > 0) {
-                <tr>
-                    <td> 
-                        <div style="display: flex; align-items: center; width: 100%;">
-                            <span style="flex: 1;">LOP</span>
-                            <span style="width: 20px; text-align: center;">:</span>
-                            <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.leaveDays}}</span>
-                        </div>
-                    </td>
-                    <td></td>
-                </tr>       
-            }
-
+            <tr>
+                <td> 
+                    <div style="display: flex; align-items: center; width: 100%;">
+                        <span style="flex: 1;">LOP</span>
+                        <span style="width: 20px; text-align: center;">:</span>
+                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.leaveDays}}</span>
+                    </div>
+                </td>
+                <td>
+                    <div style="display: flex; align-items: center; width: 100%;">
+                        <span style="flex: 1;">Earned Leave</span>
+                        <span style="width: 20px; text-align: center;">:</span>
+                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.leaveEncashment}}</span>
+                    </div>
+                </td>
+            </tr> 
         </table>
 
         <div class="section-title">Earnings and Deductions</div>
@@ -171,7 +174,7 @@
                     <td>{{fullValue.lta}}</td>
                     <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.lta}}</td>
                     <td>ESI</td>
-                    <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.insurance}}</td>
+                    <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.esi}}</td>
                 </tr>
                 <tr>
                   <td>OVER TIME</td>
@@ -191,6 +194,13 @@
                 <td>INCENTIVE</td>
                 <td></td>
                 <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.incentive}}</td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>EARNED LEAVE</td>
+                <td></td>
+                <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.leaveEncashmentAmount}}</td>
                 <td></td>
                 <td></td>
               </tr>

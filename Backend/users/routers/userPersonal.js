@@ -12,15 +12,23 @@ const UserPosition = require('../models/userPosition')
 
 async function saveDates(dateStrings) {
   try {
-    // Ensure dateStrings is an array
     if (!Array.isArray(dateStrings)) {
       dateStrings = [dateStrings]; // Convert to array if it's a single string
     }
 
     const formattedDates = dateStrings.map(dateString => {
-      // Split the date string and take the first part (before the space)
-      const [date] = dateString.split(' ');
-      return date; // Return the date part
+      // Ensure the input is parsed correctly
+      const date = new Date(Date.parse(dateString)); // Parse the date string directly
+      if (isNaN(date)) {
+        throw new Error(`Invalid date format: ${dateString}`);
+      }
+
+      // Format as 'YYYY-MM-DD' using UTC normalization
+      const year = date.getUTCFullYear();
+      const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Month is 0-based
+      const day = String(date.getUTCDate()).padStart(2, '0');
+
+      return `${year}-${month}-${day}`; // Return formatted date
     });
 
     return formattedDates;
@@ -28,6 +36,9 @@ async function saveDates(dateStrings) {
     throw error;
   }
 }
+
+
+
 
 router.post('/add', authenticateToken, async (req, res) => {
   const { userId, empNo, dateOfJoining, probationPeriod, isTemporary, maritalStatus, dateOfBirth, gender, 
@@ -101,7 +112,7 @@ router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
 });
 
 router.patch('/update/:id', async(req,res)=>{
-  const { dateOfJoining, probationPeriod, confirmationDate, isTemporary, maritalStatus, dateOfBirth, gender, parentName,
+  const { dateOfJoining, probationPeriod, isTemporary, maritalStatus, dateOfBirth, gender, parentName,
      spouseName, referredBy, reportingMangerId, bloodGroup, emergencyContactNo, emergencyContactName, emergencyContactRelation,
      spouseContactNo, parentContactNo, motherName, motherContactNo, temporaryAddress, permanentAddress, qualification, experience } = req.body
   try {
@@ -125,7 +136,6 @@ router.patch('/update/:id', async(req,res)=>{
     let result = await UserPersonal.findByPk(req.params.id);
     result.dateOfJoining = dateOfJoining ? formattedDateOfJoining[0] : null;
     result.probationPeriod = probationPeriod;
-    result.confirmationDate = confirmationDate;
     result.isTemporary = isTemporary;
     result.maritalStatus = maritalStatus;
     result.dateOfBirth = dateOfBirth ? formattedDateOfBirth[0] : null;
@@ -135,7 +145,6 @@ router.patch('/update/:id', async(req,res)=>{
     result.spouseName = spouseName;
     result.referredBy = referredBy;
     result.reportingMangerId = reportingMangerId;
-    result.confirmationDate = confirmationDate;
     result.bloodGroup = bloodGroup;
     result.emergencyContactNo = emergencyContactNo;
     result.emergencyContactName = emergencyContactName;
@@ -250,13 +259,14 @@ router.get('/dueprobation', authenticateToken, async (req, res) => {
     const probationDueUsers = [];
     
     for (let i = 0; i < users.length; i++) {
-      if (users[i].userPersonals?.length > 0 && users[i].userpositions?.length > 0 && users[i].isTemporary === true) {
+      
+      if (users[i].userPersonals?.length > 0 && users[i].userPosition && 
+        users[i].userPersonals[0].dateOfJoining && users[i].userPosition.probationPeriod && users[i].isTemporary === true) {
         const joiningDate = new Date(users[i].userPersonals[0].dateOfJoining);
-        const probation = users[i].userpositions[0].probationPeriod;
+        const probation = users[i].userPosition.probationPeriod;
 
         const probationEndDate = new Date(joiningDate);
         probationEndDate.setDate(probationEndDate.getDate() + probation);
-        
         if (probationEndDate <= today) {
           probationDueUsers.push({
             ...users[i].toJSON(), 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
@@ -6,6 +7,7 @@ import { MatListModule } from '@angular/material/list';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { Company } from '../../../common/interfaces/company';
 
 
 @Component({
@@ -33,18 +35,16 @@ export class CompanyDetailedComponent {
     this.getCompanyInfo()
   }
 
-  company :any
+  company :Company
 
 
   getCompanyInfo(){
 
     const id = this.route.snapshot.paramMap.get('id');
-console.log('id in view', id);
 
   if (id !== null) {
     this.companyService.getCompanyInfo(id).subscribe(
       (response:any) => {
-        console.log('edit View',response)
         this.company = response;
 
       },

@@ -21,25 +21,28 @@ export const verticalMenuItems = [
   new Menu(28, 'View', '/login/viewApproval/viewexpenses', null, 'visibility', null, false, 26),
 
   new Menu(8, 'Leave', '', null, 'date_range', null, true, 0),
-
+  new Menu(21, 'View Requests', '/login/admin-leave/view-leave-request', null,'edit_calendar', null, false, 8),
   new Menu(9, 'Calendar', '/login/admin-leave', null,'event_available', null, false, 8),
-  new Menu(21, 'View', '/login/admin-leave/view-leave-request', null,'edit_calendar', null, false, 8),
+
   new Menu(10, 'Emergency', '/login/admin-leave/apply-emergency-leave', null, 'event_note', null, false, 8),
-  
+  new Menu(35, 'Encash', '/login/admin-leave/leave-encashment', null, 'event_note', null, false, 8),
 
 
-  new Menu(11, 'Apply Leave', '/login/employee-leave', null, 'visibility', null, false, 8),
-  new Menu(12, 'Leave Balance', '/login/employee-leave/balance', null, 'visibility', null, false, 8),
+  new Menu(11, 'Request', '/login/employee-leave', null, 'event_busy', null, false, 8),
+  new Menu(12, 'Balance', '/login/employee-leave/balance', null, 'data_usage', null, false, 8),
 
 
-  new Menu(13, 'Payroll', '', null, 'payments', null, true, 0),
+
+  new Menu(13, 'Payroll', '', null, 'price_check', null, true, 0),
   new Menu(25, 'Advance Salary', '/login/payroll/advance-salary', null, 'money_off', null, false, 13),
   new Menu(33, 'Month End', '/login/payroll/month-end', null, 'event', null, false, 13),
-  new Menu(14, 'Process Payroll', '/login/process-monthly-payroll', null, 'add_circle', null, false, 13),
-  new Menu(15, 'Salary Statement', '/login/viewApproval', null, 'visibility', null, false, 13),
   new Menu(16, 'Payslip', '/login/payroll/month-end/payslip', null, 'receipt', null, false, 13),
+  new Menu(14, 'Process Payslip', '/login/payroll/process-payslip', null, 'add_circle', null, false, 13),
+
+  new Menu(15, 'Salary Statement', '/login/viewApproval', null, 'visibility', null, false, 13),
   new Menu(17, 'YTD Reports', '/login/viewApproval', null, 'visibility', null, false, 13),
   // new Menu(17, 'Pay Details', '/login/viewApproval', null, 'visibility', null, false, 13),
+
   new Menu(18, 'User leave', '/login/userLeave', null, 'visibility', null, false, 8),
   new Menu(20, 'Events Calender', '/login/employee-leave/events', null, 'visibility', null, false, 8),
 
@@ -48,7 +51,7 @@ export const verticalMenuItems = [
   new Menu(22, 'Proforma', '', null, 'receipt', null, true, 21),
   new Menu(29, 'View', '/login/viewApproval/approvalReport', null, 'visibility', null, false, 22),
   new Menu(30, 'Excel', '/login/viewApproval/approvalReport/excellog', null, 'layers', null, false, 22),
-  
+
   new Menu(24, 'Expense', '', null, 'price_change', null, true, 21),
   new Menu(31, 'View', '/login/viewApproval/expensereport', null, 'visibility', null, false, 24),
   new Menu(32, 'Excel', '/login/viewApproval/expensereport/excellog', null, 'layers', null, false, 24),

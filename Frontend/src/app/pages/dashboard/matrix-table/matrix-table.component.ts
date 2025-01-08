@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { InvoiceService } from '@services/invoice.service';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { PerformaInvoice } from '../../../common/interfaces/payments/performaInvoice';
@@ -24,8 +25,8 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
     this.getWTPi();
 
     const token: any = localStorage.getItem('token')
-    let user = JSON.parse(token)
-    let roleId = user.role
+    const user = JSON.parse(token)
+    const roleId = user.role
     this.getRoleById(roleId)
   }
 
@@ -51,7 +52,6 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
   getCCPi(){
     this.piSub = this.invoiceServices.getDashboardCCPI(this.searchText, this.currentPage, this.pageSize).subscribe((invoice: any) => {
       this.invoices = invoice.items
-      console.log(this.invoices);
 
       this.totalItems = invoice.count;
     });

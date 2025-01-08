@@ -2,7 +2,6 @@
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { Component, inject, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { UsersService } from '../../services/users.service';
-import { Settings, SettingsService } from '../../services/settings.service';
 import { MatDialog } from '@angular/material/dialog';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,8 +15,6 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCardModule } from '@angular/material/card';
-import { DomSanitizer } from '@angular/platform-browser';
-import { CommonModule } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
@@ -72,11 +69,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   userSub!: Subscription;
   getUsers(): void {
-    console.log(this.searchText);
-    
     this.userSub = this.usersService.getUser(this.searchText, this.currentPage, this.pageSize).subscribe((users: any) =>{
-      console.log(users);
-      
       this.users = users.items;
       this.totalItems = users.count
     });
@@ -94,8 +87,6 @@ export class UsersComponent implements OnInit, OnDestroy {
   public searchText!: string;
   search(event: Event){
     this.searchText = (event.target as HTMLInputElement).value.trim()
-    console.log(this.searchText);
-    
     this.getUsers()
   }
 
@@ -116,7 +107,7 @@ export class UsersComponent implements OnInit, OnDestroy {
       data: {id: id, name: name, empNo: empNo}
     });
 
-    this.dialogSub = dialogRef.afterClosed().subscribe((result) => {
+    this.dialogSub = dialogRef.afterClosed().subscribe(() => {
       this.getUsers()
     });
   }

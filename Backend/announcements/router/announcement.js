@@ -6,39 +6,35 @@ const authenticateToken = require('../../middleware/authorization');
 const Announcement = require('../model/announcement');
 const upload = require('../../utils/multer');
 const s3 = require('../../utils/s3bucket');
-const nodemailer = require('nodemailer');
-const UserPosition = require('../../users/models/userPosition')
-
-
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  }
-
-});
+const UserPosition = require('../../users/models/userPosition');
+const User = require('../../users/models/user');
+const config = require('../../utils/config');
+const { Op } = require('sequelize');
+const sequelize = require('../../utils/db');
+const { createNotification } = require('../../app/notificationService');
+const { sendEmail } = require('../../app/emailService');
 
 router.post('/add', authenticateToken, async (req, res) => {
   const { message, type, dismissible, fileUrl } = req.body;
-
   try {
-
     const userPosition = await UserPosition.findAll({})
 
     const userEmails = userPosition.map(userPosition => userPosition.officialMailId).filter(officialMailId => officialMailId);
 
-    if (userEmails.length === 0) {
-      return res.send("No recipients defined.");
-    }
+    const users = await User.findAll({ attributes: ['id'] });
 
+    const userIds = users.map(user => user.id);
+
+    const id = userIds[0];
+    const me = `Important Announcement - ${message}`;
+    const route = `/login/announcements`;
     
+    createNotification({ id, me, route });
+
     const ancmnts = new Announcement({ message, type, dismissible, fileUrl });
     await ancmnts.save();
 
-  
     let fileBuffer, contentType;
-
 
     if (fileUrl) {
       const fileKey = fileUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
@@ -53,45 +49,65 @@ router.post('/add', authenticateToken, async (req, res) => {
       contentType = s3File.ContentType;
     }
 
+    if (userEmails.length != 0) {
 
-    const mailOptions = {
-      from: `HR Department <${process.env.EMAIL_USER}>`,
-      to: userEmails,
-      subject: 'Important Announcement',
-      html: `
-          <p>Dear Team,</p>
-          <p>We would like to bring to your attention the following announcement:</p>
-          <p><strong style="font-size: 18px;">${message}</strong></p>
-          ${fileUrl ? '<p>Find attached the file.</p>' : ''}
-          <br>
-          <p>Best regards,</p>
-          <p>HR Department</p>
-      `,
-      attachments: fileBuffer ? [
+        html: `
+            <p>Dear Team,</p>
+            <p>We would like to bring to your attention the following announcement:</p>
+            <p><strong style="font-size: 18px;">${message}</strong></p>
+            ${fileUrl ? '<p>Find attached the file.</p>' : ''}
+            <br>
+            <p>Best regards,</p>
+            <p>HR Department</p>
+      `
+      const emailSubject = `Important Announcement`
+      const fromEmail = config.email.announcemntUser;
+      const emailPassword = config.email.announcementPass;
+      const attachments = fileBuffer ? [
         {
           filename: fileUrl.split('/').pop(),
           content: fileBuffer,
           contentType: contentType,
         }
-      ] : [],
-    };
-
-   
-    await transporter.sendMail(mailOptions);
-
-
+      ] : []
+      
+      const text = ''
+      
+      try {
+        await sendEmail(fromEmail, emailPassword, userEmails, emailSubject, text ,html, attachments);
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+      }
+    }
     res.send(ancmnts);
   } catch (error) {
     res.send( error.message );
   }
 });
 
-
-
-
 router.get('/find', authenticateToken, async(req, res) => {
     try {
-        let ancmnts = await Announcement.findAll({})
+      let whereClause = {  };
+      if (req.query.search && req.query.search !== 'undefined') {
+        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+        whereClause = {
+          [Op.and]: [
+            {
+              [Op.or]: [
+                sequelize.where(
+                  sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('message'), ' ', '')),
+                  { [Op.like]: `%${searchTerm}%` }
+                ),
+                sequelize.where(
+                  sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('type'), ' ', '')),
+                  { [Op.like]: `%${searchTerm}%` }
+                )
+              ]
+            }
+          ]
+        };
+      }
+        let ancmnts = await Announcement.findAll({ where: whereClause})
         res.send(ancmnts);
     } catch (error) {
        res.send(error.message) 
@@ -104,7 +120,6 @@ router.delete('/delete/:id', authenticateToken, async(req, res) => {
       let fileKey = ancmnt.fileUrl;
       if(fileKey){
         const deleteParams = {
-          // eslint-disable-next-line no-undef
           Bucket: process.env.AWS_BUCKET_NAME,
           Key: fileKey
         };
@@ -210,9 +225,10 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
       // Delete the file from S3
       await s3.deleteObject(deleteParams).promise();
 
-      res.send('File deleted successfully' );
+      res.status(200).json({ message: 'File deleted successfully' });
     } catch (error) {
-      res.send({ message: error.message });
+      res.send(error.message);
     }
 });
+
 module.exports = router;

@@ -6,7 +6,6 @@ export interface UserPersonal {
   empNo: string
   dateOfJoining: Date
   probationPeriod: string
-  confirmationDate: Date
   isTemporary: boolean
   emergencyContactNo: string,
   emergencyContactName: string,

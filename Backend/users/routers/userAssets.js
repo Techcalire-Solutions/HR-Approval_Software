@@ -29,8 +29,6 @@ router.post('/save', authenticateToken, async (req, res) => {
         res.send(role);
 
     } catch (error) {
-    console.log(error);
-    
         res.send(error.message);
     }
 })
@@ -38,8 +36,6 @@ router.post('/save', authenticateToken, async (req, res) => {
 router.get('/find', authenticateToken, async (req, res) => {
     try {
         const department = req.query.department;
-        console.log(department,"department");
-        
         const ua = await UserAssets.findAll({
             include: [
                 {
@@ -52,7 +48,7 @@ router.get('/find', authenticateToken, async (req, res) => {
                             attributes: [],
                             required: true, // Ensures UserPositions must match the department filter
                             where: {
-                                'department.abbreviation': department // Matching the specified department
+                                department: department // Matching the specified department
                             }
                         }
                     ]

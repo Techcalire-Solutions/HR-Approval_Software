@@ -4,6 +4,7 @@
 const { Client } = require('pg');
 const s3 = require('../utils/s3bucket');
 const BackupLog = require('./backupLog');
+const ExcelJS = require('exceljs');
 
 const DBPASSWORD = process.env.DB_PASSWORD
 const DBUSERNAME = process.env.USER_NAME
@@ -33,13 +34,28 @@ async function backup() {
             try {
                 const query = `SELECT * FROM "${tableName}"`;
                 const tableData = await client.query(query);
-                const jsonData = JSON.stringify(tableData.rows, null, 2);
+                const workbook = new ExcelJS.Workbook();
+                const worksheet = workbook.addWorksheet(tableName);
+
+                // Add column headers
+                const columns = Object.keys(tableData.rows[0]).map((col) => ({ header: col, key: col }));
+                worksheet.columns = columns;
+
+                // Add rows
+                tableData.rows.forEach((row) => {
+                    worksheet.addRow(row);
+                });
+
+                // Save to buffer
+                const buffer = await workbook.xlsx.writeBuffer();
+                // const jsonData = JSON.stringify(tableData.rows, null, 2);
                 const formattedDate = new Date().toISOString().split('T')[0];
-                const filename = `backup/${formattedDate}/backup-${tableName}.json`;
+                const filename = `backup/${formattedDate}/backup-${tableName}.xlsx`;
                 const params = {
                     Bucket: process.env.AWS_BUCKET_NAME,
                     Key: filename, 
-                    Body: jsonData,
+                    Body: buffer,
+                    ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                     ACL: 'public-read' 
                   };
   

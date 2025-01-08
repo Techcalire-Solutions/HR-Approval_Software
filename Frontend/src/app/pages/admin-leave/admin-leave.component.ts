@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CalendarEvent, CalendarEventAction, CalendarModule, CalendarView } from 'angular-calendar';
 import { startOfDay, subDays, addDays, endOfMonth, isSameDay, isSameMonth, addHours } from 'date-fns';
 // import { blockTransition } from '../../theme/utils/app-animation';
@@ -43,7 +43,7 @@ const colors: any = {
   styleUrl: './admin-leave.component.scss'
 })
 
-export class AdminLeaveComponent {
+export class AdminLeaveComponent implements OnInit, OnDestroy {
   view: CalendarView | "month" | "week" | "day" = 'month';
   viewDate: Date = new Date();
   activeDayIsOpen: boolean = true;
@@ -115,6 +115,10 @@ getLeaveSub : Subscription
 
 
   openScheduleDialog(event: any) {
+
+  }
+
+  ngOnDestroy(): void{
 
   }
 

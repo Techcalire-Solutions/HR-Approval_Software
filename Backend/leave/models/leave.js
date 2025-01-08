@@ -11,11 +11,14 @@ const Leave = sequelize.define('leave', {
   noOfDays: {type: DataTypes.FLOAT},
   notes: {type: DataTypes.STRING, allowNull: true},
   status: {type: DataTypes.STRING,allowNull: true},
-  session1: {type: DataTypes.BOOLEAN, defaultValue: false},
-  session2: {type: DataTypes.BOOLEAN, defaultValue: false },
+  // session1: {type: DataTypes.BOOLEAN, defaultValue: false},
+  // session2: {type: DataTypes.BOOLEAN, defaultValue: false },
   fileUrl: { 
     type: DataTypes.STRING
    },
+   adminNotes: {
+    type: DataTypes.STRING, 
+  },
   leaveDates: {
     type: DataTypes.JSON, 
     allowNull: true,

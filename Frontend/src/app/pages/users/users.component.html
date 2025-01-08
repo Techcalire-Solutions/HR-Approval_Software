@@ -22,7 +22,6 @@
             <mat-button-toggle value="grid" (click)="viewSeparated()">
                 <mat-icon>no_accounts</mat-icon>
             </mat-button-toggle>
-
         </mat-button-toggle-group>
     </div>
 </div>
@@ -47,38 +46,37 @@
                     </div>
                     <mat-menu #menu="matMenu" xPosition="before" overlapTrigger="true">
                         <span (mouseleave)="menuTrigger.closeMenu()">
-                          @if (!isEmployeeSelected(user)) {}
+                          <button mat-menu-item (click)="viewEmployee(user.id);">
+                              <mat-icon>open_in_new</mat-icon>
+                              <span>View</span>
+                          </button>
+                          <button mat-menu-item (click)="openUserDialog(user)">
+                              <mat-icon>mode_edit</mat-icon>
+                              <span>Edit</span>
+                          </button>
+                          <button mat-menu-item (click)="resetPassword(user.id, user.empNo);">
+                              <mat-icon>password</mat-icon>
+                              <span>Password</span>
+                          </button>
                             <button mat-menu-item (click)="updateDesignation(user.id, user.name, user.empNo)">
                               <mat-icon>verified_user</mat-icon>
                               <span>Designation</span>
                             </button>
                             <button mat-menu-item (click)="openPayRoll(user.id)">
                                 <mat-icon>payment</mat-icon>
-                                <span>Payroll</span>
+                                <span>Salary</span>
                             </button>
-                            <button mat-menu-item (click)="openUserDialog(user)">
-                                <mat-icon>mode_edit</mat-icon>
-                                <span>Edit</span>
-                            </button>
-                            <button mat-menu-item (click)="deleteFunction(user.id);">
-                                <mat-icon>delete</mat-icon>
-                                <span>Delete</span>
-                            </button>
-                            <button mat-menu-item (click)="viewEmployee(user.id);">
-                                <mat-icon>open_in_new</mat-icon>
-                                <span>View</span>
-                            </button>
-                            <button mat-menu-item (click)="resetPassword(user.id, user.empNo);">
-                                <mat-icon>password</mat-icon>
-                                <span>Password</span>
+                            <button mat-menu-item (click)="openAssets(user.id);">
+                                <mat-icon>devices</mat-icon>
+                                <span>Assets</span>
                             </button>
                             <button mat-menu-item (click)="resignEmployee(user.id, user.empNo, user.name);">
                                 <mat-icon>low_priority</mat-icon>
                                 <span>Separation</span>
                             </button>
-                            <button mat-menu-item (click)="openAssets(user.id);">
-                                <mat-icon>devices</mat-icon>
-                                <span>Assets</span>
+                            <button mat-menu-item (click)="deleteFunction(user.id);">
+                                <mat-icon>delete</mat-icon>
+                                <span>Delete</span>
                             </button>
                             @if(user.url){
                                 <button mat-menu-item (click)="deleteImage(user.id);">
@@ -108,7 +106,7 @@
                         <div fxFlex="70" fxLayout="column" class="user-details transition-2" [class.blocked]="!user.status">
                             <p fxLayout="row" fxLayoutAlign="start center">
                                 <mat-icon class="muted-text">card_membership</mat-icon>
-                                <span>{{ user.userposition?.designation ? user.userposition.designation?.designationName : user.role.roleName }}</span>
+                                <span>{{ user.userPosition?.designation ? user.userPosition.designation?.designationName : user.role.roleName }}</span>
                             </p>
                             <p fxLayout="row" fxLayoutAlign="start center">
                                 <mat-icon class="muted-text">mail_outline</mat-icon>

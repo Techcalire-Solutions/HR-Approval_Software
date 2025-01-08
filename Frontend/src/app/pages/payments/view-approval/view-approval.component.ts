@@ -69,9 +69,8 @@ export class ViewApprovalComponent {
   }
 
   loadData(data: any) {
-    console.log("loadData called with:", data);  // Add this for debugging
     if (!data) {
-      console.error("No data available for this tab.");
+      alert("No data available for this tab.");
       return;
     }
     this.data = data;
@@ -195,8 +194,6 @@ export class ViewApprovalComponent {
   dialogSub!: Subscription;
   verified(value: string, piNo: string, sp: string, id: number, stat: string){
     let status = this.data.status;
-    console.log(status);
-
     this.submittingForm = true;
     if(stat === 'INITIATED' && value === 'approved') status = 'AM APPROVED';
     else if(stat === 'INITIATED' && value === 'rejected') status = 'AM DECLINED';

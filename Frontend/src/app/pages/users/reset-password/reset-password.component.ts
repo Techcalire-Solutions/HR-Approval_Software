@@ -72,7 +72,7 @@ export class ResetPasswordComponent implements OnInit, OnDestroy{
       const textToCopy = `Emp ID: ${empNo}\nPassword: ${password}`;
       navigator.clipboard.writeText(textToCopy).then(
         () => {
-          console.log('Email and password copied to clipboard');
+          this.snackBar.open('Email and password copied to clipboard',"" ,{duration:3000});
         },
         (err) => {
           console.error('Could not copy text: ', err);
@@ -81,11 +81,13 @@ export class ResetPasswordComponent implements OnInit, OnDestroy{
     }
   }
 
-  userService = inject(UsersService)
+  private userService = inject(UsersService)
   snackBar = inject(MatSnackBar)
   reset!: Subscription;
   onSubmit(){
     this.reset = this.userService.resetPassword(this.data.id, this.form.getRawValue()).subscribe(x => {
+      console.log(x);
+      
       this.dialogRef.close();
       this.snackBar.open(`You have successfully reset ${this.data.empNo} password...`,"" ,{duration:3000})
     })

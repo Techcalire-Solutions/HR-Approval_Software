@@ -1,4 +1,5 @@
-import { Component, EventEmitter, inject, Input, OnDestroy, Output, ViewChild } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Component, EventEmitter, inject, Input, OnDestroy, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -9,16 +10,16 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { AnnouncementsService } from '@services/announcements.service';
 import { Subscription } from 'rxjs';
-import { PagesComponent } from '../../pages.component';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { SafePipe } from "../../../common/safe.pipe";
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 @Component({
   selector: 'app-add-announcements',
   standalone: true,
   imports: [MatFormFieldModule, MatCheckboxModule, MatSelectModule, MatOptionModule, MatInputModule, MatButtonModule, MatCardModule,
-    ReactiveFormsModule, PagesComponent, MatIconModule, SafePipe],
+    ReactiveFormsModule, MatIconModule, SafePipe, MatProgressSpinnerModule],
   templateUrl: './add-announcements.component.html',
   styleUrl: './add-announcements.component.scss'
 })
@@ -58,7 +59,7 @@ export class AddAnnouncementsComponent implements OnDestroy {
   allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png'];
   onFileSelected(event: any) {
     const input = event.target as HTMLInputElement;
-    let file: any = input.files?.[0];
+    const file: any = input.files?.[0];
     this.fileType = file.type.split('/')[1];
     if (!this.allowedFileTypes.includes(this.fileType)) {
       alert('Invalid file type. Please select a PDF, JPEG, JPG, or PNG file.');
@@ -80,7 +81,9 @@ export class AddAnnouncementsComponent implements OnDestroy {
   ancmntSub!: Subscription;
   isVisible: boolean = false;
   addAnnouncement(){
+    this.isVisible = true;
     this.ancmntSub = this.announcementService.addAnnouncement(this.form.getRawValue()).subscribe((res) => {
+      this.isVisible = false
       this.announcementService.triggerSubmit(res);
       this.dialogRef.close();
       this.snackBar.open(`Announcement added successfully...`, 'Close', { duration: 3000 });
@@ -95,7 +98,7 @@ export class AddAnnouncementsComponent implements OnDestroy {
     //     this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})
     //   });
     // }else{
-      this.announcementService.deleteAnouncemntUploadByurl(this.imageUrl).subscribe(data=>{
+      this.announcementService.deleteAnouncemntUploadByurl(this.imageUrl).subscribe(()=>{
         this.imageUrl = ''
         this.form.get('fileUrl')?.setValue('')
         this.snackBar.open("User image is deleted successfully...","" ,{duration:3000})

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { LeaveType } from '../common/interfaces/leaves/leaveType';
@@ -7,6 +8,7 @@ import { UserLeave } from '../common/interfaces/leaves/userLeave';
 import {  throwError } from 'rxjs';
 import { Holidays } from '../common/interfaces/leaves/holidays';
 import { CompoOff } from '../common/interfaces/leaves/compo-off';
+import { Leave } from '../common/interfaces/leaves/leave';
 
 @Injectable({
   providedIn: 'root'
@@ -40,7 +42,7 @@ export class LeaveService {
   }
 
   getLeaveById(id: number) {
-    return this.http.get(`${this.apiUrl}/leave/${id}`);
+    return this.http.get<Leave>(`${this.apiUrl}/leave/${id}`);
   }
 
   getLeaveCounts(userId: number): Observable<any> {
@@ -48,6 +50,8 @@ export class LeaveService {
   }
 
    getLeavesByUser(userId: number, search?: string, page?: number, pageSize?: number): Observable<any[]> {
+    console.log(userId);
+    
     return this.http.get<any[]>(`${this.apiUrl}/leave/user/${userId}?search=${search}&page=${page}&pageSize=${pageSize}`);
   }
 
@@ -57,13 +61,22 @@ export class LeaveService {
 }
 
 
-  updateApproveLeaveStatus(leaveId: any) {
-    return this.http.put(`${this.apiUrl}/leave/approveLeave/${leaveId}`, {});
-  }
+updateApproveLeaveStatus(approvalData: any) {
+  const { leaveId, adminNotes } = approvalData;
+  return this.http.put(`${this.apiUrl}/leave/approveLeave/${leaveId}`, { adminNotes });
+}
 
-  updateRejectLeaveStatus(leaveId: any) {
-    return this.http.put(`${this.apiUrl}/leave/rejectLeave/${leaveId}`, {});
-  }
+getLeaveBalance(leaveId: string): Observable<any> {
+  return this.http.get(`${this.apiUrl}/leave/leaveBalance/${leaveId}`);
+}
+
+
+
+updateRejectLeaveStatus(rejectionData: any) {
+  const { leaveId, adminNotes } = rejectionData;
+  return this.http.put(`${this.apiUrl}/leave/rejectLeave/${leaveId}`, { adminNotes });
+}
+
   uploadImage(file: any): Observable<any> {
     if (file instanceof File) {
       const formData = new FormData();
@@ -111,6 +124,14 @@ export class LeaveService {
     return this.http.get<UserLeave[]>(`${this.apiUrl}/userLeave/byuser/${id}`);
   }
 
+  getUserLeaveForEncash(){
+    return this.http.get<any[]>(`${this.apiUrl}/userLeave/forencashment/`);
+  }
+
+addHolidays(data:any){
+  return this.http.post(this.apiUrl+'/holidays/save', data)
+
+}
 
   getHolidays(filterValue?: string, page?: number, pagesize?:number){
     return this.http.get<Holidays[]>(`${this.apiUrl}/holidays/find?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
@@ -126,5 +147,24 @@ export class LeaveService {
 
   getCompoOff(id: number){
     return this.http.get<CompoOff>(`${this.apiUrl}/holidays/findcombooff/${id}`);
+  }
+
+
+
+  deleteUntakenLeave(leaveId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/leave/untakenLeaveDelete/${leaveId}`);
+  }
+
+  untakenLeaveUpdate(leaveId: number, updatedData: any): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/leave/untakenLeaveUpdate/${leaveId}`, updatedData);
+  }
+
+updateLeaveFileUrl(leaveId: string, fileUrl: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/leave/updateLeaveFileUrl/${leaveId}`, { fileUrl });
+  }
+
+
+encashLeave(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/encash`, data);
   }
 }

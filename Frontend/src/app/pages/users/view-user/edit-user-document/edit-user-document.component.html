@@ -1,0 +1,53 @@
+
+<form [formGroup]="mainForm" enctype="multipart/form-data">
+    <mat-card style="width: 100%; margin-left: 15px;">
+      <mat-card-header><mat-card-title>Documents</mat-card-title></mat-card-header>
+      <div fxLayout="column" class="form-field-outer">
+        <div formArrayName="uploadForms">
+          <div *ngFor="let uploadForm of doc().controls; let i = index;" [formGroupName]="i" class="form-instance">
+            <div class="row" style="margin-top: 20px;">
+              <div class="col">
+                <mat-form-field class="w-100" appearance="outline">
+                  <mat-label>Document Type</mat-label>
+                  <input matInput formControlName="docName">
+                </mat-form-field>
+              </div>
+    
+              @if(!imageUrl[i]){
+                <div class="col">
+                  <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">
+                  <mat-icon (click)="fileInput.click()">cloud_upload</mat-icon>
+                  <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
+                </div>
+              }
+              @else{
+                <div class="col">
+                  <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+                    <iframe [src]="imageUrl[i] | safe" width="100%" height="300px"></iframe>
+                    <mat-icon style="color: red;" (click)="onDeleteImage(i)">delete</mat-icon>
+                  </div>
+                </div>
+              }
+              <div class="col">
+                <button mat-raised-button color="primary" type="button" (click)="onSubmit(i)" 
+                [disabled]="uploadForm.pristine || !uploadForm.valid"> {{ editStatus[i] ? 'Update' : 'Save' }}
+                </button>
+                <button mat-icon-button color="warn" (click)="removeData(i)">
+                  <mat-icon>remove_circle</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button mat-raised-button color="primary" (click)="addDoc()"  style="margin-left: 10px; "
+        [disabled]="!isAllFormsValidAndSaved()">New Line</button>
+        <button mat-raised-button color="warn" (click)="completeForm()"
+        [disabled]="!isAllFormsValidAndSaved()">Complete</button>
+        <button mat-raised-button color="primary" (click)="this.dialogRef?.close();" style="margin-left: 10px;"
+          [disabled]="isAnyFormClicked()">
+          Exit
+        </button>
+      </div>
+    </mat-card>
+  </form>
+<!-- </div> -->

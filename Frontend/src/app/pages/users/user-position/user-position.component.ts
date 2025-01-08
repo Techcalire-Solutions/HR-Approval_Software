@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, EventEmitter, Input, Output, inject, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,15 +17,21 @@ import { RoleService } from '@services/role.service';
 import { MatDialog } from '@angular/material/dialog';
 import { Team } from '../../../common/interfaces/users/team';
 import { TeamService } from '@services/team.service';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
+import { MY_FORMATS } from '../personal-details/personal-details.component';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-user-position',
   standalone: true,
   imports: [ MatFormFieldModule, ReactiveFormsModule, MatInputModule, MatButtonModule, MatCardModule, MatOptionModule, MatSelectModule,
-    MatAutocompleteModule, MatIconModule
+    MatAutocompleteModule, MatIconModule, MatDatepickerModule
    ],
   templateUrl: './user-position.component.html',
-  styleUrl: './user-position.component.scss'
+  styleUrl: './user-position.component.scss',
+  providers: [provideMomentDateAdapter(MY_FORMATS), DatePipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserPositionComponent implements OnDestroy {
   ngOnDestroy(): void {
@@ -81,6 +87,8 @@ export class UserPositionComponent implements OnDestroy {
     { name: 'IT', abbreviation: 'IT' },
   ];
   @Input() positionData: any;
+  @Input() loading = false;
+  @Output() loadingState = new EventEmitter<boolean>();
 
   fb = inject(FormBuilder);
   userService = inject(UsersService);
@@ -100,18 +108,19 @@ export class UserPositionComponent implements OnDestroy {
     officialMailId: ['', Validators.email],
     projectMailId: ['', Validators.email],
     designationId: <any>[ Validators.required],
-    teamId: <any>[]
+    teamId: <any>[],
+    confirmationDate: []
   });
 
   editStatus: boolean = false;
   triggerNew(data?: any): void {
     this.getRoles();
     this.getTeam();
-    console.log(data);
-    
     if(data){
       // if(data.updateStatus){
-        this.getPositionDetailsByUser(data.id)
+        this.getPositionDetailsByUser(data.id);
+        const confirmationDate: any = this.form.get('confirmationDate')?.value;
+        this.form.get('confirmationDate')?.setValue(confirmationDate); 
       // }
     }
   }
@@ -136,7 +145,8 @@ export class UserPositionComponent implements OnDestroy {
           projectMailId: data.projectMailId,
           designationId: data.designationId,
           designationName: data.designation?.designationName,
-          teamId: data.teamId
+          teamId: data.teamId,
+          confirmationDate: data.confirmationDate
         })
       }
     })
@@ -145,21 +155,34 @@ export class UserPositionComponent implements OnDestroy {
   @Output() dataSubmitted = new EventEmitter<any>();
   submitSub!: Subscription;
   isNext: boolean = false;
+  private datePipe = inject(DatePipe);
   onSubmit(){
+    this.loadingState.emit(true);
+    this.isNext =true
     const submit = {
       ...this.form.getRawValue()
     }
     submit.userId = submit.userId ? submit.userId : this.positionData.id;
+    if (this.form.get('confirmationDate')?.value) {
+      const confirmationDate = this.form.get('confirmationDate')?.value; 
+      submit.confirmationDate = this.datePipe.transform(confirmationDate, 'yyyy-MM-dd') || null;
+    }
     if(this.editStatus){
-      this.submitSub = this.userService.updateUserPosition(this.id, submit).subscribe(() => {
+      console.log(submit);
+      
+      this.submitSub = this.userService.updateUserPosition(this.id, submit).subscribe((x) => {
+        console.log(x);
+        
         this.snackBar.open("Postion Details updated succesfully...","" ,{duration:3000})
-        this.isNext =true
+        this.loadingState.emit(false);
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }else{
-      this.submitSub = this.userService.addUserPositionDetails(submit).subscribe(() => {
+      this.submitSub = this.userService.addUserPositionDetails(submit).subscribe((res) => {        
+        this.editStatus = true;
+        this.id = res.id;
         this.snackBar.open("Postion Details added succesfully...","" ,{duration:3000})
-        this.isNext = true
+        this.loadingState.emit(false);
         // this.dataSubmitted.emit( {isFormSubmitted: true} );
       })
     }

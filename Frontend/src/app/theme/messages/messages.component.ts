@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, ViewChild, inject, OnDestroy } from '@angular/core';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MessagesService } from '../../services/messages.service';
@@ -14,6 +14,10 @@ import { LeaveService } from '@services/leave.service';
 import { CommonModule } from '@angular/common';
 import { TimeAgoPipe } from '../pipes/time-ago.pipe';
 import { RoleService } from '@services/role.service';
+import { DomSanitizer } from '@angular/platform-browser';
+
+import { Router, RouterModule } from '@angular/router';
+
 
 @Component({
   selector: 'app-messages',
@@ -29,14 +33,15 @@ import { RoleService } from '@services/role.service';
     NgScrollbarModule,
     PipesModule,
     CommonModule,
-    TimeAgoPipe
+    TimeAgoPipe,
+    RouterModule
   ],
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.scss'],
   encapsulation: ViewEncapsulation.None,
   providers: [MessagesService]
 })
-export class MessagesComponent implements OnInit {
+export class MessagesComponent implements OnInit, OnDestroy {
   @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
   public selectedTab: number = 1;
   public messages: Array<any>;
@@ -53,16 +58,37 @@ export class MessagesComponent implements OnInit {
   messagesService = inject(MessagesService)
   userRole: string;
   roleService = inject(RoleService)
+  constructor(private sanitizer: DomSanitizer) {}
 
+  router = inject(Router)
 
-  async ngOnInit() {
-    this.initializeComponent()
+  sanitizeMessage(message: string) {
+    return this.sanitizer.bypassSecurityTrustHtml(message);
   }
 
+  ngOnInit(){
+this.initializeComponent()
+  }
+
+
+  messageNotfiSub:Subscription
+  getNotificationsForUser() {
+   this.messageNotfiSub =  this.messagesService.getUserNotifications(this.userId).subscribe(
+      (data: any) => {
+        this.notifications = data.notifications || [];
+        console.log(this.notifications)
+        this.checkForNewNotifications(data);
+        this.updateUnreadCount();
+      },
+      (error) => {
+        console.error('Error fetching notifications:', error);
+      }
+    );
+  }
+
+
    async initializeComponent(){
-    this.messages = this.messagesService.getMessages();
-    this.files = this.messagesService.getFiles();
-    this.meetings = this.messagesService.getMeetings();
+
     const token: any = localStorage.getItem('token');
     const user = JSON.parse(token);
     if (user && typeof user.role === 'number') {
@@ -116,20 +142,7 @@ export class MessagesComponent implements OnInit {
 
 
 
-  messageNotfiSub:Subscription
-  getNotificationsForUser() {
-   this.messageNotfiSub =  this.messagesService.getUserNotifications(this.userId).subscribe(
-      (data: any) => {
-        this.notifications = data.notifications || [];
-        console.log(this.notifications)
-        this.checkForNewNotifications(data);
-        this.updateUnreadCount();
-      },
-      (error) => {
-        console.error('Error fetching notifications:', error);
-      }
-    );
-  }
+
   allNotSub: Subscription;
 
   getAllNot() {
@@ -166,6 +179,7 @@ export class MessagesComponent implements OnInit {
 
     }
     this.previousNotificationIds = new Set(extractedNotifications.map(n => n.id));
+    this.updateUnreadCount();
   }
 
 
@@ -201,5 +215,43 @@ export class MessagesComponent implements OnInit {
     if(this.markReadSub) this.markReadSub.unsubscribe();
     if(this.messageNotfiSub) this.messageNotfiSub.unsubscribe();
   }
+  // constructor(private router: Router) {}
+
+
+// Function to extract the link from the message (if available)
+extractLink(route: string): boolean {
+  // Ensure that the return value is always a boolean
+  return !!route && route.length > 0;
+}
+
+
+
+// Function to handle message click
+onNotificationClick(message: any) {
+  const link = this.extractLink(message.route);
+
+  if (link) {
+    // Navigate using Angular Router to the extracted link
+    this.router.navigate([link]);
+  }
+}
+onMessageClick(route: string): void {
+  // Navigate to the route (this can be the same route or a different one)
+  this.router.navigate([route]);
+
+  // Close or destroy the component if necessary
+  // You can also do other things like emitting an event to parent components, etc.
+}
+
+  // onNotificationClick(message) {
+
+  //   const route = message.route;
+
+  //   if (route) {
+
+  //     this.router.navigate([route]);
+  //   }
+  // }
+
 }
 

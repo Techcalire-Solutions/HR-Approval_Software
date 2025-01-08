@@ -1,0 +1,84 @@
+<form [formGroup]="form">
+    <mat-card>
+      <mat-card-header><mat-card-title>Statutory Info</mat-card-title></mat-card-header>
+  
+      <div fxLayout="column" class="form-field-outer" style="margin-top: 20px; margin-left: 15px;">
+        <div class="row box">
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Aadhaar Number</mat-label>
+              <input matInput formControlName="adharNo" >
+            </mat-form-field>
+          </div>
+  
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>PAN Number</mat-label>
+              <input matInput formControlName="panNumber" >
+            </mat-form-field>
+          </div>
+  
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>PF Number</mat-label>
+              <input matInput formControlName="pfNumber" >
+            </mat-form-field>
+          </div>
+        </div>
+  
+        <div class="row box">
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>ESI Number</mat-label>
+              <input matInput formControlName="esiNumber" >
+            </mat-form-field>
+          </div>
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>UAN Number</mat-label>
+              <input matInput formControlName="uanNumber" >
+            </mat-form-field>
+          </div>
+  
+          <div class="col">
+            <mat-form-field class="w-100" appearance="outline">
+              <mat-label>Insurance Number</mat-label>
+              <input matInput formControlName="insuranceNumber" >
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+      <div class="row box">
+        <div class="col">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Passport Number</mat-label>
+            <input matInput formControlName="passportNumber" >
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Expiry Date</mat-label>
+            <input matInput [matDatepicker]="dp" formControlName="passportExpiry">
+            <mat-hint>DD/MM/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
+            <mat-datepicker #dp></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </div>
+  
+      <div class="col" style="text-align: right; margin-bottom: 15px;">
+        <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.pristine || form.invalid"
+        style="margin-right: 10px;" >
+          @if (editStatus) {
+              Update
+          } @else {
+              Save
+          }
+        </button>
+        <button mat-raised-button color="primary" (click)="dialogRef?.close()" [disabled]="!form.pristine && !form.invalid">
+          Exit
+        </button>
+      </div>
+    </mat-card>
+  </form>
+  

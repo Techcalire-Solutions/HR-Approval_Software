@@ -15,12 +15,13 @@ const UserPosition = sequelize.define('userPosition',{
     department: { type: DataTypes.STRING, allowNull: true},
     office  : {type : DataTypes.STRING},
     salary : {type : DataTypes.STRING},
-    probationPeriod : {type : DataTypes.INTEGER, defaultValue : 3},
+    probationPeriod : {type : DataTypes.INTEGER},
     probationNote : {type : DataTypes.STRING},
     officialMailId : {type : DataTypes.STRING},
     projectMailId : {type : DataTypes.STRING},
     designationId : {type : DataTypes.INTEGER},
-    teamId : { type: DataTypes.INTEGER, allowNull: true } 
+    teamId : { type: DataTypes.INTEGER, allowNull: true },
+    confirmationDate: { type: DataTypes.DATEONLY }, 
 },
 {
     freezeTableName: true,

@@ -23,4 +23,5 @@ export interface UserPosition {
   designation: Designation
   teamId: number;
   team: Team;
+  confirmationDate: any
 }

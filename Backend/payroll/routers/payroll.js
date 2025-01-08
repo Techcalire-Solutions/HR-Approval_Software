@@ -35,13 +35,12 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const userId = req.params.id;
-    console.log(userId);
     
     const payroll = await Payroll.findOne({ where: { userId: userId } });
     if (!payroll) {
-      return;
+      return res.send("Salary Details is not added for the employee");
     }
-    return res.status(200).json(payroll);
+    return res.send(payroll);
   
   } catch (error) {
     res.send(error.message);
@@ -50,7 +49,7 @@ router.get("/:id", async (req, res) => {
 
 
 router.patch("/:id", async (req, res) => {
-  const { basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance, pfDeduction } = req.body;
+  const { basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance, pfDeduction, esi } = req.body;
   try {
     const payroll = await Payroll.findOne({ where: { id: req.params.id } });
     if (!payroll) {

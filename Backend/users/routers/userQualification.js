@@ -42,14 +42,10 @@ router.patch('/update/:id', async(req,res)=>{
       if(!result){
         res.send("Record not found");
       }
-      console.log(result);
-      
       result.qualification = qualification
       result.experience = experience;
   
       await result.save();
-      console.log(result);
-      
       res.send(result);
     } catch (error) {
       res.send(error.message);

@@ -1,6 +1,5 @@
 /* General Container */
 .ytd-report {
-  max-width: 900px;
   margin: 20px auto;
   padding: 20px;
   background-color: #ffffff;
@@ -169,4 +168,22 @@ input[type="date"] {
 input[type="date"]:focus {
   outline: none;
   border-color: #007bff;
+}
+
+.row-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.row-form .form-group {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  width: 100%;
+}
+
+.row-form button {
+  height: 40px; /* Adjust to match the input fields' height */
+  align-self: flex-end; /* Ensures button aligns with input fields */
 }

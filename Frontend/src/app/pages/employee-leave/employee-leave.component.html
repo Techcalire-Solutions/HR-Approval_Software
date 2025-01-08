@@ -29,8 +29,10 @@
           <tr>
             <th>Leave Type</th>
             <th>Leave Date</th>
+            <th>Medical Certificate</th>
             <th>Reason</th>
             <th>Status</th>
+            <th>Admin Notes</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -51,11 +53,46 @@
 
             </td>
 
+            <td  >
+              <ng-container *ngIf="item.leaveType?.leaveTypeName === 'Sick Leave'">
+                <div class="action-button-container">
+                  <!-- Show 'done' Icon if fileUrl Exists -->
+                  <button *ngIf="item.fileUrl"
+                          class="icon-btn done-btn"
+                          mat-icon-button color="accent"
+                          disabled>
+                    <mat-icon>done</mat-icon>
+                  </button>
+
+                  <!-- Show Upload Button if fileUrl Does NOT Exist -->
+                  <button *ngIf="!item.fileUrl"
+                          class="icon-btn upload-btn"
+                          mat-icon-button
+                          color="primary"
+                          (click)="openDialog('approve', item.id)">
+                    <mat-icon>cloud_upload</mat-icon>
+                  </button>
+                </div>
+              </ng-container>
+
+
+
+
+
+
+
+
+
+
+            </td>
+
+
 
 
              <td>{{item.notes}}</td>
 
             <td>{{ item.status}}</td>
+           <td>{{item.adminNotes}}</td>
 
 
             <td>
