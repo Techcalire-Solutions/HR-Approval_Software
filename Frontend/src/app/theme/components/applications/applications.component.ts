@@ -46,5 +46,9 @@ export class ApplicationsComponent implements OnInit {
   openCompany():void{
     this.router.navigateByUrl('/login/company')
   }
+  openHoliday():void{
+    this.router.navigateByUrl('/login/admin-leave/holiday')
+
+  }
 }
 

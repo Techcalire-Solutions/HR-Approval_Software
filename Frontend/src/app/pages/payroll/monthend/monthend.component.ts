@@ -34,12 +34,15 @@ export class MonthendComponent implements OnInit, OnDestroy{
   ngOnInit(): void {
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
-
+    console.log(currentMonth);
+    
     const monthNames = [
       "January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"
     ]
-    this.month = monthNames[currentMonth-1];
+    this.month = currentMonth === 0
+      ? monthNames[11]
+      : monthNames[currentMonth - 1];
     this.currentYear = currentDate.getFullYear();
     this.daysInMonth = new Date(this.currentYear, currentMonth, 0).getDate();
 
@@ -111,8 +114,6 @@ export class MonthendComponent implements OnInit, OnDestroy{
 
     const perDayEncash = gross / 30;
     const leaveEncash = (perDayEncash * leaveBal).toFixed(2);
-    console.log(leaveEncash);
-
     payrollGroup.get('leaveEncashmentAmount')?.setValue(leaveEncash, { emitEvent: false });
 
     const roundedGross = Math.round(gross);

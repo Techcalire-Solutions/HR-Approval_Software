@@ -429,7 +429,7 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
           // Fetch full payroll data
           const fullValue = await Payroll.findOne({ where: { userId: mp.userId } });
           if (!fullValue) {
-            throw new Error("Basic Payroll is not added for the employee");
+            throw new Error("Salary Details is not added for the employee");
           }
     
           // Fetch user and role information
@@ -828,7 +828,9 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
 
 // Function to generate PDF
 async function generatePDF(html) {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    ignoreDefaultArgs: ['--disable-extensions'],
+  });
   const page = await browser.newPage();
   await page.setContent(html);
   const pdfBuffer = await page.pdf({ format: "A4" });
@@ -959,7 +961,7 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
       <p>Please find the attached payroll Excel file for your review.</p>
         <p>Kindly click the button below to either approve or reject the payroll data as required.</p>
         <div style="text-align: center; margin-top: 20px;">
-          <a href="http://localhost:8000/monthlypayroll/approve?month=${month}&id=${req.user.id}" 
+          <a href="https://api-approval.techclaire.com/monthlypayroll/approve?month=${month}&id=${req.user.id}" 
             style="
               display: inline-block;
               padding: 10px 20px;
@@ -972,7 +974,7 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
             ">
             Approve
           </a>
-          <a href="http://localhost:8000/monthlypayroll/reject?month=${month}&id=${req.user.id}" 
+          <a href="https://api-approval.techclaire.com/monthlypayroll/reject?month=${month}&id=${req.user.id}" 
             style="
               display: inline-block;
               padding: 10px 20px;
@@ -1091,9 +1093,9 @@ router.get('/approve', async (req, res) => {
     const route = `/login/payroll/month-end`;
 
     await createNotification({ id, me, route });
-    const not = await Notification.create({
-      userId: id, message:`Payroll for ${month} is approved`, isRead: false, route: `/login/payroll/month-end`
-    })
+    // const not = await Notification.create({
+    //   userId: id, message:`Payroll for ${month} is approved`, isRead: false, route: `/login/payroll/month-end`
+    // })
     
     res.send(`Payroll for ${month} is approved`);
   } catch (error) {

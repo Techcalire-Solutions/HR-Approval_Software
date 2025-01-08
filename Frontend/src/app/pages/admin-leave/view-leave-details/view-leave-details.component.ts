@@ -53,10 +53,10 @@ import { LeaveCountCardsComponent } from '../../employee-leave/leave-count-cards
   ],
   templateUrl: './view-leave-details.component.html',
   styleUrl: './view-leave-details.component.scss',
-    providers: [
-      { provide: DateAdapter, useClass: NativeDateAdapter },
-      { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
-    ],
+  providers: [
+    { provide: DateAdapter, useClass: NativeDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS }
+  ],
 })
 export class ViewLeaveDetailsComponent {
   isLoading = false;
@@ -67,8 +67,6 @@ export class ViewLeaveDetailsComponent {
   signedUrl: any[] = [];
   public userImage = 'img/users/default-user.jpg';
   apiUrl = 'https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/';
-
-  // Inject services
   snackBar = inject(MatSnackBar);
   router = inject(Router);
   route = inject(ActivatedRoute);
@@ -82,24 +80,22 @@ export class ViewLeaveDetailsComponent {
     if (leaveId) {
       this.isLoading = true;
 
-      // Fetch leave details
       this.leaveService.getLeaveById(+leaveId).subscribe((response: any) => {
         this.leave = response;
         console.log(response);
 
-        // Handle file URL as a string, no need for map
+
         if (this.leave.fileUrl) {
           this.signedUrl = [{
-            fileUrl: this.sanitizer.bypassSecurityTrustResourceUrl(this.leave.fileUrl),  // Changed here
+            fileUrl: this.sanitizer.bypassSecurityTrustResourceUrl(this.leave.fileUrl),
             type: this.leave.fileUrl.split('.').pop()?.split('?')[0] || 'defaultType',
           }];
         } else {
-          this.signedUrl = []; // Fallback if fileUrl is not available
+          this.signedUrl = [];
         }
 
         console.log("hellourl", this.signedUrl);
 
-        // Populate form with leave details
         this.leaveRequestForm.patchValue({
           leaveTypeId: this.leave.leaveTypeId,
           startDate: this.leave.startDate,
@@ -107,7 +103,6 @@ export class ViewLeaveDetailsComponent {
           notes: this.leave.notes
         });
 
-        // Handle leave dates (assuming the structure is correct)
         const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
         leaveDatesArray.clear();
         this.leave.leaveDates.forEach((leaveDate: any) => {
@@ -125,7 +120,7 @@ export class ViewLeaveDetailsComponent {
       });
     }
 
-    // Initialize form
+
     this.leaveRequestForm = this.fb.group({
       leaveTypeId: ['', Validators.required],
       startDate: ['', Validators.required],
@@ -134,23 +129,23 @@ export class ViewLeaveDetailsComponent {
       leaveDates: this.fb.array([]),
     });
 
-    // Disable form fields for view mode
+
     this.leaveRequestForm.get('startDate')?.disable();
     this.leaveRequestForm.get('endDate')?.disable();
   }
 
-  // Sanitizing URLs to display images properly
+
   getSafeUrl(fileUrl: string) {
-    return this.sanitizer.bypassSecurityTrustResourceUrl(fileUrl);  // Correct method for iframe URLs
+    return this.sanitizer.bypassSecurityTrustResourceUrl(fileUrl);
   }
 
 
-  // Form array for leave dates
+
   get leaveDates(): FormArray {
     return this.leaveRequestForm.get('leaveDates') as FormArray;
   }
 
-  // Optionally format the date as needed
+
   formatDate(date: string): string {
     return formatDate(date, 'yyyy-MM-dd');
   }

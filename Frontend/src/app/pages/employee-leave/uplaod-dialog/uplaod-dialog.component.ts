@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, Inject, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -30,7 +31,7 @@ export class UplaodDialogComponent {
   route = inject(ActivatedRoute);
 
   ngOnInit() {
-    this.leaveId = this.route.snapshot.paramMap.get('leaveId') || '';  // Fetch leaveId from route if applicable
+    this.leaveId = this.route.snapshot.paramMap.get('leaveId') || '';  
     this.leaveRequestForm = this.fb.group({
       leaveTypeId: ['', Validators.required],
       startDate: ['', Validators.required],
@@ -43,10 +44,10 @@ export class UplaodDialogComponent {
 
   constructor(
     public dialogRef: MatDialogRef<UplaodDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { leaveId: string }  // Inject dialog data
+    @Inject(MAT_DIALOG_DATA) public data: { leaveId: string }
   ) {
     this.leaveId = data.leaveId;
-    console.log(this.leaveId) // Assign the passed leaveId
+    console.log(this.leaveId)
   }
 
   closeDialog(): void {
@@ -59,26 +60,32 @@ export class UplaodDialogComponent {
   fileName: string = '';
   isFileSelected: boolean = false;
   leaveId: string = '';
+  allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png'];
 
   uploadFile(event: Event) {
     const input = event.target as HTMLInputElement;
     const selectedFile = input.files?.[0];
+    const fileType: any = selectedFile?.type.split('/')[1];
+    if (!this.allowedFileTypes.includes(fileType)) {
+      alert('Invalid file type. Please select a PDF, JPEG, JPG, or PNG file.');
+      return;
+    }
 
     if (selectedFile) {
       this.fileName = selectedFile.name;
       this.isFileSelected = true;
 
-      // Upload the file using the leaveService
+
       this.leaveService.uploadImage(selectedFile).subscribe({
         next: (res) => {
-          // Once the file is uploaded, we get the file URL
-          const fileUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${res.fileUrl}`;
-          this.imageUrl = fileUrl; // Ensure fileUrl is correctly assigned
 
-          // Update the file URL in the form
+          const fileUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${res.fileUrl}`;
+          this.imageUrl = fileUrl;
+
+
           this.leaveRequestForm.get('fileUrl')?.setValue(fileUrl);
 
-          console.log('File URL:', this.imageUrl);  // Check if fileUrl is logged
+          console.log('File URL:', this.imageUrl);
         },
         error: (err) => {
           console.error('File upload failed', err);
@@ -90,10 +97,10 @@ export class UplaodDialogComponent {
 
   onSubmit() {
     if (this.imageUrl) {
-      // Pass the file URL back to the parent component
+
       this.dialogRef.close({ fileUrl: this.imageUrl });
     } else {
-      // No file uploaded, close the dialog without a value
+
       this.dialogRef.close();
     }
   }
@@ -102,8 +109,8 @@ export class UplaodDialogComponent {
   uploadFileFromInput() {
     const fileInput: HTMLInputElement | null = document.querySelector('#fileInput');
     if (fileInput && fileInput.files?.length) {
-      const event = { target: fileInput } as unknown as Event; // First cast to unknown and then to Event
-      this.uploadFile(event); // Now pass the event with the target as fileInput
+      const event = { target: fileInput } as unknown as Event;
+      this.uploadFile(event);
     }
   }
 

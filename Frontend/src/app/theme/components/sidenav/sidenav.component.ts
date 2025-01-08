@@ -134,9 +134,11 @@ users:User;
         (item.title === 'Add' && item.parentId === 26) ||
         (item.title === 'View' && item.parentId === 26)||
         item.title === 'Backup' ||
+
         (item.title === 'Leave' && !item.parentId) ||
+        (item.title === 'View Requests' && item.parentId === 8) ||
         (item.title === 'Calendar' && item.parentId === 8) ||
-        (item.title === 'View' && item.parentId === 8) ||
+
         (item.title === 'User Leave' && item.parentId === 8) ||
         (item.title === 'Emergency' && item.parentId === 8)||
 
@@ -161,7 +163,7 @@ users:User;
         (item.title === 'Month End' && item.parentId === 13) ||
         (item.title === 'Payslip' && item.parentId === 13) ||
         // (item.title === 'Process Payslip' && item.parentId === 13) ||
-        
+
         (item.title === 'Leave' && !item.parentId) ||
         (item.title === 'Calendar' && item.parentId === 8) ||
         (item.title === 'View' && item.parentId === 8) ||
@@ -208,8 +210,8 @@ users:User;
         (item.title === 'Month End' && item.parentId === 13) ||
         (item.title === 'Payslip' && item.parentId === 13) ||
         (item.title === 'Leave' && !item.parentId)||
-        (item.title === 'Apply Leave' && item.parentId === 8) ||
-        (item.title === 'Leave Balance' && item.parentId === 8)
+        (item.title === 'Request' && item.parentId === 8) ||
+        (item.title === 'Balance' && item.parentId === 8)
         // (item.title === 'Payroll' && !item.parentId) ||
         // (item.title === 'Advance Salary' && item.parentId === 13) ||
         // (item.title === 'Payslip' && item.parentId === 13) ||
@@ -231,8 +233,8 @@ users:User;
         (item.title === 'Payslip' && item.parentId === 13) ||
         (item.title === 'Leave' && !item.parentId)||
         (item.title === 'Leave' && !item.parentId)||
-        (item.title === 'Apply Leave' && item.parentId === 8) ||
-        (item.title === 'Leave Balance' && item.parentId === 8)
+        (item.title === 'Request' && item.parentId === 8) ||
+        (item.title === 'Balance' && item.parentId === 8)
 
 
       )
@@ -256,8 +258,8 @@ users:User;
         (item.title === 'View' && item.parentId === 26)||
         (item.title === 'Leave' && !item.parentId)||
         (item.title === 'Leave' && !item.parentId)||
-        (item.title === 'Apply Leave' && item.parentId === 8) ||
-        (item.title === 'Leave Balance' && item.parentId === 8)
+        (item.title === 'Request' && item.parentId === 8) ||
+        (item.title === 'Balance' && item.parentId === 8)
 
 
 

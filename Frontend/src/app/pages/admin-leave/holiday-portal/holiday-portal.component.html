@@ -1,0 +1,55 @@
+<mat-card>
+  <mat-card-content>
+    <form [formGroup]="leaveRequestForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Holiday Name</mat-label>
+          <input matInput formControlName="name" placeholder="Enter holiday name" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Holiday Type</mat-label>
+          <mat-select formControlName="type" required>
+            <mat-option value="Public">Public</mat-option>
+            <mat-option value="Optional">Optional</mat-option>
+            <mat-option value="Restricted">Restricted</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Date</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="date" placeholder="Select a date" required />
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Comments</mat-label>
+          <textarea matInput formControlName="comments" placeholder="Enter comments"></textarea>
+        </mat-form-field>
+      </div>
+
+      <button mat-raised-button color="accent" type="submit" [disabled]="leaveRequestForm.invalid">
+        Submit
+      </button>
+    </form>
+
+<br>
+<br>
+    <div>
+      <input #fileInput type="file" (change)="onFileChange($event)" accept=".xlsx" />
+      <button mat-raised-button color="primary" (click)="uploadFile()">Upload Holidays</button>
+      <p>You can upload holiday data using an Excel (.xlsx) file.</p>
+    </div>
+<!--
+    <div class="upload-container">
+      <label for="fileInput">Choose Excel File</label>
+      <input id="fileInput" type="file" (change)="onFileChange($event)" accept=".xlsx" />
+      <button mat-raised-button color="primary" (click)="uploadFile()">Upload Holidays</button>
+      <p>You can upload holiday data using an Excel (.xlsx) file.</p>
+    </div> -->
+  </mat-card-content>
+</mat-card>
+

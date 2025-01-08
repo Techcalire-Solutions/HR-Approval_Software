@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 @Component({
   selector: 'app-leave-update-dialog',
   standalone: true,
-  imports:[
+  imports: [
     CommonModule, MatIconModule
   ],
   templateUrl: './leave-update-dialog.component.html',
@@ -28,15 +28,15 @@ export class LeaveUpdateDialogComponent {
   }
 
 
-private setOkButtonVisibility() {
-  if(this.message.includes('Not enough leave balance for this update')){
-    this.showOkButton = false;
+  private setOkButtonVisibility() {
+    if (this.message.includes('Not enough leave balance for this update')) {
+      this.showOkButton = false;
 
+    }
+    else {
+      this.showOkButton = true;
+    }
   }
-  else {
-    this.showOkButton = true;
-  }
-}
 
 
   onBack() {
