@@ -4,9 +4,6 @@ import { FormGroup, FormBuilder, Validators, FormArray, FormsModule, ReactiveFor
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-
-import { DateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS } from '@angular/material/core';
-import { NativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,10 +14,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { LeaveService } from '@services/leave.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { Subscription } from 'rxjs';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LeaveCountCardsComponent } from '../leave-count-cards/leave-count-cards.component';
 import { UsersService } from '@services/users.service';
@@ -93,7 +88,7 @@ export class AddLeaveComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const token: any = localStorage.getItem('token')
-    let user = JSON.parse(token)
+    const user = JSON.parse(token)
     this.userId = user.id;
     this.checkProbationStatus()
 
@@ -144,9 +139,9 @@ export class AddLeaveComponent implements OnInit, OnDestroy {
     return this.leaveRequestForm.get('leaveDates') as FormArray;
   }
 
-  onDateChange() {
-    const startDate = this.leaveRequestForm.get('startDate')!.value;
-    const endDate = this.leaveRequestForm.get('endDate')!.value;
+  // onDateChange() {
+  //   const startDate = this.leaveRequestForm.get('startDate')!.value;
+  //   const endDate = this.leaveRequestForm.get('endDate')!.value;
 
   //   if (startDate && endDate && this.validateDateRange()) {
   //     this.updateLeaveDates(new Date(startDate), new Date(endDate));
@@ -256,7 +251,6 @@ export class AddLeaveComponent implements OnInit, OnDestroy {
       this.router.navigate(['/login/employee-leave']);
     }
   }
-}
 
 minEndDate: Date | null = null;
 endDateFilter = (date: Date | null): boolean => {
@@ -351,10 +345,6 @@ onEndDateChange() {
 
 
   ngOnDestroy() {
-
-
-
-
   }
 
 }
