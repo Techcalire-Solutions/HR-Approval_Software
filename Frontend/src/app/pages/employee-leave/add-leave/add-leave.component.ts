@@ -73,97 +73,93 @@ export const MY_FORMATS = {
   providers: [provideMomentDateAdapter(MY_FORMATS), DatePipe],
 })
 export class AddLeaveComponent implements OnInit, OnDestroy {
-  isEditMode: boolean = false;
 
+
+  isEditMode: boolean = false;
   leaveRequestForm: FormGroup;
   fb = inject(FormBuilder)
   leaveTypes: any[] = [];
   isLoading = false;
+  snackBar = inject(MatSnackBar);
+  router = inject(Router)
+  route = inject(ActivatedRoute)
+  leaveService = inject(LeaveService)
+  sanitizer = inject(DomSanitizer);
+  userService = inject(UsersService);
+  dialog = inject(MatDialog);
+  leave: any
+  userId: number
 
 
-snackBar = inject(MatSnackBar);
-router = inject(Router)
-route = inject(ActivatedRoute)
-
-leaveService = inject(LeaveService)
-sanitizer = inject(DomSanitizer);
-userService = inject(UsersService);
-dialog = inject(MatDialog);
-
-
-
-leave : any
-userId : number
   ngOnInit() {
-
     const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
     this.userId = user.id;
     this.checkProbationStatus()
 
-const leaveId = this.route.snapshot.queryParamMap.get('id');
-if (leaveId) {
-  this.isEditMode = true;
-  this.leaveService.getLeaveById(+leaveId).subscribe((response: any) => {
-    this.leave = response;
+    const leaveId = this.route.snapshot.queryParamMap.get('id');
+    if (leaveId) {
+      this.isEditMode = true;
+      this.leaveService.getLeaveById(+leaveId).subscribe((response: any) => {
+        this.leave = response;
 
-    console.log(this.leave)
+        this.leaveRequestForm.patchValue({
+          leaveTypeId: this.leave.leaveTypeId,
+          startDate: this.leave.startDate,
+          endDate: this.leave.endDate,
+          notes: this.leave.notes,
+          fileUrl: this.leave.fileUrl,
+        });
 
 
-    this.leaveRequestForm.patchValue({
-      leaveTypeId: this.leave.leaveTypeId,
-      startDate: this.leave.startDate,
-      endDate: this.leave.endDate,
-      notes: this.leave.notes,
-      fileUrl : this.leave.fileUrl,
+        const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
+        leaveDatesArray.clear();
+        this.leave.leaveDates.forEach((leaveDate: any) => {
+          leaveDatesArray.push(this.fb.group({
+            date: [leaveDate.date],
+            session1: [leaveDate.session1],
+            session2: [leaveDate.session2]
+          }));
+        });
+      });
+    }
+
+
+    this.leaveRequestForm = this.fb.group({
+      leaveTypeId: ['', Validators.required],
+      startDate: ['', Validators.required],
+      endDate: ['', Validators.required],
+      notes: ['', Validators.required],
+      fileUrl: [''],
+      leaveDates: this.fb.array([]),
     });
-
-
-    const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
-    leaveDatesArray.clear();
-    this.leave.leaveDates.forEach((leaveDate: any) => {
-      leaveDatesArray.push(this.fb.group({
-        date: [leaveDate.date],
-        session1: [leaveDate.session1],
-        session2: [leaveDate.session2]
-      }));
-    });
-  });
-}
-
-
-this.leaveRequestForm = this.fb.group({
-  leaveTypeId: ['', Validators.required],
-  startDate: ['', Validators.required],
-  endDate: ['', Validators.required],
-  notes: ['', Validators.required],
-  fileUrl:[''],
-  leaveDates: this.fb.array([]),
-});
 
 
   }
 
 
   displayedColumns: string[] = ['leaveType', 'startDate', 'endDate', 'reason', 'session'];
+
   get leaveDates(): FormArray {
     return this.leaveRequestForm.get('leaveDates') as FormArray;
   }
 
-  // onDateChange() {
-  //   const startDate = this.leaveRequestForm.get('startDate')!.value;
-  //   const endDate = this.leaveRequestForm.get('endDate')!.value;
+  onDateChange() {
+    const startDate = this.leaveRequestForm.get('startDate')!.value;
+    const endDate = this.leaveRequestForm.get('endDate')!.value;
 
   //   if (startDate && endDate && this.validateDateRange()) {
   //     this.updateLeaveDates(new Date(startDate), new Date(endDate));
   //   }
   // }
 
+
   validateDateRange(): boolean {
     const startDate = this.leaveRequestForm.get('startDate')!.value;
     const endDate = this.leaveRequestForm.get('endDate')!.value;
     return new Date(startDate) <= new Date(endDate);
   }
+
 
   updateLeaveDates(start: Date, end: Date) {
     const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
@@ -196,67 +192,69 @@ this.leaveRequestForm = this.fb.group({
     });
   }
 
+
   onSubmit() {
     this.isLoading = true;
 
     const leaveRequest = {
-        ...this.leaveRequestForm.value,
-        leaveDates: this.leaveRequestForm.get('leaveDates')!.value
+      ...this.leaveRequestForm.value,
+      leaveDates: this.leaveRequestForm.get('leaveDates')!.value
     };
 
     const leaveId = this.route.snapshot.queryParamMap.get('id');
 
 
     const request$ = this.isEditMode && leaveId
-        ? this.leaveService.updateLeave(+leaveId, leaveRequest)
-        : this.leaveService.addLeave(leaveRequest);
+      ? this.leaveService.updateLeave(+leaveId, leaveRequest)
+      : this.leaveService.addLeave(leaveRequest);
 
 
     request$.subscribe(
-        (response: any) => {
+      (response: any) => {
 
-            this.openDialog(response.message,response.leaveDatesApplied,response.lopDates);
-            this.isLoading = false;
-        },
-        (error) => {
-            this.isLoading = false;
-            this.snackBar.open('An error occurred while submitting the leave request.', 'Close', { duration: 3000 });
-        }
+        this.openDialog(response.message, response.leaveDatesApplied, response.lopDates);
+        this.isLoading = false;
+      },
+      (error) => {
+        this.isLoading = false;
+        this.snackBar.open('An error occurred while submitting the leave request.', 'Close', { duration: 3000 });
+      }
     );
-}
+  }
 
 
-openDialog(message: string, leaveDatesApplied: any[], lopDates: any[]) {
-  const dialogRef = this.dialog.open(LeaveInfoDialogComponent, {
-    data:{
-      message :message,
-      leaveDatesApplied:leaveDatesApplied,
-      lopDates:lopDates
+  openDialog(message: string, leaveDatesApplied: any[], lopDates: any[]) {
+    const dialogRef = this.dialog.open(LeaveInfoDialogComponent, {
+      data: {
+        message: message,
+        leaveDatesApplied: leaveDatesApplied,
+        lopDates: lopDates
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      this.handleDialogResult(result);
+    });
+  }
+
+
+
+  handleDialogResult(result: any) {
+    if (result?.action === 'proceed') {
+
+      this.snackBar.open('Leave request submitted successfully!', 'Close', { duration: 3000 });
+      this.router.navigate(['/login/employee-leave']);
+    } else if (result?.action === 'back') {
+
+      this.isLoading = false;
+
+    } else if (result?.action === 'cancel') {
+
+      this.isLoading = false;
+      this.leaveRequestForm.reset();
+      this.snackBar.open('Leave request cancelled!', 'Close', { duration: 3000 });
+      this.router.navigate(['/login/employee-leave']);
     }
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-    this.handleDialogResult(result);
-  });
-}
-
-
-
-handleDialogResult(result: any) {
-  if (result?.action === 'proceed') {
-
-    this.snackBar.open('Leave request submitted successfully!', 'Close', { duration: 3000 });
-    this.router.navigate(['/login/employee-leave']);
-  } else if (result?.action === 'back') {
-
-    this.isLoading = false;
-
-  } else if (result?.action === 'cancel') {
-
-    this.isLoading = false;
-    this.leaveRequestForm.reset();
-    this.snackBar.open('Leave request cancelled!', 'Close', { duration: 3000 });
-    this.router.navigate(['/login/employee-leave']);
   }
 }
 
@@ -286,9 +284,6 @@ onEndDateChange() {
     this.updateLeaveDates(new Date(startDate), new Date(endDate));
   }
 }
-
-
-
 
 
   uploadProgress: number | null = null;
@@ -321,44 +316,45 @@ onEndDateChange() {
 
 
 
-isSickLeave(): boolean {
-  const leaveTypeId = this.leaveRequestForm.get('leaveTypeId')?.value;
-  const sickLeaveTypeId = this.leaveTypes.find(type => type.leaveTypeName === 'Sick Leave')?.id;
-  return leaveTypeId === sickLeaveTypeId;
-}
+  isSickLeave(): boolean {
+    const leaveTypeId = this.leaveRequestForm.get('leaveTypeId')?.value;
+    const sickLeaveTypeId = this.leaveTypes.find(type => type.leaveTypeName === 'Sick Leave')?.id;
+    return leaveTypeId === sickLeaveTypeId;
+  }
 
 
 
- isProbationEmployee: boolean = false;
- checkProbationStatus() {
-  this.leaveService.getLeaveType().subscribe(
-    (leaveTypes: any) => {
-      this.leaveTypes = leaveTypes;
+  isProbationEmployee: boolean = false;
+  checkProbationStatus() {
+    this.leaveService.getLeaveType().subscribe(
+      (leaveTypes: any) => {
+        this.leaveTypes = leaveTypes;
 
-    },
-    (error) => {
-      console.error('Error fetching leave types:', error);
-    }
-  );
+      },
+      (error) => {
+        console.error('Error fetching leave types:', error);
+      }
+    );
 
-  this.userService.getProbationEmployees().subscribe((employees) => {
-    this.isProbationEmployee = employees.some((emp: any) => emp.id === this.userId);
-    if (this.isProbationEmployee) {
-      this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
-
-
-    }
-    else{
-      this.leaveTypes = this.leaveTypes
-    }
-  });
-}
-
-ngOnDestroy(){
+    this.userService.getProbationEmployees().subscribe((employees) => {
+      this.isProbationEmployee = employees.some((emp: any) => emp.id === this.userId);
+      if (this.isProbationEmployee) {
+        this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
 
 
+      }
+      else {
+        this.leaveTypes = this.leaveTypes
+      }
+    });
+  }
 
 
-}
+  ngOnDestroy() {
+
+
+
+
+  }
 
 }

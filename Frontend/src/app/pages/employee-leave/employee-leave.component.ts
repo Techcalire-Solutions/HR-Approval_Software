@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DateAdapter, MAT_DATE_FORMATS, NativeDateAdapter, MAT_NATIVE_DATE_FORMATS } from '@angular/material/core';
 import {MatTableModule} from '@angular/material/table';
+
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -50,7 +51,7 @@ import { UplaodDialogComponent } from './uplaod-dialog/uplaod-dialog.component';
     DatePipe,
     CommonModule,
     MatPaginatorModule
-],
+  ],
   providers: [
     { provide: DateAdapter, useClass: NativeDateAdapter },
     { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS },
@@ -69,30 +70,31 @@ export class EmployeeLeaveComponent {
   router = inject(Router)
   leaveService = inject(LeaveService)
 
-userId:number
-  ngOnInit(){
+  userId: number
+  ngOnInit() {
     this.getLeaveByUser()
     const token: any = localStorage.getItem('token')
     const user = JSON.parse(token)
     this.userId = user.id;
-   this.getLeaveByUser();
+    this.getLeaveByUser();
   }
 
 
 
   ngOnDestroy(): void {
     this.leaveSub.unsubscribe();
-    if(this.delete){
+    if (this.delete) {
       this.delete.unsubscribe();
     }
 
-}
+  }
 
-totalSickLeave: number = 0; // New variable to store total Sick Leave
-isButtonVisible: boolean = false;
-selectedLeaveDays: number = 0;
-leaves:any[]=[]
-  leaveSub :Subscription
+  totalSickLeave: number = 0;
+  isButtonVisible: boolean = false;
+  selectedLeaveDays: number = 0;
+  leaves: any[] = []
+  leaveSub: Subscription
+  
   private getLeaveByUser(): void {
     if (!this.userId) return;
     this.leaveSub = this.leaveService.getLeavesByUser(this.userId, this.searchText, this.currentPage, this.pageSize).subscribe(
@@ -100,17 +102,15 @@ leaves:any[]=[]
         this.leaves = res.items;
         this.totalItems = res.count;
 
-        console.log(this.leaves)
-                     // Filter Sick Leave entries and calculate the total Sick Leave days
-this.totalSickLeave = this.leaves
-.filter(leave => leave.leaveType?.leaveTypeName === 'Sick Leave') // Ensure nested access
-.reduce((total, leave) => total + (leave.noOfDays || 0), 0);
+        this.totalSickLeave = this.leaves
+          .filter(leave => leave.leaveType?.leaveTypeName === 'Sick Leave')
+          .reduce((total, leave) => total + (leave.noOfDays || 0), 0);
 
-console.log('Total Sick Leave:', this.totalSickLeave);
 
-// Set button visibility only if total Sick Leave is >= 3
-this.isButtonVisible = this.totalSickLeave >= 3;
-console.log('Is Button Visible:', this.isButtonVisible);
+
+
+        this.isButtonVisible = this.totalSickLeave >= 3;
+        console.log('Is Button Visible:', this.isButtonVisible);
 
 
       },
@@ -122,12 +122,12 @@ console.log('Is Button Visible:', this.isButtonVisible);
 
 
   public searchText!: string;
-  search(event: Event){
+  search(event: Event) {
     this.searchText = (event.target as HTMLInputElement).value.trim()
     this.getLeaveByUser()
   }
 
-  openApplyLeave(){
+  openApplyLeave() {
     this.router.navigate(['/login/employee-leave/add'])
   }
 
@@ -145,27 +145,26 @@ console.log('Is Button Visible:', this.isButtonVisible);
 
 
 
-  editLeave(item:any) {
- this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item.id } });
+  editLeave(item: any) {
+    this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item.id } });
   }
-  // Check if the selected leave type is 'Sick Leave'
 
-  isSickLeave(){
-    // const selectedLeaveType = this.leaveRequestForm.get('leaveTypeId')?.value;
-    // return selectedLeaveType === 'Sick Leave';
+
+  isSickLeave() {
   }
-  uploadFile(item:any){
+
+  uploadFile(item: any) {
     console.log(item.id)
     console.log(item)
-    this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item} });
+    this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item } });
 
   }
 
-delete!: Subscription;
-deleteLeaveStableFunction(id: number){
+  delete!: Subscription;
+  deleteLeaveStableFunction(id: number) {
     let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
     dialogRef.afterClosed().subscribe(res => {
-      if(res){
+      if (res) {
         this.delete = this.leaveService.deleteLeave(id).subscribe(res => {
           this.snackBar.open('Leave request deleted successfully!', 'Close', { duration: 3000 });
           this.getLeaveByUser()
@@ -214,21 +213,21 @@ deleteLeaveStableFunction(id: number){
   }
 
   uploadMedicalCertificate(leaveId: any, note: string): void {
-
-
   }
+
+
   openDialog(action: string, leaveId: string): void {
     const dialogRef = this.dialog.open(UplaodDialogComponent, {
-      data: { leaveId } , // Pass leaveId as part of the dialog data
+      data: { leaveId }, // Pass leaveId as part of the dialog data
       width: '400px',
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.fileUrl) {
-        // If fileUrl is returned, you can update it in the backend or UI
+
         console.log('File URL returned:', result.fileUrl);
 
-        // You can call your API to update the leave record with the file URL
+
         this.updateLeaveFileUrl(leaveId, result.fileUrl);
       } else {
         console.log('No file URL returned');
@@ -237,7 +236,7 @@ deleteLeaveStableFunction(id: number){
   }
 
   updateLeaveFileUrl(leaveId: string, fileUrl: string): void {
-    // Call your backend API to update the file URL for the leave request
+
     this.leaveService.updateLeaveFileUrl(leaveId, fileUrl).subscribe({
       next: (res) => {
         console.log('File URL updated successfully');
