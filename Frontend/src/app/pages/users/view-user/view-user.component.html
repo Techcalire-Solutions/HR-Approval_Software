@@ -17,17 +17,20 @@
           <h1 class="text-center">{{user.empNo}}</h1>
           <h2 class="text-center">{{user.name | uppercase}}</h2>
           <div class="p-3">
-            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-              <div>Email  :<strong>{{user.email}}</strong>
-              </div>
-              <div>Phone Number  :<strong>{{user.phoneNumber}}</strong></div>
+            <div class="row box">
+              <div class="col">Email: <strong>{{user.email}}</strong></div>
+              <div class="col">Phone Number: <strong>{{user.phoneNumber}}</strong></div>
             </div>
-
-            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-              <div>Created At  :<strong>{{user.createdAt | date:'dd/MM/yyyy'}}</strong></div>
-              <div>Updated At  :<strong >{{user.updatedAt | date:'dd/MM/yyyy'}}</strong></div>
+            <div class="row box">
+              <div class="col">Created At: <strong>{{user.createdAt | date:'dd/MM/yyyy'}}</strong></div>
+              <div class="col">Updated At: <strong>{{user.updatedAt | date:'dd/MM/yyyy'}}</strong></div>
             </div>
+            <!-- <div class="row box">
+              <div class="col">Created At: <strong>{{user.createdAt | date:'dd/MM/yyyy'}}</strong></div>
+              <div class="col">Updated At: <strong>{{user.updatedAt | date:'dd/MM/yyyy'}}</strong></div>
+            </div> -->
           </div>
+          
 
           <div style="height: 100%; display: flex; justify-content: center; align-items: center;">
             <a mat-stroked-button color="primary" (click)="onEditClick()">
@@ -49,7 +52,7 @@
             @if(userPersonal){
               <div class="p-3">
                 <div class="flex-container">
-                  <div>Gender  :<strong>{{userPersonal.gender }}</strong></div>
+                  <div>Gender  :<strong>{{userPersonal.gender | uppercase }}</strong></div>
                   <div>Date of Birth  :<strong>{{userPersonal.dateOfBirth | date:'dd/MM/yyyy'}}</strong></div>
                   <div>Joining Date  :<strong>{{userPersonal.dateOfJoining | date:'dd/MM/yyyy'}}</strong></div>
                   <div>Marital Status  :<strong>{{userPersonal.maritalStatus }}</strong></div>
@@ -122,8 +125,8 @@
                 </div>
 
                 <div class="flex-container">
-                  <div style="flex: 1;">Confirmed Date  :<strong>{{positions?.confirmationDate | date:'dd/MM/yyyy'}}</strong></div>
-                  <div style="flex: 3;">Confirmation Note  :<strong >{{positions.probationNote}}</strong></div>
+                  <div class="flex1">Confirmed Date  :<strong>{{positions?.confirmationDate | date:'dd/MM/yyyy'}}</strong></div>
+                  <div class="flex3">Confirmation Note  :<strong >{{positions.probationNote}}</strong></div>
                 </div>
               </div>
             }@else {

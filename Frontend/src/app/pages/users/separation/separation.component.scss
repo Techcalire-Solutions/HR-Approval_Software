@@ -1,96 +1,111 @@
 body {
   font-family: Arial, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f4f4f9;
+  margin: 0;
+  padding: 0;
 }
-.reset-password-container {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  // width: 300px;
-}
-h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-input[type="password"], input[type="text"]  {
+
+.table {
   width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  // margin: 20px auto;
+  border-collapse: separate; /* Use separate to allow corner rounding */
+  border-spacing: 0;
+  overflow: hidden;
+  border-radius: 10px; /* Rounded corners for the table */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for a subtle 3D effect */
 }
-button {
+
+.table__header {
+  padding: 10px;
+  background-color: #0000000b;
+  color: black;
+  border-top-left-radius: 10px; /* Rounded top left corner */
+  border-top-right-radius: 10px; /* Rounded top right corner */
+  height: 15px;
+  align-content: center;
+}
+
+.table__body {
+  max-height: 400px;
+  overflow-x: auto;
+  overflow-y: auto;
+  border: 1px solid #0000000b;
+  border-bottom-left-radius: 10px; /* Rounded bottom left corner */
+  border-bottom-right-radius: 10px; /* Rounded bottom right corner */
+}
+
+table {
   width: 100%;
-  padding: 10px;
-  background-color: #083680;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-button:hover {
-  background-color: #04132d;
-}
-.error {
-  color: red;
-  font-size: 12px;
-  text-align: center;
+  border-collapse: collapse;
+  table-layout: auto;
 }
 
-.email-input {
-  display: flex;
-  align-items: center;
-  gap: 8px; /* Adds space between the email input and the button */
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  transition: transform 0.2s ease-in-out;
 }
 
-.email-input input[type="email"] {
-  // width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  flex: 1; /* Makes the email input take up the remaining space */
-}
-
-.small-btn {
-  width: 40px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  // padding: 5px 10px;
-  font-size: 12px;
-  cursor: pointer;
-  display: flex;
-  // align-items: center;
-}
-
-.small-btn .material-icons {
-  font-size: 18px;
-}
-
-.small-btn:hover {
-  background-color: #0056b3;
-}
-
-button:disabled {
-  background-color: #cccccc; /* Light grey when disabled */
-  color: #666666; /* Dark grey text when disabled */
-  cursor: not-allowed; /* Show not-allowed cursor */
-}
-
-.user-spinner {
-  position: fixed; /* Ensures the spinner is positioned relative to the viewport */
+th {
+  background-color: rgb(145, 195, 243);
+  color: black;
   top: 0;
-  left: 0;
-  width: 100%; /* Covers the full screen width */
-  height: 100%; /* Covers the full screen height */
-  display: flex; /* Flexbox to center the spinner */
-  justify-content: center; /* Horizontally center */
-  align-items: center; /* Vertically center */
-  background-color: rgba(0, 0, 0, 0.1); /* Optional: Add a semi-transparent background */
-  z-index: 1000; /* Ensures it appears above other content */
+  z-index: 2;
 }
+
+td {
+  background-color: #fff;
+  position: relative;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+
+
+thead th:first-child, tbody td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+}
+
+.status {
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}
+
+.input-group {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+  margin-top: 15px;
+}
+
+.input-group input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 200px;
+}
+
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.col {
+  flex: 1;
+  margin-right: 20px;
+  width: 100%;
+}
+
+mat-icon:hover{
+  color: red;
+  cursor: pointer;
+  transform: scale(1.5);
+}
+

@@ -70,7 +70,7 @@
       <button mat-raised-button (click)="triggerPreviousTab()" [disabled]="!form.pristine && !form.invalid && !isNext">
         <div class="text-with-icon">
           <mat-icon>arrow_back_ios</mat-icon>
-          <span>Previous</span>
+          <!-- <span>Previous</span> -->
         </div>
       </button>
       <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.pristine || form.invalid"
@@ -86,7 +86,7 @@
       </button>
       <button mat-raised-button (click)="triggerNextTab()" style="margin-left: 10px;" [disabled]="!form.pristine && !form.invalid && !isNext">
         <div class="text-with-icon">
-          <span>Next</span>
+          <!-- <span>Next</span> -->
           <mat-icon>arrow_forward_ios</mat-icon>
         </div>
       </button>

@@ -144,15 +144,14 @@ export class AddLeaveComponent implements OnInit, OnDestroy {
     return this.leaveRequestForm.get('leaveDates') as FormArray;
   }
 
-
   onDateChange() {
     const startDate = this.leaveRequestForm.get('startDate')!.value;
     const endDate = this.leaveRequestForm.get('endDate')!.value;
 
-    if (startDate && endDate && this.validateDateRange()) {
-      this.updateLeaveDates(new Date(startDate), new Date(endDate));
-    }
-  }
+  //   if (startDate && endDate && this.validateDateRange()) {
+  //     this.updateLeaveDates(new Date(startDate), new Date(endDate));
+  //   }
+  // }
 
 
   validateDateRange(): boolean {
@@ -257,6 +256,34 @@ export class AddLeaveComponent implements OnInit, OnDestroy {
       this.router.navigate(['/login/employee-leave']);
     }
   }
+}
+
+minEndDate: Date | null = null;
+endDateFilter = (date: Date | null): boolean => {
+  if (!date || !this.minEndDate) {
+    return false;
+  }
+  return date >= this.minEndDate;
+}
+
+onDateChange() {
+  const startDate = this.leaveRequestForm.get('startDate')!.value;
+  const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
+  leaveDatesArray.clear();
+  this.leaveRequestForm.get('endDate')?.reset();
+  if (startDate) {
+    this.minEndDate = new Date(startDate);
+    this.minEndDate.setDate(this.minEndDate.getDate() + 1); 
+  }
+}
+
+onEndDateChange() {
+  const startDate = this.leaveRequestForm.get('startDate')!.value;
+  const endDate = this.leaveRequestForm.get('endDate')!.value;
+  if (startDate && endDate) {
+    this.updateLeaveDates(new Date(startDate), new Date(endDate));
+  }
+}
 
 
   uploadProgress: number | null = null;

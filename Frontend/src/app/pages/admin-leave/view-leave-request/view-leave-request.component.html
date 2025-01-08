@@ -118,19 +118,23 @@
 
             <td (click)="$event.stopPropagation()">
               <div class="popup-message">
-                @if(item.fileUrl){
-                  <div>
-                    <img 
-                        [src]="item.fileUrl" 
-                        class="transition-2" 
-                        [ngClass]="{ 'enlarged': enlargedItemId === item.id }"
-                        [style.width]="enlargedItemId === item.id ? '500px' : '50px'"
-                        [style.height]="enlargedItemId === item.id ? '500px' : '50px'"
-                        (click)="toggleImageSize(item.id)"
-                    />
-                </div>
-                }@else {
-                  <mat-icon *ngIf="item.fileUrl" class="green-icon">check_circle</mat-icon>
+                @if(item.leaveType?.leaveTypeName === 'Sick Leave'){
+                  @if(item.fileUrl){
+                    <div>
+                      <img 
+                          [src]="item.fileUrl" 
+                          class="transition-2" 
+                          [ngClass]="{ 'enlarged': enlargedItemId === item.id }"
+                          [style.width]="enlargedItemId === item.id ? '500px' : '50px'"
+                          [style.height]="enlargedItemId === item.id ? '500px' : '50px'"
+                          (click)="toggleImageSize(item.id)"
+                      />
+                  </div>
+                  }@else {
+                    <button  class="icon-btn upload-btn" mat-icon-button color="primary" (click)="upload('approve', item.id)">
+                      <mat-icon>cloud_upload</mat-icon>
+                    </button>
+                  }
                 }
               </div>
 

@@ -183,11 +183,13 @@ export class UsersComponent implements OnInit, OnDestroy {
       data: {id: id, empNo: empNo, name: name}
     });
     this.dialogSub = dialogRef.afterClosed().subscribe((res) => {
-      this.rsignSub = this.usersService.resignEmployee(id, res).subscribe(() => {
-        this.snackbar.open(`${empNo} is now resigned`, "", { duration: 3000 });
-        this.searchText = '';
-        this.getUsers()
-      })
+      if(res.confirmed){
+        this.rsignSub = this.usersService.resignEmployee(id, res).subscribe(() => {
+          this.snackbar.open(`${empNo} is now resigned`, "", { duration: 3000 });
+          this.searchText = '';
+          this.getUsers()
+        })
+      }
     })
   }
 

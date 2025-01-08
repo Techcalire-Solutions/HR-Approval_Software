@@ -1,6 +1,6 @@
 
   <form [formGroup]="mainForm" enctype="multipart/form-data">
-    <mat-card style="width: 100%;">
+    <mat-card class="full-width">
       <mat-card-header><mat-card-title>Documents</mat-card-title></mat-card-header>
       <div fxLayout="column" class="form-field-outer">
         <div formArrayName="uploadForms">
@@ -42,7 +42,7 @@
         <button mat-raised-button (click)="triggerPreviousTab()" [disabled]="isAnyFormClicked()">
           <div class="text-with-icon">
             <mat-icon>arrow_back_ios</mat-icon>
-            <span>Previous</span>
+            <!-- <span>Previous</span> -->
           </div>
         </button>
         <button mat-raised-button color="primary" (click)="addDoc()"  style="margin-left: 10px;"

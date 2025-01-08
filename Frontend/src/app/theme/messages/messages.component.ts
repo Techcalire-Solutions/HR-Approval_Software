@@ -67,7 +67,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(){
-this.initializeComponent()
+    this.initializeComponent()
   }
 
 
@@ -88,7 +88,6 @@ this.initializeComponent()
 
 
    async initializeComponent(){
-
     const token: any = localStorage.getItem('token');
     const user = JSON.parse(token);
     if (user && typeof user.role === 'number') {
@@ -148,6 +147,8 @@ this.initializeComponent()
   getAllNot() {
     this.allNotSub = this.messagesService.getAllNotifications().subscribe(
       (res) => {
+        console.log(res);
+        
         if (Array.isArray(res)) {
           this.notifications = res;
         } else {

@@ -40,28 +40,7 @@
   .btn:hover {
     background-color: #0056b3;
   }
-  
-  .table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  
-  .table-header {
-    background-color: #5eacfa;
-  }
-  
-  .table-header th {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 2px solid #dee2e6;
-  }
-  
-  .table-row td {
-    padding: 10px;
-    border-bottom: 1px solid #dee2e6;
-  }
-  
+
   .remove-btn {
     background-color: #dc3545;
   }
@@ -124,4 +103,116 @@
     background-color: #f8d7da; /* Light red background */
     color: #721c24; /* Dark red text */
   }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .table-header {
+    background-color: #5eacfa;
+  }
+  
+  .table-header th {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid #dee2e6;
+  }
+  
+  .table-row td {
+    padding: 10px;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  
+  @media (max-width: 767px) {
+    .table {
+      display: block;
+      border: none;
+      margin-top: 10px;
+      width: 100%; /* Table takes full width */
+      table-layout: fixed; /* Ensure table's layout is fixed */
+    }
+  
+    .table-header {
+      display: none; /* Hide original headers */
+    }
+  
+    .table-row {
+      display: block;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 10px;
+      width: 100%; /* Ensure rows take full available width */
+    }
+  
+    .table-row td {
+      display: block;
+      padding: 10px;
+      border: none;
+      position: relative;
+      margin-bottom: 10px;
+      background-color: #fafafa;
+      border-radius: 5px;
+      width: 50%;
+      box-sizing: border-box;
+    }
+  
+    .table-row td::before {
+      content: attr(data-label);
+      font-weight: bold;
+      color: #333;
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      font-size: 11px;
+      color: #3498db;
+      padding-right: 10px;
+    }
+  
+    .table-row td {
+      padding-left: 120px;
+    }
+  
+    .table-row td:last-child {
+      margin-bottom: 0;
+      width: 50%;
+    }
+  
+    .table-row .last-columns {
+      display: flex;
+      justify-content: space-between;
+      padding-left: 0;
+      margin-bottom: 0;
+      width: 100%; /* Ensure last column row takes up full width */
+    }
+  
+    .table-row .last-columns mat-icon {
+      font-size: 18px;
+      color: #3498db;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+  
+    .table-row .last-columns mat-icon:hover {
+      color: #2980b9;
+    }
+  
+    mat-icon {
+      font-size: 18px;
+      color: #3498db;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+  
+    mat-icon:hover {
+      color: #2980b9;
+    }
+  }
+  
+  
   
