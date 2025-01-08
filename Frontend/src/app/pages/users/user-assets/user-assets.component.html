@@ -52,28 +52,26 @@
         <th>Description</th>
         <th>Assigned Date</th>
         <th>Actions</th>
-        <th>Return</th>
+        <!-- <th>Return</th> -->
       </tr>
     </thead>
     <tbody>
       @for (row of rows; let i = $index; track $index) {
         <tr class="table-row" (click)="row.status && editRow(row, i)" [class.status-false]="!row.status">
-          <td>{{ row.assetName }}</td>
-          <td>{{ row.identifierType }}</td>
-          <td>{{ row.identificationNumber }}</td>
-          <td>{{ row.description }}</td>
-          <td>{{ row.assignedDate | date: 'dd-MM-yyyy' }}</td>
-          @if(row.status){
-            <td>
+          <td data-label="Asset Name">{{ row.assetName }}</td>
+          <td data-label="Identifier Type">{{ row.identifierType }}</td>
+          <td data-label="Identification Number">{{ row.identificationNumber }}</td>
+          <td data-label="Description">{{ row.description }}</td>
+          <td data-label="Assigned Date">{{ row.assignedDate | date: 'dd-MM-yyyy' }}</td>
+          <td class="last-columns">
+            @if(row.status){
               <mat-icon (click)="removeRow(i)">remove_circle_outline</mat-icon>
-            </td>
-            <td>
               <mat-icon (click)="returnAsset(i)" (click)="$event.stopPropagation()">assignment_return</mat-icon>
-            </td>
-          }@else {  
-            <td>{{ row.note }}</td>
-            <td>{{ row.returnDate | date: 'dd-MM-yyyy' }}</td>
-          }
+            }@else {
+              <span>{{ row.note }}</span>
+              <span>{{ row.returnDate | date: 'dd-MM-yyyy' }}</span>
+            }
+          </td>
         </tr>
       }
     </tbody>

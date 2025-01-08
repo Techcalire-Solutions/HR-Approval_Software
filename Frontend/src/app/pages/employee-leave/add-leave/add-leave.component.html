@@ -24,10 +24,6 @@
             <mat-datepicker #dp></mat-datepicker>
           </mat-form-field>
         </div> -->
-
-
-
-
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Start Date</mat-label>
           <input matInput [matDatepicker]="startDatePicker" formControlName="startDate" placeholder="Choose start date" (dateChange)="onDateChange()" required >
@@ -35,19 +31,18 @@
           <mat-datepicker #startDatePicker></mat-datepicker>
         </mat-form-field>
 
-      </div>
-
-      <div class="form-row">
-
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>End Date</mat-label>
-          <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" placeholder="Choose end date" (dateChange)="onDateChange()" required >
+          <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" placeholder="Choose end date" (dateChange)="onEndDateChange()" required 
+          [matDatepickerFilter]="endDateFilter">
           <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
           <mat-datepicker #endDatePicker></mat-datepicker>
         </mat-form-field>
 
+      </div>
 
-        <mat-form-field appearance="outline" class="half-width">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>Reason</mat-label>
           <textarea matInput formControlName="notes" placeholder="Enter reason" required></textarea>
         </mat-form-field>
@@ -69,20 +64,19 @@
 
 
 
-      <div formArrayName="leaveDates">
-        <div *ngFor="let leaveDate of leaveDates.controls; let i = index" [formGroupName]="i" class="leave-session-card">
-          <mat-card>
-            <mat-card-title>{{ leaveDate.get('date')?.value | date:'dd-MM-yyyy' }}</mat-card-title>
-
-            <mat-checkbox [checked]="leaveDate.get('session1')?.value" (change)="onSessionChange(i, 'session1')">
-              Session 1
-            </mat-checkbox>
-            <mat-checkbox [checked]="leaveDate.get('session2')?.value" (change)="onSessionChange(i, 'session2')">
-              Session 2
-            </mat-checkbox>
-          </mat-card>
-        </div>
-      </div>
+<div formArrayName="leaveDates">
+  <div *ngFor="let leaveDate of leaveDates.controls; let i = index" [formGroupName]="i" class="leave-session-card">
+    <div class="leave-session-row">
+      <mat-card-title>{{ leaveDate.get('date')?.value | date: 'dd-MM-yyyy' }}</mat-card-title>
+      <mat-checkbox [checked]="leaveDate.get('session1')?.value" (change)="onSessionChange(i, 'session1')">
+        Session 1
+      </mat-checkbox>
+      <mat-checkbox [checked]="leaveDate.get('session2')?.value" (change)="onSessionChange(i, 'session2')">
+        Session 2
+      </mat-checkbox>
+    </div>
+  </div>
+</div>
 
       <br>
       <button mat-raised-button

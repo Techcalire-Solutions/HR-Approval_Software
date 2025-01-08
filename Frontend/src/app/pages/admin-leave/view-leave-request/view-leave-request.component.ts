@@ -31,6 +31,7 @@ import { DeleteDialogueComponent } from '../../../theme/components/delete-dialog
 import { EditLeaveComponent } from '../edit-leave/edit-leave.component';
 import { NoteDialogComponent } from '../note-dialog/note-dialog.component';
 import { SafePipe } from "../../../common/safe.pipe";
+import { UplaodDialogComponent } from '../../employee-leave/uplaod-dialog/uplaod-dialog.component';
 @Component({
   selector: 'app-view-leave-request',
   standalone: true,
@@ -121,7 +122,7 @@ search(event: Event){
 
 delete!: Subscription;
 deleteLeave(id: number){
-    let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+    const dialogRef = this.dialog.open(DeleteDialogueComponent, {});
     dialogRef.afterClosed().subscribe(res => {
       if(res){
         this.delete = this.leaveService.deleteLeave(id).subscribe(res => {
@@ -266,5 +267,27 @@ onDeleteLeave(leaveId: number): void {
 
   toggleImageSize(itemId: number) {
     this.enlargedItemId = this.enlargedItemId === itemId ? null : itemId;
+  }
+
+  upload(action: string, leaveId: string): void {
+    const dialogRef = this.dialog.open(UplaodDialogComponent, {
+      data: { leaveId } , // Pass leaveId as part of the dialog data
+      width: '400px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.fileUrl) {
+        this.updateLeaveFileUrl(leaveId, result.fileUrl);
+      } else {
+        console.log('No file URL returned');
+      }
+    });
+  }
+
+  updateLeaveFileUrl(leaveId: string, fileUrl: string): void {
+    this.leaveService.updateLeaveFileUrl(leaveId, fileUrl).subscribe({
+      next: () => {
+        this.getPaginatedLeaves()
+      }});
   }
 }
