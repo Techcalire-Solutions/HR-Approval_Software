@@ -31,6 +31,10 @@ export class LeaveService {
     return this.http.get(`${this.apiUrl}/leave/all/totalleaves`);
    }
 
+   getReport(year: number):Observable<any>{
+    return this.http.get(`${this.apiUrl}/leave/all/report?year=${year}`);
+   }
+
   deleteLeave(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/leave/${id}`);
   }
