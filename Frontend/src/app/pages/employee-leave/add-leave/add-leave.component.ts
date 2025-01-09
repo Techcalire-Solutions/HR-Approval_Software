@@ -267,7 +267,7 @@ onDateChange() {
   this.leaveRequestForm.get('endDate')?.reset();
   if (startDate) {
     this.minEndDate = new Date(startDate);
-    this.minEndDate.setDate(this.minEndDate.getDate() + 1); 
+    this.minEndDate.setDate(this.minEndDate.getDate()); 
   }
 }
 
