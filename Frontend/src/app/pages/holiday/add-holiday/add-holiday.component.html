@@ -1,0 +1,87 @@
+<mat-tab-group>
+  <!-- Tab for Adding a Holiday -->
+  <mat-tab label="Add Holiday">
+    <h1 mat-dialog-title>
+      
+      <span>@if(editStatus) { EDIT } @else { ADD }</span> HOLIDAY
+    </h1>
+    <div mat-dialog-content>
+      <form [formGroup]="holidayForm" class="user-form">
+        <div fxLayout="column" class="form-field-outer">
+          <br>
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" required />
+            @if(holidayForm.controls['name'].hasError('required')){
+              <mat-error *ngIf="">
+                Designation name is required
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Holiday Type</mat-label>
+            <mat-select formControlName="type">
+              <mat-option value="Public">Public</mat-option>
+              <mat-option value="Optional">Optional</mat-option>
+              <mat-option value="Restricted">Restricted</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Date</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="date" placeholder="Select a date" required />
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field class="w-100" appearance="outline">
+          <mat-label>Comments</mat-label>
+          <textarea matInput formControlName="comments" placeholder="Enter comments"></textarea>
+        </mat-form-field>
+      </form>
+    </div>
+    <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
+      <button mat-raised-button color="primary" [mat-dialog-close]="holidayForm.value" [disabled]="!holidayForm.valid" (click)="onSubmit()">
+        @if(editStatus) {<span>Update</span>}
+        @else {<span>Add</span>}
+      </button>
+      <button mat-raised-button color="warn" [mat-dialog-close]="true" type="button">Cancel</button>
+    </div>
+  </mat-tab>
+
+  <!-- Tab for Uploading a Holiday -->
+  <mat-tab label="Upload Holidays">
+    <h1 mat-dialog-title>UPLOAD HOLIDAYS</h1>
+    <div mat-dialog-content>
+      <form [formGroup]="uploadForm" class="upload-form">
+        <div>
+          <input #fileInput type="file" (change)="onFileChange($event)" accept=".xlsx" />
+          <button mat-raised-button color="primary" (click)="uploadFile()">Upload Holidays</button>
+          <p>You can upload holiday data using an Excel (.xlsx) file.</p>
+          @if (excelData.length > 0) {
+            <div>
+              <h3>Uploaded Excel Data:</h3>
+              <table border="1">
+                @for (row of excelData; track $index) {
+                  <tr>
+                    @for (cell of row; track $index) {
+                      <td>{{ cell }}</td>
+                    }
+                  </tr>
+                }
+              </table>
+            </div>
+          }
+        </div>
+      </form>
+    </div>
+    
+    <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
+      <button mat-raised-button color="primary"[mat-dialog-close]="uploadForm.value" 
+      [disabled]="!uploadForm.valid || !selectedFile" (click)="uploadFile()">Upload</button>
+      <button mat-raised-button color="warn" [mat-dialog-close]="true" type="button">Cancel</button>
+    </div>
+  </mat-tab>
+</mat-tab-group>

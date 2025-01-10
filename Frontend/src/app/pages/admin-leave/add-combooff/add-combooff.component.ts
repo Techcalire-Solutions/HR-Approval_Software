@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,6 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CompoOff } from '../../../common/interfaces/leaves/compo-off';
 import { MatIconModule } from '@angular/material/icon';
 import { User } from '../../../common/interfaces/users/user';
+import { HolidayService } from '@services/holiday.service';
 
 @Component({
   selector: 'app-add-combooff',
@@ -19,7 +21,7 @@ import { User } from '../../../common/interfaces/users/user';
 })
 export class AddCombooffComponent implements OnInit, OnDestroy{
   ngOnInit(): void {
-    let id = this.route.snapshot.params['id'];
+    const id = this.route.snapshot.params['id'];
     this.getHolidayById(id)
     this.getEmployees()
     this.getComboOff()
@@ -75,20 +77,21 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
   }
 
   submit!: Subscription;
+  private readonly holidayService = inject(HolidayService);
   onSubmit() {
     if(this.editStatus){
       this.removeAlreadySelectedIds();
-      let data = {
+      const data = {
         selectedEmployeeIds: this.selectedEmployeeIds,
         deselectedEmployeeIds: this.deselectedEmployeeIds
       }
 
-      this.submit = this.leaveService.updateUpdatedCompoOff( this.route.snapshot.params['id'], data).subscribe((res: any) => {
+      this.submit = this.holidayService.updateUpdatedCompoOff( this.route.snapshot.params['id'], data).subscribe((res: any) => {
         this.snackBar.open(res.message, 'Close', { duration: 3000 });
         history.back()
       })
     }else{
-      this.submit = this.leaveService.updateCompoOff(this.route.snapshot.params['id'], this.selectedEmployeeIds).subscribe((res: any) => {
+      this.submit = this.holidayService.updateCompoOff(this.route.snapshot.params['id'], this.selectedEmployeeIds).subscribe((res: any) => {
         this.snackBar.open(res.message, 'Close', { duration: 3000 });
         history.back()
       })
@@ -105,7 +108,7 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
   co: CompoOff;
   editStatus: boolean = false;
   getComboOff(){
-    this.comboOffSub = this.leaveService.getCompoOff(this.route.snapshot.params['id']).subscribe(res => {
+    this.comboOffSub = this.holidayService.getCompoOff(this.route.snapshot.params['id']).subscribe(res => {
       this.co = res;
       if(this.co){
         this.editStatus = true;
