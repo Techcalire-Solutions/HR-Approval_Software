@@ -82,7 +82,7 @@ export class ViewLeaveDetailsComponent {
 
       this.leaveService.getLeaveById(+leaveId).subscribe((response: any) => {
         this.leave = response;
-        console.log(response);
+        console.log('leavebyId',response);
 
 
         if (this.leave.fileUrl) {
@@ -94,7 +94,7 @@ export class ViewLeaveDetailsComponent {
           this.signedUrl = [];
         }
 
-        console.log("hellourl", this.signedUrl);
+     
 
         this.leaveRequestForm.patchValue({
           leaveTypeId: this.leave.leaveTypeId,

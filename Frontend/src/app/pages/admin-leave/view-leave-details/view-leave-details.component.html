@@ -5,10 +5,12 @@
       <div class="form-row">
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Leave Type</mat-label>
-          <mat-select formControlName="leaveTypeId" placeholder="Leave Type"  [disabled]="true">
-            <mat-option *ngFor="let leaveType of leaveTypes" [value]="leaveType.id">
-              {{ leaveType.leaveTypeName }}
-            </mat-option>
+          <mat-select formControlName="leaveTypeId" placeholder="Select leave type" required>
+            @for(leaveType of leaveTypes; track $index){
+              <mat-option [value]="leaveType.id">
+                {{ leaveType.id }}
+              </mat-option>
+            } 
           </mat-select>
         </mat-form-field>
 
@@ -34,7 +36,20 @@
           <textarea matInput formControlName="notes"  [disabled]="true"></textarea>
         </mat-form-field>
       </div>
+      <div formArrayName="leaveDates">
+        <div *ngFor="let leaveDate of leaveDates.controls; let i = index" [formGroupName]="i" class="leave-session-card">
+          <mat-card>
+            <mat-card-title>{{ leaveDate.get('date')?.value | date:'dd-MM-yyyy' }}</mat-card-title>
 
+            <mat-checkbox [checked]="leaveDate.get('session1')?.value" [disabled]="true">
+              Session 1
+            </mat-checkbox>
+            <mat-checkbox [checked]="leaveDate.get('session2')?.value" [disabled]="true">
+              Session 2
+            </mat-checkbox>
+          </mat-card>
+        </div>
+      </div>
       <!-- Display Signed URL Images -->
 <!-- Check the file type to display accordingly -->
 <!-- Check the file type to display accordingly -->

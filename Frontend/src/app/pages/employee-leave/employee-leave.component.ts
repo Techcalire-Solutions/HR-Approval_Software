@@ -83,9 +83,9 @@ export class EmployeeLeaveComponent {
 
   ngOnDestroy(): void {
     this.leaveSub.unsubscribe();
-    if (this.delete) {
-      this.delete.unsubscribe();
-    }
+    // if (this.delete) {
+    //   this.delete.unsubscribe();
+    // }
 
   }
 
@@ -142,7 +142,11 @@ export class EmployeeLeaveComponent {
     this.getLeaveByUser()
   }
 
+  enlargedItemId: number | null = null;
 
+  toggleImageSize(itemId: number) {
+    this.enlargedItemId = this.enlargedItemId === itemId ? null : itemId;
+  }
 
 
   editLeave(item: any) {
@@ -161,56 +165,70 @@ export class EmployeeLeaveComponent {
   }
 
   delete!: Subscription;
-  deleteLeaveStableFunction(id: number) {
-    let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
-    dialogRef.afterClosed().subscribe(res => {
-      if (res) {
-        this.delete = this.leaveService.deleteLeave(id).subscribe(res => {
-          this.snackBar.open('Leave request deleted successfully!', 'Close', { duration: 3000 });
-          this.getLeaveByUser()
-        });
-      }
-    });
-    this.leaves = this.leaves.filter(item => item.id !== id);
-  }
+  // deleteLeaveStableFunction(id: number) {
+  //   let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+  //   dialogRef.afterClosed().subscribe(res => {
+  //     if (res) {
+  //       this.delete = this.leaveService.deleteLeave(id).subscribe(res => {
+  //         this.snackBar.open('Leave request deleted successfully!', 'Close', { duration: 3000 });
+  //         this.getLeaveByUser()
+  //       });
+  //     }
+  //   });
+  //   this.leaves = this.leaves.filter(item => item.id !== id);
+  // }
 
 
   hasValidSessions(leaveDates: any[]): boolean {
     return leaveDates.some(date => date.session1 || date.session2);
   }
 
-
-  deleteLeave(id: number): void {
-    let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
-    dialogRef.afterClosed().subscribe((res) => {
-      if (res) {
-        this.delete = this.leaveService.deleteLeave(id).subscribe({
+  getPaginatedLeaves(): void {
+    this.leaveSub = this.leaveService.getLeavesPaginated(this.searchText, this.currentPage, this.pageSize).subscribe((res: any) => {
+      console.log(res);
+      this.totalItems = res.count;
+      this.leaves = res.items;
+      console.log(this.leaves)
+    });
+  }
+  deleteLeave(leaveId: number): void {
+    const dialogRef = this.dialog.open(DeleteDialogueComponent, {
+      data: { leaveId: leaveId }
+    });
+  
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === true) {
+        // Find the leave item to check for associated file
+        const leaveItem = this.leaves.find((leave) => leave.id === leaveId);
+  
+        this.leaveService.deleteUntakenLeave(leaveId).subscribe({
           next: (response) => {
-            const leaveItem = this.leaves.find(leave => leave.id === id);
             if (leaveItem?.fileUrl) {
+              // Call API to delete associated file
               this.leaveService.deleteUploadByurl(leaveItem.fileUrl).subscribe({
                 next: () => {
-                  this.snackBar.open('Leave request and file deleted successfully!', 'Close', { duration: 3000 });
+                  this.snackBar.open('Leave deleted and file removed successfully!', 'Close', { duration: 3000 });
                 },
                 error: () => {
-                  this.snackBar.open('Leave request deleted, but file deletion failed!', 'Close', { duration: 3000 });
+                  this.snackBar.open('Leave deleted, but file removal failed!', 'Close', { duration: 3000 });
                 }
               });
             } else {
-              this.snackBar.open('Leave request deleted successfully, but no file was associated.', 'Close', { duration: 3000 });
+              this.snackBar.open('Leave deleted successfully, no associated file found.', 'Close', { duration: 3000 });
             }
-
-            this.getLeaveByUser();
+  
+            // Refresh the leave list
+            this.getPaginatedLeaves();
           },
           error: (error) => {
+            console.error('Error deleting leave:', error);
             this.snackBar.open('Error deleting leave request!', 'Close', { duration: 3000 });
           }
         });
       }
     });
-
-    this.leaves = this.leaves.filter(item => item.id !== id);
   }
+  
 
   uploadMedicalCertificate(leaveId: any, note: string): void {
   }
