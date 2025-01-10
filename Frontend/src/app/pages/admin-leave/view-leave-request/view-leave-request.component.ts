@@ -115,18 +115,18 @@ export class ViewLeaveRequestComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login/admin-leave/update-emergency-leave'], { queryParams: { id: id } });
   }
 
-  delete!: Subscription;
-  deleteLeave(id: number) {
-    let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
-    dialogRef.afterClosed().subscribe(res => {
-      if (res) {
-        this.delete = this.leaveService.deleteLeave(id).subscribe(res => {
-          this.snackBar.open('Leave request deleted successfully!', 'Close', { duration: 3000 });
-          this.getPaginatedLeaves()
-        });
-      }
-    });
-  }
+  // delete!: Subscription;
+  // deleteLeave(id: number) {
+  //   let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+  //   dialogRef.afterClosed().subscribe(res => {
+  //     if (res) {
+  //       this.delete = this.leaveService.deleteLeave(id).subscribe(res => {
+  //         this.snackBar.open('Leave request deleted successfully!', 'Close', { duration: 3000 });
+  //         this.getPaginatedLeaves()
+  //       });
+  //     }
+  //   });
+  // }
 
 
   ngOnDestroy(): void {
@@ -147,28 +147,47 @@ export class ViewLeaveRequestComponent implements OnInit, OnDestroy {
 
 
 
-
   onDeleteLeave(leaveId: number): void {
-
     const dialogRef = this.dialog.open(DeleteDialogueComponent, {
       data: { leaveId: leaveId }
     });
-
-    dialogRef.afterClosed().subscribe(result => {
+  
+    dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
-        this.leaveService.deleteUntakenLeave(leaveId).subscribe(
-          (response) => {
-            this.snackBar.open('Leave deleted and balance updated successfully...', 'Close', { duration: 3000 });
+        // Find the leave item to check for associated file
+        const leaveItem = this.leaves.find((leave) => leave.id === leaveId);
+  
+        this.leaveService.deleteUntakenLeave(leaveId).subscribe({
+          next: () => {
+            if (leaveItem?.fileUrl) {
+              // Call API to delete associated file
+              this.leaveService.deleteUploadByurl(leaveItem.fileUrl).subscribe({
+                next: () => {
+                  this.snackBar.open('Leave deleted and file removed successfully!', 'Close', { duration: 3000 });
+                },
+                error: () => {
+                  this.snackBar.open('Leave deleted, but file removal failed!', 'Close', { duration: 3000 });
+                }
+              });
+            } else {
+              this.snackBar.open('Leave deleted successfully, no associated file found.', 'Close', { duration: 3000 });
+            }
+  
+            // Refresh the leave list after successful deletion
             this.getPaginatedLeaves();
           },
-          (error) => {
-            console.error('Error deleting leave:', error);
-
-          }
-        );
+          
+          // error: (error) => {
+          //   console.error('Error deleting leave:', error);
+          //   this.snackBar.open('Error deleting leave request!', 'Close', { duration: 3000 });
+          // }
+        });
       }
     });
   }
+  
+  
+  
 
 
 
@@ -186,10 +205,12 @@ export class ViewLeaveRequestComponent implements OnInit, OnDestroy {
       this.leaveService.getLeaveBalance(leaveId).subscribe(
         (res: any) => {
           console.log(res);
-
-          if (res.isSufficient) {
+  
+          if (res.leaveType === 'LOP' || res.isSufficient) {
+            // Open note dialog for approval
             this.openNoteDialog(action, leaveId);
           } else {
+            // Show error for insufficient balance (non-LOP)
             this.snackbar.open('Insufficient leave balance. Cannot approve.', 'Close', { duration: 3000 });
           }
         },
@@ -199,6 +220,7 @@ export class ViewLeaveRequestComponent implements OnInit, OnDestroy {
       );
     }
   }
+  
 
   private openNoteDialog(action: string, leaveId: string): void {
     const dialogRef = this.dialog.open(NoteDialogComponent, {

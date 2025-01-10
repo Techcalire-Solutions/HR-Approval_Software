@@ -29,9 +29,12 @@
             <th>User</th>
             <th>Reason</th>
             <th>Status</th>
+            <th>Admin Notes</th>
+          
+          
+             <th>Uplaods</th>
              <th>Action</th>
              <th>Manage</th>
-             <th>Uplaods</th>
           </tr>
         </thead>
         <tbody>
@@ -55,66 +58,10 @@
             <td>{{ item.user.name }}</td>
             <td>{{ item.notes }}</td>
             <td>{{ item.status }}</td>
-            <td (click)="$event.stopPropagation()">
-              <ng-container>
-                <button mat-icon-button color="primary" class="edit-button" (click)="onEditLeave(item.id)">
-              <mat-icon>mode_edit</mat-icon>
-                </button>
-
-                <button mat-icon-button color="warn" class="delete-button" (click)="onDeleteLeave(item.id)">
-                  <mat-icon>delete</mat-icon>
-                </button>
-
-                &nbsp;
+            <td>{{item.adminNotes}}</td>
 
 
-
-              </ng-container>
-            </td>
-
-            <td (click)="$event.stopPropagation()">
-              <ng-container *ngIf="item.status !== 'AdminApproved' && item.status !== 'Rejected' && item.status !== 'Approved' && item.status !== 'AdminDeleted'&& item.status !== 'AdminUpdated'">
-                <button mat-raised-button class="approve-button" color="primary" (click)="openDialog('approve', item.id)" [disabled]="item.status === 'Approved'">
-                  APPROVE
-                </button> &nbsp;
-                <button mat-raised-button class="reject-button" color="warn" (click)="openDialog('reject', item.id)" [disabled]="item.status === 'Rejected' && item.status !== 'AdminDeleted' && item.status !== 'AdminUpdated'">
-                  REJECT
-                </button> &nbsp;
-
-              </ng-container>
-
-
-              <ng-container *ngIf="item.status === 'Approved'">
-                <span>
-                  <em>Leave Request Approved</em>
-                </span>
-              </ng-container>
-
-
-              <ng-container *ngIf="item.status === 'AdminApproved'">
-                <span>
-                  <em>Leave Request Admin Approved</em>
-                </span>
-              </ng-container>
-
-
-              <ng-container *ngIf="item.status === 'Rejected'">
-                <span>
-                  <em>Leave Request Rejected</em>
-                </span>
-              </ng-container>
-              <ng-container *ngIf="item.status === 'AdminDeleted'">
-                <span>
-                  <em>Leave Request Deleted</em>
-                </span>
-              </ng-container>
-              <ng-container *ngIf="item.status === 'AdminUpdated'">
-                <span>
-                  <em>Leave Request Admin Updated</em>
-                </span>
-              </ng-container>
-
-            </td>
+          
 
             <td (click)="$event.stopPropagation()">
               <div class="popup-message">
@@ -139,7 +86,50 @@
               </div>
 
             </td>
+            <td (click)="$event.stopPropagation()">
+              <ng-container *ngIf="item.status !== 'AdminApproved'; else disabledIcon">
+                <button
+                  mat-raised-button
+                  class="approve-button"
+                  color="primary"
+                  (click)="openDialog('approve', item.id)"
+                  [disabled]="item.status === 'Approved'"
+                >
+                  APPROVE
+                </button>
+                &nbsp;
+                <button
+                  mat-raised-button
+                  class="reject-button"
+                  color="warn"
+                  (click)="openDialog('reject', item.id)"
+                  [disabled]="item.status === 'Rejected' && item.status !== 'AdminDeleted' && item.status !== 'AdminUpdated'"
+                >
+                  REJECT
+                </button>
+                &nbsp;
+              </ng-container>
+              <ng-template #disabledIcon>
+                <mat-icon color="disabled">block</mat-icon>
+              </ng-template>
+            </td>
 
+            <td (click)="$event.stopPropagation()">
+              <ng-container>
+                <button mat-icon-button color="primary" class="edit-button" (click)="onEditLeave(item.id)">
+              <mat-icon>mode_edit</mat-icon>
+                </button>
+
+                <button mat-icon-button color="warn" class="delete-button" (click)="onDeleteLeave(item.id)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+
+                &nbsp;
+
+
+
+              </ng-container>
+            </td>
           </tr>
         </tbody>
       </table>

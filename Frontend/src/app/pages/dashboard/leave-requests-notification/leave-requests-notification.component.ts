@@ -27,7 +27,7 @@ export class LeaveRequestsNotificationComponent {
   router = inject(Router);
   ngOnInit(): void {
 
-    this.getLeaves('Requested');
+    this.getLeaves('requested');
 
 
     const token: any = localStorage.getItem('token')
@@ -59,7 +59,7 @@ export class LeaveRequestsNotificationComponent {
 
         // Filter leaves based on the Requested status
         this.leaves = res.items
-          .filter((leave: Leave) => (status === 'Requested' ? leave.status === 'Requested' : true)) // Filter by 'Requested' status
+          .filter((leave: Leave) => (status === 'requested' ? leave.status === 'requested' : true)) // Filter by 'Requested' status
           .map((leave: Leave) => ({
             ...leave,
             userName: leave.user?.name || 'Unknown',
