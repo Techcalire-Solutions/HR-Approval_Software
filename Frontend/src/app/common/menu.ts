@@ -64,6 +64,7 @@ export const verticalMenuItems = [
   new Menu(24, 'Leave Report', '/login/employee-leave/balance', null, 'visibility', null, false, 21),
   // new Menu(24, 'Expense Report', '/login/viewApproval/expenses', null, 'visibility', null, false, 21),
   new Menu(1, 'Backup', '/login/backup', null, 'dashboard', null, false, 0),
+  new Menu(35, 'Leave', '/login/admin-leave/report', null, 'visibility', null, false, 21),
 
 ];
 

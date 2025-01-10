@@ -143,7 +143,9 @@ users:User;
         (item.title === 'Emergency' && item.parentId === 8)||
 
         (item.title === 'Reports' && !item.parentId) ||
+        (item.title === 'Leave' && item.parentId === 21)||
         (item.title === 'YTD' && item.parentId === 21)
+       
 
       );
     } else if (role === 'Super Administrator') {

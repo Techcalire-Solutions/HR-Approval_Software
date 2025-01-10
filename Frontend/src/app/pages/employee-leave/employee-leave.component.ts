@@ -1,16 +1,16 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
-import { CommonModule, DatePipe, formatDate } from '@angular/common';
-import { FormArray, FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Component, inject, ViewChild } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
-import { NativeDateAdapter } from '@angular/material/core';
-import { MAT_NATIVE_DATE_FORMATS } from '@angular/material/core';
-import { MatTableModule } from '@angular/material/table';
+import { DateAdapter, MAT_DATE_FORMATS, NativeDateAdapter, MAT_NATIVE_DATE_FORMATS } from '@angular/material/core';
+import {MatTableModule} from '@angular/material/table';
+
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -24,12 +24,9 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { LeaveService } from '@services/leave.service';
-import { CamelCasePipe } from '../../theme/pipes/camel-case.pipe';
 import { PipesModule } from '../../theme/pipes/pipes.module';
-import { UserDialogComponent } from '../users/user-dialog/user-dialog.component';
 import { DeleteDialogueComponent } from '../../theme/components/delete-dialogue/delete-dialogue.component';
 import { Router } from '@angular/router';
-import { LeaveGraphsComponent } from './leave-graphs/leave-graphs.component';
 import { UplaodDialogComponent } from './uplaod-dialog/uplaod-dialog.component';
 
 @Component({
@@ -64,7 +61,7 @@ import { UplaodDialogComponent } from './uplaod-dialog/uplaod-dialog.component';
   styleUrl: './employee-leave.component.scss'
 })
 export class EmployeeLeaveComponent {
-  public page: any;
+  public page: number;
   snackBar = inject(MatSnackBar);
   roleService = inject(RoleService);
   settingsService = inject(SettingsService);
@@ -77,7 +74,7 @@ export class EmployeeLeaveComponent {
   ngOnInit() {
     this.getLeaveByUser()
     const token: any = localStorage.getItem('token')
-    let user = JSON.parse(token)
+    const user = JSON.parse(token)
     this.userId = user.id;
     this.getLeaveByUser();
   }

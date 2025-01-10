@@ -70,6 +70,7 @@ async function getReportingManagerEmailForUser(userId) {
       return `No reporting manager found for userId ${userId}`;
     }
 
+ 
     const reportingManagerPosition = await UserPosition.findOne({
       where: { userId: reportingMangerId },
       attributes: ['officialMailId'],
@@ -81,9 +82,13 @@ async function getReportingManagerEmailForUser(userId) {
       return `Reporting manager position not found for reportingMangerId ${reportingMangerId}`;
     }
   } catch (error) {
+    console.error('Error fetching reporting manager email:', error);
     return 'Error fetching reporting manager email';
   }
 }
+
+
+
 
 
 //-------------------------------------Mail sending function------------------------------------------
@@ -341,8 +346,6 @@ router.post('/', authenticateToken, async (req, res) => {
   const { leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
   const userId = req.user.id;
 
-
-
   if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
     return res.send('Missing required fields');
   }
@@ -372,12 +375,12 @@ router.post('/', authenticateToken, async (req, res) => {
       });
 
       sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates)
-
+      
       await Notification.create({
         userId: userId,
         message: `Leave request submitted`,
         isRead: false,
-      });
+    });
 
       return res.json({
         message: 'Leave request submitted successfully as LOP.',
@@ -408,6 +411,9 @@ router.post('/', authenticateToken, async (req, res) => {
       const lopDays = noOfDays - availableLeaveDays;
 
       const { leaveDatesApplied, lopDates } = splitLeaveDates(leaveDates, availableLeaveDays);
+
+    
+
 
       await Leave.create({
         userId,
@@ -1326,7 +1332,7 @@ router.get('/', async (req, res) => {
 
 
 //--------------------------------------------Get leaves ---------------------------------------------------------------------
-router.get('/all/totalleaves', authenticateToken, async (req, res) => {
+router.get('/all/totalleaves', async (req, res) => {
   try {
     const leaves = await Leave.findAll({
       include: [
@@ -1374,7 +1380,16 @@ router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => 
 
     const userLeave = await UserLeave.findOne({ where: { userId: leave.userId, leaveTypeId: leave.leaveTypeId } });
 
+
+    console.log("userLeaveeeee",userLeave)
+
     if (userLeave) {
+      console.log('Before Deletion - UserLeave:', userLeave.dataValues); 
+
+
+
+
+   
       const leaveDays = leave.noOfDays > 0 ? leave.noOfDays : 1;
 
       if (leave.leaveType.leaveTypeName === 'LOP') {
@@ -1388,12 +1403,15 @@ router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => 
 
 
       await userLeave.save();
+
+   
+      console.log('After Deletion - UserLeave Updated:', userLeave.dataValues);
     }
 
 
     await leave.destroy();
 
-    res.status(204).json();
+    res.send('Leave deleted and balance updated successfully');
     // res.json({  message: 'Leave deleted and balance updated' });
 
   } catch (error) {
@@ -1496,6 +1514,92 @@ router.patch('/untakenLeaveUpdate/:id', authenticateToken, async (req, res) => {
 
 
 
+
+
+
+
+
+
+
+//--------------------------code by Amina for leave report-----------------
+
+router.get('/all/report', async (req, res) => {
+  try {
+    const { year } = req.query;
+
+    if (!year) {
+      return res.status(400).json({ error: 'Year is required for fetching reports.' });
+    }
+
+    // Fetch all leave data for the given year
+    const leaves = await Leave.findAll({
+      where: {
+        status: {
+          [Op.or]: ['Approved', 'AdminApproved'],
+        },
+        startDate: {
+          [Op.gte]: new Date(`${year}-01-01`),
+          [Op.lt]: new Date(`${+year + 1}-01-01`), // Year range filter
+        },
+      },
+      include: [
+        { model: User, attributes: ['id', 'name'] },
+        { model: LeaveType, attributes: ['id', 'leaveTypeName'] },
+      ],
+    });
+
+    // Group leave data by employees
+    const employeeData = {};
+    leaves.forEach((leave) => {
+      const userId = leave.userId;
+      const leaveTypeName = leave.leaveType?.leaveTypeName || 'Unknown Leave';
+      const leaveDates = leave.leaveDates || [];
+
+      // Initialize employee if not present
+      if (!employeeData[userId]) {
+        employeeData[userId] = {
+          id: userId,
+          name: leave.user.name,
+          leaveDetails: {},
+        };
+      }
+
+      // Initialize leave type if not present
+      if (!employeeData[userId].leaveDetails[leaveTypeName]) {
+        employeeData[userId].leaveDetails[leaveTypeName] = {
+          type: leaveTypeName,
+          monthlyData: Array(12).fill(0), // Initialize 12 months
+          total: 0,
+        };
+      }
+
+      // Calculate leave days and group by month
+      leaveDates.forEach((date) => {
+        const leaveDate = new Date(date.date);
+        if (leaveDate.getFullYear() === parseInt(year, 10)) {
+          const monthIndex = leaveDate.getMonth(); // 0 = January, 11 = December
+          const leaveForDay = date.session1 && date.session2 ? 1 : date.session1 || date.session2 ? 0.5 : 0;
+
+          // Update monthly data and total
+          employeeData[userId].leaveDetails[leaveTypeName].monthlyData[monthIndex] += leaveForDay;
+          employeeData[userId].leaveDetails[leaveTypeName].total += leaveForDay;
+        }
+      });
+    });
+
+    // Convert leaveDetails object to an array
+    const result = Object.values(employeeData).map((employee) => ({
+      ...employee,
+      leaveDetails: Object.values(employee.leaveDetails),
+    }));
+
+    // Send the response
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error fetching leave data:', error);
+    res.status(500).json({ error: 'An error occurred while fetching leave data.' });
+  }
+});
 
 
 

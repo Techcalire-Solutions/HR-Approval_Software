@@ -14,34 +14,6 @@
               <mat-card class="content">
                   <ng-scrollbar pointerEventsMethod="scrollbar">
                       <div fxLayout="column" fxLayoutAlign="none">
-                          @for (message of notifications; track message.id) {
-                              <button mat-button     (click)="!isAdmin() ? markAsRead(message.id) : null">
-                                  <!-- <img src="{{ ( message.image || (message.name | profilePicture)) }}" width="50"> -->
-                                  <div fxLayout="column" fxLayoutAlign="none" class="w-100">
-                                      <div fxLayout="row" fxLayoutAlign="space-between start"  *ngIf="extractLink(message.route)" (click)="onMessageClick(message.route)">
-                                        <span class="name">{{ message.name }}</span>
-                                          <span class="info"><mat-icon>access_time</mat-icon>     {{ message.createdAt | timeAgo }}</span>
-                                      </div>
-
-
-                                      <span *ngIf="extractLink(message.route)" (click)="onMessageClick(message.route)" class="text muted-text" [innerHTML]="message.message">
-                                      </span>
-
-
-
-                                  </div>
-
-                                <mat-icon
-                                [ngStyle]="{'color': message.isRead ? 'blue' : 'green'}"
-                                style="cursor: pointer;"
-                                (click)="!isAdmin() ? markAsRead(message.id) : null"
-                                aria-label="Mark as read"
-                              >
-                                mark_email_read
-                              </mat-icon>
-                              </button>
-                          }
-
                           @for (message of notifications; track message.id) { <!-- FIXED: Proper tracking -->
                             <button mat-button (click)="!isAdmin() ? markAsRead(message.id) : null">
                               <div fxLayout="column" fxLayoutAlign="none" class="w-100">

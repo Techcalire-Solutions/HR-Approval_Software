@@ -3,8 +3,8 @@
   flex-direction: column;
   align-items: center;
   width: 100%; /* Full width of the screen */
-  // padding: 0 16px; /* Optional: Add some padding if needed */
-  box-sizing: border-box; /* Ensure padding is included in the width */
+  padding: 0 16px; /* Add padding for mobile screens */
+  box-sizing: border-box; /* Include padding in the width calculation */
 }
 
 form {
@@ -13,69 +13,72 @@ form {
 
 .form-instance {
   display: flex;
+  flex-wrap: wrap; /* Allows wrapping for smaller screens */
   align-items: center;
   margin-bottom: 16px;
-  width: 100%; /* Full width for each form instance */
-  box-sizing: border-box; /* Ensure padding and borders are included in the width */
+  gap: 16px; /* Consistent gap between elements */
+  box-sizing: border-box;
 }
 
 .mat-form-field {
   flex: 1;
-  margin-right: 8px;
+  min-width: 150px; /* Ensures inputs are not too narrow on small screens */
 }
 
 .file-upload-icon, .file-upload-text {
   cursor: pointer;
-  margin-right: 8px;
-}
-
-.progress-container {
-  margin-right: 8px;
-}
-
-.upload-success {
-  margin-right: 8px;
-}
-
-button {
-  margin-right: 8px;
-}
-
-button.mat-icon-button {
-  margin-left: 8px;
-}
-
-button.mat-raised-button.color-accent {
-  margin-top: 16px;
 }
 
 .row {
-  width: 100%;
   display: flex;
-  flex-direction: row;
+  flex-wrap: wrap; /* Wraps columns on smaller screens */
+  gap: 16px;
 }
 
 .col {
-  flex: 1;
-  margin-right: 20px;
+  flex: 1 1 100%; /* Full width on small screens, share space on larger screens */
+  min-width: 200px; /* Prevent columns from becoming too narrow */
 }
 
 .text-with-icon {
   display: flex;
   align-items: center;
   gap: 4px;
-  color: blue
+  color: blue;
+}
+
+button {
+  margin: 8px 0;
 }
 
 .user-spinner {
-  position: fixed; /* Ensures the spinner is positioned relative to the viewport */
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%; /* Covers the full screen width */
-  height: 100%; /* Covers the full screen height */
-  display: flex; /* Flexbox to center the spinner */
-  justify-content: center; /* Horizontally center */
-  align-items: center; /* Vertically center */
-  background-color: rgba(0, 0, 0, 0.1); /* Optional: Add a semi-transparent background */
-  z-index: 1000; /* Ensures it appears above other content */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+@media (max-width: 768px) {
+  .form-instance {
+    flex-direction: column;
+  }
+
+  .mat-form-field {
+    width: 100%; /* Full width for smaller screens */
+  }
+
+  .row {
+    flex-direction: column;
+    gap: 8px; /* Reduce gap for smaller screens */
+  }
+
+  .col {
+    width: 100%; /* Full width for smaller screens */
+  }
 }

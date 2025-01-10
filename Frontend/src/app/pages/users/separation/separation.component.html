@@ -2,10 +2,8 @@
 
 <div class="reset-password-container">
   <mat-toolbar class="bg-blue-900">       
-    @if(data.type === 'update'){Update Separation
-    }@else {Confirm Separation}
-      <mat-icon (click)="onCancel()" style="margin-left: auto;">close</mat-icon>
-    <!-- </button> -->
+    @if(data.type === 'update'){Update Separation } @else {Confirm Separation}  
+    <mat-icon (click)="onCancel()" style="margin-left: auto;" >close</mat-icon>
   </mat-toolbar>
   <form [formGroup]="separationForm" style="padding: 20px;">
     <div mat-dialog-content>

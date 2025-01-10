@@ -22,3 +22,20 @@
 .file-selected {
   color: green; /* Change the icon color when a file is selected */
 }
+
+.leave-session-card {
+  margin-bottom: 1rem; /* Add space between cards */
+}
+
+.leave-session-row {
+  display: flex;
+  gap: 1rem; /* Adds spacing between items */
+}
+
+mat-card-title {
+  flex: 0.25; /* Ensures the title takes the necessary space */
+}
+
+mat-checkbox {
+  flex: 0.1; /* Keeps checkboxes tightly aligned */
+}
