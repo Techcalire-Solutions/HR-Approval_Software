@@ -29,10 +29,11 @@
           <tr>
             <th>Leave Type</th>
             <th>Leave Date</th>
-            <th>Medical Certificate</th>
+           
             <th>Reason</th>
             <th>Status</th>
             <th>Admin Notes</th>
+            <th>MC</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -53,47 +54,64 @@
 
             </td>
 
-            <td  >
-              <ng-container *ngIf="item.leaveType?.leaveTypeName === 'Sick Leave'">
-                <div class="action-button-container">
-                  <!-- Show 'done' Icon if fileUrl Exists -->
-                  <button *ngIf="item.fileUrl"
-                          class="icon-btn done-btn"
-                          mat-icon-button color="accent"
-                          disabled>
-                    <mat-icon>done</mat-icon>
-                  </button>
-
-                  <!-- Show Upload Button if fileUrl Does NOT Exist -->
-                  <button *ngIf="!item.fileUrl"
-                          class="icon-btn upload-btn"
-                          mat-icon-button
-                          color="primary"
-                          (click)="openDialog('approve', item.id)">
-                    <mat-icon>cloud_upload</mat-icon>
-                  </button>
-                </div>
-              </ng-container>
-
-
-
-
-
-
-
-
-
-
-            </td>
-
+          
 
 
 
              <td>{{item.notes}}</td>
 
             <td>{{ item.status}}</td>
-           <td>{{item.adminNotes}}</td>
+          
 
+           <td>{{item.adminNotes}}</td>
+           <!-- <td>
+            <ng-container *ngIf="item.leaveType?.leaveTypeName === 'Sick Leave'; else notSickLeave">
+              <div class="action-button-container">
+          
+                <button *ngIf="item.fileUrl"
+                        class="icon-btn done-btn"
+                        mat-icon-button color="accent"
+                        disabled>
+                  <mat-icon>done</mat-icon>
+                </button>
+          
+               
+                <button *ngIf="!item.fileUrl"
+                        class="icon-btn upload-btn"
+                        mat-icon-button
+                        color="primary"
+                        (click)="openDialog('approve', item.id)">
+                  <mat-icon>cloud_upload</mat-icon>
+                </button>
+              </div>
+            </ng-container>
+            <ng-template #notSickLeave>
+              <span>NA</span>
+            </ng-template>
+          </td> -->
+          <td (click)="$event.stopPropagation()">
+            <div class="popup-message">
+              @if(item.leaveType?.leaveTypeName === 'Sick Leave'){
+                @if(item.fileUrl){
+                  <div>
+                    <img 
+                        [src]="item.fileUrl" 
+                        class="transition-2" 
+                        [ngClass]="{ 'enlarged': enlargedItemId === item.id }"
+                        [style.width]="enlargedItemId === item.id ? '500px' : '50px'"
+                        [style.height]="enlargedItemId === item.id ? '500px' : '50px'"
+                        (click)="toggleImageSize(item.id)"
+                    />
+                </div>
+                }@else {
+                  <button  class="icon-btn upload-btn" mat-icon-button color="primary"  (click)="openDialog('approve', item.id)">
+                    <mat-icon>cloud_upload</mat-icon>
+                  </button>
+                }
+              }
+            </div>
+
+          </td>
 
             <td>
 

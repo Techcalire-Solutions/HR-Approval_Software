@@ -71,21 +71,23 @@ getLeaveSub : Subscription
   leaves:any[]=[]
   totalItemsCount = 0;
 
-  getLeaves() {
-    this.getLeaveSub = this.leaveService.getLeaves().subscribe(
-      (res) => {
-        console.log(res)
-        if (res) {
-          this.leaves = res
-          this.events = this.mapLeavesToCalendarEvents(this.leaves);
-          console.log(this.events)
-        }
-      },
-      (error) => {
-        this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
+getLeaves() {
+  this.getLeaveSub = this.leaveService.getLeaves().subscribe(
+    (res) => {
+      console.log(res);
+      if (res) {
+        // Filter leaves with status 'Approved'
+        this.leaves = res.filter((leave: any) => leave.status === 'Approved');
+        this.events = this.mapLeavesToCalendarEvents(this.leaves);
+        console.log(this.events);
       }
-    );
-  }
+    },
+    (error) => {
+      this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
+    }
+  );
+}
+
 
 
 
