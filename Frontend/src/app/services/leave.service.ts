@@ -6,8 +6,6 @@ import { Observable } from 'rxjs/internal/Observable';
 import { environment } from '../../environments/environment';
 import { UserLeave } from '../common/interfaces/leaves/userLeave';
 import {  throwError } from 'rxjs';
-import { Holidays } from '../common/interfaces/leaves/holidays';
-import { CompoOff } from '../common/interfaces/leaves/compo-off';
 import { Leave } from '../common/interfaces/leaves/leave';
 
 @Injectable({
@@ -132,26 +130,7 @@ updateRejectLeaveStatus(rejectionData: any) {
     return this.http.get<any[]>(`${this.apiUrl}/userLeave/forencashment/`);
   }
 
-addHolidays(data:any){
-  return this.http.post(this.apiUrl+'/holidays/save', data)
 
-}
-
-  getHolidays(filterValue?: string, page?: number, pagesize?:number){
-    return this.http.get<Holidays[]>(`${this.apiUrl}/holidays/find?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
-  }
-
-  updateCompoOff(id: number, data: any){
-    return this.http.patch<Holidays[]>(`${this.apiUrl}/holidays/update/`+id, data);
-  }
-
-  updateUpdatedCompoOff(id: number, data: any){
-    return this.http.patch<Holidays[]>(`${this.apiUrl}/holidays/updatetheupdated/`+id, data);
-  }
-
-  getCompoOff(id: number){
-    return this.http.get<CompoOff>(`${this.apiUrl}/holidays/findcombooff/${id}`);
-  }
 
 
 

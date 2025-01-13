@@ -21,11 +21,6 @@ export const routes: Routes = [
     data: { breadcrumb: 'LeaveTypes' }, canActivate: [AuthGuard]
   },
   {
-    path: 'holiday',
-    loadComponent: () => import('./holiday-portal/holiday-portal.component').then(c => c.HolidayPortalComponent),
-    data: { breadcrumb: 'Holidays' }, canActivate: [AuthGuard]
-  },
-  {
     path: 'apply-emergency-leave',
     loadComponent: () => import('./apply-emergency-leave/apply-emergency-leave.component').then(c => c.ApplyEmergencyLeaveComponent),
     data: { breadcrumb: 'Apply Emergency Leave' }, canActivate: [AuthGuard]

@@ -8,8 +8,8 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class BackupService {
-  private apiUrl = environment.apiUrl;
-  private http = inject(HttpClient)
+  private readonly apiUrl = environment.apiUrl;
+  private readonly http = inject(HttpClient)
 
   getBackupLog(): Observable<Backup[]>{
     return this.http.get<Backup[]>(this.apiUrl + '/backup/find')

@@ -1,0 +1,19 @@
+<div class="custom-dialog">
+  <h2 mat-dialog-title class="dialog-title">Confirm Deletion</h2>
+
+  <mat-dialog-content class="dialog-content">
+    <p>The following holidays will be deleted:</p>
+    <ul>
+      @for (holiday of data.holidays; track $index) {
+          <li>
+              {{ holiday.name }} ({{ holiday.date }})
+          </li>
+      }
+    </ul>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions">
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-button color="warn" (click)="onConfirm()">Delete</button>
+  </mat-dialog-actions>
+</div>

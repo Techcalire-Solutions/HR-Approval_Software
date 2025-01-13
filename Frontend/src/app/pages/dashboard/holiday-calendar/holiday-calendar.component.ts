@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { LeaveService } from '@services/leave.service';
 import { Subscription } from 'rxjs';
@@ -8,16 +9,15 @@ import { RoleService } from '@services/role.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { MatChipListbox, MatChipOption } from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../../environments/environment';
+import { HolidayService } from '@services/holiday.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-holiday-calendar',
   standalone: true,
-  imports: [MatCardModule, MatPaginatorModule, MatIconModule, MatChipListbox, MatChipOption, CommonModule],
+  imports: [MatCardModule, MatPaginatorModule, MatIconModule, CommonModule],
   templateUrl: './holiday-calendar.component.html',
   styleUrl: './holiday-calendar.component.scss'
 })
@@ -31,18 +31,15 @@ export class HolidayCalendarComponent implements OnInit, OnDestroy{
     this.getHolidaysForYear();
 
     const token: any = localStorage.getItem('token')
-    let user = JSON.parse(token)
+    const user = JSON.parse(token)
 
-    let roleId = user.role
+    const roleId = user.role
     this.getRoleById(roleId)
   }
 
   selectedFile: File | null = null;
 
-
-  constructor(private http: HttpClient, private snackBar: MatSnackBar) {}
-
-  // Handles file input change
+  private readonly snackBar = inject(MatSnackBar);
   onFileChange(event: any) {
     const file = event.target.files[0];
     if (file && file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
@@ -58,22 +55,20 @@ export class HolidayCalendarComponent implements OnInit, OnDestroy{
       const formData = new FormData();
       formData.append('file', this.selectedFile);
 
-      this.http.post(`${environment.apiUrl}/holidays/upload`, formData).subscribe(
-        (response: any) => {
-          console.log(response,"holoiiiiiiiiiiiiiiiiiiii");
+      // this.http.post(`${environment.apiUrl}/holidays/upload`, formData).subscribe(
+      //   (response: any) => {
+      //     this.snackBar.open('Holidays uploaded successfully!', 'Close', { duration: 3000 });
 
-          this.snackBar.open('Holidays uploaded successfully!', 'Close', { duration: 3000 });
-
-          this.getHolidaysForYear();
-          this.router.navigateByUrl('/login')
-          this.resetPage();
+      //     this.getHolidaysForYear();
+      //     this.router.navigateByUrl('/login')
+      //     this.resetPage();
 
 
-        },
-        (error) => {
-          this.snackBar.open('Failed to upload holidays. Please try again.', 'Close', { duration: 3000 });
-        }
-      );
+      //   },
+      //   (error) => {
+      //     this.snackBar.open('Failed to upload holidays. Please try again.', 'Close', { duration: 3000 });
+      //   }
+      // );
     } else {
       this.snackBar.open('No file selected.', 'Close', { duration: 3000 });
     }
@@ -98,8 +93,9 @@ export class HolidayCalendarComponent implements OnInit, OnDestroy{
 
   holidaySub!: Subscription;
   holidays: Holidays[] = [];
+  private readonly holidayService = inject(HolidayService);
   getHolidaysForYear(): void {
-    this.holidaySub = this.leaveService.getHolidays(this.searchText, this.currentPage, this.pageSize).subscribe((res: any) => {
+    this.holidaySub = this.holidayService.getHolidays(this.searchText, this.currentPage, this.pageSize).subscribe((res: any) => {
       this.holidays = res.items
       this.totalItems = res.count;
     })
