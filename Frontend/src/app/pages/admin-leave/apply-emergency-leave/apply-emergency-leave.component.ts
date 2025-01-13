@@ -25,6 +25,7 @@ import { UserLeave } from '../../../common/interfaces/leaves/userLeave';
 import { User } from '../../../common/interfaces/users/user';
 import { MatNativeDateModule } from '@angular/material/core';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
+import { SafePipe } from "../../../common/pipes/safe.pipe";
 
 export const MY_FORMATS = {
   parse: {
@@ -65,7 +66,8 @@ function sessionSelectionValidator(group: FormGroup) {
     MatTableModule,
     MatChipsModule,
     MatNativeDateModule,
-    MatDatepickerModule
+    MatDatepickerModule,
+    SafePipe
 ],
   templateUrl: './apply-emergency-leave.component.html',
   styleUrl: './apply-emergency-leave.component.scss',
@@ -113,7 +115,13 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
     return this.leaveRequestForm.get('leaveDates') as FormArray;
   }
 
-  
+  newSession(initialValue?: any): FormGroup {
+    return this.fb.group({
+      date: [initialValue ? initialValue.id : '', Validators.required],
+      session1: [initialValue ? initialValue.session1 : '', Validators.required],
+      session2: [initialValue ? initialValue.session2 : '', Validators.required],
+    });
+  }
 
 
   usersSub!: Subscription;
@@ -214,8 +222,13 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
   }
 
   leaveSub!: Subscription;
-  getLeaveDetails(id: number) {
+  getLeaveDetails(id: number) {   
     this.leaveSub = this.leaveService.getLeaveById(id).subscribe((leave) => {
+      if(leave.fileUrl){
+        this.imageUrl = leave.fileUrl;
+      }
+      this.minEndDate = new Date(leave.startDate);
+      this.minEndDate.setDate(this.minEndDate.getDate()); 
       this.leave = leave;
       this.leaveRequestForm.patchValue({
         userId: this.leave.userId,
@@ -224,7 +237,6 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
         endDate: this.leave.endDate,
         notes: this.leave.notes
       });
-
       const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
       leaveDatesArray.clear();
       this.leave.leaveDates.forEach((leaveDate: any) => {
@@ -233,7 +245,7 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
           session1: [leaveDate.session1],
           session2: [leaveDate.session2]
         }));
-      });
+      });  
     });
   }
 
@@ -249,11 +261,13 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
     };
     if (this.isEditMode) {
       this.submit = this.leaveService.updatemergencyLeave(leaveRequest, this.leave.id).subscribe(() => {
+        this.isLoading = false;
         this.router.navigateByUrl('/login/admin-leave/view-leave-request')
         this.snackBar.open("Emergency leave updated succesfully...","" ,{duration:3000})
       });
     } else {
       this.submit = this.leaveService.addEmergencyLeave(leaveRequest).subscribe(() => {
+        this.isLoading = false;
         this.router.navigateByUrl('/login/admin-leave/view-leave-request')
         this.snackBar.open("Emergency leave added succesfully...","" ,{duration:3000})
       });
@@ -268,8 +282,8 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
   fileName: string = ''; // Holds the name of the file
   isFileSelected: boolean = false;
   allowedFileTypes = ['pdf', 'jpeg', 'jpg', 'png'];
-
   uploadFile(event: Event) {
+    this.isLoading = true;
     const input = event.target as HTMLInputElement;
     const selectedFile = input.files?.[0]; 
     const fileType: any = selectedFile?.type.split('/')[1];
@@ -284,8 +298,12 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
       this.isFileSelected = true; // Set the selected state to true
       this.leaveService.uploadImage(this.file).subscribe({
         next: (res) => {
+          this.isLoading = false;
           this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${res.fileUrl}`;
-          this.leaveRequestForm.get('fileUrl')?.setValue(res.fileUrl);
+          console.log(this.imageUrl);
+          
+          this.leaveRequestForm.get('fileUrl')?.setValue(this.imageUrl);
+          this.leaveRequestForm.get('fileUrl')?.markAsDirty();
         },
         error: () => console.error('Upload failed'),
       });
@@ -316,6 +334,17 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
   getUserLeaves(id: number){
     this.ulSub = this.leaveService.getUserLeaveByUser(id).subscribe((response: any) => {
       this.userLeaves = response;
+    });
+  }
+
+  onDeleteImage(){
+    this.isLoading = true;
+    this.leaveService.deleteUploadByurl(this.imageUrl).subscribe(()=>{
+      this.isLoading = false;
+      this.imageUrl = ''
+      this.leaveRequestForm.get('fileUrl')?.setValue('')
+      this.leaveRequestForm.get('fileUrl')?.markAsDirty();
+      this.snackBar.open("File is deleted successfully...","" ,{duration:3000})
     });
   }
 

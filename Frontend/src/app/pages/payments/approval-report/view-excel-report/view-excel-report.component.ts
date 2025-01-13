@@ -8,7 +8,7 @@ import { DatePipe } from '@angular/common';
 import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 import { InvoiceService } from '@services/invoice.service';
 import { ActivatedRoute } from '@angular/router';
-import { SafePipe } from '../../../../common/safe.pipe';
+import { SafePipe } from '../../../../common/pipes/safe.pipe';
 
 @Component({
   selector: 'app-view-excel-report',

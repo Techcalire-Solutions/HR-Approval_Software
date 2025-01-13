@@ -13,7 +13,7 @@ import { Subscription } from 'rxjs';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
-import { SafePipe } from "../../../common/safe.pipe";
+import { SafePipe } from "../../../common/pipes/safe.pipe";
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 @Component({
   selector: 'app-add-announcements',

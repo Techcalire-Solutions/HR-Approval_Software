@@ -234,7 +234,7 @@ export class EmployeeLeaveComponent {
   }
 
 
-  openDialog(action: string, leaveId: string): void {
+  openDialog(action: string, leaveId: number): void {
     const dialogRef = this.dialog.open(UplaodDialogComponent, {
       data: { leaveId }, // Pass leaveId as part of the dialog data
       width: '400px',
@@ -253,7 +253,7 @@ export class EmployeeLeaveComponent {
     });
   }
 
-  updateLeaveFileUrl(leaveId: string, fileUrl: string): void {
+  updateLeaveFileUrl(leaveId: number, fileUrl: string): void {
 
     this.leaveService.updateLeaveFileUrl(leaveId, fileUrl).subscribe({
       next: (res) => {

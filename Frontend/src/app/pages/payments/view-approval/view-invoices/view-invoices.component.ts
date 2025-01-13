@@ -15,7 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { BankReceiptDialogueComponent } from '../bank-receipt-dialogue/bank-receipt-dialogue.component';
 import { VerificationDialogueComponent } from '../verification-dialogue/verification-dialogue.component';
-import { SafePipe } from '../../../../common/safe.pipe';
+import { SafePipe } from '../../../../common/pipes/safe.pipe';
 import { MatButtonModule } from '@angular/material/button';
 import { PerformaInvoiceStatus } from '../../../../common/interfaces/payments/performa-invoice-status';
 

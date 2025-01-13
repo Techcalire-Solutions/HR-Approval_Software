@@ -22,8 +22,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
-import { SafePipe } from '../../../common/safe.pipe';
-import { LeaveCountCardsComponent } from '../../employee-leave/leave-count-cards/leave-count-cards.component';
+import { SafePipe } from '../../../common/pipes/safe.pipe';
 
 @Component({
   selector: 'app-view-leave-details',
@@ -45,12 +44,11 @@ import { LeaveCountCardsComponent } from '../../employee-leave/leave-count-cards
     MatDatepickerModule,
     MatTableModule,
     MatSnackBarModule,
-    LeaveCountCardsComponent,
     MatNativeDateModule,
     SafePipe,
     CommonModule,
     MatTabsModule
-  ],
+],
   templateUrl: './view-leave-details.component.html',
   styleUrl: './view-leave-details.component.scss',
   providers: [
@@ -78,8 +76,6 @@ export class ViewLeaveDetailsComponent {
   ngOnInit() {
     const leaveId = this.route.snapshot.params['id'];
     if (leaveId) {
-      this.isLoading = true;
-
       this.leaveService.getLeaveById(+leaveId).subscribe((response: any) => {
         this.leave = response;
         console.log('leavebyId',response);
@@ -97,7 +93,7 @@ export class ViewLeaveDetailsComponent {
      
 
         this.leaveRequestForm.patchValue({
-          leaveTypeId: this.leave.leaveTypeId,
+          leaveTypeName: this.leave.leaveType.leaveTypeName,
           startDate: this.leave.startDate,
           endDate: this.leave.endDate,
           notes: this.leave.notes
@@ -122,7 +118,7 @@ export class ViewLeaveDetailsComponent {
 
 
     this.leaveRequestForm = this.fb.group({
-      leaveTypeId: ['', Validators.required],
+      leaveTypeName: ['', Validators.required],
       startDate: ['', Validators.required],
       endDate: ['', Validators.required],
       notes: ['', Validators.required],

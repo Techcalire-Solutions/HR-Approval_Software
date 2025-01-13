@@ -70,7 +70,28 @@
       </div>
 
       @if(isSickLeaveAndMoreThanThreeDays()){
-        <div class="upload-container" (click)="fileInput.click()">
+        @if(!imageUrl){
+          <div class="col">
+            <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
+            <mat-icon class="file-upload-icon" (click)="fileInput.click()">cloud_upload</mat-icon>
+            <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
+          </div>
+      }
+      @else{
+      <div class="col">
+          <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+              <iframe [src]="imageUrl | safe" width="100%" height="300px"></iframe>
+              <mat-icon style="color: red;" (click)="onDeleteImage()">delete</mat-icon>
+          </div>
+      </div>
+      } 
+      @if(!isFileSelected && !imageUrl){
+        <div style="color: red;">
+          File upload is mandatory for sick leave exceeding 3 days.
+        </div>
+      }
+
+        <!-- <div class="upload-container" (click)="fileInput.click()">
           Upload Image:
           <input type="file" hidden #fileInput (change)="uploadFile($event)">
           <mat-icon class="clickable-icon" [ngClass]="{'file-selected': isFileSelected}" style="margin-left: 10px;">cloud_upload</mat-icon>
@@ -84,7 +105,7 @@
             </div>
           }
         
-        </div>
+        </div> -->
       }<br>
         
       <div formArrayName="leaveDates">
@@ -104,10 +125,15 @@
       <br>
       <!-- || (isSickLeaveAndMoreThanThreeDays() && !isFileSelected) -->
       <button mat-raised-button type="submit" color="primary" class="submit-btn"
-        [disabled]="!leaveRequestForm.valid">
+        [disabled]="leaveRequestForm.pristine || !leaveRequestForm.valid ">
         {{ isEditMode ? 'Update' : 'Apply' }} Leave
       </button>
 
     </form>
   </mat-card-content>
 </mat-card>
+@if(isLoading) {
+  <div fxLayout="column" fxLayoutAlign="center center" class="user-spinner">
+      <mat-spinner color="primary"></mat-spinner>
+  </div>
+}

@@ -68,7 +68,7 @@ updateApproveLeaveStatus(approvalData: any) {
   return this.http.put(`${this.apiUrl}/leave/approveLeave/${leaveId}`, { adminNotes });
 }
 
-getLeaveBalance(leaveId: string): Observable<any> {
+getLeaveBalance(leaveId: number): Observable<any> {
   return this.http.get(`${this.apiUrl}/leave/leaveBalance/${leaveId}`);
 }
 
@@ -93,7 +93,7 @@ updateRejectLeaveStatus(rejectionData: any) {
   }
 
   deleteUploadByurl(key: string) {
-    return this.http.delete(`${this.apiUrl}/leave/filedeletebyurl/?key=${key}`);
+    return this.http.delete(`${this.apiUrl}/leave/delete/filedeletebyurl?key=${key}`);
   }
 
   addLeaveType(data:any){
@@ -142,7 +142,7 @@ updateRejectLeaveStatus(rejectionData: any) {
     return this.http.patch(`${this.apiUrl}/leave/untakenLeaveUpdate/${leaveId}`, updatedData);
   }
 
-updateLeaveFileUrl(leaveId: string, fileUrl: string): Observable<any> {
+updateLeaveFileUrl(leaveId: number, fileUrl: string): Observable<any> {
     return this.http.patch(`${this.apiUrl}/leave/updateLeaveFileUrl/${leaveId}`, { fileUrl });
   }
 

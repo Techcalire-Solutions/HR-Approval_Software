@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
@@ -892,10 +893,8 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
   }
 
 });
-
-
-
 //--------------------------------File upload/delete/update--------------------------------------------------------
+
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
     if (!req.file) {
@@ -964,9 +963,11 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
 });
 
 
-router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
-  key = req.query.key;
-  fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+router.delete('/delete/filedeletebyurl', authenticateToken, async (req, res) => {
+  const key = req.query.key;
+  console.log(key);
+  
+  const fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
   try {
     if (!fileKey) {
       return res.send({ message: 'No file key provided' });
@@ -981,10 +982,9 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
     // Delete the file from S3
     await s3.deleteObject(deleteParams).promise();
 
-    res.send({ message: 'File deleted successfully' });
+    res.status(204).send( 'File deleted successfully' );
   } catch (error) {
-    console.error('Error deleting file from S3:', error);
-    res.send({ message: error.message });
+    res.send(error.message );
   }
 });
 
@@ -1457,7 +1457,7 @@ router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => 
 
     await leave.destroy();
 
-    res.send('Leave deleted and balance updated successfully');
+    res.status(204).send('Leave deleted and balance updated successfully');
     // res.json({  message: 'Leave deleted and balance updated' });
 
   } catch (error) {
