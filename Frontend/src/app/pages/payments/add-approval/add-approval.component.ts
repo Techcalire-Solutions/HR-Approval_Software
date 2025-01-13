@@ -18,7 +18,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CompanyService } from '@services/company.service';
 import { CommonModule } from '@angular/common';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
-import { SafePipe } from '../../../common/safe.pipe';
+import { SafePipe } from '../../../common/pipes/safe.pipe';
 import { InvoiceService } from '@services/invoice.service';
 import { environment } from '../../../../environments/environment';
 import { Company } from '../../../common/interfaces/company';

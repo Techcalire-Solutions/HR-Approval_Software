@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
@@ -24,14 +24,12 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { CamelCasePipe } from '../../../theme/pipes/camel-case.pipe';
 import { PipesModule } from '../../../theme/pipes/pipes.module';
-import { UserDialogComponent } from '../../users/user-dialog/user-dialog.component';
 import { DeleteDialogueComponent } from '../../../theme/components/delete-dialogue/delete-dialogue.component';
-import { EditLeaveComponent } from '../edit-leave/edit-leave.component';
 import { NoteDialogComponent } from '../note-dialog/note-dialog.component';
-import { SafePipe } from "../../../common/safe.pipe";
+import { SafePipe } from "../../../common/pipes/safe.pipe";
 import { UplaodDialogComponent } from '../../employee-leave/uplaod-dialog/uplaod-dialog.component';
+import { Leave } from '../../../common/interfaces/leaves/leave';
 @Component({
   selector: 'app-view-leave-request',
   standalone: true,
@@ -52,18 +50,16 @@ import { UplaodDialogComponent } from '../../employee-leave/uplaod-dialog/uplaod
     NgxPaginationModule,
     PipesModule,
     DatePipe,
-    UserDialogComponent,
     CommonModule,
     MatPaginatorModule,
-    CamelCasePipe,
     RouterModule,
     SafePipe
-  ],
+],
   templateUrl: './view-leave-request.component.html',
   styleUrl: './view-leave-request.component.scss'
 })
 export class ViewLeaveRequestComponent implements OnInit, OnDestroy {
-  public page: any;
+  public page: number;
   snackBar = inject(MatSnackBar);
   roleService = inject(RoleService);
   settingsService = inject(SettingsService);
@@ -78,27 +74,21 @@ export class ViewLeaveRequestComponent implements OnInit, OnDestroy {
   totalItems = 0;
   searchText: string = '';
 
-  leaves: any[] = []
+  leaves: Leave[] = []
 
   userId: number
 
   ngOnInit() {
     this.getPaginatedLeaves()
-
-
   }
 
   getPaginatedLeaves(): void {
     this.leaveSub = this.leaveService.getLeavesPaginated(this.searchText, this.currentPage, this.pageSize).subscribe((res: any) => {
-      console.log(res);
       this.totalItems = res.count;
       this.leaves = res.items;
       console.log(this.leaves)
     });
   }
-
-
-
 
   onPageChange(event: PageEvent): void {
     this.currentPage = event.pageIndex + 1;
@@ -110,42 +100,14 @@ export class ViewLeaveRequestComponent implements OnInit, OnDestroy {
     this.searchText = (event.target as HTMLInputElement).value.trim()
   }
 
-
-  editLeave(id: number, status: string) {
-    this.router.navigate(['/login/admin-leave/update-emergency-leave'], { queryParams: { id: id } });
-  }
-
-  // delete!: Subscription;
-  // deleteLeave(id: number) {
-  //   let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
-  //   dialogRef.afterClosed().subscribe(res => {
-  //     if (res) {
-  //       this.delete = this.leaveService.deleteLeave(id).subscribe(res => {
-  //         this.snackBar.open('Leave request deleted successfully!', 'Close', { duration: 3000 });
-  //         this.getPaginatedLeaves()
-  //       });
-  //     }
-  //   });
-  // }
-
-
   ngOnDestroy(): void {
     this.leaveSub.unsubscribe();
-
-
   }
 
 
   openCalendar() {
     this.router.navigate(['login/leave/leaveCalendar']);
-
   }
-
-
-
-
-
-
 
   onDeleteLeave(leaveId: number): void {
     const dialogRef = this.dialog.open(DeleteDialogueComponent, {
@@ -176,29 +138,16 @@ export class ViewLeaveRequestComponent implements OnInit, OnDestroy {
             // Refresh the leave list after successful deletion
             this.getPaginatedLeaves();
           },
-          
-          // error: (error) => {
-          //   console.error('Error deleting leave:', error);
-          //   this.snackBar.open('Error deleting leave request!', 'Close', { duration: 3000 });
-          // }
         });
       }
     });
   }
   
-  
-  
-
-
-
-
-
-
   onEditLeave(leaveId: number): void {
     this.router.navigate([`/login/admin-leave/edit-emergency-leave/${leaveId}`]);
   }
 
-  openDialog(action: string, leaveId: string): void {
+  openDialog(action: string, leaveId: number): void {
     if (action === 'reject') {
       this.openNoteDialog(action, leaveId);
     } else if (action === 'approve') {
@@ -222,7 +171,7 @@ export class ViewLeaveRequestComponent implements OnInit, OnDestroy {
   }
   
 
-  private openNoteDialog(action: string, leaveId: string): void {
+  private openNoteDialog(action: string, leaveId: number): void {
     const dialogRef = this.dialog.open(NoteDialogComponent, {
       data: {
         action,
@@ -286,7 +235,7 @@ export class ViewLeaveRequestComponent implements OnInit, OnDestroy {
     this.enlargedItemId = this.enlargedItemId === itemId ? null : itemId;
   }
 
-  upload(action: string, leaveId: string): void {
+  upload(action: string, leaveId: number): void {
     const dialogRef = this.dialog.open(UplaodDialogComponent, {
       data: { leaveId } , // Pass leaveId as part of the dialog data
       width: '400px',
@@ -301,7 +250,7 @@ export class ViewLeaveRequestComponent implements OnInit, OnDestroy {
     });
   }
 
-  updateLeaveFileUrl(leaveId: string, fileUrl: string): void {
+  updateLeaveFileUrl(leaveId: number, fileUrl: string): void {
     this.leaveService.updateLeaveFileUrl(leaveId, fileUrl).subscribe({
       next: () => {
         this.getPaginatedLeaves()

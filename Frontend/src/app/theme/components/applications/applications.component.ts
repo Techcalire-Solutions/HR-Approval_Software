@@ -6,7 +6,6 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
-import { LeaveTypesComponent } from '../../../pages/admin-leave/leave-types/leave-types.component';
 import { Router } from '@angular/router';
 
 @Component({
@@ -47,8 +46,7 @@ export class ApplicationsComponent implements OnInit {
     this.router.navigateByUrl('/login/company')
   }
   openHoliday():void{
-    this.router.navigateByUrl('/login/admin-leave/holiday')
-
+    this.router.navigateByUrl('/login/holiday')
   }
 }
 

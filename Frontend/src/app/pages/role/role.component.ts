@@ -55,7 +55,7 @@ import { Role } from '../../common/interfaces/users/role';
 export class RoleComponent implements OnInit, OnDestroy {
   public page: number;
   snackBar = inject(MatSnackBar)
-  constructor(private roleService:RoleService,public settingsService: SettingsService, public dialog: MatDialog,  public usersService: UsersService){}
+  constructor(private readonly roleService: RoleService, public settingsService: SettingsService, public dialog: MatDialog,  public usersService: UsersService){}
 
   ngOnInit(){
     this.getRoles()

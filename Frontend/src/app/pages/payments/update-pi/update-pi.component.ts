@@ -17,7 +17,7 @@ import { CompanyService } from '@services/company.service';
 import { ReactiveFormsModule, FormBuilder, Validators, FormArray, FormGroup } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SafePipe } from '../../../common/safe.pipe';
+import { SafePipe } from '../../../common/pipes/safe.pipe';
 import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDialog } from '@angular/material/dialog';

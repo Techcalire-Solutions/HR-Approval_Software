@@ -10,12 +10,6 @@
         </mat-toolbar>
         <mat-card>
             <mat-grid-list cols="3" rowHeight="1:1">
-                <!-- <mat-grid-tile>
-                  <button mat-button>
-                      <mat-icon class="muted-text">person</mat-icon>
-                      <span>My account</span>
-                  </button>
-                </mat-grid-tile> -->
                 <mat-grid-tile>
                   <button mat-button (click)="openLeaveTypes()">
                     <mat-icon class="muted-text">schedule</mat-icon>
@@ -24,24 +18,6 @@
 
 
                 </mat-grid-tile>
-                <!-- <mat-grid-tile>
-                  <button mat-button>
-                      <mat-icon class="muted-text">play_arrow</mat-icon>
-                      <span>Player</span>
-                  </button>
-                </mat-grid-tile>
-                <mat-grid-tile>
-                  <button mat-button>
-                      <mat-icon class="muted-text">settings</mat-icon>
-                      <span>Settings</span>
-                  </button>
-                </mat-grid-tile>
-                <mat-grid-tile>
-                  <button mat-button>
-                      <mat-icon class="muted-text">event</mat-icon>
-                      <span>Calendar</span>
-                  </button>
-                </mat-grid-tile> -->
                 <mat-grid-tile>
                   <button mat-button (click)="openTeam()">
                     <mat-icon class="muted-text">groups</mat-icon>
@@ -54,26 +30,8 @@
                     <span>Designation</span>
                   </button>
                 </mat-grid-tile>
-                <!-- <mat-grid-tile>
-                  <button mat-button>
-                      <mat-icon class="muted-text">mail</mat-icon>
-                      <span>Mail</span>
-                  </button>
-                </mat-grid-tile> -->
-                <!-- <mat-grid-tile>
-                  <button mat-button>
-                      <mat-icon class="muted-text">place</mat-icon>
-                      <span>Maps</span>
-                  </button>
-                </mat-grid-tile> -->
             </mat-grid-list>
             <mat-grid-list cols="3" rowHeight="1:1">
-              <!-- <mat-grid-tile>
-                <button mat-button>
-                    <mat-icon class="muted-text">person</mat-icon>
-                    <span>My account</span>
-                </button>
-              </mat-grid-tile> -->
               <mat-grid-tile>
                 <button mat-button (click)="openCompany()">
                   <mat-icon class="muted-text">business</mat-icon>
@@ -87,10 +45,8 @@
                   <mat-icon class="muted-text">celebration</mat-icon>
                   <span>Holiday</span>
                 </button>
-
-
               </mat-grid-tile>
-              </mat-grid-list>
+            </mat-grid-list>
         </mat-card>
     </span>
 </mat-menu>

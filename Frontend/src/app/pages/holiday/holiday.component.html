@@ -1,0 +1,80 @@
+<div fxLayout="row" fxLayoutAlign="space-between center" class="row">
+  <!-- Toggle Button -->
+    <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
+      <mat-button-toggle value="add" (click)="openDialog(null)">
+        <mat-icon>person_add</mat-icon>
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <!-- Search Input -->
+    <mat-form-field class="user-search-input" appearance="outline" class="col">
+      <mat-label>Search</mat-label>
+      <input matInput name="search" (keyup)="search($event)" [value]="searchText">
+    </mat-form-field>
+
+    <!-- Date Selector -->
+    <mat-form-field appearance="outline" class="col">
+      <mat-label>Select Date</mat-label>
+      <input matInput [matDatepicker]="datePicker" placeholder="Choose a date"  [value]="selectedDate" (dateChange)="onDateChange($event.value)">
+      <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+      <mat-datepicker #datePicker></mat-datepicker>
+    </mat-form-field>
+
+    <!-- Year Selector -->
+    <mat-form-field appearance="outline" class="col">
+      <mat-label>Select Year</mat-label>
+      <mat-select (selectionChange)="onYearChange($event)" [value]="currentYear">
+        <mat-option *ngFor="let year of yearList" [value]="year">{{ year }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true"
+    style="margin-left: 40px;">
+      <mat-button-toggle value="add" (click)="deleteAll()">
+        <mat-icon>delete</mat-icon>
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+</div>
+
+
+<main class="table" id="customers_table">
+  <section class="table__body">
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th> Designation </th>
+          <th> Abbreviation</th>
+          <th> Department </th>
+          <th> Date </th>
+          <th> Manage </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for(holiday of holidays; track $index){
+          <tr>
+            <td>{{ holiday.id }}</td>
+            <td>{{ holiday.name }}</td>
+            <td>{{ holiday.type }}</td>
+            <td>{{ holiday.comments }}</td>
+            <td>{{ holiday.date | date:'dd/MM/yyyy' }}</td>
+            <td>
+              <button
+                mat-icon-button
+                (click)="openDialog(holiday)">
+                <mat-icon>mode_edit</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                (click)="delete(holiday.id)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </tr>
+        }
+
+      </tbody>
+    </table>
+  </section>
+</main>

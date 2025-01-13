@@ -34,8 +34,6 @@ export class MonthendComponent implements OnInit, OnDestroy{
   ngOnInit(): void {
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
-    console.log(currentMonth);
-    
     const monthNames = [
       "January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"
@@ -79,10 +77,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
     this.doc().push(newPayroll);
 
     const index = this.doc().length - 1;
-    // newPayroll.valueChanges.subscribe(() => {
-      this.calculateTotalSalary(index);
-    // });
-
+    this.calculateTotalSalary(index);
   }
 
   month: string;
@@ -122,16 +117,12 @@ export class MonthendComponent implements OnInit, OnDestroy{
 
     const deduction = pf + insurance + tds + advanceAmount + incentiveDeduction;
     const grossTotal = Math.round(gross + ot + incentive + payOut + Number(leaveEncash) - deduction);
-    console.log(grossTotal);
-
     const perDaySalary = gross / this.daysInMonth;
     const leaveDeduction = perDaySalary * leaveDays;
 
     payrollGroup.get('leaveDeduction')?.setValue(leaveDeduction, { emitEvent: false });
-    console.log(grossTotal, leaveDeduction);
 
     const totalToPay = Number((grossTotal - leaveDeduction).toFixed(2));
-    console.log(totalToPay);
 
     payrollGroup.get('toPay')?.setValue(totalToPay, { emitEvent: false });
 }
@@ -193,8 +184,6 @@ export class MonthendComponent implements OnInit, OnDestroy{
     const isDecember = this.month.toLowerCase() === 'december';
 
     this.paySub = this.payrollService.getMonthlyPayrollByPayedFor(payedForValue).subscribe(payroll =>{
-      console.log(payroll);
-      
       if(payroll.length === 0){
         this.payrollSub = this.payrollService.getPayroll().subscribe((payroll) => {
           this.payrolls = payroll;

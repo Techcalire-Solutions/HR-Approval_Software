@@ -8,9 +8,7 @@ const fileFilter = (req, file, cb) => {
 
   const mimetype = fileTypes.test(file.mimetype);
   
-  const extname = fileTypes.test(path.extname(file.originalname).toLowerCase()); // Ensure extension check is case-insensitive
-
-  console.log(`MIME Type: ${file.mimetype}, Extension: ${path.extname(file.originalname)}`);
+  const extname = fileTypes.test(path.extname(file.originalname).toLowerCase()); 
 
   if (mimetype && extname) {
     return cb(null, true); 

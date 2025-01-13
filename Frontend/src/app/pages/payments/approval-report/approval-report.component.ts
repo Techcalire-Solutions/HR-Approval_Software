@@ -23,7 +23,7 @@ import { UsersService } from '@services/users.service';
 import { MatDatepickerModule, MatDateRangeInput } from '@angular/material/datepicker';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, NativeDateAdapter } from '@angular/material/core';
 import { MatChipsModule } from '@angular/material/chips';
-import { SafePipe } from '../../../common/safe.pipe';
+import { SafePipe } from '../../../common/pipes/safe.pipe';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { PerformaInvoice } from '../../../common/interfaces/payments/performaInvoice';
 import { User } from '../../../common/interfaces/users/user';

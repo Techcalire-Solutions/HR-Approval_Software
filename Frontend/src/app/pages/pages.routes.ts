@@ -133,7 +133,11 @@ export const routes: Routes = [
         loadComponent: () => import('../theme/components/chat/chat.component').then(c => c.ChatComponent),
         data: { breadcrumb: 'Profile' }, canActivate: [AuthGuard]
       },
-
+      {
+        path: 'holiday',
+        loadChildren: () => import('./holiday/holiday.routes').then(p => p.routes),
+        data: { breadcrumb: 'Holiday' }, canActivate: [AuthGuard]
+      },
     ]
   },
 

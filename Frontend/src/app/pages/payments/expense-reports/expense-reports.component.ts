@@ -19,7 +19,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { SafePipe } from '../../../common/safe.pipe';
+import { SafePipe } from '../../../common/pipes/safe.pipe';
 import { User } from '../../../common/interfaces/users/user';
 
 @Component({

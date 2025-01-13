@@ -20,7 +20,7 @@ import { User } from '../../../common/interfaces/users/user';
 import { PayrollService } from '@services/payroll.service';
 import { PayrollLog } from '../../../common/interfaces/payRoll/payroll-log';
 import { MonthlyPayroll } from '../../../common/interfaces/payRoll/monthlyPayroll';
-import { SafePipe } from "../../../common/safe.pipe";
+import { SafePipe } from "../../../common/pipes/safe.pipe";
 import { UserQualification } from '../../../common/interfaces/users/user-qualification';
 import { Nominee } from '../../../common/interfaces/users/nominee';
 import { MatDialog } from '@angular/material/dialog';
