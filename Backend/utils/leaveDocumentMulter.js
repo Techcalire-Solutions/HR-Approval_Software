@@ -3,14 +3,14 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
 const fileFilter = (req, file, cb) => {
-  const fileTypes = /jpeg|jpg|png|pdf|doc|docx/;
+  const fileTypes = /jpeg|jpg|png|pdf|txt|text\/plain/;
   const mimetype = fileTypes.test(file.mimetype);
-  const extname = fileTypes.test(path.extname(file.originalname));
+  const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
 
   if (mimetype && extname) {
     return cb(null, true);
   }
-  cb(new Error('File format is not supported'));
+  return cb(new Error('File format is not supported'));
 };
 
 const upload = multer({

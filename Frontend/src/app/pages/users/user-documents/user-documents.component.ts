@@ -13,7 +13,7 @@ import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { UserDocument } from '../../../common/interfaces/users/user-document';
-import { SafePipe } from "../../../common/safe.pipe";
+import { SafePipe } from "../../../common/pipes/safe.pipe";
 
 @Component({
   selector: 'app-user-documents',

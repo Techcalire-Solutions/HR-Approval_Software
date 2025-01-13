@@ -22,7 +22,7 @@ import { MonthlyPayroll } from '../../common/interfaces/payRoll/monthlyPayroll';
 import { PayrollLog } from '../../common/interfaces/payRoll/payroll-log';
 import { UserAssets } from '../../common/interfaces/users/user-assets';
 import { UserQualification } from '../../common/interfaces/users/user-qualification';
-import { SafePipe } from "../../common/safe.pipe";
+import { SafePipe } from "../../common/pipes/safe.pipe";
 import { Nominee } from '../../common/interfaces/users/nominee';
 
 @Component({

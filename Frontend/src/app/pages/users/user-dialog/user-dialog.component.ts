@@ -120,7 +120,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     this.file = input.files?.[0];
     this.fileType = this.file.type.split('/')[1];
     if (this.file) {
-      this.uploadComplete = false; // Set to false to show the progress bar
+      this.uploadComplete = false;
 
       let fileName = this.file.name;
       if (fileName.length > 12) {

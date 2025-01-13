@@ -12,8 +12,13 @@ export interface Leave {
   noOfDays: number; // Number of days for the leave
   notes?: string; // Optional notes for the leave
   status: string; // Current status of the leave
-  session1: boolean; // Indicates if session 1 is included
-  session2: boolean; // Indicates if session 2 is included
   fileUrl?: string; // Optional URL for any file associated with the leave
-  leaveDates: Date[]; // Array of dates for the leave
+  leaveDates: LeaveDate[]; // Array of dates for the leave
+  adminNotes: string
+}
+
+interface LeaveDate {
+  date: Date; // The specific date for the leave
+  session1: boolean; // Indicates if session 1 is included for this date
+  session2: boolean; // Indicates if session 2 is included for this date
 }

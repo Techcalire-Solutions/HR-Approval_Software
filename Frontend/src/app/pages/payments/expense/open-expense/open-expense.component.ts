@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
-import { SafePipe } from "../../../../common/safe.pipe";
+import { SafePipe } from "../../../../common/pipes/safe.pipe";
 import { ExpensesService } from '@services/expenses.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';

@@ -5,13 +5,7 @@
       <div class="form-row">
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Leave Type</mat-label>
-          <mat-select formControlName="leaveTypeId" placeholder="Select leave type" required>
-            @for(leaveType of leaveTypes; track $index){
-              <mat-option [value]="leaveType.id">
-                {{ leaveType.id }}
-              </mat-option>
-            } 
-          </mat-select>
+          <input matInput formControlName="leaveTypeName"  [disabled]="true">
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="half-width">

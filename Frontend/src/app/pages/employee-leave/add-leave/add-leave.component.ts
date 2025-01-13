@@ -297,7 +297,7 @@ onEndDateChange() {
       this.leaveService.uploadImage(this.file).subscribe({
         next: (res) => {
           this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${res.fileUrl}`;
-          this.leaveRequestForm.get('url')?.setValue(res.fileUrl);
+          this.leaveRequestForm.get('url')?.setValue(this.imageUrl);
         },
         error: () => console.error('Upload failed'),
       });
