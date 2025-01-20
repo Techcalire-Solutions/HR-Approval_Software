@@ -21,15 +21,15 @@ export const verticalMenuItems = [
   new Menu(28, 'View', '/login/viewApproval/viewexpenses', null, 'visibility', null, false, 26),
 
   new Menu(8, 'Leave', '', null, 'date_range', null, true, 0),
-  new Menu(21, 'View Requests', '/login/admin-leave/view-leave-request', null,'edit_calendar', null, false, 8),
-  new Menu(9, 'Calendar', '/login/admin-leave', null,'event_available', null, false, 8),
-
-  new Menu(10, 'Emergency', '/login/admin-leave/apply-emergency-leave', null, 'event_note', null, false, 8),
+  new Menu(21, 'View', '/login/leave', null,'edit_calendar', null, false, 8),
+  // new Menu(21, 'View Requests', '/login/admin-leave/view-leave-request', null,'edit_calendar', null, false, 8),
+  new Menu(9, 'Calendar', '/login/leave/leave-calendar', null,'event_available', null, false, 8),
+  new Menu(12, 'Balance', '/login/leave/leave-balance', null, 'data_usage', null, false, 8),
+  // new Menu(10, 'Emergency', '/login/admin-leave/apply-emergency-leave', null, 'event_note', null, false, 8),
   new Menu(35, 'Encash', '/login/admin-leave/leave-encashment', null, 'event_note', null, false, 8),
 
 
-  new Menu(11, 'Request', '/login/employee-leave', null, 'event_busy', null, false, 8),
-  new Menu(12, 'Balance', '/login/employee-leave/balance', null, 'data_usage', null, false, 8),
+  // new Menu(11, 'Request', '/login/employee-leave', null, 'event_busy', null, false, 8),
 
 
 
@@ -64,7 +64,7 @@ export const verticalMenuItems = [
   new Menu(24, 'Leave Report', '/login/employee-leave/balance', null, 'visibility', null, false, 21),
   // new Menu(24, 'Expense Report', '/login/viewApproval/expenses', null, 'visibility', null, false, 21),
   new Menu(1, 'Backup', '/login/backup', null, 'dashboard', null, false, 0),
-  new Menu(35, 'Leave', '/login/admin-leave/report', null, 'visibility', null, false, 21),
+  new Menu(35, 'Leave', '/login/leave/leave-report', null, 'event_busy', null, false, 21),
 
 ];
 

@@ -12,7 +12,8 @@ const nodemailer = require('nodemailer');
  * @param {any} [attachments] - Optional array of file attachments.
  * @returns {Promise}
  */
-const sendEmail = async (fromEmail, password, to, subject, text, html, attachments) => {
+
+const sendEmail = async (fromEmail, password, to, subject, text, html, attachments, cc) => {
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
@@ -24,6 +25,7 @@ const sendEmail = async (fromEmail, password, to, subject, text, html, attachmen
   const mailOptions = {
     from: fromEmail,
     to,
+    cc,
     subject,
     text,
     html: html, 

@@ -12,6 +12,7 @@ import { JoiningDayComponent } from "./joining-day/joining-day.component";
 import { ProbationDueComponent } from "./probation-due/probation-due.component";
 import { HolidayCalendarComponent } from "./holiday-calendar/holiday-calendar.component";
 import { LeaveRequestsNotificationComponent } from './leave-requests-notification/leave-requests-notification.component';
+import { UsersService } from '@services/users.service';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -34,16 +35,17 @@ import { LeaveRequestsNotificationComponent } from './leave-requests-notificatio
 export class DashboardComponent {
   invoiceService = inject(InvoiceService)
   user: number;
-ngOnInit(){
-  const token: any = localStorage.getItem('token')
+  ngOnInit(){
+    const token: any = localStorage.getItem('token')
     let user = JSON.parse(token)
 
     this.user = user.id;
 
     let roleId = user.role
     this.getRoleById(roleId)
-}
-roleSub!: Subscription;
+    this.getUsers()
+  }
+  roleSub!: Subscription;
   roleName!: string;
   hradmin: boolean = false;
   getRoleById(id: number){
@@ -53,6 +55,20 @@ roleSub!: Subscription;
       if(this.roleName === 'HR Administrator' ||this.roleName==='HR') {
         this.hradmin = true;
       }
+    })
+  }
+
+  private readonly userService = inject(UsersService);
+  userSub!: Subscription;
+  rm: boolean = false;
+  getUsers(){
+    this.userSub = this.userService.getUserPersonalDetails().subscribe(users => {
+      let rmUsers = users.filter(user => user.reportingMangerId === this.user)
+      if(rmUsers.length > 0){
+        this.rm = true;
+
+      }
+      console.log(rmUsers);
     })
   }
 }

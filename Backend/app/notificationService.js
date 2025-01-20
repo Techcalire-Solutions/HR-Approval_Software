@@ -4,8 +4,6 @@
 const Notification = require('../notification/models/notification'); 
 
 async function createNotification({ id, me, route, transaction }) {
-  console.log(id, me, route);
-  
   try {
     await Notification.create(
       {

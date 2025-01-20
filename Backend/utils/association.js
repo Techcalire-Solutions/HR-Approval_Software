@@ -54,6 +54,7 @@ async function syncModel() {
         {roleName: 'HR Administrator',abbreviation:'HR Admin'}, 
         {roleName: 'Super Administrator',abbreviation:'Super Admin'}, 
     ]
+    
     const role = await Role.findAll({});
     if(role.length === 0){
         for(let i = 0; i < roleData.length; i++){

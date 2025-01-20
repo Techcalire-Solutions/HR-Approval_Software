@@ -2,8 +2,8 @@
   <h2>Leave Requests</h2>
   <ul>
     <ng-container *ngFor="let item of leaves; let i = index">
-      <li>
-        {{ item.userName }} - {{ item.leaveTypeName }} - {{item.notes}}
+      <li [routerLink]="['/login/leave/open/', item.id]">
+        {{ item.user.name }} - {{ item.leaveType.leaveTypeName }} - {{item.notes}}
         <ng-container *ngIf="roleName === 'HR Administrator' || roleName === 'Super Administrator'">
           <mat-icon (click)="redirectToViewLeaveRequests()">arrow_forward</mat-icon>
         </ng-container>

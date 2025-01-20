@@ -35,7 +35,7 @@
                   <div style="display: flex; align-items: center; width: 100%;">
                     <span style="flex: 1;">Joining Date</span>
                     <span style="width: 20px; text-align: center;">:</span>
-                    <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.userPersonals[0]?.dateOfJoining | date: 'dd-MM-yyyy'}}</span>
+                    <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.userpersonal[0]?.dateOfJoining | date: 'dd-MM-yyyy'}}</span>
                   </div>
                 </td>
                 <td>
@@ -111,7 +111,7 @@
                 </td>
             </tr>
             <tr>
-                <td> 
+                <td>
                     <div style="display: flex; align-items: center; width: 100%;">
                         <span style="flex: 1;">LOP</span>
                         <span style="width: 20px; text-align: center;">:</span>
@@ -125,7 +125,7 @@
                         <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.leaveEncashment}}</span>
                     </div>
                 </td>
-            </tr> 
+            </tr>
         </table>
 
         <div class="section-title">Earnings and Deductions</div>
@@ -205,14 +205,14 @@
                 <td></td>
               </tr>
                 <tr>
-                    <td colspan="3"> 
+                    <td colspan="3">
                         <div style="display: flex; align-items: center; width: 100%;">
                             <span style="flex: 1;">Total Earnings</span>
                             <span style="width: 20px; text-align: center;">:</span>
                             <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">INR {{ calculateTotalEarnings() }}</span>
                         </div>
                     </td>
-                    <td colspan="2"> 
+                    <td colspan="2">
                         <div style="display: flex; align-items: center; width: 100%;">
                             <span style="flex: 1;">Total Deductions</span>
                             <span style="width: 20px; text-align: center;">:</span>

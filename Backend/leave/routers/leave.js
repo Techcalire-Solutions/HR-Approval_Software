@@ -52,7 +52,6 @@ async function getHREmail() {
   return userPosition.officialMailId;
 }
 
-
 async function getReportingManagerEmailForUser(userId) {
   try {
 
@@ -87,10 +86,6 @@ async function getReportingManagerEmailForUser(userId) {
     return 'Error fetching reporting manager email';
   }
 }
-
-
-
-
 
 //-------------------------------------Mail sending function------------------------------------------
 
@@ -697,8 +692,6 @@ router.delete('/:id', async (req, res) => {
 //---------------------------------Mail Approval and Reject-----------------------------------------------------------
 router.get('/approveLeave/:id', async (req, res) => {
   const leaveId = req.params.id;
-
-
   try {
 
     const leave = await Leave.findByPk(leaveId);
@@ -783,7 +776,7 @@ router.get('/rejectLeave/:id', async (req, res) => {
 
 router.post('/emergencyLeave', authenticateToken, async (req, res) => {
   const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
-
+  
   if (!userId || !leaveTypeId || !startDate || !endDate || !leaveDates) {
     return res.send('Missing required fields');
   }
@@ -800,6 +793,8 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
   const noOfDays = calculateLeaveDays(leaveDates);
   try {
     userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId } });
+    console.log(userLeave);
+    
     if (userLeave) {
       if (leaveType.leaveTypeName === 'LOP' || userLeave.leaveBalance >= noOfDays) {
         if (userLeave.noOfDays) { userLeave.leaveBalance -= noOfDays; }
@@ -810,12 +805,10 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
       }
     } else {
       userLeave = await UserLeave.create({
-        userId,
+        userId: userId,
         leaveTypeId: leaveTypeId,
         takenLeaves: noOfDays,
       });
-
-
     }
     let leave;
     try {
@@ -1408,7 +1401,6 @@ router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => 
   try {
     const leaveId = req.params.id;
 
-
     const leave = await Leave.findByPk(leaveId, {
       include: {
         model: LeaveType,
@@ -1416,50 +1408,31 @@ router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => 
       },
     });
 
-
-    leave.status = 'AdminDeleted';
-    await leave.save();
-
     if (!leave) {
       return res.send('Leave not found');
     }
 
-    const userLeave = await UserLeave.findOne({ where: { userId: leave.userId, leaveTypeId: leave.leaveTypeId } });
+    if( leave.status === 'Approved' || leave.status ==='AdminApproved'){
+      const userLeave = await UserLeave.findOne({ where: { userId: leave.userId, leaveTypeId: leave.leaveTypeId } });
 
-
-    console.log("userLeaveeeee",userLeave)
-
-    if (userLeave) {
-      console.log('Before Deletion - UserLeave:', userLeave.dataValues); 
-
-
-
-
-   
-      const leaveDays = leave.noOfDays > 0 ? leave.noOfDays : 1;
-
-      if (leave.leaveType.leaveTypeName === 'LOP') {
-
-        userLeave.takenLeaves -= leaveDays;
-      } else {
-
-        userLeave.takenLeaves -= leaveDays;
-        userLeave.leaveBalance += leaveDays;
+      if (userLeave) {
+        const leaveDays = leave.noOfDays > 0 ? leave.noOfDays : 1;
+  
+        if (leave.leaveType.leaveTypeName === 'LOP') {
+  
+          userLeave.takenLeaves -= leaveDays;
+        } else {
+  
+          userLeave.takenLeaves -= leaveDays;
+          userLeave.leaveBalance += leaveDays;
+        }
+        await userLeave.save();
       }
-
-
-      await userLeave.save();
-
-   
-      console.log('After Deletion - UserLeave Updated:', userLeave.dataValues);
     }
-
 
     await leave.destroy();
 
     res.status(204).send('Leave deleted and balance updated successfully');
-    // res.json({  message: 'Leave deleted and balance updated' });
-
   } catch (error) {
     res.send(error.message);
   }

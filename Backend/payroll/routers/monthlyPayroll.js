@@ -26,8 +26,6 @@ const { createNotification } = require('../../app/notificationService');
 
 router.post("/save", authenticateToken, async (req, res) => {
   const data = req.body.payrolls;
-  console.log(data,"dataaaaaaaaaa");
-  
   try {
     const results = []; 
     for (let i = 0; i < data.length; i++) {
@@ -47,8 +45,6 @@ router.post("/save", authenticateToken, async (req, res) => {
 
     res.status(200).send({ message: "Payrolls saved successfully", payrolls: results });
   } catch (error) {
-    console.log(error);
-    
     res.send(error.message);
   }
 });
