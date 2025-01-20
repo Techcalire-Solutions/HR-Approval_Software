@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LeaveService } from '@services/leave.service';
+import { User } from '../../../common/interfaces/users/user';
 
 @Component({
   selector: 'app-leave-reports',
@@ -14,7 +15,7 @@ import { LeaveService } from '@services/leave.service';
   styleUrl: './leave-reports.component.scss',
 })
 export class LeaveReportsComponent {
-  employees: any[] = [];
+  employees: User[] = [];
   selectedYear: number = new Date().getFullYear(); // Default to the current year
   years: number[] = []; // Array to store the list of years
 
@@ -31,8 +32,6 @@ export class LeaveReportsComponent {
     }
   }
   getReport(): void {
-    console.log('selected year',this.selectedYear);
-    
     this.leaveService.getReport(this.selectedYear).subscribe((res) => {
       this.employees = res;
     });

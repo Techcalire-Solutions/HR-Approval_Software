@@ -93,6 +93,10 @@ export class NewLeaveService {
     return this.http.get<any[]>(`${this.apiUrl}/newleave/findbyrm/${rmId}?search=${search}&page=${page}&pageSize=${pageSize}`);
   }
 
+  getReport(year: number):Observable<any>{
+    return this.http.get(`${this.apiUrl}/newleave/all/report?year=${year}`);
+   }
+
 
   // for setting app password....................................
   getUserEmail(id: number){
