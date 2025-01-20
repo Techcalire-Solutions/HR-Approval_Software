@@ -1,0 +1,213 @@
+<form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+  <br>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title> USER </mat-card-title>
+    </mat-card-header>
+    <mat-card-content >
+
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Name" formControlName="name">
+            <!-- <mat-error *ngIf="taskForm.controls['name'].hasError('required')">
+              Name <strong>required</strong>
+            </mat-error> -->
+          </mat-form-field>
+        </div>
+
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Employee Id" formControlName="employeeId">
+            <!-- <mat-error *ngIf="taskForm.controls['name'].hasError('required')">
+              Name <strong>required</strong>
+            </mat-error> -->
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Phone Number" formControlName="phoneNumber">
+            <!-- <mat-error *ngIf="taskForm.controls['name'].hasError('required')">
+              Name <strong>required</strong>
+            </mat-error> -->
+          </mat-form-field>
+        </div>
+
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Email" formControlName="email">
+            <!-- <mat-error *ngIf="taskForm.controls['name'].hasError('required')">
+              Name <strong>required</strong>
+            </mat-error> -->
+          </mat-form-field>
+        </div>
+
+      </div>
+
+
+      <div class="row">
+        <div class="col">
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label style="font-family: Montserrat; font-size: 1em;">Date of Birth</mat-label>
+            <input matInput [matDatepicker]="picker1" formControlName="dateOfBirth">
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+            <mat-datepicker #picker1></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Password" formControlName="password" type="password">
+            <!-- <mat-error *ngIf="taskForm.controls['name'].hasError('required')">
+              Name <strong>required</strong>
+            </mat-error> -->
+          </mat-form-field>
+        </div>
+
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-select placeholder="User Role" formControlName="roleId" style="font-family: Montserrat; font-size: 1em;">
+              <mat-option *ngFor="let item of  role$ | async" [value]="item.id">
+                {{item.roleName | titlecase}}
+              </mat-option>
+              &nbsp;&nbsp; &nbsp;&nbsp;<span class="material-icons" style="font-size: 30px; color: rgb(0, 128, 55);" (click)="addRole()">playlist_add</span>
+            </mat-select>
+            <mat-error *ngIf="userForm.controls['roleId'].hasError('required')">
+             User Role is <strong>required</strong>
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Qualification" formControlName="qualification">
+            <!-- <mat-error *ngIf="taskForm.controls['name'].hasError('required')">
+              Name <strong>required</strong>
+            </mat-error> -->
+          </mat-form-field>
+        </div>
+
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label style="font-family: Montserrat; font-size: 1em;">Joining Date</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="joiningDate">
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </div>
+
+
+
+      <div class="row">
+        <div class="col">
+          <form [formGroup]="languageForm" (ngSubmit)="onSubmit()">
+            <mat-card>
+              <mat-card-header>
+                USER LANGUAGES
+              </mat-card-header>
+              <mat-card-content>
+                <div>
+                  <table formArrayName="languages">
+                    <table *ngFor="let quantity of language().controls; let i=index" [formGroupName]="i">
+                      <tr>
+                        <td>
+                          <mat-form-field>
+                            <mat-label>Select an option</mat-label>
+                            <mat-select formControlName="language">
+                              <mat-form-field class="search-field">
+                                <div class="row">
+                                  <!-- <mat-icon>search</mat-icon> -->
+                                <input matInput (input)="filterOptions($event)" placeholder="Search">
+                                </div>
+                              </mat-form-field>
+                              <mat-option *ngFor="let option of filteredOptions" [value]="option.name">
+                                {{ option.name }}
+                              </mat-option>
+                            </mat-select>
+                          </mat-form-field>
+
+                        <td>
+                          <mat-form-field appearance="fill"class="full-width">
+                            <input matInput placeholder="Year Of Experience" formControlName="yearOfExperience">
+                          </mat-form-field>
+                        </td>
+
+                        <td>
+                          <span class="material-icons" style="color: rgb(255, 0, 0); font-size: 25px; margin-top: 17px; margin-left: 75px;" (click)="remove(i)">cancel</span>
+                        </td>
+                      </tr>
+                    </table>
+                    <tr>
+                      <th>
+                        <div>
+                          <span class="material-icons" style="font-size: 25px; color: green;"(click)="add()">add_box</span>
+                        </div>
+                      </tr>
+                  </table>
+                </div>
+             </mat-card-content>
+
+            </mat-card>
+          </form>
+        </div>
+
+        <div class="col">
+          <form [formGroup]="experienceForm" (ngSubmit)="onSubmit()">
+            <mat-card>
+              <mat-card-header>
+                USER EXPERIENCES
+              </mat-card-header>
+
+              <mat-card-content>
+                <div>
+
+                  <table formArrayName="experiences">
+                    <table *ngFor="let quantity of exp().controls; let i=index" [formGroupName]="i">
+                      <tr>
+                        <td>
+                          <mat-form-field appearance="fill"class="full-width">
+                            <input matInput placeholder="Experience" formControlName="experience">
+                          </mat-form-field>
+
+                        <td>
+                          <mat-form-field appearance="fill"class="full-width">
+                            <input matInput placeholder="Year Of Experience" formControlName="yearOfExperience">
+                          </mat-form-field>
+                        </td>
+
+                        <td>
+                          <span class="material-icons" style="color: rgb(255, 0, 0); font-size: 25px; margin-top: 17px; margin-left: 75px;" (click)="removeExp(i)">cancel</span>
+                        </td>
+                      </tr>
+                    </table>
+                    <tr>
+                      <th>
+                        <div>
+                          <span class="material-icons" style="font-size: 25px; color: green;"(click)="addExp()">add_box</span>
+                        </div>
+                      </tr>
+                  </table>
+                </div>
+             </mat-card-content>
+            </mat-card>
+          </form>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button mat-raised-button class="btn btn-success" type="button" [disabled]="!experienceForm.valid || !languageForm.valid || !userForm.valid" (click)="onSubmit()">
+        <span class="material-icons" style="font-size: 25px;">save</span>
+      </button>
+     </mat-card-actions>
+  </mat-card>
+</form>

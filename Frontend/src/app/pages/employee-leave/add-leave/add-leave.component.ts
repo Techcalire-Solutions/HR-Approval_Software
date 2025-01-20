@@ -198,15 +198,11 @@ export class AddLeaveComponent implements OnInit, OnDestroy {
 
     const leaveId = this.route.snapshot.queryParamMap.get('id');
 
-
     const request$ = this.isEditMode && leaveId
       ? this.leaveService.updateLeave(+leaveId, leaveRequest)
       : this.leaveService.addLeave(leaveRequest);
-
-
     request$.subscribe(
       (response: any) => {
-
         this.openDialog(response.message, response.leaveDatesApplied, response.lopDates);
         this.isLoading = false;
       },
@@ -267,7 +263,7 @@ onDateChange() {
   this.leaveRequestForm.get('endDate')?.reset();
   if (startDate) {
     this.minEndDate = new Date(startDate);
-    this.minEndDate.setDate(this.minEndDate.getDate()); 
+    this.minEndDate.setDate(this.minEndDate.getDate());
   }
 }
 
@@ -334,8 +330,6 @@ onEndDateChange() {
       this.isProbationEmployee = employees.some((emp: any) => emp.id === this.userId);
       if (this.isProbationEmployee) {
         this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
-
-
       }
       else {
         this.leaveTypes = this.leaveTypes

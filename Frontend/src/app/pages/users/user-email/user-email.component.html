@@ -1,0 +1,85 @@
+<div class="reset-password-container">
+  <mat-toolbar class="bg-blue-900">
+    <span class="toolbar-title">Update Application Password</span>
+  </mat-toolbar>
+  <br>
+
+  @if(!showDetails){
+    <form [formGroup]="emailForm" (ngSubmit)="sendEmail()">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Email Address</mat-label>
+        <input matInput formControlName="email" readonly>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>App Password</mat-label>
+        <input matInput formControlName="appPassword" type="password" placeholder="Enter your app password">
+      </mat-form-field>
+      <div class="action-buttons" style="display: flex; gap: 10px;">
+        <button mat-raised-button color="primary" type="submit" [disabled]="emailForm.invalid">
+          Update Password
+        </button>
+        <button mat-raised-button color="warn" type="button" (click)="close()">
+          Cancel
+        </button>
+        <button mat-raised-button color="accent" type="button" (click)="toggleDetails()">
+          APP PASSWORD
+        </button>
+      </div>
+    </form>
+  }@else {
+    <div>
+      <h2>Prerequisites:</h2>
+      <ol>
+          <li>
+              <strong>Enable 2-Step Verification</strong>:
+              <ul>
+                  <li>Sign in to your <a href="https://myaccount.google.com/security" target="_blank">Google Account Security page</a>.</li>
+                  <li>Under "Signing in to Google," enable <strong>2-Step Verification</strong> if it’s not already turned on.</li>
+              </ul>
+          </li>
+      </ol>
+
+      <h2>Steps to Create an App Password:</h2>
+      <ol>
+          <li>
+              <strong>Go to App Passwords</strong>:
+              <ul>
+                  <li>Visit the <a href="https://myaccount.google.com/apppasswords" target="_blank">App Passwords page</a>.</li>
+                  <li>Sign in to your Google account if prompted.</li>
+              </ul>
+          </li>
+          <li>
+              <strong>Select the App and Device</strong>:
+              <ul>
+                  <li>Under "Select the app and device you want to generate the app password for," choose the appropriate app (e.g., "Mail") and device (e.g., "Windows Computer" or "iPhone").</li>
+                  <li>If your app is not listed, select <strong>Other (Custom name)</strong> and type the name of the app.</li>
+              </ul>
+          </li>
+          <li>
+              <strong>Generate the App Password</strong>:
+              <ul>
+                  <li>Click <strong>Generate</strong>.</li>
+                  <li>A 16-character app password will be displayed.</li>
+              </ul>
+          </li>
+          <li>
+              <strong>Use the App Password</strong>:
+              <ul>
+                  <li>Copy the generated password and enter it in place of your regular Google password in the app or device you’re setting up.</li>
+              </ul>
+          </li>
+          <li><strong>Done</strong>: The app should now work without requiring additional verification.</li>
+      </ol>
+
+      <h2>Notes:</h2>
+      <ul>
+          <li>App passwords are <strong>one-time passwords</strong> for specific apps or devices. They can be revoked anytime from your account's security settings.</li>
+          <li class="note">Keep the password secure and don’t reuse it across apps.</li>
+          <li class="note">If the app or device is compromised, revoke the app password and generate a new one.</li>
+      </ul>
+    </div>
+    <button mat-raised-button color="accent" type="button" (click)="toggleDetails()">
+      SET PASSWORD
+    </button>
+  }
+</div>

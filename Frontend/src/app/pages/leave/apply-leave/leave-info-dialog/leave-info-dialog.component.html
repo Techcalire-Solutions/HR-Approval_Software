@@ -1,0 +1,42 @@
+<div id="confirmationModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-confirm">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title"  *ngIf="showOkButton">Confirmation</h4>
+              <h4 class="modal-title"  *ngIf="showCancelButton">Alert</h4>
+
+              <button type="button" class="back-icon" aria-label="Back" (click)="onBack()">
+                  <mat-icon>close</mat-icon>
+              </button>
+          </div>
+
+          <mat-icon style="font-size: 25px; color: #60c7c1;" *ngIf="showOkButton">check_circle</mat-icon>
+
+          <div class="modal-body text-center">
+
+            <p>{{ message }}</p>
+
+            <br>
+            @if(appliedLeaveDates && appliedLeaveDates.length > 0){
+              <div>
+                <p><strong>Applied Leave Dates:</strong></p>
+                <ul>
+                  <li *ngFor="let leave of appliedLeaveDates">
+                    {{ leave.date }} -
+                    <span *ngIf="leave.session1">Session 1</span>
+                    <span *ngIf="leave.session1 && leave.session2"> & </span>
+                    <span *ngIf="leave.session2">Session 2</span>
+                  </li>
+                </ul>
+              </div>
+            }
+          </div>
+
+
+          <div class="modal-footer justify-content-center">
+            <button type="button" *ngIf="showCancelButton" class="btn btn-secondary" (click)="onCancel()" data-dismiss="modal">Cancel Request</button>
+            <button type="button" *ngIf="showOkButton" class="btn btn-primary" (click)="onOk()">Okay</button>
+        </div>
+      </div>
+
+</div>

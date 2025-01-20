@@ -95,6 +95,10 @@ export class UsersService {
     return this.http.get<UserPosition>( this.apiUrl + '/position/findbyuser/' + id);
   }
 
+  getUserPositionDetails(): Observable<UserPosition[]> {
+    return this.http.get<UserPosition[]>( this.apiUrl + '/position');
+  }
+
   getUserStatutoryuDetailsByUser(id: number): Observable<StatutoryInfo> {
     return this.http.get<StatutoryInfo>( this.apiUrl + '/statutoryinfo/findbyuser/' + id);
   }
@@ -250,10 +254,14 @@ export class UsersService {
   getUserNomineeDetailsByUser(id: number): Observable<Nominee> {
     return this.http.get<Nominee>( this.apiUrl + '/nominee/findbyuser/' + id);
   }
-  
+
   updateUserNominee(id: number, data: any){
     return this.http.patch(this.apiUrl + '/nominee/update/' + id, data);
   }
 
+  // --------------------------------------------------------------------------
+  addUserEmail(data: any){
+    return this.http.post(this.apiUrl + '/useremail/add', data);
+  }
 
 }

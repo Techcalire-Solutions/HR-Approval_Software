@@ -1,0 +1,22 @@
+<div fxLayout="column">
+  <div class="p-2">
+    <mat-card>
+      <mat-card-header fxLayoutAlign="center center">
+        <mat-card-title>Leave Counts Pie Chart</mat-card-title>
+      </mat-card-header>
+      <div class="w-100 h-300p">
+        <ngx-charts-pie-chart
+          [scheme]="colorScheme"
+          [results]="single"
+          [legend]="true"
+          [explodeSlices]="false"
+          [labels]="true"
+          [doughnut]="false"
+          [gradient]="false"
+          (select)="onSelect($event)">
+        </ngx-charts-pie-chart>
+      </div>
+      <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div> <!-- Display error message -->
+    </mat-card>
+  </div>
+</div>

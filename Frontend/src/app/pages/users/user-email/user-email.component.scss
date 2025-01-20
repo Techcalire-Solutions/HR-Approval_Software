@@ -1,0 +1,62 @@
+.reset-password-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.toolbar {
+  padding: 10px;
+}
+
+.toolbar-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
+}
+
+.instructions-list mat-list-item {
+  font-size: 0.9rem;
+  line-height: 1.4; /* Reduced line height for compactness */
+  padding: 4px 0; /* Reduced padding */
+}
+
+.mat-card-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.mat-card-content {
+  padding-top: 10px;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+mat-form-field {
+  margin-bottom: 16px;
+}
+
+mat-toolbar.bg-blue-900 {
+  background-color: #004085; /* Deep blue color */
+}
+
+mat-toolbar span {
+  color: white;
+}
+
+button {
+  font-weight: bold;
+  text-transform: uppercase;
+}
