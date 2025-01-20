@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -31,8 +32,6 @@ export class LeaveReportsComponent {
     }
   }
   getReport(): void {
-    console.log('selected year',this.selectedYear);
-    
     this.leaveService.getReport(this.selectedYear).subscribe((res) => {
       this.employees = res;
     });

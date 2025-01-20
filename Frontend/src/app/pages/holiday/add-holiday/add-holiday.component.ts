@@ -105,15 +105,14 @@ export class AddHolidayComponent implements OnInit, OnDestroy{
   selectedFile: File | null = null;
   onFileChange(event: any): void {
     const file = event.target.files[0];
-    console.log(file);
-    
     if (!file) {
       this.snackBar.open('No file selected.', 'Close', { duration: 3000 });
       return;
     }
   
     const validMimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-  
+    console.log(file.type);
+    
     if (file.type !== validMimeType) {
       this.snackBar.open('Invalid file type. Please select a valid Excel file (.xlsx).', 'Close', { duration: 3000 });
       event.target.value = ''; // Clear the file input

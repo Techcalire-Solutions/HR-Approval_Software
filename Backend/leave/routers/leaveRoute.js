@@ -1335,8 +1335,85 @@ router.get('/findbyrm/:reportingManagerId', async (req, res) => {
   }
 });
 
+//--------------------------code by Amina for leave report-----------------
 
+router.get('/all/report', async (req, res) => {
+  try {
+    const { year } = req.query;
 
+    if (!year) {
+      return res.status(400).json({ error: 'Year is required for fetching reports.' });
+    }
+
+    // Fetch all leave data for the given year
+    const leaves = await Leave.findAll({
+      where: {
+        status: {
+          [Op.or]: ['Approved', 'AdminApproved'],
+        },
+        startDate: {
+          [Op.gte]: new Date(`${year}-01-01`),
+          [Op.lt]: new Date(`${+year + 1}-01-01`), // Year range filter
+        },
+      },
+      include: [
+        { model: User, attributes: ['id', 'name'] },
+        { model: LeaveType, attributes: ['id', 'leaveTypeName'] },
+      ],
+    });
+
+    // Group leave data by employees
+    const employeeData = {};
+    leaves.forEach((leave) => {
+      const userId = leave.userId;
+      const leaveTypeName = leave.leaveType?.leaveTypeName || 'Unknown Leave';
+      const leaveDates = leave.leaveDates || [];
+
+      // Initialize employee if not present
+      if (!employeeData[userId]) {
+        employeeData[userId] = {
+          id: userId,
+          name: leave.user.name,
+          leaveDetails: {},
+        };
+      }
+
+      // Initialize leave type if not present
+      if (!employeeData[userId].leaveDetails[leaveTypeName]) {
+        employeeData[userId].leaveDetails[leaveTypeName] = {
+          type: leaveTypeName,
+          monthlyData: Array(12).fill(0), // Initialize 12 months
+          total: 0,
+        };
+      }
+
+      // Calculate leave days and group by month
+      leaveDates.forEach((date) => {
+        const leaveDate = new Date(date.date);
+        if (leaveDate.getFullYear() === parseInt(year, 10)) {
+          const monthIndex = leaveDate.getMonth(); // 0 = January, 11 = December
+          const leaveForDay = date.session1 && date.session2 ? 1 : date.session1 || date.session2 ? 0.5 : 0;
+
+          // Update monthly data and total
+          employeeData[userId].leaveDetails[leaveTypeName].monthlyData[monthIndex] += leaveForDay;
+          employeeData[userId].leaveDetails[leaveTypeName].total += leaveForDay;
+        }
+      });
+    });
+
+    // Convert leaveDetails object to an array
+    const result = Object.values(employeeData).map((employee) => ({
+      ...employee,
+      leaveDetails: Object.values(employee.leaveDetails),
+    }));
+
+    // Send the response
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error fetching leave data:', error);
+    res.status(500).json({ error: 'An error occurred while fetching leave data.' });
+  }
+});
 
 
 

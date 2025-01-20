@@ -5,28 +5,44 @@
         <mat-icon>person_add</mat-icon>
       </mat-button-toggle>
     </mat-button-toggle-group>
-
-    <!-- Search Input -->
-    <mat-form-field class="user-search-input" appearance="outline" class="col">
-      <mat-label>Search</mat-label>
-      <input matInput name="search" (keyup)="search($event)" [value]="searchText">
-    </mat-form-field>
-
-    <!-- Date Selector -->
-    <mat-form-field appearance="outline" class="col">
-      <mat-label>Select Date</mat-label>
-      <input matInput [matDatepicker]="datePicker" placeholder="Choose a date"  [value]="selectedDate" (dateChange)="onDateChange($event.value)">
-      <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
-      <mat-datepicker #datePicker></mat-datepicker>
-    </mat-form-field>
-
-    <!-- Year Selector -->
-    <mat-form-field appearance="outline" class="col">
-      <mat-label>Select Year</mat-label>
-      <mat-select (selectionChange)="onYearChange($event)" [value]="currentYear">
-        <mat-option *ngFor="let year of yearList" [value]="year">{{ year }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+    <!-- <div class="search-fields"> -->
+      <!-- Search Input -->
+      <mat-form-field class="user-search-input" appearance="outline" class="col">
+        <mat-label>Search</mat-label>
+        <input 
+          matInput 
+          [(ngModel)]="searchValue" 
+          (input)="search($event)" 
+          placeholder="Type to search" 
+        />
+      </mat-form-field>
+    
+      <!-- Date Selector -->
+      <mat-form-field appearance="outline" class="col">
+        <mat-label>Select Date</mat-label>
+        <input 
+          matInput 
+          [matDatepicker]="datePicker" 
+          [(ngModel)]="selectedDate" 
+          (dateChange)="onDateChange($event.value)" 
+          placeholder="Choose a date" 
+        />
+        <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+        <mat-datepicker #datePicker></mat-datepicker>
+      </mat-form-field>
+    
+      <!-- Year Selector -->
+      <mat-form-field appearance="outline" class="col">
+        <mat-label>Select Year</mat-label>
+        <mat-select 
+          [(ngModel)]="currentYear" 
+          (selectionChange)="onYearChange($event)">
+          <mat-option *ngFor="let year of yearList" [value]="year">{{ year }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    <!-- </div> -->
+    
+    
 
     <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true"
     style="margin-left: 40px;">
@@ -42,18 +58,17 @@
     <table>
       <thead>
         <tr>
-          <th></th>
           <th> Designation </th>
           <th> Abbreviation</th>
           <th> Department </th>
           <th> Date </th>
           <th> Manage </th>
+          <th> Compo Off </th>
         </tr>
       </thead>
       <tbody>
         @for(holiday of holidays; track $index){
           <tr>
-            <td>{{ holiday.id }}</td>
             <td>{{ holiday.name }}</td>
             <td>{{ holiday.type }}</td>
             <td>{{ holiday.comments }}</td>
@@ -70,7 +85,12 @@
                 (click)="delete(holiday.id)">
                 <mat-icon>delete</mat-icon>
               </button>
-            </td>
+            </td>                
+            <!-- @if(roleName === 'HR Administrator' || roleName === 'Super Administrator'){ -->
+              <td>
+                  <mat-icon (click)="openCompoOff(holiday.id)">add_task</mat-icon>
+              </td>
+          <!-- } -->
           </tr>
         }
 
