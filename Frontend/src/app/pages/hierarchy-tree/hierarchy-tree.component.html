@@ -1,26 +1,23 @@
 <mat-card>
-    <mat-card-header><mat-card-title>ORGANIZATION CHART</mat-card-title></mat-card-header>
+    <mat-card-header>
+        <mat-card-title>ORGANIZATION CHART</mat-card-title>
+    </mat-card-header>
     <div class="tree-container">
         <div class="tree">
             <ul>
-                @for (director of directors; track $index) {
-                    <ng-container>
-                        <li>
-                            <a (click)="openUser(director.id)">
-                                @if (!director.url) {
-                                    <img [src]="userImage" alt="">
-                                }@else {
-                                    <img [src]="s3 + director.url" alt="">
-                                }
-    
-                                <span>{{director.name}}</span></a>
-                            <div [innerHTML]="renderNodes(director.id, 1, 6)"></div>
-                        </li>
-                    </ng-container>
-                }
-    
+                <ng-container *ngFor="let director of directors; let i = index;">
+                    <li>
+                        <a (click)="openUser(director.id)">
+                            <img
+                                [src]="director.url ? (s3 + director.url) : userImage"
+                                alt="Director Image"
+                            />
+                            <span>{{ director.name }}</span>
+                        </a>
+                        <div [innerHTML]="renderNodes(director.id, 1, 6)"></div>
+                    </li>
+                </ng-container>
             </ul>
         </div>
     </div>
 </mat-card>
-

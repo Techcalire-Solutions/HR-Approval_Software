@@ -4,11 +4,12 @@ import { Subscription } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { Router } from '@angular/router';
 import { User } from '../../common/interfaces/users/user';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-hierarchy-tree',
   standalone: true,
-  imports: [MatCardModule],
+  imports: [MatCardModule, CommonModule],
   templateUrl: './hierarchy-tree.component.html',
   styleUrl: './hierarchy-tree.component.scss',
   encapsulation: ViewEncapsulation.None
@@ -21,6 +22,20 @@ export class HierarchyTreeComponent implements OnInit, OnDestroy{
 
   ngOnInit(): void {
     this.getDirectors()
+  }
+
+  toggleNode(node: any) {
+    node.expanded = !node.expanded;
+    if (node.expanded && !node.childrenLoaded) {
+      this.loadChildNodes(node);
+    }
+  }
+  
+  loadChildNodes(node: any) {
+    this.userService.getUserByRm(node.id).subscribe(res => {
+      node.childrenLoaded = true;
+      this.hierarchy = [...this.hierarchy, ...res];
+    });
   }
 
   getUsersByParent(parentId: number) {
