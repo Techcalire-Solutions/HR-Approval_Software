@@ -9,18 +9,12 @@
       </mat-button-toggle>
     </mat-button-toggle-group>
   </div>
-
-
-
-
-
 <div>
   <ng-container *ngIf="selectedView === 'grid'">
     <app-leave-graphs></app-leave-graphs>
   </ng-container>
 
   <ng-container *ngIf="selectedView === 'list'">
-
     <div fxLayout="row">
 
       <!-- Display message when no leave records are found -->
@@ -36,7 +30,7 @@
              <mat-card-header fxLayoutAlign="center">
                <mat-card-title fxLayoutAlign="center">Casual Leave</mat-card-title>
              </mat-card-header>
-             <mat-card-content [dragula]="'bag-1'" class="bag pt-3">
+             <mat-card-content class="bag pt-3">
                @for (leave of leaveCounts; track leave) {
                  @if (leave.leaveType.leaveTypeName == 'Casual Leave') {
                    @for (color of colors; track color) {
@@ -87,7 +81,7 @@
              <mat-card-header fxLayoutAlign="center">
                <mat-card-title fxLayoutAlign="center">Sick Leave</mat-card-title>
              </mat-card-header>
-             <mat-card-content [dragula]="'bag-1'" class="bag pt-3">
+             <mat-card-content class="bag pt-3">
                @for (leave of leaveCounts; track leave) {
                  @if (leave.leaveType.leaveTypeName == 'Sick Leave') {
                    @for (color of colors; track color) {
@@ -144,7 +138,7 @@
                <mat-card-header fxLayoutAlign="center">
                  <mat-card-title fxLayoutAlign="center">LOP</mat-card-title>
                </mat-card-header>
-               <mat-card-content [dragula]="'bag-1'" class="bag pt-3">
+               <mat-card-content class="bag pt-3">
                  @for (leave of leaveCounts; track leave) {
                    @if (leave.leaveType.leaveTypeName == 'LOP') {
                      @for (color of colors; track color) {
@@ -197,7 +191,7 @@
            <mat-card-header fxLayoutAlign="center">
              <mat-card-title fxLayoutAlign="center">Comb Off Days</mat-card-title>
            </mat-card-header>
-           <mat-card-content [dragula]="'bag-1'" class="bag pt-3">
+           <mat-card-content class="bag pt-3">
              @for (leave of leaveCounts; track leave) {
                @if (leave.leaveType.leaveTypeName == 'Comb Off') {
                  @for (color of colors; track color) {
