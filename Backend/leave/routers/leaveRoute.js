@@ -402,7 +402,7 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
 });
 
 router.post('/employeeLeave', authenticateToken, async (req, res) => {
-  const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates, status, fromEmail, appPassword } = req.body;
+  let { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates, status, fromEmail, appPassword } = req.body;
 
   if( !fromEmail || !appPassword){
     const email = await UserEmail.findOne({
@@ -450,11 +450,16 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
 
       sendLeaveEmail(userId, leaveType, startDate, endDate, notes, noOfDays, leaveDates, fromEmail, appPassword)
 
-      await Notification.create({
-        userId: userId,
-        message: `Leave request submitted`,
-        isRead: false,
-      });
+      // await Notification.create({
+      //   userId: userId,
+      //   message: `Leave request submitted`,
+      //   isRead: false,
+      // });
+      const id = userId;
+      const me = `Leave request submitted`;
+      const route = `/login/leave`;
+      
+      createNotification({ id, me, route });
 
 
       return res.json({
