@@ -29,6 +29,7 @@ const Nominee = require('../users/routers/userNominee');
 const auth = require('../users/routers/auth');
 const team = require('../users/routers/team');
 const teamMember = require('../users/routers/teamMember');
+const userEmail = require('../users/routers/userEmail');
 app.use('/role', role);
 app.use('/designation', designation);
 
@@ -44,6 +45,7 @@ app.use('/nominee', Nominee)
 app.use('/auth', auth);
 app.use('/team', team);
 app.use('/teamMember', teamMember);
+app.use('/useremail', userEmail);
 
 const invoice = require('../invoices/routers/invoice');
 const pi = require('../invoices/routers/performaInvoice');
@@ -61,9 +63,11 @@ app.use('/company', company);
 // app.use('/users/userImages', express.static(path.join(__dirname, '../users/userImages')));
 
 const leave = require('../leave/routers/leave');
+const leaveRoute = require('../leave/routers/leaveRoute');
 const leaveType = require('../leave/routers/leaveType');
 const userLeave = require('../leave/routers/userLeave');
 app.use('/leave', leave);
+app.use('/newleave', leaveRoute);
 app.use('/leaveType', leaveType);
 app.use('/userLeave', userLeave);
 
@@ -113,6 +117,10 @@ app.use('/backup', backUpLogRouter);
 
 const port = process.env.PORT || 8000;
 
-app.listen(port, () => {
-    console.log(`server started on port ${port}`);
-})
+// app.listen(port, () => {
+//     console.log(`server started on port ${port}`);
+// })
+
+const server = app.listen(port, '0.0.0.0', () => {
+    console.log(`Server running on http://0.0.0.0:${port}`);
+});

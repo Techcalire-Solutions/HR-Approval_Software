@@ -10,7 +10,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { environment } from '../../../../environments/environment';
 import { HolidayService } from '@services/holiday.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 

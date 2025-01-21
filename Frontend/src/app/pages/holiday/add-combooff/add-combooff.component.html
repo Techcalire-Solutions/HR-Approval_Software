@@ -1,0 +1,36 @@
+<div class="combo-off-container">
+  <div class="header">
+    <h3>
+      @if(editStatus){
+        Update
+      }@else{
+        Add 
+      } Combo Off for Employees
+    </h3>
+    <button class="btn btn-secondary back-button" (click)="goBack()">
+      <mat-icon>exit_to_app</mat-icon>
+    </button>
+  </div>
+  <form [formGroup]="comboOffForm" (ngSubmit)="onSubmit()">
+    <div class="form-group" formArrayName="employees">
+      <label for="employees">Select Employees:</label>
+      @for (employee of employees; let i = $index; track $index) {
+        <div>
+          <input 
+            type="checkbox" 
+            [formControlName]="i" 
+            (change)="onCheckboxChange($event, employee.id)" /> 
+          {{ employee.name }}
+        </div>
+      }
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+      @if(editStatus){
+        Update
+      }@else{
+        Add
+      } Combo Off</button>
+  </form>
+</div>

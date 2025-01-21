@@ -188,17 +188,12 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-      const userposition = await UserPosition.findAll({
-         
-      });
+      const userposition = await UserPosition.findAll({});
 
       res.send(userposition);
-
-
   } catch (error) {
       res.send(error.message)
   }
-
 })
 
 router.patch('/updaterole/:id', async (req, res) => {

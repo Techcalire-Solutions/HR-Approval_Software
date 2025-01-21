@@ -1,0 +1,66 @@
+<div fxLayout="row wrap">
+  <div fxFlex="100" class="p-2">
+      <mat-card class="block p-0">
+
+          <div class="bg-primary">
+              <div fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center" class="w-100">
+                  <div class="">
+                      <button mat-icon-button mwlCalendarPreviousView [view]="view" [(viewDate)]="viewDate" class="default-contrast">
+                          <mat-icon>{{ settings.rtl ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+                      </button>
+                      <button mat-icon-button mwlCalendarToday [(viewDate)]="viewDate" class="default-contrast">
+                          <mat-icon>today</mat-icon>
+                      </button>
+                      <button mat-icon-button mwlCalendarNextView [view]="view" [(viewDate)]="viewDate" class="default-contrast">
+                          <mat-icon>{{ settings.rtl ? 'chevron_left' : 'chevron_right' }}</mat-icon>
+                      </button>
+                  </div>
+                  <h2>{{ viewDate | calendarDate:(view + 'ViewTitle'):'en' }}</h2>
+                  <div class="">
+                      <button mat-icon-button (click)="view = 'month'" class="default-contrast">
+                          <mat-icon>view_comfy</mat-icon>
+                      </button>
+                      <button mat-icon-button (click)="view = 'week'" class="default-contrast">
+                          <mat-icon>view_week</mat-icon>
+                      </button>
+                      <button mat-icon-button (click)="view = 'day'" class="default-contrast">
+                          <mat-icon>view_day</mat-icon>
+                      </button>
+                      <button mat-icon-button (click)="openScheduleDialog(null)" class="default-contrast">
+                          <mat-icon>add</mat-icon>
+                      </button>
+                  </div>
+              </div>
+          </div>
+
+          <div>
+              @switch (view) {
+                  @case ('month') {
+                      <mwl-calendar-month-view
+                          [viewDate]="viewDate"
+                          [events]="events"
+                          [refresh]="refresh"
+                          [activeDayIsOpen]="activeDayIsOpen"
+                          (dayClicked)="dayClicked($event.day)">
+                      </mwl-calendar-month-view>
+                  }
+                  @case ('week') {
+                      <mwl-calendar-week-view
+                          [viewDate]="viewDate"
+                          [events]="events"
+                          [refresh]="refresh">
+                      </mwl-calendar-week-view>
+                  }
+                  @case ('day') {
+                      <mwl-calendar-day-view
+                          [viewDate]="viewDate"
+                          [events]="events"
+                          [refresh]="refresh">
+                      </mwl-calendar-day-view>
+                  }
+              }
+          </div>
+
+     </mat-card>
+  </div>
+</div>

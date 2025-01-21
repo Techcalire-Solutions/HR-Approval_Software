@@ -41,6 +41,11 @@ export const routes: Routes = [
         data: { breadcrumb: 'Leave' }, canActivate: [AuthGuard]
       },
       {
+        path: 'leave',
+        loadChildren: () => import('./leave/leave.routes').then(c => c.routes),
+        data: { breadcrumb: 'Leave' }, canActivate: [AuthGuard]
+      },
+      {
         path: 'employee-leave',
         loadChildren: () => import('./employee-leave/employee-leave.routes').then(c => c.routes),
         data: { breadcrumb: 'VIEW LEAVES' }, canActivate: [AuthGuard]

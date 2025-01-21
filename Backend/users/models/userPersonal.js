@@ -33,11 +33,11 @@ const UserPersonal = sequelize.define('userPersonal', {
   timestamps: true
 });
 
-User.hasMany(UserPersonal, { foreignKey: 'userId', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-UserPersonal.belongsTo(User, { foreignKey: 'userId' });
+User.hasMany(UserPersonal, { foreignKey: 'userId', onUpdate: 'CASCADE', onDelete: 'CASCADE', as: 'userpersonal' });
+UserPersonal.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
-User.hasOne(UserPersonal, { foreignKey: 'reportingMangerId', onUpdate: 'CASCADE' });
-UserPersonal.belongsTo(User, { foreignKey: 'reportingMangerId', as: 'manager'  });
+UserPersonal.belongsTo(User, { foreignKey: 'reportingMangerId', as: 'manager' });
+User.hasMany(UserPersonal, { foreignKey: 'reportingMangerId', as: 'reportees' });
 
 // Synchronizing the model with the database
 UserPersonal.sync({ alter: true })

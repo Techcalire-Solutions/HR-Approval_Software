@@ -69,7 +69,7 @@ router.put('/updatestatus/:id', async (req, res) => {
 router.get('/chatsbyto', authenticateToken, async (req, res) => {
   try {
     const toId = req.query.id;
-    const fromId = req.query.userId;
+    const fromId = req.query.userid;
 
     // Get all chats where the 'toId' matches the provided 'id'
     const chats = await Chat.findAll({
@@ -80,7 +80,7 @@ router.get('/chatsbyto', authenticateToken, async (req, res) => {
     const unreadMessagesCount = chats.filter(chat => chat.status === 'Sent').length;
     res.send({ chats, unreadMessagesCount });
   } catch (error) {
-    res.status(500).send(error.message);
+    res.send(error.message);
   }
 });
 

@@ -178,7 +178,7 @@ router.get('/birthdays', authenticateToken, async (req, res) => {
           sequelize.where(fn('EXTRACT', literal('DAY FROM "dateOfBirth"')), { [Op.gte]: currentDay })
         ]
       },include: {
-        model: User,
+        model: User, as: 'user',
         attributes: ['name']
       }
     });
@@ -215,7 +215,7 @@ router.get('/joiningday', authenticateToken, async (req, res) => {
           sequelize.where(fn('EXTRACT', literal('DAY FROM "dateOfJoining"')), { [Op.gte]: currentDay })
         ]
       },include: {
-        model: User,
+        model: User, as: 'user',
         attributes: ['name']
       }
     });
@@ -250,7 +250,7 @@ router.get('/dueprobation', authenticateToken, async (req, res) => {
           attributes: ['probationPeriod'], 
         },
         {
-          model: UserPersonal,
+          model: UserPersonal, as: 'userpersonal',
           attributes: ['dateOfJoining'],
         },
       ],

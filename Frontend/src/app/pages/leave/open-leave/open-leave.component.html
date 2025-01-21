@@ -1,0 +1,100 @@
+@if(leave){
+  <div class="leave-details-container">
+    <div class="row">
+      @for(leave of userLeaves; track $index) {
+        <div class="col">
+          <mat-card class="leave-card">
+            <mat-card-header>
+              <mat-card-subtitle>{{leave.leaveType.leaveTypeName}}</mat-card-subtitle>
+              <mat-chip-set style="margin-left: auto;">
+                <mat-chip color="warn" highlighted="true" class="info-chip">
+                  <mat-icon class="icon-sm">numbers</mat-icon>
+                  @if(leave.noOfDays != 0){  {{leave.leaveBalance}} -  } {{leave.takenLeaves}} @if(leave.noOfDays != 0){/{{leave.noOfDays}}}
+                </mat-chip>
+              </mat-chip-set>
+            </mat-card-header>
+            <!-- <mat-card-content>
+              <div class="detail-row">
+                <div><strong>Leave Type:</strong> {{leave.leaveType.leaveTypeName}}</div>
+                <div><strong>Leave Balance:</strong> {{leave.leaveBalance}} - {{leave.takenLeaves}} @if(leave.noOfDays != 0){/{{leave.noOfDays}}}</div>
+              </div>
+            </mat-card-content> -->
+          </mat-card>
+        </div>
+      }
+    </div>
+
+    <br>
+
+    <mat-card class="leave-card">
+      <mat-card-content class="form-wrapper">
+        <div class="detail-row">
+          <div class="detail-column"><strong>Employee:</strong> {{leave.user.name}}</div>
+          <div class="detail-column"><strong>Leave Type:</strong> {{leave.leaveType.leaveTypeName}}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-column"><strong>Start Date:</strong> {{leave.startDate | date: 'dd-MM-yyyy'}}</div>
+          <div class="detail-column"><strong>End Date:</strong> {{leave.endDate | date: 'dd-MM-yyyy'}}</div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-column"><strong>No Of Days:</strong> {{leave.noOfDays}}</div>
+          <div class="detail-column"><strong>Reason:</strong> {{leave.notes}}</div>
+        </div>
+
+        <!-- File Upload for Sick Leave Over 3 Days -->
+        @if(leave.fileUrl){
+          <div class="col">
+            <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
+                <iframe [src]="leave.fileUrl| safe" width="100%" height="300px"></iframe>
+            </div>
+          </div>
+        }
+
+        <div>
+          @for (item of leave.leaveDates; track $index) {
+            <div class="leave-session-card">
+              <div class="leave-session-row">
+                <mat-card-title>{{ item.date| date: 'dd-MM-yyyy' }}</mat-card-title>
+                <div><strong>Session 1:</strong> {{ item.session1 ? 'Yes' : 'No' }}</div>
+                <div><strong>Session 2:</strong> {{ item.session2 ? 'Yes' : 'No' }}</div>
+              </div>
+            </div>
+          }
+        </div>
+      </mat-card-content><br>
+      
+        @if(employeeStat){
+          <td (click)="$event.stopPropagation()">
+            <ng-container>
+              <button
+              mat-icon-button
+              class="approve-button"
+              color="primary"
+              (click)="openDialog('approve', leave.id)"
+              [disabled]="leave.status === 'Approved'"
+            >
+              <mat-icon>thumb_up</mat-icon>
+            </button>
+            &nbsp;
+            <button
+              mat-icon-button
+              class="reject-button"
+              color="warn"
+              (click)="openDialog('reject', leave.id)"
+              [disabled]="leave.status === 'Rejected'"
+            >
+              <mat-icon>thumb_down</mat-icon>
+            </button>
+
+              &nbsp;
+            </ng-container>
+            <ng-template #disabledIcon>
+              <mat-icon color="disabled">block</mat-icon>
+            </ng-template>
+          </td>
+        }
+    </mat-card>
+  </div>
+}
+

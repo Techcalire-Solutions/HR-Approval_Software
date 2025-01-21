@@ -20,12 +20,20 @@ const upload = multer({ storage: multer.memoryStorage() });
 router.post('/upload', authenticateToken, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded.' });
+      return res.send(' No file uploaded. ');
     }
 
     const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
     const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    const requiredColumns = ['Date', 'Name', 'Type'];
+    const missingColumns = requiredColumns.filter(col => !Object.keys(sheetData[0] || {}).includes(col));
+    
+    if (missingColumns.length > 0) {
+      return res.send(`The uploaded file is missing required columns: ${missingColumns.join(', ')}` );
+    }
+
     const supportedFormats = ['MM-DD-YYYY', 'YYYY-MM-DD'];
 
     // Prepare holidays from the uploaded data
@@ -45,7 +53,6 @@ router.post('/upload', authenticateToken, upload.single('file'), async (req, res
         comments: row['Comments'] || null,
       };
     });
-    console.log(holidays);
     
     // Helper function to format the date to 'yyyy-MM-dd'
     const formatDate = (date) => {

@@ -58,7 +58,6 @@
       <form [formGroup]="uploadForm" class="upload-form">
         <div>
           <input #fileInput type="file" (change)="onFileChange($event)" accept=".xlsx" />
-          <button mat-raised-button color="primary" (click)="uploadFile()">Upload Holidays</button>
           <p>You can upload holiday data using an Excel (.xlsx) file.</p>
           @if (excelData.length > 0) {
             <div>

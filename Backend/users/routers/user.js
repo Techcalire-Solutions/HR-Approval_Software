@@ -329,7 +329,7 @@ router.get('/getbyrm/:id', async (req, res) => {
     const users = await User.findAll({
       include: [
         {
-          model: UserPersonal,
+          model: UserPersonal, as: 'userpersonal',
           required: true, // Only include users with a matching UserPersonal record
           where: {
             reportingMangerId: { [Op.ne]: null },

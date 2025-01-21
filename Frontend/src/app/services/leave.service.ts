@@ -19,6 +19,7 @@ export class LeaveService {
   addLeave(data:any){
     return this.http.post(this.apiUrl+'/leave', data)
   }
+
   addEmergencyLeave(data:any){
     return this.http.post(this.apiUrl+'/leave/emergencyLeave', data)
   }
@@ -29,7 +30,7 @@ export class LeaveService {
 
   getLeaves():Observable<any>{
     return this.http.get(`${this.apiUrl}/leave/all/totalleaves`);
-   }
+  }
 
    getReport(year: number):Observable<any>{
     return this.http.get(`${this.apiUrl}/leave/all/report?year=${year}`);
@@ -52,15 +53,13 @@ export class LeaveService {
   }
 
    getLeavesByUser(userId: number, search?: string, page?: number, pageSize?: number): Observable<any[]> {
-    console.log(userId);
-    
     return this.http.get<any[]>(`${this.apiUrl}/leave/user/${userId}?search=${search}&page=${page}&pageSize=${pageSize}`);
   }
 
 
   getLeavesPaginated(search?: string, page?: number, pageSize?: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/leave/?search=${search}&page=${page}&pageSize=${pageSize}`);
-}
+  }
 
 
 updateApproveLeaveStatus(approvalData: any) {

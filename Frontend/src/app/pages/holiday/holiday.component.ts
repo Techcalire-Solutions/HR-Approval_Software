@@ -18,12 +18,14 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 import { MY_FORMATS } from '../users/personal-details/personal-details.component';
 import { DeleteConfirmationComponent } from './delete-confirmation/delete-confirmation.component';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-holiday',
   standalone: true,
   imports: [MatButtonToggleModule, MatFormFieldModule, MatPaginatorModule, CommonModule, MatIconModule, MatInputModule,
-    MatSelectModule, MatDatepickerModule
+    MatSelectModule, MatDatepickerModule, FormsModule
   ],
   templateUrl: './holiday.component.html',
   styleUrl: './holiday.component.scss',
@@ -33,13 +35,12 @@ export class HolidayComponent implements OnInit, OnDestroy{
   yearList: number[] = [];
   currentYear: number | null;
   selectedDate: Date | null = null;
-  searchText : string = '';
+  searchValue: string | null;
 
   ngOnInit(): void {
     this.getHolidays();
 
     this.currentYear = new Date().getFullYear();
-    // Generate a list of years, e.g., from 2000 to the current year
     for (let year = this.currentYear; year >= 2000; year--) {
       this.yearList.push(year);
     }
@@ -59,6 +60,7 @@ export class HolidayComponent implements OnInit, OnDestroy{
       data: data
     });
     dialogRef.afterClosed().subscribe(() => {
+      this.currentYear = new Date().getFullYear();
       this.getHolidays()
     });
   }
@@ -80,9 +82,9 @@ export class HolidayComponent implements OnInit, OnDestroy{
   }
 
   search(event: Event){
+    const searchText = (event.target as HTMLInputElement).value.trim()    
     this.currentYear = null;
     this.selectedDate = null;
-    const searchText = (event.target as HTMLInputElement).value.trim()
     this.holidaySub = this.holidayService.getHolidayByName(searchText).subscribe((holidays: any) => {
       this.holidays = holidays;
     });
@@ -91,10 +93,9 @@ export class HolidayComponent implements OnInit, OnDestroy{
   filterSub!: Subscription;
   private readonly datePipe = inject(DatePipe);
   onDateChange(event: any) {
-    this.currentYear = null;
-    this.searchText = '';
-    
     const convertedDate = this.datePipe.transform(event, 'yyyy-MM-dd');
+    this.currentYear = null;
+    this.searchValue = null;
     this.holidaySub = this.holidayService.getHolidayByDate(convertedDate).subscribe(res => {
       this.holidays = res
     });
@@ -102,15 +103,13 @@ export class HolidayComponent implements OnInit, OnDestroy{
 
   onYearChange(event: any) {
     this.selectedDate = null;
-    this.searchText = '';
+    this.searchValue = null;
     const selectedYear = event.value;
     this.holidaySub = this.holidayService.getHolidayByYear(selectedYear).subscribe(res => {
       this.holidays = res
     });
   }
-
   deleteAll(){
-    console.log(this.holidays);
     const ids = this.holidays.map(holiday => holiday.id);
     const dialogRef = this.dialog.open(DeleteConfirmationComponent, {
       data: {
@@ -130,9 +129,15 @@ export class HolidayComponent implements OnInit, OnDestroy{
     });
   } 
 
+  private readonly router = inject(Router);
+  openCompoOff(id: number){
+    this.router.navigateByUrl('/login/holiday/compo-off/'+id)
+  }
+
   ngOnDestroy(): void {
     this.holidaySub?.unsubscribe();
     this.deleteSub?.unsubscribe();
+    this.dialogSub?.unsubscribe();
   }
 
 }

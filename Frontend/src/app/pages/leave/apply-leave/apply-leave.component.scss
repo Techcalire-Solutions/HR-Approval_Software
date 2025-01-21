@@ -1,0 +1,90 @@
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.half-width {
+  width: 48%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+//------Upload css code--------------------------
+.clickable-icon {
+  cursor: pointer;
+  transition: color 0.3s; /* Smooth color transition */
+}
+
+.file-selected {
+  color: green; /* Change the icon color when a file is selected */
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.col {
+  flex: 1;
+  width: 100%;
+}
+
+.col:last-child {
+  margin-right: 10px;
+}
+
+@media (max-width: 768px) {
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .image {
+    flex: 0 0 100%; /* Make each column take 100% width */
+    max-width: 100%;
+    margin-bottom: 16px; /* Optional: Add spacing between rows */
+  }
+}
+
+.row .col mat-card {
+  margin-right: 15px;
+  margin-left: 5px;
+}
+.row .col:last-child mat-card {
+  margin-right: 0;
+}
+
+
+.leave-session-card {
+  margin-bottom: 1rem; /* Add space between cards */
+}
+
+.leave-session-row {
+  display: flex;
+  gap: 1rem; /* Adds spacing between items */
+}
+
+mat-card-title {
+  flex: 0.25; /* Ensures the title takes the necessary space */
+}
+
+mat-checkbox {
+  flex: 0.1; /* Keeps checkboxes tightly aligned */
+}
+
+.user-spinner {
+  position: fixed; /* Ensures the spinner is positioned relative to the viewport */
+  top: 0;
+  left: 0;
+  width: 100%; /* Covers the full screen width */
+  height: 100%; /* Covers the full screen height */
+  display: flex; /* Flexbox to center the spinner */
+  justify-content: center; /* Horizontally center */
+  align-items: center; /* Vertically center */
+  background-color: rgba(0, 0, 0, 0.1); /* Optional: Add a semi-transparent background */
+  z-index: 1000; /* Ensures it appears above other content */
+}
