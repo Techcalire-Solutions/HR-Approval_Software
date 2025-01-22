@@ -278,7 +278,7 @@
                 <div class="flex-container">
                   <div>AssetCode  :<strong>{{assets.assetCode}}</strong></div>
                 </div>
-                @for (item of assets.assets; track $index) {
+                @for (item of assets.userAssetsDetails; track $index) {
                   <div class="flex-container">
                     <div>Assigned Date  :<strong>{{item.assignedDate | date:'dd/MM/yyyy'}}</strong></div>
                     <div>Identifier Type  :<strong>{{item.identifierType }}</strong></div>

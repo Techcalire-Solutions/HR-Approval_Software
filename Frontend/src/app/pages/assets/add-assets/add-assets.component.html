@@ -1,0 +1,81 @@
+<h1 mat-dialog-title>
+    @if (editStatus) {
+        <span>Edit</span>
+    } @else {
+        <span>ADD</span>
+    }
+     ASSETS
+  </h1>
+  <div mat-dialog-content>
+    <form [formGroup]="form" class="user-form" fxLayout="column" fxLayoutGap="16px">
+        <div fxLayout="column" class="form-field-outer">
+          <mat-card>
+            <div class="row box" style="margin-top: 20px;">
+              <div class="col">
+                <mat-form-field appearance="outline" class="input-field full-width">
+                    <mat-label>Asset Name</mat-label>
+                    <input matInput formControlName="assetName" placeholder="Asset Name" required />
+                </mat-form-field>
+              </div>
+
+              <div class="col">
+                <mat-form-field appearance="outline" class="input-field full-width">
+                    <mat-label>Identifier Type</mat-label>
+                    <input matInput formControlName="identifierType" placeholder="Identifier Type" required />
+                </mat-form-field>
+              </div>
+              <div class="col">
+                <mat-form-field appearance="outline" class="input-field full-width">
+                    <mat-label>Identification Number</mat-label>
+                    <input matInput formControlName="identificationNumber" placeholder="Identification Number" required />
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="row box" style="margin-top: 20px;">
+                <div class="col">
+                    <mat-form-field appearance="outline" class="input-field full-width">
+                        <mat-label>Purchased Date</mat-label>
+                        <input matInput [matDatepicker]="startDatePicker" formControlName="purchasedDate" placeholder="Date" >
+                        <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+                        <mat-datepicker #startDatePicker></mat-datepicker>
+                    </mat-form-field>
+                </div>
+  
+                <div class="col">
+                    <mat-form-field appearance="outline" class="input-field full-width">
+                        <mat-label>Purchased From</mat-label>
+                        <input matInput formControlName="purchasedFrom" placeholder="PurchasedFrom" />
+                    </mat-form-field>
+                </div>
+                <div class="col">
+                    <mat-form-field appearance="outline" class="input-field full-width">
+                        <mat-label>Invoice Number</mat-label>
+                        <input matInput formControlName="invoiceNo" placeholder="InvoiceNo" />
+                    </mat-form-field>
+                </div>
+
+              </div>
+              <div class="row box" style="margin-top: 20px;">
+                <div class="col">
+                    <mat-form-field appearance="outline" class="input-field full-width">
+                        <mat-label>Description</mat-label>
+                        <input matInput formControlName="description" placeholder="Description"/>
+                    </mat-form-field>
+                </div>
+            </div>
+          </mat-card>
+        </div>
+      </form>
+  </div>
+  <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
+    <button mat-raised-button color="primary" [mat-dialog-close]="form.value" [disabled]="!form.valid" (click)="onSubmit()">
+        @if (editStatus) {
+            Update
+        } @else {
+            Save
+        }
+    </button>
+    <button mat-raised-button color="warn"  [mat-dialog-close]="true" type="button">Cancel</button>
+  </div>
+  

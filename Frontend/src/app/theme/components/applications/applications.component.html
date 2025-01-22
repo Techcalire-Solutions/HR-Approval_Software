@@ -10,40 +10,47 @@
         </mat-toolbar>
         <mat-card>
             <mat-grid-list cols="3" rowHeight="1:1">
-                <mat-grid-tile>
-                  <button mat-button (click)="openLeaveTypes()">
-                    <mat-icon class="muted-text">schedule</mat-icon>
-                    <span>Leave Types</span>
-                  </button>
+              <mat-grid-tile>
+                <button mat-button (click)="openAssets()">
+                  <mat-icon class="muted-text">devices</mat-icon>
+                  <span>Assets</span>
+                </button>
+              </mat-grid-tile>
 
-
-                </mat-grid-tile>
-                <mat-grid-tile>
-                  <button mat-button (click)="openTeam()">
-                    <mat-icon class="muted-text">groups</mat-icon>
-                    <span>Team</span>
-                  </button>
-                </mat-grid-tile>
-                 <mat-grid-tile>
-                  <button mat-button (click)="openRole()">
-                    <mat-icon class="muted-text">verified_user</mat-icon>
-                    <span>Designation</span>
-                  </button>
-                </mat-grid-tile>
-            </mat-grid-list>
-            <mat-grid-list cols="3" rowHeight="1:1">
               <mat-grid-tile>
                 <button mat-button (click)="openCompany()">
                   <mat-icon class="muted-text">business</mat-icon>
                   <span>Company</span>
                 </button>
-
-
               </mat-grid-tile>
+
+              <mat-grid-tile>
+                <button mat-button (click)="openTeam()">
+                  <mat-icon class="muted-text">groups</mat-icon>
+                  <span>Team</span>
+                </button>
+              </mat-grid-tile>
+            </mat-grid-list>
+            <mat-grid-list cols="3" rowHeight="1:1">
+
+              <mat-grid-tile>
+                <button mat-button (click)="openRole()">
+                  <mat-icon class="muted-text">verified_user</mat-icon>
+                  <span>Designation</span>
+                </button>
+              </mat-grid-tile>
+
               <mat-grid-tile>
                 <button mat-button (click)="openHoliday()">
                   <mat-icon class="muted-text">celebration</mat-icon>
                   <span>Holiday</span>
+                </button>
+              </mat-grid-tile>
+
+              <mat-grid-tile>
+                <button mat-button (click)="openLeaveTypes()">
+                  <mat-icon class="muted-text">schedule</mat-icon>
+                  <span>Leave Types</span>
                 </button>
               </mat-grid-tile>
             </mat-grid-list>

@@ -3,9 +3,16 @@
   <h2 class="title"> @if(updateStatus){Update} @else{Add} Assets for {{userName}}  - <strong>{{assetCode}}</strong></h2>
   <form [formGroup]="form" (ngSubmit)="addRow()" class="form">
     <div formGroupName="newRow" class="input-group">
-      <mat-form-field appearance="outline" class="input-field full-width">
-        <mat-label>Asset Name</mat-label>
-        <input matInput formControlName="assetName" placeholder="Asset Name" required />
+      <mat-form-field class="input-field full-width" appearance="outline">
+        <input matInput placeholder="Select Asset" formControlName="assetName" [matAutocomplete]="auto" (keyup)="search($event)"
+        (input)="validateInput($event)">
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value)">
+          @for (suggestion of filteredOptions; track $index) {
+            <mat-option [value]="suggestion">
+              {{ suggestion.assetName }}
+            </mat-option>
+          }
+        </mat-autocomplete>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="input-field full-width">
@@ -27,7 +34,7 @@
   
       <mat-form-field appearance="outline" class="input-field full-width">
         <mat-label>Description</mat-label>
-        <input matInput formControlName="description" placeholder="Description" required />
+        <input matInput formControlName="description" placeholder="Description"  />
       </mat-form-field>
   
       <!-- <mat-form-field appearance="outline" class="input-field full-width">

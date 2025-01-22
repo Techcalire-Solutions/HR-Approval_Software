@@ -14,6 +14,9 @@ import { ActivatedRoute } from '@angular/router';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
 import { AssetReturnComponent } from './asset-return/asset-return.component';
+import { AssetsService } from '@services/assets.service';
+import { Assets } from '../../../common/interfaces/assets/assets';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 export const MY_FORMATS = {
   parse: {
@@ -32,7 +35,7 @@ export const MY_FORMATS = {
   selector: 'app-user-assets',
   standalone: true,
   imports: [ReactiveFormsModule, MatIconModule, MatFormFieldModule, MatInputModule, CommonModule, MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule, MatAutocompleteModule
   ],
   templateUrl: './user-assets.component.html',
   styleUrl: './user-assets.component.scss',
@@ -54,6 +57,7 @@ export class UserAssetsComponent implements OnDestroy{
   form = this.fb.group({
     assetCode: [''],
     newRow: this.fb.group({
+      assetId: <any>[],
       assetName: [''],
       identifierType: [''],
       identificationNumber: [''],
@@ -70,6 +74,75 @@ export class UserAssetsComponent implements OnDestroy{
       id = this.assetData.id
     }
     this.getUserById(id)
+    this.getAssets()
+    let assetNameChanged = false;
+
+    this.form.get(['newRow', 'assetName'])?.valueChanges.subscribe(() => {
+      assetNameChanged = true;
+    });
+  
+    // Monitor value changes for the specified fields
+    const fieldsToWatch = ['identifierType', 'identificationNumber', 'description'];
+    
+    fieldsToWatch.forEach((field, index) => {
+      this.form.get(['newRow', field])?.valueChanges.subscribe((newValue) => {
+        if (newValue !== null && newValue !== '' && !assetNameChanged) {
+          this.isInvalidAsset = true; 
+        }
+        if (index === fieldsToWatch.length - 1) {
+          assetNameChanged = false;
+        }
+      });
+    });
+  }
+
+  private companyAssetSub!: Subscription;
+  private readonly assetService = inject(AssetsService);
+  assets : Assets [] = [];
+  getAssets(){
+    this.companyAssetSub = this.assetService.getAssets().subscribe(asset => {
+      this.assets = asset;
+      this.filteredOptions = this.assets
+    })
+  }
+
+  patch(selectedAsset: Assets) {
+    this.form.patchValue({
+      newRow: {
+        assetId: selectedAsset.id,
+        assetName: selectedAsset.assetName,
+        identifierType: selectedAsset.identifierType,
+        identificationNumber: selectedAsset.identificationNumber,
+        description: selectedAsset.description
+      }
+    });
+  }
+
+  filterValue: string;
+  filteredOptions: Assets[] = [];
+  search(event: Event) {
+    this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
+    this.filteredOptions = this.assets.filter(option =>
+      option.assetName.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
+      option.identificationNumber.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
+    );
+    this.form.patchValue({
+      newRow: {
+        assetId: null,
+        identifierType: '',
+        identificationNumber: '',
+        description: ''
+      }
+    });
+  }
+
+  isInvalidAsset: boolean = false;
+  validateInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
+    const match = this.filteredOptions.some(
+      option => option.assetName.toLowerCase() === value.toLowerCase()
+    );
+    this.isInvalidAsset = !match;
   }
 
   private snackbar = inject(MatSnackBar);
@@ -85,8 +158,8 @@ export class UserAssetsComponent implements OnDestroy{
         this.updateStatus = true;
         this.id = data.id;
         this.assetCode = data.assetCode;
-        for(let i = 0; i < data.assets.length; i++){
-          this.addRow(data.assets[i])
+        for(const element of data.userAssetsDetails){
+          this.addRow(element)
         }
       }else{
         this.userPosition = this.userService.getUserPositionDetailsByUser(id).subscribe(position=>{
@@ -105,6 +178,7 @@ export class UserAssetsComponent implements OnDestroy{
 
   editRow(row: any, index: number): void {
     this.form.get('newRow')?.patchValue({
+      assetId: row.assetId,
       assetName: row.assetName,
       identifierType: row.identifierType,
       identificationNumber: row.identificationNumber,
@@ -115,12 +189,48 @@ export class UserAssetsComponent implements OnDestroy{
     this.rows.splice(index, 1);
   }
 
+  submit: Subscription;
   addRow(data?: any) {
-    let newRow;
-    if(data) newRow = data
-    if (this.form.valid)  newRow = { ...this.form.value.newRow, status: true };
-    this.rows.push(newRow);
-    this.form.reset();
+    if(!this.isInvalidAsset){
+      let newRow;
+      if(data){
+         newRow = {
+          assetId: data.assetId,
+          assetName: data.asset.assetName,
+          identifierType: data.asset.identifierType,
+          identificationNumber: data.asset.identificationNumber,
+          description: data.asset.description,
+          assignedDate: data.assignedDate,
+          status: data.status
+         }
+      }
+      if (this.form.valid)  newRow = { ...this.form.value.newRow, status: true };
+      this.rows.push(newRow);
+      
+      this.form.reset();
+    }else{
+      const data = {
+        assetName: this.form.getRawValue().newRow.assetName,
+        description: this.form.getRawValue().newRow.description,
+        identifierType: this.form.getRawValue().newRow.identifierType,
+        identificationNumber: this.form.getRawValue().newRow.identificationNumber,
+        assignedDate: this.form.getRawValue().newRow.assignedDate,
+      }
+      this.submit = this.assetService.addAssets(data).subscribe((res: any)=>{
+        this.snackbar.open("Asset added succesfully...","" ,{duration:3000})
+        let newRow;
+        if(data) { 
+          newRow = {
+            ...data, 
+            assetId: res.id,
+            status: true
+          }
+        }
+        this.rows.push(newRow);
+        this.form.reset();
+        this.getAssets();
+      })
+    }
   }
 
   assetSub!: Subscription;
@@ -132,11 +242,13 @@ export class UserAssetsComponent implements OnDestroy{
     }
     if(this.updateStatus){
       this.assetSub = this.userService.updateUserAssets(data, this.id).subscribe(() => {
+        this.getAssets();
         this.dialogRef?.close();
         this.snackbar.open("Assets updated successfully...","" ,{duration:3000})
       })
     }else{
       this.assetSub = this.userService.addUserAssets(data).subscribe(() => {
+        this.getAssets();
         this.updateStatus = true;
         this.dialogRef?.close();
         this.snackbar.open("Assets saved successfully...","" ,{duration:3000})
@@ -192,7 +304,7 @@ export class UserAssetsComponent implements OnDestroy{
           Marketing: "MKT",
           Designing: "DES",
           Logistics: "LOG",
-          Operations: "OPS",
+          Operation: "OPS",
           HR: "HR",
           IT: "IT"
       };
@@ -202,19 +314,12 @@ export class UserAssetsComponent implements OnDestroy{
       : "GEN";
 
         prefix = `OAC-${twoDigitYear}-${departmentAbbr}-`;
-        console.log(prefix);
-
-        // prefix =  `OAC-${twoDigitYear}-${department}-`;
-        // console.log(prefix);
         
         const paddedId = `${prefix}${nextId.toString().padStart(3, "0")}`;
-        console.log(paddedId);
-
         const ivNum = paddedId;
 
         this.form.get('assetCode')?.setValue(ivNum);
         this.assetCode = ivNum;
-        console.log(this.assetCode);
         
       }
     });
