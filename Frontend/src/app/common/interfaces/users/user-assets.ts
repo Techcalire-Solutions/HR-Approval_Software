@@ -5,6 +5,6 @@ export interface UserAssets {
     id: number
     userId: number
     assetCode: string
-    assets: any
+    userAssetsDetails: any
     user: User
 }

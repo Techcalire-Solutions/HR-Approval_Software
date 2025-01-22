@@ -48,5 +48,9 @@ export class ApplicationsComponent implements OnInit {
   openHoliday():void{
     this.router.navigateByUrl('/login/holiday')
   }
+
+  openAssets():void{
+    this.router.navigateByUrl('/login/assets')
+  }
 }
 

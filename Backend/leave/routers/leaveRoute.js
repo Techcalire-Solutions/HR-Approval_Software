@@ -450,11 +450,6 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
 
       sendLeaveEmail(userId, leaveType, startDate, endDate, notes, noOfDays, leaveDates, fromEmail, appPassword)
 
-      // await Notification.create({
-      //   userId: userId,
-      //   message: `Leave request submitted`,
-      //   isRead: false,
-      // });
       const id = userId;
       const me = `Leave request submitted`;
       const route = `/login/leave`;
@@ -477,7 +472,7 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
     sendLeaveEmail(userId, leaveType, startDate, endDate, notes, noOfDays, leaveDates, fromEmail, appPassword)
     
     await Notification.create({
-      userId: hrId,
+      userId: userId,
       message: `Leave request submitted by ${user.name}`,
       isRead: false,
     });
@@ -487,69 +482,6 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
       leaveDatesApplied: leaveDates,
       lopDates: leaveDates
     });
-
-    // if (leaveType.leaveTypeName === 'LOP') {
-
-    // }
-
-    if (leaveBalance < noOfDays) {
-      const availableLeaveDays = leaveBalance;
-      const lopDays = noOfDays - availableLeaveDays;
-
-      const { leaveDatesApplied, lopDates } = splitLeaveDates(leaveDates, availableLeaveDays);
-
-      await Leave.create({
-        userId,
-        leaveTypeId: leaveType.id,
-        startDate,
-        endDate,
-        noOfDays: availableLeaveDays,
-        notes,
-        fileUrl,
-        status: 'requested',
-        leaveDates: leaveDatesApplied
-      });
-
-      sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates)
-
-      await Notification.create({
-        userId: userId,
-        message: `Leave request submitted`,
-        isRead: false,
-      });
-
-
-      return res.json({
-        message: `${availableLeaveDays} days applied as ${leaveType.leaveTypeName}.${lopDays} days are beyond balance; apply for LOP separately.`,
-
-        leaveDatesApplied,
-        lopDates: lopDates || []
-      });
-    } else {
-      await Leave.create({
-        userId,
-        leaveTypeId: leaveType.id,
-        startDate,
-        endDate,
-        noOfDays,
-        notes,
-        fileUrl,
-        status: 'requested',
-        leaveDates
-      });
-
-      sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates)
-      
-      return res.json({
-        message: 'Leave request successful.',
-        leaveDatesApplied: leaveDates,
-        lopDates: [],
-        startDate: startDate,
-        endDate: endDate
-      });
-
-    }
-
   } catch (error) {
     console.error('Error in leave request submission:', error.message);
     res.json({ message: error.message });

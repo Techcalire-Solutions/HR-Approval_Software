@@ -23,7 +23,7 @@ const statutoryInfo = require('../users/routers/statutoryInfo');
 const userAccount = require('../users/routers/userAccount');
 const userPosition = require('../users/routers/userPosition');
 const userDocument = require('../users/routers/userDocument');
-const userAssets = require('../users/routers/userAssets');
+const userAssets = require('../assets/router/userAssets');
 const userQual = require('../users/routers/userQualification');
 const Nominee = require('../users/routers/userNominee');
 const auth = require('../users/routers/auth');
@@ -95,6 +95,9 @@ app.use('/notification',notification)
 const chat = require('../chat/router/chat');
 app.use('/chat', chat);
 
+const asset = require('../assets/router/asset');
+app.use('/companyasset', asset);
+
 
 const backup = require('./backUp')
 cron.schedule('0 0 5 * *', () => {
@@ -117,10 +120,10 @@ app.use('/backup', backUpLogRouter);
 
 const port = process.env.PORT || 8000;
 
-// app.listen(port, () => {
-//     console.log(`server started on port ${port}`);
-// })
+app.listen(port, () => {
+    console.log(`server started on port ${port}`);
+})
 
-const server = app.listen(port, '0.0.0.0', () => {
-    console.log(`Server running on http://0.0.0.0:${port}`);
-});
+// const server = app.listen(port, '0.0.0.0', () => {
+//     console.log(`Server running on http://0.0.0.0:${port}`);
+// });

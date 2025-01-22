@@ -32,6 +32,11 @@ export const routes: Routes = [
       {path: 'backup', loadComponent: () => import('./backup-log/backup-log.component').then(c => c.BackupLogComponent),
         data: { breadcrumb: 'Backup' }, canActivate: [AuthGuard]
       },
+      {
+        path: 'assets',
+        loadChildren: () => import('./assets/asstes.routes').then(p => p.routes),
+        data: { breadcrumb: 'Assets' }, canActivate: [AuthGuard]
+      },
       // {path: 'leaveType', loadComponent: () => import('./admin-leave/leave-types/leave-types.component').then(c => c.LeaveTypesComponent),
       //   data: { breadcrumb: 'Leave Type' }, canActivate: [AuthGuard]
       // },
