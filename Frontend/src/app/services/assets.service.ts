@@ -33,4 +33,8 @@ export class AssetsService {
   getAssetByid(id: number){
     return this.http.delete(this.apiUrl + `/companyasset/findbyid/${id}`)
   }
+
+  getAssignedUsers(id: number){
+    return this.http.get(this.apiUrl + `/asset/getassigneduser/${id}`)
+  }
 }

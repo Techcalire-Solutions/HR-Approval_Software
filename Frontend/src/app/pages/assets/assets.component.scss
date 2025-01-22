@@ -116,3 +116,8 @@ mat-icon:hover{
   cursor: pointer;
   transform: scale(1.5);
 }
+
+.status-false {
+  background-color: #f8d7da; /* Light red background */
+  color: #969393; /* Dark red text */
+}

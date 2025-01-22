@@ -25,17 +25,21 @@
             <th> InvoiceNo </th>
             <th> Purchased </th>
             <th> Description </th>
+            <th> Assigned To</th>
             <th> Manage </th>
           </tr>
         </thead>
         <tbody>
           @for(asset of assets; track $index){
-            <tr>
+            <tr [class.status-false]="asset.assignedStatus">
               <td>{{ asset.assetName }}</td>
               <td>{{ asset.identifierType }} : {{ asset.identificationNumber }}</td>
-              <td>{{ asset.invoiceNo }} </td>
-              <td>{{ asset.purchasedDate | date:'dd/MM/yyyy' }} - {{asset.purchasedFrom}}</td>
+              <td>{{ asset.invoiceNo }}</td>
+              <td>{{ asset.purchasedDate | date:'dd/MM/yyyy' }} - {{ asset.purchasedFrom }}</td>
               <td>{{ asset.description }}</td>
+              <td>
+                {{ assignedUsers[asset.id] || 'Loading...' }}
+              </td>
               <td>
                 <button
                   mat-icon-button

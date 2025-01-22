@@ -6,6 +6,7 @@ const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const { Op } = require('sequelize');
 const sequelize = require('../../utils/db');
+const UserAssetsDetails = require('../model/userAssetDetails');
 
 router.post('/add', authenticateToken, async (req, res) => {
     const { assetName, identifierType, identificationNumber, description, purchasedDate, purchasedFrom, invoiceNo, assignedStatus } = req.body;
@@ -39,6 +40,10 @@ router.get('/find', async (req, res) => {
       if (req.query.pageSize && req.query.page && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
         limit = req.query.pageSize;
         offset = (req.query.page - 1) * req.query.pageSize;
+      }else {
+        whereClause = {
+          assignedStatus: false
+        }
       }
 
       if (req.query.search &&req.query.search != 'undefined') {
@@ -65,10 +70,6 @@ router.get('/find', async (req, res) => {
             ),
           ]
         };
-      }else {
-        whereClause = {
-          assignedStatus: false
-        }
       }
 
       const asset = await Asset.findAll({

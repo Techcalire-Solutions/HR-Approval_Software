@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -39,6 +40,8 @@ export class AssetsComponent implements OnInit, OnDestroy{
   getAssets(){
     this.assetSub = this.assetService.getAssets(this.searchText, this.currentPage, this.pageSize).subscribe((asset: any) => {
       this.assets = asset.items;
+      this.fetchAssignedUsers(this.assets);
+      
       this.totalItems = asset.count;
     })
   }
@@ -76,6 +79,25 @@ export class AssetsComponent implements OnInit, OnDestroy{
     this.pageSize = event.pageSize;
     this.getAssets();
   }
+
+  assignedUsers: { [assetId: number]: number | null } = {};
+  fetchAssignedUsers(assetList: Assets[]): void {
+    assetList.forEach((asset) => {
+      if (asset.assignedStatus) {
+        this.assetService.getAssignedUsers(asset.id).subscribe(
+          (response: any) => {
+            this.assignedUsers[asset.id] = response.userId;
+            console.log(response);
+            
+          },
+          (error) => {
+            console.error(`Error fetching user for asset ID ${asset.id}:`, error);
+          }
+        );
+      }
+    });
+  }
+
   ngOnDestroy(): void {
     this.assetSub?.unsubscribe();
     this.deleteSub?.unsubscribe();

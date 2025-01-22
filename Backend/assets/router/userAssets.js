@@ -47,8 +47,7 @@ router.post('/save', authenticateToken, async (req, res) => {
         return res.send(error.message);
     }
 });
-
-  
+ 
 router.get('/find', authenticateToken, async (req, res) => {
     try {
         const department = req.query.department;
@@ -94,7 +93,7 @@ router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
     }
 });
 
-router.patch('/update/:id', async (req, res) => {
+router.patch('/update/:id', authenticateToken, async (req, res) => {
     const { assets, assetCode } = req.body;
     try {
         // Check if UserAssets exists with the given ID
@@ -156,4 +155,30 @@ router.patch('/update/:id', async (req, res) => {
     }
 });
 
+router.get('/getassigneduser/:id', authenticateToken, async (req, res) => {
+    const assetId = req.params.id;
+    try {
+      const details = await UserAssetDetails.findOne({
+        where: { assetId },
+        include: [ {  model: UserAssets, attributes: ['userId'], include: [ {
+            model: User, attributes: ['name'],
+            } ]
+          },
+        ],
+      });
+  
+      if (details && details.userAsset) {
+        console.log('Assigned User ID:', details.userAsset.userId);
+        // Wrap the userId in an object or array
+        res.send({ userId: details.userAsset.user.name });
+      } else {
+        console.log('No user found for the given asset ID.');
+        res.send({ userId: null }); // Use a consistent object response
+      }
+    } catch (error) {
+      console.error('Error fetching assigned user:', error);
+      res.status(500).send({ error: 'An error occurred while fetching the assigned user.' });
+    }
+});
+  
 module.exports = router;
