@@ -28,11 +28,11 @@ router.post("/save", authenticateToken, async (req, res) => {
   const data = req.body.payrolls;
   try {
     const results = []; 
-    for (let i = 0; i < data.length; i++) {
+    for (const element of data) {
       const {
         userId, basic, hra, conveyanceAllowance, lta, specialAllowance, ot, incentive, payOut, pfDeduction, esi, tds,
         advanceAmount, leaveDeduction, incentiveDeduction, toPay, payedFor, leaveDays, daysInMonth, leaveEncashment, leaveEncashmentAmount,
-      } = data[i];
+      } = element;
 
       // Save the payroll
       const monthlyPayroll = await MonthlyPayroll.create({
@@ -88,6 +88,7 @@ router.get("/find", authenticateToken, async (req, res) => {
           { model: User, attributes: ['name','empNo'], as: 'user', required: false}
       ], order: [['id', 'DESC']]
     });
+    
     totalCount = await MonthlyPayroll.count({});
 
     if (req.query.page != 'undefined' && req.query.pageSize != 'undefined') {
@@ -256,8 +257,8 @@ router.get('/findbyid/:id', authenticateToken, async (req, res) => {
 router.patch('/statusupdate', authenticateToken, async (req, res) => {
   const { payrollData, status } = req.body;
 
-  for (let i = 0; i < payrollData.length; i++) {
-    const { userId } = payrollData[i];
+  for (const element of payrollData) {
+    const { userId } = element;
     const advanceSalary = await AdvanceSalary.findOne({ where: { userId, status: true } });
     if (advanceSalary) {
       advanceSalary.completed += 1;

@@ -375,12 +375,12 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
       include: [{ model: User, attributes: ['name']}
     ]})
     const id = userId;
-    const me = `${req.user.name} has applied for leave`;
+    const me = `${req.user.name} has applied for a ${leaveType.leaveTypeName}`;
     const route = `/login/leave`;
 
     createNotification({ id, me, route });
     if(userPos){
-      const emailText = `Dear ${userPos.user.name},\n\nThis is to inform you that an admin has applied for leave.\n\nPlease review the leave application at your earliest convenience.\n\nIf you have any questions or need further details, feel free to reach out.\n\nBest Regards,\nThe Team`;
+      const emailText = `Dear ${userPos.user.name},\n\nThis is to inform you that an admin has applied for ${leaveType.leaveTypeName}.\n\nPlease review the leave application at your earliest convenience.\n\nIf you have any questions or need further details, feel free to reach out.\n\nBest Regards,\nThe Team`;
       const emailSubject = `Admin Leave Application Submission`;
       const fromEmail = config.email.userAddUser;
       const emailPassword = config.email.userAddPass;
@@ -556,7 +556,7 @@ async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDa
   const html =  `
     <p>A new leave request has been submitted:</p>
     <p>Username: ${user.name}</p>
-    <p> Leave Type: ${leaveType.leaveTypeName}</p>
+    <p>Leave Type: ${leaveType.leaveTypeName}</p>
     <p> Start Date: ${formattedStartDate}</p>
     <p>End Date: ${formattedEndDate}</p>
     <p> Notes: ${notes}</p>
@@ -999,14 +999,14 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
       include: [{ model: User, attributes: ['name']}
     ]})
     const id = userId;
-    const me = `${req.user.name} has updated the leave`;
+    const me = `${req.user.name} has updated the ${leaveType.leaveTypeName}`;
     const route = `/login/leave`;
 
     createNotification({ id, me, route });
 
     if(userPos){
-      const emailText = `Dear ${userPos.user.name},\n\nThis is to inform you that an admin has updated the leave.\n\nPlease review the leave application at your earliest convenience.\n\nIf you have any questions or need further details, feel free to reach out.\n\nBest Regards,\nThe Team`;
-      const emailSubject = `Admin Leave Application Submission`;
+      const emailText = `Dear ${userPos.user.name},\n\nThis is to inform you that an admin has updated the ${leaveType.leaveTypeName}.\n\nPlease review the leave application at your earliest convenience.\n\nIf you have any questions or need further details, feel free to reach out.\n\nBest Regards,\nThe Team`;
+      const emailSubject = `Leave Application Updation`;
       const fromEmail = config.email.userAddUser;
       const emailPassword = config.email.userAddPass;
       const html = ''
