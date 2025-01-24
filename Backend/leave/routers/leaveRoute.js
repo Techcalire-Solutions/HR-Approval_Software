@@ -374,20 +374,26 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
       where: { userId: userId }, 
       include: [{ model: User, attributes: ['name']}
     ]})
+    
     const id = userId;
     const me = `${req.user.name} has applied for a ${leaveType.leaveTypeName}`;
     const route = `/login/leave`;
 
     createNotification({ id, me, route });
     if(userPos){
-      const emailText = `Dear ${userPos.user.name},\n\nThis is to inform you that an admin has applied for ${leaveType.leaveTypeName}.\n\nPlease review the leave application at your earliest convenience.\n\nIf you have any questions or need further details, feel free to reach out.\n\nBest Regards,\nThe Team`;
       const emailSubject = `Admin Leave Application Submission`;
       const fromEmail = config.email.userAddUser;
       const emailPassword = config.email.userAddPass;
-      const html = ''
+      const html = `
+        <p>Dear ${userPos.user.name},</p>
+        <p>This is to inform you that ${req.user.name} has applied for ${leaveType.leaveTypeName}.</p>
+        <p>Please review the leave application at your earliest convenience.</p>
+        <p>If you have any questions or need further details, feel free to reach out.</p>
+      `;
       const attachments = []
+      const token = req.headers.authorization?.split(' ')[1];
       try {
-        await sendEmail(fromEmail, emailPassword, userPos.officialMailId, emailSubject, emailText ,html, attachments);
+        await sendEmail(token, fromEmail, emailPassword, userPos.officialMailId, emailSubject , html, attachments);
       } catch (emailError) {
         console.error('Email sending failed:', emailError);
       }
@@ -576,10 +582,9 @@ async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDa
       path: file.path,  
     }
   
-  const text = ''
-  
+    const token = req.headers.authorization?.split(' ')[1];
   try {
-    await sendEmail(fromEmail, appPassword, email, emailSubject, text ,html, attachments, ccEmail);
+    await sendEmail(token, fromEmail, appPassword, email, emailSubject, html, attachments, ccEmail);
   } catch (emailError) {
     console.error('Email sending failed:', emailError);
   }
@@ -820,33 +825,32 @@ async function sendLeaveUpdatedEmail(leaveId, user, leaveType, startDate, endDat
     year: 'numeric'
   });
 
-  const html =  `
-  <p>A leave request has been updated:</p>
-  <p>Username: ${user.name}</p>
-  <p> Leave Type: ${leaveType.leaveTypeName}</p>
-  <p> Start Date: ${formattedStartDate}</p>
-  <p>End Date: ${formattedEndDate}</p>
-  <p> Notes: ${notes}</p>
-  <p>Number of Days: ${noOfDays}</p>
-  <p>Leave Dates: ${leaveDates.map(item => {
-      const sessionString = [
-        item.session1 ? 'session1' : '',
-        item.session2 ? 'session2' : ''
-      ].filter(Boolean).join(', ');
-      return `${item.date} (${sessionString || 'No sessions selected'})`;
-    }).join(', ')}</p>
-`
-const emailSubject = 'Leave Request Updated'
-const attachments = 
-  {
-    filename: file.originalname,
-    path: file.path,  
-  }
+      const html =  `
+      <p>A leave request has been updated:</p>
+      <p>Username: ${user.name}</p>
+      <p> Leave Type: ${leaveType.leaveTypeName}</p>
+      <p> Start Date: ${formattedStartDate}</p>
+      <p>End Date: ${formattedEndDate}</p>
+      <p> Notes: ${notes}</p>
+      <p>Number of Days: ${noOfDays}</p>
+      <p>Leave Dates: ${leaveDates.map(item => {
+          const sessionString = [
+            item.session1 ? 'session1' : '',
+            item.session2 ? 'session2' : ''
+          ].filter(Boolean).join(', ');
+          return `${item.date} (${sessionString || 'No sessions selected'})`;
+        }).join(', ')}</p>
+    `
+    const emailSubject = 'Leave Request Updated'
+    const attachments = 
+      {
+        filename: file.originalname,
+        path: file.path,  
+      }
 
-const text = ''
-
+      const token = req.headers.authorization?.split(' ')[1];
 try {
-  await sendEmail(fromEmail, appPassword, email, emailSubject, text ,html, attachments, ccEmail);
+  await sendEmail(token, fromEmail, appPassword, email, emailSubject ,html, attachments, ccEmail);
 } catch (emailError) {
   console.error('Email sending failed:', emailError);
 }
@@ -1005,14 +1009,19 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
     createNotification({ id, me, route });
 
     if(userPos){
-      const emailText = `Dear ${userPos.user.name},\n\nThis is to inform you that an admin has updated the ${leaveType.leaveTypeName}.\n\nPlease review the leave application at your earliest convenience.\n\nIf you have any questions or need further details, feel free to reach out.\n\nBest Regards,\nThe Team`;
       const emailSubject = `Leave Application Updation`;
       const fromEmail = config.email.userAddUser;
       const emailPassword = config.email.userAddPass;
-      const html = ''
+      const html = `
+        <p>Dear ${userPos.user.name},</p>
+        <p>This is to inform you that ${req.user.name} has updated ${leaveType.leaveTypeName}.</p>
+        <p>Please review the leave application at your earliest convenience.</p>
+        <p>If you have any questions or need further details, feel free to reach out.</p>
+      `;
       const attachments = []
+      const token = req.headers.authorization?.split(' ')[1];
       try {
-        await sendEmail(fromEmail, emailPassword, userPos.officialMailId, emailSubject, emailText ,html, attachments);
+        await sendEmail(token, fromEmail, emailPassword, userPos.officialMailId, emailSubject ,html, attachments);
       } catch (emailError) {
         console.error('Email sending failed:', emailError);
       }

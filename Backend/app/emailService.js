@@ -14,12 +14,13 @@ const Role = require('../users/models/role');
  * @returns {Promise}
  */
 
-const sendEmail = async (fromEmail, password, to, subject, text, html, attachments, cc, token) => {
-  // Decode token to extract userName and roleId
-  const { userName, roleId } = decodeToken(token); // Assume decodeToken is a helper function
+const sendEmail = async (token, fromEmail, password, to, subject, html, attachments, cc) => {
+  console.log(token);
+  
+  const { userName, roleId } = decodeToken(token);
 
   const role = await Role.findByPk(roleId);
-  const designation = role ? role.designation : 'Employee'; 
+  const designation = role ? role.roleName  : 'Employee'; 
 
   // Define the email signature
   const emailSignature = `
@@ -89,7 +90,7 @@ const sendEmail = async (fromEmail, password, to, subject, text, html, attachmen
   `;
 
   // Append the email signature to the HTML content
-  const emailBody = html ? `${html}${emailSignature}` : emailSignature;
+  const emailBody = html ? `${html}${emailSignature}` : `${emailSignature}`;
 
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
@@ -104,8 +105,7 @@ const sendEmail = async (fromEmail, password, to, subject, text, html, attachmen
     to,
     cc,
     subject,
-    text,
-    html: emailBody, // Use the emailBody with the appended signature
+    html: emailBody,
     attachments,
   };
 
@@ -124,12 +124,26 @@ const sendEmail = async (fromEmail, password, to, subject, text, html, attachmen
 
 const decodeToken = (token) => {
   const jwt = require('jsonwebtoken');
-  const decoded = jwt.decode(token); // Replace with verify if needed
+  let decoded;
+  console.log(token);
+  
+  try {
+    decoded = jwt.decode(token);
+    if (!decoded || !decoded.name || !decoded.roleId) {
+      throw new Error('Invalid token: Missing required fields');
+    }
+  } catch (err) {
+    console.error('Error decoding token:', err);
+    throw new Error('Error decoding token');
+  }
+  
+  console.log(decoded);
   return {
-    userName: decoded.userName,
+    userName: decoded.name,
     roleId: decoded.roleId,
   };
 };
+
 
     // const html =  `
     // <p>Please find the attached payroll Excel file for your review.</p>
@@ -145,10 +159,10 @@ const decodeToken = (token) => {
     //     path: file.path,  
     //   }
     
-    // const text = ''
+    // const token = req.headers.authorization?.split(' ')[1];
     
     // try {
-    //   await sendEmail(fromEmail, emailPassword, email, emailSubject, text ,html, attachments);
+    //   await sendEmail(token, fromEmail, emailPassword, email, emailSubject ,html, attachments);
     // } catch (emailError) {
     //   console.error('Email sending failed:', emailError);
     // }
