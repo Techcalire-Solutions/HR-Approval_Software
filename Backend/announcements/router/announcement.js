@@ -51,14 +51,12 @@ router.post('/add', authenticateToken, async (req, res) => {
 
     if (userEmails.length != 0) {
 
-        html: `
+      const html =  `
             <p>Dear Team,</p>
             <p>We would like to bring to your attention the following announcement:</p>
             <p><strong style="font-size: 18px;">${message}</strong></p>
             ${fileUrl ? '<p>Find attached the file.</p>' : ''}
             <br>
-            <p>Best regards,</p>
-            <p>HR Department</p>
       `
       const emailSubject = `Important Announcement`
       const fromEmail = config.email.announcemntUser;
@@ -71,10 +69,10 @@ router.post('/add', authenticateToken, async (req, res) => {
         }
       ] : []
       
-      const text = ''
+    const token = req.headers.authorization?.split(' ')[1];
       
       try {
-        await sendEmail(fromEmail, emailPassword, userEmails, emailSubject, text ,html, attachments);
+        await sendEmail(token, fromEmail, emailPassword, userEmails, emailSubject ,html, attachments);
       } catch (emailError) {
         console.error('Email sending failed:', emailError);
       }

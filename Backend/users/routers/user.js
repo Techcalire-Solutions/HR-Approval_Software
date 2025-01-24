@@ -53,14 +53,22 @@ router.post('/add', async (req, res) => {
       name, empNo, email, phoneNumber, password: hashedPassword, roleId, status, userImage, url, director
     });
 
-    const emailText = `Dear ${user.name},\n\nCongratulations on joining our company!\nHere are your login credentials:\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information secure.\n\nWe are excited to have you onboard and look forward to working together.\n\nBest Regards,\nThe Team`;
+    // const emailText = `Dear ${user.name},\n\nCongratulations on joining our company!\nHere are your login credentials:\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information secure.\n\nWe are excited to have you onboard and look forward to working together.\n\nBest Regards,\nThe Team`;
     const emailSubject = `Welcome to the Company!`;
     const fromEmail = config.email.userAddUser;
     const emailPassword = config.email.userAddPass;
-    const html = ''
+    const html = `
+    <p>Dear ${user.name},</p>
+    <p>Congratulations on joining our company!.</p>
+    <p>Here are your login credentials:</p>
+    <p>Username: ${user.empNo}\nPassword: ${password}</p>
+    <p>Please keep this information secure.</p>
+    <p>We are excited to have you onboard and look forward to working together.</p>
+  `;
     const attachments = []
+    const token = req.headers.authorization?.split(' ')[1];
     try {
-      await sendEmail(fromEmail, emailPassword, user.email, emailSubject, emailText ,html, attachments);
+      await sendEmail(token, fromEmail, emailPassword, user.email, emailSubject, html, attachments);
     } catch (emailError) {
       console.error('Email sending failed:', emailError);
     }
@@ -452,14 +460,22 @@ router.patch('/resetpassword/:id', async (req, res) => {
 
       await user.save();
       
-      const emailText = `Hello ${user.name},\n\nYour password has been successfully reset.\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information safe.\n\nThank you!`;
+      // const emailText = `Hello ${user.name},\n\nYour password has been successfully reset.\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information safe.\n\nThank you!`;
       const emailSubject = `Password Reset Successful`;
       const fromEmail = config.email.userAddUser;
       const emailPassword = config.email.userAddPass;    
-      const html = ''
+      const html = `
+        <p>Dear ${user.name},</p>
+        <p>Congratulations on joining our company!.</p>
+        <p>Here are your login credentials:</p>
+        <p>Username: ${user.empNo}\nPassword: ${password}</p>
+        <p>Please keep this information secure.</p>
+        <p>We are excited to have you onboard and look forward to working together.</p>
+      `;
       const attachments = []
+      const token = req.headers.authorization?.split(' ')[1];
       try {
-        await sendEmail(fromEmail, emailPassword, user.email, emailSubject, emailText ,html, attachments);
+        await sendEmail(token, fromEmail, emailPassword, user.email, emailSubject ,html, attachments);
       } catch (emailError) {
         console.error('Email sending failed:', emailError);
     
