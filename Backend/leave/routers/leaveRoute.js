@@ -363,13 +363,6 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
       });
     }
 
-    let leave;
-    try {
-      leave = await Leave.create({ userId, leaveTypeId: leaveType.id, startDate, endDate, noOfDays, notes, fileUrl, status: status, leaveDates });
-    } catch (error) {
-      res.send(error.message)
-    }
-
     const userPos = await UserPosition.findOne({ 
       where: { userId: userId }, 
       include: [{ model: User, attributes: ['name']}
@@ -400,6 +393,15 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
     }else {
       return res.send("Employment details not added to send email notification to the employee")
     }
+
+    
+    let leave;
+    try {
+      leave = await Leave.create({ userId, leaveTypeId: leaveType.id, startDate, endDate, noOfDays, notes, fileUrl, status: status, leaveDates });
+    } catch (error) {
+      res.send(error.message)
+    }
+
 
     res.json({ userLeave, leave })
   } catch (error) {
@@ -1049,10 +1051,29 @@ router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => 
         as: 'leaveType',
       },
     });
-
+    console.log(leave);
+    
     if (!leave) {
       return res.send('Leave not found');
     }
+    const key = leave.fileUrl;
+    console.log(key);
+    
+    const fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+    // try {
+      if (fileKey && fileKey != null) {
+          
+        // Set S3 delete parameters
+        const deleteParams = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: fileKey
+        };
+    
+        // Delete the file from S3
+        await s3.deleteObject(deleteParams).promise();
+    
+        console.log( 'File deleted successfully' );
+      }
 
     if( leave.status === 'Approved' || leave.status ==='AdminApproved'){
       const userLeave = await UserLeave.findOne({ where: { userId: leave.userId, leaveTypeId: leave.leaveTypeId } });

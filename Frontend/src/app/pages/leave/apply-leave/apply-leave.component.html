@@ -21,17 +21,16 @@
     <form [formGroup]="leaveRequestForm" (ngSubmit)="onSubmit()">
       <div class="form-row">
         @if(!employeeStat){
-          <mat-form-field appearance="outline" class="half-width">
+
+          <mat-form-field class="half-width" appearance="outline" >
             <mat-label>Employee</mat-label>
-            <mat-select formControlName="userId" placeholder="Select Employee" required #id (selectionChange)="checkProbationStatus(id.value)">
-                @for(item of users; track $index){
-                  @if(item.name !== 'HR Admin' && item.name !== 'Approval Admin' && item.name !== 'Super Admin'){
-                    <mat-option [value]="item.id">
-                      {{ item.name }}
-                    </mat-option>
-                  }
-                }
-            </mat-select>
+            <input matInput placeholder="Select Employee" formControlName="userName" [matAutocomplete]="auto" (keyup)="search($event)">
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value)">
+              <mat-option *ngFor="let suggestion of filteredOptions" [value]="suggestion">
+                {{ suggestion.name }}
+              </mat-option>
+            </mat-autocomplete>
+            
           </mat-form-field>
         }
 

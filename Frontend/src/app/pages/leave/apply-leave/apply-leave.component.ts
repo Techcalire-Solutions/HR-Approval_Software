@@ -28,6 +28,7 @@ import { Role } from '../../../common/interfaces/users/role';
 import { UserEmailComponent } from '../../users/user-email/user-email.component';
 import { MatDialog } from '@angular/material/dialog';
 import { LeaveInfoDialogComponent } from './leave-info-dialog/leave-info-dialog.component';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 export const MY_FORMATS = {
   parse: {
@@ -45,7 +46,8 @@ export const MY_FORMATS = {
   selector: 'app-apply-leave',
   standalone: true,
   imports: [MatCardModule, MatChipsModule, MatIconModule, ReactiveFormsModule, MatFormFieldModule, MatOptionModule, MatDatepickerModule,
-    MatCheckboxModule, MatProgressSpinnerModule, MatSelectModule, SafePipe, DatePipe, MatInputModule, CommonModule, MatButtonModule],
+    MatCheckboxModule, MatProgressSpinnerModule, MatSelectModule, SafePipe, DatePipe, MatInputModule, CommonModule, MatButtonModule, 
+    MatAutocompleteModule],
   templateUrl: './apply-leave.component.html',
   styleUrl: './apply-leave.component.scss',
     providers: [ provideMomentDateAdapter(MY_FORMATS), DatePipe ]
@@ -65,7 +67,23 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     status: [''],
     fromEmail: [''],
     appPassword: [''],
+    userName: ['']
   });
+
+  filteredOptions: User[] = [];
+  patch(selectedSuggestion: User) {
+    this.leaveRequestForm.patchValue({ userId: selectedSuggestion.id, userName: selectedSuggestion.name });
+  }
+
+    filterValue: string;
+    search(event: Event) {
+      this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
+      this.filteredOptions = this.users.filter(option =>
+        option.name.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
+        option.empNo.toString().replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
+      );
+    }
+
 
   isEditMode: boolean = false;
   private readonly route = inject(ActivatedRoute);
@@ -329,13 +347,22 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
         this.submit = this.leaveService.updatemergencyLeave(leaveRequest, this.leave.id).subscribe(() => {
           this.isLoading = false;
           this.router.navigateByUrl('/login/leave')
-          this.snackBar.open("Emergency leave updated succesfully...","" ,{duration:3000})
+          this.snackBar.open("Emergency leave updated successfully...","" ,{duration:3000})
         });
       } else {
-        this.submit = this.leaveService.addEmergencyLeave(leaveRequest).subscribe((res) => {
-          this.isLoading = false;
-          this.router.navigateByUrl('/login/leave')
-          this.snackBar.open("Emergency leave added succesfully...","" ,{duration:3000})
+        this.submit = this.leaveService.addEmergencyLeave(leaveRequest).subscribe({
+          next: (res) => {
+            console.log(res);
+            this.isLoading = false;
+            this.router.navigateByUrl('/login/leave');
+            this.snackBar.open("Emergency leave added successfully...", "", { duration: 3000 });
+          },
+          error: (err) => { // Renamed 'error' to 'err'
+            console.error(err);
+            this.isLoading = false;
+            this.router.navigateByUrl('/login/leave');
+            this.snackBar.open("Failed to add emergency leave. Please try again.", "", { duration: 3000 });
+          }
         });
       }
     }else{
