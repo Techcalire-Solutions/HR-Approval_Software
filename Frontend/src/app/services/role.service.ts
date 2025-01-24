@@ -46,6 +46,10 @@ export class RoleService {
     return this.http.patch(this.apiUrl+`/designation/update/${id}`, data);
   }
 
+  getDesignationbyRole(id: number): Observable<any> {
+    return this.http.get(this.apiUrl+`/designation/byroleid/${id}`);
+  }
+
   deleteDesignation(id: number) {
     return this.http.delete(this.apiUrl + "/designation/delete/" + id);
   }

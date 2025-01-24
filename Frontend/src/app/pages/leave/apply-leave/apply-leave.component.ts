@@ -165,6 +165,7 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   getUsers(){
     this.userSub = this.userService.getUser().subscribe(res=>{
       this.users = res;
+      this.filteredOptions = this.users
     })
   }
 

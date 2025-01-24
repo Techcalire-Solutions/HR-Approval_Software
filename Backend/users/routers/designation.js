@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const Designation = require('../models/designation');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const sequelize = require('../../utils/db');
 
 router.post('/add', authenticateToken, async (req, res) => {
@@ -121,5 +121,15 @@ router.delete('/delete/:id', authenticateToken, async(req,res)=>{
   }
   
 })
+
+router.get('/byroleid/:id', authenticateToken, async (req, res) => {
+  try {
+    const role = await Designation.findAll({ where: { roleId: req.params.id } });
+
+    res.send(role);
+  } catch (error) {
+    res.send( error.message );
+  }
+});
 
 module.exports = router;
