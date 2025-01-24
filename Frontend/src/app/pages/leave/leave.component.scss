@@ -334,3 +334,11 @@ iframe {
   pointer-events: none; /* Ensure no events are triggered */
   opacity: 0.6; /* Reduce opacity for a 'disabled' look */
 }
+
+.reject-button:disabled {
+  background-color: #e0e0e0; /* Light gray background */
+  color: #9e9e9e; /* Gray text color */
+  cursor: not-allowed; /* Change the cursor to indicate it's not clickable */
+  pointer-events: none; /* Ensure no events are triggered */
+  opacity: 0.6; /* Reduce opacity for a 'disabled' look */
+}

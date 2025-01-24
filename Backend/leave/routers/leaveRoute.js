@@ -951,22 +951,27 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
   }
 
   const noOfDays = calculateLeaveDays(leaveDates);
-
+  console.log(noOfDays);
+  
   let leave;
   try {
     leave = await Leave.findByPk(req.params.id)
     addedDays = leave.noOfDays
-
-    if(userId !== leave.userId || leaveTypeId !== leave.leaveTypeId || noOfDays !== addedDays){
+    console.log(addedDays);
+    
+    // if(userId !== leave.userId || leaveTypeId !== leave.leaveTypeId || noOfDays !== addedDays){
         let oldUL = await UserLeave.findOne({ where: { userId: leave.userId, leaveTypeId: leave.leaveTypeId } })
         oldUL.takenLeaves -= addedDays;
         oldUL.leaveBalance += addedDays;
         await oldUL.save();
-    }
+        console.log(oldUL);  
+    // }
 
     try {
       userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId } });
       if(userLeave){
+        console.log(userLeave);
+        
         if(leaveType.leaveTypeName !== 'LOP' && userLeave.leaveBalance < noOfDays){
           return res.send("Exceeds the balance allotted leave days")
         }else{

@@ -290,12 +290,28 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   get leaveDates(): FormArray {
     return this.leaveRequestForm.get('leaveDates') as FormArray;
   }
-
   onSessionChange(index: number, session: string) {
     const leaveDateGroup = this.leaveDates.at(index) as FormGroup;
-    const currentValue = leaveDateGroup.get(session)?.value;
-    leaveDateGroup.get(session)?.setValue(!currentValue);
+
+    // Check if the form control exists
+    const sessionControl = leaveDateGroup.get(session);
+    if (sessionControl) {
+      // Toggle the value
+      const currentValue = sessionControl.value;
+      sessionControl.setValue(!currentValue);
+
+      // Mark the control as dirty
+      sessionControl.markAsDirty();
+
+      // Update the validity of the control and its group
+      sessionControl.updateValueAndValidity();
+      leaveDateGroup.updateValueAndValidity();
+    }
+
+    // Optionally mark the whole form as dirty
+    this.leaveRequestForm.markAsDirty();
   }
+
 
   private submit: Subscription;
   private readonly router = inject(Router);

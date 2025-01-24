@@ -30,7 +30,6 @@ import { Role } from '../../common/interfaces/users/role';
 })
 export class LeaveComponent implements OnInit, OnDestroy{
   ngOnInit(): void {
-    console.log("pppppppppppppppppppppppppppppppp")
     const token: any = localStorage.getItem('token')
     const user = JSON.parse(token)
 
