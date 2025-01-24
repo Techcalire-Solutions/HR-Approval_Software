@@ -31,6 +31,7 @@
     "angular-in-memory-web-api": "0.18.0",
     "date-fns": "3.6.0",
     "dragula": "3.7.3",
+    "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "gapi-client": "^0.0.3",
     "html2canvas": "^1.4.1",

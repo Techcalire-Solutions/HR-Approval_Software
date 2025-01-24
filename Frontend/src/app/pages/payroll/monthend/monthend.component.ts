@@ -17,6 +17,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { LeaveService } from '@services/leave.service';
+import * as ExcelJS from 'exceljs';
+import saveAs from 'file-saver';
 
 @Component({
   selector: 'app-monthend',
@@ -370,41 +372,125 @@ export class MonthendComponent implements OnInit, OnDestroy{
       'Per Day': row.perDay,
       'Basic (₹)': row.basic,
       'HRA (₹)': row.hra,
-      'Conveyance Allowance (₹)': row.conveyanceAllowance,
-      'LTA (₹)': row.lta,
-      'Special Allowance (₹)': row.specialAllowance,
-      'OT (₹)': row.ot,
-      'Incentive (₹)': row.incentive,
-      'PayOut (₹)': row.payOut,
-      'PF Deduction (₹)': row.pfDeduction,
-      'ESI (₹)': row.esi,
-      'TDS (₹)': row.tds,
-      'Advance Amount (₹)': row.advanceAmount,
-      'Leave Days': row.leaveDays,
-      'Incentive Deduction (₹)': row.incentiveDeduction,
-      'Net Salary (To Pay ₹)': row.toPay
+      'CA(₹)': row.conveyanceAllowance,
+      'LTA': row.lta,
+      'SA': row.specialAllowance,
+      'OT': row.ot,
+      'Incentive': row.incentive,
+      'PayOut': row.payOut,
+      'LeaveBalance': row.leaveDays,
+      'PF': row.pfDeduction,
+      'ESI': row.esi,
+      'TDS': row.tds,
+      'Advance': row.advanceAmount,
+      'LeaveDays': row.leaveDays,
+      'Incentive Deduction': row.incentiveDeduction,
+      'Net Salary (To Pay ₹)': row.toPay,
     }));
   
-    // Create a worksheet and workbook
-    const worksheet = XLSX.utils.json_to_sheet(formattedData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Payroll');
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Payroll')
   
-    // Write the workbook to a buffer
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    // Header Row 1
+    worksheet.getRow(1).values = [
+      'S.No', 'Employee Name', 'Employee ID', 'Per Day',
+      'Earnings', '', '', '', '', '','', '', '',
+      'Deductions', '', '', '', '','',
+      'Net Salary'
+    ];
   
-    // Convert the buffer to a Blob
-    const fileBlob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+    // Header Row 2
+    worksheet.getRow(2).values = [
+      '', '', '', '',
+      'Basic (₹)', 'HRA (₹)', 'CA(₹)', 'LTA', 'SA', 'OT','Incentive', 'Payout', 'LeaveBalance',
+      'PF', 'ESI', 'TDS', 'Advance', 'LeaveDays', 'Incentive',
+      'To Pay ₹'
+    ];
+
+        // Merged Header Rows for Groups
+    worksheet.mergeCells('A1:A2'); // S.No
+    worksheet.mergeCells('B1:B2'); // Employee Name
+    worksheet.mergeCells('C1:C2'); // Employee ID
+    worksheet.mergeCells('D1:D2'); // Per Day
+    worksheet.mergeCells('E1:M1'); // Earnings Group Header
+    worksheet.mergeCells('N1:S1'); // Deductions Group Header
+    // worksheet.mergeCells('S1:S2'); // Net Salary
+
+    // Header Styling for Row 1
+    worksheet.getRow(1).eachCell((cell, colIndex) => {
+      if (colIndex >= 5 && colIndex <= 10) {
+        // Apply styles for "Earnings"
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '92D050' }, // Green background
+        };
+      } else if (colIndex >= 11 && colIndex <= 15) {
+        // Apply styles for "Deductions"
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF0000' }, // Red background
+        };
+      } else {
+        // Default style for other headers
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '0070C0' }, // Blue background
+        };
+      }
+      cell.font = { bold: true, color: { argb: 'FFFFFF' } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' },
+      };
+    });
   
-    // Create a download link
-    const link = document.createElement('a');
-    const url = window.URL.createObjectURL(fileBlob);
-    link.href = url;
-    link.download = `Payroll_${this.month}_${this.daysInMonth}.xlsx`;
-    link.click();
+    // Header Styling for Row 2
+    worksheet.getRow(2).eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: 'FFFFFF' } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: '92D050' }, // Green for subheaders in row 2
+      };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' },
+      };
+    });
   
-    // Clean up
-    window.URL.revokeObjectURL(url);
+    // Add Data Rows
+    formattedData.forEach((data, index) => {
+      const row = worksheet.addRow(Object.values(data));
+      row.eachCell((cell) => {
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+    });
+  
+    // Adjust Column Widths
+    worksheet.columns.forEach((column) => {
+      column.width = 15; // Adjust column widths for readability
+    });
+  
+    // Save the Excel File
+    workbook.xlsx.writeBuffer().then((buffer) => {
+      const blob = new Blob([buffer], { type: 'application/octet-stream' });
+      saveAs(blob, `Payroll_${this.month}_${this.daysInMonth}.xlsx`);
+    });
   }
   
   months = [
