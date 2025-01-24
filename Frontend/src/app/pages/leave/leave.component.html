@@ -93,7 +93,9 @@
                   @if(item.leaveType?.leaveTypeName === 'Sick Leave'){
                     @if(item.fileUrl){
                       <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center" style="position: relative;">
-                        <iframe [src]="item.fileUrl | safe" style="width: 15px; height: 15px;"> </iframe>
+                        <iframe [src]="item.fileUrl | safe" class="custom-iframe" scrolling="no"></iframe>
+
+
                         <!--
                           class="transition-2"
                           [ngClass]="{ 'enlarged': enlargedItemId === item.id }"

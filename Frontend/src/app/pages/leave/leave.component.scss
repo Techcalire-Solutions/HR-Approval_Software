@@ -342,3 +342,9 @@ iframe {
   pointer-events: none; /* Ensure no events are triggered */
   opacity: 0.6; /* Reduce opacity for a 'disabled' look */
 }
+
+.custom-iframe {
+  width: 100px;
+  height: 75px;
+  object-fit: contain; /* Makes the image fit inside the iframe without cropping */
+}
