@@ -122,7 +122,7 @@
                     class="approve-button"
                     color="primary"
                     (click)="openDialog('approve', item.id)"
-                    [disabled]="item.status === 'Approved'"
+                    [disabled]="item.status === 'Approved' || item.status === 'AdminApproved'"
                   >
                     <mat-icon>thumb_up</mat-icon>
                   </button>
