@@ -132,7 +132,7 @@
                     class="reject-button"
                     color="warn"
                     (click)="openDialog('reject', item.id)"
-                    [disabled]="item.status === 'Rejected'"
+                    [disabled]="item.status === 'Rejected' || item.status === 'AdminApproved'"
 
                   >
                   <!--  && item.status !== 'AdminDeleted' && item.status !== 'AdminUpdated' -->
