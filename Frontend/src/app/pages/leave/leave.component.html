@@ -149,7 +149,7 @@
                 </td>
               }
               <td (click)="$event.stopPropagation()">
-                @if(!employeeStat || (item.status === 'requested' || item.status === 'Rejected')){
+                @if(!employeeStat || (item.status === 'Requested' || item.status === 'Rejected')){
                   <ng-container>
                     <button mat-icon-button color="primary" class="edit-button" (click)="onEditLeave(item.id)">
                   <mat-icon>mode_edit</mat-icon>

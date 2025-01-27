@@ -41,12 +41,14 @@ export class LeaveComponent implements OnInit, OnDestroy{
   private roleSub!: Subscription;
   roleName: string;
   employeeStat: boolean = false;
+  userId: number = 0;
   getRoleById(id: number, userId: number){
     this.roleSub = this.roleService.getRoleById(id).subscribe((res: Role) => {
-      let roleName = res.abbreviation
-      if(roleName !== 'HR Admin' && roleName !== 'Super Admin'){
+      this.roleName = res.abbreviation
+      if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
         this.employeeStat = true;
         this.getLeaveByUser(userId)
+        this.userId = userId;
       }else{
         this.getLeaves()
       }
@@ -82,7 +84,6 @@ export class LeaveComponent implements OnInit, OnDestroy{
           .reduce((total, leave) => total + (leave.noOfDays || 0), 0);
 
         this.isButtonVisible = totalSickLeave >= 3;
-        console.log('Is Button Visible:', this.isButtonVisible);
       },
       (error) => {
         this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
@@ -93,7 +94,12 @@ export class LeaveComponent implements OnInit, OnDestroy{
 
   search(event: Event) {
     this.searchText = (event.target as HTMLInputElement).value.trim();
-    this.getLeaves();
+    if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
+      this.employeeStat = true;
+      this.getLeaveByUser(this.userId)
+    }else{
+      this.getLeaves()
+    }
   }
 
   private readonly snackbar = inject(MatSnackBar);
@@ -142,7 +148,12 @@ export class LeaveComponent implements OnInit, OnDestroy{
     this.approveSub = this.leaveService.updateApproveLeaveStatus(approvalData).subscribe(
       (res) => {
         this.snackbar.open('Leave approved successfully', '', { duration: 3000 });
-        this.getLeaves();
+        if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
+          this.employeeStat = true;
+          this.getLeaveByUser(this.userId)
+        }else{
+          this.getLeaves()
+        }
       },
       (error) => {
         this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
@@ -156,7 +167,12 @@ export class LeaveComponent implements OnInit, OnDestroy{
     this.rejectSub = this.leaveService.updateRejectLeaveStatus(rejectionData).subscribe(
       (res) => {
         this.snackbar.open('Leave rejected successfully', '', { duration: 3000 });
-        this.getLeaves();
+        if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
+          this.employeeStat = true;
+          this.getLeaveByUser(this.userId)
+        }else{
+          this.getLeaves()
+        }
       },
       (error) => {
         this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
@@ -166,7 +182,7 @@ export class LeaveComponent implements OnInit, OnDestroy{
 
   upload(action: string, leaveId: number): void {
     const dialogRef = this.dialog.open(UplaodDialogComponent, {
-      data: { leaveId } , // Pass leaveId as part of the dialog data
+      data: { leaveId },
       width: '400px',
     });
 
@@ -183,7 +199,12 @@ export class LeaveComponent implements OnInit, OnDestroy{
   updateLeaveFileUrl(leaveId: number, fileUrl: string): void {
     this.fileSub = this.leaveService.updateLeaveFileUrl(leaveId, fileUrl).subscribe({
     next: () => {
-      this.getLeaves()
+      if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
+        this.employeeStat = true;
+        this.getLeaveByUser(this.userId)
+      }else{
+        this.getLeaves()
+      }
     }});
   }
 
@@ -221,10 +242,13 @@ export class LeaveComponent implements OnInit, OnDestroy{
           //   } else {
           //     this.snackbar.open('Leave deleted successfully, no associated file found.', 'Close', { duration: 3000 });
             }
-
-            // Refresh the leave list after successful deletion
-            // this.getLeaves();
-          // },
+            if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
+              this.employeeStat = true;
+              this.getLeaveByUser(this.userId)
+            }else{
+              this.getLeaves()
+            }
+          },
         });
       }
     });
@@ -233,7 +257,12 @@ export class LeaveComponent implements OnInit, OnDestroy{
   onPageChange(event: PageEvent): void {
     this.currentPage = event.pageIndex + 1;
     this.pageSize = event.pageSize;
-    this.getLeaves();
+    if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
+      this.employeeStat = true;
+      this.getLeaveByUser(this.userId)
+    }else{
+      this.getLeaves()
+    }
   }
 
   openCalendar(){

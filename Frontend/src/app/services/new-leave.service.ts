@@ -85,7 +85,7 @@ export class NewLeaveService {
   }
 
   updateLeave(id: number, data: any): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/newlave/employeeleave/${id}`, data);
+    return this.http.patch(`${this.apiUrl}/newleave/updateemployeeleave/${id}`, data);
   }
 
 

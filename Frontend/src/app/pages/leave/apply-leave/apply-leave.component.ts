@@ -281,8 +281,6 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
         next: (res) => {
           this.isLoading = false;
           this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${res.fileUrl}`;
-          console.log(this.imageUrl);
-
           this.leaveRequestForm.get('fileUrl')?.setValue(this.imageUrl);
           this.leaveRequestForm.get('fileUrl')?.markAsDirty();
         },
@@ -377,8 +375,6 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
               }
             });
             this.dialogSub = dialogRef.afterClosed().subscribe(result => {
-              console.log(result);
-
               if (result) {
                 this.submitLeaveRequest(leaveRequest);
               } else {
@@ -396,10 +392,10 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   }
 
   submitLeaveRequest(leaveRequest: any): void {
+    this.isLoading = true;
     const request$ = this.isEditMode
-      ? this.leaveService.updateLeave(leaveRequest.leaveId, leaveRequest) // Ensure leaveId is part of leaveRequest
+      ? this.leaveService.updateLeave(this.leave.id, leaveRequest)
       : this.leaveService.addLeave(leaveRequest);
-
     request$.subscribe(
       (response: any) => {
         this.openDialog(response.message, response.leaveDatesApplied, response.lopDates);
@@ -430,7 +426,7 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     if (result?.action === 'proceed') {
 
       this.snackBar.open('Leave request submitted successfully!', 'Close', { duration: 3000 });
-      this.router.navigate(['/login/employee-leave']);
+      this.router.navigate(['/login/leave']);
     } else if (result?.action === 'back') {
 
       this.isLoading = false;
@@ -440,7 +436,7 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
       this.isLoading = false;
       this.leaveRequestForm.reset();
       this.snackBar.open('Leave request cancelled!', 'Close', { duration: 3000 });
-      this.router.navigate(['/login/employee-leave']);
+      this.router.navigate(['/login/leave']);
     }
   }
 
