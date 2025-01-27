@@ -182,7 +182,7 @@ export class LeaveComponent implements OnInit, OnDestroy{
 
   upload(action: string, leaveId: number): void {
     const dialogRef = this.dialog.open(UplaodDialogComponent, {
-      data: { leaveId } , // Pass leaveId as part of the dialog data
+      data: { leaveId },
       width: '400px',
     });
 

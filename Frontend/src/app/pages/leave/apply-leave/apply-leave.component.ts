@@ -366,6 +366,7 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   }
 
   submitLeaveRequest(leaveRequest: any): void {
+    this.isLoading = true;
     const request$ = this.isEditMode
       ? this.leaveService.updateLeave(this.leave.id, leaveRequest)
       : this.leaveService.addLeave(leaveRequest);
