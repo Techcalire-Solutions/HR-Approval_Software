@@ -470,7 +470,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
     // Add Data Rows
     formattedData.forEach((data, index) => {
       const row = worksheet.addRow(Object.values(data));
-      row.eachCell((cell) => {
+      row.eachCell((cell: any) => {
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
         cell.border = {
           top: { style: 'thin' },
@@ -482,12 +482,12 @@ export class MonthendComponent implements OnInit, OnDestroy{
     });
   
     // Adjust Column Widths
-    worksheet.columns.forEach((column) => {
+    worksheet.columns.forEach((column: any) => {
       column.width = 15; // Adjust column widths for readability
     });
   
     // Save the Excel File
-    workbook.xlsx.writeBuffer().then((buffer) => {
+    workbook.xlsx.writeBuffer().then((buffer: any) => {
       const blob = new Blob([buffer], { type: 'application/octet-stream' });
       saveAs(blob, `Payroll_${this.month}_${this.daysInMonth}.xlsx`);
     });

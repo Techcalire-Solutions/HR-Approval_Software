@@ -227,18 +227,20 @@ export class LeaveComponent implements OnInit, OnDestroy{
 
         this.deleteSub = this.leaveService.deleteUntakenLeave(leaveId).subscribe({
           next: () => {
-            if (leaveItem?.fileUrl) {
-              // Call API to delete associated file
-              this.deleteFileSub = this.leaveService.deleteUploadByurl(leaveItem.fileUrl).subscribe({
-                next: () => {
-                  this.snackbar.open('Leave deleted and file removed successfully!', 'Close', { duration: 3000 });
-                },
-                error: () => {
-                  this.snackbar.open('Leave deleted, but file removal failed!', 'Close', { duration: 3000 });
-                }
-              });
-            } else {
-              this.snackbar.open('Leave deleted successfully, no associated file found.', 'Close', { duration: 3000 });
+            this.snackbar.open('Leave deleted successfully...', 'Close', { duration: 3000 });
+            this.getLeaves();
+          //   if (leaveItem?.fileUrl) {
+          //     // Call API to delete associated file
+          //     // this.deleteFileSub = this.leaveService.deleteUploadByurl(leaveItem.fileUrl).subscribe({
+          //     //   next: () => {
+          //     //     this.snackbar.open('Leave deleted and file removed successfully!', 'Close', { duration: 3000 });
+          //     //   },
+          //     //   error: () => {
+          //     //     this.snackbar.open('Leave deleted, but file removal failed!', 'Close', { duration: 3000 });
+          //     //   }
+          //     // });
+          //   } else {
+          //     this.snackbar.open('Leave deleted successfully, no associated file found.', 'Close', { duration: 3000 });
             }
             if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
               this.employeeStat = true;

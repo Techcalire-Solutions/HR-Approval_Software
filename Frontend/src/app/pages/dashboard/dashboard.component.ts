@@ -13,6 +13,7 @@ import { ProbationDueComponent } from "./probation-due/probation-due.component";
 import { HolidayCalendarComponent } from "./holiday-calendar/holiday-calendar.component";
 import { LeaveRequestsNotificationComponent } from './leave-requests-notification/leave-requests-notification.component';
 import { UsersService } from '@services/users.service';
+import { RoleService } from '@services/role.service';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -48,12 +49,20 @@ export class DashboardComponent {
   roleSub!: Subscription;
   roleName!: string;
   hradmin: boolean = false;
+  payStat: boolean = false;
+  private roleService = inject(RoleService);
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
-      this.roleName = role.roleName;
-
+      this.roleName = role.roleName;      
       if(this.roleName === 'HR Administrator' ||this.roleName==='HR') {
         this.hradmin = true;
+      }else{
+        this.roleService.getDesignationbyRole(role.id).subscribe(res =>{
+          console.log(res);
+          if(res.length > 0){
+            this.payStat = true;
+          }
+        });
       }
     })
   }
