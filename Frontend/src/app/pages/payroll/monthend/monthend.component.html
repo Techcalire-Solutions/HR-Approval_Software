@@ -1,7 +1,7 @@
 
 <div class="payroll-header">
     <h2>Monthend Calculation - @if (updateStatus) {Update} 
-        {{month}} {{daysInMonth}} 
+        {{month}} - {{daysInMonth}} days
         @if (approval){- Sent for Approval} 
         @if (isApproved){- Approved} 
         @if (isRejected) {- Rejected}
@@ -15,8 +15,15 @@
 
 <form [formGroup]="payrollForm">
     <mat-form-field appearance="fill">
+        <mat-label>Select Year</mat-label>
+        <mat-select #yearSelect [(value)]="currentYear" (selectionChange)="onYearChange( yearSelect.value )">
+          <mat-option *ngFor="let year of years" [value]="year">{{ year }}</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
         <mat-label>Select Month</mat-label>
-        <mat-select #id (selectionChange)="onMonthYearChange(id.value)">
+        <mat-select #id [(value)]="selectedMonth" (selectionChange)="onMonthYearChange(id.value)">
           <mat-option *ngFor="let month of months" [value]="month.value">{{ month.name }}</mat-option>
         </mat-select>
     </mat-form-field>

@@ -8,9 +8,7 @@ const User = require('../../users/models/user');
    leaveTypeId : { type: DataTypes.INTEGER, allowNull:true},
    noOfDays : {type: DataTypes.FLOAT, allowNull:true, defaultValue: 0},
    takenLeaves : {type :DataTypes.FLOAT, allowNull :true, defaultValue: 0},
-   leaveBalance : { type:DataTypes.FLOAT, allowNull:true, defaultValue: 0},
-   currentMonthLopDays : {type : DataTypes.FLOAT, allowNull : true, defaultValue: 0},
-   previousMonthLopDays :  {type : DataTypes.FLOAT, allowNull : true, defaultValue: 0},
+   leaveBalance : { type:DataTypes.FLOAT, allowNull:true, defaultValue: 0}
  },{
     freezeTableName :true,
     timestamps : true,

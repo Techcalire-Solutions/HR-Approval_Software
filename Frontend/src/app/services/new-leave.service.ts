@@ -102,4 +102,13 @@ export class NewLeaveService {
   getUserEmail(id: number){
     return this.http.get<UserLeave[]>(`${this.apiUrl}/useremail/byuseridforleave/${id}`);
   }
+
+  getUserLeaveForEncash(){
+    return this.http.get<any[]>(`${this.apiUrl}/userLeave/forencashment/`);
+  }
+
+
+  getMonthlyLeaveDays(startDate: any, endDate: any){
+    return this.http.get<any[]>(`${this.apiUrl}/newleave/find/monthlyleavedays?startDate=${startDate}&endDate=${endDate}`);
+  }
 }
