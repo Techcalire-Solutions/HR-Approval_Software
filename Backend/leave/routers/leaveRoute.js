@@ -602,7 +602,7 @@ async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDa
     reportingManagerEmail = await getReportingManagerEmailForUser(user.id);
   } catch (error) {
     console.error('Error fetching emails:', error);
-    return { success: false, message: 'Error fetching emails' };
+    return { success: false, message: error.message };
   }
 
   if (!Array.isArray(leaveDates)) {
@@ -664,7 +664,6 @@ async function sendLeaveUpdateEmail(user, leaveType, startDate, endDate, notes, 
     email = await getHREmail();
     ccEmail = await getReportingManagerEmailForUser(user.id);
   } catch (error) {
-    console.error('Error fetching emails:', error);
     return;
   }
   if (!Array.isArray(leaveDates)) {
@@ -758,7 +757,7 @@ async function getHREmail() {
   }
   const userPosition = await UserPosition.findOne({ where: { userId: hrAdminUser.id } });
   if (!userPosition || !userPosition.officialMailId) {
-    throw new Error ('User position not found for HR Admin');
+    throw new Error ('Official Mail Id not found for HR Admin');
   }
   return userPosition.officialMailId;
 }
@@ -770,13 +769,13 @@ async function getReportingManagerEmailForUser(userId) {
       attributes: ['reportingMangerId'],
     });
     if (!userPersonal) {
-      return `User with id ${userId} not found`;
+      throw new Error ( `User with id ${userId} not found`);
     }
 
     const reportingMangerId = userPersonal.reportingMangerId;
 
     if (!reportingMangerId) {
-      return `No reporting manager found for userId ${userId}`;
+      throw new Error ( `No reporting manager found for userId ${userId}`);
     }
 
  
@@ -785,10 +784,10 @@ async function getReportingManagerEmailForUser(userId) {
       attributes: ['officialMailId'],
     });
 
-    if (reportingManagerPosition) {
+    if (reportingManagerPosition && reportingManagerPosition.officialMailId) {
       return reportingManagerPosition.officialMailId;
     } else {
-      return `Reporting manager position not found for reportingMangerId ${reportingMangerId}`;
+      throw new Error ( `Reporting manager official mail not found for reportingMangerId ${reportingMangerId}`);
     }
   } catch (error) {
     console.error('Error fetching reporting manager email:', error);
@@ -1358,7 +1357,7 @@ router.get('/all/report', async (req, res) => {
     const { year } = req.query;
 
     if (!year) {
-      return res.status(400).json({ error: 'Year is required for fetching reports.' });
+      return res.json({ error: 'Year is required for fetching reports.' });
     }
 
     // Fetch all leave data for the given year
@@ -1433,7 +1432,55 @@ router.get('/all/report', async (req, res) => {
 
 
 
+// --------------------------------------------------------------------------------------------
+router.get('/find/monthlyleavedays', authenticateToken, async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query; // Get startDate and endDate from query params
 
+    if (!startDate || !endDate) {
+      return res.send('startDate and endDate are required');
+    }
+
+    const data = await Leave.findAll({
+      attributes: [
+        'userId',
+        [sequelize.fn('SUM', sequelize.literal(`
+          CASE
+            WHEN "startDate" < '${startDate}' AND "endDate" >= '${startDate}' THEN
+              LEAST(EXTRACT(DAY FROM "endDate"::timestamp - '${startDate}'::timestamp) + 1, "noOfDays")
+            WHEN "startDate" >= '${startDate}' AND "endDate" <= '${endDate}' THEN
+              "noOfDays"
+            WHEN "startDate" >= '${startDate}' AND "endDate" > '${endDate}' THEN
+              LEAST(EXTRACT(DAY FROM '${endDate}'::timestamp - "startDate"::timestamp) + 1, "noOfDays")
+            ELSE
+              0
+          END
+        `)), 'totalLeaveDays']
+      ],
+      include: [
+        {
+          model: LeaveType,
+          attributes: [],
+          where: {
+            leaveTypeName: 'LOP'
+          }
+        }
+      ],
+      where: {
+        [Op.and]: [
+          { startDate: { [Op.lte]: endDate } }, // Leave starts on or before endDate
+          { endDate: { [Op.gte]: startDate } }  // Leave ends on or after startDate
+        ]
+      },
+      group: ['userId'],
+      raw: true,
+    });
+
+    res.send(data);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
 
 
 module.exports = router;

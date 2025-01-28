@@ -73,16 +73,17 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   filteredOptions: User[] = [];
   patch(selectedSuggestion: User) {
     this.leaveRequestForm.patchValue({ userId: selectedSuggestion.id, userName: selectedSuggestion.name });
+    this.checkProbationStatus(selectedSuggestion.id);
   }
 
-    filterValue: string;
-    search(event: Event) {
-      this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
-      this.filteredOptions = this.users.filter(option =>
-        option.name.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
-        option.empNo.toString().replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
-      );
-    }
+  filterValue: string;
+  search(event: Event) {
+    this.filterValue = (event.target as HTMLInputElement).value.trim().replace(/\s+/g, '').toLowerCase();
+    this.filteredOptions = this.users.filter(option =>
+      option.name.replace(/\s+/g, '').toLowerCase().includes(this.filterValue)||
+      option.empNo.toString().replace(/\s+/g, '').toLowerCase().includes(this.filterValue)
+    );
+  }
 
 
   isEditMode: boolean = false;
@@ -367,6 +368,8 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     }else{
         const id: any = this.leaveRequestForm.get('userId')?.value
         this.emailSub = this.leaveService.getUserEmail(id).subscribe(data => {
+          console.log(data);
+          
           if(!data){
             const dialogRef = this.dialog.open(UserEmailComponent, {
               width: '600px',
