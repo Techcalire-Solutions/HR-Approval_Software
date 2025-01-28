@@ -24,6 +24,8 @@ import { UserAssets } from '../../common/interfaces/users/user-assets';
 import { UserQualification } from '../../common/interfaces/users/user-qualification';
 import { SafePipe } from "../../common/pipes/safe.pipe";
 import { Nominee } from '../../common/interfaces/users/nominee';
+import { MatDialog } from '@angular/material/dialog';
+import { UserEmailComponent } from '../users/user-email/user-email.component';
 
 @Component({
   selector: 'app-profile',
@@ -157,6 +159,19 @@ export class ProfileComponent {
     })
   }
 
+  dialogSub!: Subscription;
+  private readonly dialog = inject(MatDialog);
+  openUpdatePasswordDialog(type: string){
+    const dialogRef = this.dialog.open(UserEmailComponent, {
+      width: '600px',
+      data: {
+        userId: this.user.id, type: type
+      }
+    });
+    this.dialogSub = dialogRef.afterClosed().subscribe(result => {
+    });
+  }
+
   ngOnDestroy(): void {
     this.userSub?.unsubscribe();
     this.puSub?.unsubscribe();
@@ -169,6 +184,7 @@ export class ProfileComponent {
     this.assetSub?.unsubscribe();
     this.docSub?.unsubscribe();
     this.nomineeSub?.unsubscribe();
+    this.dialogSub?.unsubscribe();
   }
 
   private router = inject(Router);

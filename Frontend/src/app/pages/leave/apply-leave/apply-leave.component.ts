@@ -371,7 +371,7 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
             const dialogRef = this.dialog.open(UserEmailComponent, {
               width: '600px',
               data: {
-                userId: id, type: 'Leave'
+                userId: id, type: 'Official'
               }
             });
             this.dialogSub = dialogRef.afterClosed().subscribe(result => {
