@@ -241,7 +241,7 @@ export class LeaveComponent implements OnInit, OnDestroy{
           //     // });
           //   } else {
           //     this.snackbar.open('Leave deleted successfully, no associated file found.', 'Close', { duration: 3000 });
-            }
+            // }
             if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
               this.employeeStat = true;
               this.getLeaveByUser(this.userId)

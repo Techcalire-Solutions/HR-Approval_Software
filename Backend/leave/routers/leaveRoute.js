@@ -412,7 +412,7 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
 
   if (!fromEmail || !appPassword) {
     const email = await UserEmail.findOne({
-      where: { userId: userId, type: 'Leave' }
+      where: { userId: userId, type: 'Official' }
     });
     fromEmail = email.email;
     appPassword = email.appPassword;

@@ -98,15 +98,15 @@
   
             <mat-expansion-panel>
               <mat-expansion-panel-header class="custom-header">
-                <span class="panel-title"> Position Data </span>
+                <span class="panel-title"> Employment Data </span>
                 <span class="spacer"></span>
                 <mat-icon style="margin-right: 10px;">work</mat-icon>
               </mat-expansion-panel-header>
               @if(positions){
                  <div class="p-3">
                   <div class="flex-container">
-                    <div>Official Mail  :<strong>{{positions.officialMailId }}</strong></div>
-                    <div>Project Mail  :<strong>{{positions.projectMailId }}</strong></div>
+                    <div>Official Mail  :<strong (click)="openUpdatePasswordDialog('Official')">{{positions.officialMailId }}</strong></div>
+                    <div>Project Mail  :<strong (click)="openUpdatePasswordDialog('Project')">{{positions.projectMailId}}</strong></div>
                     <div>Salary  :<strong>{{positions.salary }}</strong></div>
                     <div>Designation  :<strong>{{positions.designation?.designationName }}</strong></div>
                   </div>
@@ -116,7 +116,7 @@
                     <div>Department  :<strong >{{positions.department?.name}}</strong></div>
                     <div>Division  :<strong >{{positions.division}}</strong></div>
                     <div>Cost Centre  :<strong>{{positions.costCentre}}</strong></div>
-                    <div>Team  :<strong>{{positions.team.teamName}}</strong></div>
+                    <div>Team  :<strong>{{positions.team?.teamName}}</strong></div>
                   </div>
   
                   <div class="flex-container">

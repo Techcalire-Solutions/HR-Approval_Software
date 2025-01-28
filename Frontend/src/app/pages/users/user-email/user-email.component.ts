@@ -39,9 +39,10 @@ export class UserEmailComponent implements OnInit, OnDestroy{
   private userSub!: Subscription;
   getOfiiceMail(){
     this.userSub = this.userService.getUserPositionDetailsByUser(this.dialogData.userId).subscribe(res => {
-      if(res && res.officialMailId) this.emailForm.get('email')?.setValue(res.officialMailId);
+      if(this.dialogData.type === 'Official' && res && res.officialMailId) this.emailForm.get('email')?.setValue(res.officialMailId);
+      else if(this.dialogData.type === 'Project' && res && res.projectMailId) this.emailForm.get('email')?.setValue(res.projectMailId);
       else {
-        alert('Officail Mail Id is not added, please contact HR administrator to add data.');
+        alert(`${this.dialogData.type} Mail Id is not added, please contact HR administrator to add data.`);
         this.dialogRef.close(false);
       }
     });
