@@ -19,6 +19,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { LeaveService } from '@services/leave.service';
 import * as ExcelJS from 'exceljs';
 import saveAs from 'file-saver';
+import { NewLeaveService } from '@services/new-leave.service';
 
 @Component({
   selector: 'app-monthend',
@@ -33,6 +34,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
   daysInMonth: number;
   currentYear: number;
   changeSub!: Subscription;
+  years: number[] = [];
   ngOnInit(): void {
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
@@ -43,8 +45,14 @@ export class MonthendComponent implements OnInit, OnDestroy{
     this.month = currentMonth === 0
       ? monthNames[11]
       : monthNames[currentMonth - 1];
-    this.currentYear = currentDate.getFullYear();
+      this.selectedMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    this.currentYear = currentMonth === 0 ? currentDate.getFullYear() - 1 : currentDate.getFullYear();
     this.daysInMonth = new Date(this.currentYear, currentMonth, 0).getDate();
+
+    const currentYear = new Date().getFullYear();
+    for (let year = currentYear; year >= 2020; year--) {
+      this.years.push(year);
+    }
 
     this.payrollForm.valueChanges.subscribe(() => {
       const payrollArray = this.payrollForm.get('payrolls') as FormArray;
@@ -57,6 +65,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
     });
 
     this.getPayroll();
+    this.getLeaveDays();
   }
 
   private cdr = inject(ChangeDetectorRef)
@@ -81,6 +90,30 @@ export class MonthendComponent implements OnInit, OnDestroy{
     const index = this.doc().length - 1;
     this.calculateTotalSalary(index);
   }
+
+  ldSub!: Subscription;
+  leaveDaysData: any[] = [];
+  getLeaveDays() {
+    // Convert month name to month number (e.g., January -> 0, February -> 1, etc.)
+    const monthNumber = new Date(`${this.month} 1, ${this.currentYear}`).getMonth();
+    console.log(monthNumber); // Should log 0 for January, 1 for February, etc.
+  
+    // Generate start date
+    const startDate = `${this.currentYear}-${String(monthNumber + 1).padStart(2, '0')}-01`; // e.g., 2025-01-01
+    
+    // Generate end date (last day of the month) with local timezone adjustment
+    const endDate = new Date(this.currentYear, monthNumber + 1, 0); // Last day of the month
+    const formattedEndDate = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
+  
+    console.log(startDate, formattedEndDate); // Should log "2025-01-01 2025-01-31"
+  
+    // Call the API with dynamic dates
+    this.ldSub = this.leaveService.getMonthlyLeaveDays(startDate, formattedEndDate).subscribe(leave => {
+      this.leaveDaysData = leave;
+      console.log(leave);
+    });
+  }
+  
 
   month: string;
   calculateTotalSalary(index: number): void {
@@ -127,9 +160,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
     const totalToPay = Number((grossTotal - leaveDeduction).toFixed(2));
 
     payrollGroup.get('toPay')?.setValue(totalToPay, { emitEvent: false });
-}
-
-
+  }
 
   removeData(index: number): void {
     this.doc().removeAt(index);
@@ -178,7 +209,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
   isLocked: boolean = false;
   approval: boolean = false;
   saved: boolean = false;
-  private leaveService = inject(LeaveService);
+  private leaveService = inject(NewLeaveService);
   private enchashSub: Subscription;
   getPayroll() {
     this.payrolls = [];
@@ -193,6 +224,9 @@ export class MonthendComponent implements OnInit, OnDestroy{
           this.enchashSub = this.leaveService.getUserLeaveForEncash().subscribe(leaveBalances => {
             this.payrolls.forEach((payrollItem: any) => {
               const userId = payrollItem.userId;
+              const leaveDays = this.leaveDaysData.find(leave => leave.userId === userId);
+              payrollItem.leaveDays = leaveDays ? leaveDays.totalLeaveDays : 0;
+
               if(isDecember){
                 const leaveData = leaveBalances.find(leave => leave.userId === userId);
                 if (leaveData) {
@@ -508,6 +542,12 @@ export class MonthendComponent implements OnInit, OnDestroy{
     { name: 'December', value: 11 },
   ];
 
+  selectedMonth: number | null = null;
+  onYearChange(value: number){
+    this.currentYear = value;
+    this.selectedMonth = null;
+  }
+
   onMonthYearChange(value: number): void {
     this.calculateIfPreviousMonth(value);
   }
@@ -522,6 +562,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
     this.clearAllRows()
     this.isLocked = false;
     this.updateStatus = false;
+    this.getLeaveDays();
     this.getPayroll()
   }
   
