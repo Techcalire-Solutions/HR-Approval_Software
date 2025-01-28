@@ -21,7 +21,6 @@
     <form [formGroup]="leaveRequestForm" (ngSubmit)="onSubmit()">
       <div class="form-row">
         @if(!employeeStat){
-
           <mat-form-field class="half-width" appearance="outline" >
             <mat-label>Employee</mat-label>
             <input matInput placeholder="Select Employee" formControlName="userName" [matAutocomplete]="auto" (keyup)="search($event)">
@@ -30,7 +29,6 @@
                 {{ suggestion.name }}
               </mat-option>
             </mat-autocomplete>
-            
           </mat-form-field>
         }
 

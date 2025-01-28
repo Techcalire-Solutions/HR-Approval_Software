@@ -6,7 +6,7 @@ const UserEmail = require('../models/userEmail')
 router.get('/byuseridforleave/:id', authenticateToken, async (req, res) => {
     try {
         const user = await UserEmail.findOne({
-            where: { userId: req.params.id, type: 'Leave'}
+            where: { userId: req.params.id, type: 'Official'}
         });
 
         res.send(user);
