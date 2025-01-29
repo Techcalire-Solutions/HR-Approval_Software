@@ -260,8 +260,7 @@ router.patch('/updateLeaveFileUrl/:leaveId', authenticateToken, async (req, res)
 
     return res.send({ message: 'Leave file URL updated and notifications sent' });
   } catch (error) {
-    console.error(error);
-    return res.send({ message: 'Internal server error' });
+    return res.send({ message: error.message });
   }
 });
   
@@ -1081,7 +1080,7 @@ router.patch('/updateemployeeleave/:id', authenticateToken, async (req, res) => 
     createNotification({ id: userId, me: notificationMessage, route: notificationRoute });
 
     const email = await UserEmail.findOne({
-      where: { userId: userId, type: 'Leave'}
+      where: { userId: userId, type: 'Official'}
     });
     fromEmail = email.email;
     appPassword = email.password;
@@ -1118,7 +1117,7 @@ router.patch('/updateemployeeleave/:id', authenticateToken, async (req, res) => 
     res.json({ message: 'Leave updated successfully', leave, userLeave });
   } catch (error) {
     console.error('Error updating leave:', error);
-    res.json({ message: 'Internal Server Error', error: error.message });
+    res.json({ message: error.message, error: error.message });
   }
 });
 

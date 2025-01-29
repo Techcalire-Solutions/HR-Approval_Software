@@ -31,7 +31,7 @@ export class AddAssetsComponent implements OnInit, OnDestroy{
     assetName: ['', Validators.required],
     identifierType: ['', Validators.required],
     identificationNumber: ['', Validators.required],
-    description: [''],
+    description: ['', Validators.required],
     purchasedDate: <any>[],
     purchasedFrom: [''],
     invoiceNo: ['']
