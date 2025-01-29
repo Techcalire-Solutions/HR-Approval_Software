@@ -300,8 +300,6 @@ export class ApplyEmergencyLeaveComponent implements OnInit, OnDestroy{
         next: (res) => {
           this.isLoading = false;
           this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${res.fileUrl}`;
-          console.log(this.imageUrl);
-          
           this.leaveRequestForm.get('fileUrl')?.setValue(this.imageUrl);
           this.leaveRequestForm.get('fileUrl')?.markAsDirty();
         },

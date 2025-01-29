@@ -8,7 +8,6 @@ const { Op } = require('sequelize');
 
 router.post("/", async (req, res) => {
   try {
-    console.log("company body" + req.body);
     const {
       companyName,
       code,

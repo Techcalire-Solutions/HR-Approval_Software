@@ -70,8 +70,6 @@ export class AddLeaveTypeDialogueComponent {
     this.roleSub = this.leaveService.getLeaveType(this.searchText, this.currentPage, this.pageSize).subscribe((res: any)=>{
       this.leaveTypes = res.items;
       this.totalItems = res.count;
-      console.log('hiii',res);
-
     })
   }
   public searchText!: string;
@@ -82,10 +80,8 @@ export class AddLeaveTypeDialogueComponent {
 
   // leaveType: LeaveType;
   patchLeaveType(leaveType: any){
-    console.log('leaveType',leaveType);
     this.leaveTypeForm.patchValue({
       leaveTypeName: this.leaveType.leaveTypeName
-
     })
   }
   close(): void {

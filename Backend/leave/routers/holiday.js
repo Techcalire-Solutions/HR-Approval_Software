@@ -73,7 +73,6 @@ router.post('/upload', authenticateToken, upload.single('file'), async (req, res
     const uploadedDates = holidays.map(holiday => formatDate(holiday.date)).filter(Boolean);
     const addedDates = uploadedDates.filter(date => !existingDates.has(date));
     const notAddedDates = uploadedDates.filter(date => !addedDates.includes(date));
-    console.log(addedDates, uploadedDates);
     
     // Filter out holidays with duplicate dates in the database
     const newHolidays = holidays.filter(
@@ -333,8 +332,6 @@ router.get('/holidaysbyyear', async (req, res) => {
 router.patch('/byyear', async (req, res) => {
   try {
       const ids = req.body;
-      console.log(ids);
-      
       if (!Array.isArray(ids) || ids.length === 0) {
           return res.send( 'Array of IDs is required' );
       }

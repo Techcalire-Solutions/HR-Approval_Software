@@ -28,9 +28,17 @@ export class UpdateDesignationComponent implements OnInit, OnDestroy{
   name: string;
   empNo: string;
   ngOnInit(): void {
-    // this.getDesignation();
+    this.getDesignation();
     this.name = this.dialogData.name;
     this.empNo = this.dialogData.empNo;
+    this.getUsrPos();
+  }
+
+  getUsrPos(){
+    this.userService.getUserPositionDetailsByUser(this.dialogData.id).subscribe(user => {
+      this.form.get('designationName')?.setValue(user.designation.designationName);
+      this.form.get('designationId')?.setValue(user.designationId);
+    });
   }
 
   private fb = inject(FormBuilder);

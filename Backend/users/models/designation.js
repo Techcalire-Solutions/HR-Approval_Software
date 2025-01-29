@@ -15,7 +15,7 @@ const Designation = sequelize.define('designation',{
 })
 
 Role.hasOne(Designation, { foreignKey: 'roleId', onUpdate: 'CASCADE' });
-Designation.belongsTo(Role, { foreignKey: 'roleId' });
+Designation.belongsTo(Role, { foreignKey: 'roleId', onUpdate: 'CASCADE' });
 
 Designation.sync({ alter: true })
   .then(() => console.log("Designation table Sync"))

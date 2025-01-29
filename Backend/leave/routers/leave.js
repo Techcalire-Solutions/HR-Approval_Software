@@ -267,7 +267,6 @@ async function sendLeaveUpdatedEmail(leaveId, user, leaveType, startDate, endDat
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log('Leave update email sent successfully');
   } catch (error) {
     console.error('Error sending leave update email:', error);
   }
@@ -581,8 +580,6 @@ router.patch('/:id', authenticateToken, async (req, res) => {
         where: { userId: leave.userId, leaveTypeId },
       });
 
-      console.log('User Leave Mapping:', userLeave);
-
       if (!userLeave) {
         return res.json({ message: 'User leave mapping not found' });
       }
@@ -793,8 +790,6 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
   const noOfDays = calculateLeaveDays(leaveDates);
   try {
     userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId } });
-    console.log(userLeave);
-    
     if (userLeave) {
       if (leaveType.leaveTypeName === 'LOP' || userLeave.leaveBalance >= noOfDays) {
         if (userLeave.noOfDays) { userLeave.leaveBalance -= noOfDays; }
@@ -958,8 +953,6 @@ router.delete('/filedelete', authenticateToken, async (req, res) => {
 
 router.delete('/delete/filedeletebyurl', authenticateToken, async (req, res) => {
   const key = req.query.key;
-  console.log(key);
-  
   const fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
   try {
     if (!fileKey) {
@@ -1447,8 +1440,6 @@ router.patch('/untakenLeaveUpdate/:id', authenticateToken, async (req, res) => {
       return res.json({ message: 'leaveTypeId is required and must be valid.' });
     }
 
-    console.log('Leave ID:', leaveId);
-
     const leave = await Leave.findByPk(leaveId, {
       include: [User],
     });
@@ -1460,7 +1451,6 @@ router.patch('/untakenLeaveUpdate/:id', authenticateToken, async (req, res) => {
     const leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
 
     if (!leaveType) {
-      console.log('LeaveType not found for ID:', leaveTypeId);
       return res.json({ message: 'Leave type not found' });
     }
 
@@ -1469,7 +1459,6 @@ router.patch('/untakenLeaveUpdate/:id', authenticateToken, async (req, res) => {
     });
 
     if (!userLeave) {
-      console.log(`No UserLeave mapping found for userId=${leave.userId}, leaveTypeId=${leaveTypeId}`);
       return res.json({ message: 'User leave mapping not found' });
     }
 
@@ -1478,7 +1467,6 @@ router.patch('/untakenLeaveUpdate/:id', authenticateToken, async (req, res) => {
     );
 
     if (filteredLeaveDates.length === 0) {
-      console.log('No valid sessions found in leaveDates:', leaveDates);
       await leave.destroy();
       return res.json({ message: 'Leave record deleted as no valid sessions were provided.' });
     }

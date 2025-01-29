@@ -168,11 +168,7 @@ export class UserPositionComponent implements OnDestroy {
       submit.confirmationDate = this.datePipe.transform(confirmationDate, 'yyyy-MM-dd') || null;
     }
     if(this.editStatus){
-      console.log(submit);
-      
       this.submitSub = this.userService.updateUserPosition(this.id, submit).subscribe((x) => {
-        console.log(x);
-        
         this.snackBar.open("Postion Details updated succesfully...","" ,{duration:3000})
         this.loadingState.emit(false);
         // this.dataSubmitted.emit( {isFormSubmitted: true} );

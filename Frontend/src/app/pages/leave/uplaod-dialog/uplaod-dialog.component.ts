@@ -47,7 +47,6 @@ export class UplaodDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: { leaveId: string }
   ) {
     this.leaveId = data.leaveId;
-    console.log(this.leaveId)
   }
 
   closeDialog(): void {
@@ -84,8 +83,6 @@ export class UplaodDialogComponent {
 
 
           this.leaveRequestForm.get('fileUrl')?.setValue(fileUrl);
-
-          console.log('File URL:', this.imageUrl);
         },
         error: (err) => {
           console.error('File upload failed', err);

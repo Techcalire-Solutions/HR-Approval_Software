@@ -347,7 +347,14 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
         date: this.datePipe.transform(item.date, 'yyyy-MM-dd')
       }))
     };
-    
+    if (this.leaveRequestForm.get('startDate')?.value) {
+      const sd = this.leaveRequestForm.get('startDate')?.value as string | number | Date;
+      leaveRequest.startDate = this.datePipe.transform(sd, 'yyyy-MM-dd');
+    }
+    if (this.leaveRequestForm.get('endDate')?.value) {
+      const ed = this.leaveRequestForm.get('endDate')?.value as string | number | Date;
+      leaveRequest.endDate = this.datePipe.transform(ed, 'yyyy-MM-dd');
+    }
     if(!this.employeeStat){
       this.isLoading = true;
       if (this.isEditMode) {
@@ -359,7 +366,6 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
       } else {
         this.submit = this.leaveService.addEmergencyLeave(leaveRequest).subscribe({
           next: (res) => {
-            console.log(res);
             this.isLoading = false;
             this.router.navigateByUrl('/login/leave');
             this.snackBar.open("Emergency leave added successfully...", "", { duration: 3000 });
@@ -374,8 +380,6 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     }else{
         const id: any = this.leaveRequestForm.get('userId')?.value
         this.emailSub = this.leaveService.getUserEmail(id).subscribe(data => {
-          console.log(data);
-          
           if(!data){
             const dialogRef = this.dialog.open(UserEmailComponent, {
               width: '600px',
@@ -387,7 +391,8 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
               if (result) {
                 this.submitLeaveRequest(leaveRequest);
               } else {
-                this.isLoading = false; // Reset loading state if dialog is canceled
+                this.isLoading = false; 
+                this.router.navigateByUrl('/login/leave');
               }
             });
           } else {

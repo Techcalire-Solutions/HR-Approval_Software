@@ -28,21 +28,16 @@ cron.schedule('0 0 1 * *', async () => {
 
     // Iterate through each leave type (SL and CL)
     for (const leaveType of leaveTypes) {
-      console.log(`Processing leave type: ${leaveType.leaveTypeName}`);
-
       const userLeaves = await UserLeave.findAll({
         where: { leaveTypeId: leaveType.id }
       });
 
       if (userLeaves.length === 0) {
-        console.log(`No user leave records found for ${leaveType.leaveTypeName}.`);
         continue; // Skip if no user leave records are found
       }
 
       // Update leave balance and increment noOfDays for each user
       for (const userLeave of userLeaves) {
-        console.log(`Updating leave for User ID ${userLeave.userId}, Leave Type: ${leaveType.leaveTypeName}`);
-
         // Increment noOfDays by 1 (if leaveBalance is positive)
         const newNoOfDays = userLeave.noOfDays + 1;
 
@@ -52,29 +47,22 @@ cron.schedule('0 0 1 * *', async () => {
         // Update user leave record
         userLeave.noOfDays = newNoOfDays;
         userLeave.leaveBalance = newLeaveBalance;
-
-        // Log the update for debugging purposes
-        console.log(`Old Balance: ${userLeave.leaveBalance}, New Balance: ${newLeaveBalance}`);
-
-        // Save the updated record in the database
         await userLeave.save();
       }
     }
-
-    console.log('User leave balances updated successfully at the start of the month.');
   } catch (error) {
     console.error('Error updating leave balances:', error.message);
   }
 });
 
 
-router.get('/leavecount/:userId', authenticateToken, async (req, res) => {
+router.get('/leavecount/:userId/:typeid', authenticateToken, async (req, res) => {
   try {
     const userId = req.params.userId;
+    const leaveTypeId  = req.params.typeid;
 
-
-    const userLeaves = await UserLeave.findAll({
-      where: { userId },
+    const userLeaves = await UserLeave.findOne({
+      where: { userId, leaveTypeId  },
       include: {
         model: LeaveType,
         as: 'leaveType',
@@ -83,49 +71,46 @@ router.get('/leavecount/:userId', authenticateToken, async (req, res) => {
     });
 
     
-    if (!userLeaves.length) {
-      return res.json({
-        userLeaves: [
-          {
-            id: null,
-            userId: userId,
-            leaveTypeId: 3, 
-            noOfDays: 0,
-            takenLeaves: 0,
-            leaveBalance: 0,
-            leaveType: {
-              leaveTypeName: "LOP",
-              id: 3
-            }
-          }
-        ]
-      });
-    }
+    // if (!userLeaves.length) {
+    //   return res.json({
+    //     userLeaves: [
+    //       {
+    //         id: null,
+    //         userId: userId,
+    //         leaveTypeId: 3, 
+    //         noOfDays: 0,
+    //         takenLeaves: 0,
+    //         leaveBalance: 0,
+    //         leaveType: {
+    //           leaveTypeName: "LOP",
+    //           id: 3
+    //         }
+    //       }
+    //     ]
+    //   });
+    // }
 
  
-    const lopLeaveExists = userLeaves.some(leave => leave.leaveType.leaveTypeName === 'LOP');
-    if (!lopLeaveExists) {
+    // const lopLeaveExists = userLeaves.some(leave => leave.leaveType.leaveTypeName === 'LOP');
+    // if (!lopLeaveExists) {
       
-      userLeaves.push({
-        id: null,
-        userId: userId,
-        leaveTypeId: 3,
-        noOfDays: 0,
-        takenLeaves: 0,
-        leaveBalance: 0,
-        leaveType: {
-          leaveTypeName: "LOP",
-          id: 3
-        }
-      });
-    }
-
-   
-    res.json({ userLeaves });
+    //   userLeaves.push({
+    //     id: null,
+    //     userId: userId,
+    //     leaveTypeId: 3,
+    //     noOfDays: 0,
+    //     takenLeaves: 0,
+    //     leaveBalance: 0,
+    //     leaveType: {
+    //       leaveTypeName: "LOP",
+    //       id: 3
+    //     }
+    //   });
+    // }
+    res.send(userLeaves);
 
   } catch (error) {
-    console.error('Error fetching leave counts:', error.message);
-    res.status(500).json({ message: 'Error fetching leave counts', error: error.message });
+    res.send(error.message);
   }
 });
 

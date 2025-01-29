@@ -257,12 +257,11 @@ router.get('/dueprobation', authenticateToken, async (req, res) => {
     });
     
     const probationDueUsers = [];
-    
     for (let i = 0; i < users.length; i++) {
       
-      if (users[i].userPersonals?.length > 0 && users[i].userPosition && 
-        users[i].userPersonals[0].dateOfJoining && users[i].userPosition.probationPeriod && users[i].isTemporary === true) {
-        const joiningDate = new Date(users[i].userPersonals[0].dateOfJoining);
+      if (users[i].userpersonal?.length > 0 && users[i].userPosition && 
+        users[i].userpersonal[0]?.dateOfJoining && users[i].userPosition.probationPeriod && users[i].isTemporary === true) {
+        const joiningDate = new Date(users[i].userpersonal[0].dateOfJoining);
         const probation = users[i].userPosition.probationPeriod;
 
         const probationEndDate = new Date(joiningDate);

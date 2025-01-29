@@ -76,7 +76,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
    this.messageNotfiSub =  this.messagesService.getUserNotifications(this.userId).subscribe(
       (data: any) => {
         this.notifications = data.notifications || [];
-        console.log(this.notifications)
         this.checkForNewNotifications(data);
         this.updateUnreadCount();
       },
@@ -147,8 +146,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
   getAllNot() {
     this.allNotSub = this.messagesService.getAllNotifications().subscribe(
       (res) => {
-        console.log(res);
-        
         if (Array.isArray(res)) {
           this.notifications = res;
         } else {

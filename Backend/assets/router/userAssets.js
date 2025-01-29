@@ -168,11 +168,8 @@ router.get('/getassigneduser/:id', authenticateToken, async (req, res) => {
       });
   
       if (details && details.userAsset) {
-        console.log('Assigned User ID:', details.userAsset.userId);
-        // Wrap the userId in an object or array
         res.send({ userId: details.userAsset.user.name });
       } else {
-        console.log('No user found for the given asset ID.');
         res.send({ userId: null }); // Use a consistent object response
       }
     } catch (error) {

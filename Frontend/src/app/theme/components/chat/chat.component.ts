@@ -121,14 +121,12 @@ export class ChatComponent implements OnInit {
 
   updateMessageStatus(messageId: number, status: string) {
     this.chatService.updateMessageStatus(messageId, status).subscribe(response => {
-      console.log('Message status updated:', response);
     });
   }
 
   message: string;
   messageType(event: any){
     this.message = (event.target as HTMLInputElement).value.trim()
-    console.log(this.message);
   }
 
   submit!:Subscription;
@@ -138,8 +136,6 @@ export class ChatComponent implements OnInit {
       fromId: this.loginId,
       message: this.message
     }
-    console.log(data);
-    
     this.submit = this.chatService.addChat(data).subscribe(() =>{
       this.getChat(this.currentUser.id);
       this.message = ''

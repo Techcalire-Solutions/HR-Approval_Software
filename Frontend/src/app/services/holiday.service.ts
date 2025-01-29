@@ -39,8 +39,6 @@ export class HolidayService {
     }
 
     deleteHolidaysByYear(ids: number[]){
-      console.log(ids);
-      
       return this.http.patch(this.apiUrl + '/holidays/byyear', ids)
     }
 

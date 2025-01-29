@@ -113,11 +113,7 @@ export class UserLeaveComponent implements OnInit, OnDestroy {
   ulSub!: Subscription;
   snackBar = inject(MatSnackBar);
   getUserLeave(id: number, leaveTypes: LeaveType){
-    console.log(this.data.id);
-    
     this.ulSub = this.leaveService.getUserLeave(this.data.id, id).subscribe(res => {
-      console.log(res);
-      
       this.addNew(leaveTypes, res)
     })
   }

@@ -111,8 +111,6 @@ export class AddHolidayComponent implements OnInit, OnDestroy{
     }
   
     const validMimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-    console.log(file.type);
-    
     if (file.type !== validMimeType) {
       this.snackBar.open('Invalid file type. Please select a valid Excel file (.xlsx).', 'Close', { duration: 3000 });
       event.target.value = ''; // Clear the file input
@@ -135,8 +133,7 @@ export class AddHolidayComponent implements OnInit, OnDestroy{
 
       const sheetName = workbook.SheetNames[0]; // Get the first sheet
       const sheet = workbook.Sheets[sheetName];
-      this.excelData = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Convert sheet to JSON
-      console.log(this.excelData);
+      this.excelData = XLSX.utils.sheet_to_json(sheet, { header: 1 }); 
     };
 
     reader.onerror = (error) => {

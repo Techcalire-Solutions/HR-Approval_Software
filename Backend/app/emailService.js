@@ -15,8 +15,6 @@ const Role = require('../users/models/role');
  */
 
 const sendEmail = async (token, fromEmail, password, to, subject, html, attachments, cc) => {
-  console.log(token);
-  
   const { userName, roleId } = decodeToken(token);
 
   const role = await Role.findByPk(roleId);
@@ -115,7 +113,6 @@ const sendEmail = async (token, fromEmail, password, to, subject, html, attachme
         console.error('Error sending email:', err);
         reject(err);
       } else {
-        console.log('Email sent:', info.response);
         resolve(info.response);
       }
     });
@@ -125,8 +122,6 @@ const sendEmail = async (token, fromEmail, password, to, subject, html, attachme
 const decodeToken = (token) => {
   const jwt = require('jsonwebtoken');
   let decoded;
-  console.log(token);
-  
   try {
     decoded = jwt.decode(token);
     if (!decoded || !decoded.name || !decoded.roleId) {
@@ -136,8 +131,6 @@ const decodeToken = (token) => {
     console.error('Error decoding token:', err);
     throw new Error('Error decoding token');
   }
-  
-  console.log(decoded);
   return {
     userName: decoded.name,
     roleId: decoded.roleId,

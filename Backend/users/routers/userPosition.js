@@ -198,10 +198,8 @@ router.get('/', async (req, res) => {
 
 router.patch('/updaterole/:id', async (req, res) => {
   try {
-
     const desi = await Designation.findByPk(req.body.designationId);
     const roleId = desi?.roleId;
-
     if(roleId != null || roleId === ''){
       try {
         let user = await User.findByPk(req.params.id)
@@ -212,19 +210,19 @@ router.patch('/updaterole/:id', async (req, res) => {
       }
     }
       
-      let userposition = await UserPosition.findOne({
-        where: {userId: req.params.id}
-      });
-      
-      if(userposition){
-        userposition.designationId = req.body.designationId;
-        await userposition.save();
-      }else{
-        userposition = new UserPosition({userId: req.params.id, designationId: req.body.designationId});
-        await userposition.save();
-      }
+    let userposition = await UserPosition.findOne({
+      where: {userId: req.params.id}
+    });
+    
+    if(userposition){
+      userposition.designationId = req.body.designationId;
+      await userposition.save();
+    }else{
+      userposition = new UserPosition({userId: req.params.id, designationId: req.body.designationId});
+      await userposition.save();
+    }
 
-      res.send(userposition);
+    res.send(userposition);
   } catch (error) {
       res.send(error.message)
   }

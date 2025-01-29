@@ -382,8 +382,6 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
     await sequelize.transaction(async (transaction) => {
       const updatePromises = payrollData.map(async (element) => {
         try {
-          console.log(element.id);
-    
           // Find the payroll entry
           const mp = await MonthlyPayroll.findByPk(element.id, {
             transaction,

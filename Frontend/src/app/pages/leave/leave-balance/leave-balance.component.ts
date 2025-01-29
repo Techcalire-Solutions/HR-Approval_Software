@@ -10,6 +10,7 @@ import { LeaveService } from '@services/leave.service';
 import { DragulaModule } from 'ng2-dragula';
 import { Subscription } from 'rxjs';
 import { LeaveGraphsComponent } from "./leave-graphs/leave-graphs.component";
+import { LeaveType } from '../../../common/interfaces/leaves/leaveType';
 
 
 @Component({
@@ -33,9 +34,9 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
   selectedView: string = 'list';
 
   // Function triggered on toggle change
-  onToggleView(event: any): void {
-    this.selectedView = event.value;
-  }
+  // onToggleView(event: any): void {
+  //   this.selectedView = event.value;
+  // }
 
   public icons = ["home", "person", "alarm", "work", "mail", "favorite"];
   public colors = [, "primary", "accent", "warn"];
@@ -51,45 +52,83 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
     const token: any = localStorage.getItem('token');
     let user = JSON.parse(token);
     this.userId = user.id;
-    this.fetchLeaveCounts();
+    this.getLeaveType()
+    // this.fetchLeaveCounts();
   }
 
-
-
-  errorFlag: boolean = false
-  fetchLeaveCounts() {
-    this.leaveCountsSubscription = this.leaveService.getLeaveCounts(this.userId).subscribe(
-      (res) => {
-        console.log('Response from leave service:', res); // Debugging line
-        if (res.userLeaves && Array.isArray(res.userLeaves) && res.userLeaves.length > 0) {
-          this.leaveCounts = res.userLeaves;
-          this.hasLeaveCounts = true;
-
-          this.errorMessage = ''; // Clear any previous error messages
-        } else {
-          this.errorFlag = true
-          this.leaveCounts = [];
-          this.hasLeaveCounts = false;
-          this.errorMessage = 'No leave records found for this user.';
-        }
-      },
-      (error) => {
-        console.error('Error fetching leave counts:', error); // Debugging line
-        this.errorMessage = 'Unable to fetch leave counts.';
-        this.hasLeaveCounts = false;
-        this.leaveCounts = []; // Ensure leaveCounts is empty on error
-      }
-    );
+  ltSub!: Subscription;
+  leaveTypes: LeaveType[] = [];
+  getLeaveType(){
+    this.ltSub = this.leaveService.getLeaveType().subscribe(leaveType => {
+      console.log(leaveType);
+      
+      this.leaveTypes = leaveType
+      this.fetchLeaveCounts()
+    });
   }
 
-
-
-  shouldDisplayLeaveType(leaveTypeName: string): boolean {
-    const leave = this.leaveCounts.find(leave => leave.leaveType.leaveTypeName === leaveTypeName);
-    // return leave && (leave.takenLeaves > 0 || leave.noOfDays > 0);
-    return leave && (leave.takenLeaves >= 0 || leave.noOfDays > 0);
-
+  fetchLeaveCounts(): void {
+    this.leaveTypes.forEach((leaveType) => {
+      this.leaveService.getLeaveCounts(this.userId, leaveType.id).subscribe({
+        next: (response) => {
+          this.leaveCounts.push({ ...response, leaveType: leaveType.leaveTypeName });
+          console.log(this.leaveCounts);
+          
+        },
+        error: (error) => {
+          console.error('Error fetching leave counts:', error);
+          // this.errorFlag = true;
+          this.errorMessage = 'Failed to fetch leave records';
+        },
+      });
+    });
   }
+
+  shouldDisplayLeaveType(leaveType: LeaveType): boolean {
+    // Add your logic to determine if the leave type should be displayed
+    return true;
+  }
+
+  getLeaveCount(leaveType: string): any {
+    return this.leaveCounts.find((leave) => leave.leaveType === leaveType);
+  }
+  onToggleView(event: any) {
+    this.selectedView = event.value;
+  }
+
+  // errorFlag: boolean = false
+  // fetchLeaveCounts() {
+  //   this.leaveCountsSubscription = this.leaveService.getLeaveCounts(this.userId).subscribe(
+  //     (res) => {
+  //       if (res.userLeaves && Array.isArray(res.userLeaves) && res.userLeaves.length > 0) {
+  //         this.leaveCounts = res.userLeaves;
+  //         this.hasLeaveCounts = true;
+
+  //         this.errorMessage = ''; // Clear any previous error messages
+  //       } else {
+  //         this.errorFlag = true
+  //         this.leaveCounts = [];
+  //         this.hasLeaveCounts = false;
+  //         this.errorMessage = 'No leave records found for this user.';
+  //       }
+  //     },
+  //     (error) => {
+  //       console.error('Error fetching leave counts:', error); // Debugging line
+  //       this.errorMessage = 'Unable to fetch leave counts.';
+  //       this.hasLeaveCounts = false;
+  //       this.leaveCounts = []; // Ensure leaveCounts is empty on error
+  //     }
+  //   );
+  // }
+
+
+
+  // shouldDisplayLeaveType(leaveTypeName: string): boolean {
+  //   const leave = this.leaveCounts.find(leave => leave.leaveType.leaveTypeName === leaveTypeName);
+  //   // return leave && (leave.takenLeaves > 0 || leave.noOfDays > 0);
+  //   return leave && (leave.takenLeaves >= 0 || leave.noOfDays > 0);
+
+  // }
 
   ngOnDestroy() {
     if (this.leaveCountsSubscription) {

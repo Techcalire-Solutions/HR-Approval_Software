@@ -86,18 +86,10 @@ userId : number
 
       const leaveId = this.route.snapshot.params['id'];
       this.isPatchMode = true;
-      console.log(leaveId);
-
-
       if (leaveId) {
           this.isEditMode = true;
-          console.log(this.isEditMode);
-
           this.leaveService.getLeaveById(+leaveId).subscribe((response: any) => {
               this.leave = response;
-              console.log(this.leave);
-
-
               this.leaveRequestForm.patchValue({
                   leaveTypeId: this.leave.leaveTypeId,
                   startDate: this.leave.startDate,
@@ -192,9 +184,6 @@ userId : number
           ...this.leaveRequestForm.value,
           leaveDates: this.leaveRequestForm.get('leaveDates')!.value
       };
-
-      console.log( this.leaveRequestForm.get('leaveDates')!.value);
-
 
       this.leaveService.untakenLeaveUpdate(leaveId, leaveRequest).subscribe(
           (response: any) => {
