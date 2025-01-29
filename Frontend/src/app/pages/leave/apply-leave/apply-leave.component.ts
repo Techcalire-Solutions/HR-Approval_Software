@@ -336,11 +336,18 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   emailSub!: Subscription;
   private readonly dialog = inject(MatDialog);
   private dialogSub!: Subscription;
+  private readonly datePipe = inject(DatePipe)
   onSubmit(){
+    const leaveDates = this.leaveRequestForm.get('leaveDates')!.value as { date: string | number | Date }[];
+
     const leaveRequest = {
       ...this.leaveRequestForm.value,
-      leaveDates: this.leaveRequestForm.get('leaveDates')!.value
+      leaveDates: leaveDates.map(item => ({
+        ...item,
+        date: this.datePipe.transform(item.date, 'yyyy-MM-dd')
+      }))
     };
+    
     if(!this.employeeStat){
       this.isLoading = true;
       if (this.isEditMode) {
@@ -357,8 +364,7 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
             this.router.navigateByUrl('/login/leave');
             this.snackBar.open("Emergency leave added successfully...", "", { duration: 3000 });
           },
-          error: (err) => { // Renamed 'error' to 'err'
-            console.error(err);
+          error: (err) => { 
             this.isLoading = false;
             this.router.navigateByUrl('/login/leave');
             this.snackBar.open("Failed to add emergency leave. Please try again.", "", { duration: 3000 });
@@ -402,10 +408,11 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     request$.subscribe(
       (response: any) => {
         this.openDialog(response.message, response.leaveDatesApplied, response.lopDates);
-        this.isLoading = false; // Reset loading state
+        this.isLoading = false;
       },
       (error) => {
-        this.isLoading = false; // Reset loading state on error
+        this.isLoading = false;
+        this.router.navigate(['/login/leave']);
         this.snackBar.open('An error occurred while submitting the leave request.', 'Close', { duration: 3000 });
       }
     );
@@ -421,26 +428,16 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      this.handleDialogResult(result);
+      if(result.action === 'proceed') this.handleDialogResult(result);
+      else this.snackBar.open('Leave request cancelled!', 'Close', { duration: 3000 });
     });
   }
 
   handleDialogResult(result: any) {
-    if (result?.action === 'proceed') {
-
+    // if (result?.action === 'proceed') {
       this.snackBar.open('Leave request submitted successfully!', 'Close', { duration: 3000 });
       this.router.navigate(['/login/leave']);
-    } else if (result?.action === 'back') {
-
-      this.isLoading = false;
-
-    } else if (result?.action === 'cancel') {
-
-      this.isLoading = false;
-      this.leaveRequestForm.reset();
-      this.snackBar.open('Leave request cancelled!', 'Close', { duration: 3000 });
-      this.router.navigate(['/login/leave']);
-    }
+    // }
   }
 
 

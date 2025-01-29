@@ -61,8 +61,7 @@ export class LeaveCalendarComponent {
       (res) => {
         console.log(res);
         if (res) {
-          // Filter leaves with status 'Approved'
-          this.leaves = res.filter((leave: any) => leave.status === 'Approved');
+          this.leaves = res.filter((leave: any) => leave.status === 'Approved' || leave.status === 'AdminApproved');
           this.events = this.mapLeavesToCalendarEvents(this.leaves);
           console.log(this.events);
         }

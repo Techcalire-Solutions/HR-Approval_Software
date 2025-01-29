@@ -429,42 +429,17 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
     const leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
     if (!leaveType) return res.json({ message: 'Leave type not found' });
 
-    const userLeaves = await UserLeave.findAll({ where: { userId } });
-    const userLeave = userLeaves.find(leave => leave.leaveTypeId === leaveType.id);
-
-    if (!userLeave) {
-      return res.json({
-        message: `You do not have ${leaveType.leaveTypeName} leave allotted.`
-      });
-    }
-
-    let leaveBalance = userLeave.leaveBalance;
-
-    if (leaveBalance === 0 && leaveType.leaveTypeName !== 'LOP') {
-      return res.json({
-        message: `Your ${leaveType.leaveTypeName} balance is 0. No leave will be applied.`,
-      });
-    }
-
-    if (leaveBalance < noOfDays && leaveType.leaveTypeName !== 'LOP') {
-      const availableLeaveDays = leaveBalance;
-      const lopDays = noOfDays - availableLeaveDays;
-      const { leaveDatesApplied, lopDates } = splitLeaveDates(leaveDates, availableLeaveDays);
-
+    // Handle LOP leave type
+    if (leaveType.leaveTypeName === 'LOP') {
       const emailResult = await sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates, fromEmail, appPassword, req.headers.authorization?.split(' ')[1]);
       if (!emailResult.success) {
         return res.json({ message: emailResult.message });
       }
-      
-      await Leave.create({
-        userId, leaveTypeId: leaveType.id, startDate, endDate, noOfDays: availableLeaveDays, notes, fileUrl,
-        status: 'Requested', leaveDates: leaveDatesApplied
-      });
-      // const id = userId;
-      // const me = `Leave request submitted`;
-      // const route = `/login/leave`;
 
-      // createNotification({ id, me, route });
+      await Leave.create({
+        userId, leaveTypeId: leaveType.id, startDate, endDate, noOfDays, notes, fileUrl,
+        status: status, leaveDates
+      });
 
       // Fetch HR Admin and Reporting Manager details      
       const hrAdmin = await User.findOne({
@@ -480,7 +455,84 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
         attributes: ['reportingMangerId'],
       });
       if (!userPersonal) {
-        return `Details with id ${userId} not found`;
+        return res.send(`Details with id ${userId} not found`);
+      }
+
+      // Create notifications for HR Admin and Reporting Manager
+      if (hrAdmin) {
+        await Notification.create({
+          userId: hrAdmin.id,
+          message: `LOP leave request submitted by ${user.name}`,
+          isRead: false,
+        });
+      }
+
+      if (userPersonal.reportingMangerId) {
+        await Notification.create({
+          userId: userPersonal.reportingMangerId,
+          message: `LOP leave request submitted by ${user.name}`,
+          isRead: false,
+        });
+      }
+
+      return res.json({
+        message: `LOP leave request submitted successfully.`,
+        leaveDatesApplied: leaveDates,
+        lopDates: leaveDates
+      });
+    }
+
+    // For other leave types, check the user's leave balance
+    const userLeaves = await UserLeave.findAll({ where: { userId } });
+    let userLeave = userLeaves.find(leave => leave.leaveTypeId === leaveType.id);
+
+    // If no userLeave entry exists, create a new one with a balance of 0
+    if (!userLeave) {
+      userLeave = await UserLeave.create({
+        userId,
+        leaveTypeId: leaveType.id,
+        leaveBalance: 0,
+      });
+    }
+
+    let leaveBalance = userLeave.leaveBalance;
+
+    if (leaveBalance === 0) {
+      return res.json({
+        message: `Your ${leaveType.leaveTypeName} balance is 0. No leave will be applied.`,
+      });
+    }
+
+    if (leaveBalance < noOfDays) {
+      const availableLeaveDays = leaveBalance;
+      const lopDays = noOfDays - availableLeaveDays;
+      const { leaveDatesApplied, lopDates } = splitLeaveDates(leaveDates, availableLeaveDays);
+
+      const emailResult = await sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates, fromEmail, appPassword, req.headers.authorization?.split(' ')[1]);
+      if (!emailResult.success) {
+        return res.json({ message: emailResult.message });
+      }
+      
+      await Leave.create({
+        userId, leaveTypeId: leaveType.id, startDate, endDate, noOfDays: availableLeaveDays, notes, fileUrl,
+        status: 'Requested', leaveDates: leaveDatesApplied
+      });
+
+      // Fetch HR Admin and Reporting Manager details      
+      const hrAdmin = await User.findOne({
+        include: [
+          {
+            model: Role,
+            where: { roleName: 'HR Administrator' }
+          },
+        ],
+      });
+      const userPersonal = await UserPersonal.findOne({
+        where: { userId },
+        attributes: ['reportingMangerId'],
+      });
+      if (!userPersonal) {
+        return res.send(`Details with id ${userId} not found`);
       }
       
       // Create notifications for HR Admin and Reporting Manager
@@ -492,7 +544,7 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
         });
       }
 
-      if (userPersonal) {
+      if (userPersonal.reportingMangerId) {
         await Notification.create({
           userId: userPersonal.reportingMangerId,
           message: `Leave request submitted by ${user.name}`,
@@ -512,10 +564,6 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
     if (!emailResult.success) {
       return res.json({ message: emailResult.message });
     }
-    await Leave.create({
-      userId, leaveTypeId: leaveType.id, startDate, endDate, noOfDays, notes, fileUrl,
-      status: status, leaveDates
-    });
 
     const hrAdmin = await User.findOne({
       include: [
@@ -532,7 +580,7 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
     });
     
     if (!userPersonal || !userPersonal.reportingMangerId) {
-      return res.send( `Reporting manager for user ${user.name} not added`);
+        return res.send(`Reporting manager for user ${user.name} not added`);
     }
     
     // Create notifications for HR Admin and Reporting Manager
@@ -544,13 +592,18 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
       });
     }
 
-    if (userPersonal) {
+    if (userPersonal.reportingMangerId) {
       await Notification.create({
         userId: userPersonal.reportingMangerId,
         message: `Leave request submitted by ${user.name}`,
         isRead: false,
       });
     }
+
+    await Leave.create({
+      userId, leaveTypeId: leaveType.id, startDate, endDate, noOfDays, notes, fileUrl,
+      status: status, leaveDates
+    });
 
     return res.json({
       message: `Leave request submitted successfully as ${leaveType.leaveTypeName}.`,
@@ -562,6 +615,165 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+// router.post('/employeeLeave', authenticateToken, async (req, res) => {
+//   let { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates, status, fromEmail, appPassword } = req.body;
+
+//   if (!fromEmail || !appPassword) {
+//     const email = await UserEmail.findOne({
+//       where: { userId: userId, type: 'Official' }
+//     });
+//     fromEmail = email.email;
+//     appPassword = email.appPassword;
+//   }
+
+//   if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
+//     return res.json({ message: 'Missing required fields' });
+//   }
+
+//   const user = await User.findByPk(userId);
+//   try {
+//     const noOfDays = calculateLeaveDays(leaveDates);
+
+//     const leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
+//     if (!leaveType) return res.json({ message: 'Leave type not found' });
+
+//     const userLeaves = await UserLeave.findAll({ where: { userId } });
+//     const userLeave = userLeaves.find(leave => leave.leaveTypeId === leaveType.id);
+
+//     if (!userLeave && leaveType.leaveTypeName !== 'LOP') {
+//       return res.json({
+//         message: `You do not have ${leaveType.leaveTypeName} leave allotted.`
+//       });
+//     }else if (!userLeave && leaveType.leaveTypeName === 'LOP') {
+
+//     }
+
+//     let leaveBalance = userLeave.leaveBalance;
+
+//     if (leaveBalance === 0 && leaveType.leaveTypeName !== 'LOP') {
+//       return res.json({
+//         message: `Your ${leaveType.leaveTypeName} balance is 0. No leave will be applied.`,
+//       });
+//     }
+
+//     if (leaveBalance < noOfDays && leaveType.leaveTypeName !== 'LOP') {
+//       const availableLeaveDays = leaveBalance;
+//       const lopDays = noOfDays - availableLeaveDays;
+//       const { leaveDatesApplied, lopDates } = splitLeaveDates(leaveDates, availableLeaveDays);
+
+//       const emailResult = await sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates, fromEmail, appPassword, req.headers.authorization?.split(' ')[1]);
+//       if (!emailResult.success) {
+//         return res.json({ message: emailResult.message });
+//       }
+      
+//       await Leave.create({
+//         userId, leaveTypeId: leaveType.id, startDate, endDate, noOfDays: availableLeaveDays, notes, fileUrl,
+//         status: 'Requested', leaveDates: leaveDatesApplied
+//       });
+//       // const id = userId;
+//       // const me = `Leave request submitted`;
+//       // const route = `/login/leave`;
+
+//       // createNotification({ id, me, route });
+
+//       // Fetch HR Admin and Reporting Manager details      
+//       const hrAdmin = await User.findOne({
+//         include: [
+//           {
+//             model: Role,
+//             where: { roleName: 'HR Administrator' }
+//           },
+//         ],
+//       });
+//       const userPersonal = await UserPersonal.findOne({
+//         where: { userId },
+//         attributes: ['reportingMangerId'],
+//       });
+//       if (!userPersonal) {
+//         return `Details with id ${userId} not found`;
+//       }
+      
+//       // Create notifications for HR Admin and Reporting Manager
+//       if (hrAdmin) {
+//         await Notification.create({
+//           userId: hrAdmin.id,
+//           message: `Leave request submitted by ${user.name}`,
+//           isRead: false,
+//         });
+//       }
+
+//       if (userPersonal) {
+//         await Notification.create({
+//           userId: userPersonal.reportingMangerId,
+//           message: `Leave request submitted by ${user.name}`,
+//           isRead: false,
+//         });
+//       }
+
+//       return res.json({
+//         message: `${availableLeaveDays} days applied as ${leaveType.leaveTypeName}.
+//         ${lopDays} days are beyond balance; apply for LOP separately.`,
+//         leaveDatesApplied,
+//         lopDates: lopDates || []
+//       });
+//     }
+
+//     const emailResult = await sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates, fromEmail, appPassword, req.headers.authorization?.split(' ')[1]);
+//     if (!emailResult.success) {
+//       return res.json({ message: emailResult.message });
+//     }
+
+//     const hrAdmin = await User.findOne({
+//       include: [
+//         {
+//           model: Role,
+//           where: { roleName: 'HR Administrator' }
+//         },
+//       ],
+//     });
+    
+//     const userPersonal = await UserPersonal.findOne({
+//       where: { userId },
+//       attributes: ['reportingMangerId'],
+//     });
+    
+//     if (!userPersonal || !userPersonal.reportingMangerId) {
+//         return res.send( `Reporting manager for user ${user.name} not added`);
+//     }
+    
+//     // Create notifications for HR Admin and Reporting Manager
+//     if (hrAdmin) {
+//       await Notification.create({
+//         userId: hrAdmin.id,
+//         message: `Leave request submitted by ${user.name}`,
+//         isRead: false,
+//       });
+//     }
+
+//     if (userPersonal) {
+//       await Notification.create({
+//         userId: userPersonal.reportingMangerId,
+//         message: `Leave request submitted by ${user.name}`,
+//         isRead: false,
+//       });
+//     }
+
+//     await Leave.create({
+//       userId, leaveTypeId: leaveType.id, startDate, endDate, noOfDays, notes, fileUrl,
+//       status: status, leaveDates
+//     });
+
+//     return res.json({
+//       message: `Leave request submitted successfully as ${leaveType.leaveTypeName}.`,
+//       leaveDatesApplied: leaveDates,
+//       lopDates: leaveDates
+//     });
+//   } catch (error) {
+//     console.error('Error in leave request submission:', error.message);
+//     res.status(500).json({ message: error.message });
+//   }
+// });
 
 function splitLeaveDates(leaveDates, availableLeaveDays) {
   let leaveDatesApplied = [];
@@ -1156,7 +1368,7 @@ router.get('/all/totalleaves', async (req, res) => {
           attributes: ['id', 'leaveTypeName'],
         },
         {
-          model: User,
+          model: User, as: 'user',
           attributes: ['name']
         }
       ]
@@ -1165,7 +1377,7 @@ router.get('/all/totalleaves', async (req, res) => {
     res.json(leaves);
   } catch (error) {
     console.error(error);
-    res.json({ error: 'An error occurred while retrieving leaves' });
+    res.json({ error: error.message });
   }
 });
 
