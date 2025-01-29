@@ -110,9 +110,6 @@ export class EmployeeLeaveComponent {
 
 
         this.isButtonVisible = this.totalSickLeave >= 3;
-        console.log('Is Button Visible:', this.isButtonVisible);
-
-
       },
       (error) => {
         this.snackBar.open('Failed to load leave data', '', { duration: 3000 });
@@ -158,10 +155,7 @@ export class EmployeeLeaveComponent {
   }
 
   uploadFile(item: any) {
-    console.log(item.id)
-    console.log(item)
     this.router.navigate(['/login/employee-leave/add'], { queryParams: { id: item } });
-
   }
 
   delete!: Subscription;
@@ -185,10 +179,8 @@ export class EmployeeLeaveComponent {
 
   getPaginatedLeaves(): void {
     this.leaveSub = this.leaveService.getLeavesPaginated(this.searchText, this.currentPage, this.pageSize).subscribe((res: any) => {
-      console.log(res);
       this.totalItems = res.count;
       this.leaves = res.items;
-      console.log(this.leaves)
     });
   }
   deleteLeave(leaveId: number): void {
@@ -242,10 +234,6 @@ export class EmployeeLeaveComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.fileUrl) {
-
-        console.log('File URL returned:', result.fileUrl);
-
-
         this.updateLeaveFileUrl(leaveId, result.fileUrl);
       } else {
         console.log('No file URL returned');

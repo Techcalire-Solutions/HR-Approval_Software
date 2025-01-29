@@ -40,22 +40,22 @@ export class LeaveCountCardsComponent implements OnInit, OnDestroy{
   }
 
   fetchLeaveCounts() {
-   this.leaveCountsSubscription= this.leaveService.getLeaveCounts(this.userId).subscribe(
-      (res) => {
-        if (res.userLeaves && res.userLeaves.length > 0) {
-          this.leaveCounts = res.userLeaves;
-          this.hasLeaveCounts = true;
-        } else {
-          this.leaveCounts = [];
-          this.hasLeaveCounts = false;
-          this.errorMessage = 'No leave records found for this user.';
-        }
-      },
-      (error) => {
-        this.errorMessage = 'Unable to fetch leave counts.';
-        this.hasLeaveCounts = false;
-      }
-    );
+  //  this.leaveCountsSubscription= this.leaveService.getLeaveCounts(this.userId).subscribe(
+  //     (res) => {
+  //       if (res.userLeaves && res.userLeaves.length > 0) {
+  //         this.leaveCounts = res.userLeaves;
+  //         this.hasLeaveCounts = true;
+  //       } else {
+  //         this.leaveCounts = [];
+  //         this.hasLeaveCounts = false;
+  //         this.errorMessage = 'No leave records found for this user.';
+  //       }
+  //     },
+  //     (error) => {
+  //       this.errorMessage = 'Unable to fetch leave counts.';
+  //       this.hasLeaveCounts = false;
+  //     }
+    // );
   }
 
   getLeaveBalance(leave: any): number {

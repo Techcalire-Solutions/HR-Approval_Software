@@ -36,7 +36,7 @@ Team.hasOne(UserPosition, { foreignKey: 'teamId', onUpdate: 'CASCADE' });
 UserPosition.belongsTo(Team, { foreignKey: 'teamId' });
 
 Designation.hasOne(UserPosition, { foreignKey: 'designationId', onUpdate: 'CASCADE' });
-UserPosition.belongsTo(Designation, { foreignKey: 'designationId' });
+UserPosition.belongsTo(Designation, { foreignKey: 'designationId', onUpdate: 'CASCADE' });
 
 UserPosition.sync({ alter: true })
   .then(() => console.log("UserPosition table Sync"))

@@ -86,7 +86,6 @@ export class ViewLeaveRequestComponent implements OnInit, OnDestroy {
     this.leaveSub = this.leaveService.getLeavesPaginated(this.searchText, this.currentPage, this.pageSize).subscribe((res: any) => {
       this.totalItems = res.count;
       this.leaves = res.items;
-      console.log(this.leaves)
     });
   }
 
@@ -153,8 +152,6 @@ export class ViewLeaveRequestComponent implements OnInit, OnDestroy {
     } else if (action === 'approve') {
       this.leaveService.getLeaveBalance(leaveId).subscribe(
         (res: any) => {
-          console.log(res);
-  
           if (res.leaveType === 'LOP' || res.isSufficient) {
             // Open note dialog for approval
             this.openNoteDialog(action, leaveId);
@@ -195,8 +192,6 @@ export class ViewLeaveRequestComponent implements OnInit, OnDestroy {
     const approvalData = { leaveId: leaveId, adminNotes: note };
     this.leaveService.updateApproveLeaveStatus(approvalData).subscribe(
       (res) => {
-        console.log(res);
-
         this.snackbar.open('Leave approved successfully', '', { duration: 3000 });
         this.getPaginatedLeaves();
       },

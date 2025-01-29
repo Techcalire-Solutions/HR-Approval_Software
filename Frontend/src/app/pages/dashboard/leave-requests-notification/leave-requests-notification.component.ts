@@ -37,7 +37,6 @@ export class LeaveRequestsNotificationComponent {
   getRoleById(id: number){
     this.roleSub = this.roleService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;
-      console.log(this.roleName);
       this.getLeaves('requested', this.userId);
 
     })
@@ -50,8 +49,6 @@ export class LeaveRequestsNotificationComponent {
   currentPage = 1;
   searchText: string = '';
   getLeaves(status: string, id: number) {
-    console.log(this.roleName);
-
     if(this.roleName === 'HR Administrator' || this.roleName === 'Super Administrator') {
       this.leaveSub = this.leaveService.getLeavesPaginated(this.searchText, this.currentPage, this.pageSize).subscribe(
         (res: any) => {

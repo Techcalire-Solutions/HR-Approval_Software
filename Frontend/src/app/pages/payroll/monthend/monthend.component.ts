@@ -96,8 +96,6 @@ export class MonthendComponent implements OnInit, OnDestroy{
   getLeaveDays() {
     // Convert month name to month number (e.g., January -> 0, February -> 1, etc.)
     const monthNumber = new Date(`${this.month} 1, ${this.currentYear}`).getMonth();
-    console.log(monthNumber); // Should log 0 for January, 1 for February, etc.
-  
     // Generate start date
     const startDate = `${this.currentYear}-${String(monthNumber + 1).padStart(2, '0')}-01`; // e.g., 2025-01-01
     
@@ -105,12 +103,10 @@ export class MonthendComponent implements OnInit, OnDestroy{
     const endDate = new Date(this.currentYear, monthNumber + 1, 0); // Last day of the month
     const formattedEndDate = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
   
-    console.log(startDate, formattedEndDate); // Should log "2025-01-01 2025-01-31"
   
     // Call the API with dynamic dates
     this.ldSub = this.leaveService.getMonthlyLeaveDays(startDate, formattedEndDate).subscribe(leave => {
       this.leaveDaysData = leave;
-      console.log(leave);
     });
   }
   

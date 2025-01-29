@@ -86,8 +86,6 @@ export class ResetPasswordComponent implements OnInit, OnDestroy{
   reset!: Subscription;
   onSubmit(){
     this.reset = this.userService.resetPassword(this.data.id, this.form.getRawValue()).subscribe(x => {
-      console.log(x);
-      
       this.dialogRef.close();
       this.snackBar.open(`You have successfully reset ${this.data.empNo} password...`,"" ,{duration:3000})
     })

@@ -208,7 +208,6 @@ router.get('/leaveBalance/:leaveId', authenticateToken, async (req, res) => {
 });
 
 router.patch('/updateLeaveFileUrl/:leaveId', authenticateToken, async (req, res) => {
-
   try {
     const leaveId = req.params.leaveId;
     const fileUrl = req.body.fileUrl;
@@ -262,8 +261,7 @@ router.patch('/updateLeaveFileUrl/:leaveId', authenticateToken, async (req, res)
   } catch (error) {
     return res.send({ message: error.message });
   }
-});
-  
+});  
 
 router.get('/:id', async (req, res) => {
   try {
@@ -449,15 +447,12 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
           },
         ],
       });
+
       const userPersonal = await UserPersonal.findOne({
         where: { userId },
         attributes: ['reportingMangerId'],
       });
-      if (!userPersonal) {
-        return res.send(`Details with id ${userId} not found`);
-      }
 
-      // Create notifications for HR Admin and Reporting Manager
       if (hrAdmin) {
         await Notification.create({
           userId: hrAdmin.id,
@@ -466,7 +461,7 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
         });
       }
 
-      if (userPersonal.reportingMangerId) {
+      if (userPersonal?.reportingMangerId) {
         await Notification.create({
           userId: userPersonal.reportingMangerId,
           message: `LOP leave request submitted by ${user.name}`,
@@ -530,9 +525,9 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
         where: { userId },
         attributes: ['reportingMangerId'],
       });
-      if (!userPersonal) {
-        return res.send(`Details with id ${userId} not found`);
-      }
+      // if (!userPersonal) {
+      //   return res.send(`Details with id ${userId} not found`);
+      // }
       
       // Create notifications for HR Admin and Reporting Manager
       if (hrAdmin) {
@@ -543,7 +538,7 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
         });
       }
 
-      if (userPersonal.reportingMangerId) {
+      if (userPersonal?.reportingMangerId) {
         await Notification.create({
           userId: userPersonal.reportingMangerId,
           message: `Leave request submitted by ${user.name}`,
@@ -578,9 +573,9 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
       attributes: ['reportingMangerId'],
     });
     
-    if (!userPersonal || !userPersonal.reportingMangerId) {
-        return res.send(`Reporting manager for user ${user.name} not added`);
-    }
+    // if (!userPersonal || !userPersonal?.reportingMangerId) {
+    //     return res.send(`Reporting manager for user ${user.name} not added`);
+    // }
     
     // Create notifications for HR Admin and Reporting Manager
     if (hrAdmin) {
@@ -591,7 +586,7 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
       });
     }
 
-    if (userPersonal.reportingMangerId) {
+    if (userPersonal?.reportingMangerId) {
       await Notification.create({
         userId: userPersonal.reportingMangerId,
         message: `Leave request submitted by ${user.name}`,
@@ -804,6 +799,7 @@ function splitLeaveDates(leaveDates, availableLeaveDays) {
   }
   return { leaveDatesApplied, lopDates };
 }
+
 async function sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates, fromEmail, appPassword, token) {
   let hrAdminEmail;
   let reportingManagerEmail;
@@ -1009,8 +1005,7 @@ async function getReportingManagerEmailForUser(userId) {
 router.patch('/updateemployeeleave/:id', authenticateToken, async (req, res) => {
   try {
     const leaveId = req.params.id;
-    const { userId, leaveTypeId, leaveDates, notes, fileUrl } = req.body;
-
+    const { userId, leaveTypeId, leaveDates, notes, fileUrl, startDate, endDate } = req.body;
     if (!userId || !leaveTypeId || !leaveDates) {
       return res.json({ message: 'Missing required fields: userId, leaveTypeId, and leaveDates are mandatory.' });
     }
@@ -1028,37 +1023,11 @@ router.patch('/updateemployeeleave/:id', authenticateToken, async (req, res) => 
     const noOfDays = calculateLeaveDays(leaveDates);
     const addedDays = leave.noOfDays || 0;
 
-    // // Restore old leave balance
-    // if (leave.leaveTypeId) {
-    //   const oldUserLeave = await UserLeave.findOne({
-    //     where: { userId: leave.userId, leaveTypeId: leave.leaveTypeId },
-    //   });
-
-    //   if (oldUserLeave) {
-    //     oldUserLeave.takenLeaves -= addedDays;
-    //     oldUserLeave.leaveBalance += addedDays;
-    //     await oldUserLeave.save();
-    //   }
-    // }
-
     let userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId } });
     if (leaveType.leaveTypeName !== 'LOP') {
       if (userLeave && userLeave.leaveBalance < noOfDays) {
         return res.json({ message: 'Exceeds the allotted leave balance' });
       }
-
-      // if (userLeave) {
-      //   userLeave.leaveBalance -= noOfDays;
-      //   userLeave.takenLeaves += noOfDays;
-      //   await userLeave.save();
-      // } else {
-      //   userLeave = await UserLeave.create({
-      //     userId,
-      //     leaveTypeId,
-      //     takenLeaves: noOfDays,
-      //     leaveBalance: 0,
-      //   });
-      // }
     }
 
     leave.userId = userId;
@@ -1067,6 +1036,9 @@ router.patch('/updateemployeeleave/:id', authenticateToken, async (req, res) => 
     leave.leaveDates = leaveDates;
     leave.notes = notes || leave.notes;
     leave.fileUrl = fileUrl || leave.fileUrl;
+    leave.startDate = startDate;
+    leave.endDate = endDate;
+    leave.status = 'Requested'
     await leave.save();
 
     // Sending notification and email
@@ -1075,9 +1047,39 @@ router.patch('/updateemployeeleave/:id', authenticateToken, async (req, res) => 
       include: [{ model: User, attributes: ['name'] }],
     });
 
-    const notificationMessage = `${req.user.name} has updated the leave (${leaveType.leaveTypeName}).`;
-    const notificationRoute = `/login/leave`;
-    createNotification({ id: userId, me: notificationMessage, route: notificationRoute });
+    // const notificationMessage = `${req.user.name} has updated the leave (${leaveType.leaveTypeName}).`;
+    // const notificationRoute = `/login/leave`;
+    // createNotification({ id: userId, me: notificationMessage, route: notificationRoute });
+
+    const hrAdmin = await User.findOne({
+      include: [
+        {
+          model: Role,
+          where: { roleName: 'HR Administrator' }
+        },
+      ],
+    });
+
+    const userPersonal = await UserPersonal.findOne({
+      where: { userId },
+      attributes: ['reportingMangerId'],
+    });
+    
+    if (hrAdmin) {
+      const id = hrAdmin.id;
+      const me = `LOP leave (${leave.id}) request updated by ${req.user.name}`;
+      const route = `/login/leave`;
+
+      createNotification({ id, me, route });
+    }
+
+    if (userPersonal?.reportingMangerId) {
+      const id = userPersonal.reportingMangerId;
+      const me = `LOP leave (${leave.id}) request updated by ${req.user.name}`;
+      const route = `/login/leave`;
+
+      createNotification({ id, me, route });
+    }
 
     const email = await UserEmail.findOne({
       where: { userId: userId, type: 'Official'}
@@ -1308,13 +1310,11 @@ router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => 
         as: 'leaveType',
       },
     });
-    console.log(leave);
     
     if (!leave) {
       return res.send('Leave not found');
     }
     const key = leave.fileUrl;
-    console.log(key);
     
     const fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
     // try {
@@ -1328,8 +1328,6 @@ router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => 
     
         // Delete the file from S3
         await s3.deleteObject(deleteParams).promise();
-    
-        console.log( 'File deleted successfully' );
       }
 
     if( leave.status === 'Approved' || leave.status ==='AdminApproved'){
@@ -1414,11 +1412,11 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
       leave.adminNotes = adminNotes;
       await leave.save();
 
-      await Notification.create({
-        userId: userId,
-        message: `Leave Request Approved`,
-        isRead: false,
-      });
+      const id = userId;
+      const me = `Leave Request Approved - ${leave.id}`;
+      const route = `/login/leave`;
+  
+      createNotification({ id, me, route });
 
       // Update or create a record for LOP
       if (!userLeave) {
@@ -1431,8 +1429,6 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
         });
       } else {
         userLeave.takenLeaves += leave.noOfDays;
-        userLeave.currentMonthLopDays = 
-          (userLeave.currentMonthLopDays || 0) + leave.noOfDays;
         await userLeave.save();
       }
 
@@ -1451,6 +1447,18 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
         lowLeaveMessage: "Insufficient leave balance",
       });
     }
+    // await Notification.create({
+    //   userId: userId,
+    //   message: `Leave Request Approved`,
+    //   isRead: false,
+    //   route: '/login/leave'
+    // });
+
+    const id = userId;
+    const me = `Leave Request Approved - ${leave.id}`;
+    const route = `/login/leave`;
+
+    createNotification({ id, me, route });
 
     // Approving non-LOP leave
     leave.status = 'Approved';
@@ -1473,22 +1481,27 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
 
   try {
     const leave = await Leave.findByPk(leaveId);
-
-    const userId = req.user.id;
     if (!leave) {
       return res.send({ message: 'Leave request not found' });
+    }
+
+    if (leave.status === 'Approved' || leave.status === 'AdminApproved') {
+      const ul = await UserLeave.findOne({ where: { userId: leave.userId, leaveTypeId: leave.leaveTypeId } });
+      if (ul) {
+        ul.leaveBalance += leave.noOfDays;
+        ul.takenLeaves -= leave.noOfDays;
+        await ul.save();
+      }
     }
     leave.status = 'Rejected';
     leave.adminNotes = adminNotes;
     await leave.save();
 
-    await Notification.create({
-      userId: userId,
-      message: `Leave Request Rejected`,
-      isRead: false,
-    });
-
-    res.send({ message: 'Leave approved successfully', leave });
+    const id = leave.userId;
+    const me = `Leave Request Rejected- ${leave.id}`;
+    const route = `/login/leave`;
+    createNotification({ id, me, route });
+    res.send({ message: 'Leave rejected successfully', leave });
   } catch (error) {
 
     res.send({ message: 'An error occurred while approving the leave', error: error.message });

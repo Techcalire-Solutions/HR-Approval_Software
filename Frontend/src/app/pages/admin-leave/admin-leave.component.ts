@@ -74,12 +74,10 @@ getLeaveSub : Subscription
 getLeaves() {
   this.getLeaveSub = this.leaveService.getLeaves().subscribe(
     (res) => {
-      console.log(res);
       if (res) {
         // Filter leaves with status 'Approved'
         this.leaves = res.filter((leave: any) => leave.status === 'Approved');
         this.events = this.mapLeavesToCalendarEvents(this.leaves);
-        console.log(this.events);
       }
     },
     (error) => {

@@ -78,9 +78,6 @@ export class ViewLeaveDetailsComponent {
     if (leaveId) {
       this.leaveService.getLeaveById(+leaveId).subscribe((response: any) => {
         this.leave = response;
-        console.log('leavebyId',response);
-
-
         if (this.leave.fileUrl) {
           this.signedUrl = [{
             fileUrl: this.sanitizer.bypassSecurityTrustResourceUrl(this.leave.fileUrl),

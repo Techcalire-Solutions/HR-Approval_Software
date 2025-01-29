@@ -31,8 +31,6 @@ export class LeaveReportsComponent {
     }
   }
   getReport(): void {
-    console.log('selected year',this.selectedYear);
-    
     this.leaveService.getReport(this.selectedYear).subscribe((res) => {
       this.employees = res;
     });

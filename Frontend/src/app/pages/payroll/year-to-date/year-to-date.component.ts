@@ -31,8 +31,6 @@ export class YearToDateComponent implements OnInit, OnDestroy{
   });
 
   applyFilters(): void {
-    console.log(this.ytdForm.get('startDate')?.value);
-    
     this.getMonthlyPayroll();
   }
 
@@ -42,8 +40,6 @@ export class YearToDateComponent implements OnInit, OnDestroy{
   getMonthlyPayroll(){
     const from = this.ytdForm.get('startDate')?.value;
     const to = this.ytdForm.get('endDate')?.value;
-    console.log(from, to);
-    
     this.mpSub = this.payrollService.getMonthlyPayrollForYTD(from, to).subscribe(data => {
       this.mp = data.map((item: any) => ({
         ...item,

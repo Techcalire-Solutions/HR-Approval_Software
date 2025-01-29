@@ -54,11 +54,12 @@ export class DashboardComponent {
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;      
+      console.log(this.roleName);
+      
       if(this.roleName === 'HR Administrator' ||this.roleName==='HR') {
         this.hradmin = true;
       }else{
         this.roleService.getDesignationbyRole(role.id).subscribe(res =>{
-          console.log(res);
           if(res.length > 0){
             this.payStat = true;
           }
@@ -75,9 +76,7 @@ export class DashboardComponent {
       let rmUsers = users.filter(user => user.reportingMangerId === this.user)
       if(rmUsers.length > 0){
         this.rm = true;
-
       }
-      console.log(rmUsers);
     })
   }
 }

@@ -33,8 +33,6 @@ export class LeaveInfoDialogComponent {
     private dialogRef: MatDialogRef<LeaveInfoDialogComponent>
   ) {
     if (data) {
-      console.log(data);
-
       this.message = data.message;
       this.appliedLeaveDates = this.formatDates(data.leaveDatesApplied || []);
       this.lopDates = this.formatDates(data.lopDates || []);

@@ -33,8 +33,6 @@ export class LeaveInfoDialogComponent {
     private dialogRef: MatDialogRef<LeaveInfoDialogComponent>
   ) {
     if (data) {
-      console.log(data);
-
       this.message = data.message;
       this.appliedLeaveDates = this.formatDates(data.leaveDatesApplied || []);
       this.lopDates = this.formatDates(data.lopDates || []);
@@ -53,7 +51,8 @@ export class LeaveInfoDialogComponent {
     if (
       this.message.includes('balance is 0') ||
       this.message.includes('No leave will be applied') ||
-      this.message.includes('You do not have')
+      this.message.includes('You do not have') ||
+      this.message.includes('Official Mail Id')
     ) {
       this.showOkButton = false;
       this.showCancelButton = true;

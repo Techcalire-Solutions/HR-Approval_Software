@@ -63,8 +63,6 @@ async function backup() {
   
                 const fileUrl = data.Location ? data.Location : '';
   
-                console.log(`Backup successful for table: ${tableName} - Saved locally as ${fileUrl}`);
-  
                 const backUpLog = new BackupLog({tableName, backUpTime: new Date(), url: fileUrl});
                 await backUpLog.save();
   

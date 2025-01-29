@@ -166,6 +166,8 @@ export class LeaveComponent implements OnInit, OnDestroy{
     const rejectionData = { leaveId: leaveId, adminNotes: note };
     this.rejectSub = this.leaveService.updateRejectLeaveStatus(rejectionData).subscribe(
       (res) => {
+        console.log(res);
+        
         this.snackbar.open('Leave rejected successfully', '', { duration: 3000 });
         if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
           this.employeeStat = true;

@@ -59,11 +59,9 @@ export class LeaveCalendarComponent {
   getLeaves() {
     this.getLeaveSub = this.leaveService.getLeaves().subscribe(
       (res) => {
-        console.log(res);
         if (res) {
           this.leaves = res.filter((leave: any) => leave.status === 'Approved' || leave.status === 'AdminApproved');
           this.events = this.mapLeavesToCalendarEvents(this.leaves);
-          console.log(this.events);
         }
       },
       (error) => {

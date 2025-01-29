@@ -87,8 +87,6 @@ export class AssetsComponent implements OnInit, OnDestroy{
         this.assetService.getAssignedUsers(asset.id).subscribe(
           (response: any) => {
             this.assignedUsers[asset.id] = response.userId;
-            console.log(response);
-            
           },
           (error) => {
             console.error(`Error fetching user for asset ID ${asset.id}:`, error);
