@@ -5,9 +5,11 @@
         <mat-card-title>Leave Counts Pie Chart</mat-card-title>
       </mat-card-header>
       <div class="w-100 h-300p">
+        <!-- Ensure single is an array before passing it to the chart -->
         <ngx-charts-pie-chart
+          *ngIf="pieChartData && pieChartData.length > 0"
           [scheme]="colorScheme"
-          [results]="single"
+          [results]="pieChartData"
           [legend]="true"
           [explodeSlices]="false"
           [labels]="true"
@@ -15,6 +17,10 @@
           [gradient]="false"
           (select)="onSelect($event)">
         </ngx-charts-pie-chart>
+        <!-- Display a message if no data is available -->
+        <div *ngIf="!pieChartData || pieChartData.length === 0" class="no-data-message">
+          No leave data available to display.
+        </div>
       </div>
       <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div> <!-- Display error message -->
     </mat-card>

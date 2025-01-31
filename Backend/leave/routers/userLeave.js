@@ -9,6 +9,8 @@ const cron = require('node-cron');
 const LeaveType = require('../models/leaveType');
 const { where } = require('sequelize');
 
+const { Op } = require('sequelize');
+const Leave = require('../models/leave');
 
 
 // -----------------------------Leave Accumulation function-----------------------------------------------
@@ -59,10 +61,73 @@ cron.schedule('0 0 1 * *', async () => {
 router.get('/leavecount/:userId/:typeid', authenticateToken, async (req, res) => {
   try {
     const userId = req.params.userId;
-    const leaveTypeId  = req.params.typeid;
+    const leaveTypeId = req.params.typeid;
 
+    // Find the leave type details
+    const leaveType = await LeaveType.findOne({
+      where: { id: leaveTypeId },
+      attributes: ['leaveTypeName', 'id'],
+    });
+
+    if (!leaveType) {
+      return res.send('Leave type not found');
+    }
+
+    let monthlyLOPCount = 0;
+    if (leaveType.leaveTypeName === 'LOP') {
+      const currentDate = new Date();
+      const startOfMonth = new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), 1)); // Start of month in UTC
+      const endOfMonth = new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth() + 1, 0, 23, 59, 59, 999)); // End of month in UTC
+    
+      // Fetch all LOP leaves for the user in the current month
+      const lopLeaves = await Leave.findAll({
+        where: {
+          userId,
+          leaveTypeId,
+          [Op.or]: [
+            // Leaves that start and end within the current month
+            {
+              startDate: { [Op.between]: [startOfMonth, endOfMonth] },
+              endDate: { [Op.between]: [startOfMonth, endOfMonth] },
+            },
+            // Leaves that start in the previous month but end in the current month
+            {
+              startDate: { [Op.lt]: startOfMonth },
+              endDate: { [Op.between]: [startOfMonth, endOfMonth] },
+            },
+            // Leaves that start in the current month but end in the next month
+            {
+              startDate: { [Op.between]: [startOfMonth, endOfMonth] },
+              endDate: { [Op.gt]: endOfMonth },
+            },
+            // Leaves that span the entire current month (start before and end after)
+            {
+              startDate: { [Op.lt]: startOfMonth },
+              endDate: { [Op.gt]: endOfMonth },
+            },
+          ],
+        },
+      });
+    
+      // Calculate the total LOP days in the current month
+      monthlyLOPCount = lopLeaves.reduce((count, leave) => {
+        const leaveDates = leave.leaveDates; 
+        leaveDates.forEach((leaveDate) => {
+          const date = new Date(leaveDate.date + 'T00:00:00.000Z'); 
+          // Check if the date falls within the current month
+          if (date >= startOfMonth && date <= endOfMonth) {
+            if (leaveDate.session1 && leaveDate.session2) {
+              count += 1; // Both sessions: 1 full day
+            } else if (leaveDate.session1 || leaveDate.session2) {
+              count += 0.5; // One session: 0.5 day
+            }
+          }
+        });
+        return count;
+      }, 0);
+    }
     const userLeaves = await UserLeave.findOne({
-      where: { userId, leaveTypeId  },
+      where: { userId, leaveTypeId },
       include: {
         model: LeaveType,
         as: 'leaveType',
@@ -70,45 +135,7 @@ router.get('/leavecount/:userId/:typeid', authenticateToken, async (req, res) =>
       },
     });
 
-    
-    // if (!userLeaves.length) {
-    //   return res.json({
-    //     userLeaves: [
-    //       {
-    //         id: null,
-    //         userId: userId,
-    //         leaveTypeId: 3, 
-    //         noOfDays: 0,
-    //         takenLeaves: 0,
-    //         leaveBalance: 0,
-    //         leaveType: {
-    //           leaveTypeName: "LOP",
-    //           id: 3
-    //         }
-    //       }
-    //     ]
-    //   });
-    // }
-
- 
-    // const lopLeaveExists = userLeaves.some(leave => leave.leaveType.leaveTypeName === 'LOP');
-    // if (!lopLeaveExists) {
-      
-    //   userLeaves.push({
-    //     id: null,
-    //     userId: userId,
-    //     leaveTypeId: 3,
-    //     noOfDays: 0,
-    //     takenLeaves: 0,
-    //     leaveBalance: 0,
-    //     leaveType: {
-    //       leaveTypeName: "LOP",
-    //       id: 3
-    //     }
-    //   });
-    // }
-    res.send(userLeaves);
-
+    return res.json({userLeaves, monthlyLOPCount});
   } catch (error) {
     res.send(error.message);
   }

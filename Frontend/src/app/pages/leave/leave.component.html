@@ -47,16 +47,13 @@
       <table>
         <thead>
           <tr>
+            <th>ID</th>
             <th>Leave Date</th>
             <th>Leave Type</th>
             @if(!employeeStat){
               <th>User</th>
             }
             <th>Reason</th>
-            <!-- <th>Status</th> -->
-            <th>Admin Notes</th>
-
-
             <th>Uplaods</th>
             @if(!employeeStat){
               <th>Action</th>
@@ -65,10 +62,10 @@
           </tr>
         </thead>
         <tbody>
-          @for (item of leaves; track $index) {
+          @for (item of filteredLeaves; track $index) {
             <tr [ngClass]="{'text-green': item.status === 'Approved' || item.status === 'AdminApproved', 'text-red': item.status === 'Rejected'}"
               [routerLink]="['/login/leave/open/', item.id]">
-              <!-- Leave Date -->
+              <td> {{item.id}} </td>
               <td>
                 <ng-container *ngFor="let date of item.leaveDates">
                   {{ date.date | date: 'dd-MM-yyyy' }}<br>
@@ -83,11 +80,9 @@
 
               <td>{{ item.leaveType.leaveTypeName }}</td>
               @if(!employeeStat){
-                <td>{{ item.user.name }} {{item.user.empNo}}</td>
+                <td>{{ item.user?.name }} {{item.user?.empNo}}</td>
               }
               <td>{{ item.notes }}</td>
-              <!-- <td>{{ item.status | uppercase}}</td> -->
-              <td>{{item.adminNotes}}</td>
               <td (click)="$event.stopPropagation()">
                 <div class="popup-message">
                   @if(item.leaveType?.leaveTypeName === 'Sick Leave'){

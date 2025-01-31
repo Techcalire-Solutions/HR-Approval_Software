@@ -30,14 +30,14 @@ const Leave = sequelize.define('leave', {
 });
 
 //------------------------------LEAVE ASSOCIATIONS-----------------------------------------------
-LeaveType.hasOne(Leave, { foreignKey: 'leaveTypeId', onUpdate: 'CASCADE' });
-Leave.belongsTo(LeaveType, { foreignKey: 'leaveTypeId'});
-
-// User.hasMany(Leave, { foreignKey: 'userId', onUpdate: 'CASCADE' });
-// Leave.belongsTo(User, { foreignKey: 'userId' });
+LeaveType.hasMany(Leave, { foreignKey: 'leaveTypeId', onUpdate: 'CASCADE' });
+// Leave.belongsTo(LeaveType, { foreignKey: 'leaveTypeId'});
 
 User.hasMany(Leave, { foreignKey: 'userId', onUpdate: 'CASCADE' });
+// Leave.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
 Leave.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+Leave.belongsTo(LeaveType, { foreignKey: 'leaveTypeId', as: 'leaveType' });
 
 
 Leave.sync({ alter: true })
