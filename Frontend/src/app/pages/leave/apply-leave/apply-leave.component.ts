@@ -134,6 +134,7 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
       this.minEndDate.setDate(this.minEndDate.getDate());
       this.leave = leave;
       this.leaveRequestForm.patchValue({
+        userName: this.leave.user.name,
         userId: this.leave.userId,
         leaveTypeId: this.leave.leaveTypeId,
         startDate: this.leave.startDate,
@@ -210,16 +211,22 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   onEndDateChange() {
     const startDate: any = this.leaveRequestForm.get('startDate')!.value;
     const endDate: any = this.leaveRequestForm.get('endDate')!.value;
-    if (startDate && endDate) {
+  
+    if (startDate && endDate && new Date(endDate) >= new Date(startDate)) {
       this.updateLeaveDates(new Date(startDate), new Date(endDate));
+    } else {
+      // Clear the leaveDatesArray if the dates are invalid
+      const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
+      leaveDatesArray.clear();
     }
   }
+
 
   endDateFilter = (date: Date | null): boolean => {
     if (!date || !this.minEndDate) {
       return false;
     }
-    return date >= this.minEndDate; // Only allow dates after the minimum date
+    return date >= this.minEndDate; 
   };
 
   isSickLeaveAndMoreThanThreeDays(): boolean {
@@ -239,12 +246,20 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   updateLeaveDates(start: Date, end: Date) {
     const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
     leaveDatesArray.clear();
-
-    for (let dt = new Date(start); dt <= end; dt.setDate(dt.getDate() + 1)) {
+  
+    // Reset time component to 00:00:00 for both start and end dates
+    const startDate = new Date(start);
+    startDate.setHours(0, 0, 0, 0); // Reset time to 00:00:00
+    const endDate = new Date(end);
+    endDate.setHours(0, 0, 0, 0); // Reset time to 00:00:00
+  
+    for (let dt = new Date(startDate); dt <= endDate; dt.setDate(dt.getDate() + 1)) {
       const leaveDateGroup = this.fb.group({
-        date: [formatDate(dt, 'yyyy-MM-dd', 'en-US')], session1: [false], session2: [false]
+        date: [formatDate(dt, 'yyyy-MM-dd', 'en-US')],
+        session1: [false],
+        session2: [false]
       }, { validators: sessionSelectionValidator });
-
+  
       leaveDatesArray.push(leaveDateGroup);
     }
   }

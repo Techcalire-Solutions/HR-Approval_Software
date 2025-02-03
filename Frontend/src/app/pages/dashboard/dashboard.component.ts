@@ -38,11 +38,11 @@ export class DashboardComponent {
   user: number;
   ngOnInit(){
     const token: any = localStorage.getItem('token')
-    let user = JSON.parse(token)
+    const user = JSON.parse(token)
 
     this.user = user.id;
 
-    let roleId = user.role
+    const roleId = user.role
     this.getRoleById(roleId)
     this.getUsers()
   }
@@ -60,6 +60,8 @@ export class DashboardComponent {
         this.hradmin = true;
       }else{
         this.roleService.getDesignationbyRole(role.id).subscribe(res =>{
+          console.log(res);
+          
           if(res.length > 0){
             this.payStat = true;
           }

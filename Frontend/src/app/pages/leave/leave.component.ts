@@ -66,6 +66,7 @@ export class LeaveComponent implements OnInit, OnDestroy{
   getLeaves(){
     this.leaveSub = this.leaveService.getLeavesPaginated(this.searchText, this.currentPage, this.pageSize).subscribe((leaves: any) => {
       this.leaves = leaves.items;
+      this.filteredLeaves = this.leaves
       this.totalItems = leaves.count;
     })
   }
@@ -91,14 +92,19 @@ export class LeaveComponent implements OnInit, OnDestroy{
     );
   }
 
-
+  filteredLeaves: Leave[] = [];
   search(event: Event) {
     this.searchText = (event.target as HTMLInputElement).value.trim();
+    console.log(this.searchText);
+    this.filteredLeaves = this.leaves.filter(lv =>
+      lv.user.name.toLowerCase().includes(this.searchText) || 
+      lv.user.empNo.toLowerCase().includes(this.searchText) ||
+      lv.leaveType.leaveTypeName.toLowerCase().includes(this.searchText) 
+    );
     if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
-      this.employeeStat = true;
-      this.getLeaveByUser(this.userId)
-    }else{
       this.getLeaves()
+    }else{
+      this.getLeaveByUser(this.userId)
     }
   }
 
@@ -166,8 +172,6 @@ export class LeaveComponent implements OnInit, OnDestroy{
     const rejectionData = { leaveId: leaveId, adminNotes: note };
     this.rejectSub = this.leaveService.updateRejectLeaveStatus(rejectionData).subscribe(
       (res) => {
-        console.log(res);
-        
         this.snackbar.open('Leave rejected successfully', '', { duration: 3000 });
         if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
           this.employeeStat = true;

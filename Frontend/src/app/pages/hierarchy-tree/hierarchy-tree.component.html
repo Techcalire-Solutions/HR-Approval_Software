@@ -7,7 +7,7 @@
             <ul>
                 <ng-container *ngFor="let director of directors; let i = index;">
                     <li>
-                        <a (click)="openUser(director.id)">
+                        <a>
                             <img
                                 [src]="director.url ? (s3 + director.url) : userImage"
                                 alt="Director Image"
