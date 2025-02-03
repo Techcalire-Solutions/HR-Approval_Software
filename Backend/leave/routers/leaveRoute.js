@@ -1691,6 +1691,8 @@ router.get('/find/monthlyleavedays', authenticateToken, async (req, res) => {
       ],
       where: {
         [Op.and]: [
+          { status: 'Approved' },
+          { status: 'AdminApproved' },
           { startDate: { [Op.lte]: endDate } }, // Leave starts on or before endDate
           { endDate: { [Op.gte]: startDate } }  // Leave ends on or after startDate
         ]
