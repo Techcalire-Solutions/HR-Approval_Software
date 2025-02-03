@@ -61,7 +61,6 @@ export class OpenLeaveComponent implements OnInit, OnDestroy{
   getLeaveById(id: number, loginId: number){
     this.leaveSub = this.leaveService.getLeaveById(id).subscribe((res) => {
       this.leave = res;
-      console.log(this.leave);
       
       if(this.leave.user.userpersonal[0].reportingMangerId === loginId){
         this.employeeStat = true;
