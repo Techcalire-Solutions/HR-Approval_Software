@@ -1596,7 +1596,7 @@ router.get('/all/report', async (req, res) => {
       },
       include: [
         { model: User, as: 'user', attributes: ['id', 'name'] },
-        { model: LeaveType, attributes: ['id', 'leaveTypeName'] },
+        { model: LeaveType, attributes: ['id', 'leaveTypeName'], as: 'leaveType' },
       ],
     });
 
@@ -1649,7 +1649,7 @@ router.get('/all/report', async (req, res) => {
     res.status(200).json(result);
   } catch (error) {
     console.error('Error fetching leave data:', error);
-    res.status(500).json({ error: 'An error occurred while fetching leave data.' });
+    res.send(error.message);
   }
 });
 
@@ -1701,7 +1701,7 @@ router.get('/find/monthlyleavedays', authenticateToken, async (req, res) => {
 
     res.send(data);
   } catch (error) {
-    res.status(500).send(error.message);
+    res.send(error.message);
   }
 });
 
