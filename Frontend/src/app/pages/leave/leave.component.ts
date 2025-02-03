@@ -78,6 +78,7 @@ export class LeaveComponent implements OnInit, OnDestroy{
     this.leaveSub = this.leaveService.getLeavesByUser(id, this.searchText, this.currentPage, this.pageSize).subscribe(
       (res: any) => {
         this.leaves = res.items;
+        this.filteredLeaves = this.leaves
         this.totalItems = res.count;
 
         const totalSickLeave = this.leaves
@@ -95,7 +96,6 @@ export class LeaveComponent implements OnInit, OnDestroy{
   filteredLeaves: Leave[] = [];
   search(event: Event) {
     this.searchText = (event.target as HTMLInputElement).value.trim();
-    console.log(this.searchText);
     this.filteredLeaves = this.leaves.filter(lv =>
       lv.user.name.toLowerCase().includes(this.searchText) || 
       lv.user.empNo.toLowerCase().includes(this.searchText) ||
