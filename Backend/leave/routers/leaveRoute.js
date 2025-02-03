@@ -271,7 +271,7 @@ router.get('/:id', async (req, res) => {
     const leave = await Leave.findByPk(req.params.id, {
       include: [
         {
-          model: LeaveType,
+          model: LeaveType, as: 'leaveType',
           attributes: ['id', 'leaveTypeName'],
         },
         {
