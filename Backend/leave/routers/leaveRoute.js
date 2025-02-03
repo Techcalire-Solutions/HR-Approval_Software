@@ -1360,7 +1360,7 @@ router.get('/all/totalleaves', async (req, res) => {
     const leaves = await Leave.findAll({
       include: [
         {
-          model: LeaveType,
+          model: LeaveType, as: 'leaveType',
           attributes: ['id', 'leaveTypeName'],
         },
         {
