@@ -84,6 +84,7 @@ router.get('/leavecount/:userId/:typeid', authenticateToken, async (req, res) =>
         where: {
           userId,
           leaveTypeId,
+          status: { [Op.in]: ['Approved', 'AdminApproved'] },
           [Op.or]: [
             // Leaves that start and end within the current month
             {
