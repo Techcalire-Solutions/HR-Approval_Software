@@ -1162,7 +1162,7 @@ router.get('/user/:userId', async (req, res) => {
       where: whereClause,
       include: [
         {
-          model: LeaveType,
+          model: LeaveType, as: 'leaveType',
           attributes: ['id', 'leaveTypeName'],
         }
       ]
