@@ -17,6 +17,10 @@ export class NewLeaveService {
     return this.http.get<any[]>(`${this.apiUrl}/newleave/find/?search=${search}&page=${page}&pageSize=${pageSize}`);
   }
 
+  getRequestedLeaves( page?: number, pageSize?: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/newleave/find/requested/?page=${page}&pageSize=${pageSize}`);
+  }
+
   getLeaves():Observable<any>{
     return this.http.get(`${this.apiUrl}/newleave/all/totalleaves`);
   }

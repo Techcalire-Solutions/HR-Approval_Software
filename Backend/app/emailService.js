@@ -2,6 +2,8 @@
 /* eslint-disable no-undef */
 const nodemailer = require('nodemailer');
 const Role = require('../users/models/role');
+const Designation = require('../users/models/designation');
+const UserPosition = require('../users/models/userPosition');
 /**
  * Send an email dynamically with provided credentials
  * @param {string} fromEmail - Sender's email address
@@ -15,14 +17,15 @@ const Role = require('../users/models/role');
  */
 
 const sendEmail = async (token, fromEmail, password, to, subject, html, attachments, cc) => {
-  const { userName, roleId } = decodeToken(token);
+  const { userName, id } = decodeToken(token);
 
-  const role = await Role.findByPk(roleId);
-  const designation = role ? role.roleName  : 'Employee'; 
+  const roleId = await UserPosition.findOne({where: {userId: id}})
+  const role = await Designation.findByPk(roleId.designationId);
+  const designation = role ? role.designationName : 'Employee'; 
 
   // Define the email signature
   const emailSignature = `
-<table>
+          <table>
             <tr>
                 <td style="padding-left: 5px; vertical-align: top;">
                         <div class="signature-container">
@@ -133,7 +136,7 @@ const decodeToken = (token) => {
   }
   return {
     userName: decoded.name,
-    roleId: decoded.roleId,
+    id: decoded.id,
   };
 };
 

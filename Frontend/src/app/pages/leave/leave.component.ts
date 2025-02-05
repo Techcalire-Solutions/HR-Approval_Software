@@ -94,18 +94,22 @@ export class LeaveComponent implements OnInit, OnDestroy{
   }
 
   filteredLeaves: Leave[] = [];
-  search(event: Event) {
-    this.searchText = (event.target as HTMLInputElement).value.trim();
-    this.filteredLeaves = this.leaves.filter(lv =>
-      lv.user.name.toLowerCase().includes(this.searchText) || 
-      lv.user.empNo.toLowerCase().includes(this.searchText) ||
-      lv.leaveType.leaveTypeName.toLowerCase().includes(this.searchText) 
-    );
-    if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
-      this.getLeaves()
-    }else{
-      this.getLeaveByUser(this.userId)
-    }
+  // search(event: Event) {
+  //   this.searchText = (event.target as HTMLInputElement).value.trim();
+  //   this.filteredLeaves = this.leaves.filter(lv =>
+  //     lv.user.name.toLowerCase().includes(this.searchText) || 
+  //     lv.user.empNo.toLowerCase().includes(this.searchText) ||
+  //     lv.leaveType.leaveTypeName.toLowerCase().includes(this.searchText) 
+  //   );
+  //   if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
+  //     this.getLeaves()
+  //   }else{
+  //     this.getLeaveByUser(this.userId)
+  //   }
+  // }
+  search(event: Event){
+    this.searchText = (event.target as HTMLInputElement).value.trim()
+    this.getLeaves()
   }
 
   private readonly snackbar = inject(MatSnackBar);

@@ -10,6 +10,7 @@ const Team = require('../models/team');
 const TeamMember = require('../models/teamMember');
 const LeaveType = require('../../leave/models/leaveType');
 const UserLeave = require('../../leave/models/userLeave');
+const Role = require('../models/role');
 
 router.post('/add', authenticateToken, async (req, res) => {
   const { userId, division, costCentre, grade, location, department, office, salary, probationPeriod, confirmationDate,
@@ -199,15 +200,22 @@ router.get('/', async (req, res) => {
 router.patch('/updaterole/:id', async (req, res) => {
   try {
     const desi = await Designation.findByPk(req.body.designationId);
-    const roleId = desi?.roleId;
-    if(roleId != null || roleId === ''){
-      try {
-        let user = await User.findByPk(req.params.id)
-        user.roleId = roleId;
-        await user.save();
-      } catch (error) {
-        res.send(error.message)
+    let roleId = desi?.roleId;
+    
+    if(roleId === null || roleId === ''){
+      const employeeRole = await Role.findOne({ where: { roleName: 'Employee' } });
+      if (employeeRole) {
+        roleId = employeeRole.id;
+      } else {
+        throw new Error('Role "employee" not found');
       }
+    }
+    try {
+      let user = await User.findByPk(req.params.id)
+      user.roleId = roleId;
+      await user.save();
+    } catch (error) {
+      res.send(error.message)
     }
       
     let userposition = await UserPosition.findOne({

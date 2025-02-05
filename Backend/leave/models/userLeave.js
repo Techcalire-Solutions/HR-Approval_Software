@@ -6,6 +6,7 @@ const User = require('../../users/models/user');
  const UserLeave = sequelize.define('userLeave',{
    userId : {type : DataTypes.INTEGER, allowNull : true},
    leaveTypeId : { type: DataTypes.INTEGER, allowNull:true},
+   year : { type: DataTypes.INTEGER, allowNull:true},
    noOfDays : {type: DataTypes.FLOAT, allowNull:true, defaultValue: 0},
    takenLeaves : {type :DataTypes.FLOAT, allowNull :true, defaultValue: 0},
    leaveBalance : { type:DataTypes.FLOAT, allowNull:true, defaultValue: 0}

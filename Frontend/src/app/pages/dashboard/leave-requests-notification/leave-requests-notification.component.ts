@@ -50,16 +50,11 @@ export class LeaveRequestsNotificationComponent {
   searchText: string = '';
   getLeaves(status: string, id: number) {
     if(this.roleName === 'HR Administrator' || this.roleName === 'Super Administrator') {
-      this.leaveSub = this.leaveService.getLeavesPaginated(this.searchText, this.currentPage, this.pageSize).subscribe(
+      this.leaveSub = this.leaveService.getRequestedLeaves(this.currentPage, this.pageSize).subscribe(
         (res: any) => {
+          console.log(res);
+          
           this.leaves = res.items
-            .filter((leave: Leave) => (status === 'requested' ? leave.status === 'requested' : true)) // Filter by 'Requested' status
-            .map((leave: Leave) => ({
-              ...leave,
-              userName: leave.user?.name || 'Unknown',
-              leaveTypeName: leave.leaveType?.leaveTypeName || 'Unknown'
-            }));
-
           this.totalItems = res.count;
 
           if (this.leaves.length === 0) {

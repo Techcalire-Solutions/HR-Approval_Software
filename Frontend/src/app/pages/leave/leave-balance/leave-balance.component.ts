@@ -11,6 +11,7 @@ import { LeaveService } from '@services/leave.service';
 import { DragulaModule } from 'ng2-dragula';
 import { Subscription } from 'rxjs';
 import { LeaveType } from '../../../common/interfaces/leaves/leaveType';
+import { UsersService } from '@services/users.service';
 
 
 @Component({
@@ -45,7 +46,16 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
     const token: any = localStorage.getItem('token');
     const user = JSON.parse(token);
     this.userId = user.id;
+    this.getUser()
     this.getLeaveType()
+  }
+
+  isPermanentUser: boolean = false;
+  private readonly userService = inject(UsersService);
+  getUser(){
+    this.userService.getUserById(this.userId).subscribe(res => {
+      this.isPermanentUser = !res.isTemporary
+    })
   }
 
   ltSub!: Subscription;
@@ -62,6 +72,7 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
       this.leaveCountsSubscription = this.leaveService.getLeaveCounts(this.userId, leaveType.id).subscribe({
         next: (response) => {
           this.leaveCounts.push({ ...response, leaveType: leaveType.leaveTypeName });
+          
         },
         error: (error) => {
           console.error('Error fetching leave counts:', error);

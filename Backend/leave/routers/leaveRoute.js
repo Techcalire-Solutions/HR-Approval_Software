@@ -22,51 +22,53 @@ const Notification = require('../../notification/models/notification');
 router.get('/find', async (req, res) => {
     try {
   
-      let whereClause = {};
       let limit;
       let offset;
     
       if (typeof req.query.pageSize !== 'undefined' && typeof req.query.page !== 'undefined') {
         limit = parseInt(req.query.pageSize, 10);
         offset = (parseInt(req.query.page, 10) - 1) * limit;
-      }         
-
-      // if (req.query.search && req.query.search.trim() !== '') {
-      //   const searchTerm = req.query.search.trim().toLowerCase();
-    
-      //   whereClause = {
-      //       [Op.or]: [
-      //           { '$leaveType.leaveTypeName$': { [Op.iLike]: `%${searchTerm}%` } } // LeaveType search in main where clause
-      //       ]
-      //   };
-      // }
-
+      }  
+      let searchTerm;
+      if (req.query.search !== undefined && req.query.search !== '') {
+        searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+      }
+      
       const leave = await Leave.findAll({
         order: [['id', 'DESC']],
         limit,
         offset,
         include: [
-            {
-                model: LeaveType,
-                as: 'leaveType',
-                attributes: ['id', 'leaveTypeName'],
-                required: false,
-            },
-            {
-                model: User,
-                as: 'user',
-                attributes: ['id', 'name', 'empNo'],
-                required: false,
-            },
+          {
+            model: User,
+            as: 'user',
+            attributes: ['name'],
+            required: true,
+          },
+          {
+            model: LeaveType,
+            as: 'leaveType',
+            attributes: ['leaveTypeName'],
+            required: true,
+          }
         ],
-        logging: console.log, // Logs the generated SQL query for debugging
+        where: searchTerm
+          ? {
+              [Op.or]: [
+                sequelize.where(
+                  sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.name'), ' ', '')),
+                  { [Op.like]: `%${searchTerm}%` }
+                ),
+                sequelize.where(
+                  sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('leaveType.leaveTypeName'), ' ', '')),
+                  { [Op.like]: `%${searchTerm}%` }
+                )
+              ]
+            }
+          : {} 
       });
-    
-      console.log(leave);
       
-      
-      
-      const totalCount = await Leave.count({ where: whereClause });
+      const totalCount = await Leave.count();
       
       if (typeof req.query.page !== 'undefined' && typeof req.query.pageSize !== 'undefined') {
         const response = {
@@ -78,6 +80,8 @@ router.get('/find', async (req, res) => {
         res.json(leave);
       }
     } catch (error) {
+      console.log(error);
+      
       res.send(error.message);
     }
 });
@@ -608,165 +612,6 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
-// router.post('/employeeLeave', authenticateToken, async (req, res) => {
-//   let { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates, status, fromEmail, appPassword } = req.body;
-
-//   if (!fromEmail || !appPassword) {
-//     const email = await UserEmail.findOne({
-//       where: { userId: userId, type: 'Official' }
-//     });
-//     fromEmail = email.email;
-//     appPassword = email.appPassword;
-//   }
-
-//   if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
-//     return res.json({ message: 'Missing required fields' });
-//   }
-
-//   const user = await User.findByPk(userId);
-//   try {
-//     const noOfDays = calculateLeaveDays(leaveDates);
-
-//     const leaveType = await LeaveType.findOne({ where: { id: leaveTypeId } });
-//     if (!leaveType) return res.json({ message: 'Leave type not found' });
-
-//     const userLeaves = await UserLeave.findAll({ where: { userId } });
-//     const userLeave = userLeaves.find(leave => leave.leaveTypeId === leaveType.id);
-
-//     if (!userLeave && leaveType.leaveTypeName !== 'LOP') {
-//       return res.json({
-//         message: `You do not have ${leaveType.leaveTypeName} leave allotted.`
-//       });
-//     }else if (!userLeave && leaveType.leaveTypeName === 'LOP') {
-
-//     }
-
-//     let leaveBalance = userLeave.leaveBalance;
-
-//     if (leaveBalance === 0 && leaveType.leaveTypeName !== 'LOP') {
-//       return res.json({
-//         message: `Your ${leaveType.leaveTypeName} balance is 0. No leave will be applied.`,
-//       });
-//     }
-
-//     if (leaveBalance < noOfDays && leaveType.leaveTypeName !== 'LOP') {
-//       const availableLeaveDays = leaveBalance;
-//       const lopDays = noOfDays - availableLeaveDays;
-//       const { leaveDatesApplied, lopDates } = splitLeaveDates(leaveDates, availableLeaveDays);
-
-//       const emailResult = await sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates, fromEmail, appPassword, req.headers.authorization?.split(' ')[1]);
-//       if (!emailResult.success) {
-//         return res.json({ message: emailResult.message });
-//       }
-      
-//       await Leave.create({
-//         userId, leaveTypeId: leaveType.id, startDate, endDate, noOfDays: availableLeaveDays, notes, fileUrl,
-//         status: 'Requested', leaveDates: leaveDatesApplied
-//       });
-//       // const id = userId;
-//       // const me = `Leave request submitted`;
-//       // const route = `/login/leave`;
-
-//       // createNotification({ id, me, route });
-
-//       // Fetch HR Admin and Reporting Manager details      
-//       const hrAdmin = await User.findOne({
-//         include: [
-//           {
-//             model: Role,
-//             where: { roleName: 'HR Administrator' }
-//           },
-//         ],
-//       });
-//       const userPersonal = await UserPersonal.findOne({
-//         where: { userId },
-//         attributes: ['reportingMangerId'],
-//       });
-//       if (!userPersonal) {
-//         return `Details with id ${userId} not found`;
-//       }
-      
-//       // Create notifications for HR Admin and Reporting Manager
-//       if (hrAdmin) {
-//         await Notification.create({
-//           userId: hrAdmin.id,
-//           message: `Leave request submitted by ${user.name}`,
-//           isRead: false,
-//         });
-//       }
-
-//       if (userPersonal) {
-//         await Notification.create({
-//           userId: userPersonal.reportingMangerId,
-//           message: `Leave request submitted by ${user.name}`,
-//           isRead: false,
-//         });
-//       }
-
-//       return res.json({
-//         message: `${availableLeaveDays} days applied as ${leaveType.leaveTypeName}.
-//         ${lopDays} days are beyond balance; apply for LOP separately.`,
-//         leaveDatesApplied,
-//         lopDates: lopDates || []
-//       });
-//     }
-
-//     const emailResult = await sendLeaveEmail(user, leaveType, startDate, endDate, notes, noOfDays, leaveDates, fromEmail, appPassword, req.headers.authorization?.split(' ')[1]);
-//     if (!emailResult.success) {
-//       return res.json({ message: emailResult.message });
-//     }
-
-//     const hrAdmin = await User.findOne({
-//       include: [
-//         {
-//           model: Role,
-//           where: { roleName: 'HR Administrator' }
-//         },
-//       ],
-//     });
-    
-//     const userPersonal = await UserPersonal.findOne({
-//       where: { userId },
-//       attributes: ['reportingMangerId'],
-//     });
-    
-//     if (!userPersonal || !userPersonal.reportingMangerId) {
-//         return res.send( `Reporting manager for user ${user.name} not added`);
-//     }
-    
-//     // Create notifications for HR Admin and Reporting Manager
-//     if (hrAdmin) {
-//       await Notification.create({
-//         userId: hrAdmin.id,
-//         message: `Leave request submitted by ${user.name}`,
-//         isRead: false,
-//       });
-//     }
-
-//     if (userPersonal) {
-//       await Notification.create({
-//         userId: userPersonal.reportingMangerId,
-//         message: `Leave request submitted by ${user.name}`,
-//         isRead: false,
-//       });
-//     }
-
-//     await Leave.create({
-//       userId, leaveTypeId: leaveType.id, startDate, endDate, noOfDays, notes, fileUrl,
-//       status: status, leaveDates
-//     });
-
-//     return res.json({
-//       message: `Leave request submitted successfully as ${leaveType.leaveTypeName}.`,
-//       leaveDatesApplied: leaveDates,
-//       lopDates: leaveDates
-//     });
-//   } catch (error) {
-//     console.error('Error in leave request submission:', error.message);
-//     res.status(500).json({ message: error.message });
-//   }
-// });
 
 function splitLeaveDates(leaveDates, availableLeaveDays) {
   let leaveDatesApplied = [];
@@ -1382,13 +1227,19 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
   const { adminNotes } = req.body;
 
   try {
-    const leave = await Leave.findByPk(leaveId);
+    const leave = await Leave.findByPk(leaveId, {include: [
+      {model: User, attributes: ['name'], as: 'user'}, {model: LeaveType, attributes: ['leaveTypeName'], as: 'leaveType'}
+    ]});
 
     if (!leave) {
       return res.send( 'Leave request not found' );
     }
 
     const userId = leave.userId;
+    const userPos = await UserPosition.findOne({ 
+      where: { userId: userId }, 
+      include: [{ model: User, attributes: ['name']}
+    ]})
 
     const leaveType = await LeaveType.findOne({
       where: { id: leave.leaveTypeId }
@@ -1415,7 +1266,25 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
       const me = `Leave Request Approved with id ${leave.id}`;
       const route = `/login/leave`;
   
-      createNotification({ id, me, route });
+      createNotification({ id, me, route });      
+      
+      const emailSubject = `Leave Request is Approved`;
+      const fromEmail = config.email.userAddUser;
+      const emailPassword = config.email.userAddPass;
+      const html = `
+        <p>Dear ${leave.user.name},</p>
+        <p>This is to inform you that ${req.user.name} has approved your ${leaveType.leaveTypeName},</p>
+        <p>with note ${adminNotes}.</p>
+        <p>Please review the leave application at your earliest convenience.</p>
+        <p>If you have any questions or need further details, feel free to reach out.</p>
+      `;
+      const attachments = []
+      const token = req.headers.authorization?.split(' ')[1];
+      try {
+        await sendEmail(token, fromEmail, emailPassword, userPos.officialMailId, emailSubject , html, attachments);
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+      }
 
       // Update or create a record for LOP
       if (!userLeave) {
@@ -1458,6 +1327,23 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     const route = `/login/leave`;
 
     createNotification({ id, me, route });
+    const emailSubject = `Leave Request is Approved`;
+    const fromEmail = config.email.userAddUser;
+    const emailPassword = config.email.userAddPass;
+    const html = `
+      <p>Dear ${leave.user.name},</p>
+      <p>This is to inform you that ${req.user.name} has approved your ${leaveType.leaveTypeName},</p>
+      <p>with note ${adminNotes}.</p>
+      <p>Please review the leave application at your earliest convenience.</p>
+      <p>If you have any questions or need further details, feel free to reach out.</p>
+    `;
+    const attachments = []
+    const token = req.headers.authorization?.split(' ')[1];
+    try {
+      await sendEmail(token, fromEmail, emailPassword, userPos.officialMailId, emailSubject , html, attachments);
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError);
+    }
 
     // Approving non-LOP leave
     leave.status = 'Approved';
@@ -1479,7 +1365,9 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
   const { adminNotes } = req.body;
 
   try {
-    const leave = await Leave.findByPk(leaveId);
+    const leave = await Leave.findByPk(leaveId, {include: [
+      {model: User, attributes: ['name'], as: 'user'}, {model: LeaveType, attributes: ['leaveTypeName'], as: 'leaveType'}
+    ]});
     if (!leave) {
       return res.send({ message: 'Leave request not found' });
     }
@@ -1497,12 +1385,34 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
     await leave.save();
 
     const id = leave.userId;
+    const userPos = await UserPosition.findOne({ 
+      where: { userId: id }, 
+      include: [{ model: User, attributes: ['name']}
+    ]})
+
     const me = `Leave Request Rejected with id ${leave.id}`;
     const route = `/login/leave`;
     createNotification({ id, me, route });
+
+    const emailSubject = `Leave Request is Rejected`;
+    const fromEmail = config.email.userAddUser;
+    const emailPassword = config.email.userAddPass;
+    const html = `
+      <p>Dear ${leave.user.name},</p>
+      <p>This is to inform you that ${req.user.name} has rejected your ${leave.leaveType.leaveTypeName},</p>
+      <p>with notes ${adminNotes}.</p>
+      <p>Please review the leave application at your earliest convenience.</p>
+      <p>If you have any questions or need further details, feel free to reach out.</p>
+    `;
+    const attachments = []
+    const token = req.headers.authorization?.split(' ')[1];
+    try {
+      await sendEmail(token, fromEmail, emailPassword, userPos.officialMailId, emailSubject , html, attachments);
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError);
+    }
     res.send({ message: 'Leave rejected successfully', leave });
   } catch (error) {
-
     res.send({ message: 'An error occurred while approving the leave', error: error.message });
   }
 });
@@ -1537,6 +1447,7 @@ router.get('/findbyrm/:reportingManagerId', async (req, res) => {
                 model: LeaveType, attributes: ['leaveTypeName']
               }
           ],
+          where: {status: 'Requested'}
       });
       let totalCount;
       totalCount = await Leave.count({
@@ -1558,14 +1469,14 @@ router.get('/findbyrm/:reportingManagerId', async (req, res) => {
                     },
                 ],
             },
-        ],
+        ],          
+        where: {status: 'Requested'}
       });
       
       const response = {
         count: totalCount,
         items: leaves,
       };
-
       res.json(response);
   } catch (error) {
       console.error(error);
@@ -1705,5 +1616,52 @@ router.get('/find/monthlyleavedays', authenticateToken, async (req, res) => {
   }
 });
 
+router.get('/find/requested', async (req, res) => {
+  try {
+
+    let limit;
+    let offset;
+  
+    if (typeof req.query.pageSize !== 'undefined' && typeof req.query.page !== 'undefined') {
+      limit = parseInt(req.query.pageSize, 10);
+      offset = (parseInt(req.query.page, 10) - 1) * limit;
+    }  
+    const leave = await Leave.findAll({
+      order: [['id', 'DESC']], where: {status: 'Requested'},
+      limit,
+      offset,
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['name'],
+          required: true,
+        },
+        {
+          model: LeaveType,
+          as: 'leaveType',
+          attributes: ['leaveTypeName'],
+          required: true,
+        }
+      ]
+    });
+    
+    const totalCount = await Leave.count({ where: {status: 'Requested'}});
+    
+    if (typeof req.query.page !== 'undefined' && typeof req.query.pageSize !== 'undefined') {
+      const response = {
+        count: totalCount,
+        items: leave,
+      };
+      res.json(response);
+    } else {
+      res.json(leave);
+    }
+  } catch (error) {
+    console.log(error);
+    
+    res.send(error.message);
+  }
+});
 
 module.exports = router;

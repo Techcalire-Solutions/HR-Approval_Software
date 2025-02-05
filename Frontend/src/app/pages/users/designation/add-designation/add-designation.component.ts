@@ -82,8 +82,16 @@ export class AddDesignationComponent implements OnInit, OnDestroy{
   }
   submit!: Subscription;
   onSubmit(){
+    let data = {
+      ...this.form.value
+    }
+    console.log(data);
+    
+    if(!data.includedInPaymentFlow){
+      data.roleId = null;
+    }
     if(this.editStatus){
-      this.submit = this.roleService.updateDesignation(this.role.id, this.form.getRawValue()).subscribe(data => {
+      this.submit = this.roleService.updateDesignation(this.role.id, data).subscribe(data => {
         this.dialogRef.close()
         this.snackBar.open("Designation updated succesfully...","" ,{duration:3000})
       });
