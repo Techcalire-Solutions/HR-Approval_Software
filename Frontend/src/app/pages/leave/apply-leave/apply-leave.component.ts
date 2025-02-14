@@ -380,7 +380,10 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
         });
       } else {
         this.submit = this.leaveService.addEmergencyLeave(leaveRequest).subscribe({
-          next: (res) => {
+          next: (res: any) => {
+            console.log(res);
+            
+            alert(`${res.not}`)
             this.isLoading = false;
             this.router.navigateByUrl('/login/leave');
             this.snackBar.open("Emergency leave added successfully...", "", { duration: 3000 });
@@ -388,33 +391,34 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
           error: (err) => { 
             this.isLoading = false;
             this.router.navigateByUrl('/login/leave');
-            this.snackBar.open("Failed to add emergency leave. Please try again.", "", { duration: 3000 });
+            this.snackBar.open(err, "", { duration: 3000 });
           }
         });
       }
     }else{
         const id: any = this.leaveRequestForm.get('userId')?.value
-        this.emailSub = this.leaveService.getUserEmail(id).subscribe(data => {
-          if(!data){
-            const dialogRef = this.dialog.open(UserEmailComponent, {
-              width: '600px',
-              data: {
-                userId: id, type: 'Official'
-              }
-            });
-            this.dialogSub = dialogRef.afterClosed().subscribe(result => {
-              if (result) {
-                this.submitLeaveRequest(leaveRequest);
-              } else {
-                this.isLoading = false; 
-                this.router.navigateByUrl('/login/leave');
-              }
-            });
-          } else {
-            // Proceed with leave request submission if email exists
-            this.submitLeaveRequest(leaveRequest);
-          }
-        });
+        this.submitLeaveRequest(leaveRequest);
+        // this.emailSub = this.leaveService.getUserEmail(id).subscribe(data => {
+        //   if(!data){
+        //     const dialogRef = this.dialog.open(UserEmailComponent, {
+        //       width: '600px',
+        //       data: {
+        //         userId: id, type: 'Official'
+        //       }
+        //     });
+        //     this.dialogSub = dialogRef.afterClosed().subscribe(result => {
+        //       if (result) {
+        //         this.submitLeaveRequest(leaveRequest);
+        //       } else {
+        //         this.isLoading = false; 
+        //         this.router.navigateByUrl('/login/leave');
+        //       }
+        //     });
+        //   } else {
+        //     // Proceed with leave request submission if email exists
+        //     this.submitLeaveRequest(leaveRequest);
+        //   }
+        // });
 
       // }
     }
@@ -427,7 +431,9 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
       : this.leaveService.addLeave(leaveRequest);
     request$.subscribe(
       (response: any) => {
-        this.openDialog(response.message, response.leaveDatesApplied, response.lopDates);
+        console.log(response);
+        
+        this.openDialog(response);
         this.isLoading = false;
       },
       (error) => {
@@ -438,12 +444,10 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     );
   }
 
-  openDialog(message: string, leaveDatesApplied: any[], lopDates: any[]) {
+  openDialog(message: any) {
     const dialogRef = this.dialog.open(LeaveInfoDialogComponent, {
       data: {
         message: message,
-        leaveDatesApplied: leaveDatesApplied,
-        lopDates: lopDates
       }
     });
 

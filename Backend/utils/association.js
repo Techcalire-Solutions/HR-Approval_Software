@@ -25,23 +25,6 @@ async function syncModel() {
         }
     }
   
-  
-    // Team.belongsTo(User, {
-    //     foreignKey: "userId",
-    //     as: "leader",
-    //   });
-    
-    //   Team.hasMany(TeamMember, { foreignKey: "teamId" });
-    //   TeamMember.belongsTo(Team);
-
-    //   User.hasMany(TeamMember, { foreignKey: "userId"});
-    //   TeamMember.belongsTo(User, { foreignKey: "userId"});
-    
-
-//------------------------------LEAVE ASSOCIATIONS-----------------------------------------------
-//   Leave.belongsTo(LeaveType, { foreignKey: 'leaveTypeId' });
-//   Leave.belongsTo(User, { foreignKey: 'userId' });
-  
     const roleData = [
         {roleName: 'Employee',abbreviation:'EMP'}, 
         {roleName: 'Sales Executive',abbreviation:'SE'}, 
@@ -49,7 +32,6 @@ async function syncModel() {
         {roleName: 'Manager',abbreviation:'Manager'},
         {roleName: 'Accountant',abbreviation:'Accountant'}, 
         {roleName: 'Team Lead',abbreviation:'Team Lead'}, 
-
         {roleName: 'Administrator',abbreviation:'Approval Admin'}, 
         {roleName: 'HR Administrator',abbreviation:'HR Admin'}, 
         {roleName: 'Super Administrator',abbreviation:'Super Admin'}, 
@@ -70,9 +52,7 @@ async function syncModel() {
     }
 
     const user = await User.findAll({});
-    
-    const salt = await bcrypt.genSalt(10);
-    
+    const salt = await bcrypt.genSalt(10); 
     if(user.length === 0){
         for(let i = 0; i < userdata.length; i++){
             const hashedPassword = await bcrypt.hash(userdata[i].password, salt)
@@ -82,32 +62,6 @@ async function syncModel() {
             User.bulkCreate([userdata[i]])
         }
     }
-
-    // const team = await Team.findAll({});
-
-    // if (team.length === 0) {
-    //     try {
-    //         await Team.bulkCreate([
-    //             { teamName: "EMEA", userId: 1 },
-    //         ]);
-    
-    //         const teams = await Team.findAll();
-    //         const teamMembers = [
-    //             { teamId: 1, userId: 1 },
-    //             { teamId: 1, userId: 2 },
-    //             { teamId: 1, userId: 3 },
-    //         ];
-    
-    //         for (const team of teams) {
-    //             await TeamMember.bulkCreate(teamMembers.map(member => ({
-    //                 ...member,
-    //                 teamId: team.id,
-    //             })));
-    //         }
-    //     } catch (error) {
-    //         console.error("Error creating team and team members:", error.message);
-    //     }
-    // }
 }
 
 module.exports = syncModel;

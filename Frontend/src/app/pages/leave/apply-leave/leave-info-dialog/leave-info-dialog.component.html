@@ -4,28 +4,23 @@
           <div class="modal-header">
               <h4 class="modal-title"  *ngIf="showOkButton">Confirmation</h4>
               <h4 class="modal-title"  *ngIf="showCancelButton">Alert</h4>
-
-              <button type="button" class="back-icon" aria-label="Back" (click)="onBack()">
-                  <mat-icon>close</mat-icon>
-              </button>
           </div>
 
-          <mat-icon style="font-size: 25px; color: #60c7c1;" *ngIf="showOkButton">check_circle</mat-icon>
+          <!-- <mat-icon style="font-size: 25px; color: #60c7c1;" *ngIf="showOkButton">check_circle</mat-icon> -->
 
           <div class="modal-body text-center">
 
-            <p>{{ message }}</p>
+            <p>{{ message.message }}</p>
 
             <br>
-            @if(appliedLeaveDates && appliedLeaveDates.length > 0){
+            @if(message.details && message.details.length > 0){
               <div>
-                <p><strong>Applied Leave Dates:</strong></p>
                 <ul>
-                  <li *ngFor="let leave of appliedLeaveDates">
-                    {{ leave.date }} -
-                    <span *ngIf="leave.session1">Session 1</span>
-                    <span *ngIf="leave.session1 && leave.session2"> & </span>
-                    <span *ngIf="leave.session2">Session 2</span>
+                  <li *ngFor="let leave of message.details">
+                    <p><strong>Applied For:</strong> {{ leave.year }} - {{leave.leaveType}}</p>
+                    <span *ngIf="leave.balanceUsed > 0"><strong> Balance Leaves</strong> - {{leave.balanceLeaves}}</span>
+                    <span *ngIf="leave.balanceUsed > 0"><strong> Balance Used </strong> - {{leave.balanceUsed}}</span>
+                    <span *ngIf="leave.lopUsed > 0"><strong>LOP days</strong> - {{leave.lopUsed}} </span>
                   </li>
                 </ul>
               </div>

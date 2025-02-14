@@ -107,8 +107,8 @@ export class NewLeaveService {
     return this.http.get<UserLeave[]>(`${this.apiUrl}/useremail/byuseridforleave/${id}`);
   }
 
-  getUserLeaveForEncash(){
-    return this.http.get<any[]>(`${this.apiUrl}/userLeave/forencashment/`);
+  getUserLeaveForEncash(year: number){
+    return this.http.get<any[]>(`${this.apiUrl}/userLeave/forencashment/${year}`);
   }
 
 

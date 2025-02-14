@@ -48,10 +48,18 @@ export class LeaveComponent implements OnInit, OnDestroy{
       if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
         this.employeeStat = true;
         this.getLeaveByUser(userId)
+        this.getUserLeaves(userId)
         this.userId = userId;
       }else{
         this.getLeaves()
       }
+    })
+  }
+
+  getUserLeaves(id: number){
+    this.leaveService.getUserLeaveByUser(id).subscribe(res => {
+      console.log(res);
+      
     })
   }
 
@@ -78,6 +86,8 @@ export class LeaveComponent implements OnInit, OnDestroy{
     this.leaveSub = this.leaveService.getLeavesByUser(id, this.searchText, this.currentPage, this.pageSize).subscribe(
       (res: any) => {
         this.leaves = res.items;
+        console.log(this.leaves);
+        
         this.filteredLeaves = this.leaves
         this.totalItems = res.count;
 
@@ -157,6 +167,8 @@ export class LeaveComponent implements OnInit, OnDestroy{
     const approvalData = { leaveId: leaveId, adminNotes: note };
     this.approveSub = this.leaveService.updateApproveLeaveStatus(approvalData).subscribe(
       (res) => {
+        console.log(res);
+        
         this.snackbar.open('Leave approved successfully', '', { duration: 3000 });
         if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
           this.employeeStat = true;

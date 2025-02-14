@@ -41,11 +41,12 @@ import { User } from '../../../common/interfaces/users/user';
 export class TeamDialogueComponent {
   constructor(public dialog: MatDialog, private _snackbar: MatSnackBar, private teamService: TeamService, private fb: FormBuilder, public dialogRef: MatDialogRef<TeamComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any, @Inject(MAT_DIALOG_DATA) public team: Team, private userService: UsersService) { }
+
+
   teamForm = this.fb.group({
     teamName: ['', Validators.required],
-    userId: ['', Validators.required],
-
-   teamMembers: [[]]
+    teamLeaders: [[]],
+    teamMembers: [[]]
   });
 
 
@@ -59,7 +60,6 @@ export class TeamDialogueComponent {
   patchTeam(team: any) {
     this.teamForm.patchValue({
       teamName: team.teamName,
-      userId: team.userId
     });
 
     const teamMembersArray = team.teamMembers.map((member: any) => member.userId);
@@ -102,19 +102,11 @@ export class TeamDialogueComponent {
   }
   onSubmit() {
     let teamMem: any = this.teamForm.getRawValue();
-    let teamM = [];
-    for(let i = 0; i< teamMem.teamMembers.length; i++) {
-     teamM[i] = {
-         userId : teamMem.teamMembers[i]
-       }
-     }
-
-     let  data = {
-       teamName: teamMem.teamName,
-       userId: teamMem.userId,
-       teamMembers: teamM
-     }
-    this.teamService.addTeam(data).subscribe((res) => {
+    console.log(teamMem);
+  
+    this.teamService.addTeam(teamMem).subscribe((res) => {
+      console.log(res);
+      
       this.dialogRef.close();
       this._snackbar.open("Team added successfully...", "", { duration: 3000 })
       this.clearControls()

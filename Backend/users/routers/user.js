@@ -466,11 +466,11 @@ router.patch('/resetpassword/:id', async (req, res) => {
       const emailPassword = config.email.userAddPass;    
       const html = `
         <p>Dear ${user.name},</p>
-        <p>Congratulations on joining our company!.</p>
+        <p>Your password has been successfully reset!.</p>
         <p>Here are your login credentials:</p>
         <p>Username: ${user.empNo}\nPassword: ${password}</p>
         <p>Please keep this information secure.</p>
-        <p>We are excited to have you onboard and look forward to working together.</p>
+        <p>Thank you!</p>
       `;
       const attachments = []
       const token = req.headers.authorization?.split(' ')[1];
@@ -576,10 +576,13 @@ router.get('/confirmemployee/:id', async (req, res) => {
       const slId = sl ? sl.id : null;
       const clId = cl ? cl.id : null;
       
+      const currentYear = new Date().getFullYear();
+      
       let data = [
-        {userId: req.params.id, leaveTypeId: slId, noOfDays : 1, leaveBalance : 1},
-        {userId: req.params.id, leaveTypeId: clId, noOfDays : 1, leaveBalance : 1},
+        {userId: req.params.id, leaveTypeId: slId, noOfDays : 1, leaveBalance : 1, year: currentYear},
+        {userId: req.params.id, leaveTypeId: clId, noOfDays : 1, leaveBalance : 1, year: currentYear},
       ]
+
       for(let i = 0; i < data.length; i++){
         UserLeave.bulkCreate([data[i]]);
       }

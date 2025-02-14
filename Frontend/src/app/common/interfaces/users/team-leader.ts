@@ -1,8 +1,7 @@
-
 import { Team } from "./team";
 import { User } from "./user";
 
-export interface TeamMember {
+export interface TeamLeader {
     id: number;
     teamId: number;
     userId: number;

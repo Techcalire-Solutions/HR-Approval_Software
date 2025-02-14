@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { UsersService } from '@services/users.service';
@@ -12,7 +13,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-reset-password',
   standalone: true,
-  imports: [MatFormFieldModule, MatInputModule, MatIconModule, ReactiveFormsModule, MatToolbarModule],
+  imports: [MatFormFieldModule, MatInputModule, MatIconModule, ReactiveFormsModule, MatToolbarModule, MatProgressSpinnerModule],
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss'
 })
@@ -84,9 +85,12 @@ export class ResetPasswordComponent implements OnInit, OnDestroy{
   private userService = inject(UsersService)
   snackBar = inject(MatSnackBar)
   reset!: Subscription;
+  isLoading: boolean = false
   onSubmit(){
+    this.isLoading = true;
     this.reset = this.userService.resetPassword(this.data.id, this.form.getRawValue()).subscribe(x => {
       this.dialogRef.close();
+      this.isLoading = false;
       this.snackBar.open(`You have successfully reset ${this.data.empNo} password...`,"" ,{duration:3000})
     })
   }

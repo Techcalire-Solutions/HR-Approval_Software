@@ -20,22 +20,14 @@ export class LeaveInfoDialogComponent {
   showOkButton: boolean = true;
   showCancelButton: boolean = false;
 
-  message: string = '';
-  appliedLeaveDates: { date: string; session1: boolean; session2: boolean }[] = [];
-  lopDates: { date: string; session1: boolean; session2: boolean }[] = [];
+  message: any
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: {
-      message: string;
-      leaveDatesApplied?: { date: string; session1: boolean; session2: boolean }[];
-      lopDates?: { date: string; session1: boolean; session2: boolean }[];
-    },
+    @Inject(MAT_DIALOG_DATA) public data: {message: any},
     private dialogRef: MatDialogRef<LeaveInfoDialogComponent>
   ) {
     if (data) {
       this.message = data.message;
-      this.appliedLeaveDates = this.formatDates(data.leaveDatesApplied || []);
-      this.lopDates = this.formatDates(data.lopDates || []);
     }
     this.setOkButtonVisibility();
   }
@@ -49,16 +41,14 @@ export class LeaveInfoDialogComponent {
 
   private setOkButtonVisibility() {
     if (
-      this.message.includes('balance is 0') ||
-      this.message.includes('No leave will be applied') ||
-      this.message.includes('You do not have') ||
-      this.message.includes('Official Mail Id')
+      this.message.message.includes('Leave processed') ||
+      this.message.message.includes('LOP leave created')
     ) {
-      this.showOkButton = false;
-      this.showCancelButton = true;
-    } else {
       this.showOkButton = true;
       this.showCancelButton = false;
+    } else {
+      this.showOkButton = false;
+      this.showCancelButton = true;
     }
   }
 

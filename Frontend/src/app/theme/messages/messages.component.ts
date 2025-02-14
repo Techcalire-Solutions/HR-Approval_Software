@@ -217,6 +217,11 @@ export class MessagesComponent implements OnInit, OnDestroy {
   }
   // constructor(private router: Router) {}
 
+  navigateToMessage(message: any) {
+    if (message.route) {
+      this.router.navigate([message.route]);
+    }
+  }
 
 // Function to extract the link from the message (if available)
 extractLink(route: string): boolean {
