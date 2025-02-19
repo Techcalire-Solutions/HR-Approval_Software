@@ -4,13 +4,13 @@ import { Subscription } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { UserLeaveComponent } from '../../admin-leave/user-leave/user-leave.component';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { User } from '../../../common/interfaces/users/user';
 import { SearchFilterPipe } from '../../../common/pipes/search-filter.pipe';
+import { UserLeaveComponent } from '../../leave/user-leave/user-leave.component';
 
 @Component({
   selector: 'app-confirmation',

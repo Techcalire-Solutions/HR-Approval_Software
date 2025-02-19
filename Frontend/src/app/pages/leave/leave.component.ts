@@ -18,12 +18,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { RoleService } from '@services/role.service';
 import { Role } from '../../common/interfaces/users/role';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-leave',
   standalone: true,
   imports: [MatButtonToggleModule, MatFormFieldModule, MatIconModule, SafePipe, MatPaginatorModule, CommonModule, RouterModule, MatInputModule,
-    MatButtonModule
+    MatButtonModule, MatProgressSpinnerModule
   ],
   templateUrl: './leave.component.html',
   styleUrl: './leave.component.scss'
@@ -48,10 +49,18 @@ export class LeaveComponent implements OnInit, OnDestroy{
       if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
         this.employeeStat = true;
         this.getLeaveByUser(userId)
+        this.getUserLeaves(userId)
         this.userId = userId;
       }else{
         this.getLeaves()
       }
+    })
+  }
+
+  getUserLeaves(id: number){
+    this.leaveService.getUserLeaveByUser(id).subscribe(res => {
+      console.log(res);
+      
     })
   }
 
@@ -78,6 +87,8 @@ export class LeaveComponent implements OnInit, OnDestroy{
     this.leaveSub = this.leaveService.getLeavesByUser(id, this.searchText, this.currentPage, this.pageSize).subscribe(
       (res: any) => {
         this.leaves = res.items;
+        console.log(this.leaves);
+        
         this.filteredLeaves = this.leaves
         this.totalItems = res.count;
 
@@ -151,12 +162,14 @@ export class LeaveComponent implements OnInit, OnDestroy{
       }
     });
   }
-
+  isLoading: boolean = false;
   approveSub!: Subscription;
   approveLeave(leaveId: any, note: string) {
+    this.isLoading = true;
     const approvalData = { leaveId: leaveId, adminNotes: note };
     this.approveSub = this.leaveService.updateApproveLeaveStatus(approvalData).subscribe(
       (res) => {
+        this.isLoading = false
         this.snackbar.open('Leave approved successfully', '', { duration: 3000 });
         if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
           this.employeeStat = true;
@@ -173,9 +186,11 @@ export class LeaveComponent implements OnInit, OnDestroy{
 
   rejectSub!: Subscription;
   rejectLeave(leaveId: any, note: string) {
+    this.isLoading = true;
     const rejectionData = { leaveId: leaveId, adminNotes: note };
     this.rejectSub = this.leaveService.updateRejectLeaveStatus(rejectionData).subscribe(
       (res) => {
+        this.isLoading = false;
         this.snackbar.open('Leave rejected successfully', '', { duration: 3000 });
         if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
           this.employeeStat = true;

@@ -18,9 +18,8 @@ const UserPosition = require('../users/models/userPosition');
 
 const sendEmail = async (token, fromEmail, password, to, subject, html, attachments, cc) => {
   const { userName, id } = decodeToken(token);
-
   const roleId = await UserPosition.findOne({where: {userId: id}})
-  const role = await Designation.findByPk(roleId.designationId);
+  const role = await Designation.findByPk(roleId?.designationId);
   const designation = role ? role.designationName : 'Employee'; 
 
   // Define the email signature
@@ -92,7 +91,8 @@ const sendEmail = async (token, fromEmail, password, to, subject, html, attachme
 
   // Append the email signature to the HTML content
   const emailBody = html ? `${html}${emailSignature}` : `${emailSignature}`;
-
+  console.log(fromEmail, password);
+  
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
@@ -100,6 +100,12 @@ const sendEmail = async (token, fromEmail, password, to, subject, html, attachme
       pass: password,
     },
   });
+
+  if (cc === null || cc === undefined || cc === '') {
+    cc = undefined;
+  } else if (typeof cc === 'string') {
+    cc = [cc];
+  }
 
   const mailOptions = {
     from: fromEmail,

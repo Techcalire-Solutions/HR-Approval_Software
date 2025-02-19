@@ -73,13 +73,13 @@ export class TeamComponent {
     this.getTeams();
     this.teamService.getTeam().subscribe((res)=>{
       this.dataSource = res;
-
- })
+    })
   }
 
   public getTeams(): void {
     this.teams = null; //for show spinner each time
     this.teamService.getTeam().subscribe((teams: any) =>{
+      console.log(teams);
       this.teams = teams
     });
   }

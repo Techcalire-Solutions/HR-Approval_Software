@@ -14,8 +14,8 @@
               <mat-card class="content">
                   <ng-scrollbar pointerEventsMethod="scrollbar">
                       <div fxLayout="column" fxLayoutAlign="none">
-                          @for (message of notifications; track message.id) { <!-- FIXED: Proper tracking -->
-                            <button mat-button (click)="!isAdmin() ? markAsRead(message.id) : null">
+                          @for (message of notifications; track message.id) {
+                            <button mat-button (click)="navigateToMessage(message)">
                               <div fxLayout="column" fxLayoutAlign="none" class="w-100">
                                 <div fxLayout="row" fxLayoutAlign="space-between start">
                                   <span class="name">{{ message.name }}</span>
@@ -26,12 +26,12 @@
                                 <span class="text muted-text" [innerHTML]="message.message"></span>
                               </div>
                               <mat-icon
-                                style="color: blue; cursor: pointer;"
-                                (click)="!isAdmin() ? markAsRead(message.id) : null"
-                                aria-label="Mark as read"
-                              >
-                                mark_email_read
-                              </mat-icon>
+                              style="color: blue; cursor: pointer;"
+                              (click)="!isAdmin() ? markAsRead(message.id) : null"
+                              aria-label="Mark as read"
+                            >
+                              mark_email_read
+                            </mat-icon>
                             </button>
                           }
                       </div>

@@ -348,3 +348,16 @@ iframe {
   height: 75px;
   object-fit: contain; /* Makes the image fit inside the iframe without cropping */
 }
+
+.user-spinner {
+  position: fixed; /* Ensures the spinner is positioned relative to the viewport */
+  top: 0;
+  left: 0;
+  width: 100%; /* Covers the full screen width */
+  height: 100%; /* Covers the full screen height */
+  display: flex; /* Flexbox to center the spinner */
+  justify-content: center; /* Horizontally center */
+  align-items: center; /* Vertically center */
+  background-color: rgba(0, 0, 0, 0.1); /* Optional: Add a semi-transparent background */
+  z-index: 1000; /* Ensures it appears above other content */
+}

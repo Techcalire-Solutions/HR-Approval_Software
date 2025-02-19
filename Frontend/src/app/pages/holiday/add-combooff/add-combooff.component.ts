@@ -4,13 +4,13 @@ import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
-import { LeaveService } from '@services/leave.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CompoOff } from '../../../common/interfaces/leaves/compo-off';
 import { MatIconModule } from '@angular/material/icon';
 import { User } from '../../../common/interfaces/users/user';
 import { HolidayService } from '@services/holiday.service';
+import { NewLeaveService } from '@services/new-leave.service';
 
 @Component({
   selector: 'app-add-combooff',
@@ -34,7 +34,7 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
 
   fb = inject(FormBuilder);
   userService = inject(UsersService);
-  leaveService = inject(LeaveService);
+  leaveService = inject(NewLeaveService);
   route = inject(ActivatedRoute);
   snackBar = inject(MatSnackBar);
 

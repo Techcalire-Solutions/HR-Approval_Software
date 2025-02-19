@@ -6,41 +6,44 @@ const Team = require('../models/team');
 const TeamMember = require('../models/teamMember');
 const router = express.Router();
 const User = require('../models/user');
-
+const TeamLeader = require('../models/teamLeader');
 
 router.post('/', async (req, res) => {
     try {
-        const { teamName, userId, teamMembers } = req.body;
-
-        const team = new Team({ teamName, userId })
-        await team.save()
-        let teamId = team.id;
-        for (let i = 0; i < teamMembers.length; i++) {
-            teamMembers[i].teamId = teamId;
-        }
-        const teamMembersBulkResult = await TeamMember.bulkCreate(teamMembers);
-        const teamMember = new TeamMember({ teamId, userId })
-        await teamMember.save()
-        res.send(teamMembersBulkResult)
-
+      const { teamName, teamLeaders, teamMembers } = req.body;
+        console.log(teamMembers);
+        
+      // Create the team
+      const team = await Team.create({ teamName });
+  
+      // Create team leaders
+      const teamLeadersPromises = teamLeaders.map(userId => 
+        TeamLeader.create({ teamId: team.id, userId })
+      );
+      await Promise.all(teamLeadersPromises);
+      console.log(teamLeadersPromises);
+      
+      // Create team members
+      const teamMembersPromises = teamMembers.map(userId => 
+        TeamMember.create({ teamId: team.id, userId })
+      );
+      await Promise.all(teamMembersPromises);
+      console.log(teamMembersPromises);
+  
+      res.send({ message: 'Team created successfully', teamId: team.id });
     } catch (error) {
-        res.send(error.message)
-
+      res.send(error.message);
     }
-
-})
-
+});
+  
 router.get('/', async (req, res) => {
     try {
-        const team = await Team.findAll({
-            include: [{ model: User, as: 'leader'}, {model: TeamMember, include:[
-                { model: User}
-            ]}]
+        const team = await Team.findAll({include: [
+            { model: TeamLeader, attributes: ['userId'], include: [{model: User, attributes: ['name']}] },
+            { model: TeamMember, attributes: ['userId'], include: [{model: User, attributes: ['name']}] }]
         });
 
         res.send(team);
-
-
     } catch (error) {
         res.send(error.message)
     }

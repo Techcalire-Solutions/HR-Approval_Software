@@ -4,10 +4,10 @@ import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms'
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { LeaveService } from '@services/leave.service';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { NewLeaveService } from '@services/new-leave.service';
 
 @Component({
   selector: 'app-uplaod-dialog',
@@ -27,7 +27,7 @@ export class UplaodDialogComponent {
   note: string = '';
   fb = inject(FormBuilder);
   leaveRequestForm: FormGroup;
-  leaveService = inject(LeaveService);
+  leaveService = inject(NewLeaveService);
   route = inject(ActivatedRoute);
 
   ngOnInit() {

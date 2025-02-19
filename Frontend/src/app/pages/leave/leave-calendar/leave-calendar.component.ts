@@ -6,7 +6,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
-import { LeaveService } from '@services/leave.service';
 import { NewLeaveService } from '@services/new-leave.service';
 import { Settings, SettingsService } from '@services/settings.service';
 import { CalendarView, CalendarEvent, CalendarModule } from 'angular-calendar';

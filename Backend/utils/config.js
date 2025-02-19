@@ -9,6 +9,8 @@ module.exports = {
     announcemntUser: 'nishida@onboardaero.com',
     announcementPass: 'jior rtdu epzr xadt',
     leaveUser: 'nishida@onboardaero.com',
-    leavePass: 'jior rtdu epzr xadt'
+    leavePass: 'jior rtdu epzr xadt',
+    leaveCommonUser: 'nishida@onboardaero.com',
+    leaveCommonPass: 'jior rtdu epzr xadt'
   },
 };

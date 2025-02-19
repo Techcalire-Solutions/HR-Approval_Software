@@ -1,15 +1,25 @@
 <div>
   <ng-container>
+    <!-- Year Selector -->
+    <div fxLayout="row" fxLayoutAlign="end center" class="p-2">
+      <mat-form-field appearance="outline">
+        <mat-label>Select Year</mat-label>
+        <mat-select [(ngModel)]="selectedYear" (selectionChange)="filterLeaves()">
+          <mat-option *ngFor="let year of availableYears" [value]="year">{{ year }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
     <div fxLayout="row">
-       @if(leaveCounts && leaveCounts.length){
+      @if (leaveCounts && leaveCounts.length) {
         <ng-container *ngFor="let leaveType of leaveCounts">
-          <div *ngIf="isPermanentUser && shouldDisplayLeaveType(leaveType.leaveType)" fxFlex="50" class="p-2">
+          <div fxFlex="50" class="p-2">
             <mat-card>
               <mat-card-header fxLayoutAlign="center">
                 <mat-card-title fxLayoutAlign="center">{{ leaveType.leaveType }}</mat-card-title>
               </mat-card-header>
               <mat-card-content class="bag pt-3">
-                <!-- Display general leave details for all leave types -->
+                <!-- General Leave Details -->
                 <div *ngIf="leaveType.leaveType !== 'LOP'">
                   <mat-card *ngFor="let color of colors" 
                             [class.bg-primary]="color=='primary'"
@@ -34,16 +44,16 @@
                   </mat-card>
                 </div>
 
-                <!-- Special handling for LOP -->
+                <!-- Special Handling for LOP -->
                 <ng-container *ngIf="leaveType.leaveType === 'LOP'">
                   <mat-card class="bg-warn draggable p-3">
                     <div fxLayout="row" fxLayoutAlign="start center">
                       <div fxFlex="100">
-                        <strong>Days Taken in Year:</strong> {{ leaveType.userLeaves.takenLeaves || 0 }}
+                        <strong>Days Taken in Year:</strong> {{ leaveType?.userLeaves?.takenLeaves || 0 }}
                       </div>
                     </div>
                   </mat-card>
-                  <mat-card class="bg-warn draggable p-3">
+                  <mat-card class="bg-warn draggable p-3" *ngIf="selectedYear === currentYear">
                     <div fxLayout="row" fxLayoutAlign="start center">
                       <div fxFlex="100">
                         <strong>Days Taken in Month:</strong> {{ leaveType.monthlyLOPCount || 0 }}
@@ -55,7 +65,7 @@
             </mat-card>
           </div>
         </ng-container>
-       }
+      }
     </div>
   </ng-container>
 </div>

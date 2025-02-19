@@ -39,13 +39,16 @@
               @for (team of teams; track $index) {
                 <tr>
                   <td> {{ team.teamName }} </td>
-  
-                  <!-- Team Leader Column -->
-                  <td> {{ team.leader.name }} </td>
-  
-                  <!-- Team Members Column -->
+                  <td> 
+                    @for (member of team.team_leaders; track $index) {
+                      <div class="team-member">
+                        {{ member.user.name }}
+                        <mat-divider></mat-divider>
+                      </div>
+                    }
+                   </td>
                   <td>
-                    @for (member of team.teamMembers; track $index) {
+                    @for (member of team.team_members; track $index) {
                       <div class="team-member">
                         {{ member.user.name }}
                         <mat-divider></mat-divider>

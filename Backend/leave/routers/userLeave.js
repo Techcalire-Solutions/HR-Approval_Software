@@ -58,11 +58,13 @@ cron.schedule('0 0 1 * *', async () => {
 });
 
 
-router.get('/leavecount/:userId/:typeid', authenticateToken, async (req, res) => {
+router.get('/leavecount/:userId/:typeid/:year', authenticateToken, async (req, res) => {
   try {
     const userId = req.params.userId;
     const leaveTypeId = req.params.typeid;
-
+    const year = req.params.year; 
+    console.log(userId, leaveTypeId, year);
+    
     // Find the leave type details
     const leaveType = await LeaveType.findOne({
       where: { id: leaveTypeId },
@@ -126,16 +128,20 @@ router.get('/leavecount/:userId/:typeid', authenticateToken, async (req, res) =>
         });
         return count;
       }, 0);
+
+      console.log(monthlyLOPCount);
+      
     }
     const userLeaves = await UserLeave.findOne({
-      where: { userId, leaveTypeId },
+      where: { userId, leaveTypeId, year },
       include: {
         model: LeaveType,
         as: 'leaveType',
         attributes: ['leaveTypeName', 'id'],
       },
     });
-
+    console.log(userLeaves);
+    
     return res.json({userLeaves, monthlyLOPCount});
   } catch (error) {
     res.send(error.message);
@@ -179,7 +185,7 @@ router.get('/', authenticateToken, async (req, res) => {
 router.get('/byuserandtype/:userid/:typeid', authenticateToken, async (req, res) => {
   try {
     const userLeaves = await UserLeave.findOne({
-      where: { userId : req.params.userid, leaveTypeId: req.params.typeid}
+      where: { userId : req.params.userid, leaveTypeId: req.params.typeid, year: new Date().getFullYear()}
     });
     res.send(userLeaves);
   } catch (error) {
@@ -189,13 +195,14 @@ router.get('/byuserandtype/:userid/:typeid', authenticateToken, async (req, res)
 
 router.get('/byuser/:userid', authenticateToken, async (req, res) => {
   try {
+    const currentYear = new Date().getFullYear();
     const userLeaves = await UserLeave.findAll({
-      where: { userId : req.params.userid},
+      where: { userId : req.params.userid, year: currentYear},
       include: [{model: LeaveType}]
     });
     res.send(userLeaves);
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.send( error.message );
   }
 });
 
@@ -207,7 +214,7 @@ router.patch('/update', authenticateToken, async (req, res) => {
     let updated = [];
     for( let i = 0; i < data.length; i++ ){
       let ulExist = await UserLeave.findOne({
-        where: { userId: data[i].userId, leaveTypeId: data[i].leaveTypeId }
+        where: { userId: data[i].userId, leaveTypeId: data[i].leaveTypeId, year: new Date().getFullYear() }
       })
       if(ulExist){
         ulExist.noOfDays  = +data[i].noOfDays;
@@ -222,7 +229,8 @@ router.patch('/update', authenticateToken, async (req, res) => {
           leaveTypeId: data[i].leaveTypeId,
           noOfDays: +data[i].noOfDays,
           takenLeaves: +data[i].takenLeaves,
-          leaveBalance: +data[i].leaveBalance
+          leaveBalance: +data[i].leaveBalance,
+          year: new Date().getFullYear()
         })
         await userLeave.save();
         updated.push(userLeave);
@@ -234,8 +242,9 @@ router.patch('/update', authenticateToken, async (req, res) => {
   }
 })
 
-router.get('/forencashment', async (req, res) => {
+router.get('/forencashment/:year', async (req, res) => {
   try {
+    const year = req.params.year
     const leaveTypes = await LeaveType.findAll({
       where: { leaveTypeName: ['Casual Leave', 'Comb Off'] },
       attributes: ['id', 'leaveTypeName']
@@ -248,7 +257,7 @@ router.get('/forencashment', async (req, res) => {
     }
 
     const userLeaves = await UserLeave.findAll({
-      where: { leaveTypeId: [cl, co] },
+      where: { leaveTypeId: [cl, co], year },
       include: {
         model: User,
         attributes: ['id', 'name'],

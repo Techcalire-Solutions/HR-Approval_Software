@@ -40,21 +40,21 @@ export const routes: Routes = [
       // {path: 'leaveType', loadComponent: () => import('./admin-leave/leave-types/leave-types.component').then(c => c.LeaveTypesComponent),
       //   data: { breadcrumb: 'Leave Type' }, canActivate: [AuthGuard]
       // },
-      {
-        path: 'admin-leave',
-        loadChildren: () => import('./admin-leave/admin-leave.routes').then(c => c.routes),
-        data: { breadcrumb: 'Leave' }, canActivate: [AuthGuard]
-      },
+      // {
+      //   path: 'admin-leave',
+      //   loadChildren: () => import('./admin-leave/admin-leave.routes').then(c => c.routes),
+      //   data: { breadcrumb: 'Leave' }, canActivate: [AuthGuard]
+      // },
       {
         path: 'leave',
         loadChildren: () => import('./leave/leave.routes').then(c => c.routes),
         data: { breadcrumb: 'Leave' }, canActivate: [AuthGuard]
       },
-      {
-        path: 'employee-leave',
-        loadChildren: () => import('./employee-leave/employee-leave.routes').then(c => c.routes),
-        data: { breadcrumb: 'VIEW LEAVES' }, canActivate: [AuthGuard]
-      },
+      // {
+      //   path: 'employee-leave',
+      //   loadChildren: () => import('./employee-leave/employee-leave.routes').then(c => c.routes),
+      //   data: { breadcrumb: 'VIEW LEAVES' }, canActivate: [AuthGuard]
+      // },
       {
         path: 'payroll',
         loadChildren: () => import('./payroll/payroll.routes').then(c => c.routes),

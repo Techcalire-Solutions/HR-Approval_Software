@@ -63,11 +63,10 @@ app.use('/company', company);
 // app.use('/users/userImages', express.static(path.join(__dirname, '../users/userImages')));
 
 const leave = require('../leave/routers/leave');
-const leaveRoute = require('../leave/routers/leaveRoute');
 const leaveType = require('../leave/routers/leaveType');
 const userLeave = require('../leave/routers/userLeave');
-app.use('/leave', leave);
-app.use('/newleave', leaveRoute);
+// app.use('/leave', leave);
+app.use('/newleave', leave);
 app.use('/leaveType', leaveType);
 app.use('/userLeave', userLeave);
 
@@ -97,7 +96,6 @@ app.use('/chat', chat);
 
 const asset = require('../assets/router/asset');
 app.use('/companyasset', asset);
-
 
 const backup = require('./backUp')
 cron.schedule('0 0 5 * *', () => {
