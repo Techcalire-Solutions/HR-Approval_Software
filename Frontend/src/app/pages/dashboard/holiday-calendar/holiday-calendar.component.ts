@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { LeaveService } from '@services/leave.service';
 import { Subscription } from 'rxjs';
 import { Holidays } from '../../../common/interfaces/leaves/holidays';
 import { MatCardModule } from '@angular/material/card';
@@ -12,6 +11,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HolidayService } from '@services/holiday.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { NewLeaveService } from '@services/new-leave.service';
 
 @Component({
   selector: 'app-holiday-calendar',
@@ -22,7 +22,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class HolidayCalendarComponent implements OnInit, OnDestroy{
 
-  leaveService = inject(LeaveService);
+  leaveService = inject(NewLeaveService);
   roleService = inject(RoleService);
   dialog = inject(MatDialog);
   router = inject(Router);

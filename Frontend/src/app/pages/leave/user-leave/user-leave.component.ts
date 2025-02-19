@@ -3,7 +3,6 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { LeaveService } from '@services/leave.service';
 import { Subscription } from 'rxjs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
@@ -11,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserLeave } from '../../../common/interfaces/leaves/userLeave';
 import { LeaveType } from '../../../common/interfaces/leaves/leaveType';
+import { NewLeaveService } from '@services/new-leave.service';
 
 @Component({
   selector: 'app-user-leave',
@@ -97,7 +97,7 @@ export class UserLeaveComponent implements OnInit, OnDestroy {
     })
   }
 
-  leaveService = inject(LeaveService)
+  leaveService = inject(NewLeaveService)
   leaveTypeSub!: Subscription;
   leaveTypes: LeaveType[] = [];
   getLeaveTypes(){

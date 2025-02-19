@@ -53,7 +53,7 @@
                       </div>
                     </div>
                   </mat-card>
-                  <mat-card class="bg-warn draggable p-3">
+                  <mat-card class="bg-warn draggable p-3" *ngIf="selectedYear === currentYear">
                     <div fxLayout="row" fxLayoutAlign="start center">
                       <div fxFlex="100">
                         <strong>Days Taken in Month:</strong> {{ leaveType.monthlyLOPCount || 0 }}

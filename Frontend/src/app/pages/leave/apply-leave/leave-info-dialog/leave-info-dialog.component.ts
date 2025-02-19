@@ -26,6 +26,8 @@ export class LeaveInfoDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: {message: any},
     private dialogRef: MatDialogRef<LeaveInfoDialogComponent>
   ) {
+    console.log(data);
+    
     if (data) {
       this.message = data.message;
     }
@@ -41,8 +43,9 @@ export class LeaveInfoDialogComponent {
 
   private setOkButtonVisibility() {
     if (
-      this.message.message.includes('Leave processed') ||
-      this.message.message.includes('LOP leave created')
+      this.message.message?.includes('Leave processed') ||
+      this.message.message?.includes('LOP leave created') ||
+      this.message.message?.includes('Leave updated successfully') 
     ) {
       this.showOkButton = true;
       this.showCancelButton = false;

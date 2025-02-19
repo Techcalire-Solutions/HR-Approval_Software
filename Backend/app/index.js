@@ -63,7 +63,6 @@ app.use('/company', company);
 // app.use('/users/userImages', express.static(path.join(__dirname, '../users/userImages')));
 
 const leave = require('../leave/routers/leave');
-const leaveRoute = require('../leave/routers/leaveRoute');
 const leaveType = require('../leave/routers/leaveType');
 const userLeave = require('../leave/routers/userLeave');
 // app.use('/leave', leave);

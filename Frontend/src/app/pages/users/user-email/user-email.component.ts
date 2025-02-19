@@ -9,8 +9,6 @@ import { Subscription } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
-import { LeaveService } from '@services/leave.service';
-import { NewLeaveService } from '@services/new-leave.service';
 
 @Component({
   selector: 'app-user-email',

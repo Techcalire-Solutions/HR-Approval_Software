@@ -185,7 +185,7 @@ router.get('/', authenticateToken, async (req, res) => {
 router.get('/byuserandtype/:userid/:typeid', authenticateToken, async (req, res) => {
   try {
     const userLeaves = await UserLeave.findOne({
-      where: { userId : req.params.userid, leaveTypeId: req.params.typeid}
+      where: { userId : req.params.userid, leaveTypeId: req.params.typeid, year: new Date().getFullYear()}
     });
     res.send(userLeaves);
   } catch (error) {
@@ -214,7 +214,7 @@ router.patch('/update', authenticateToken, async (req, res) => {
     let updated = [];
     for( let i = 0; i < data.length; i++ ){
       let ulExist = await UserLeave.findOne({
-        where: { userId: data[i].userId, leaveTypeId: data[i].leaveTypeId }
+        where: { userId: data[i].userId, leaveTypeId: data[i].leaveTypeId, year: new Date().getFullYear() }
       })
       if(ulExist){
         ulExist.noOfDays  = +data[i].noOfDays;
@@ -229,7 +229,8 @@ router.patch('/update', authenticateToken, async (req, res) => {
           leaveTypeId: data[i].leaveTypeId,
           noOfDays: +data[i].noOfDays,
           takenLeaves: +data[i].takenLeaves,
-          leaveBalance: +data[i].leaveBalance
+          leaveBalance: +data[i].leaveBalance,
+          year: new Date().getFullYear()
         })
         await userLeave.save();
         updated.push(userLeave);

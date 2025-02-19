@@ -115,4 +115,17 @@ export class NewLeaveService {
   getMonthlyLeaveDays(startDate: any, endDate: any){
     return this.http.get<any[]>(`${this.apiUrl}/newleave/find/monthlyleavedays?startDate=${startDate}&endDate=${endDate}`);
   }
+
+  getUserLeave(userId: number, typeid: number): Observable<UserLeave> {
+    return this.http.get<UserLeave>(`${this.apiUrl}/userLeave/byuserandtype/${userId}/${typeid}`);
+  }
+
+  updateUserLeave(data: any): Observable<UserLeave> {
+    return this.http.patch<UserLeave>(`${this.apiUrl}/userLeave/update`, data);
+  }
+
+  getLeaveCounts(userId: number, ltId: number, year: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/userLeave/leavecount/${userId}/${ltId}/${year}`);
+  }
+
 }

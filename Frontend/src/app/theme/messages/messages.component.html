@@ -14,7 +14,7 @@
               <mat-card class="content">
                   <ng-scrollbar pointerEventsMethod="scrollbar">
                       <div fxLayout="column" fxLayoutAlign="none">
-                          @for (message of notifications; track message.id) { <!-- FIXED: Proper tracking -->
+                          @for (message of notifications; track message.id) {
                             <button mat-button (click)="navigateToMessage(message)">
                               <div fxLayout="column" fxLayoutAlign="none" class="w-100">
                                 <div fxLayout="row" fxLayoutAlign="space-between start">

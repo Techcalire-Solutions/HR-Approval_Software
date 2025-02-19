@@ -7,13 +7,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
-import { LeaveService } from '@services/leave.service';
 import { DragulaModule } from 'ng2-dragula';
 import { Subscription } from 'rxjs';
 import { LeaveType } from '../../../common/interfaces/leaves/leaveType';
 import { UsersService } from '@services/users.service';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
+import { NewLeaveService } from '@services/new-leave.service';
 
 
 @Component({
@@ -42,13 +42,14 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
 
   public leaveCounts: any[] = [];
   public hasLeaveCounts: boolean = false;
-  leaveService = inject(LeaveService)
+  leaveService = inject(NewLeaveService)
   public errorMessage: string | null = null;
 
   selectedYear: number = new Date().getFullYear(); // Default to current year
   availableYears: number[] = [];
 
   leaveCountsSubscription: Subscription;
+  currentYear: number;
   ngOnInit() {
     const token: any = localStorage.getItem('token');
     const user = JSON.parse(token);
@@ -56,6 +57,8 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
     this.getUser()
     this.getLeaveType()
     this.initializeYears()
+
+    this.currentYear = new Date().getFullYear();
   }
 
   initializeYears(): void {

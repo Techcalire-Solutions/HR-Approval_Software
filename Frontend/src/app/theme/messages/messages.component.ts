@@ -10,13 +10,14 @@ import { NgScrollbarModule } from 'ngx-scrollbar';
 import { MatCardModule } from '@angular/material/card';
 import { PipesModule } from '../pipes/pipes.module';
 import { Subscription } from 'rxjs/internal/Subscription';
-import { LeaveService } from '@services/leave.service';
+import { NewLeaveService } from '@services/new-leave.service';
 import { CommonModule } from '@angular/common';
 import { TimeAgoPipe } from '../pipes/time-ago.pipe';
 import { RoleService } from '@services/role.service';
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { Router, RouterModule } from '@angular/router';
+import { Logger } from 'html2canvas/dist/types/core/logger';
 
 
 @Component({
@@ -48,7 +49,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
   public files: Array<any>;
   public meetings: Array<any>;
   holidays: any[] = [];
-  leaveService = inject(LeaveService);
+  leaveService = inject(NewLeaveService);
   userId: number;
   unreadCount: number = 0;
   allUnreadCount: number = 0;
@@ -160,18 +161,12 @@ export class MessagesComponent implements OnInit, OnDestroy {
     );
   }
 
-
-
-
-
   checkForNewNotifications(newNotifications: any) {
     const extractedNotifications = newNotifications.notifications || [];
     if (!Array.isArray(extractedNotifications) || !Array.isArray(this.notifications)) {
       console.error('Invalid notifications:', extractedNotifications, this.notifications);
       return;
     }
-
-
     const unreadNotifications = extractedNotifications.filter(n => !n.isRead && !this.notifiedUnreadIds.has(n.id));
     if (unreadNotifications.length > 0) {
       unreadNotifications.forEach(n => this.notifiedUnreadIds.add(n.id));
@@ -181,10 +176,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
     this.previousNotificationIds = new Set(extractedNotifications.map(n => n.id));
     this.updateUnreadCount();
   }
-
-
-
-
 
   openMessagesMenu() {
     this.trigger.openMenu();
@@ -218,9 +209,17 @@ export class MessagesComponent implements OnInit, OnDestroy {
   // constructor(private router: Router) {}
 
   navigateToMessage(message: any) {
-    if (message.route) {
-      this.router.navigate([message.route]);
-    }
+    this.markReadSub = this.messagesService.markAsRead(message.id).subscribe(
+      () => {
+        this.getNotificationsForUser();
+        if (message.route) {
+          this.router.navigate([message.route]);
+        }
+      },
+      (error) => {
+        console.error('Error marking notification as read', error);
+      }
+    );
   }
 
 // Function to extract the link from the message (if available)

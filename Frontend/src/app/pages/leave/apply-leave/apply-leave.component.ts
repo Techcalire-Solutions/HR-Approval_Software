@@ -8,7 +8,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { LeaveService } from '@services/leave.service';
 import { UserLeave } from '../../../common/interfaces/leaves/userLeave';
 import { Subscription } from 'rxjs';
 import { UsersService } from '@services/users.service';
@@ -373,20 +372,21 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     if(!this.employeeStat){
       this.isLoading = true;
       if (this.isEditMode) {
-        this.submit = this.leaveService.updatemergencyLeave(leaveRequest, this.leave.id).subscribe(() => {
-          this.isLoading = false;
-          this.router.navigateByUrl('/login/leave')
-          this.snackBar.open("Emergency leave updated successfully...","" ,{duration:3000})
+        this.submit = this.leaveService.updatemergencyLeave(leaveRequest, this.leave.id).subscribe({
+          next: (res: any) => {
+            this.openDialog(res, res?.not);
+          },
+          error: (err) => { 
+            this.isLoading = false;
+            this.router.navigateByUrl('/login/leave');
+            this.snackBar.open(err, "", { duration: 3000 });
+          }
         });
       } else {
         this.submit = this.leaveService.addEmergencyLeave(leaveRequest).subscribe({
           next: (res: any) => {
             console.log(res);
-            
-            alert(`${res.not}`)
-            this.isLoading = false;
-            this.router.navigateByUrl('/login/leave');
-            this.snackBar.open("Emergency leave added successfully...", "", { duration: 3000 });
+            this.openDialog(res, res?.not);
           },
           error: (err) => { 
             this.isLoading = false;
@@ -429,22 +429,21 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     const request$ = this.isEditMode
       ? this.leaveService.updateLeave(this.leave.id, leaveRequest)
       : this.leaveService.addLeave(leaveRequest);
-    request$.subscribe(
-      (response: any) => {
-        console.log(response);
+    request$.subscribe({
+      next: (res: any) => {
+        console.log(res);
         
-        this.openDialog(response);
-        this.isLoading = false;
+        this.openDialog(res, res?.not);
       },
-      (error) => {
+      error: (err) => { 
         this.isLoading = false;
-        this.router.navigate(['/login/leave']);
-        this.snackBar.open('An error occurred while submitting the leave request.', 'Close', { duration: 3000 });
+        this.router.navigateByUrl('/login/leave');
+        this.snackBar.open(err, "", { duration: 3000 });
       }
-    );
+    });
   }
 
-  openDialog(message: any) {
+  openDialog(message: any, not: any) {
     const dialogRef = this.dialog.open(LeaveInfoDialogComponent, {
       data: {
         message: message,
@@ -452,16 +451,20 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if(result.action === 'proceed') this.handleDialogResult(result);
-      else this.snackBar.open('Leave request cancelled!', 'Close', { duration: 3000 });
+      if(result.action === 'proceed') this.handleDialogResult(result, not);
+      else {
+        this.isLoading = false;
+        this.router.navigateByUrl('/login/leave')
+        this.snackBar.open('Leave request cancelled!', 'Close', { duration: 3000 });
+      }
     });
   }
 
-  handleDialogResult(result: any) {
-    // if (result?.action === 'proceed') {
-      this.snackBar.open('Leave request submitted successfully!', 'Close', { duration: 3000 });
-      this.router.navigate(['/login/leave']);
-    // }
+  handleDialogResult(result: any, not: any) {
+    this.isLoading = false;
+    alert(not);
+    this.router.navigateByUrl('/login/leave');
+    this.snackBar.open("Leave added successfully...", "", { duration: 3000 });
   }
 
 
