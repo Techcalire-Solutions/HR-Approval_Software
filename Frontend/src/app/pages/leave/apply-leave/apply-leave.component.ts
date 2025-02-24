@@ -431,8 +431,6 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
       : this.leaveService.addLeave(leaveRequest);
     request$.subscribe({
       next: (res: any) => {
-        console.log(res);
-        
         this.openDialog(res, res?.not);
       },
       error: (err) => { 
@@ -462,7 +460,7 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
 
   handleDialogResult(result: any, not: any) {
     this.isLoading = false;
-    alert(not);
+    alert("• " + not.join("\n• "));
     this.router.navigateByUrl('/login/leave');
     this.snackBar.open("Leave added successfully...", "", { duration: 3000 });
   }

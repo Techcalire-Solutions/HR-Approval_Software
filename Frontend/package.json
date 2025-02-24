@@ -24,6 +24,7 @@
     "@fullcalendar/angular": "^6.1.15",
     "@fullcalendar/core": "^6.1.15",
     "@fullcalendar/daygrid": "^6.1.15",
+    "@ng-bootstrap/ng-bootstrap": "^18.0.0",
     "@ngbracket/ngx-layout": "17.0.1",
     "@swimlane/ngx-charts": "20.5.0",
     "@swimlane/ngx-datatable": "20.1.0",

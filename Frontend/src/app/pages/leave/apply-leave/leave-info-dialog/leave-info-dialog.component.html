@@ -18,9 +18,9 @@
                 <ul>
                   <li *ngFor="let leave of message.details">
                     <p><strong>Applied For:</strong> {{ leave.year }} - {{leave.leaveType}}</p>
-                    <span *ngIf="leave.balanceUsed > 0"><strong> Balance Leaves</strong> - {{leave.balanceLeaves}}</span>
-                    <span *ngIf="leave.balanceUsed > 0"><strong> Balance Used </strong> - {{leave.balanceUsed}}</span>
-                    <span *ngIf="leave.lopUsed > 0"><strong>LOP days</strong> - {{leave.lopUsed}} </span>
+                    <span *ngIf="leave.balanceUsed > 0 && leave.leaveType != 'LOP'"><strong> Balance Leaves</strong> - {{leave.balanceLeaves}}</span>
+                    <span *ngIf="leave.balanceUsed > 0 && leave.leaveType != 'LOP'"><strong> Balance Used </strong> - {{leave.balanceUsed}}</span>
+                    <span *ngIf="leave.balanceUsed > 0 && leave.leaveType === 'LOP'"><strong>LOP days</strong> - {{leave.balanceUsed}} </span>
                   </li>
                 </ul>
               </div>
