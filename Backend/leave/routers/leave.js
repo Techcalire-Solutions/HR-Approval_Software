@@ -95,7 +95,7 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
       });
 
       const requiredDays = noOfDaysByYear[year];
-      if (userLeave.leaveBalance < requiredDays) {
+      if (userLeave.leaveBalance < requiredDays && !isLOP) {
         await transaction.rollback();
         return res.json({ message: `Insufficient leave balance for year ${year}` });
       }
@@ -115,7 +115,7 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
     }, { transaction });
     // Send notifications and emails
   
-    const not = await handleNotificationsAndEmails(req, res, [leave], transaction, 'employee', 'Create');
+    const not = await handleNotificationsAndEmails(req, res, leave, transaction, 'employee', 'Create');
     await transaction.commit();
     res.json({
       not: not,
@@ -484,7 +484,7 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
     const isLOP = leaveType.leaveTypeName === 'LOP';
 
     // Initialize leaves array to store created leave records
-    const leaves = [];
+    let leaves;
 
     // Calculate required days for each date
     for (const [year, dates] of datesByYear) {
@@ -542,7 +542,7 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
         status,
         transaction,
       });
-      leaves.push(leave);
+      leaves = leave
     }
 
     // Prepare leaveDetails for response
@@ -678,7 +678,7 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
 
     const not = await handleNotificationsAndEmails(req, res, updatedLeave, transaction, 'emergency', 'Update');
     await transaction.commit();
-    res.json({ leaves: [updatedLeave], not });
+    res.json({ leaves: [updatedLeave], not, message: 'Leave updated successfully', });
   } catch (error) {
     if (!transaction.finished) {
       await transaction.rollback();
@@ -849,7 +849,7 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
     if (Number.isInteger(rmId)) {
       createNotification({
         id: rmId,
-        me: `leave request has been successfully ${mes}d by ${req.user.name}.`,
+        me: `leave request has been ${mes}d by ${req.user.name}.`,
         route: `/login/leave/open/${leave.id}`
       });
     } else {
@@ -862,7 +862,7 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
       if (Number.isInteger(hrId)) {
         createNotification({
           id: hrId,
-          me: `leave request has been successfully ${mes}d by ${req.user.name}.`,
+          me: `leave request has been ${mes}d by ${req.user.name}.`,
           route: `/login/leave/open/${leave.id}`
         });
       } else {
@@ -871,7 +871,7 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
     } else {
       createNotification({
         id: req.body.userId,
-        me: `leave request has been successfully ${mes}d by ${req.user.name}.`,
+        me: `leave request has been ${mes}d by ${req.user.name}.`,
         route: `/login/leave/open/${leave.id}`
       });
     }
@@ -883,7 +883,7 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
         for (const tlId of teamLeadIds) {
           createNotification({
             id: tlId,
-            me: `leave request has been successfully ${mes}d by ${req.user.name}.`,
+            me: `leave request has been ${mes}d by ${req.user.name}.`,
             route: `/login/leave/${leave.id}`
           });
         }
