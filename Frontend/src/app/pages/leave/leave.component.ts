@@ -31,12 +31,26 @@ import {MatTabsModule} from '@angular/material/tabs';
   styleUrl: './leave.component.scss'
 })
 export class LeaveComponent implements OnInit, OnDestroy{
+  private roleId: number;
+  private id: number;
   ngOnInit(): void {
     const token: any = localStorage.getItem('token')
     const user = JSON.parse(token)
+    this.id = user.id;
+    this.roleId = user.role
+    this.getRoleById(this.roleId, this.id)
+    this.value = 'Not'
+  }
 
-    const roleId = user.role
-    this.getRoleById(roleId, user.id)
+  value: string;
+  onTabChange(i: number){
+    if(i === 1){
+      this.value = 'Locked'
+    this.getRoleById(this.roleId, this.id)
+    }else{
+      this.value = 'Not'
+    this.getRoleById(this.roleId, this.id)
+    }
   }
 
   private readonly roleService = inject(RoleService);
@@ -72,7 +86,7 @@ export class LeaveComponent implements OnInit, OnDestroy{
   leaves: Leave[] = [];
   leaveSub!: Subscription;
   getLeaves(){
-    this.leaveSub = this.leaveService.getLeavesPaginated(this.searchText, this.currentPage, this.pageSize).subscribe((leaves: any) => {
+    this.leaveSub = this.leaveService.getLeavesPaginated(this.value, this.searchText, this.currentPage, this.pageSize).subscribe((leaves: any) => {
       this.leaves = leaves.items;
       console.log(leaves);
       

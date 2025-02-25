@@ -120,7 +120,6 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     })
   }
 
-
   private leaveSub!: Subscription;
   private leave: Leave;
   getLeaveDetails(id: number) {
@@ -179,6 +178,7 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
        if (isProbationEmployee) {
          const id = this.leaveTypes.find(type => type.leaveTypeName === 'LOP').id
          this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
+         
          this.leaveRequestForm.get('leaveTypeId')?.setValue(id)
        }
      });
@@ -398,29 +398,6 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     }else{
         const id: any = this.leaveRequestForm.get('userId')?.value
         this.submitLeaveRequest(leaveRequest);
-        // this.emailSub = this.leaveService.getUserEmail(id).subscribe(data => {
-        //   if(!data){
-        //     const dialogRef = this.dialog.open(UserEmailComponent, {
-        //       width: '600px',
-        //       data: {
-        //         userId: id, type: 'Official'
-        //       }
-        //     });
-        //     this.dialogSub = dialogRef.afterClosed().subscribe(result => {
-        //       if (result) {
-        //         this.submitLeaveRequest(leaveRequest);
-        //       } else {
-        //         this.isLoading = false; 
-        //         this.router.navigateByUrl('/login/leave');
-        //       }
-        //     });
-        //   } else {
-        //     // Proceed with leave request submission if email exists
-        //     this.submitLeaveRequest(leaveRequest);
-        //   }
-        // });
-
-      // }
     }
   }
 
