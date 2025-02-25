@@ -19,12 +19,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { RoleService } from '@services/role.service';
 import { Role } from '../../common/interfaces/users/role';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {MatTabsModule} from '@angular/material/tabs';
 
 @Component({
   selector: 'app-leave',
   standalone: true,
   imports: [MatButtonToggleModule, MatFormFieldModule, MatIconModule, SafePipe, MatPaginatorModule, CommonModule, RouterModule, MatInputModule,
-    MatButtonModule, MatProgressSpinnerModule
+    MatButtonModule, MatProgressSpinnerModule, MatTabsModule
   ],
   templateUrl: './leave.component.html',
   styleUrl: './leave.component.scss'
@@ -59,8 +60,6 @@ export class LeaveComponent implements OnInit, OnDestroy{
 
   getUserLeaves(id: number){
     this.leaveService.getUserLeaveByUser(id).subscribe(res => {
-      console.log(res);
-      
     })
   }
 
@@ -75,6 +74,8 @@ export class LeaveComponent implements OnInit, OnDestroy{
   getLeaves(){
     this.leaveSub = this.leaveService.getLeavesPaginated(this.searchText, this.currentPage, this.pageSize).subscribe((leaves: any) => {
       this.leaves = leaves.items;
+      console.log(leaves);
+      
       this.filteredLeaves = this.leaves
       this.totalItems = leaves.count;
     })

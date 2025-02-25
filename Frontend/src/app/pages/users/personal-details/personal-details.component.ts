@@ -94,7 +94,8 @@ export class PersonalDetailsComponent implements OnDestroy {
           temporaryAddress: data.temporaryAddress, 
           permanentAddress: data.permanentAddress,
           qualification: data.qualification, 
-          experience: data.experience
+          experience: data.experience,
+          reportingMangerName: data.manager.name
         })
       }
     })

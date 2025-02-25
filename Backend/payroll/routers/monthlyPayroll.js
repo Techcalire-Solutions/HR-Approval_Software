@@ -22,6 +22,7 @@ const Role = require("../../users/models/role");
 const { sendEmail } = require('../../app/emailService');
 const config = require('../../utils/config')
 const { createNotification } = require('../../app/notificationService');
+const Leave = require("../../leave/models/leave");
 
 
 router.post("/save", authenticateToken, async (req, res) => {
@@ -254,8 +255,27 @@ router.get('/findbyid/:id', authenticateToken, async (req, res) => {
   }
 })
 
-router.patch('/statusupdate', authenticateToken, async (req, res) => {
+router.patch('/statusupdate/', authenticateToken, async (req, res) => {
   const { payrollData, status } = req.body;
+  const payedForStr = payrollData[0].payedFor;
+  const payedForDate = new Date(payedForStr);
+  const payrollYear = payedForDate.getFullYear();
+  const payrollMonth = payedForDate.getMonth();
+  console.log(payedForStr, payedForDate, payrollYear, payrollMonth);
+  
+  if (payedForStr.startsWith("December")){
+    await Leave.update(
+      { status: 'Locked' },
+      {
+        where: {
+          startDate: {
+            [Op.gte]: new Date(payrollYear, 0, 1),
+            [Op.lt]: new Date(payrollYear + 1, 0, 1)
+          },
+        },
+      }
+    )
+  }
 
   for (const element of payrollData) {
     const { userId } = element;
@@ -387,10 +407,10 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
             transaction,
             include: [
               {
-                model: User,
+                model: User, as: 'user',
                 attributes: ['name', 'empNo', 'email'],
                 include: [
-                  { model: UserPersonal, attributes: ['dateOfJoining'] },
+                  { model: UserPersonal, as: 'userpersonal', attributes: ['dateOfJoining'] },
                   { model: UserAccount },
                   {
                     model: StatutoryInfo,
@@ -583,7 +603,7 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
                                 <div style="display: flex; align-items: center; width: 100%;">
                                   <span style="flex: 1;">Joining Date</span>
                                   <span style="width: 20px; text-align: center;">:</span>
-                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPersonals[0]?.dateOfJoining ?? ''}</span>
+                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userpersonal[0]?.dateOfJoining ?? ''}</span>
                                 </div>
                               </td>
                               <td>
@@ -796,8 +816,7 @@ router.patch('/statusupdate', authenticateToken, async (req, res) => {
             `Payslip for - ${mp.payedFor}`,
             mp.payedFor,
             mp.user.name,
-            designation,
-            user.name
+            req
           );
 
           const id = element.id;
@@ -834,7 +853,7 @@ async function generatePDF(html) {
 }
 
 // Function to send email
-async function sendPayrollEmail(to, pdfBuffer, subject, payedFor, name, designation, senderName) {
+async function sendPayrollEmail(to, pdfBuffer, subject, payedFor, name, req) {
     const html =  `
       <p>Attached is your payslip for the month of ${payedFor}. Please review it at your convenience.</p>
         <hr style="border: 0; border-top: 1px solid #ccc; margin: 20px 0;">
@@ -888,11 +907,12 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
     
     const file = req.file;
     
+          // <a href="https://api-approval.techclaire.com/monthlypayroll/approve?month=${month}&id=${req.user.id}" 
     const html =  `
       <p>Please find the attached payroll Excel file for your review.</p>
         <p>Kindly click the button below to either approve or reject the payroll data as required.</p>
         <div style="text-align: center; margin-top: 20px;">
-          <a href="https://api-approval.techclaire.com/monthlypayroll/approve?month=${month}&id=${req.user.id}" 
+          <a href="http://localhost:8000/monthlypayroll/approve?month=${month}&id=${req.user.id}" 
             style="
               display: inline-block;
               padding: 10px 20px;

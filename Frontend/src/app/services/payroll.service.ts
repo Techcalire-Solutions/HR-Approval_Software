@@ -81,7 +81,7 @@ export class PayrollService {
   }
 
   public updateMPStatus(data: any): Observable<MonthlyPayroll> {
-    return this.http.patch<MonthlyPayroll>(this.apiUrl+"/monthlypayroll/statusupdate/", data);
+    return this.http.patch<MonthlyPayroll>(this.apiUrl+`/monthlypayroll/statusupdate`, data);
   }
 
   getMonthlyPayroll(filterValue?: string, page?: number, pagesize?:number): Observable<any> {
