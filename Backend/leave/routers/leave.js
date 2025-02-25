@@ -919,6 +919,14 @@ router.get('/find/monthlyleavedays', authenticateToken, async (req, res) => {
   }
 });
 // --------------------------------------------------HELPING FUNCTIONS-------------------------------------------------------------------------
+async function formatDate(date) {
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0'); // getMonth() is zero-based
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
 async function handleNotificationsAndEmails(req, res, leave, transaction, type, mes) {
   let message = [];
   const userPos = await UserPosition.findOne({
@@ -1037,7 +1045,7 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
         <p>leave request has been successfully ${mes}d by ${req.user.name}.</p>
         <ul>
           <li>Type: ${lt.leaveTypeName}</li>
-          <li>Dates: ${leave.startDate} to ${leave.endDate}</li>
+          <li>Dates: ${await formatDate(leave.startDate)} to ${await formatDate(leave.endDate)}</li>
           <li>Days: ${leave.noOfDays}</li>
           <li>Status: ${leave.status}</li>
         </ul>
@@ -1212,41 +1220,6 @@ async function getTeamLeads(userId) {
 async function calculateDays(dateObj) {
   return (dateObj.session1 ? 0.5 : 0) + (dateObj.session2 ? 0.5 : 0);
 }
-
-// async function splitSessions(dateObj, availableBalance) {
-//   const result = { balancePart: null, lopPart: null };
-//   const reqDays = calculateDays(dateObj);
-  
-//   if (availableBalance <= 0) {
-//     result.lopPart = dateObj;
-//     return result;
-//   }
-
-//   // Clone date object to avoid mutation
-//   const balancePart = { ...dateObj, session1: false, session2: false };
-//   const lopPart = { ...dateObj, session1: false, session2: false };
-
-//   // Allocate sessions to balance first
-//   if (availableBalance >= 0.5 && dateObj.session1) {
-//     balancePart.session1 = true;
-//     availableBalance -= 0.5;
-//   } else if (dateObj.session1) {
-//     lopPart.session1 = true;
-//   }
-
-//   if (availableBalance >= 0.5 && dateObj.session2) {
-//     balancePart.session2 = true;
-//     availableBalance -= 0.5;
-//   } else if (dateObj.session2) {
-//     lopPart.session2 = true;
-//   }
-
-//   // Only add if has sessions
-//   if (balancePart.session1 || balancePart.session2) result.balancePart = balancePart;
-//   if (lopPart.session1 || lopPart.session2) result.lopPart = lopPart;
-
-//   return result;
-// }
 
 async function createLeaveRecord({ userId, leaveTypeId, dates, notes, fileUrl, status, transaction }) {
   if (dates.length === 0) return null;

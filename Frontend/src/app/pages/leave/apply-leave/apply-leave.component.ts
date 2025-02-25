@@ -178,7 +178,6 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
        if (isProbationEmployee) {
          const id = this.leaveTypes.find(type => type.leaveTypeName === 'LOP').id
          this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
-         
          this.leaveRequestForm.get('leaveTypeId')?.setValue(id)
        }
      });
