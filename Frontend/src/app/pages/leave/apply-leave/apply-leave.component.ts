@@ -460,7 +460,7 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
 
   handleDialogResult(result: any, not: any) {
     this.isLoading = false;
-    alert("• " + not.join("\n• "));
+    if(not.length > 0) alert("• " + not.join("\n• "));
     this.router.navigateByUrl('/login/leave');
     this.snackBar.open("Leave added successfully...", "", { duration: 3000 });
   }

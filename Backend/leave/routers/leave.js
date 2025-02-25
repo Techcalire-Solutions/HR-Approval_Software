@@ -575,7 +575,7 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
 router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
-    const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates, status } = req.body;
+    const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
     // Validate required fields
     if (!userId || !leaveTypeId || !startDate || !endDate || !leaveDates) {
       await transaction.rollback();
@@ -597,7 +597,8 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
 
     // Fetch existing UserLeave record for the old leave
     const oldYear = new Date(existingLeave.startDate).getFullYear().toString();
-    const oldUL = await UserLeave.findOne({ where: { userId: existingLeave.userId, leaveTypeId: existingLeave.leaveTypeId, year: oldYear }, transaction });
+    const oldUL = await UserLeave.findOne({ where: { userId: existingLeave.userId, leaveTypeId: existingLeave.leaveTypeId, 
+      year: oldYear }, transaction });
     if (oldUL) {
       oldUL.takenLeaves -= existingLeave.noOfDays;
       oldUL.leaveBalance += existingLeave.noOfDays;
@@ -651,7 +652,7 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
       });
       
       // Check if the balance is sufficient
-      if (userLeave.leaveBalance < totalDays) {
+      if (userLeave.leaveBalance < totalDays && leaveType.leaveTypeName !== 'LOP') {
         await transaction.rollback();
         return res.json({ message: `Insufficient leave balance for year ${year}` });
       }
@@ -672,7 +673,6 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
       dates: sortedLeaveDates,
       notes,
       fileUrl,
-      status,
       transaction,
     });
 
@@ -837,7 +837,7 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
   });
   if (!userPos) {
     message.push('Employment details are not added for the employee');
-    return message; // Return the array directly
+    return message;
   }
 
   // for (const leave of leaves) {
@@ -922,7 +922,7 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
       let reportingManagerEmail = rm.email
       let operationalManagerEmail = await getOMEmail();
       let cc = [];
-      // Validate reporting manager email
+      
       if (!emailRegex.test(reportingManagerEmail)) {
         message.push(`Invalid reporting manager email: ${reportingManagerEmail}`);
         reportingManagerEmail = hrEmail;
@@ -1003,19 +1003,18 @@ async function getOMEmail() {
 async function getReportingManagerEmailForUser(userId) {
     try {
         const userPersonal = await UserPersonal.findOne({
-        include: [{model: User, attributes: 'name'}],
+        include: [{model: User, as: 'user', attributes: ['name']}],
         where: { userId },
         attributes: ['reportingMangerId'],
         });
-        
         if (!userPersonal) {
-          return ({email: `Personal details are not added for ${userPersonal.user.name}`});
+          return ({email: `Personal details are not added`});
         }
 
         const reportingMangerId = userPersonal?.reportingMangerId;
 
         if (!reportingMangerId) {
-          return ({email: `No reporting manager found for userId ${userPersonal.user.name}`});
+          return ({email: `No reporting manager found for user ${userPersonal.user.name}`});
         }
 
         const reportingManagerPosition = await UserPosition.findOne({
@@ -1023,14 +1022,14 @@ async function getReportingManagerEmailForUser(userId) {
           where: { userId: reportingMangerId },
           attributes: ['officialMailId'],
         });
-
+        
         if (reportingManagerPosition && reportingManagerPosition.officialMailId) {
           return {email: reportingManagerPosition.officialMailId, name: userPersonal.user.name};
         } else {
           return ({email: `Official mail is not added for reportingManger ${reportingManagerPosition.user.name}`});
         }
     } catch (error) {
-        return {email: 'Error fetching reporting manager email'};
+        return {email: error.message};
     }
 }
 
@@ -1067,10 +1066,10 @@ async function getRMId(userId) {
   try {
     const userPersonal = await UserPersonal.findOne({
       where: { userId },
-      attributes: ['reportingMangerId'],
+      attributes: ['reportingMangerId'], include: { model: User, as: 'user', attributes: ['name']}
       });
       if (!userPersonal || !userPersonal?.reportingMangerId) {
-        return ( `Reporting mangaer for user id ${userId} is not found`);
+        return ( `Reporting manager is not found`);
       }
 
       const reportingMangerId = userPersonal?.reportingMangerId;
