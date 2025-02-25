@@ -382,19 +382,19 @@ router.get('/find/requested', async (req, res) => {
 // ------------------------------------------------------------GET ALL----------------------------------------------------------------------
 router.get('/find', async (req, res) => {
   try {
-
     let limit;
     let offset;
-  
+
     if (typeof req.query.pageSize !== 'undefined' && typeof req.query.page !== 'undefined') {
       limit = parseInt(req.query.pageSize, 10);
       offset = (parseInt(req.query.page, 10) - 1) * limit;
-    }  
+    }
+
     let searchTerm;
     if (req.query.search !== undefined && req.query.search !== '') {
       searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
     }
-    
+
     const leave = await Leave.findAll({
       order: [['id', 'DESC']],
       limit,
@@ -413,24 +413,115 @@ router.get('/find', async (req, res) => {
           required: true,
         }
       ],
-      where: searchTerm
-        ? {
-            [Op.or]: [
-              sequelize.where(
-                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.name'), ' ', '')),
-                { [Op.like]: `%${searchTerm}%` }
-              ),
-              sequelize.where(
-                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('leaveType.leaveTypeName'), ' ', '')),
-                { [Op.like]: `%${searchTerm}%` }
-              )
-            ]
-          }
-        : {} 
+      where: {
+        [Op.and]: [
+          {
+            status: {
+              [Op.ne]: 'Locked' // Filter to exclude records where status is 'Locked'
+            }
+          },
+          searchTerm
+            ? {
+                [Op.or]: [
+                  sequelize.where(
+                    sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.name'), ' ', '')),
+                    { [Op.like]: `%${searchTerm}%` }
+                  ),
+                  sequelize.where(
+                    sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('leaveType.leaveTypeName'), ' ', '')),
+                    { [Op.like]: `%${searchTerm}%` }
+                  )
+                ]
+              }
+            : {}
+        ]
+      }
     });
-    
-    const totalCount = await Leave.count();
-    
+
+    const totalCount = await Leave.count({
+      where: {
+        status: {
+          [Op.ne]: 'Locked' // Ensure the count also respects the status filter
+        }
+      }
+    });
+
+    if (typeof req.query.page !== 'undefined' && typeof req.query.pageSize !== 'undefined') {
+      const response = {
+        count: totalCount,
+        items: leave,
+      };
+      res.json(response);
+    } else {
+      res.json(leave);
+    }
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
+router.get('/findlocked', async (req, res) => {
+  try {
+    let limit;
+    let offset;
+
+    if (typeof req.query.pageSize !== 'undefined' && typeof req.query.page !== 'undefined') {
+      limit = parseInt(req.query.pageSize, 10);
+      offset = (parseInt(req.query.page, 10) - 1) * limit;
+    }
+
+    let searchTerm;
+    if (req.query.search !== undefined && req.query.search !== '') {
+      searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+    }
+
+    const leave = await Leave.findAll({
+      order: [['id', 'DESC']],
+      limit,
+      offset,
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['name'],
+          required: true,
+        },
+        {
+          model: LeaveType,
+          as: 'leaveType',
+          attributes: ['leaveTypeName'],
+          required: true,
+        }
+      ],
+      where: {
+        [Op.and]: [
+          {
+            status: 'Locked'
+          },
+          searchTerm
+            ? {
+                [Op.or]: [
+                  sequelize.where(
+                    sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.name'), ' ', '')),
+                    { [Op.like]: `%${searchTerm}%` }
+                  ),
+                  sequelize.where(
+                    sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('leaveType.leaveTypeName'), ' ', '')),
+                    { [Op.like]: `%${searchTerm}%` }
+                  )
+                ]
+              }
+            : {}
+        ]
+      }
+    });
+
+    const totalCount = await Leave.count({
+      where: {
+        status: 'Locked'
+      }
+    });
+
     if (typeof req.query.page !== 'undefined' && typeof req.query.pageSize !== 'undefined') {
       const response = {
         count: totalCount,
