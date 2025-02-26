@@ -218,7 +218,7 @@ router.patch('/updateemployeeleave/:id', authenticateToken, async (req, res) => 
         return res.json({ message: `No leave record found for year ${year}` });
       }
 
-      if (userLeave.leaveBalance < days) {
+      if (userLeave.leaveBalance < days && newLeaveType.leaveTypeName !== 'LOP') {
         await transaction.rollback();
         return res.json({ message: `Insufficient leave balance for year ${year}` });
       }
@@ -231,6 +231,7 @@ router.patch('/updateemployeeleave/:id', authenticateToken, async (req, res) => 
       dates: leaveDates,
       notes,
       fileUrl,
+      status: 'Requested',
       transaction,
     });
 
@@ -279,11 +280,11 @@ router.get('/user/:userId', async (req, res) => {
     }
 
     let whereClause = {
-      userId: userId
+      userId: userId,
+      status: { [Op.ne]: 'Locked' } // Add this line to filter out 'Locked' status
     };
     let limit;
     let offset;
-
 
     if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
       limit = req.query.pageSize;
@@ -315,6 +316,67 @@ router.get('/user/:userId', async (req, res) => {
       ]
     });
 
+    const totalCount = await Leave.count({ where: whereClause });
+
+    if (req.query.page !== 'undefined' && req.query.pageSize !== 'undefined') {
+      const response = {
+        count: totalCount,
+        items: leave,
+      };
+      res.json(response);
+    } else {
+      res.json(leave);
+    }
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
+router.get('/userlocked/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.json({ message: 'User not found' });
+    }
+
+    let whereClause = {
+      userId: userId,
+      status: 'Locked'
+    };
+    let limit;
+    let offset;
+
+    if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+      limit = req.query.pageSize;
+      offset = (req.query.page - 1) * req.query.pageSize;
+    }
+    if (req.query.search && req.query.search !== 'undefined') {
+      const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+      whereClause = {
+        ...whereClause,
+        [Op.or]: [
+          sequelize.where(
+            sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('leaveTypeName'), ' ', '')),
+            { [Op.like]: `%${searchTerm}%` }
+          ),
+        ],
+      };
+    }
+
+    const leave = await Leave.findAll({
+      order: [['id', 'DESC']],
+      limit,
+      offset,
+      where: whereClause,
+      include: [
+        {
+          model: LeaveType, as: 'leaveType',
+          attributes: ['id', 'leaveTypeName'],
+        }
+      ]
+    });
 
     const totalCount = await Leave.count({ where: whereClause });
 
@@ -325,7 +387,6 @@ router.get('/user/:userId', async (req, res) => {
       };
       res.json(response);
     } else {
-
       res.json(leave);
     }
   } catch (error) {
@@ -666,7 +727,7 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
 router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
-    const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates } = req.body;
+    const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates, status } = req.body;
     // Validate required fields
     if (!userId || !leaveTypeId || !startDate || !endDate || !leaveDates) {
       await transaction.rollback();
@@ -764,6 +825,7 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
       dates: sortedLeaveDates,
       notes,
       fileUrl,
+      status: status,
       transaction,
     });
 
@@ -1396,6 +1458,7 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
   const { adminNotes } = req.body;
 
   try {
+    // Fetch the leave request with associated user and leave type details
     const leave = await Leave.findByPk(leaveId, {
       include: [
         { model: User, attributes: ['name', 'email'], as: 'user' },
@@ -1404,7 +1467,7 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     });
 
     if (!leave) {
-      return res.status(404).send('Leave request not found');
+      return res.send({message: 'Leave request not found'});
     }
 
     const userId = leave.userId;
@@ -1416,7 +1479,7 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     const leaveType = await LeaveType.findByPk(leave.leaveTypeId);
 
     if (!leaveType) {
-      return res.status(404).send({ message: 'Leave type not found' });
+      return res.send({ message: 'Leave type not found' });
     }
 
     const startDate = new Date(leave.startDate);
@@ -1424,36 +1487,95 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     const startYear = startDate.getFullYear();
     const endYear = endDate.getFullYear();
 
-    // Fetch HR, Reporting Manager, and Team Leads
-    const hrEmail = await getHREmail().mail
-    const rmEmail = (await getReportingManagerEmailForUser(leave.userId)).email
+    // Fetch HR, Reporting Manager, and Team Leads emails
+    const hrEmail = await getHREmail().mail;
+    const rmEmail = (await getReportingManagerEmailForUser(leave.userId)).email;
     const teamLeads = await getTeamLeadEmails(leave.userId);
     const omMail = await getOMEmail();
 
-    const ccRecipients = [ hrEmail, rmEmail, teamLeads, omMail ].filter(email => email); 
+    const ccRecipients = [hrEmail, rmEmail, ...teamLeads, omMail].filter(email => email);
+
+    // Handle LOP leave type
     if (leaveType.leaveTypeName === 'LOP') {
+      // Update the takenLeave for the requested year(s)
+      if (startYear === endYear) {
+        // Leave spans a single year
+        const userLeave = await UserLeave.findOne({
+          where: {
+            userId: leave.userId,
+            leaveTypeId: leave.leaveTypeId,
+            year: startYear,
+          },
+        });
+    
+        if (!userLeave) {
+          return res.status(404).send('User leave record not found for the requested year');
+        }
+    
+        // Update takenLeave for the year
+        userLeave.takenLeaves += leave.noOfDays;
+        await userLeave.save();
+      } else {
+        // Leave spans multiple years
+        const endOfStartYear = new Date(startYear, 11, 31);
+        const startOfEndYear = new Date(endYear, 0, 1);
+    
+        const daysInStartYear = calculateLeaveDays(startDate, endOfStartYear);
+        const daysInEndYear = calculateLeaveDays(startOfEndYear, endDate);
+    
+        const userLeaveStartYear = await UserLeave.findOne({
+          where: {
+            userId: leave.userId,
+            leaveTypeId: leave.leaveTypeId,
+            year: startYear,
+          },
+        });
+    
+        const userLeaveEndYear = await UserLeave.findOne({
+          where: {
+            userId: leave.userId,
+            leaveTypeId: leave.leaveTypeId,
+            year: endYear,
+          },
+        });
+    
+        if (!userLeaveStartYear || !userLeaveEndYear) {
+          return res.status(404).send('User leave record not found for one or both years');
+        }
+    
+        // Update takenLeave for both years
+        userLeaveStartYear.takenLeaves += daysInStartYear;
+        userLeaveEndYear.takenLeaves += daysInEndYear;
+    
+        await userLeaveStartYear.save();
+        await userLeaveEndYear.save();
+      }
+    
+      // Approve the leave
       leave.status = 'Approved';
       leave.adminNotes = adminNotes;
       await leave.save();
-
+    
+      // Send notifications
       let id = userId;
       const me = `Leave Request Approved with id ${leave.id}`;
       const route = `/login/leave/open/${leave.id}`;
-
+    
       createNotification({ id, me, route });
-
-      const hrId = getHRId()
-      if(Number.isInteger(hrId)){
+    
+      const hrId = getHRId();
+      if (Number.isInteger(hrId)) {
         let id = hrId;
         createNotification({ id, me, route });
       }
-
-      const rmId = getRMId(leave.userId)
-      if(Number.isInteger(hrId)){
+    
+      const rmId = getRMId(leave.userId);
+      if (Number.isInteger(rmId)) {
         let id = rmId;
         createNotification({ id, me, route });
       }
-
+    
+      // Send email
       const emailSubject = `Leave Request is Approved`;
       const fromEmail = config.email.userAddUser;
       const emailPassword = config.email.userAddPass;
@@ -1471,11 +1593,11 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
       } catch (emailError) {
         console.error('Email sending failed:', emailError);
       }
-
+    
       return res.send({ message: 'Leave approved successfully as LOP', leave });
     }
 
-    // Handle non-LOP leave
+    // Handle non-LOP leave types
     let userLeaveStartYear, userLeaveEndYear;
     let daysInStartYear, daysInEndYear;
 
@@ -1489,12 +1611,12 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
       });
 
       if (!userLeaveStartYear) {
-        return res.status(404).send('User leave record not found for the start year');
+        return res.send('User leave record not found for the start year');
       }
 
       if (userLeaveStartYear.leaveBalance < leave.noOfDays) {
-        return res.status(400).json({
-          message: 'Insufficient leave balance for the start year',
+        return res.json({
+          message: `Insufficient leave balance for the year ${startYear}`,
           openNoteDialog: true,
           lowLeaveMessage: "Insufficient leave balance",
         });
@@ -1507,8 +1629,8 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
       const endOfStartYear = new Date(startYear, 11, 31);
       const startOfEndYear = new Date(endYear, 0, 1);
 
-      daysInStartYear = calculateLeaveDays(startDate, endOfStartYear);
-      daysInEndYear = calculateLeaveDays(startOfEndYear, endDate);
+      daysInStartYear = calculateDays(startDate, endOfStartYear);
+      daysInEndYear = calculateDays(startOfEndYear, endDate);
 
       userLeaveStartYear = await UserLeave.findOne({
         where: {
@@ -1527,11 +1649,11 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
       });
 
       if (!userLeaveStartYear || !userLeaveEndYear) {
-        return res.status(404).send('User leave record not found for one or both years');
+        return res.send('User leave record not found for one or both years');
       }
 
       if (userLeaveStartYear.leaveBalance < daysInStartYear || userLeaveEndYear.leaveBalance < daysInEndYear) {
-        return res.status(400).json({
+        return res.json({
           message: 'Insufficient leave balance for one or both years',
           openNoteDialog: true,
           lowLeaveMessage: "Insufficient leave balance",
