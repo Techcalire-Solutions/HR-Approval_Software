@@ -26,8 +26,9 @@ export class NewLeaveService {
     return this.http.get(`${this.apiUrl}/newleave/all/totalleaves`);
   }
 
-  getLeavesByUser(userId: number, search?: string, page?: number, pageSize?: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/newleave/user/${userId}?search=${search}&page=${page}&pageSize=${pageSize}`);
+  getLeavesByUser(value: string, userId: number, search?: string, page?: number, pageSize?: number): Observable<any[]> {
+    if(value === 'Not') return this.http.get<any[]>(`${this.apiUrl}/newleave/user/${userId}?search=${search}&page=${page}&pageSize=${pageSize}`);
+    return this.http.get<any[]>(`${this.apiUrl}/newleave/userlocked/${userId}?search=${search}&page=${page}&pageSize=${pageSize}`);
   }
 
   getLeaveBalance(leaveId: number): Observable<any> {

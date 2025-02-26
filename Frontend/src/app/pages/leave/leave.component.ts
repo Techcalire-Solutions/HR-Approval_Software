@@ -88,8 +88,6 @@ export class LeaveComponent implements OnInit, OnDestroy{
   getLeaves(){
     this.leaveSub = this.leaveService.getLeavesPaginated(this.value, this.searchText, this.currentPage, this.pageSize).subscribe((leaves: any) => {
       this.leaves = leaves.items;
-      console.log(leaves);
-      
       this.filteredLeaves = this.leaves
       this.totalItems = leaves.count;
     })
@@ -99,7 +97,7 @@ export class LeaveComponent implements OnInit, OnDestroy{
   private readonly snackBar = inject(MatSnackBar);
   private getLeaveByUser(id: number): void {
     if (!id) return;
-    this.leaveSub = this.leaveService.getLeavesByUser(id, this.searchText, this.currentPage, this.pageSize).subscribe(
+    this.leaveSub = this.leaveService.getLeavesByUser(this.value, id, this.searchText, this.currentPage, this.pageSize).subscribe(
       (res: any) => {
         this.leaves = res.items;
         console.log(this.leaves);
