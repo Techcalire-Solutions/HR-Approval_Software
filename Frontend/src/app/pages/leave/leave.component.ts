@@ -100,8 +100,6 @@ export class LeaveComponent implements OnInit, OnDestroy{
     this.leaveSub = this.leaveService.getLeavesByUser(this.value, id, this.searchText, this.currentPage, this.pageSize).subscribe(
       (res: any) => {
         this.leaves = res.items;
-        console.log(this.leaves);
-        
         this.filteredLeaves = this.leaves
         this.totalItems = res.count;
 
@@ -118,22 +116,13 @@ export class LeaveComponent implements OnInit, OnDestroy{
   }
 
   filteredLeaves: Leave[] = [];
-  // search(event: Event) {
-  //   this.searchText = (event.target as HTMLInputElement).value.trim();
-  //   this.filteredLeaves = this.leaves.filter(lv =>
-  //     lv.user.name.toLowerCase().includes(this.searchText) || 
-  //     lv.user.empNo.toLowerCase().includes(this.searchText) ||
-  //     lv.leaveType.leaveTypeName.toLowerCase().includes(this.searchText) 
-  //   );
-  //   if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
-  //     this.getLeaves()
-  //   }else{
-  //     this.getLeaveByUser(this.userId)
-  //   }
-  // }
   search(event: Event){
     this.searchText = (event.target as HTMLInputElement).value.trim()
-    this.getLeaves()
+    if(this.roleName === 'HR Admin' || this.roleName === 'Super Admin'){
+      this.getLeaves()
+    }else{
+      this.getLeaveByUser(this.userId)
+    }
   }
 
   private readonly snackbar = inject(MatSnackBar);

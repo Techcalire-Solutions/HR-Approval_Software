@@ -101,6 +101,8 @@ users:User;
 
   private menuService = inject(MenuService);
   filterMenuItemsByRole(role: string) {
+    console.log(role);
+    
     const allMenuItems = this.menuService.getVerticalMenuItems();
     if (role === 'Administrator'){
       this.filteredMenuItems = allMenuItems.filter(item =>

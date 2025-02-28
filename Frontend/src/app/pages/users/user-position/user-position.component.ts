@@ -116,18 +116,27 @@ export class UserPositionComponent implements OnDestroy {
   triggerNew(data?: any): void {
     this.getRoles();
     this.getTeam();
+    const designationNameControl = this.form.get('designationName');
+    if (designationNameControl) {
+      if (this.positionData.name === 'Super Admin' || this.positionData.name === 'Approval Admin' || this.positionData.name === 'HR Admin') {
+        designationNameControl.disable();
+      } else {
+        designationNameControl.enable();
+      }
+    } else {
+      console.error('designationName control not found in the form group.');
+    }
+    
     if(data){
-      // if(data.updateStatus){
-        this.getPositionDetailsByUser(data.id);
-        const confirmationDate: any = this.form.get('confirmationDate')?.value;
-        this.form.get('confirmationDate')?.setValue(confirmationDate); 
-      // }
+      this.getPositionDetailsByUser(data.id, data.name);
+      const confirmationDate: any = this.form.get('confirmationDate')?.value;
+      this.form.get('confirmationDate')?.setValue(confirmationDate); 
     }
   }
 
   pUSub!: Subscription;
   id: number
-  getPositionDetailsByUser(id: number){
+  getPositionDetailsByUser(id: number, role: string){
     this.pUSub = this.userService.getUserPositionDetailsByUser(id).subscribe(data=>{
       if(data){
         this.id = data.id;

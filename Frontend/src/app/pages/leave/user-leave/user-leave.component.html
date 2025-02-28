@@ -21,22 +21,26 @@
         <tbody formArrayName="forms">
           @for (row of newData().controls; let i = $index; track $index) {
             <tr [formGroupName]="i">
-              <td style="width: 10%;"><input formControlName="typeName" /></td>
-              <td style="width: 5%;" ><input formControlName="noOfDays"  readonly/></td>
-
-              <td style="width: 5%;"><input formControlName="takenLeaves" /></td>
-              <td style="width: 5%;"><input formControlName="leaveBalance" /></td>
+              <td style="width: 10%;"><input formControlName="typeName"/></td>
+              <td style="width: 5%;"><input formControlName="noOfDays" readonly/></td>
+              <td style="width: 5%;"><input formControlName="takenLeaves" readonly/></td>
+              <td style="width: 5%;"><input formControlName="leaveBalance" readonly/></td>
               <!-- <td style="width: 5%;">
                 <button type="button" (click)="removeData(i)" class="remove">
                   <mat-icon>remove_circle_outline</mat-icon>
                 </button>
               </td> -->
-              <td class="add-column" style="width: 2.5%;"> <!-- Input field for addDays -->
-                <input formControlName="addDays" (input)="updateAllotted(i)" />
-              </td>
+              @if (row.get('typeName')?.value !== 'LOP') {
+                <td class="add-column" style="width: 2.5%;"> <!-- Input field for addDays -->
+                  <input formControlName="addDays" (input)="updateAllotted(i)" />
+                </td>
+              } @else {
+                <td class="add-column" style="width: 2.5%;"> <!-- Input field for addDays -->
+                  NA
+                </td>
+              }
             </tr>
           }
-
         </tbody>
       </table>
       <!-- <button type="button" (click)="addNew()" class="add">Add Row</button> -->

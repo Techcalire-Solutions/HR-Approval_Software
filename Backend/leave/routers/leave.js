@@ -309,10 +309,8 @@ router.get('/user/:userId', async (req, res) => {
       offset,
       where: whereClause,
       include: [
-        {
-          model: LeaveType, as: 'leaveType',
-          attributes: ['id', 'leaveTypeName'],
-        }
+        { model: User, as: 'user', attributes: ['name', 'empNo'], required: true},
+        { model: LeaveType, as: 'leaveType', attributes: ['id', 'leaveTypeName'] }
       ]
     });
 
@@ -464,7 +462,7 @@ router.get('/find', async (req, res) => {
         {
           model: User,
           as: 'user',
-          attributes: ['name'],
+          attributes: ['name', 'empNo'],
           required: true,
         },
         {
@@ -544,7 +542,7 @@ router.get('/findlocked', async (req, res) => {
         {
           model: User,
           as: 'user',
-          attributes: ['name'],
+          attributes: ['name', 'empNo'],
           required: true,
         },
         {
@@ -681,7 +679,9 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
     for (const [year, dates] of datesByYear) {
       const { instance: userLeave } = userLeaves.get(year);
       userLeave.takenLeaves += totalBalanceDays;
-      userLeave.leaveBalance -= totalBalanceDays;
+      if(!isLOP){
+        userLeave.leaveBalance -= totalBalanceDays;
+      }
       await userLeave.save({ transaction });
 
       // Create leave record for this year
@@ -1075,6 +1075,8 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
       if (!hrEmail) {
         message.push(`Official mail missing for ${userPos.user.name}`);
       }
+      console.log(name);
+      
     }
 
     // Email sending logic
@@ -1083,13 +1085,14 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
       let reportingManagerEmail = rm.email
       let operationalManagerEmail = await getOMEmail();
       let cc = [];
-      
       if (!emailRegex.test(reportingManagerEmail)) {
         message.push(`Invalid reporting manager email: ${reportingManagerEmail}`);
         reportingManagerEmail = hrEmail;
       }else{
         cc.push(hrEmail)
         name = rm.name
+        console.log(name);
+        
       }
 
       if (!emailRegex.test(operationalManagerEmail)) {
@@ -1104,7 +1107,7 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
       }
       const emailHtml = `
         <p>Dear ${name},</p>
-        <p>leave request has been successfully ${mes}d by ${req.user.name}.</p>
+        <p>Leave Request has been successfully ${mes}d by ${req.user.name}.</p>
         <ul>
           <li>Type: ${lt.leaveTypeName}</li>
           <li>Dates: ${await formatDate(leave.startDate)} to ${await formatDate(leave.endDate)}</li>
@@ -1185,7 +1188,7 @@ async function getReportingManagerEmailForUser(userId) {
         });
         
         if (reportingManagerPosition && reportingManagerPosition.officialMailId) {
-          return {email: reportingManagerPosition.officialMailId, name: userPersonal.user.name};
+          return {email: reportingManagerPosition.officialMailId, name: reportingManagerPosition.user.name};
         } else {
           return ({email: `Official mail is not added for reportingManger ${reportingManagerPosition.user.name}`});
         }
