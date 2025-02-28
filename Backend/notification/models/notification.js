@@ -39,7 +39,7 @@ const Notification = sequelize.define('notification', {
 User.hasMany(Notification, { foreignKey: 'userId' });
 Notification.belongsTo(User);
 
-Notification.sync({ alter: true }).then(() => {
+Notification.sync({ force: true }).then(() => {
     console.log('Notification table synced successfully.');
 }).catch(err => {
     console.error('Error syncing notification table:', err);
