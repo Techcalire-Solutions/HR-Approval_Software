@@ -8,7 +8,6 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 import { MatCardModule } from '@angular/material/card';
-import { PipesModule } from '../pipes/pipes.module';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { NewLeaveService } from '@services/new-leave.service';
 import { CommonModule } from '@angular/common';
@@ -32,7 +31,6 @@ import { Logger } from 'html2canvas/dist/types/core/logger';
     MatProgressBarModule,
     MatMenuModule,
     NgScrollbarModule,
-    PipesModule,
     CommonModule,
     TimeAgoPipe,
     RouterModule

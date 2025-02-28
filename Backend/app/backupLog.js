@@ -14,7 +14,7 @@ const BackUpLog = sequelize.define('backUpLog',{
     timestamps : false
 })
 
-BackUpLog.sync({ alter: true })
+BackUpLog.sync({ force: true })
   .then(() => console.log("BackUpLog table Sync"))
   .catch((err) => console.log("Error syncing table Role:", err));
 

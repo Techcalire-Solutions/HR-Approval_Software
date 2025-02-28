@@ -16,7 +16,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { PipesModule } from '../../theme/pipes/pipes.module';
 import { UsersService } from '../../services/users.service';
 import { MatTableModule } from '@angular/material/table';
 import { Subscription } from 'rxjs';
@@ -45,7 +44,6 @@ import { User } from '../../common/interfaces/users/user';
     MatSlideToggleModule,
     MatCardModule,
     NgxPaginationModule,
-    PipesModule,
     MatPaginatorModule
   ],
   templateUrl: './company.component.html',

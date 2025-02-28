@@ -34,9 +34,9 @@ export class UserLeaveComponent implements OnInit, OnDestroy {
       leaveTypeId: [initialValue ? initialValue.id : ''],
       addDays: [], // Add co
       typeName: [initialValue ? initialValue.leaveTypeName : ''],
-      noOfDays: [userLeave ? Number(userLeave.noOfDays) : 0],
+      noOfDays: [initialValue?.leaveTypeName === 'LOP' ? 'NA' : (userLeave ? Number(userLeave.noOfDays) : 0)],
       takenLeaves: [userLeave ? userLeave.takenLeaves : 0],
-      leaveBalance: [userLeave ? userLeave.leaveBalance : 0]
+      leaveBalance: [initialValue?.leaveTypeName === 'LOP' ? 'NA' : (userLeave ? userLeave.leaveBalance : 0)],
     });
   }
 
@@ -104,7 +104,6 @@ export class UserLeaveComponent implements OnInit, OnDestroy {
     this.leaveTypeSub = this.leaveService.getLeaveType().subscribe(res => {
       this.leaveTypes = res;
       for(let i = 0; i < this.leaveTypes.length; i++){
-
         this.getUserLeave(this.leaveTypes[i].id, this.leaveTypes[i])
       }
     })
@@ -117,7 +116,6 @@ export class UserLeaveComponent implements OnInit, OnDestroy {
       this.addNew(leaveTypes, res)
     })
   }
-
 
   ngOnDestroy(): void {
     this.ulSub?.unsubscribe();

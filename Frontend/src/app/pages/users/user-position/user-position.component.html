@@ -5,7 +5,7 @@
     <div fxLayout="column" class="form-field-outer" style="margin-top: 20px;">
       <div class="row box">
         <div class="col">
-          <mat-form-field class="w-100" appearance="outline" >
+          <mat-form-field class="w-100" appearance="outline">
             <input matInput placeholder="Select Designation" formControlName="designationName" [matAutocomplete]="auto" (keyup)="search($event)">
             <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value)">
               @for (suggestion of filteredOptions; track $index) {
@@ -20,7 +20,6 @@
                 }
               }
             </mat-autocomplete>
-
           </mat-form-field>
         </div>
         <div class="col">
