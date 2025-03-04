@@ -52,6 +52,15 @@ router.post('/add', authenticateToken, async (req, res) => {
 
     const desi = await Designation.findByPk(designationId);
     const roleId = desi?.roleId;
+    if(desi.designationName === 'MANAGING DIRECTOR'){
+      let user = await User.findByPk(userId)
+      user.director = true;
+      await user.save();
+    }else{
+      let user = await User.findByPk(userId)
+      user.director = false;
+      await user.save();
+    }
     
     if(roleId != null || roleId === ''){
       try {
@@ -135,7 +144,16 @@ router.patch('/update/:id', async(req,res)=>{
     }
     const desi = await Designation.findByPk(req.body.designationId);
     const roleId = desi?.roleId;
-    
+    if(desi.designationName === 'MANAGING DIRECTOR'){
+      let user = await User.findByPk(result.userId)
+      user.director = true;
+      await user.save();
+    }else{
+      let user = await User.findByPk(result.userId)
+      user.director = false;
+      await user.save();
+    }
+
     if(roleId != null || roleId === ''){
       try {
         let user = await User.findByPk(result.userId)
@@ -210,8 +228,9 @@ router.patch('/updaterole/:id', async (req, res) => {
         throw new Error('Role "employee" not found');
       }
     }
+    let user
     try {
-      let user = await User.findByPk(req.params.id)
+      user = await User.findByPk(req.params.id)
       user.roleId = roleId;
       await user.save();
     } catch (error) {
@@ -230,6 +249,13 @@ router.patch('/updaterole/:id', async (req, res) => {
       await userposition.save();
     }
 
+    if(desi.designationName === 'MANAGING DIRECTOR'){
+      user.director = true;
+      await user.save();
+    }else{
+      user.director = false;
+      await user.save();
+    }
     res.send(userposition);
   } catch (error) {
       res.send(error.message)
