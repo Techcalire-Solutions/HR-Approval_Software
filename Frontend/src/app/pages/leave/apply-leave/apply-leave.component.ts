@@ -28,6 +28,7 @@ import { UserEmailComponent } from '../../users/user-email/user-email.component'
 import { MatDialog } from '@angular/material/dialog';
 import { LeaveInfoDialogComponent } from './leave-info-dialog/leave-info-dialog.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import moment from 'moment';
 
 export const MY_FORMATS = {
   parse: {
@@ -185,9 +186,11 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
 
   private leaveTypeSub!: Subscription;
   leaveTypes: any[] = [];
+  slId: number;
   getLeaveType() {
     this.leaveTypeSub = this.leaveService.getLeaveType().subscribe( (leaveTypes: any) => {
         this.leaveTypes = leaveTypes;
+        this.slId = this.leaveTypes.find(type => type.leaveTypeName === 'Sick Leave').id
       },(error) => {
         console.error('Error fetching leave types:', error);
       }
@@ -227,19 +230,19 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     return date >= this.minEndDate; 
   };
 
-  isSickLeaveAndMoreThanThreeDays(): boolean {
-    const leaveTypeId = this.leaveRequestForm.get('leaveTypeId')?.value;
-    const startDate: any = this.leaveRequestForm.get('startDate')?.value;
-    const endDate: any = this.leaveRequestForm.get('endDate')?.value;
+  // isSickLeaveAndMoreThanThreeDays(): boolean {
+  //   const leaveTypeId = this.leaveRequestForm.get('leaveTypeId')?.value;
+  //   const startDate: any = this.leaveRequestForm.get('startDate')?.value;
+  //   const endDate: any = this.leaveRequestForm.get('endDate')?.value;
 
-    const sickLeaveTypeId = this.leaveTypes.find(type => type.leaveTypeName === 'Sick Leave')?.id;
+  //   const sickLeaveTypeId = this.leaveTypes.find(type => type.leaveTypeName === 'Sick Leave')?.id;
 
-    if (leaveTypeId === sickLeaveTypeId && startDate && endDate) {
-      const duration = (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 3600 * 24) + 1; // Calculate the duration in days
-      return duration > 3;
-    }
-    return false;
-  }
+  //   if (leaveTypeId === sickLeaveTypeId && startDate && endDate) {
+  //     const duration = (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 3600 * 24) + 1; // Calculate the duration in days
+  //     return duration > 3;
+  //   }
+  //   return false;
+  // }
 
   updateLeaveDates(start: Date, end: Date) {
     const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
@@ -441,6 +444,34 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     this.snackBar.open("Leave added successfully...", "", { duration: 3000 });
   }
 
+  isSick: boolean = false;
+  isLeaveDurationInvalid(): boolean {
+    const startDate = this.leaveRequestForm.get('startDate')?.value;
+    const endDate = this.leaveRequestForm.get('endDate')?.value;
+    const leaveTypeId = this.leaveRequestForm.get('leaveTypeId')?.value;
+    if (!moment.isMoment(startDate) || !moment.isMoment(endDate)) {
+      return false;
+    }
+  
+    if (!leaveTypeId) {
+      return false;
+    }
+  
+    const diffInDays = endDate.diff(startDate, 'days');
+    const sickLeaveId = this.slId; 
+    if (leaveTypeId === sickLeaveId && diffInDays > 2) {
+      this.isFileSelected = true;
+      return false
+    }else if (leaveTypeId === sickLeaveId) {
+      this.isFileSelected = false;
+      this.isSick = true;
+    }else {
+      this.isFileSelected = false;
+      this.isSick = false;
+    }
+
+    return diffInDays > 2 && leaveTypeId !== sickLeaveId;
+  } 
 
   ngOnDestroy(): void {
     this.ulSub?.unsubscribe();

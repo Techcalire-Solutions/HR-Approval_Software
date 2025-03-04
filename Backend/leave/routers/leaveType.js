@@ -67,8 +67,17 @@ router.get('/find', async (req, res) => {
       }
     }
 
+    const customOrder = sequelize.literal(`
+      CASE 
+        WHEN "leaveTypeName" = 'Casual Leave' THEN 1
+        WHEN "leaveTypeName" = 'Sick Leave' THEN 2
+        WHEN "leaveTypeName" = 'Comb Off' THEN 3
+        WHEN "leaveTypeName" = 'LOP' THEN 4
+        ELSE 5
+      END
+    `);
     const leaveType = await LeaveType.findAll({
-      order:['id'], limit, offset, where: whereClause
+      order: [[customOrder, 'ASC']], limit, offset, where: whereClause
     })
 
     let totalCount;
@@ -92,6 +101,7 @@ router.get('/find', async (req, res) => {
 
 
 });
+
 router.delete('/:id', authenticateToken, async(req,res)=>{
   try {
       const result = await LeaveType.destroy({

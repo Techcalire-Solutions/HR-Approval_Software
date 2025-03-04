@@ -17,7 +17,7 @@ const User = require('../../users/models/user');
  })
 
  LeaveType.hasMany(UserLeave, { foreignKey: 'leaveTypeId', onUpdate: 'CASCADE' });
- UserLeave.belongsTo(LeaveType);
+ UserLeave.belongsTo(LeaveType, {as: 'leaveType'});
  
  User.hasMany(UserLeave, { foreignKey: 'userId', onUpdate: 'CASCADE' });
  UserLeave.belongsTo(User);
