@@ -2,15 +2,15 @@
 module.exports = {
   email: {
     service: 'Gmail',
-    payrollUser: 'nishida@onboardaero.com',
-    payrollPass: 'jior rtdu epzr xadt', 
-    userAddUser: 'nishida@onboardaero.com',
-    userAddPass: 'jior rtdu epzr xadt',
-    announcemntUser: 'nishida@onboardaero.com',
-    announcementPass: 'jior rtdu epzr xadt',
-    leaveUser: 'nishida@onboardaero.com',
-    leavePass: 'jior rtdu epzr xadt',
-    leaveCommonUser: 'nishida@onboardaero.com',
-    leaveCommonPass: 'jior rtdu epzr xadt'
+    payrollUser: 'aerohr@onboardaero.com',
+    payrollPass: 'ujrk jziu amti dvdg', 
+    userAddUser: 'aerohr@onboardaero.com',
+    userAddPass: 'ujrk jziu amti dvdg',
+    announcemntUser: 'aerohr@onboardaero.com',
+    announcementPass: 'ujrk jziu amti dvdg',
+    leaveUser: 'aerohr@onboardaero.com',
+    leavePass: 'ujrk jziu amti dvdg',
+    leaveCommonUser: 'aerohr@onboardaero.com',
+    leaveCommonPass: 'ujrk jziu amti dvdg'
   },
 };

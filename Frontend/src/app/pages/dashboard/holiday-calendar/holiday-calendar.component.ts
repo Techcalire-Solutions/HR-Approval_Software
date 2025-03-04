@@ -124,7 +124,7 @@ export class HolidayCalendarComponent implements OnInit, OnDestroy{
   }
 
   openCompoOff(id: number){
-    this.router.navigateByUrl('/login/admin-leave/compo-off/'+id)
+    this.router.navigateByUrl('/login/holiday/compo-off/'+id)
   }
 
 }
