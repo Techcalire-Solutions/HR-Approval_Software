@@ -4,6 +4,7 @@ import { UsersService } from '@services/users.service';
 import { MatCardModule } from '@angular/material/card';
 import { DatePipe } from '@angular/common';
 import { User } from '../../../common/interfaces/users/user';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-probation-due',
