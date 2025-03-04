@@ -37,7 +37,7 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
 
   selectedView: string = 'list';
   public icons = ["home", "person", "alarm", "work", "mail", "favorite"];
-  public colors = ["primary", "accent", "warn"];
+  public colors = ["primary", "accent", "warn", "pending"];
   userId: number;
 
   public leaveCounts: any[] = [];
@@ -64,8 +64,6 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
   initializeYears(): void {
     const currentYear = new Date().getFullYear();
     this.availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
-    console.log(this.availableYears);
-    
   }
 
   filterLeaves(): void {

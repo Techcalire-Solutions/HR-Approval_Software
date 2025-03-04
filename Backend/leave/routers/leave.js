@@ -56,6 +56,7 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
     });
 
     const noOfDaysByYear = {};
+    let totalRequiredDays = 0; 
     Object.keys(datesByYear).forEach(year => {
       let totalDays = 0; // Inlined logic for calculating leave days
       datesByYear[year].forEach(date => {
@@ -95,6 +96,7 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
       });
 
       const requiredDays = noOfDaysByYear[year];
+      totalRequiredDays += requiredDays; 
       if (userLeave.leaveBalance < requiredDays && !isLOP) {
         await transaction.rollback();
         return res.json({ message: `Insufficient leave balance for year ${year}` });
@@ -107,7 +109,7 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
       leaveTypeId,
       startDate: startDate,
       endDate: endDate,
-      noOfDays: leaveDates.length,
+      noOfDays: totalRequiredDays,
       notes,
       fileUrl,
       status: 'Requested',
@@ -869,17 +871,23 @@ router.get('/:id', async (req, res) => {
 });
 
 router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => {
+  let transaction;
   try {
     const leaveId = req.params.id;
+
+    // Start a transaction to ensure atomicity
+    transaction = await sequelize.transaction();
 
     const leave = await Leave.findByPk(leaveId, {
       include: {
         model: LeaveType,
         as: 'leaveType',
       },
+      transaction, // Pass the transaction to the query
     });
 
     if (!leave) {
+      await transaction.rollback(); // Rollback the transaction if leave is not found
       return res.send('Leave not found');
     }
 
@@ -908,7 +916,8 @@ router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => 
             userId: leave.userId,
             leaveTypeId: leave.leaveTypeId,
             year: year // Assuming you have a 'year' field in UserLeave
-          }
+          },
+          transaction, // Pass the transaction to the query
         });
 
         if (userLeave) {
@@ -918,16 +927,27 @@ router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => 
             userLeave.takenLeaves -= leaveDays;
             userLeave.leaveBalance += leaveDays;
           }
-          await userLeave.save();
+          await userLeave.save({ transaction }); // Save with transaction
         }
       }
+
+      // Handle notifications and emails for 'emergency' type
+      await handleNotificationsAndEmails(req, res, leave, transaction, 'emergency', 'delete');
+    } else {
+      // Handle notifications and emails for 'employee' type
+      await handleNotificationsAndEmails(req, res, leave, transaction, 'employee', 'delete');
     }
 
     // Delete the leave record
-    await leave.destroy();
+    await leave.destroy({ transaction });
+
+    // Commit the transaction if everything is successful
+    await transaction.commit();
 
     res.status(204).send('Leave deleted and balance updated successfully');
   } catch (error) {
+    // Rollback the transaction in case of any error
+    if (transaction) await transaction.rollback();
     res.status(500).send(error.message);
   }
 });
@@ -992,7 +1012,7 @@ async function formatDate(date) {
 async function handleNotificationsAndEmails(req, res, leave, transaction, type, mes) {
   let message = [];
   const userPos = await UserPosition.findOne({
-    where: { userId: req.body.userId },
+    where: { userId: req.body.userId ? req.body.userId : leave.userId },
     include: [{ model: User, attributes: ['name'] }],
     transaction,
   });
@@ -1006,7 +1026,7 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
     
     if(!lt) message.push(`LeaveType with ID ${leave.leaveTypeId} is not existing`)
     // Handle Reporting Manager
-    const rmId = await getRMId(req.body.userId);
+    const rmId = await getRMId(req.body.userId ? req.body.userId : leave.userId);
     if (Number.isInteger(rmId)) {
       createNotification({
         id: rmId,
@@ -1031,7 +1051,7 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
       }
     } else {
       createNotification({
-        id: req.body.userId,
+        id: req.body.userId ? req.body.userId : leave.userId,
         me: `leave request has been ${mes}d by ${req.user.name}.`,
         route: `/login/leave/open/${leave.id}`
       });
@@ -1039,7 +1059,7 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
 
     // Handle Team Leads
     try {
-      const teamLeadIds = await getTeamLeads(req.body.userId);
+      const teamLeadIds = await getTeamLeads(req.body.userId ? req.body.userId : leave.userId);
       if (Array.isArray(teamLeadIds)) {
         for (const tlId of teamLeadIds) {
           createNotification({
@@ -1081,7 +1101,7 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
 
     // Email sending logic
     try {
-      const rm = await getReportingManagerEmailForUser(req.body.userId);
+      const rm = await getReportingManagerEmailForUser(req.body.userId ? req.body.userId : leave.userId);
       let reportingManagerEmail = rm.email
       let operationalManagerEmail = await getOMEmail();
       let cc = [];
@@ -1101,7 +1121,7 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
         cc.push(operationalManagerEmail)
       }
       // Get team lead emails
-      const teamLeadEmails = await getTeamLeadEmails(req.body.userId);
+      const teamLeadEmails = await getTeamLeadEmails(req.body.userId ? req.body.userId : leave.userId);
       if (Array.isArray(teamLeadEmails)) {
         cc.push(teamLeadEmails.filter(email => emailRegex.test(email)))
       }
@@ -1111,6 +1131,7 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
         <ul>
           <li>Type: ${lt.leaveTypeName}</li>
           <li>Dates: ${await formatDate(leave.startDate)} to ${await formatDate(leave.endDate)}</li>
+          <li>Reason: ${leave.notes}</li>
           <li>Days: ${leave.noOfDays}</li>
           <li>Status: ${leave.status}</li>
         </ul>

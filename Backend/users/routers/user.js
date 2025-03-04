@@ -564,7 +564,7 @@ router.get('/confirmemployee/:id', async (req, res) => {
       await post.save();
       
       if (!result) {
-          return res.json({ message: "Employee not found" });
+        return res.json({ message: "Employee not found" });
       }
 
       result.isTemporary = false;
@@ -573,14 +573,16 @@ router.get('/confirmemployee/:id', async (req, res) => {
       const leaveTypes = await LeaveType.findAll({});
       const sl = leaveTypes.find(x => x.leaveTypeName === 'Sick Leave');
       const cl = leaveTypes.find(x => x.leaveTypeName === 'Casual Leave');
+      const co = leaveTypes.find(x => x.leaveTypeName === 'Comb Off');
       const slId = sl ? sl.id : null;
       const clId = cl ? cl.id : null;
-      
+      const coId = co ? co.id : null;
       const currentYear = new Date().getFullYear();
       
       let data = [
         {userId: req.params.id, leaveTypeId: slId, noOfDays : 1, leaveBalance : 1, year: currentYear},
         {userId: req.params.id, leaveTypeId: clId, noOfDays : 1, leaveBalance : 1, year: currentYear},
+        {userId: req.params.id, leaveTypeId: coId, noOfDays : 0, leaveBalance : 0, year: currentYear},
       ]
 
       for(let i = 0; i < data.length; i++){

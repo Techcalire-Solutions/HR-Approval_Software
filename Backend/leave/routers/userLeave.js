@@ -8,10 +8,8 @@ const cron = require('node-cron');
 
 const LeaveType = require('../models/leaveType');
 const { where } = require('sequelize');
-
-const { Op } = require('sequelize');
 const Leave = require('../models/leave');
-
+const { Sequelize, Op } = require('sequelize');
 
 // -----------------------------Leave Accumulation function-----------------------------------------------
 
@@ -63,7 +61,6 @@ router.get('/leavecount/:userId/:typeid/:year', authenticateToken, async (req, r
     const userId = req.params.userId;
     const leaveTypeId = req.params.typeid;
     const year = req.params.year; 
-    console.log(userId, leaveTypeId, year);
     
     // Find the leave type details
     const leaveType = await LeaveType.findOne({
@@ -129,8 +126,6 @@ router.get('/leavecount/:userId/:typeid/:year', authenticateToken, async (req, r
         return count;
       }, 0);
 
-      console.log(monthlyLOPCount);
-      
     }
     const userLeaves = await UserLeave.findOne({
       where: { userId, leaveTypeId, year },
@@ -140,7 +135,28 @@ router.get('/leavecount/:userId/:typeid/:year', authenticateToken, async (req, r
         attributes: ['leaveTypeName', 'id'],
       },
     });
-    console.log(userLeaves);
+
+    const pendingLeaves = await Leave.findAll({
+      where: {
+        userId,
+        status: 'Requested',
+      },
+      attributes: ['leaveTypeId', 'noOfDays'],
+    });
+
+    const pendingLeaveCounts = pendingLeaves.reduce((acc, leave) => {
+      const leaveTypeId = leave.leaveTypeId;
+      if (!acc[leaveTypeId]) {
+        acc[leaveTypeId] = 0;
+      }
+      acc[leaveTypeId] += leave.noOfDays;
+      return acc;
+    }, {});
+
+    // Inject pending leave count into the userLeaves object
+    if (userLeaves) {
+      userLeaves.dataValues.pendingLeaveCount = pendingLeaveCounts[userLeaves.leaveTypeId] || 0;
+    }
     
     return res.json({userLeaves, monthlyLOPCount});
   } catch (error) {
@@ -198,7 +214,18 @@ router.get('/byuser/:userid', authenticateToken, async (req, res) => {
     const currentYear = new Date().getFullYear();
     const userLeaves = await UserLeave.findAll({
       where: { userId : req.params.userid, year: currentYear},
-      include: [{model: LeaveType}]
+      include: [{ model: LeaveType, as: 'leaveType', attributes: ['leaveTypeName'] }],
+      order: [
+        [
+          Sequelize.literal(`CASE
+            WHEN "leaveType"."leaveTypeName" = 'Casual Leave' THEN 1
+            WHEN "leaveType"."leaveTypeName" = 'Sick Leave' THEN 2
+            WHEN "leaveType"."leaveTypeName" = 'Comb Off' THEN 3
+            WHEN "leaveType"."leaveTypeName" = 'LOP' THEN 4
+            ELSE 5
+          END`)
+        ]
+      ]
     });
     res.send(userLeaves);
   } catch (error) {
