@@ -1,5 +1,5 @@
-@if (birthdaysThisMonth.length > 0) {
-  <mat-card>
+<mat-card>
+  @if (birthdaysThisMonth.length > 0) {
     <div class="birthday-container">
       <h2>🎉 Birthdays 🎉</h2><br>
       <div class="card-container">
@@ -11,7 +11,12 @@
           }
       </div>
     </div>
-  </mat-card>
-}
+  } @else {
+    <div class="no-data-container">
+      <h2>🎉 Birthdays 🎉</h2>
+      <p>No upcoming birthdays in this month.</p>
+    </div>
+  }
+</mat-card>
 
 

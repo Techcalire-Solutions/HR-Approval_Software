@@ -1,17 +1,27 @@
-@if (dueUsers.length > 0) {
-  <mat-card>
+<mat-card>
+  @if (dueUsers.length > 0) {
     <div class="birthday-container">
-        <h2>⚠️ Probation Due ⚠️</h2><br>
+      <h2>⚠️ Probation Due ⚠️</h2><br>
       <div class="card-container">
-          @for (employee of dueUsers; track $index) {
-              <div class="card">
-                <h4><a style="color: blue;">{{ employee.name }}</a> - Due on: {{ employee.probationEndDate | date: 'MMMM d, y' }} </h4>
-              </div>
-          }
+        @for (employee of dueUsers; track $index) {
+          <div class="card">
+            <h4>
+              <a style="color: blue;">{{ employee.name }}</a> - 
+              Due on: {{ employee.probationEndDate | date: 'MMMM d, y' }}
+            </h4>
+          </div>
+        }
       </div>
     </div>
-  </mat-card>
-}
+  } @else {
+    <div class="no-data-container">
+      <h2>⚠️ Probation Due ⚠️</h2>
+      <p>No probation due records available at the moment.</p>
+    </div>
+  }
+</mat-card>
+
+
 
   
   

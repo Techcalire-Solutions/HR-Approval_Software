@@ -6,7 +6,6 @@ import { InfoCardsComponent } from './info-cards/info-cards.component';
 import { MatrixTableComponent } from "./matrix-table/matrix-table.component";
 import { InvoiceService } from '@services/invoice.service';
 import { Subscription } from 'rxjs/internal/Subscription';
-import { AdminCardComponent } from "./admin-card/admin-card.component";
 import { BirthdayComponent } from "./birthday/birthday.component";
 import { JoiningDayComponent } from "./joining-day/joining-day.component";
 import { ProbationDueComponent } from "./probation-due/probation-due.component";
@@ -23,7 +22,6 @@ import { RoleService } from '@services/role.service';
     MatIconModule,
     InfoCardsComponent,
     MatrixTableComponent,
-    AdminCardComponent,
     BirthdayComponent,
     JoiningDayComponent,
     ProbationDueComponent,
@@ -54,14 +52,9 @@ export class DashboardComponent {
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;      
-      console.log(this.roleName);
-      
-      if(this.roleName === 'HR Administrator' ||this.roleName==='HR') {
-        this.hradmin = true;
-      }else{
+      console.log(this.roleName);     
+      if(this.roleName != 'HR Administrator' && this.roleName !=='Super Administrator' && this.roleName !== 'Administrator') {
         this.roleService.getDesignationbyRole(role.id).subscribe(res =>{
-          console.log(res);
-          
           if(res.length > 0){
             this.payStat = true;
           }
