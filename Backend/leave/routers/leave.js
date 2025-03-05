@@ -1544,8 +1544,8 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
         const endOfStartYear = new Date(startYear, 11, 31);
         const startOfEndYear = new Date(endYear, 0, 1);
     
-        const daysInStartYear = calculateLeaveDays(startDate, endOfStartYear);
-        const daysInEndYear = calculateLeaveDays(startOfEndYear, endDate);
+        const daysInStartYear = calculateDays(startDate, endOfStartYear);
+        const daysInEndYear = calculateDays(startOfEndYear, endDate);
     
         const userLeaveStartYear = await UserLeave.findOne({
           where: {
@@ -1564,7 +1564,7 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
         });
     
         if (!userLeaveStartYear || !userLeaveEndYear) {
-          return res.status(404).send('User leave record not found for one or both years');
+          return res.send('User leave record not found for one or both years');
         }
     
         // Update takenLeave for both years
@@ -1582,7 +1582,7 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     
       // Send notifications
       let id = userId;
-      const me = `Leave Request Approved with id ${leave.id}`;
+      const me = `${leave.user.name}'s Leave Request Approved by ${req.user.name}`;
       const route = `/login/leave/open/${leave.id}`;
     
       createNotification({ id, me, route });
@@ -1700,7 +1700,7 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
 
     // Send notification and email
     const id = userId;
-    const me = `Leave Request Approved with id ${leave.id}`;
+    const me = `${leave.user.name}'s Leave Request Approved by ${req.user.name}`;
     const route = `/login/leave`;
 
     createNotification({ id, me, route });
@@ -1759,7 +1759,7 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
       where: { userId: id }, 
       include: [{ model: User, attributes: ['name']}
     ]})
-    const me = `Leave Request Rejected with id ${leave.id}`;
+    const me = `${leave.user.name} Leave Request Rejected by ${req.user.name}`;
     const route = `/login/leave/open/${leave.id}`;
 
     createNotification({ id, me, route });

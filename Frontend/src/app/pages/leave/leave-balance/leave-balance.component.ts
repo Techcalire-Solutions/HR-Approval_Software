@@ -113,6 +113,23 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
     return true;
   }
 
+  getIcon(leaveType: string): string {
+    console.log(leaveType);
+    
+    switch (leaveType) {
+      case 'LOP':
+        return '/img/steptodown.com500724.jpg';
+      case 'Casual Leave':
+        return '/img/steptodown.com217905.jpg';
+      case 'Sick Leave':
+        return '/img/steptodown.com832314.jpg';
+      case 'Comb Off':
+        return '/img/steptodown.com500724.jpg';
+      default:
+        return '/img/steptodown.com500724.jpg';
+    }
+  }
+
   ngOnDestroy() {
     if (this.leaveCountsSubscription) {
       this.leaveCountsSubscription.unsubscribe();
