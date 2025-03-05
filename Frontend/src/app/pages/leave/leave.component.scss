@@ -366,3 +366,28 @@ iframe {
   background-color: rgba(0, 0, 0, 0.1); /* Optional: Add a semi-transparent background */
   z-index: 1000; /* Ensures it appears above other content */
 }
+
+.legend {
+  margin-top: 20px; /* Add some space between the first row and the legend */
+}
+
+@media (max-width: 600px) {
+  .legend {
+    margin-top: 10px; /* Adjust spacing for small screens */
+  }
+}
+
+
+/* Styles for mobile devices (screens up to 600px wide) */
+@media (max-width: 600px) {
+  .debug-large {
+    display: none; /* Hide the blue border on mobile */
+  }
+}
+
+/* Styles for desktop devices (screens wider than 600px) */
+@media (min-width: 601px) {
+  .debug-small {
+    display: none; /* Hide the red border on desktop */
+  }
+}

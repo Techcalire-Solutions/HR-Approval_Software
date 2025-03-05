@@ -1,23 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <body>
-  <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
-    <div fxLayout="row" class="col">
-      <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-        <mat-button-toggle value="add" (click)="openCalendar()">
-          <mat-icon style="color: green;">edit_calendar</mat-icon>
-        </mat-button-toggle>
-      </mat-button-toggle-group>
+  <div fxLayout="row" class="legend col debug-large" fxFlex="30" fxHide.xs>
+    <div fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center" class="row">
+      <!-- First Column: Calendar Button -->
+      <div fxLayout="row" class="col" fxFlex="20" fxFlex.xs="100">
+        <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
+          <mat-button-toggle value="add" (click)="openCalendar()">
+            <mat-icon style="color: green;">edit_calendar</mat-icon>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+    
+      <!-- Second Column: Search Form -->
+      <div fxLayout="row" class="col" fxFlex="40" fxFlex.xs="100">
+        <form class="user-search" [class.show]="controls.value == 'search'">
+          <mat-form-field class="user-search-input">
+            <input matInput placeholder="Search leave by leave type..." name="search" (keyup)="search($event)">
+          </mat-form-field>
+        </form>
+      </div>
+    
+      <!-- Third Column: Legend (Visible only on large screens) -->
+      <div fxLayout="row" class="legend col" fxFlex="30" fxHide.xs>
+        <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
+          <div style="display: flex; align-items: center; margin-right: 20px;">
+            <span style="color: green; font-weight: bold; font-size:xx-large;">●</span>
+            <span style="margin-left: 5px;">Approved</span>
+          </div>
+          <div style="display: flex; align-items: center; margin-right: 20px;">
+            <span style="color: red; font-weight: bold; font-size:xx-large;">●</span>
+            <span style="margin-left: 5px;">Rejected</span>
+          </div>
+          <div style="display: flex; align-items: center; margin-right: 20px;">
+            <span style="color: black; font-weight: bold; font-size:xx-large;">●</span>
+            <span style="margin-left: 5px;">Pending</span>
+          </div>
+        </div>
+      </div>
+    
+      <!-- Fourth Column: Leave Calendar Button -->
+      <div fxLayout="row" fxFlex="10" fxFlex.xs="100" fxLayoutAlign="end center">
+        <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
+          <mat-button-toggle value="add" (click)="openLeaveCalendar()">
+            <mat-icon style="color: green;">event_available</mat-icon>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
     </div>
-    <div fxLayout="row" class="col">
-      <form class="user-search" [class.show]="controls.value == 'search'">
-        <mat-form-field class="user-search-input">
-          <input matInput placeholder="Search leave by leave type..." name="search" (keyup)="search($event)">
-        </mat-form-field>
-      </form>
+  </div>
+  <div fxLayout="row" class="legend col debug-small" fxFlex="100" fxHide fxShow.xs>
+    <div fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center" class="row">
+      <!-- First Column: Calendar Button -->
+      <div fxLayout="row" class="col" fxFlex="20" fxFlex.xs="100">
+        <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
+          <mat-button-toggle value="add" (click)="openCalendar()">
+            <mat-icon style="color: green;">edit_calendar</mat-icon>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+    
+      <!-- Second Column: Search Form -->
+      <div fxLayout="row" class="col" fxFlex="40" fxFlex.xs="100">
+        <form class="user-search" [class.show]="controls.value == 'search'">
+          <mat-form-field class="user-search-input">
+            <input matInput placeholder="Search leave by leave type..." name="search" (keyup)="search($event)">
+          </mat-form-field>
+        </form>
+      </div>
+      <!-- Fourth Column: Leave Calendar Button -->
+      <div fxLayout="row" fxFlex="10" fxFlex.xs="100" fxLayoutAlign="end center">
+        <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
+          <mat-button-toggle value="add" (click)="openLeaveCalendar()">
+            <mat-icon style="color: green;">event_available</mat-icon>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
     </div>
-
-    <div fxLayout="row" class="legend col">
+    <div fxLayout="row" class="legend col" fxFlex="100" fxHide fxShow.xs fxLayoutAlign="space-between center">
       <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
         <div style="display: flex; align-items: center; margin-right: 20px;">
           <span style="color: green; font-weight: bold; font-size:xx-large;">●</span>
@@ -33,14 +93,8 @@
         </div>
       </div>
     </div>
-    <div fxLayout="row" fxLayoutAlign="space-between center">
-      <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-        <mat-button-toggle value="add" (click)="openLeaveCalendar()">
-          <mat-icon style="color: green;">event_available</mat-icon>
-        </mat-button-toggle>
-      </mat-button-toggle-group>
-    </div>
   </div>
+
 
   <mat-tab-group (selectedTabChange)="onTabChange($event.index)">
     <mat-tab label="Leaves">

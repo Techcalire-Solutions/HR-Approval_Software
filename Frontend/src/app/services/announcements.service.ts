@@ -25,7 +25,7 @@ export class AnnouncementsService {
     return this.http.post(this.apiUrl + '/announcements/add', data)
   }
 
-  getAnnouncement(search: string): Observable<Announcement[]>{
+  getAnnouncement(search?: string): Observable<Announcement[]>{
     return this.http.get<Announcement[]>(this.apiUrl + `/announcements/find?search=${search}`)
   }
   

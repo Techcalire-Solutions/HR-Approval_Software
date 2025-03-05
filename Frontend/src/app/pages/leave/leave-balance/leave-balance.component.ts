@@ -84,6 +84,8 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
   getLeaveType(){
     this.ltSub = this.leaveService.getLeaveType().subscribe(leaveType => {
       this.leaveTypes = leaveType 
+      console.log(this.leaveTypes);
+      
       this.fetchLeaveCounts()
     });
   }

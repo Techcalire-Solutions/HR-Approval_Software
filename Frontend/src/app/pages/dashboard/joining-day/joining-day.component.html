@@ -8,7 +8,7 @@
             @for (employee of joinThisMonth; track $index) {
               <div class="card">
                 <h4>
-                  <a style="color: blue;">{{ employee.user.name }}</a>
+                  <a>{{ employee.user.name }}</a>
                   <span class="date">Joining: {{ employee.dateOfJoining | date: 'MMMM d, y' }}</span>
                 </h4>
                 <!--  - Exp: {{ employee.exp }} -->
