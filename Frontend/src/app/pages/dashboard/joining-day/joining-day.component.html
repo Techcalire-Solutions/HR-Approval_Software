@@ -1,26 +1,26 @@
-<mat-card>
-    @if (joinThisMonth.length > 0) {
-    <div class="birthday-container">
-        <h2>🎉 Joining Anniversary 🎉</h2><br>
-        <div class="card-container">
+<mat-card class="background-image-card">
+    <div class="overlay"></div> <!-- Semi-transparent overlay -->
+    <div class="content">
+      @if (joinThisMonth.length > 0) {
+        <div class="birthday-container">
+          <h2>🎉 Joining Anniversary 🎉</h2><br>
+          <div class="card-container">
             @for (employee of joinThisMonth; track $index) {
-                <div class="card">
-                    <!-- <p> -->
-                        <h4><a style="color: blue;">{{ employee.user.name }}</a> - Joining: {{ employee.dateOfJoining| date: 'MMMM d, y' }}</h4>
-                        <!--  - Exp: {{ employee.exp }} -->
-                    <!-- </p> -->
-                </div>
+              <div class="card">
+                <h4>
+                  <a style="color: blue;">{{ employee.user.name }}</a>
+                  <span class="date">Joining: {{ employee.dateOfJoining | date: 'MMMM d, y' }}</span>
+                </h4>
+                <!--  - Exp: {{ employee.exp }} -->
+              </div>
             }
+          </div>
         </div>
-    </div>
-    } @else {
+      } @else {
         <div class="no-data-container">
           <h2>🎉 Joining Anniversary 🎉</h2>
           <p>No upcoming joining anniversaries in this month.</p>
         </div>
       }
-</mat-card>
-
-
-  
-  
+    </div>
+  </mat-card>

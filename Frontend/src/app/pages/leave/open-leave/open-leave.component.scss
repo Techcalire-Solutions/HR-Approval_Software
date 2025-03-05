@@ -1,117 +1,131 @@
+/* General Styles */
 .leave-details-container {
   padding: 20px;
+  font-family: 'Arial', sans-serif;
 }
 
 .row {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 .col {
   flex: 1;
-  min-width: 300px;
+  min-width: 200px;
 }
 
+/* Leave Card Styles */
 .leave-card {
-  background-color: #f9f9f9;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
 }
 
-mat-card-header {
-  background-color: #2f74b9;
-  color: white;
-  padding: 15px;
-  border-radius: 8px 8px 0 0;
+.leave-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.mat-card-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  padding: 16px;
 }
 
-mat-card-subtitle {
-  font-weight: bold;
-  font-size: 1.2rem;
+.mat-card-subtitle {
+  font-size: 14px;
+  color: #555;
 }
 
-mat-chip-set {
+.mat-chip-set {
   margin-left: auto;
 }
 
-mat-chip {
-  background-color: #ff4d4d;
-  color: white;
-  font-size: 0.9rem;
-  padding: 5px 10px;
-  border-radius: 20px;
+.mat-chip {
+  font-size: 12px;
+  padding: 4px 8px;
 }
 
-mat-chip .icon-sm {
-  font-size: 16px;
-  margin-right: 5px;
+.info-chip {
+  background-color: #ffebee;
+  color: #7a28c6;
 }
 
-.mat-card-content {
-  padding: 20px;
+.icon-sm {
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+/* Leave Details Styles */
+.form-wrapper {
+  padding: 16px;
 }
 
 .detail-row {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 12px;
 }
 
 .detail-column {
-  width: 48%;
+  flex: 1;
+  min-width: 200px;
 }
 
-.full-width {
-  width: 100%;
+.detail-column strong {
+  color: #333;
 }
 
+/* Leave Session Styles */
 .leave-session-card {
-  margin-top: 20px;
-}
-
-iframe {
+  border: 1px solid #ddd;
   border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
 }
 
-form .leave-session-row {
+.leave-session-row {
   display: flex;
-  flex-direction: column;
-  margin-bottom: 10px;
+  align-items: center;
+  gap: 16px;
 }
 
-mat-card-title {
-  font-weight: bold;
+.leave-session-row mat-card-title {
+  font-size: 16px;
+  margin: 0;
 }
 
-mat-card-content .form-wrapper {
-  padding: 20px;
-  background-color: #f1f1f1;
-  border-radius: 8px;
+/* Button Styles */
+.approve-button {
+  background-color: #4caf50;
+  color: white;
 }
 
-mat-card-content .form-wrapper .detail-row {
-  margin-bottom: 15px;
+.reject-button {
+  background-color: #f44336;
+  color: white;
 }
 
-mat-card-content .form-wrapper .detail-column {
-  display: inline-block;
-  margin-right: 15px;
+.approve-button:disabled,
+.reject-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
-mat-card-content .form-wrapper .full-width {
-  width: 100%;
-  margin-top: 10px;
-}
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .row {
+    flex-direction: column;
+  }
 
-.approve-button:disabled {
-  background-color: #e0e0e0; /* Light gray background */
-  color: #9e9e9e; /* Gray text color */
-  cursor: not-allowed; /* Change the cursor to indicate it's not clickable */
-  pointer-events: none; /* Ensure no events are triggered */
-  opacity: 0.6; /* Reduce opacity for a 'disabled' look */
+  .detail-row {
+    flex-direction: column;
+  }
+
+  .leave-session-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

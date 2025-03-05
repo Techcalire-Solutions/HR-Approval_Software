@@ -170,19 +170,21 @@ router.get('/birthdays', authenticateToken, async (req, res) => {
     const today = new Date();
     const currentMonth = today.getMonth() + 1;
     const currentDay = today.getDate();
-    
     const employeesWithBirthdays = await UserPersonal.findAll({
       where: {
         [Op.and]: [
           sequelize.where(fn('EXTRACT', literal('MONTH FROM "dateOfBirth"')), currentMonth),
           sequelize.where(fn('EXTRACT', literal('DAY FROM "dateOfBirth"')), { [Op.gte]: currentDay })
         ]
-      },include: {
+      },
+      include: {
         model: User, as: 'user',
         attributes: ['name']
-      }
+      },
+      order: [
+        [sequelize.fn('EXTRACT', sequelize.literal('DAY FROM "dateOfBirth"')), 'ASC']
+      ],
     });
-
     const employeesWithBirthdaysWithAge = employeesWithBirthdays.map(employee => {
       const birthDate = new Date(employee.dateOfBirth);
       const age = today.getFullYear() - birthDate.getFullYear();
@@ -198,7 +200,7 @@ router.get('/birthdays', authenticateToken, async (req, res) => {
 
     res.status(200).json(employeesWithBirthdaysWithAge);
   } catch (error) {
-    res.send(error.message);
+    res.send(error.message); // It's a good practice to set a status code for errors
   }
 });
 
@@ -217,7 +219,10 @@ router.get('/joiningday', authenticateToken, async (req, res) => {
       },include: {
         model: User, as: 'user',
         attributes: ['name']
-      }
+      },
+      order: [
+        [sequelize.fn('EXTRACT', sequelize.literal('DAY FROM "dateOfBirth"')), 'ASC']
+      ],
     });
 
     const employeesWithExp = employees.map(employee => {

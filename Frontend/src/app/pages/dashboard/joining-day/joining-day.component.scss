@@ -1,46 +1,93 @@
-.birthday-container {
-    text-align: center;
-    background-color: #f9f9f9; /* Light background for better contrast */
-    padding: 20px; /* Space around the content */
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  }
-  
-  .card-container {
-    display: flex;
-    flex-direction: column; /* Stack cards vertically */
-    align-items: center; /* Center cards horizontally */
-    gap: 15px; /* Space between cards */
-    margin-top: 20px; /* Space above the cards */
-  }
-  
-  .card {
-    background-color: #fff; /* White background for each card */
-    border: 1px solid #ccc; /* Light gray border */
-    border-radius: 8px; /* Rounded corners for each card */
-    padding: 15px; /* Space inside the card */
-    width: 100%; /* Full width of the container */
-    max-width: 400px; /* Max width for larger screens */
-    transition: transform 0.2s; /* Smooth hover effect */
-  }
-  
-  .card:hover {
-    transform: scale(1.05); /* Slightly enlarge on hover */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Deeper shadow on hover */
-  }
-  
-  h2 {
-    color: #ff5722; /* Vibrant color for the title */
-    font-family: 'Arial', sans-serif; /* Font style for the title */
-  }
-  
-  h4 {
-    color: #333; /* Darker color for the employee info */
-    font-family: 'Verdana', sans-serif; /* Font style for employee info */
-  }
-  
-  .no-data-container {
-    text-align: center;
-    padding: 20px;
-    color: #888;
-  }
+.background-image-card {
+  position: relative;
+  background-image: url('../../../../../public/img/steptodown.com720100.jpg'); /* Replace with your image path */
+  background-size: cover; /* Cover the entire card */
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+  color: white; /* Default text color */
+  overflow: hidden; /* Ensure the overlay doesn't overflow */
+  filter: brightness(1.5); /* Reduce image brightness */
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4); /* Black overlay with 40% opacity to dim the background further */
+  z-index: 1; /* Place the overlay above the background image */
+}
+
+.content {
+  position: relative;
+  z-index: 2; /* Place the content above the overlay */
+  color: white; /* Bright text color */
+  padding: 16px; /* Add padding for better spacing */
+}
+
+/* Style the birthday container */
+.birthday-container h2 {
+  color: black; /* Dark text color for headings */
+  font-weight: bold; /* Make headings stand out */
+  margin-bottom: 16px;  /* Make headings stand out */
+  font-size: 28px; /* Increased font size for headings */
+  text-align: center; 
+}
+
+/* Style the card container */
+.card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Add spacing between cards */
+}
+
+/* Style individual cards */
+.card {
+  background: transparent; /* Semi-transparent white background for cards */
+  padding: 12px; /* Add padding inside cards */
+  border-radius: 8px; /* Rounded corners for cards */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  transition: transform 0.2s, box-shadow 0.2s; /* Smooth hover effect */
+}
+
+.card:hover {
+  transform: translateY(-2px); /* Slight lift on hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+}
+
+.card h4 {
+  display: flex; /* Use Flexbox for alignment */
+  justify-content: space-between; /* Space between name and date */
+  align-items: center; /* Vertically center items */
+  color: black; /* Dark text color for card content */
+  font-size: 16px; /* Adjust font size */
+  margin: 0; /* Remove default margin */
+}
+
+.card a {
+  color: blue; /* Blue color for links */
+  text-decoration: none; /* Remove underline from links */
+}
+
+.card .date {
+  color: black; /* Dark text color for dates */
+  font-weight: bold; /* Make dates stand out */
+}
+
+/* Style the no-data container */
+.no-data-container {
+  text-align: center; /* Center align text */
+}
+
+.no-data-container h2 {
+  color: black; /* Dark text color for headings */
+  font-weight: bold; /* Make headings stand out */
+  margin-bottom: 16px; /* Add spacing below the heading */
+  font-size: 28px;
+}
+
+.no-data-container p {
+  color: black; /* Dark text color for paragraphs */
+  font-size: 14px; /* Adjust font size */
+}

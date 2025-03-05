@@ -32,7 +32,7 @@ export class ApplicationsComponent implements OnInit {
 
 
   openLeaveTypes(): void {
-    this.router.navigateByUrl('/login/admin-leave/leave-types')
+    this.router.navigateByUrl('/login/leave/leave-types')
 
   }
   openRole(): void {
