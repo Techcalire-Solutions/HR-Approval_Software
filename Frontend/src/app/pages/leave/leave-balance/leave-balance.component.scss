@@ -6,3 +6,47 @@
   background-color: #FFA500; /* Orange color for pending leaves */
   color: white; /* Text color */
 }
+
+
+
+// --------------------------------------------------------------------
+.leave-types {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.leave-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.leave-type-card {
+  width: 100%;
+  text-align: center;
+}
+
+.icon {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 10px;
+}
+
+h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+p {
+  margin: 5px 0;
+}
+
+.leave-info{
+  color: rgb(25, 2, 128);
+}

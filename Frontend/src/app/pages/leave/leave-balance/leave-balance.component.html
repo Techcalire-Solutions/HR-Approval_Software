@@ -9,8 +9,29 @@
         </mat-select>
       </mat-form-field>
     </div>
-
-    <div fxLayout="row">
+    <div fxLayout="row" fxLayoutGap="10px" class="leave-cards-container">
+      @if (leaveCounts && leaveCounts.length) {
+        <ng-container *ngFor="let leaveType of leaveCounts; let i = index">
+          <div fxLayout="row" fxLayout.xs="column" fxLayoutAlign="center center" class="leave-card"
+               [style.background-image]="'url(' + getIcon(leaveType.leaveType) + ')'" 
+               [style.background-size]="'cover'" 
+               [style.background-position]="'center'"
+               [fxFlex]="100 / leaveCounts.length + '%'">
+            <div fxFlex="20" class="icon-container">
+              <img [src]="getIcon(leaveType.leaveType)" alt="{{ leaveType.leaveType }}" class="icon">
+            </div>
+            <div fxFlex="80" class="leave-info">
+              <h3>{{ leaveType.leaveType }}</h3>
+              <p><strong>Allotted No Of Days:</strong> {{ leaveType.userLeaves?.noOfDays || 0 }}</p>
+              <p><strong>Leave Balance:</strong> {{ leaveType.userLeaves?.leaveBalance || 0 }}</p>
+              <p><strong>No Of Days Taken:</strong> {{ leaveType.userLeaves?.takenLeaves || 0 }}</p>
+              <p><strong>No Of Pending Leaves:</strong> {{ leaveType.userLeaves?.pendingLeaveCount || 0 }}</p>
+            </div>
+          </div>
+        </ng-container>
+      }
+    </div>
+    <!-- <div fxLayout="row">
       @if (leaveCounts && leaveCounts.length) {
         <ng-container *ngFor="let leaveType of leaveCounts">
           <div fxFlex="50" class="p-2">
@@ -19,7 +40,6 @@
                 <mat-card-title fxLayoutAlign="center">{{ leaveType.leaveType }}</mat-card-title>
               </mat-card-header>
               <mat-card-content class="bag pt-3">
-                <!-- General Leave Details -->
                 <div *ngIf="leaveType.leaveType !== 'LOP'">
                   <mat-card *ngFor="let color of colors" 
                             [class.bg-primary]="color=='primary'"
@@ -50,7 +70,6 @@
                   </mat-card>
                 </div>
               
-                <!-- Special Handling for LOP -->
                 <ng-container *ngIf="leaveType.leaveType === 'LOP'">
                   <mat-card class="bg-warn draggable p-3">
                     <div fxLayout="row" fxLayoutAlign="start center">
@@ -79,6 +98,6 @@
           </div>
         </ng-container>
       }
-    </div>
+    </div> -->
   </ng-container>
 </div>
