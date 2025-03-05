@@ -100,14 +100,19 @@
 
 @else{
   <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutWrap fxLayout.lt-sm="column">
-    <div fxFlex="33" fxFlex.gt-sm="33" class="p-3">
-        <app-birthday></app-birthday>
-    </div>
-    <div fxFlex="33" fxFlex.lt-sm="33" class="p-3">
+    <div fxFlex="50" fxFlex.lt-sm="50" class="p-3">
       <app-holiday-calendar></app-holiday-calendar>
     </div>
-    <div fxFlex="33" fxFlex.gt-sm="33" class="p-3">
-        <app-joining-day></app-joining-day>
+    <div fxFlex="50" fxFlex.gt-sm="50" class="p-3">
+      <app-announcements-list></app-announcements-list>
+    </div>
+  </div>
+  <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutWrap fxLayout.lt-sm="column">
+    <div fxFlex="50" fxFlex.lt-sm="50" class="p-3">
+      <app-birthday></app-birthday>
+    </div>
+    <div fxFlex="50" fxFlex.gt-sm="50" class="p-3">
+      <app-joining-day></app-joining-day>
     </div>
   </div>
 }

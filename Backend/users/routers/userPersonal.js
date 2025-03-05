@@ -8,7 +8,8 @@ const authenticateToken = require('../../middleware/authorization');
 const sequelize = require('../../utils/db');
 const { Op, fn, literal  } = require('sequelize');
 const User = require('../models/user');
-const UserPosition = require('../models/userPosition')
+const UserPosition = require('../models/userPosition');
+const Role = require('../models/role');
 
 async function saveDates(dateStrings) {
   try {
@@ -167,18 +168,36 @@ router.patch('/update/:id', async(req,res)=>{
 
 router.get('/birthdays', authenticateToken, async (req, res) => {
   try {
+    console.log(req.user.roleId);
+    const role = await Role.findByPk(req.user.roleId);
+    console.log(role.roleName);
+    
     const today = new Date();
     const currentMonth = today.getMonth() + 1;
     const currentDay = today.getDate();
-    const employeesWithBirthdays = await UserPersonal.findAll({
-      where: {
+    if(role.roleName === 'HR Administrator' || role.roleName === 'Super Administrator' || role.roleName === 'Administrator'){
+      whereClause = {
         [Op.and]: [
           sequelize.where(fn('EXTRACT', literal('MONTH FROM "dateOfBirth"')), currentMonth),
           sequelize.where(fn('EXTRACT', literal('DAY FROM "dateOfBirth"')), { [Op.gte]: currentDay })
         ]
-      },
+      };
+    }else{      
+      whereClause = {
+        [Op.and]: [
+          sequelize.where(fn('EXTRACT', literal('MONTH FROM "dateOfBirth"')), currentMonth),
+          sequelize.where(fn('EXTRACT', literal('DAY FROM "dateOfBirth"')), currentDay)
+        ]
+      };
+    }
+    const employeesWithBirthdays = await UserPersonal.findAll({
+      where: whereClause,
       include: {
         model: User, as: 'user',
+        where: {
+          status: true,
+          separated: false
+        },
         attributes: ['name']
       },
       order: [
@@ -218,6 +237,10 @@ router.get('/joiningday', authenticateToken, async (req, res) => {
         ]
       },include: {
         model: User, as: 'user',
+        where: {
+          status: true,
+          separated: false
+        },
         attributes: ['name']
       },
       order: [
@@ -249,6 +272,9 @@ router.get('/dueprobation', authenticateToken, async (req, res) => {
     const today = new Date();
 
     const users = await User.findAll({
+      where: {
+        status: true, separated: false
+      },
       include: [
         {
           model: UserPosition,

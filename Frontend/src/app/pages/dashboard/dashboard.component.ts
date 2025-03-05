@@ -13,6 +13,7 @@ import { HolidayCalendarComponent } from "./holiday-calendar/holiday-calendar.co
 import { LeaveRequestsNotificationComponent } from './leave-requests-notification/leave-requests-notification.component';
 import { UsersService } from '@services/users.service';
 import { RoleService } from '@services/role.service';
+import { AnnouncementsListComponent } from './announcements-list/announcements-list.component';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -26,7 +27,8 @@ import { RoleService } from '@services/role.service';
     JoiningDayComponent,
     ProbationDueComponent,
     HolidayCalendarComponent,
-    LeaveRequestsNotificationComponent,
+    LeaveRequestsNotificationComponent, 
+    AnnouncementsListComponent
 ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'

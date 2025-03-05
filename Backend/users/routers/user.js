@@ -523,7 +523,7 @@ router.get('/underprobation', async (req, res) => {
           model: Role,
           attributes: ['roleName']
         },
-      ], order: ['id'],
+      ], order: [['name', 'ASC']], 
       where: { isTemporary: true, separated: false }
     })
     res.send(user);
@@ -541,7 +541,7 @@ router.get('/confirmed', async (req, res) => {
           attributes: ['roleName']
         },
       ],
-      where: { isTemporary: false, separated: false }
+      where: { isTemporary: false, separated: false }, order: [['name', 'ASC']], 
     })
     res.send(user);
   } catch (error) {

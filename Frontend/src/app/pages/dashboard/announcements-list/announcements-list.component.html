@@ -1,0 +1,23 @@
+<mat-card class="background-image-card">
+    <div class="overlay"></div> <!-- Semi-transparent overlay -->
+    <div class="content">
+      @if (ann.length > 0) {
+        <div class="birthday-container">
+          <h2>Annonuncements</h2><br>
+          <div class="card-container">
+            @for (employee of ann; track $index) {
+              <div class="card">
+                <h4><a >{{employee.message}}</a></h4>
+                <!--  - Age: {{ employee.age }} -->
+              </div>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="no-data-container">
+          <h2>🎉 Annonuncements 🎉</h2>
+          <p>No upcoming birthdays in this month.</p>
+        </div>
+      }
+    </div>
+  </mat-card>

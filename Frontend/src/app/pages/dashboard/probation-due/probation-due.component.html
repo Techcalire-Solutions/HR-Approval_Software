@@ -8,7 +8,7 @@
           @for (employee of dueUsers; track $index) {
             <div class="card">
               <h4>
-                <a style="color: blue;">{{ employee.name }}</a>
+                <a>{{ employee.name }}</a>
                 <span class="date">Due on: {{ employee.probationEndDate | date: 'MMMM d, y' }}</span>
               </h4>
             </div>
