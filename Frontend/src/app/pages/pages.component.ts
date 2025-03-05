@@ -24,6 +24,8 @@ import { AnnouncementsComponent } from "./announcements/announcements.component"
 import { AnnouncementsService } from '@services/announcements.service';
 import { MessagesComponent } from '../theme/messages/messages.component';
 import { ContactUsComponent } from "../theme/components/contact-us/contact-us.component";
+import { Subscription } from 'rxjs';
+import { RoleService } from '@services/role.service';
 
 @Component({
   selector: 'app-pages',
@@ -87,7 +89,27 @@ export class PagesComponent implements OnInit {
     this.announcementService.callSubmit$.subscribe((data) => {
       this.getAnnouncement(data);
     });
+
+    const token: any = localStorage.getItem('token')
+    const user = JSON.parse(token)
+    const roleId = user.role
+    this.getRoleById(roleId)
   }
+
+    roleSub!: Subscription;
+    admin: boolean = false;
+    private roleService = inject(RoleService);
+    getRoleById(id: number){
+      this.roleSub = this.roleService.getRoleById(id).subscribe(role => {
+        const roleName = role.roleName;   
+        console.log(roleName);
+        
+        if(roleName === 'HR Administrator' || roleName ==='Super Administrator' || roleName === 'Administrator') {
+          this.admin = true;
+        }
+      })
+    }
+  
 
   ngAfterViewInit(){
     setTimeout(() => { this.settings.loadingSpinner = false }, 300);

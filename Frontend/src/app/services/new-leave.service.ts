@@ -69,6 +69,18 @@ export class NewLeaveService {
     return this.http.get<LeaveType[]>(this.apiUrl + `/leaveType/find/?search=${filterValue}&page=${page}&pageSize=${pagesize}`);
   }
 
+  deleteLeaveType(id: number) {
+    return this.http.delete(this.apiUrl + "/leaveType/" + id);
+  }
+
+  updateLeaveType(id: number, data: any): Observable<LeaveType> {
+    return this.http.patch<LeaveType>(this.apiUrl + "/leaveType/" + id, data);
+  }
+
+  addLeaveType(data:any){
+    return this.http.post(this.apiUrl+'/leaveType/', data)
+  }
+
   uploadImage(file: any): Observable<any> {
     if (file instanceof File) {
       const formData = new FormData();

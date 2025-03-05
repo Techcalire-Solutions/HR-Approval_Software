@@ -51,8 +51,7 @@ export class DashboardComponent {
   private roleService = inject(RoleService);
   getRoleById(id: number){
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
-      this.roleName = role.roleName;      
-      console.log(this.roleName);     
+      this.roleName = role.roleName;   
       if(this.roleName != 'HR Administrator' && this.roleName !=='Super Administrator' && this.roleName !== 'Administrator') {
         this.roleService.getDesignationbyRole(role.id).subscribe(res =>{
           if(res.length > 0){

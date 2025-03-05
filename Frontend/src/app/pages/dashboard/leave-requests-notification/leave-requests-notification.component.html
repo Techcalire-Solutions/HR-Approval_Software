@@ -1,19 +1,22 @@
-<mat-card>
-  <h2>Leave Requests</h2>
-  <ul>
-    <ng-container *ngFor="let item of leaves; let i = index">
-      <li [routerLink]="['/login/leave/open/', item.id]">
-        {{ item.user.name }} - {{ item.leaveType.leaveTypeName }} - {{item.notes}}
-        <ng-container *ngIf="roleName === 'HR Administrator' || roleName === 'Super Administrator'">
-          <mat-icon (click)="redirectToViewLeaveRequests()">arrow_forward</mat-icon>
-        </ng-container>
-      </li>
-    </ng-container>
-  </ul>
+<mat-card class="background-image-card">
+  <div class="overlay"></div> <!-- Semi-transparent overlay -->
+  <div class="content">
+    <h2>Leave Requests</h2>
+    <ul>
+      <ng-container *ngFor="let item of leaves; let i = index">
+        <li [routerLink]="['/login/leave/open/', item.id]">
+          <span class="list-item-text">
+            {{ item.user.name }} - {{ item.leaveType.leaveTypeName }} - {{item.notes}}
+          </span>
+          <ng-container *ngIf="roleName === 'HR Administrator' || roleName === 'Super Administrator'">
+            <mat-icon (click)="redirectToViewLeaveRequests()">arrow_forward</mat-icon>
+          </ng-container>
+        </li>
+      </ng-container>
+    </ul>
 
-  <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
+    <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
       (page)="onPageChange($event)" [pageSizeOptions]="[10, 20, 30, 40, 50, 100]">
-  </mat-paginator>
+    </mat-paginator>
+  </div>
 </mat-card>
-
-

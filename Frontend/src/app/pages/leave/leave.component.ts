@@ -250,14 +250,18 @@ export class LeaveComponent implements OnInit, OnDestroy{
     this.dialogSub = dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
         this.isLoading = true;
-        // Find the leave item to check for associated file
         const leaveItem = this.leaves.find((leave) => leave.id === leaveId);
 
         this.deleteSub = this.leaveService.deleteUntakenLeave(leaveId).subscribe({
           next: () => {
             this.isLoading = false;
             this.snackbar.open('Leave deleted successfully...', 'Close', { duration: 3000 });
-            this.getLeaves();
+            if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
+              this.employeeStat = true;
+              this.getLeaveByUser(this.userId)
+            }else{
+              this.getLeaves()
+            }
           //   if (leaveItem?.fileUrl) {
           //     // Call API to delete associated file
           //     // this.deleteFileSub = this.leaveService.deleteUploadByurl(leaveItem.fileUrl).subscribe({

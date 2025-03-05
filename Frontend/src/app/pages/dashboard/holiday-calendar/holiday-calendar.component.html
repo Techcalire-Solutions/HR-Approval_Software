@@ -1,21 +1,25 @@
-<mat-card>
-    <h2>Upcoming Holidays</h2>
-
-    <ul>
+<mat-card class="background-image-card">
+    <div class="overlay"></div> <!-- Semi-transparent overlay -->
+    <div class="content">
+      <h2>Upcoming Holidays</h2>
+  
+      <ul>
         @for (item of holidays; track $index; let i = $index) {
-            <li [ngStyle]="{'color': item.comboAdded ? 'red' : 'black'}">
-                {{ item.date | date: 'dd-MM-yyyy' }} - {{ item.name }}
-                @if(roleName === 'HR Administrator' || roleName === 'Super Administrator'){
-                    <ng-container>
-                        <mat-icon (click)="openCompoOff(item.id)">add_task</mat-icon>
-                        </ng-container>
-                }
-            </li>
+          <li [ngStyle]="{'color': item.comboAdded ? 'red' : 'black'}" class="list-item">
+            <span class="list-item-text">
+              {{ item.date | date: 'MMMM d' }} - {{ item.name }}
+            </span>
+            @if(roleName === 'HR Administrator' || roleName === 'Super Administrator'){
+              <ng-container>
+                <mat-icon (click)="openCompoOff(item.id)" class="icon">add_task</mat-icon>
+              </ng-container>
+            }
+          </li>
         }
-
       </ul>
-
-    <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
-        (page)="onPageChange($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
-   </mat-paginator>
-</mat-card>
+  
+      <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
+          (page)="onPageChange($event)" [pageSizeOptions]="[10, 20, 30, 40, 50, 100]">
+      </mat-paginator>
+    </div>
+  </mat-card>

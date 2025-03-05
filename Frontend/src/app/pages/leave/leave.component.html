@@ -104,23 +104,22 @@
                     <td (click)="$event.stopPropagation()">
                       <ng-container>
                         <button
-                          mat-icon-button
+                          mat-fab extended
                           class="approve-button"
                           color="primary"
                           (click)="openDialog('approve', item.id)"
                           [disabled]="item.status === 'Approved' || item.status === 'AdminApproved' || item.status === 'Locked'"
                         >
-                          <mat-icon>thumb_up</mat-icon>
+                          Approve
                         </button>
                         &nbsp;
-                        <button
-                          mat-icon-button
+                        <button mat-fab extended
                           class="reject-button"
                           color="warn"
                           (click)="openDialog('reject', item.id)"
                           [disabled]="item.status === 'Rejected' || item.status === 'AdminApproved' || item.status === 'Locked'"
                         >
-                          <mat-icon>thumb_down</mat-icon>
+                          Reject
                         </button>
                         &nbsp;
                       </ng-container>
