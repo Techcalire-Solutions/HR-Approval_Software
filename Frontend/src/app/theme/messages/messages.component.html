@@ -25,13 +25,20 @@
                                 </div>
                                 <span class="text muted-text" [innerHTML]="message.message"></span>
                               </div>
-                              <mat-icon
+                              <!-- <mat-icon
                               style="color: blue; cursor: pointer;"
                               (click)="!isAdmin() ? markAsRead(message.id) : null"
                               aria-label="Mark as read"
-                            >
-                              mark_email_read
-                            </mat-icon>
+                            > -->
+                              <!-- mark_email_read
+                            </mat-icon> -->
+
+                            <mat-icon [ngStyle]="{'color': message.isRead ? 'blue' : 'green'}"
+                                (click)="!isAdmin() ? markAsRead(message.id) : null"
+                                aria-label="Mark as read">
+                        mark_email_read
+                      </mat-icon>
+     
                             </button>
                           }
                       </div>
