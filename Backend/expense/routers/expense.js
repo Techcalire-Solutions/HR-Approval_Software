@@ -16,12 +16,13 @@ const UserPosition = require('../../users/models/userPosition')
 const Notification = require('../../notification/models/notification')
 const ExcelJS = require('exceljs');
 const ExcelLog = require('../../invoices/models/excelLog');
+const config = require('../../utils/config');
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: config.email.payUser,
+    pass: config.email.payPass,
   }
 });
 
@@ -155,7 +156,7 @@ router.post('/save', authenticateToken, async (req, res) => {
     }
 
     const mailOptions = {
-      from: `Expense Management System <${process.env.EMAIL_USER}>`,
+      from: `Expense Management System <${config.email.payUser}>`,
       to: recipientEmail,
       subject: `Expense Claim Request Submitted - Reference No: ${exNo} / ${req.user.name}`,
       html: emailHtml,
@@ -533,7 +534,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
       `;
 
       const mailOptions = {
-          from: `Expense Management<${process.env.EMAIL_USER}>`,
+          from: `Expense Management<${config.email.payUser}>`,
           to: recipientEmail,
           subject: emailSubject,
           html: emailBody,
@@ -776,7 +777,7 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
       }
 
       const mailOptions = {
-          from: `Expense <${process.env.EMAIL_USER}>`,
+          from: `Expense <${config.email.payUser}>`,
           to: recipientEmail, 
           subject: `Expense claim request Updated - ${pi.exNo} /${req.user.name} `,
           html: `

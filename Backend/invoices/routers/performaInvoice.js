@@ -16,14 +16,15 @@ const Team = require('../../users/models/team');
 const Company = require('../models/company');
 const Notification = require('../../notification/models/notification')
 const UserPosition = require('../../users/models/userPosition')
+const config = require('../../utils/config');
 
 
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user: config.email.payUser,
+      pass: config.email.payPass,
     }
   });
 
@@ -116,7 +117,7 @@ router.post('/save', authenticateToken, async (req, res) => {
         const customerName = customer ? customer.companyName : 'Unknown Customer';
 
         const mailOptions = {
-            from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+            from: `Proforma Invoice <${config.email.payUser}>`,
             to: recipientEmail,
             cc: process.env.FINANCE_EMAIL_USER,
             subject: `New Payment Request Generated ${piNo} / ${supplierPoNo}`,
@@ -262,7 +263,7 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
 
 
    const mailOptions = {
-       from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+       from: `Proforma Invoice <${config.email.payUser}>`,
        to: recipientEmail,
        cc: process.env.FINANCE_EMAIL_USER,
        subject: `New Payment request  Generated - ${piNo} / ${supplierPoNo}`,
@@ -411,7 +412,7 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
         }
 
         const mailOptions = {
-            from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+            from: `Proforma Invoice <${config.email.payUser}>`,
             to: recipientEmail,
             cc: process.env.FINANCE_EMAIL_USER,
             subject: `New Payment Request Generated - ${piNo} / ${supplierPoNo}`,
@@ -1158,7 +1159,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
         }
   
       const mailOptions = {
-        from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+        from: `Proforma Invoice <${config.email.payUser}>`,
         to: recipientEmails.join(','),
         cc: process.env.FINANCE_EMAIL_USER,
         subject: emailSubject,
@@ -1521,7 +1522,7 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
 
     
         const mailOptions = {
-            from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+            from: `Proforma Invoice <${config.email.payUser}>`,
             to: recipientEmail, 
             subject: `Proforma Invoice Updated - ${piNo}`,
             html: `
@@ -1676,7 +1677,7 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
 
      
         const mailOptions = {
-            from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
+            from: `Proforma Invoice <${config.email.payUser}>`,
             to:recipientEmail, 
             subject: `Proforma Invoice Updated - ${piNo}`,
             html: `

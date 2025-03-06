@@ -11,6 +11,8 @@ module.exports = {
     leaveUser: 'aerohr@onboardaero.com',
     leavePass: 'ujrk jziu amti dvdg',
     leaveCommonUser: 'aerohr@onboardaero.com',
-    leaveCommonPass: 'ujrk jziu amti dvdg'
+    leaveCommonPass: 'ujrk jziu amti dvdg',   
+    payUser: 'aerohr@onboardaero.com',
+    payPass: 'ujrk jziu amti dvdg'
   },
 };
