@@ -12,6 +12,7 @@ const s3 = require('../../utils/s3bucket');
 const Notification = require('../../notification/models/notification');
 const UserPosition = require('../../users/models/userPosition');
 const config = require('../../utils/config');
+const Company = require('../models/company');
 
 
 const transporter = nodemailer.createTransport({
