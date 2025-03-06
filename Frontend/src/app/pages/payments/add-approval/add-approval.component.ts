@@ -344,7 +344,7 @@ export class AddApprovalComponent {
   onSubmit() {
     this.submitted = true;
     let submitMethod;
-    if (this.roleName === 'Sales Executive') {
+    if (this.roleName === 'Sales Executive' || this.roleName === 'Team Lead') {
         submitMethod = this.invoiceService.addPI(this.piForm.getRawValue());
     } else if (this.roleName === 'Key Account Manager') {
         submitMethod = this.invoiceService.addPIByKAM(this.piForm.getRawValue());

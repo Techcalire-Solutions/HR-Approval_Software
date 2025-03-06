@@ -178,14 +178,19 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                 continue; // Continue even if fetching a specific file fails
             }
         }
+        const supplier = await Company.findOne({ where: { id: pi.supplierId } });
+        const customer = await Company.findOne({ where: { id: pi.customerId } });
 
+        const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
+        const customerName = customer ? customer.companyName : 'Unknown Customer';
+        
         const mailOptions = {
             from: `${req.user.name} <${req.user.email}>`,
             to: toEmail,
             subject: notificationMessage,
             html: `
             <p><strong>Entry Number:</strong> ${pi.piNo}</p>
-            <p><strong>Supplier Name:</strong> ${pi.supplierName}</p>
+            <p><strong>Supplier Name:</strong> ${supplierName}</p>
             <p><strong>Supplier PO No:</strong> ${pi.supplierPoNo}</p>
             <p><strong>Supplier SO No:</strong> ${pi.supplierSoNo}</p>
             <p><strong>Status:</strong> ${newStatus.status}</p>
@@ -193,7 +198,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
             ${pi.purpose === 'Stock' 
                 ? `<p><strong>Purpose:</strong> Stock</p>` 
                 : `<p><strong>Purpose:</strong> Customer</p>
-                   <p><strong>Customer Name:</strong> ${pi.customerName}</p>
+                   <p><strong>Customer Name:</strong> ${customerName}</p>
                    <p><strong>Customer PO No:</strong> ${pi.customerPoNo}</p>
                    <p><strong>Customer SO No:</strong> ${pi.customerSoNo}</p>`
             }
