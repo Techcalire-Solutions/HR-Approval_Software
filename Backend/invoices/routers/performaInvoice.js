@@ -17,6 +17,7 @@ const Company = require('../models/company');
 const Notification = require('../../notification/models/notification')
 const UserPosition = require('../../users/models/userPosition')
 const config = require('../../utils/config');
+const Designation = require('../../users/models/designation');
 
 
 
@@ -959,7 +960,41 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
     }
 });
 
+async function findFinanceMail() {
+    try {
+
+        const userPosition = await UserPosition.findOne({
+            include: [{
+                model: Designation,
+                where: { designationName: 'FINANCE MANAGER' },
+                attributes: [] 
+            }],
+            attributes: ['projectMailId'] 
+        });
+
+        if (!userPosition) {
+            console.log(" No user found with FINANCE MANAGER designation.");
+            return null;
+        }
+
+    
+        return userPosition.projectMailId;
+
+    } catch (error) {
+        console.error("Error fetching Finance Manager email:", error);
+        return null;
+    }
+}
+
+
+
+
+
+
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
+   
+    const financeEmail = await findFinanceMail()
+
     const { bankSlip } = req.body;
     try {
         pi = await PerformaInvoice.findByPk(req.params.id,
@@ -1161,7 +1196,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
       const mailOptions = {
         from: `Proforma Invoice <${config.email.payUser}>`,
         to: recipientEmails.join(','),
-        cc: process.env.FINANCE_EMAIL_USER,
+        cc: financeEmail,
         subject: emailSubject,
         html: emailBody,
         attachments: attachments
