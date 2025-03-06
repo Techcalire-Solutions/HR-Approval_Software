@@ -480,6 +480,16 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     this.leaveTypeSub?.unsubscribe();
   }
 
+  convertToLowercase() {
+    let value = this.leaveRequestForm.controls['notes'].value;
+    if (value) {
+      value = value
+        .toLowerCase()
+        .replace(/(^\s*\w|[\.\!\?]\s*\w)/g, (char) => char.toUpperCase()); 
+      this.leaveRequestForm.controls['notes'].setValue(value, { emitEvent: false });
+    }
+  }
+
 }
 
 function sessionSelectionValidator(group: FormGroup) {
@@ -487,4 +497,8 @@ function sessionSelectionValidator(group: FormGroup) {
   const session2 = group.get('session2')?.value;
 
   return (session1 || session2) ? null : { sessionRequired: true };
+
+
+
+
 }

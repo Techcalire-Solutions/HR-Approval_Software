@@ -64,7 +64,7 @@
       <div class="form-row">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Reason</mat-label>
-          <textarea matInput formControlName="notes" placeholder="Enter reason" required (input)="employeeStat === false ? prefixEmergency() : null"> </textarea>
+          <textarea matInput formControlName="notes" placeholder="Enter reason" required (input)="convertToLowercase();employeeStat === false ? prefixEmergency() : null"> </textarea>
         </mat-form-field>
       </div>
 
