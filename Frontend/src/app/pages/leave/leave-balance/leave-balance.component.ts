@@ -118,13 +118,13 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
     
     switch (leaveType) {
       case 'LOP':
-        return '/img/steptodown.com500724.jpg';
+        return '/img/lop.jpg';
       case 'Casual Leave':
         return '/img/steptodown.com217905.jpg';
       case 'Sick Leave':
         return '/img/steptodown.com832314.jpg';
       case 'Comb Off':
-        return '/img/steptodown.com500724.jpg';
+        return '/img/steptodown.com802865.jpg';
       default:
         return '/img/steptodown.com500724.jpg';
     }

@@ -1,6 +1,71 @@
+
+
+
+
+
+
+
+
+
+
+
+
 <div>
   <ng-container>
     <!-- Year Selector -->
+    <div fxLayout="row" fxLayoutAlign="end center" class="p-2">
+      <mat-form-field appearance="outline">
+        <mat-label>Select Year</mat-label>
+        <mat-select [(ngModel)]="selectedYear" (selectionChange)="filterLeaves()">
+          <mat-option *ngFor="let year of availableYears" [value]="year">{{ year }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div fxLayout="row" fxLayoutGap="10px" class="leave-cards-container">
+      @if (leaveCounts && leaveCounts.length) {
+        <ng-container *ngFor="let leaveType of leaveCounts; let i = index">
+          <div fxLayout="column" fxLayoutAlign="center center" class="leave-card"
+               [style.background-image]="'url(' + getIcon(leaveType.leaveType) + ')'" 
+               [style.background-size]="'cover'" 
+               [style.background-position]="'center'"
+               [fxFlex]="100 / leaveCounts.length + '%'">
+            
+            <!-- Background Overlay for Readability -->
+            <div class="overlay"></div>
+
+            <div fxFlex="80" class="leave-info">
+              <h3 class="leave-title">{{ leaveType.leaveType }}</h3>
+              <p><strong>Allotted No Of Days :</strong> <span class="highlight"> {{ leaveType.userLeaves?.noOfDays || 0 }}</span></p>
+              <p><strong>Leave Balance :</strong> <span class="highlight balance"> {{ leaveType.userLeaves?.leaveBalance || 0 }}</span></p>
+              <p><strong>No Of Days Taken :</strong> <span class="highlight taken"> {{ leaveType.userLeaves?.takenLeaves || 0 }}</span></p>
+              <p><strong>No Of Pending Leaves :</strong> <span class="highlight pending"> {{ leaveType.userLeaves?.pendingLeaveCount || 0 }}</span></p>
+            </div>
+          </div>
+        </ng-container>
+      }
+    </div>
+  </ng-container>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <div>
+  <ng-container>
     <div fxLayout="row" fxLayoutAlign="end center" class="p-2">
       <mat-form-field appearance="outline">
         <mat-label>Select Year</mat-label>
@@ -31,6 +96,15 @@
         </ng-container>
       }
     </div>
+
+  </ng-container>
+</div> -->
+
+
+
+
+
+
     <!-- <div fxLayout="row">
       @if (leaveCounts && leaveCounts.length) {
         <ng-container *ngFor="let leaveType of leaveCounts">
@@ -99,5 +173,4 @@
         </ng-container>
       }
     </div> -->
-  </ng-container>
-</div>
+
