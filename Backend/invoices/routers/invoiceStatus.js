@@ -11,13 +11,14 @@ const nodemailer = require('nodemailer');
 const s3 = require('../../utils/s3bucket');
 const Notification = require('../../notification/models/notification');
 const UserPosition = require('../../users/models/userPosition');
+const config = require('../../utils/config');
 
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user: config.email.payUser,
+      pass: config.email.payPass,
     }
 });
 

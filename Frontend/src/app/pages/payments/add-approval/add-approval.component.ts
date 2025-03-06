@@ -356,7 +356,8 @@ export class AddApprovalComponent {
         this.submit = submitMethod.subscribe({
             next: (invoice: any) => {
                 const piNo = invoice?.piNo;
-
+                console.log(invoice);
+                
                 if (piNo) {
                     this.snackBar.open(`Proforma Invoice ${piNo} uploaded successfully...`, "", { duration: 3000 });
                     this.submitted = false;
