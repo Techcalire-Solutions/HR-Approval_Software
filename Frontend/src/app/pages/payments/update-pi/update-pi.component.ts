@@ -23,12 +23,13 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDialog } from '@angular/material/dialog';
 import { AddCompanyComponent } from '../../company/add-company/add-company.component';
 import { User } from '../../../common/interfaces/users/user';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-update-pi',
   standalone: true,
   imports: [ ReactiveFormsModule, MatFormFieldModule,  MatCardModule,  MatToolbarModule,  MatButtonModule, MatIconModule,
-    MatSelectModule, MatInputModule, SafePipe, CommonModule, MatAutocompleteModule],
+    MatSelectModule, MatInputModule, SafePipe, CommonModule, MatAutocompleteModule, MatProgressSpinnerModule],
   templateUrl: './update-pi.component.html',
   styleUrl: './update-pi.component.scss',
   encapsulation: ViewEncapsulation.None
@@ -272,10 +273,10 @@ export class UpdatePIComponent {
 
 
   upload!: Subscription;
-
+  submitted: boolean = false;
   onUpdate() {
       let updateMethod;
-
+      this.submitted = true;
       if (this.roleName === 'Sales Executive') {
         updateMethod = this.invoiceService.updatePIBySE(this.piForm.getRawValue(), this.id);
       } else if (this.roleName === 'Key Account Manager') {
@@ -298,13 +299,16 @@ export class UpdatePIComponent {
 
                   if (piNo) {
                       this.snackBar.open(`Proforma Invoice ${piNo} Updated successfully...`, "", { duration: 3000 });
+                      this.submitted = false;
                       this.router.navigateByUrl('login/viewApproval/view');
                   } else {
                       this.snackBar.open('Failed to update the invoice. Please try again.', "", { duration: 3000 });
+                      this.submitted = false;
                   }
               },
               error: (err) => {
                   const errorMessage = err?.error?.message || 'An error occurred while updating the invoice. Please try again.';
+                  this.submitted = false;
                   this.snackBar.open(`Error: ${errorMessage}`, "", { duration: 3000 });
               }
           });
