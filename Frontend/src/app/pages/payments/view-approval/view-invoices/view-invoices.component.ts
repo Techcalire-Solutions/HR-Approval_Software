@@ -23,7 +23,7 @@ import { PerformaInvoiceStatus } from '../../../../common/interfaces/payments/pe
   selector: 'app-view-invoices',
   standalone: true,
   imports: [
-    CommonModule, MatButtonModule,
+    CommonModule, MatButtonModule, MatProgressSpinnerModule,
     RouterModule, MatTabGroup, MatTabsModule,
     MatTableModule,
     MatCardModule,
@@ -159,7 +159,8 @@ export class ViewInvoicesComponent {
 
   dialogSub!: Subscription;
   submittingForm: boolean = false;
-  verifiedSub: Subscription
+  verifiedSub: Subscription;
+  submitted: boolean = false;
   verified(value: string, piNo: string, sp: string, id: number, stat: string){
     let status = this.pi.status;
     this.submittingForm = true;
@@ -175,6 +176,7 @@ export class ViewInvoicesComponent {
     });
 
     this.dialogSub = dialogRef.afterClosed().subscribe(result => {
+      this.submitted = true;
       if(result){
         this.submittingForm = true;
         let data = {
@@ -188,6 +190,7 @@ export class ViewInvoicesComponent {
 
         this.verifiedSub = this.invoiceService.updatePIStatus(data).subscribe(result => {
           this.submittingForm = false;
+          this.submitted = false;
           this.getPiById(id)
           this.snackBar.open(`Invoice ${piNo} updated to ${status}...`,"" ,{duration:3000})
           this.router.navigateByUrl('login/viewApproval/view')

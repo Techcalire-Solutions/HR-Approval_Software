@@ -100,5 +100,9 @@
   </div>
 
   <mat-divider></mat-divider>
-
+@if(submittingForm){
+  <div fxLayout="column" fxLayoutAlign="center center" class="user-spinner">
+    <mat-spinner color="primary"></mat-spinner>
+  </div>
+}
 </div>
