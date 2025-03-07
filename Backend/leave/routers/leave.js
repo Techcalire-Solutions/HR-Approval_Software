@@ -1874,10 +1874,15 @@ router.get('/findbyrm/:reportingManagerId', async (req, res) => {
 // --------------------------------------------------------REPORT----------------------------------------------------------------
 router.get('/all/report', async (req, res) => {
   try {
-    const { year } = req.query;
+    const { year, pageSize, page, search } = req.query;
 
     if (!year) {
       return res.json({ error: 'Year is required for fetching reports.' });
+    }
+
+    if (pageSize != 'undefined' && page != 'undefined') {
+      limit = pageSize;
+      offset = (page - 1) * pageSize;
     }
 
     // Fetch all leave data for the given year
@@ -1892,7 +1897,7 @@ router.get('/all/report', async (req, res) => {
         },
       },
       include: [
-        { model: User, as: 'user', attributes: ['id', 'name'] },
+        { model: User, as: 'user', attributes: ['id', 'name', 'url'] },
         { model: LeaveType, attributes: ['id', 'leaveTypeName'], as: 'leaveType' },
       ],
     });
@@ -1909,10 +1914,10 @@ router.get('/all/report', async (req, res) => {
         employeeData[userId] = {
           id: userId,
           name: leave.user.name,
+          url: leave.user.url,
           leaveDetails: {},
-        };
+        };  
       }
-
       // Initialize leave type if not present
       if (!employeeData[userId].leaveDetails[leaveTypeName]) {
         employeeData[userId].leaveDetails[leaveTypeName] = {
@@ -1937,13 +1942,30 @@ router.get('/all/report', async (req, res) => {
     });
 
     // Convert leaveDetails object to an array
-    const result = Object.values(employeeData).map((employee) => ({
+    let result = Object.values(employeeData).map((employee) => ({
       ...employee,
       leaveDetails: Object.values(employee.leaveDetails),
     }));
 
+    if (search && search !== 'undefined') {
+      const searchTerm = search.replace(/\s+/g, '').trim().toLowerCase();
+      result = result.filter(employee => 
+        employee.name.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    if (search && search !== 'undefined') {
+      const searchTerm = search.replace(/\s+/g, '').trim().toLowerCase();
+      result = result.filter(employee => 
+        employee.name.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    const total = result.length;
+    const paginatedResult = result.slice(offset, offset + limit);
+
     // Send the response
-    res.status(200).json(result);
+    res.status(200).json({result: paginatedResult,  total: total});
   } catch (error) {
     res.send(error.message);
   }

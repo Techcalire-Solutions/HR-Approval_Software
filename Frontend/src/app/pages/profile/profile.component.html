@@ -3,16 +3,25 @@
     <div fxFlex="100" fxFlex.sm="100" fxFlex.md="100" fxFlex.gt-md="100" class="p-2">
       @if(user){
             <mat-card>
-        <div style="text-align: center;">
-          <div style="text-align: center;">
-            @if(!user.url){
-              <img mat-card-image src="img/users/default-user.jpg" class="img-fluid"  alt="Photo 1" width="200" height="200">
-            }
-            @else {
-              <img [src]="apiUrl + user.url" alt="Photo 1" width="200" height="200">
-            }
-          </div>
-        </div>
+              <div style="text-align: center;">
+                <div style="text-align: center;">
+                  @if(!user.url && !imageUrl){
+                    <img mat-card-image src="img/users/default-user.jpg" class="img-fluid" alt="Photo 1" width="200" height="200">
+              
+                    <div style="display: flex; justify-content: center; align-items: center; margin-top: 10px;">
+                      <span>Upload Image:</span>
+                      <div class="upload-container" style="display: flex; align-items: center; gap: 10px;">
+                        <input type="file" class="file-input" hidden #fileInput (change)="uploadFile($event)">
+                        <span class="material-icons clickable-icon" (click)="fileInput.click()">cloud_upload</span>
+                      </div>
+                    </div>
+                  }
+                  @else {
+                    <img [src]="user.url? apiUrl + user.url : imageUrl" alt="Photo 1" width="200" height="200" ngOptimizedImage>
+                  }
+                </div>
+              </div>
+              
   
         <mat-card-content class="py-3">
             <h1 class="text-center">{{user.empNo}}</h1>
@@ -374,6 +383,5 @@
         <router-outlet></router-outlet>
     </div> -->
   </div>
-  
 }
 

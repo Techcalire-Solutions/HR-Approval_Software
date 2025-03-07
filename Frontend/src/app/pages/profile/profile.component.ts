@@ -26,6 +26,7 @@ import { SafePipe } from "../../common/pipes/safe.pipe";
 import { Nominee } from '../../common/interfaces/users/nominee';
 import { MatDialog } from '@angular/material/dialog';
 import { UserEmailComponent } from '../users/user-email/user-email.component';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-profile',
@@ -170,6 +171,44 @@ export class ProfileComponent {
     });
     this.dialogSub = dialogRef.afterClosed().subscribe(result => {
     });
+  }
+
+  uploadProgress: number | null = null;
+  uploadComplete: boolean = false;
+  file!: any;
+  uploadSub!: Subscription;
+  fileType: string = '';
+  imageUrl: string = '';
+  public safeUrl!: SafeResourceUrl;
+  private sanitizer = inject(DomSanitizer);
+  uploadFile(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.file = input.files?.[0];
+    this.fileType = this.file.type.split('/')[1];
+    if (this.file) {
+      this.uploadComplete = false;
+
+      let fileName = this.file.name;
+      if (fileName.length > 12) {
+        const splitName = fileName.split('.');
+        fileName = splitName[0].substring(0, 12) + "... ." + splitName[1];
+      }
+      this.uploadSub = this.userService.uploadImage(this.file).subscribe({
+        next: (invoice) => {
+          const data = { url: invoice.fileUrl }
+          this.userService.updateUserImage(this.user.id, data).subscribe(res => {
+            this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${ invoice.fileUrl}`;
+            if (this.imageUrl) {
+              this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.imageUrl);
+            }
+            this.uploadComplete = true; // Set to true when upload is complete
+          })
+        },
+        error: () => {
+          this.uploadComplete = true; // Set to true to remove the progress bar even on error
+        }
+      });
+    }
   }
 
   ngOnDestroy(): void {
