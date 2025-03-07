@@ -489,7 +489,6 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
       this.leaveRequestForm.controls['notes'].setValue(value, { emitEvent: false });
     }
   }
-
 }
 
 function sessionSelectionValidator(group: FormGroup) {

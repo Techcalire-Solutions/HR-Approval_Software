@@ -159,9 +159,7 @@ export class LeaveComponent implements OnInit, OnDestroy{
     });
 
     this.dialogSub = dialogRef.afterClosed().subscribe(note => {
-      if (note) {
-        action === 'approve' ? this.approveLeave(leaveId, note) : this.rejectLeave(leaveId, note);
-      }
+      action === 'approve' ? this.approveLeave(leaveId, note) : this.rejectLeave(leaveId, note);
     });
   }
   isLoading: boolean = false;
