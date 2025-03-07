@@ -2,7 +2,7 @@
     <div class="report-header">
         <h1>Leave Report</h1>
         <div class="text-search">
-            <label for="searchText">Search by Text:</label>
+            <label for="searchText">Search by Employee:</label>
             <input type="text" id="searchText" (keyup)="search($event)">
             <!-- <button (click)="getReport()">Search</button> -->
         </div>
@@ -15,15 +15,15 @@
     </div>
     <div class="employee-leave-reports">
         <div *ngFor="let employee of employees" class="employee-report"
-             [style.backgroundImage]="employee.url ? 'url(' + apiUrl + employee.url + ')' : 'url(' + userImage + ')'">
+            [ngStyle]="{ 'background-image': employee.url ? 'url(' + apiUrl + employee.url + ')' : 'url(' + userImage + ')'}">
             <h1 style="text-align: center; color: #0b0586;">{{ employee.name }}</h1>
             <div *ngFor="let leaveType of employee.leaveDetails" class="leave-type-report {{ leaveType.type }}"
                  [class.blocked]="!employee.status">
                 <h2 style="text-align: center; color: #0b0586;">{{ leaveType.type }}</h2>
                 <div class="leave-calendar">
                     <div *ngFor="let monthData of leaveType.monthlyData; let i = index" class="leave-month">
-                        <div>{{ getMonthName(i) }}</div>
-                        <div>{{ monthData }}</div>
+                        <div style="font-weight: 800; color:rgb(14, 3, 65);   filter: brightness(3); font-size: 12px;">{{ getMonthName(i) }}</div>
+                        <div style="font-weight: 800; color:rgb(1, 0, 3);   filter: brightness(5); font-size: 18px;">{{ monthData }}</div>
                     </div>
                 </div>
                 <div class="yearly-total" style="color: #ffffff;">Yearly Total: {{ leaveType.total }}</div>

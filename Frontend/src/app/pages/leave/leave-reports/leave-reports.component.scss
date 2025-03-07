@@ -49,15 +49,7 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   box-sizing: border-box; /* Include padding and border in the element's total width and height */
   position: relative; /* To allow .leave-type-report to sit on top */
-}
-
-.leave-type-report {
-  margin-bottom: 20px;
-  padding: 10px;
-  border-radius: 5px;
-  background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white background */
-  position: relative; /* To allow z-index to work */
-  z-index: 1; /* Sit on top of the background image */
+  filter: brightness(0.9); 
 }
 
 .blocked {
@@ -75,7 +67,7 @@
   border-radius: 3px;
   padding: 5px;
   text-align: center;
-  background-color: #f8f9fa;
+  background-color: rgba(173, 185, 227, 2);;
   font-size: 0.9em;
 }
 

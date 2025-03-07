@@ -162,6 +162,16 @@ export class ViewApprovalComponent {
                   editButtonStatus: false
                 };
               }
+            }else{
+              if(this.data.roleName === 'Team Lead' &&
+                (invoice[i].status === 'GENERATED' || invoice[i].status === 'KAM REJECTED' || invoice[i].status === 'AM REJECTED' ||
+                  invoice[i].status === 'INITIATED'|| invoice[i].status === 'AM DECLINED' )) { 
+                this.invoices[i] = {
+                  ...this.invoices[i],
+                  editButtonStatus: true
+                };
+                
+              }
             }
           }
         }

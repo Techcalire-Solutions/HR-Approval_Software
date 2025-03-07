@@ -18,7 +18,7 @@ const Notification = require('../../notification/models/notification')
 const UserPosition = require('../../users/models/userPosition')
 const config = require('../../utils/config');
 const Designation = require('../../users/models/designation');
-
+const TeamLeader = require('../../users/models/teamLeader')
 
 
 const transporter = nodemailer.createTransport({
@@ -34,6 +34,9 @@ router.post('/save', authenticateToken, async (req, res) => {
     let { piNo, url, kamId, amId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, customerId,
         customerPoNo, customerSoNo, customerCurrency, poValue, notes, paymentMode } = req.body;
 
+    if (Array.isArray(purpose)) {
+        purpose = purpose.join(', ');
+    }
     const userId = req.user.id;
     let status;
 
@@ -170,7 +173,9 @@ router.post('/save', authenticateToken, async (req, res) => {
 router.post('/saveByKAM', authenticateToken, async (req, res) => {
     const { piNo, url, amId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose,
         customerId, customerPoNo, customerSoNo, customerCurrency, poValue,  notes,  paymentMode } = req.body;
-
+    if (Array.isArray(purpose)) {
+        purpose = purpose.join(', ');
+    }
     const userId = req.user.id;
         
     try {
@@ -314,6 +319,10 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
 router.post('/saveByAM', authenticateToken, async (req, res) => {
     let { piNo, url, accountantId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose,
         customerId, customerPoNo, customerSoNo, customerCurrency, poValue, notes, paymentMode, kamId } = req.body;
+
+    if (Array.isArray(purpose)) {
+        purpose = purpose.join(', ');
+    }
 
     const userId = req.user.id;
     kamId = kamId === '' ? null : kamId;
@@ -607,28 +616,36 @@ router.get('/findbysp', authenticateToken, async (req, res) => {
     }
 
     try {
-        
-            // Fetch the SalesPerson's team
             const teamMember = await TeamMember.findOne({ where: { userId } });
-    
-
-
             if(teamMember){
                 const teamId = teamMember.teamId;
     
-                // Get the team lead's userId
-                const team = await Team.findOne({ where: { id: teamId } });
-                const teamLeadId = team.userId;
-        
+                const teamLeaders = await TeamLeader.findAll({ where: { teamId } });
+                const teamLeadIds = teamLeaders.map(leader => leader.userId);
                 // Get all user IDs in the team
                 const teamMembers = await TeamMember.findAll({ where: { teamId } });
                 const teamUserIds = teamMembers.map(member => member.userId);
         
                 // Include the team lead's userId in the list of allowed user IDs
-                teamUserIds.push(teamLeadId);
-        
+                const allowedUserIds = [...teamUserIds, ...teamLeadIds];
                 // Update where clause to include all team user IDs
-                where.salesPersonId = teamUserIds;
+                where.salesPersonId = allowedUserIds;
+            }else{
+                const teamLeader = await TeamLeader.findOne({ where: { userId } });
+                if(teamLeader){
+                    const teamId = teamLeader.teamId;
+                    
+                    const teamLeaders = await TeamLeader.findAll({ where: { teamId } });
+                    const teamLeadIds = teamLeaders.map(leader => leader.userId);
+                    // Get all user IDs in the team
+                    const teamMembers = await TeamMember.findAll({ where: { teamId } });
+                    const teamUserIds = teamMembers.map(member => member.userId);
+            
+                    // Include the team lead's userId in the list of allowed user IDs
+                    const allowedUserIds = [...teamUserIds, ...teamLeadIds];
+                    // Update where clause to include all team user IDs
+                    where.salesPersonId = allowedUserIds;
+                }
             }
     
             
@@ -1224,212 +1241,6 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
       return res.send(error.message );
     }
   })
-    
-    // try {
-    //         let newStat;
-    //         let statusArray;
-    //         let pi;
-    //         let recipientEmails = [];
-    //         let fileBuffer; 
-    //         let users = [];
-
-
-
-    //     url = pi.url
-
-    //     try {
-    //         users = await UserPosition.findAll({
-    //             where: {
-    //                 [Op.or]: [
-    //                     { userId: pi.salesPersonId },
-    //                     { userId: pi.kamId },
-    //                     { userId: pi.amId },
-    //                     { userId: pi.accountantId },
-    //                     { userId: pi.addedById }
-    //                 ]
-    //             }
-    //         });
-        
-
-    //         recipientEmails = users
-    //             .filter(user => user.userId !== pi.accountantId)
-    //             .map(user => user.projectMailId);
-        
-    //         if (recipientEmails.length === 0) {
-    //             return res.send("Project mail ID is missing for recipient" );
-    //         }
-            
-    //     } catch (error) {
-    //         return res.send(error.message)
-    //     }
-        
-  
-
-    //     if (status === 'AM APPROVED') {
-    //         newStat = 'CARD PAYMENT SUCCESS';
-    //     } else if (status === 'AM VERIFIED') {
-    //         newStat = 'BANK SLIP ISSUED';
-    //     } else {
-    //         return res.json({ message: 'Invalid status' });
-    //     }
-
-    //     pi.bankSlip = bankSlip;
-    //     pi.status = newStat;
-    //     await pi.save();
-        
-    //     statusArray = new PerformaInvoiceStatus({
-    //         performaInvoiceId: pi.id,
-    //         status: newStat,
-    //         date: new Date()
-    //     });
-    //     await statusArray.save();
-
- 
-
-     
-
-    //         const supplier = await Company.findOne({ where: { id: pi.supplierId } });
-    //         const customer = await Company.findOne({ where: { id: pi.customerId } });
-    
-    //         const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
-    //         const customerName = customer ? customer.companyName : 'Unknown Customer';
-
-    //     const attachments = [];
-
-       
-    //     for (const fileObj of url) {
-    //         const actualUrl = fileObj.url || fileObj.file;
-    //         if (!actualUrl || typeof actualUrl !== 'string') continue;
-
-    //         const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-
-    //         const params = {
-    //             Bucket: process.env.AWS_BUCKET_NAME,
-    //             Key: fileKey,
-    //         };
-
-    //         try {
-    //             const s3File = await s3.getObject(params).promise(); 
-    //             fileBuffer = s3File.Body;  
-
-    //             attachments.push({
-    //                 filename: actualUrl.split('/').pop(),
-    //                 content: fileBuffer,
-    //                 contentType: s3File.ContentType,
-    //             });
-    //         } catch (error) {
-    //             console.error("Error fetching file from S3:", error);
-    //             continue; 
-    //         }
-    //     }
-
-    //     if (bankSlip && typeof bankSlip === 'string') {
-    //         const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-    //         const params = {
-    //             Bucket: process.env.AWS_BUCKET_NAME,
-    //             Key: fileKey,
-    //         };
-
-    //         try {
-    //             const s3File = await s3.getObject(params).promise(); 
-    //             fileBuffer = s3File.Body; 
-
-    //             attachments.push({
-    //                 filename: bankSlip.split('/').pop(),
-    //                 content: fileBuffer,
-    //                 contentType: s3File.ContentType,
-    //             });
-    //         } catch (error) {
-    //             console.error("Error fetching bank slip from S3:", error);
-    //         }
-    //     }
-
-    //     let emailSubject;
-    //     let emailBody;
-
-    //     if (status === 'AM APPROVED') {
-    //         emailSubject = `Card Payment Successfully Processed for Proforma Invoice - ${pi.piNo}`;
-    //         emailBody = `
-    //             <p>Dear Team,</p>
-    //             <p>We are pleased to inform you that the card payment for proforma invoice: <strong>${pi.piNo}</strong> has been successfully processed.</p>
-    //             <p>Please find the bank slip attached for your records. If you have any questions or require further assistance, feel free to reach out.</p>
-                
-    //              <p><strong>Entry Number:</strong> ${pi.piNo}</p>
-    //             <p><strong>Supplier Name:</strong> ${supplierName}</p>
-    //             <p><strong>Supplier PO No:</strong> ${pi.supplierPoNo}</p>
-    //             <p><strong>Supplier SO No:</strong> ${pi.supplierSoNo}</p>
-    //             <p><strong>Status:</strong> ${pi.status}</p>
-    //             ${pi.purpose === 'Stock' 
-    //                 ? `<p><strong>Purpose:</strong> Stock</p>` 
-    //                 : `<p><strong>Purpose:</strong> Customer</p>
-    //                    <p><strong>Customer Name:</strong> ${customerName}</p>
-    //                    <p><strong>Customer PO No:</strong> ${pi.customerPoNo}</p>
-    //                    <p><strong>Customer SO No:</strong> ${pi.customerSoNo}</p>`
-    //             }
-    //             <p><strong>Payment Mode:</strong> ${pi.paymentMode}</p>
-    //             <p><strong>Notes:</strong> ${pi.notes}</p>
-    //             <p>Thank you for your attention to this matter.</p>
-    //             <p>Best regards,<br> Finance Team</p>
-    //         `;
-    //     } else if (status === 'AM VERIFIED') {
-    //         emailSubject = `Payslip Issued for Proforma Invoice - ${pi.piNo}`;
-    //         emailBody = `
-    //             <p>Dear Team,</p>
-    //             <p>A bank slip has been issued for proforma invoice: <strong>${pi.piNo}</strong>. You may review the attached document for the payment details.</p>
-    //             <p>Kindly review at your earliest convenience, and please reach out if you need any additional information.</p>
-    //             <p><strong>Entry Number:</strong> ${pi.piNo}</p>
-    //             <p><strong>Supplier Name:</strong> ${supplierName}</p>
-    //             <p><strong>Supplier PO No:</strong> ${pi.supplierPoNo}</p>
-    //             <p><strong>Supplier SO No:</strong> ${pi.supplierSoNo}</p>
-    //             <p><strong>Status:</strong> ${pi.status}</p>
-    //             ${pi.purpose === 'Stock' 
-    //                 ? `<p><strong>Purpose:</strong> Stock</p>` 
-    //                 : `<p><strong>Purpose:</strong> Customer</p>
-    //                    <p><strong>Customer Name:</strong> ${customerName}</p>
-    //                    <p><strong>Customer PO No:</strong> ${pi.customerPoNo}</p>
-    //                    <p><strong>Customer SO No:</strong> ${pi.customerSoNo}</p>`
-    //             }
-    //             <p><strong>Payment Mode:</strong> ${pi.paymentMode}</p>
-    //             <p><strong>Notes:</strong> ${pi.notes}</p>
-              
-    //             <p>Thank you!</p>
-    //             <p>Best regards,<br>Finance Team</p>
-    //         `;
-    //     }
-
-    //     const mailOptions = {
-    //         from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
-    //         to: recipientEmails.length > 0 ? recipientEmails.join(',') : process.env.DEFAULT_EMAIL,
-    //         cc: process.env.FINANCE_EMAIL_USER,
-    //         subject: emailSubject,
-    //         html: emailBody,
-    //         attachments: attachments 
-    //     };
-
-    //     if (recipientEmails.length > 0) {
-    //         await transporter.sendMail(mailOptions);
-    //         console.log(`${newStat} email sent successfully.`);
-    //     } else {
-    //         console.error(`No recipients defined for ${newStat}. Email not sent.`);
-    //     }
-
-    //     for (const user of users) {
-    //         await Notification.create({
-    //             userId: user.userId,
-    //             message: `${newStat} for Proforma Invoice ID: ${pi.piNo}.`,
-    //             isRead: false,
-    //         });
-    //         console.log(`Notification created for user ID: ${user.userId}`);
-    //     }
-
-    //     res.json({ p: pi, status: newStat });
-    // } catch (error) {
-    //     console.error(error);
-    //     res.status(500).send({ message: error.message });
-    // }
-// });
-
-
 
 
 router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
@@ -1437,6 +1248,9 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
     let { url, kamId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, 
         customerId, customerSoNo, customerPoNo, customerCurrency, poValue, notes, paymentMode, amId } = req.body;
 
+    if (Array.isArray(purpose)) {
+        purpose = purpose.join(', ');
+    }
     kamId = kamId === '' ? null : kamId;
     amId = amId === '' ? null : amId;
     customerId = customerId === '' ? null : customerId;
@@ -1604,7 +1418,12 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
 });
 
 router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
-    let { url, kamId, amId, supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes, paymentMode} = req.body;
+    let { url, kamId, amId, supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId,
+        customerSoNo, customerPoNo,customerCurrency, poValue, notes, paymentMode} = req.body;
+
+    if (Array.isArray(purpose)) {
+        purpose = purpose.join(', ');
+    }
     if(amId === null || amId === undefined || amId === ''){
         return res.send("Select a manager and proceed")
     }
@@ -1763,7 +1582,9 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
 router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
     let { url, kamId, accountantId, supplierId, supplierSoNo,supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId, 
         customerPoNo,customerSoNo,customerCurrency, poValue,paymentMode, notes} = req.body;
-        
+    if (Array.isArray(purpose)) {
+        purpose = purpose.join(', ');
+    }
     try {
         let status;
         if(paymentMode === 'CreditCard'){
@@ -1902,7 +1723,11 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
 });
 
 router.patch('/updatePIByAdminSuperAdmin/:id', authenticateToken, async(req, res) => {
-    const { url, kamId,accountantId,supplierId, supplierSoNo,supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId, customerPoNo,customerSoNo,customerCurrency, poValue,paymentMode, notes} = req.body;
+    const { url, kamId,accountantId,supplierId, supplierSoNo,supplierPoNo,supplierCurrency, supplierPrice, purpose, 
+        customerId, customerPoNo,customerSoNo,customerCurrency, poValue,paymentMode, notes} = req.body;
+    if (Array.isArray(purpose)) {
+        purpose = purpose.join(', ');
+    }
     try {
         const pi = await PerformaInvoice.findByPk(req.params.id);
         pi.url = url;

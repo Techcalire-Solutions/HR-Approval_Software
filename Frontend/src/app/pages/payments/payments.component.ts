@@ -47,7 +47,7 @@ export class PaymentsComponent implements OnInit{
     this.roleSub = this.invoiceService.getRoleById(id).subscribe(role => {
       this.roleName = role.roleName;  
       if(!this.isSubmitted){
-        if(this.roleName === 'Sales Executive') { 
+        if(this.roleName === 'Sales Executive' || this.roleName === 'Team Lead') { 
           this.status = 'GENERATED'; this.sp = true; this.header = 'REJECTED'; this.pendingHeader='GENERATED'
          }
         if(this.roleName === 'Key Account Manager') { 
