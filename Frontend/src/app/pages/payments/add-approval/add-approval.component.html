@@ -63,14 +63,14 @@
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Purpose</mat-label>
-          <mat-select placeholder="Select Purpose" formControlName="purpose">
+          <mat-select placeholder="Select Purpose" formControlName="purpose" [multiple]="true">
             <mat-option value="Stock">Stock</mat-option>
             <mat-option value="Customer">Customer</mat-option>
           </mat-select>
         </mat-form-field>
 
 
-        @if(piForm.get('purpose')?.value === 'Customer'){
+        @if(isCustomerSelected){
           <ng-container>
             @if(customerCompanies) {
               <mat-form-field class="full-width" appearance="outline" >

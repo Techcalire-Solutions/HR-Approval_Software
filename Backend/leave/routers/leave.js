@@ -1954,15 +1954,8 @@ router.get('/all/report', async (req, res) => {
       );
     }
 
-    if (search && search !== 'undefined') {
-      const searchTerm = search.replace(/\s+/g, '').trim().toLowerCase();
-      result = result.filter(employee => 
-        employee.name.toLowerCase().includes(searchTerm)
-      );
-    }
-
     const total = result.length;
-    const paginatedResult = result.slice(offset, offset + limit);
+    const paginatedResult = result.slice(offset, limit);
 
     // Send the response
     res.status(200).json({result: paginatedResult,  total: total});

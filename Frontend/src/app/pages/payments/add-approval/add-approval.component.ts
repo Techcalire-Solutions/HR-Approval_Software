@@ -66,6 +66,11 @@ export class AddApprovalComponent {
     this.getRoleById(roleId)
     this.addDoc()
   }
+  
+  get isCustomerSelected(): boolean {
+    const purposeValue: any = this.piForm.get('purpose')?.value;
+    return Array.isArray(purposeValue) && purposeValue.includes('Customer');
+  }
 
   id!: number;
   supplierCompanies: Company[] = [];

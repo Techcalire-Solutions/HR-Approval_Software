@@ -76,7 +76,7 @@ export class UpdatePIComponent {
     supplierSoNo:[''],
     supplierCurrency:['Dollar'],
     supplierPrice: [Validators.required],
-    purpose: ['', Validators.required],
+    purpose: [[], Validators.required],
     customerId: <any>[],
     customerName: [''],
     customerPoNo: [''],
@@ -86,6 +86,11 @@ export class UpdatePIComponent {
     notes:[''],
     paymentMode: ['WireTransfer']
   });
+
+  get isCustomerSelected(): boolean {
+    const purposeValue: any = this.piForm.get('purpose')?.value;
+    return Array.isArray(purposeValue) && purposeValue.includes('Customer');
+  }
 
   public supplierCompanies: Company[];
   public customerCompanies: Company[];
@@ -324,6 +329,16 @@ export class UpdatePIComponent {
     this.editStatus = true;
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
       const inv = pi.pi;
+
+      let purposeArray = inv.purpose;
+      console.log(purposeArray);
+      
+      if (typeof inv.purpose === 'string') {
+        purposeArray = inv.purpose.split(',').map((p: any) => p.trim());
+        console.log(purposeArray);
+        
+      }
+
       this.piNo = inv.piNo
       const remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
       this.piForm.patchValue({
@@ -338,7 +353,7 @@ export class UpdatePIComponent {
         supplierSoNo: inv.supplierSoNo,
         supplierPoNo: inv.supplierPoNo,
         supplierPrice: inv.supplierPrice,
-        purpose: inv.purpose,
+        purpose: purposeArray,
         customerId: inv.customerId,
         customerName: inv.customers?.companyName,
         customerPoNo: inv.customerPoNo,
