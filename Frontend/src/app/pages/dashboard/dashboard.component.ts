@@ -72,6 +72,8 @@ export class DashboardComponent {
       let rmUsers = users.filter(user => user.reportingMangerId === this.user)
       if(rmUsers.length > 0){
         this.rm = true;
+        console.log(this.rm);
+        
       }
     })
   }
