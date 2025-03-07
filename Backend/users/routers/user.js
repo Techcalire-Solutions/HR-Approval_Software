@@ -164,7 +164,6 @@ router.get('/find/', async (req, res) => {
   }
 });
 
-
 router.get('/search/name', async (req, res) => {
   try {
     let whereClause = {};
@@ -231,6 +230,19 @@ router.patch('/update/:id', async(req,res)=>{
     result.name = name;
     result.email = email;
     result.phoneNumber = phoneNumber;
+    result.url = url
+
+    await result.save();
+    res.send(result);
+  } catch (error) {
+    res.send(error.message);
+  }
+})
+
+router.patch('/imageupdate/:id', async(req,res)=>{
+  const {url} = req.body;
+  try {
+    let result = await User.findByPk(req.params.id);
     result.url = url
 
     await result.save();

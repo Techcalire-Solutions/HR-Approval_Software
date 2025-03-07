@@ -1,48 +1,147 @@
-.year-selector {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-  
-    label {
-      font-size: 14px;
-      font-weight: bold;
-      color: #333;
-    }
-  
-    select {
-      padding: 5px 10px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background-color: #f9f9f9;
-      color: #333;
-      outline: none;
-      transition: border-color 0.3s;
-  
-      &:focus {
-        border-color: #007bff;
-      }
-    }
-  
-    button {
-      padding: 5px 15px;
-      font-size: 14px;
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-  
-      &:hover {
-        background-color: #0056b3;
-      }
-  
-      &:focus {
-        outline: none;
-        box-shadow: 0 0 3px 2px rgba(0, 123, 255, 0.5);
-      }
-    }
+.report-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 20px auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.report-header h1 {
+  margin: 0;
+}
+
+.search-by-year {
+  display: flex;
+  align-items: center;
+}
+
+.search-by-year label {
+  margin-right: 10px;
+}
+
+.search-by-year select,
+.search-by-year button {
+  margin-left: 10px;
+}
+
+.employee-leave-reports {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Space between employee reports */
+  justify-content: space-between; /* Evenly distribute space */
+}
+
+.employee-report {
+  flex: 1 1 calc(25% - 20px); /* Adjusted to fit 4 in a row with gap */
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  padding: 15px;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  position: relative; /* To allow .leave-type-report to sit on top */
+}
+
+.leave-type-report {
+  margin-bottom: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white background */
+  position: relative; /* To allow z-index to work */
+  z-index: 1; /* Sit on top of the background image */
+}
+
+.blocked {
+  opacity: 0.5; /* Make the report look "blocked" */
+}
+
+.leave-calendar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Four columns for months */
+  gap: 5px;
+}
+
+.leave-month {
+  border: 1px solid #dee2e6;
+  border-radius: 3px;
+  padding: 5px;
+  text-align: center;
+  background-color: #f8f9fa;
+  font-size: 0.9em;
+}
+
+.yearly-total {
+  text-align: right;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .employee-report {
+      flex: 1 1 calc(50% - 20px); /* Two in a row on smaller screens */
   }
-  
+
+  .leave-calendar {
+      grid-template-columns: repeat(2, 1fr); /* Two columns for months on smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .employee-report {
+      flex: 1 1 calc(100% - 20px); /* One in a row on very small screens */
+  }
+}
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+
+.text-search, .search-by-year {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.text-search label, .search-by-year label {
+  font-size: 16px;
+  color: #555;
+  margin-right: 10px;
+}
+
+.text-search input[type="text"], .search-by-year select {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 200px;
+  margin-right: 10px;
+}
+
+.text-search button, .search-by-year button {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.text-search button:hover, .search-by-year button:hover {
+  background-color: #0056b3;
+}
