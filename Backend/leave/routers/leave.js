@@ -1588,16 +1588,12 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
       createNotification({ id, me, route });
     
       const hrId = await getHRId();
-      console.log(hrId, "hridhridhridhridhridhrid");
-      
       if (Number.isInteger(hrId)) {
         let id = hrId;
         createNotification({ id, me, route });
       }
     
       const rmId = await getRMId(leave.userId);
-      console.log(rmId, "rmIdrmIdrmIdrmIdrmIdrmIdrmId");
-      
       if (Number.isInteger(rmId)) {
         let id = rmId;
         createNotification({ id, me, route });
