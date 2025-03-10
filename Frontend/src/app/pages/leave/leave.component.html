@@ -114,6 +114,7 @@
                   <th>User</th>
                 }
                 <th>Reason</th>
+                <th>Created At</th>
                 <th>Uploads</th>
                 @if(!employeeStat){
                   <th>Action</th>
@@ -143,6 +144,7 @@
                     <td>{{ item.user?.name }} {{item.user?.empNo}}</td>
                   }
                   <td>{{ item.notes }}</td>
+                  <td>{{ item.createdAt | date: 'dd/MM/yyyy, HH:mm'}}</td>
                   <td (click)="$event.stopPropagation()">
                     <div class="popup-message">
                       @if(item.leaveType?.leaveTypeName === 'Sick Leave'){

@@ -21,7 +21,7 @@ const { sendEmail } = require('../../app/emailService');
 const config = require('../../utils/config')
 
 router.post('/add', async (req, res) => {
-  const { name, email, phoneNumber, password, status, userImage, url, empNo, director } = req.body;
+  const { name, email, phoneNumber, password, status, userImage, url, empNo, director, officialMailId } = req.body;
 
   try {
     let roleId = req.body.roleId;
@@ -53,25 +53,31 @@ router.post('/add', async (req, res) => {
       name, empNo, email, phoneNumber, password: hashedPassword, roleId, status, userImage, url, director
     });
 
-    // const emailText = `Dear ${user.name},\n\nCongratulations on joining our company!\nHere are your login credentials:\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information secure.\n\nWe are excited to have you onboard and look forward to working together.\n\nBest Regards,\nThe Team`;
-    const emailSubject = `Welcome to the Company!`;
-    const fromEmail = config.email.userAddUser;
-    const emailPassword = config.email.userAddPass;
-    const html = `
-    <p>Dear ${user.name},</p>
-    <p>Congratulations on joining our company!.</p>
-    <p>Here are your login credentials:</p>
-    <p>Username: ${user.empNo}\nPassword: ${password}</p>
-    <p>Please keep this information secure.</p>
-    <p>We are excited to have you onboard and look forward to working together.</p>
-  `;
-    const attachments = []
-    const token = req.headers.authorization?.split(' ')[1];
-    try {
-      await sendEmail(token, fromEmail, emailPassword, user.email, emailSubject, html, attachments);
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError);
+    if(officialMailId){
+      const emailSubject = `Welcome to the Company!`;
+      const fromEmail = config.email.userAddUser;
+      const emailPassword = config.email.userAddPass;
+      const html = `
+        <p>Dear ${name},</p>
+        <p>Congratulations on joining our company!.</p>
+        <p>Here are your login credentials:</p>
+        <p>Username: ${empNo}\nPassword: ${password}</p>
+        <p>Please keep this information secure.</p>
+        <p>We are excited to have you onboard and look forward to working together.</p>
+      `;
+      const attachments = []
+      const token = req.headers.authorization?.split(' ')[1];
+      try {
+        await sendEmail(token, fromEmail, emailPassword, officialMailId, emailSubject, html, attachments);
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+      }
+
+      const userPos = new UserPosition({userId: user.id, officialMailId: officialMailId})
+      await userPos.save();
     }
+
+    
     res.send(user)
   } catch (error) {
     res.send(error.message);
@@ -472,6 +478,8 @@ router.patch('/resetpassword/:id', async (req, res) => {
 
       await user.save();
       
+      const userPos = await UserPosition.findOne({ where: {userId: user.id}});
+      const email = userPos.officialMailId;
       // const emailText = `Hello ${user.name},\n\nYour password has been successfully reset.\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information safe.\n\nThank you!`;
       const emailSubject = `Password Reset Successful`;
       const fromEmail = config.email.userAddUser;
@@ -487,10 +495,9 @@ router.patch('/resetpassword/:id', async (req, res) => {
       const attachments = []
       const token = req.headers.authorization?.split(' ')[1];
       try {
-        await sendEmail(token, fromEmail, emailPassword, user.email, emailSubject ,html, attachments);
+        await sendEmail(token, fromEmail, emailPassword, email, emailSubject ,html, attachments);
       } catch (emailError) {
         console.error('Email sending failed:', emailError);
-    
       }
 
       //   // Configure Nodemailer for sending emails

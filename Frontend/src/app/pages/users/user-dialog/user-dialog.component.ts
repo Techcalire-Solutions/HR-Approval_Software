@@ -73,7 +73,8 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     phoneNumber: [ '',  Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)]) ],
     password: [ '', Validators.compose([Validators.required, Validators.minLength(4)]) ],
     roleName: [],
-    teamId: <any>[  ]
+    teamId: <any>[  ],
+    officialMailId: [ '', Validators.compose([Validators.required, Validators.email]) ]
   })
 
   ngOnDestroy(): void {

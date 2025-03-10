@@ -31,6 +31,13 @@
 
               <div class="col">
                 <mat-form-field class="w-100" appearance="outline">
+                  <mat-label>Official Mail</mat-label>
+                  <input matInput formControlName="officialMailId" >
+                </mat-form-field>
+              </div>
+
+              <div class="col">
+                <mat-form-field class="w-100" appearance="outline">
                   <mat-label><mat-icon>email</mat-icon> Email</mat-label>
                   <input matInput formControlName="email" required>
                   @if(form.controls.email.hasError('required')){
