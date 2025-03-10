@@ -67,8 +67,10 @@
   border-radius: 3px;
   padding: 5px;
   text-align: center;
-  background-color: rgba(173, 185, 227, 2);;
+  background-color: rgba(173, 185, 227, 0.15);;
   font-size: 0.9em;
+  color: black;
+  font-weight: 600;
 }
 
 .yearly-total {
@@ -137,3 +139,27 @@
 .text-search button:hover, .search-by-year button:hover {
   background-color: #0056b3;
 }
+
+.employee-name {
+  text-align: center;
+  color: #0b0586;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 50px;
+  border-radius: 10px 10px 0 0; /* Rounded corners on top */
+}
+
+// .employee-name {
+//   text-align: center;
+//   color: #0b0586;
+//   // background-size: contain; /* Ensures the whole image fits within the div */
+//   background-position: center;
+//   background-repeat: no-repeat;
+//   padding: 15px;
+//   height: 50px; /* Adjust this based on your design */
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   border-radius: 10px 10px 0 0;
+// }
