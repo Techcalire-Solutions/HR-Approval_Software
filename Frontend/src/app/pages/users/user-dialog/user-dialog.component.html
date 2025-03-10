@@ -28,13 +28,14 @@
                   }
                 </mat-form-field>
               </div>
-
-              <div class="col">
-                <mat-form-field class="w-100" appearance="outline">
-                  <mat-label>Official Mail</mat-label>
-                  <input matInput formControlName="officialMailId" >
-                </mat-form-field>
-              </div>
+              @if(!editStatus){
+                <div class="col">
+                  <mat-form-field class="w-100" appearance="outline">
+                    <mat-label>Official Mail</mat-label>
+                    <input matInput formControlName="officialMailId" >
+                  </mat-form-field>
+                </div>
+              }
 
               <div class="col">
                 <mat-form-field class="w-100" appearance="outline">
