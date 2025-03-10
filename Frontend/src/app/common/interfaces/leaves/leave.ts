@@ -14,7 +14,8 @@ export interface Leave {
   status: string; // Current status of the leave
   fileUrl?: string; // Optional URL for any file associated with the leave
   leaveDates: LeaveDate[]; // Array of dates for the leave
-  adminNotes: string
+  adminNotes: string;
+  createdAt: Date
 }
 
 interface LeaveDate {

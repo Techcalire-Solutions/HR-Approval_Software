@@ -14,22 +14,25 @@
         </div>
     </div>
     <div class="employee-leave-reports">
-        <div *ngFor="let employee of employees" class="employee-report"
-            [ngStyle]="{ 'background-image': employee.url ? 'url(' + apiUrl + employee.url + ')' : 'url(' + userImage + ')'}">
-            <h1 style="text-align: center; color: #0b0586;">{{ employee.name }}</h1>
+        <div *ngFor="let employee of employees" class="employee-report">
+            <div class="employee-name" 
+                [ngStyle]="{ 'background-image': employee.url ? 'url(' + apiUrl + employee.url + ')' : 'url(' + userImage + ')'}">
+                <h1>{{ employee.name }}</h1>
+            </div>
             <div *ngFor="let leaveType of employee.leaveDetails" class="leave-type-report {{ leaveType.type }}"
                  [class.blocked]="!employee.status">
-                <h2 style="text-align: center; color: #0b0586;">{{ leaveType.type }}</h2>
+                <h2 style="color: black;">{{ leaveType.type }}</h2>
                 <div class="leave-calendar">
                     <div *ngFor="let monthData of leaveType.monthlyData; let i = index" class="leave-month">
-                        <div style="font-weight: 800; color:rgb(14, 3, 65);   filter: brightness(3); font-size: 12px;">{{ getMonthName(i) }}</div>
-                        <div style="font-weight: 800; color:rgb(1, 0, 3);   filter: brightness(5); font-size: 18px;">{{ monthData }}</div>
+                        <div class="month-name">{{ getMonthName(i) }}</div>
+                        <div class="month-data">{{ monthData }}</div>
                     </div>
                 </div>
-                <div class="yearly-total" style="color: #ffffff;">Yearly Total: {{ leaveType.total }}</div>
+                <div class="yearly-total">Yearly Total: {{ leaveType.total }}</div>
             </div>
         </div>
     </div>
+    
     <mat-paginator class="pagination"
         [length]="totalItems"
         [pageSize]="pageSize"

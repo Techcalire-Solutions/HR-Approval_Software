@@ -85,7 +85,8 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     );
   }
 
-
+  maxDate: Date;
+  maxEndDate: Date;
   isEditMode: boolean = false;
   private readonly route = inject(ActivatedRoute);
   ngOnInit(): void {
@@ -100,6 +101,12 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
       this.isEditMode = true;
       this.getLeaveDetails(+leaveId)
     }
+
+    this.maxDate = new Date();
+    this.maxDate.setDate(this.maxDate.getDate() + 7); // "Start Date" max is 7 days from today
+
+    this.maxEndDate = new Date(this.maxDate);
+    this.maxEndDate.setDate(this.maxDate.getDate() + 2);
   }
 
   private readonly roleService = inject(RoleService);
