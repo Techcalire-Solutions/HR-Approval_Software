@@ -331,12 +331,8 @@ export class UpdatePIComponent {
       const inv = pi.pi;
 
       let purposeArray = inv.purpose;
-      console.log(purposeArray);
-      
       if (typeof inv.purpose === 'string') {
         purposeArray = inv.purpose.split(',').map((p: any) => p.trim());
-        console.log(purposeArray);
-        
       }
 
       this.piNo = inv.piNo

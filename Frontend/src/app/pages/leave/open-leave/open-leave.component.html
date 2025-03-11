@@ -92,7 +92,7 @@
           <ng-container>
             <button
               mat-fab extended
-              style="background-color: green;"
+              class="approve-button"
               (click)="openDialog('approve', leave.id)"
               [disabled]="leave.status === 'Approved' || leave.status === 'AdminApproved' || leave.status === 'Locked'"
             >

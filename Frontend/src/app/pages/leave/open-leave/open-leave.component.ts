@@ -28,6 +28,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 export class OpenLeaveComponent implements OnInit, OnDestroy{
 
   private readonly route = inject(ActivatedRoute);
+  userId: number;
   ngOnInit(): void {
     const token: any = localStorage.getItem('token')
     const user = JSON.parse(token)
@@ -37,7 +38,7 @@ export class OpenLeaveComponent implements OnInit, OnDestroy{
 
     const id = this.route.snapshot.params['id'];
     this.getLeaveById(id, user.id)
-
+    this.userId = user.id;
   }
 
   private readonly roleService = inject(RoleService);
@@ -117,8 +118,11 @@ export class OpenLeaveComponent implements OnInit, OnDestroy{
 
     this.dialogSub = dialogRef.afterClosed().subscribe(note => {
       this.isLoading = true;
-      if (note) {
+      
+      if (note !== false) {
         action === 'approve' ? this.approveLeave(leaveId, note) : this.rejectLeave(leaveId, note);
+      }else{
+        this.isLoading = false
       }
     });
   }
@@ -130,7 +134,7 @@ export class OpenLeaveComponent implements OnInit, OnDestroy{
       (res) => {
         this.isLoading = false;
         this.snackbar.open('Leave approved successfully', '', { duration: 3000 });
-        // this.getLeaveById();
+        this.getLeaveById(leaveId, this.userId);
       },
       (error) => {
         this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
@@ -145,7 +149,7 @@ export class OpenLeaveComponent implements OnInit, OnDestroy{
       (res) => {
         this.isLoading = false;
         this.snackbar.open('Leave rejected successfully', '', { duration: 3000 });
-        // this.getLeaves();
+        this.getLeaveById(leaveId, this.userId);
       },
       (error) => {
         this.snackbar.open('Failed to approve leave', '', { duration: 3000 });

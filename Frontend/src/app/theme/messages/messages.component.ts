@@ -74,8 +74,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
   getNotificationsForUser() {
    this.messageNotfiSub =  this.messagesService.getUserNotifications(this.userId).subscribe(
       (data: any) => {
-        console.log(data);
-        
         this.notifications = data.notifications || [];
         this.checkForNewNotifications(data);
         this.updateUnreadCount();

@@ -173,7 +173,6 @@ router.get('/getassigneduser/:id', authenticateToken, async (req, res) => {
         res.send({ userId: null }); // Use a consistent object response
       }
     } catch (error) {
-      console.error('Error fetching assigned user:', error);
       res.status(500).send({ error: 'An error occurred while fetching the assigned user.' });
     }
 });

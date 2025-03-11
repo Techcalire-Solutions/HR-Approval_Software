@@ -20,7 +20,7 @@ const UserDocument = require('../models/userDocuments');
 const { sendEmail } = require('../../app/emailService');
 const config = require('../../utils/config')
 
-router.post('/add', async (req, res) => {
+router.post('/add', authenticateToken, async (req, res) => {
   const { name, email, phoneNumber, password, status, userImage, url, empNo, director, officialMailId } = req.body;
 
   try {
@@ -84,7 +84,7 @@ router.post('/add', async (req, res) => {
   }
 });
 
-router.get('/find/', async (req, res) => {
+router.get('/find/', authenticateToken, async (req, res) => {
   try {
     let whereClause = { separated: false, status: true };
     let limit;
@@ -170,7 +170,7 @@ router.get('/find/', async (req, res) => {
   }
 });
 
-router.get('/search/name', async (req, res) => {
+router.get('/search/name', authenticateToken, async (req, res) => {
   try {
     let whereClause = {};
     if (req.query.search) {
@@ -198,7 +198,7 @@ router.get('/search/name', async (req, res) => {
   }
 });
 
-router.patch('/statusupdate/:id', async (req, res) => {
+router.patch('/statusupdate/:id', authenticateToken, async (req, res) => {
   try {
     let status = req.body.status;
     let result = await User.findByPk(req.params.id);
@@ -210,7 +210,7 @@ router.patch('/statusupdate/:id', async (req, res) => {
   }
 })
 
-router.get('/findone/:id', async (req, res) => {
+router.get('/findone/:id', authenticateToken, async (req, res) => {
   let id = req.params.id;
   
   try {
@@ -245,7 +245,7 @@ router.patch('/update/:id', async(req,res)=>{
   }
 })
 
-router.patch('/imageupdate/:id', async(req,res)=>{
+router.patch('/imageupdate/:id', authenticateToken, async(req,res)=>{
   const {url} = req.body;
   try {
     let result = await User.findByPk(req.params.id);
@@ -258,7 +258,7 @@ router.patch('/imageupdate/:id', async(req,res)=>{
   }
 })
 
-router.delete('/delete/:id', authenticateToken, async (req, res) => {
+router.delete('/delete/:id',  authenticateToken, async (req, res) => {
   const id = req.params.id
   try {
     const user = await User.findByPk(id)
@@ -300,7 +300,7 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
   }
 })
 
-router.get('/findbyrole/:id', async (req, res) => {
+router.get('/findbyrole/:id', authenticateToken, async (req, res) => {
   try {
     const user = await User.findAll({
       where: { roleId: req.params.id, separated: false }
@@ -311,7 +311,7 @@ router.get('/findbyrole/:id', async (req, res) => {
   }
 })
 
-router.get('/findbyroleName/:roleName', async (req, res) => {
+router.get('/findbyroleName/:roleName', authenticateToken, async (req, res) => {
   try {
     const users = await User.findAll({
       include: { model: Role, where: [{ roleName: req.params.roleName} ] },
@@ -324,7 +324,7 @@ router.get('/findbyroleName/:roleName', async (req, res) => {
   }
 });
 
-router.get('/getdirectors', async (req, res) => {
+router.get('/getdirectors', authenticateToken, async (req, res) => {
   try {
     const user = await User.findAll({
       where: { director: true }
@@ -335,7 +335,7 @@ router.get('/getdirectors', async (req, res) => {
   }
 })
 
-router.get('/getseparated', async (req, res) => {
+router.get('/getseparated', authenticateToken, async (req, res) => {
   try {
     const user = await User.findAll({
       where: { separated: true },
@@ -347,7 +347,7 @@ router.get('/getseparated', async (req, res) => {
   }
 })
 
-router.get('/getbyrm/:id', async (req, res) => {
+router.get('/getbyrm/:id', authenticateToken, async (req, res) => {
   try {
     
     const id = parseInt(req.params.id, 10)
@@ -462,7 +462,7 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
     }
 });
 
-router.patch('/resetpassword/:id', async (req, res) => {
+router.patch('/resetpassword/:id', authenticateToken, async (req, res) => {
   const { password, paswordReset } = req.body;
 
   try {
@@ -534,7 +534,7 @@ router.patch('/resetpassword/:id', async (req, res) => {
   }
 });
 
-router.get('/underprobation', async (req, res) => {
+router.get('/underprobation', authenticateToken, async (req, res) => {
   try {
     const user = await User.findAll({
       include: [
@@ -551,7 +551,7 @@ router.get('/underprobation', async (req, res) => {
   }
 })
 
-router.get('/confirmed', async (req, res) => {
+router.get('/confirmed', authenticateToken, async (req, res) => {
   try {
     const user = await User.findAll({
       include: [
@@ -568,7 +568,7 @@ router.get('/confirmed', async (req, res) => {
   }
 })
 
-router.get('/confirmemployee/:id', async (req, res) => {
+router.get('/confirmemployee/:id', authenticateToken, async (req, res) => {
   try {
       let result = await User.findByPk(req.params.id);
 
@@ -614,7 +614,7 @@ router.get('/confirmemployee/:id', async (req, res) => {
   }
 });
 
-router.get('/', async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
     const users = await User.findAll();
     res.status(200).json(users); 
@@ -623,7 +623,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.patch('/resignemployee/:id', async (req, res) => {
+router.patch('/resignemployee/:id', authenticateToken, async (req, res) => {
   try {
       let result = await User.findByPk(req.params.id);
       
@@ -642,7 +642,7 @@ router.patch('/resignemployee/:id', async (req, res) => {
   }
 });
 
-router.patch('/editnote/:id', async (req, res) => {
+router.patch('/editnote/:id', authenticateToken, async (req, res) => {
   try {
       let result = await User.findByPk(req.params.id);
       

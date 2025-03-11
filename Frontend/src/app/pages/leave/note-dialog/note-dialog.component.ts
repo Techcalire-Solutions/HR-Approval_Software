@@ -22,6 +22,6 @@ export class NoteDialogComponent {
 }
 
   closeDialog(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(false);
   }
 }

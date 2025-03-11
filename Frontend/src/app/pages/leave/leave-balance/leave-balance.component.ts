@@ -84,8 +84,6 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
   getLeaveType(){
     this.ltSub = this.leaveService.getLeaveType().subscribe(leaveType => {
       this.leaveTypes = leaveType 
-      console.log(this.leaveTypes);
-      
       this.fetchLeaveCounts()
     });
   }
@@ -94,11 +92,7 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
     this.leaveTypes.forEach((leaveType) => {
       this.leaveCountsSubscription = this.leaveService.getLeaveCounts(this.userId, leaveType.id, this.selectedYear).subscribe({
         next: (response) => {
-          console.log(response);
-          
           this.leaveCounts.push({ ...response, leaveType: leaveType.leaveTypeName });
-          console.log(this.leaveCounts);
-          
         },
         error: (error) => {
           console.error('Error fetching leave counts:', error);
@@ -114,8 +108,6 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
   }
 
   getIcon(leaveType: string): string {
-    console.log(leaveType);
-    
     switch (leaveType) {
       case 'LOP':
         return '/img/lop.jpg';

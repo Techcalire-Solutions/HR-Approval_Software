@@ -168,10 +168,7 @@ router.patch('/update/:id', async(req,res)=>{
 
 router.get('/birthdays', authenticateToken, async (req, res) => {
   try {
-    console.log(req.user.roleId);
     const role = await Role.findByPk(req.user.roleId);
-    console.log(role.roleName);
-    
     const today = new Date();
     const currentMonth = today.getMonth() + 1;
     const currentDay = today.getDate();

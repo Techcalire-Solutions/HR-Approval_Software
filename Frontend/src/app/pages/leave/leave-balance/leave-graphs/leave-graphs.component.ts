@@ -106,8 +106,6 @@ export class LeaveGraphsComponent implements OnInit, OnDestroy {
         }
       });
     });
-    console.log(this.leaveCounts);
-    
   }
 
 

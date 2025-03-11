@@ -52,8 +52,6 @@ export class LeaveRequestsNotificationComponent {
     if(this.roleName === 'HR Administrator' || this.roleName === 'Super Administrator') {
       this.leaveSub = this.leaveService.getRequestedLeaves(this.currentPage, this.pageSize).subscribe(
         (res: any) => {
-          console.log(res);
-          
           this.leaves = res.items
           this.totalItems = res.count;
 

@@ -94,10 +94,7 @@ router.get('/find', async (req, res) => {
 router.patch('/update/:id', authenticateToken, async (req, res) => {
   try {
     const designation = await Designation.findByPk(req.params.id);
-    console.log(designation.roleId, req.body);
-    
     const isRoleIdUpdated = designation.roleId !== req.body.roleId;
-    console.log(isRoleIdUpdated);
     
     designation.designationName = req.body.designationName;
     designation.abbreviation = req.body.abbreviation;
@@ -123,19 +120,13 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
       const userPositions = await UserPosition.findAll({
         where: { designationId: designation.id },
       });
-      console.log(userPositions);
-      
       userIds = userPositions.map((up) => up.userId);
-      console.log(userIds);
-      
       await User.update(
         { roleId: roleId }, 
         { where: { id: userIds } }
       );
     }
     const user = await User.findAll({where: {id: userIds}})
-    console.log(user);
-    
     res.send(designation);
   } catch (error) {
     res.send(error.message);

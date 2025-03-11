@@ -990,7 +990,6 @@ async function findFinanceMail() {
         });
 
         if (!userPosition) {
-            console.log(" No user found with FINANCE MANAGER designation.");
             return null;
         }
 
@@ -998,7 +997,6 @@ async function findFinanceMail() {
         return userPosition.projectMailId;
 
     } catch (error) {
-        console.error("Error fetching Finance Manager email:", error);
         return null;
     }
 }
@@ -1136,7 +1134,6 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
             contentType: s3File.ContentType,
           });
         } catch (error) {
-          console.error("Error fetching file from S3:", error);
           continue;
         }
       }
