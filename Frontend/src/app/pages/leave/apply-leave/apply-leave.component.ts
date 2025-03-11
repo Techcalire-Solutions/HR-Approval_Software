@@ -394,7 +394,6 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
       } else {
         this.submit = this.leaveService.addEmergencyLeave(leaveRequest).subscribe({
           next: (res: any) => {
-            console.log(res);
             this.openDialog(res, res?.not);
           },
           error: (err) => { 

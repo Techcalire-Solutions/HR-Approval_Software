@@ -11,7 +11,6 @@ const TeamLeader = require('../models/teamLeader');
 router.post('/', async (req, res) => {
     try {
       const { teamName, teamLeaders, teamMembers } = req.body;
-        console.log(teamMembers);
         
       // Create the team
       const team = await Team.create({ teamName });
@@ -21,14 +20,12 @@ router.post('/', async (req, res) => {
         TeamLeader.create({ teamId: team.id, userId })
       );
       await Promise.all(teamLeadersPromises);
-      console.log(teamLeadersPromises);
       
       // Create team members
       const teamMembersPromises = teamMembers.map(userId => 
         TeamMember.create({ teamId: team.id, userId })
       );
       await Promise.all(teamMembersPromises);
-      console.log(teamMembersPromises);
   
       res.send({ message: 'Team created successfully', teamId: team.id });
     } catch (error) {

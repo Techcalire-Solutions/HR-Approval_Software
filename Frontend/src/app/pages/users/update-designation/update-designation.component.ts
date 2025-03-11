@@ -89,8 +89,6 @@ export class UpdateDesignationComponent implements OnInit, OnDestroy{
   private snackBar = inject(MatSnackBar);
   onSubmit(){
     this.submit = this.userService.updateDesignation(this.dialogData.id, this.form.getRawValue()).subscribe(data => {
-      console.log(data);
-      
       this.dialogRef.close();
       this.snackBar.open(`Designation updated for ${this.name}-${this.empNo}...`, '', { duration: 3000 });
     });

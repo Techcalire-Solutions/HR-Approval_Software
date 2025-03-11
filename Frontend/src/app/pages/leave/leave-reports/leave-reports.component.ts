@@ -26,6 +26,7 @@ export class LeaveReportsComponent {
     this.generateYearOptions(); 
     this.getReport();
   }
+  
   generateYearOptions(): void {
     const currentYear = new Date().getFullYear();
     this.selectedYear = currentYear;
@@ -34,10 +35,9 @@ export class LeaveReportsComponent {
       this.years.push(year);
     }
   }
+
   getReport(): void {
     this.leaveService.getReport(this.selectedYear, this.currentPage, this.pageSize, this.searchText).subscribe((res) => {
-      console.log(res);
-      
       this.employees = res.result;
       this.totalItems = res.total
     });
@@ -67,8 +67,6 @@ export class LeaveReportsComponent {
   public onPageChanged(event: any){
     this.currentPage = event.pageIndex + 1;
     this.pageSize = event.pageSize;
-    console.log(this.currentPage, this.pageSize);
-    
     this.getReport()
   }
 

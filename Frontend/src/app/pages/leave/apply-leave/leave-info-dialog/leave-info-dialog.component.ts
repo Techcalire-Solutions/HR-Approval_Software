@@ -26,8 +26,6 @@ export class LeaveInfoDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: {message: any},
     private dialogRef: MatDialogRef<LeaveInfoDialogComponent>
   ) {
-    console.log(data);
-    
     if (data) {
       this.message = data.message;
     }

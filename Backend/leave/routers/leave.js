@@ -903,7 +903,6 @@ router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => 
       };
       await s3.deleteObject(deleteParams).promise();
     }
-
     // Update UserLeave records if the leave status is 'Approved' or 'AdminApproved'
     if (leave.status === 'Approved' || leave.status === 'AdminApproved') {
       const leaveStartYear = new Date(leave.startDate).getFullYear();
@@ -1095,8 +1094,6 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
       if (!hrEmail) {
         message.push(`Official mail missing for ${userPos.user.name}`);
       }
-      console.log(name);
-      
     }
 
     // Email sending logic
@@ -1111,8 +1108,6 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
       }else{
         cc.push(hrEmail)
         name = rm.name
-        console.log(name);
-        
       }
 
       if (!emailRegex.test(operationalManagerEmail)) {
@@ -1876,14 +1871,15 @@ router.get('/all/report', async (req, res) => {
   try {
     const { year, pageSize, page, search } = req.query;
 
+    // Validate year
     if (!year) {
       return res.json({ error: 'Year is required for fetching reports.' });
     }
 
-    if (pageSize != 'undefined' && page != 'undefined') {
-      limit = pageSize;
-      offset = (page - 1) * pageSize;
-    }
+    // Parse pagination parameters
+    const limit = pageSize ? parseInt(pageSize, 10) : 10; // Default limit is 10
+    const pageNumber = page ? parseInt(page, 10) : 1; // Default page is 1
+    const offset = (pageNumber - 1) * limit;
 
     // Fetch all leave data for the given year
     const leaves = await Leave.findAll({
@@ -1916,8 +1912,9 @@ router.get('/all/report', async (req, res) => {
           name: leave.user.name,
           url: leave.user.url,
           leaveDetails: {},
-        };  
+        };
       }
+
       // Initialize leave type if not present
       if (!employeeData[userId].leaveDetails[leaveTypeName]) {
         employeeData[userId].leaveDetails[leaveTypeName] = {
@@ -1947,23 +1944,24 @@ router.get('/all/report', async (req, res) => {
       leaveDetails: Object.values(employee.leaveDetails),
     }));
 
+    // Apply search filter
     if (search && search !== 'undefined') {
       const searchTerm = search.replace(/\s+/g, '').trim().toLowerCase();
-      result = result.filter(employee => 
+      result = result.filter((employee) =>
         employee.name.toLowerCase().includes(searchTerm)
       );
     }
 
+    // Paginate the result
     const total = result.length;
-    const paginatedResult = result.slice(offset, limit);
+    const paginatedResult = result.slice(offset, offset + limit);
 
     // Send the response
-    res.status(200).json({result: paginatedResult,  total: total});
+    res.status(200).json({ result: paginatedResult, total: total });
   } catch (error) {
-    res.send(error.message);
+    res.status(500).json({ error: error.message });
   }
 });
-
 // ---------------------------------------------------------------LEAVE BALNCE--------------------------------------------------
 router.get('/leaveBalance/:leaveId', authenticateToken, async (req, res) => {
   const leaveId = req.params.leaveId;

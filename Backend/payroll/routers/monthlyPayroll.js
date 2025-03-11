@@ -261,8 +261,6 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
   const payedForDate = new Date(payedForStr);
   const payrollYear = payedForDate.getFullYear();
   const payrollMonth = payedForDate.getMonth();
-  console.log(payedForStr, payedForDate, payrollYear, payrollMonth);
-  
   if (payedForStr.startsWith("December")){
     await Leave.update(
       { status: 'Locked' },
