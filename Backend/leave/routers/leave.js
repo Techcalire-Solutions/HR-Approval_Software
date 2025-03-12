@@ -1507,8 +1507,10 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     const endYear = endDate.getFullYear();
 
     // Fetch HR, Reporting Manager, and Team Leads emails
-    const hrEmail = await getHREmail().mail;
-    const rmEmail = (await getReportingManagerEmailForUser(leave.userId)).email;
+    const hr = await getHREmail();
+    const hrEmail = hr.mail;
+    const rm = (await getReportingManagerEmailForUser(leave.userId))
+    const rmEmail = rm.email;
     const teamLeads = await getTeamLeadEmails(leave.userId);
     const omMail = await getOMEmail();
 
@@ -1771,8 +1773,10 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
       createNotification({ id, me, route });
     }
 
-    const hrEmail = await getHREmail().mail
-    const rmEmail = (await getReportingManagerEmailForUser(leave.userId)).email
+    const hr = await getHREmail();
+    const hrEmail = hr.mail;
+    const rm = (await getReportingManagerEmailForUser(leave.userId))
+    const rmEmail = rm.email;
     const teamLeads = await getTeamLeadEmails(leave.userId);
     const omMail = await getOMEmail();
     const ccRecipients = [ hrEmail, rmEmail, teamLeads, omMail ].filter(email => email); 

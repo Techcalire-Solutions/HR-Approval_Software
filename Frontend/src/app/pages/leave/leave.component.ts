@@ -159,7 +159,11 @@ export class LeaveComponent implements OnInit, OnDestroy{
     });
 
     this.dialogSub = dialogRef.afterClosed().subscribe(note => {
-      action === 'approve' ? this.approveLeave(leaveId, note) : this.rejectLeave(leaveId, note);
+      if (note !== false) {
+        action === 'approve' ? this.approveLeave(leaveId, note) : this.rejectLeave(leaveId, note);
+      }else{
+        this.isLoading = false
+      }
     });
   }
   isLoading: boolean = false;
@@ -179,6 +183,7 @@ export class LeaveComponent implements OnInit, OnDestroy{
         }
       },
       (error) => {
+        this.isLoading = false
         this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
       }
     );

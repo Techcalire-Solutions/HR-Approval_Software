@@ -22,7 +22,7 @@ const User = require('../../users/models/user');
  User.hasMany(UserLeave, { foreignKey: 'userId', onUpdate: 'CASCADE' });
  UserLeave.belongsTo(User);
 
- UserLeave.sync({force: true})
+ UserLeave.sync({alter: true})
 .then(()=>console.log)
 
 module.exports = UserLeave
