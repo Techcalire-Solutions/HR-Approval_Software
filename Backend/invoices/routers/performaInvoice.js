@@ -18,7 +18,8 @@ const Notification = require('../../notification/models/notification')
 const UserPosition = require('../../users/models/userPosition')
 const config = require('../../utils/config');
 const Designation = require('../../users/models/designation');
-const sendEmailNotification = require('../../app/invoiceEmailService')const TeamLeader = require('../../users/models/teamLeader')
+const sendEmailNotification = require('../../app/invoiceEmailService')
+const TeamLeader = require('../../users/models/teamLeader')
 
 
 const transporter = nodemailer.createTransport({
