@@ -15,8 +15,6 @@ const moment = require("moment");
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-
-
           user: config.email.leaveCommonUser,
           pass: config.email.leaveCommonPass,
   }
@@ -79,7 +77,7 @@ router.post('/send-wishes', upload.single('attachment'), async (req, res) => {
     const ccEmails = userPositions.map(up => up.officialMailId).filter(email => email && email !== to);
 
     const mailOptions = {
-      from: '"Onboard Aero Consultant" <aerohr@onboaraero.com>',
+      from: '"HR & Adminstration | Onboard Aero Consultant" <aerohr@onboaraero.com>',
       to,
       cc: ccEmails.length ? ccEmails.join(', ') : undefined,
       subject: `🎉 Happy Birthday, ${birthdayUser.name}! 🎉`,
