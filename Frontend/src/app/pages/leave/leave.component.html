@@ -40,13 +40,15 @@
       </div>
     
       <!-- Fourth Column: Leave Calendar Button -->
-      <div fxLayout="row" fxFlex="10" fxFlex.xs="100" fxLayoutAlign="end center">
-        <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-          <mat-button-toggle value="add" (click)="openLeaveCalendar()">
-            <mat-icon style="color: green;">event_available</mat-icon>
-          </mat-button-toggle>
-        </mat-button-toggle-group>
-      </div>
+      @if(!employeeStat){
+        <div fxLayout="row" fxFlex="10" fxFlex.xs="100" fxLayoutAlign="end center">
+          <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
+            <mat-button-toggle value="add" (click)="openLeaveCalendar()">
+              <mat-icon style="color: green;">event_available</mat-icon>
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+      }
     </div>
   </div>
   <div fxLayout="row" class="legend col debug-small" fxFlex="100" fxHide fxShow.xs>
@@ -69,13 +71,15 @@
         </form>
       </div>
       <!-- Fourth Column: Leave Calendar Button -->
-      <div fxLayout="row" fxFlex="10" fxFlex.xs="100" fxLayoutAlign="end center">
-        <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-          <mat-button-toggle value="add" (click)="openLeaveCalendar()">
-            <mat-icon style="color: green;">event_available</mat-icon>
-          </mat-button-toggle>
-        </mat-button-toggle-group>
-      </div>
+       @if(!employeeStat){
+        <div fxLayout="row" fxFlex="10" fxFlex.xs="100" fxLayoutAlign="end center">
+          <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
+            <mat-button-toggle value="add" (click)="openLeaveCalendar()">
+              <mat-icon style="color: green;">event_available</mat-icon>
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+       }
     </div>
     <div fxLayout="row" class="legend col" fxFlex="100" fxHide fxShow.xs fxLayoutAlign="space-between center">
       <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
@@ -110,6 +114,7 @@
                   <th>User</th>
                 }
                 <th>Reason</th>
+                <th>Created At</th>
                 <th>Uploads</th>
                 @if(!employeeStat){
                   <th>Action</th>
@@ -139,6 +144,7 @@
                     <td>{{ item.user?.name }} {{item.user?.empNo}}</td>
                   }
                   <td>{{ item.notes }}</td>
+                  <td>{{ item.createdAt | date: 'dd/MM/yyyy, HH:mm'}}</td>
                   <td (click)="$event.stopPropagation()">
                     <div class="popup-message">
                       @if(item.leaveType?.leaveTypeName === 'Sick Leave'){

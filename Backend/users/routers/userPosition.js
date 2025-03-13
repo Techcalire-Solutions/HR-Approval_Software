@@ -52,27 +52,16 @@ router.post('/add', authenticateToken, async (req, res) => {
 
     const desi = await Designation.findByPk(designationId);
     const roleId = desi?.roleId;
-    // if(desi.designationName === 'MANAGING DIRECTOR'){
-    //   let user = await User.findByPk(userId)
-    //   user.director = true;
-    //   await user.save();
-    // }else{
-    //   let user = await User.findByPk(userId)
-    //   user.director = false;
-    //   await user.save();
-    // }
-    
+    let userSaved = await User.findByPk(userId)
     if(roleId != null || roleId === ''){
       try {
-        let user = await User.findByPk(userId)
-        user.roleId = roleId;
-        await user.save();
+        userSaved.roleId = roleId;
+        await userSaved.save();
       } catch (error) {
         res.send(error.message)
       }
     }
 
-        
     const user = new UserPosition({ userId, division, costCentre, grade, location, department, office, salary, confirmationDate,
       probationPeriod, officialMailId, projectMailId, designationId, teamId });
     await user.save();

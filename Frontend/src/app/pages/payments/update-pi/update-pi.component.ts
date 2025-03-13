@@ -23,12 +23,13 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDialog } from '@angular/material/dialog';
 import { AddCompanyComponent } from '../../company/add-company/add-company.component';
 import { User } from '../../../common/interfaces/users/user';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-update-pi',
   standalone: true,
   imports: [ ReactiveFormsModule, MatFormFieldModule,  MatCardModule,  MatToolbarModule,  MatButtonModule, MatIconModule,
-    MatSelectModule, MatInputModule, SafePipe, CommonModule, MatAutocompleteModule],
+    MatSelectModule, MatInputModule, SafePipe, CommonModule, MatAutocompleteModule, MatProgressSpinnerModule],
   templateUrl: './update-pi.component.html',
   styleUrl: './update-pi.component.scss',
   encapsulation: ViewEncapsulation.None
@@ -75,7 +76,7 @@ export class UpdatePIComponent {
     supplierSoNo:[''],
     supplierCurrency:['Dollar'],
     supplierPrice: [Validators.required],
-    purpose: ['', Validators.required],
+    purpose: [[], Validators.required],
     customerId: <any>[],
     customerName: [''],
     customerPoNo: [''],
@@ -85,6 +86,11 @@ export class UpdatePIComponent {
     notes:[''],
     paymentMode: ['WireTransfer']
   });
+
+  get isCustomerSelected(): boolean {
+    const purposeValue: any = this.piForm.get('purpose')?.value;
+    return Array.isArray(purposeValue) && purposeValue.includes('Customer');
+  }
 
   public supplierCompanies: Company[];
   public customerCompanies: Company[];
@@ -272,10 +278,10 @@ export class UpdatePIComponent {
 
 
   upload!: Subscription;
-
+  submitted: boolean = false;
   onUpdate() {
       let updateMethod;
-
+      this.submitted = true;
       if (this.roleName === 'Sales Executive') {
         updateMethod = this.invoiceService.updatePIBySE(this.piForm.getRawValue(), this.id);
       } else if (this.roleName === 'Key Account Manager') {
@@ -298,13 +304,16 @@ export class UpdatePIComponent {
 
                   if (piNo) {
                       this.snackBar.open(`Proforma Invoice ${piNo} Updated successfully...`, "", { duration: 3000 });
+                      this.submitted = false;
                       this.router.navigateByUrl('login/viewApproval/view');
                   } else {
                       this.snackBar.open('Failed to update the invoice. Please try again.', "", { duration: 3000 });
+                      this.submitted = false;
                   }
               },
               error: (err) => {
                   const errorMessage = err?.error?.message || 'An error occurred while updating the invoice. Please try again.';
+                  this.submitted = false;
                   this.snackBar.open(`Error: ${errorMessage}`, "", { duration: 3000 });
               }
           });
@@ -320,6 +329,12 @@ export class UpdatePIComponent {
     this.editStatus = true;
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
       const inv = pi.pi;
+
+      let purposeArray = inv.purpose;
+      if (typeof inv.purpose === 'string') {
+        purposeArray = inv.purpose.split(',').map((p: any) => p.trim());
+      }
+
       this.piNo = inv.piNo
       const remarks = inv.performaInvoiceStatuses.find((s:any) => s.status === inv.status)?.remarks;
       this.piForm.patchValue({
@@ -334,7 +349,7 @@ export class UpdatePIComponent {
         supplierSoNo: inv.supplierSoNo,
         supplierPoNo: inv.supplierPoNo,
         supplierPrice: inv.supplierPrice,
-        purpose: inv.purpose,
+        purpose: purposeArray,
         customerId: inv.customerId,
         customerName: inv.customers?.companyName,
         customerPoNo: inv.customerPoNo,

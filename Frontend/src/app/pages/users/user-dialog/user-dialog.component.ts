@@ -59,6 +59,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
       if (this.id) {
         this.editStatus = true;
         this.getUser(this.id)
+        this.updateOfficialMailIdValidators();
       }else{
         this.generateEmployeeNumber()
       }
@@ -73,8 +74,23 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     phoneNumber: [ '',  Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)]) ],
     password: [ '', Validators.compose([Validators.required, Validators.minLength(4)]) ],
     roleName: [],
-    teamId: <any>[  ]
+    teamId: <any>[  ],
+    officialMailId: [ '', Validators.compose([Validators.required, Validators.email]) ]
   })
+
+  // Function to update validators for officialMailId
+  updateOfficialMailIdValidators() {
+    const officialMailIdControl = this.form.get('officialMailId');
+    if (this.editStatus) {
+      // Remove required and email validators when editStatus is true
+      officialMailIdControl?.clearValidators();
+    } else {
+      // Add required and email validators when editStatus is false
+      officialMailIdControl?.setValidators([Validators.required, Validators.email]);
+    }
+    // Update the control's validity
+    officialMailIdControl?.updateValueAndValidity();
+  }
 
   ngOnDestroy(): void {
     this.userSub?.unsubscribe();
@@ -115,10 +131,15 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   fileType: string = '';
   imageUrl: string = '';
   public safeUrl!: SafeResourceUrl;
+  allowedFileTypes = ['jpeg', 'jpg', 'png'];
   uploadFile(event: Event) {
     const input = event.target as HTMLInputElement;
     this.file = input.files?.[0];
     this.fileType = this.file.type.split('/')[1];
+    if (!this.allowedFileTypes.includes(this.fileType)) {
+      alert('Invalid file type. Please select a JPEG, JPG, or PNG file.');
+      return;
+    }
     if (this.file) {
       this.uploadComplete = false;
 
@@ -137,8 +158,14 @@ export class UserDialogComponent implements OnInit, OnDestroy {
           this.form.get('url')?.setValue(invoice.fileUrl);
           this.uploadComplete = true; // Set to true when upload is complete
         },
-        error: () => {
-          this.uploadComplete = true; // Set to true to remove the progress bar even on error
+        error: (err) => {
+          this.uploadComplete = true; // Ensure UI updates even on error
+          
+          // Show error alert
+          alert('File upload failed. Please try again.'); 
+          
+          // Alternatively, use a UI notification library
+          // this.toastr.error('File upload failed. Please try again.', 'Error');
         }
       });
     }

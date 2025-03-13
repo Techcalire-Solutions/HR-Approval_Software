@@ -136,8 +136,8 @@ export class AddCompanyComponent {
     })
   }
   close(): void {
-    this.dialogRef?.close()
-    history.back();
+    if (this.dialogRef) this.dialogRef?.close()
+    else history.back();
   }
   onSubmit(){
     if(this.company){

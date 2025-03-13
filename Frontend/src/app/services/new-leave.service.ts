@@ -111,9 +111,9 @@ export class NewLeaveService {
     return this.http.get<any[]>(`${this.apiUrl}/newleave/findbyrm/${rmId}?search=${search}&page=${page}&pageSize=${pageSize}`);
   }
 
-  getReport(year: number):Observable<any>{
-    return this.http.get(`${this.apiUrl}/newleave/all/report?year=${year}`);
-   }
+  getReport(year: number, page?: number, pageSize?: number, search?: string):Observable<any>{
+    return this.http.get(`${this.apiUrl}/newleave/all/report?year=${year}&page=${page}&pageSize=${pageSize}&search=${search}`);
+  }
 
 
   // for setting app password....................................

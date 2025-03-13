@@ -90,8 +90,6 @@ const sendEmail = async (token, fromEmail, password, to, subject, html, attachme
 
   // Append the email signature to the HTML content
   const emailBody = html ? `${html}${emailSignature}` : `${emailSignature}`;
-  console.log(fromEmail, password);
-  
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {

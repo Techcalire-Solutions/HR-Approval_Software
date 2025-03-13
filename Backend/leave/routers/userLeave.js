@@ -247,7 +247,7 @@ router.patch('/update', authenticateToken, async (req, res) => {
         ulExist.noOfDays  = +data[i].noOfDays;
         ulExist.takenLeaves = +data[i].takenLeaves;
         ulExist.leaveBalance = +data[i].leaveBalance;
-
+        
         await ulExist.save();
         updated.push(ulExist);
       }else{

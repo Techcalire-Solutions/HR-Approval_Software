@@ -126,6 +126,10 @@ export class UsersService {
     return this.http.patch(this.apiUrl + '/user/update/' + id, data);
   }
 
+  updateUserImage(id: number, data: any){
+    return this.http.patch(this.apiUrl + '/user/imageupdate/' + id, data);
+  }
+
   updateUserPersonal(id: number, data: any){
     return this.http.patch(this.apiUrl + '/personal/update/' + id, data);
   }

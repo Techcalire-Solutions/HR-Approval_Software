@@ -101,8 +101,7 @@ export class PagesComponent implements OnInit {
     private roleService = inject(RoleService);
     getRoleById(id: number){
       this.roleSub = this.roleService.getRoleById(id).subscribe(role => {
-        const roleName = role.roleName;   
-        console.log(roleName);
+        const roleName = role.roleName; 
         
         if(roleName === 'HR Administrator' || roleName ==='Super Administrator' || roleName === 'Administrator') {
           this.admin = true;

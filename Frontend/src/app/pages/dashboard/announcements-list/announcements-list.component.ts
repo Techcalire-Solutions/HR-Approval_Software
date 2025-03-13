@@ -23,8 +23,6 @@ anService = inject(AnnouncementsService);
   getBirthdays(){
     this.annSub = this.anService.getAnnouncement().subscribe(res=>{
       this.ann = res;
-      console.log(this.ann);
-      
     })
   }
 

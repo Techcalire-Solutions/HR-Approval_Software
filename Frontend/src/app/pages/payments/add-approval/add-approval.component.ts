@@ -66,6 +66,11 @@ export class AddApprovalComponent {
     this.getRoleById(roleId)
     this.addDoc()
   }
+  
+  get isCustomerSelected(): boolean {
+    const purposeValue: any = this.piForm.get('purpose')?.value;
+    return Array.isArray(purposeValue) && purposeValue.includes('Customer');
+  }
 
   id!: number;
   supplierCompanies: Company[] = [];
@@ -356,8 +361,6 @@ export class AddApprovalComponent {
         this.submit = submitMethod.subscribe({
             next: (invoice: any) => {
                 const piNo = invoice?.piNo;
-                console.log(invoice);
-                
                 if (piNo) {
                     this.snackBar.open(`Proforma Invoice ${piNo} uploaded successfully...`, "", { duration: 3000 });
                     this.submitted = false;

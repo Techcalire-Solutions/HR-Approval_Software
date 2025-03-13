@@ -1,53 +1,48 @@
-
-<div class="year-selector">
-  <label for="year">Search by Year:</label>
-  <select id="year" [(ngModel)]="selectedYear">
-    <option *ngFor="let year of years" [value]="year">{{ year }}</option>
-  </select>
-  <button (click)="getReport()">Search</button>
+<div class="report-container">
+    <div class="report-header">
+        <h1>Leave Report</h1>
+        <div class="text-search">
+            <label for="searchText">Search by Employee:</label>
+            <input type="text" id="searchText" (keyup)="search($event)">
+            <!-- <button (click)="getReport()">Search</button> -->
+        </div>
+        <div class="search-by-year">
+            <label for="year">Search by Year:</label>
+            <select #yearSelect [(ngModel)]="selectedYear" (ngModelChange)="onYearChange( yearSelect.value )">
+                <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+            </select>
+        </div>
+    </div>
+    <div class="employee-leave-reports">
+        <div *ngFor="let employee of employees" class="employee-report">
+            <div class="employee-name" 
+                [ngStyle]="{ 'background-image': employee.url ? 'url(' + apiUrl + employee.url + ')' : 'url(' + userImage + ')'}">
+                <h1>{{ employee.name }}</h1>
+            </div>
+            <div *ngFor="let leaveType of employee.leaveDetails" class="leave-type-report {{ leaveType.type }}"
+                 [class.blocked]="!employee.status">
+                <h2 style="color: black;">{{ leaveType.type }}</h2>
+                <div class="leave-calendar">
+                    <div *ngFor="let monthData of leaveType.monthlyData; let i = index" class="leave-month">
+                        <div class="month-name">{{ getMonthName(i) }}</div>
+                        <div class="month-data">{{ monthData }}</div>
+                    </div>
+                </div>
+                <div class="yearly-total">Yearly Total: {{ leaveType.total }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <mat-paginator class="pagination"
+        [length]="totalItems"
+        [pageSize]="pageSize"
+        [pageIndex]="currentPage - 1"
+        (page)="onPageChanged($event)"
+        [pageSizeOptions]="[10, 20, 30, 40, 50, 100]">
+    </mat-paginator>
+        <!-- <div class="pagination">
+        <button (click)="prevPage()" [disabled]="currentPage <= 1">Previous</button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button (click)="nextPage()" [disabled]="currentPage >= totalPages">Next</button>
+    </div> -->
 </div>
-
-
-
-
-
-
-<div class="table-container">
-  <table border="1" style="width: 100%; border-collapse: collapse; text-align: center;">
-    <thead>
-      <tr>
-        <!-- <th>Employee ID</th> -->
-        <th>Name</th>
-        <th>Type of Leave</th>
-        <th>January</th>
-        <th>February</th>
-        <th>March</th>
-        <th>April</th>
-        <th>May</th>
-        <th>June</th>
-        <th>July</th>
-        <th>August</th>
-        <th>September</th>
-        <th>October</th>
-        <th>November</th>
-        <th>December</th>
-        <th>Yearly Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      <ng-container *ngFor="let employee of employees">
-        <ng-container *ngFor="let leaveType of employee.leaveDetails; let i = index">
-          <tr>
-            <!-- Employee ID and Name should only appear in the first row for the employee -->
-            <!-- <td *ngIf="i === 0" [attr.rowspan]="employee.leaveDetails.length">{{ employee.id }}</td> -->
-            <td *ngIf="i === 0" [attr.rowspan]="employee.leaveDetails.length">{{ employee.name }}</td>
-            <td>{{ leaveType.type }}</td>
-            <td *ngFor="let count of leaveType.monthlyData">{{ count }}</td>
-            <td>{{ leaveType.total }}</td>
-          </tr>
-        </ng-container>
-      </ng-container>
-    </tbody>
-  </table>
-</div>
-

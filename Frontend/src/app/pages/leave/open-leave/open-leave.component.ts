@@ -15,11 +15,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { NoteDialogComponent } from '../note-dialog/note-dialog.component';
 import { RoleService } from '@services/role.service';
 import { Role } from '../../../common/interfaces/users/role';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-open-leave',
   standalone: true,
-  imports: [MatCardModule, MatChipsModule, MatIconModule, SafePipe, CommonModule, MatButtonModule],
+  imports: [MatCardModule, MatChipsModule, MatIconModule, SafePipe, CommonModule, MatButtonModule, MatProgressSpinnerModule],
   templateUrl: './open-leave.component.html',
   styleUrl: './open-leave.component.scss',
   encapsulation: ViewEncapsulation.None
@@ -27,6 +28,7 @@ import { Role } from '../../../common/interfaces/users/role';
 export class OpenLeaveComponent implements OnInit, OnDestroy{
 
   private readonly route = inject(ActivatedRoute);
+  userId: number;
   ngOnInit(): void {
     const token: any = localStorage.getItem('token')
     const user = JSON.parse(token)
@@ -36,7 +38,7 @@ export class OpenLeaveComponent implements OnInit, OnDestroy{
 
     const id = this.route.snapshot.params['id'];
     this.getLeaveById(id, user.id)
-
+    this.userId = user.id;
   }
 
   private readonly roleService = inject(RoleService);
@@ -57,11 +59,13 @@ export class OpenLeaveComponent implements OnInit, OnDestroy{
 
   private leaveService = inject(NewLeaveService);
   leaveSub!: Subscription;
+  isLoading: boolean = false;
   leave :Leave
   getLeaveById(id: number, loginId: number){
+    this.isLoading = true;
     this.leaveSub = this.leaveService.getLeaveById(id).subscribe((res) => {
-      this.leave = res;
-      
+      this.leave = res; 
+      this.isLoading = false;
       if(this.leave.user.userpersonal[0].reportingMangerId === loginId){
         this.employeeStat = true;
       }
@@ -72,7 +76,9 @@ export class OpenLeaveComponent implements OnInit, OnDestroy{
   ulSub!: Subscription;
   userLeaves: UserLeave[] = [];
   getUserLeaves(id: number){
+    this.isLoading = true;
     this.ulSub = this.leaveService.getUserLeaveByUser(id).subscribe((response: any) => {
+      this.isLoading = false;
       this.userLeaves = response;
     });
   }
@@ -111,8 +117,12 @@ export class OpenLeaveComponent implements OnInit, OnDestroy{
     });
 
     this.dialogSub = dialogRef.afterClosed().subscribe(note => {
-      if (note) {
+      this.isLoading = true;
+      
+      if (note !== false) {
         action === 'approve' ? this.approveLeave(leaveId, note) : this.rejectLeave(leaveId, note);
+      }else{
+        this.isLoading = false
       }
     });
   }
@@ -122,8 +132,9 @@ export class OpenLeaveComponent implements OnInit, OnDestroy{
     const approvalData = { leaveId: leaveId, adminNotes: note };
     this.approveSub = this.leaveService.updateApproveLeaveStatus(approvalData).subscribe(
       (res) => {
+        this.isLoading = false;
         this.snackbar.open('Leave approved successfully', '', { duration: 3000 });
-        // this.getLeaveById();
+        this.getLeaveById(leaveId, this.userId);
       },
       (error) => {
         this.snackbar.open('Failed to approve leave', '', { duration: 3000 });
@@ -136,8 +147,9 @@ export class OpenLeaveComponent implements OnInit, OnDestroy{
     const rejectionData = { leaveId: leaveId, adminNotes: note };
     this.rejectSub = this.leaveService.updateRejectLeaveStatus(rejectionData).subscribe(
       (res) => {
+        this.isLoading = false;
         this.snackbar.open('Leave rejected successfully', '', { duration: 3000 });
-        // this.getLeaves();
+        this.getLeaveById(leaveId, this.userId);
       },
       (error) => {
         this.snackbar.open('Failed to approve leave', '', { duration: 3000 });

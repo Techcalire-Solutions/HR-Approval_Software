@@ -61,14 +61,14 @@
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Purpose</mat-label>
-          <mat-select placeholder="Select Purpose" formControlName="purpose">
+          <mat-select placeholder="Select Purpose" formControlName="purpose" [multiple]="true">
             <mat-option value="Stock">Stock</mat-option>
             <mat-option value="Customer">Customer</mat-option>
           </mat-select>
         </mat-form-field>
 
 
-        @if(piForm.get('purpose')?.value === 'Customer'){
+        @if(isCustomerSelected){
           <ng-container>
             @if(customerCompanies) {
               <mat-form-field class="full-width" appearance="outline" >
@@ -114,7 +114,7 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Payment Mode</mat-label>
-          <mat-select formControlName="paymentMode" (selectionChange)="onPaymentModeChange()">
+          <mat-select formControlName="paymentMode" (selectionChange)="onPaymentModeChange()" [multiple]="true">
             <mat-option value="CreditCard">Credit Card</mat-option>
             <mat-option value="WireTransfer">Wire Transfer</mat-option>
           </mat-select>
@@ -249,5 +249,11 @@
       </button>
     </div>
   </mat-card-content>
+
+  @if(submitted){
+    <div fxLayout="column" fxLayoutAlign="center center" class="user-spinner">
+      <mat-spinner color="primary"></mat-spinner>
+    </div>
+  }
 </mat-card>
 

@@ -1,18 +1,20 @@
 <div class="row">
   @for(leave of userLeaves; track $index) {
-    <div class="col">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-subtitle>{{leave.leaveType.leaveTypeName}}</mat-card-subtitle>
-          <mat-chip-set style="margin-left: auto;">
-            <mat-chip color="primary" highlighted="true" class="info-chip">
-              <mat-icon class="icon-sm">numbers</mat-icon>
-              {{leave.leaveBalance}}
-            </mat-chip>
-          </mat-chip-set>
-        </mat-card-header>
-      </mat-card>
-    </div>
+    @if(leave.leaveType.leaveTypeName !== 'LOP'){
+      <div class="col">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-subtitle>{{leave.leaveType.leaveTypeName}}</mat-card-subtitle>
+            <mat-chip-set style="margin-left: auto;">
+              <mat-chip color="primary" highlighted="true" class="info-chip">
+                <mat-icon class="icon-sm">numbers</mat-icon>
+                {{leave.leaveBalance}}
+              </mat-chip>
+            </mat-chip-set>
+          </mat-card-header>
+        </mat-card>
+      </div>
+    }
   }
 </div><br>
 
@@ -47,7 +49,8 @@
         <!-- Start Date -->
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Start Date</mat-label>
-          <input matInput [matDatepicker]="startDatePicker" formControlName="startDate" placeholder="Choose start date" (dateChange)="onDateChange()" required >
+          <input matInput [matDatepicker]="startDatePicker" formControlName="startDate" placeholder="Choose start date" 
+          (dateChange)="onDateChange()" required [max]="maxDate">
           <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
           <mat-datepicker #startDatePicker></mat-datepicker>
         </mat-form-field>
@@ -55,7 +58,7 @@
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>End Date</mat-label>
           <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" placeholder="Choose end date" (dateChange)="onEndDateChange()" required
-          [matDatepickerFilter]="endDateFilter">
+          [matDatepickerFilter]="endDateFilter" [max]="maxEndDate">
           <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
           <mat-datepicker #endDatePicker></mat-datepicker>
         </mat-form-field>

@@ -92,7 +92,7 @@
           <ng-container>
             <button
               mat-fab extended
-              style="background-color: green;"
+              class="approve-button"
               (click)="openDialog('approve', leave.id)"
               [disabled]="leave.status === 'Approved' || leave.status === 'AdminApproved' || leave.status === 'Locked'"
             >
@@ -112,5 +112,10 @@
         </td>
       }
     </mat-card>
+  </div>
+}
+@if(isLoading) {
+  <div fxLayout="column" fxLayoutAlign="center center" class="user-spinner">
+      <mat-spinner color="primary"></mat-spinner>
   </div>
 }

@@ -102,11 +102,8 @@ export class TeamDialogueComponent {
   }
   onSubmit() {
     let teamMem: any = this.teamForm.getRawValue();
-    console.log(teamMem);
   
     this.teamService.addTeam(teamMem).subscribe((res) => {
-      console.log(res);
-      
       this.dialogRef.close();
       this._snackbar.open("Team added successfully...", "", { duration: 3000 })
       this.clearControls()

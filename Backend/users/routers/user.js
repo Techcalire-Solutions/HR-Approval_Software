@@ -20,8 +20,8 @@ const UserDocument = require('../models/userDocuments');
 const { sendEmail } = require('../../app/emailService');
 const config = require('../../utils/config')
 
-router.post('/add', async (req, res) => {
-  const { name, email, phoneNumber, password, status, userImage, url, empNo, director } = req.body;
+router.post('/add', authenticateToken, async (req, res) => {
+  const { name, email, phoneNumber, password, status, userImage, url, empNo, director, officialMailId } = req.body;
 
   try {
     let roleId = req.body.roleId;
@@ -53,32 +53,38 @@ router.post('/add', async (req, res) => {
       name, empNo, email, phoneNumber, password: hashedPassword, roleId, status, userImage, url, director
     });
 
-    // const emailText = `Dear ${user.name},\n\nCongratulations on joining our company!\nHere are your login credentials:\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information secure.\n\nWe are excited to have you onboard and look forward to working together.\n\nBest Regards,\nThe Team`;
-    const emailSubject = `Welcome to the Company!`;
-    const fromEmail = config.email.userAddUser;
-    const emailPassword = config.email.userAddPass;
-    const html = `
-    <p>Dear ${user.name},</p>
-    <p>Congratulations on joining our company!.</p>
-    <p>Here are your login credentials:</p>
-    <p>Username: ${user.empNo}\nPassword: ${password}</p>
-    <p>Please keep this information secure.</p>
-    <p>We are excited to have you onboard and look forward to working together.</p>
-  `;
-    const attachments = []
-    const token = req.headers.authorization?.split(' ')[1];
-    try {
-      await sendEmail(token, fromEmail, emailPassword, user.email, emailSubject, html, attachments);
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError);
+    if(officialMailId){
+      const emailSubject = `Welcome to the Company!`;
+      const fromEmail = config.email.userAddUser;
+      const emailPassword = config.email.userAddPass;
+      const html = `
+        <p>Dear ${name},</p>
+        <p>Congratulations on joining our company!.</p>
+        <p>Here are your login credentials:</p>
+        <p>Username: ${empNo}\nPassword: ${password}</p>
+        <p>Please keep this information secure.</p>
+        <p>We are excited to have you onboard and look forward to working together.</p>
+      `;
+      const attachments = []
+      const token = req.headers.authorization?.split(' ')[1];
+      try {
+        await sendEmail(token, fromEmail, emailPassword, officialMailId, emailSubject, html, attachments);
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+      }
+
+      const userPos = new UserPosition({userId: user.id, officialMailId: officialMailId})
+      await userPos.save();
     }
+
+    
     res.send(user)
   } catch (error) {
     res.send(error.message);
   }
 });
 
-router.get('/find/', async (req, res) => {
+router.get('/find/', authenticateToken, async (req, res) => {
   try {
     let whereClause = { separated: false, status: true };
     let limit;
@@ -164,8 +170,7 @@ router.get('/find/', async (req, res) => {
   }
 });
 
-
-router.get('/search/name', async (req, res) => {
+router.get('/search/name', authenticateToken, async (req, res) => {
   try {
     let whereClause = {};
     if (req.query.search) {
@@ -193,7 +198,7 @@ router.get('/search/name', async (req, res) => {
   }
 });
 
-router.patch('/statusupdate/:id', async (req, res) => {
+router.patch('/statusupdate/:id', authenticateToken, async (req, res) => {
   try {
     let status = req.body.status;
     let result = await User.findByPk(req.params.id);
@@ -205,7 +210,7 @@ router.patch('/statusupdate/:id', async (req, res) => {
   }
 })
 
-router.get('/findone/:id', async (req, res) => {
+router.get('/findone/:id', authenticateToken, async (req, res) => {
   let id = req.params.id;
   
   try {
@@ -240,7 +245,20 @@ router.patch('/update/:id', async(req,res)=>{
   }
 })
 
-router.delete('/delete/:id', authenticateToken, async (req, res) => {
+router.patch('/imageupdate/:id', authenticateToken, async(req,res)=>{
+  const {url} = req.body;
+  try {
+    let result = await User.findByPk(req.params.id);
+    result.url = url
+
+    await result.save();
+    res.send(result);
+  } catch (error) {
+    res.send(error.message);
+  }
+})
+
+router.delete('/delete/:id',  authenticateToken, async (req, res) => {
   const id = req.params.id
   try {
     const user = await User.findByPk(id)
@@ -282,7 +300,7 @@ router.delete('/delete/:id', authenticateToken, async (req, res) => {
   }
 })
 
-router.get('/findbyrole/:id', async (req, res) => {
+router.get('/findbyrole/:id', authenticateToken, async (req, res) => {
   try {
     const user = await User.findAll({
       where: { roleId: req.params.id, separated: false }
@@ -293,7 +311,7 @@ router.get('/findbyrole/:id', async (req, res) => {
   }
 })
 
-router.get('/findbyroleName/:roleName', async (req, res) => {
+router.get('/findbyroleName/:roleName', authenticateToken, async (req, res) => {
   try {
     const users = await User.findAll({
       include: { model: Role, where: [{ roleName: req.params.roleName} ] },
@@ -306,7 +324,7 @@ router.get('/findbyroleName/:roleName', async (req, res) => {
   }
 });
 
-router.get('/getdirectors', async (req, res) => {
+router.get('/getdirectors', authenticateToken, async (req, res) => {
   try {
     const user = await User.findAll({
       where: { director: true }
@@ -317,7 +335,7 @@ router.get('/getdirectors', async (req, res) => {
   }
 })
 
-router.get('/getseparated', async (req, res) => {
+router.get('/getseparated', authenticateToken, async (req, res) => {
   try {
     const user = await User.findAll({
       where: { separated: true },
@@ -329,7 +347,7 @@ router.get('/getseparated', async (req, res) => {
   }
 })
 
-router.get('/getbyrm/:id', async (req, res) => {
+router.get('/getbyrm/:id', authenticateToken, async (req, res) => {
   try {
     
     const id = parseInt(req.params.id, 10)
@@ -356,7 +374,7 @@ router.get('/getbyrm/:id', async (req, res) => {
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
     if (!req.file) {
-      return res.send('No file uploaded');
+      return res.send('No file uploaded or invalid file type');
     }
 
     // Sanitize the original file name by removing special characters and spaces
@@ -389,37 +407,46 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
 });
 
 router.delete('/filedelete', authenticateToken, async (req, res) => {
-  let id = req.query.id;
+  const id = req.query.id;
+  let fileKey;
+
   try {
-    try {
-        let user = await User.findByPk(id);
-        fileKey = user.url;
-        user.url = '';
-        await user.save();
-    } catch (error) {
-      res.send(error.message)
+    if (id) {
+      const user = await User.findByPk(id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      fileKey = user.url;
+      user.url = '';
+      await user.save();
     }
-    let key;
+
     if (!fileKey) {
-      key = req.query.key;
-      
+      const key = req.query.key;
       fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+    }
+
+    if (!fileKey) {
+      return res.json({ message: "File key is missing" });
     }
 
     // Set S3 delete parameters
     const deleteParams = {
       Bucket: process.env.AWS_BUCKET_NAME,
-      Key: fileKey
+      Key: fileKey,
     };
 
     // Delete the file from S3
     await s3.deleteObject(deleteParams).promise();
 
-    res.send('File deleted successfully' );
+    res.json({ message: "File deleted successfully" });
   } catch (error) {
-    res.send(error.message );
+    console.error("File delete error:", error);
+    res.json({ error: error.message });
   }
 });
+
 
 router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
     key = req.query.key;
@@ -444,7 +471,7 @@ router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
     }
 });
 
-router.patch('/resetpassword/:id', async (req, res) => {
+router.patch('/resetpassword/:id', authenticateToken, async (req, res) => {
   const { password, paswordReset } = req.body;
 
   try {
@@ -460,6 +487,8 @@ router.patch('/resetpassword/:id', async (req, res) => {
 
       await user.save();
       
+      const userPos = await UserPosition.findOne({ where: {userId: user.id}});
+      const email = userPos.officialMailId;
       // const emailText = `Hello ${user.name},\n\nYour password has been successfully reset.\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information safe.\n\nThank you!`;
       const emailSubject = `Password Reset Successful`;
       const fromEmail = config.email.userAddUser;
@@ -475,10 +504,9 @@ router.patch('/resetpassword/:id', async (req, res) => {
       const attachments = []
       const token = req.headers.authorization?.split(' ')[1];
       try {
-        await sendEmail(token, fromEmail, emailPassword, user.email, emailSubject ,html, attachments);
+        await sendEmail(token, fromEmail, emailPassword, email, emailSubject ,html, attachments);
       } catch (emailError) {
         console.error('Email sending failed:', emailError);
-    
       }
 
       //   // Configure Nodemailer for sending emails
@@ -515,7 +543,7 @@ router.patch('/resetpassword/:id', async (req, res) => {
   }
 });
 
-router.get('/underprobation', async (req, res) => {
+router.get('/underprobation', authenticateToken, async (req, res) => {
   try {
     const user = await User.findAll({
       include: [
@@ -532,7 +560,7 @@ router.get('/underprobation', async (req, res) => {
   }
 })
 
-router.get('/confirmed', async (req, res) => {
+router.get('/confirmed', authenticateToken, async (req, res) => {
   try {
     const user = await User.findAll({
       include: [
@@ -553,7 +581,7 @@ router.get('/confirmed', async (req, res) => {
   }
 })
 
-router.get('/confirmemployee/:id', async (req, res) => {
+router.get('/confirmemployee/:id', authenticateToken, async (req, res) => {
   try {
       let result = await User.findByPk(req.params.id);
 
@@ -599,7 +627,7 @@ router.get('/confirmemployee/:id', async (req, res) => {
   }
 });
 
-router.get('/', async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
     const users = await User.findAll();
     res.status(200).json(users); 
@@ -608,7 +636,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.patch('/resignemployee/:id', async (req, res) => {
+router.patch('/resignemployee/:id', authenticateToken, async (req, res) => {
   try {
       let result = await User.findByPk(req.params.id);
       
@@ -627,7 +655,7 @@ router.patch('/resignemployee/:id', async (req, res) => {
   }
 });
 
-router.patch('/editnote/:id', async (req, res) => {
+router.patch('/editnote/:id', authenticateToken, async (req, res) => {
   try {
       let result = await User.findByPk(req.params.id);
       

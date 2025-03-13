@@ -903,7 +903,6 @@ router.delete('/untakenLeaveDelete/:id', authenticateToken, async (req, res) => 
       };
       await s3.deleteObject(deleteParams).promise();
     }
-
     // Update UserLeave records if the leave status is 'Approved' or 'AdminApproved'
     if (leave.status === 'Approved' || leave.status === 'AdminApproved') {
       const leaveStartYear = new Date(leave.startDate).getFullYear();
@@ -1095,8 +1094,6 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
       if (!hrEmail) {
         message.push(`Official mail missing for ${userPos.user.name}`);
       }
-      console.log(name);
-      
     }
 
     // Email sending logic
@@ -1111,8 +1108,6 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
       }else{
         cc.push(hrEmail)
         name = rm.name
-        console.log(name);
-        
       }
 
       if (!emailRegex.test(operationalManagerEmail)) {
@@ -1512,8 +1507,10 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     const endYear = endDate.getFullYear();
 
     // Fetch HR, Reporting Manager, and Team Leads emails
-    const hrEmail = await getHREmail().mail;
-    const rmEmail = (await getReportingManagerEmailForUser(leave.userId)).email;
+    const hr = await getHREmail();
+    const hrEmail = hr.mail;
+    const rm = (await getReportingManagerEmailForUser(leave.userId))
+    const rmEmail = rm.email;
     const teamLeads = await getTeamLeadEmails(leave.userId);
     const omMail = await getOMEmail();
 
@@ -1587,13 +1584,13 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     
       createNotification({ id, me, route });
     
-      const hrId = getHRId();
+      const hrId = await getHRId();
       if (Number.isInteger(hrId)) {
         let id = hrId;
         createNotification({ id, me, route });
       }
     
-      const rmId = getRMId(leave.userId);
+      const rmId = await getRMId(leave.userId);
       if (Number.isInteger(rmId)) {
         let id = rmId;
         createNotification({ id, me, route });
@@ -1776,8 +1773,10 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
       createNotification({ id, me, route });
     }
 
-    const hrEmail = await getHREmail().mail
-    const rmEmail = (await getReportingManagerEmailForUser(leave.userId)).email
+    const hr = await getHREmail();
+    const hrEmail = hr.mail;
+    const rm = (await getReportingManagerEmailForUser(leave.userId))
+    const rmEmail = rm.email;
     const teamLeads = await getTeamLeadEmails(leave.userId);
     const omMail = await getOMEmail();
     const ccRecipients = [ hrEmail, rmEmail, teamLeads, omMail ].filter(email => email); 
@@ -1874,11 +1873,17 @@ router.get('/findbyrm/:reportingManagerId', async (req, res) => {
 // --------------------------------------------------------REPORT----------------------------------------------------------------
 router.get('/all/report', async (req, res) => {
   try {
-    const { year } = req.query;
+    const { year, pageSize, page, search } = req.query;
 
+    // Validate year
     if (!year) {
       return res.json({ error: 'Year is required for fetching reports.' });
     }
+
+    // Parse pagination parameters
+    const limit = pageSize ? parseInt(pageSize, 10) : 10; // Default limit is 10
+    const pageNumber = page ? parseInt(page, 10) : 1; // Default page is 1
+    const offset = (pageNumber - 1) * limit;
 
     // Fetch all leave data for the given year
     const leaves = await Leave.findAll({
@@ -1892,7 +1897,7 @@ router.get('/all/report', async (req, res) => {
         },
       },
       include: [
-        { model: User, as: 'user', attributes: ['id', 'name'] },
+        { model: User, as: 'user', attributes: ['id', 'name', 'url'] },
         { model: LeaveType, attributes: ['id', 'leaveTypeName'], as: 'leaveType' },
       ],
     });
@@ -1909,6 +1914,7 @@ router.get('/all/report', async (req, res) => {
         employeeData[userId] = {
           id: userId,
           name: leave.user.name,
+          url: leave.user.url,
           leaveDetails: {},
         };
       }
@@ -1937,18 +1943,29 @@ router.get('/all/report', async (req, res) => {
     });
 
     // Convert leaveDetails object to an array
-    const result = Object.values(employeeData).map((employee) => ({
+    let result = Object.values(employeeData).map((employee) => ({
       ...employee,
       leaveDetails: Object.values(employee.leaveDetails),
     }));
 
+    // Apply search filter
+    if (search && search !== 'undefined') {
+      const searchTerm = search.replace(/\s+/g, '').trim().toLowerCase();
+      result = result.filter((employee) =>
+        employee.name.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    // Paginate the result
+    const total = result.length;
+    const paginatedResult = result.slice(offset, offset + limit);
+
     // Send the response
-    res.status(200).json(result);
+    res.status(200).json({ result: paginatedResult, total: total });
   } catch (error) {
-    res.send(error.message);
+    res.status(500).json({ error: error.message });
   }
 });
-
 // ---------------------------------------------------------------LEAVE BALNCE--------------------------------------------------
 router.get('/leaveBalance/:leaveId', authenticateToken, async (req, res) => {
   const leaveId = req.params.leaveId;
