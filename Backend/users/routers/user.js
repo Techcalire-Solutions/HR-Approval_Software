@@ -374,7 +374,7 @@ router.get('/getbyrm/:id', authenticateToken, async (req, res) => {
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
     if (!req.file) {
-      return res.send('No file uploaded');
+      return res.send('No file uploaded or invalid file type');
     }
 
     // Sanitize the original file name by removing special characters and spaces
@@ -407,37 +407,46 @@ router.post('/fileupload', upload.single('file'), authenticateToken, async (req,
 });
 
 router.delete('/filedelete', authenticateToken, async (req, res) => {
-  let id = req.query.id;
+  const id = req.query.id;
+  let fileKey;
+
   try {
-    try {
-        let user = await User.findByPk(id);
-        fileKey = user.url;
-        user.url = '';
-        await user.save();
-    } catch (error) {
-      res.send(error.message)
+    if (id) {
+      const user = await User.findByPk(id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      fileKey = user.url;
+      user.url = '';
+      await user.save();
     }
-    let key;
+
     if (!fileKey) {
-      key = req.query.key;
-      
+      const key = req.query.key;
       fileKey = key ? key.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '') : null;
+    }
+
+    if (!fileKey) {
+      return res.json({ message: "File key is missing" });
     }
 
     // Set S3 delete parameters
     const deleteParams = {
       Bucket: process.env.AWS_BUCKET_NAME,
-      Key: fileKey
+      Key: fileKey,
     };
 
     // Delete the file from S3
     await s3.deleteObject(deleteParams).promise();
 
-    res.send('File deleted successfully' );
+    res.json({ message: "File deleted successfully" });
   } catch (error) {
-    res.send(error.message );
+    console.error("File delete error:", error);
+    res.json({ error: error.message });
   }
 });
+
 
 router.delete('/filedeletebyurl', authenticateToken, async (req, res) => {
     key = req.query.key;
