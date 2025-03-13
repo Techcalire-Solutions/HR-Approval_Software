@@ -17,10 +17,11 @@ const transporter = nodemailer.createTransport({
   auth: {
 
 
-          user: config.email.payUser,
-          pass: config.email.payPass,
+          user: config.email.leaveCommonUser,
+          pass: config.email.leaveCommonPass,
   }
 });
+
 
 
 
@@ -60,7 +61,21 @@ router.post('/send-wishes', upload.single('attachment'), async (req, res) => {
     }
 
 
-    const userPositions = await UserPosition.findAll({ attributes: ['officialMailId'] });
+
+    const userPositions = await UserPosition.findAll({
+      attributes: ['officialMailId'],
+      include: [
+        {
+          model: User,
+          attributes: [], 
+          where: { separated: false } 
+        }
+      ]
+    });
+    
+
+ 
+
     const ccEmails = userPositions.map(up => up.officialMailId).filter(email => email && email !== to);
 
     const mailOptions = {
@@ -68,7 +83,21 @@ router.post('/send-wishes', upload.single('attachment'), async (req, res) => {
       to,
       cc: ccEmails.length ? ccEmails.join(', ') : undefined,
       subject: `🎉 Happy Birthday, ${birthdayUser.name}! 🎉`,
-      html: `<p>Happy Birthday, ${birthdayUser.name}! 🎉</p><p>${message}</p>`,
+      html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); background-color: #ffffff;">
+        <div style="background-color: #002147; color: white; text-align: center; padding: 15px; border-radius: 8px 8px 0 0;">
+          <h2>🎉 Happy Birthday, ${birthdayUser.name}! 🎉</h2>
+        </div>
+        <div style="padding: 20px; text-align: center;">
+          <p style="font-size: 16px; color: #333;">Dear <strong>${birthdayUser.name}</strong>,</p>
+          <p style="font-size: 16px; color: #555;">${message}</p> <!-- Dynamic Message from Frontend -->
+          <h3 style="color: #002147;">Happy Birthday! 🎉</h3>
+        </div>
+        <div style="background-color: #f1f1f1; padding: 10px; text-align: center; border-radius: 0 0 8px 8px;">
+        <p style="font-size: 14px; font-weight: bold; color: #002147;">Team OAC</p>
+      </div>
+      </div>
+      `,
     };
 
     if (attachment) {
