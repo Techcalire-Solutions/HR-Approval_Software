@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  // apiUrl: 'https://api.aerohr.in',
+  // apiUrl: 'https://avstock-api.aerohr.in',
    apiUrl:'http://localhost:8000',
 
   zLevel1: 100,
