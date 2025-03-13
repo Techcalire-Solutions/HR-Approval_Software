@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
-/* eslint-disable no-undef */
+
 const nodemailer = require('nodemailer');
 const Role = require('../users/models/role');
 const Designation = require('../users/models/designation');

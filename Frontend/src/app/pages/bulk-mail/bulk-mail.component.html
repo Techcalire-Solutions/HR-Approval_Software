@@ -1,0 +1,121 @@
+<mat-tab-group>
+  <!-- Birthday Tab -->
+  <mat-tab label="Birthday">
+    <mat-card class="background-image-card">
+      <div class="overlay"></div>
+      <div class="content">
+        @if (birthdaysThisMonth.length > 0) {
+        <div class="birthday-container">
+          <h2>🎉 Birthdays 🎉</h2>
+          <div class="card-container">
+            @for (employee of birthdaysThisMonth; track $index) {
+            <div class="card">
+              <div class="card-content">
+                <span class="name">{{ employee.user.name }}</span>
+                <span class="date">{{ employee.dateOfBirth | date: 'MMMM d' }}</span>
+
+                @if(!isEmailSent(employee.user.name)){
+                <button mat-icon-button (click)="openDraft(employee.user.name)" matTooltip="Draft Message">
+                  <mat-icon>mail</mat-icon>
+                </button>
+
+                }
+                @if(isEmailSent(employee.user.name)){
+                <mat-icon matTooltip="Sent">check_circle</mat-icon>
+                }
+
+
+
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+        } @else {
+        <div class="no-data-container">
+          <h2>🎉 Birthdays 🎉</h2>
+          <p>No upcoming birthdays this month.</p>
+        </div>
+        }
+      </div>
+    </mat-card>
+  </mat-tab>
+
+
+
+
+  <mat-tab label="New Events">
+    <mat-card class="background-image-card">
+      <div class="overlay"></div>
+      <div class="content">
+        <h2>📅 Upcoming Events 📅</h2>
+
+        <!-- Create New Event Button -->
+        <button mat-raised-button color="primary" (click)="openEvent()">Create New Event</button>
+
+        <!-- Email Logs Table -->
+        @if(emailLogs?.length){
+        <table mat-table [dataSource]="emailLogs" class="mat-elevation-z8">
+
+        
+
+          <!-- ID Column -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef> ID </th>
+            <td mat-cell *matCellDef="let log"> {{ log.id }} </td>
+          </ng-container>
+
+          <!-- Subject Column -->
+          <ng-container matColumnDef="subject">
+            <th mat-header-cell *matHeaderCellDef> Subject </th>
+            <td mat-cell *matCellDef="let log"> {{ log.subject }} </td>
+          </ng-container>
+
+          <!-- Message Column -->
+          <ng-container matColumnDef="message">
+            <th mat-header-cell *matHeaderCellDef> Message </th>
+            <td mat-cell *matCellDef="let log"> {{ log.message }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="recipients">
+            <th mat-header-cell *matHeaderCellDef> Recipients </th>
+            <td mat-cell *matCellDef="let log">
+              <button mat-icon-button (click)="openRecipientsDialog(log.recipients)" matTooltip="View Recipients">
+                <mat-icon>visibility</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+
+
+          <ng-template #recipientsDialog let-dialog>
+            <h2 mat-dialog-title>Recipients List</h2>
+            <mat-dialog-content>
+              <ul>
+                <li *ngFor="let recipient of recipientList">{{ recipient }}</li>
+              </ul>
+            </mat-dialog-content>
+          </ng-template>
+
+
+          <!-- Timestamp Column -->
+          <ng-container matColumnDef="timestamp">
+            <th mat-header-cell *matHeaderCellDef> Timestamp </th>
+            <td mat-cell *matCellDef="let log"> {{ log.timestamp | date:'medium' }} </td>
+          </ng-container>
+
+          <!-- Table Header and Row Definitions -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        </table>
+      }
+        @if(emailLogs.length === 0){
+        <p>No email logs available.</p>
+        }
+
+      </div>
+    </mat-card>
+  </mat-tab>
+
+</mat-tab-group>

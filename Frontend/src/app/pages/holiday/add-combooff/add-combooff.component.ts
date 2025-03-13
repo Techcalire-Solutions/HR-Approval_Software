@@ -44,10 +44,12 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
     employees: this.fb.array([]),
   });
 
-  employees: User[] = [];
+  employees: any[] = [];
   employeeSub: Subscription;
   getEmployees(){
     this.employeeSub = this.userService.getConfirmedEmployees().subscribe((data) => {
+      console.log(data);
+      
       this.employees = data;
       this.addEmployeeCheckboxes();
     });

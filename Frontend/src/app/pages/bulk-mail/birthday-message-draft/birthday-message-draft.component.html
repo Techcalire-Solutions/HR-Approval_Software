@@ -1,0 +1,40 @@
+<div class="draft-container">
+    <h2>Create Birthday Message</h2>
+    
+   @if(employeeName){
+    <p>
+      Sending wishes to: <strong>{{ employeeName }}</strong>
+    </p>
+   }
+
+   @if(isLoading){
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Sending message...</p>
+    </div>
+   }
+
+
+  
+
+    <div class="message-section">
+      <label for="messageInput">Your Message:</label><br />
+      <textarea
+        id="messageInput"
+        rows="8"
+        cols="60"
+        [(ngModel)]="messageContent"
+        placeholder="Write your birthday wishes here..."
+      ></textarea>
+    </div>
+  
+    
+    <div class="file-upload-section">
+      <label for="fileInput">Attach a File (optional):</label><br />
+      <input id="fileInput" type="file" (change)="onFileSelected($event)" />
+    </div>
+  
+
+    <button (click)="sendMessage()">Send Wishes</button>
+  </div>
+  
