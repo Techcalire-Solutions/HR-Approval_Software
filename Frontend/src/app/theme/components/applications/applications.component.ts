@@ -52,5 +52,8 @@ export class ApplicationsComponent implements OnInit {
   openAssets():void{
     this.router.navigateByUrl('/login/assets')
   }
+  openMail():void{
+    this.router.navigateByUrl('/login/mail')
+  }
 }
 

@@ -29,6 +29,11 @@ export const routes: Routes = [
         loadChildren: () => import('./users/user.routes').then(c => c.routes),
         data: { breadcrumb: 'Employees' }, canActivate: [AuthGuard]
       },
+      {
+        path: 'mail',
+        loadChildren: () => import('./bulk-mail/mail.routes').then(c => c.routes),
+        data: { breadcrumb: 'Mail' }, canActivate: [AuthGuard]
+      },
       {path: 'backup', loadComponent: () => import('./backup-log/backup-log.component').then(c => c.BackupLogComponent),
         data: { breadcrumb: 'Backup' }, canActivate: [AuthGuard]
       },

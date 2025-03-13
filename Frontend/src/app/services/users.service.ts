@@ -18,6 +18,8 @@ import { Nominee } from '../common/interfaces/users/nominee';
   providedIn: 'root'
 })
 export class UsersService {
+
+ 
   private apiUrl = environment.apiUrl;
 
   constructor(public http: HttpClient) { }
@@ -32,6 +34,7 @@ export class UsersService {
   public addUser(data: any): Observable<any> {
     return this.http.post( this.apiUrl+'/user/add', data);
   }
+
 
   uploadImage(file: any): Observable<any> {
     if (file instanceof File) {

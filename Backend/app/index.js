@@ -97,6 +97,12 @@ app.use('/chat', chat);
 const asset = require('../assets/router/asset');
 app.use('/companyasset', asset);
 
+const birthdayMail = require('../bulkmail/birthdayMail')
+const eventMail = require('../bulkmail/eventMail')
+
+app.use('/birthday',birthdayMail)
+app.use('/',eventMail)
+
 const backup = require('./backUp')
 cron.schedule('0 0 5 * *', () => {
     backup();

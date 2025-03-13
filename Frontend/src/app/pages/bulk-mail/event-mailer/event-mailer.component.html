@@ -1,0 +1,120 @@
+<mat-stepper [linear]="false" #stepper class="custom-stepper">
+
+
+  <mat-step label="Compose Email">
+    <form [formGroup]="eventForm">
+      <div class="form-container">
+
+        <div class="row">
+          <div class="col">
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Select Users</mat-label>
+              <mat-select multiple formControlName="selectedUsers">
+                @for(employee of employees; track $index){
+                <mat-option [value]="employee.id">
+                  {{ employee.name }}
+                </mat-option>
+                }
+
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email Subject</mat-label>
+              <input matInput placeholder="Enter email subject" formControlName="emailSubject">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email Message</mat-label>
+              <textarea matInput placeholder="Enter email message" formControlName="emailMessage" rows="5"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+
+        <div class="row">
+          <div class="col">
+            <div class="file-upload-container">
+              <label for="file-upload" class="file-label">
+                <mat-icon>attach_file</mat-icon> Upload Attachment
+              </label>
+              <input type="file" id="file-upload" (change)="onFileSelected($event)" accept="image/*">
+            </div>
+
+
+            @if(imagePreview){
+            <div class="image-preview-container">
+              <p>Selected Image Preview:</p>
+              <img [src]="imagePreview" alt="Image Preview" class="preview-image">
+            </div>
+            }
+
+          </div>
+        </div>
+
+
+
+        <div class="button-container">
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-raised-button color="primary" matStepperNext>Next</button>
+        </div>
+
+      </div>
+    </form>
+  </mat-step>
+
+  <mat-step label="Preview & Send">
+    <div class="preview-container">
+      <mat-card class="preview-card">
+        <div class="row">
+          <div class="col">
+            <p><strong>Subject:</strong> {{ eventForm.value.emailSubject }}</p>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="preview-card">
+        <div class="row">
+          <div class="col">
+            <p><strong>Message:</strong> {{ eventForm.value.emailMessage }}</p>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="preview-card">
+        <div class="row">
+          <div class="col">
+            <p><strong>Recipients:</strong> {{ getRecipientNames() }}</p>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+
+
+    <div class="button-container">
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-raised-button color="primary" (click)="sendEmail()" [disabled]="isLoading">
+        @if(isLoading){
+        <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+        }
+
+        @if(!isLoading){
+        <span>Send Email</span>
+        }
+
+      </button>
+
+
+    </div>
+  </mat-step>
+
+</mat-stepper>

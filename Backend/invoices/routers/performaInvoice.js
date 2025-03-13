@@ -18,7 +18,7 @@ const Notification = require('../../notification/models/notification')
 const UserPosition = require('../../users/models/userPosition')
 const config = require('../../utils/config');
 const Designation = require('../../users/models/designation');
-
+const sendEmailNotification = require('../../app/invoiceEmailService')
 
 
 const transporter = nodemailer.createTransport({
@@ -30,7 +30,83 @@ const transporter = nodemailer.createTransport({
   });
 
 
+const getEmailSignature = async (userId, userName) => {
+    const roleId = await UserPosition.findOne({ where: { userId } });
+    const role = await Designation.findByPk(roleId?.designationId);
+    const designation = role ? role.designationName : 'Employee';
+
+    return `
+    <br><br>
+    Regards,
+    <table style="width:28%; font-family: Arial, sans-serif; font-size: 14px;">
+      <tr>
+          <td style="padding-right: 5px; padding-top: 25px; vertical-align: top;">
+              <img src="https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/images/leeds_logo.png" alt="LEEDS Aerospace Logo" style="width: 180px;">
+              <p style="font-size: 8px; font-weight: bold; margin-top: 10px;padding-left: 0; font-style: italic; padding-right: 0;">
+                  ASA-100 & ISO 9001:2015 accredited<br>
+                  Compliant with FAA Advisory Circular 00-56B
+              </p>
+          </td>
+          <td style="border-left: 2px solid #e00d0d; padding-left: 10px; vertical-align: top;">
+              <strong style="font-size: 16px; color: #e00d0d;"> ${userName}</strong><br>
+              <a style="font-size: 12px;"> ${designation}</a>
+              <hr style="border: 1px solid black; margin: 5px 0;">
+             
+              <table style="font-size: 14px;">
+                  <tr>
+                      <td style="vertical-align: top;">
+                          <img src="https://img.icons8.com/material-outlined/24/000000/phone.png" style="vertical-align: middle; width: 15px;" alt="Phone Logo">
+                      </td>
+                      <td style="padding-left: 5px; font-size: 12px;">
+                          +971 42 325 872
+                      </td>
+                  </tr>
+                  <tr>
+                      <td style="vertical-align: top;">
+                          <img src="https://img.icons8.com/material-outlined/24/000000/email.png" style="vertical-align: middle; width: 15px;">
+                      </td>
+                      <td style="padding-left: 5px; ; font-size: 12px;">
+                          <a href="mailto:sales@leedsaerospace.com" style="color: black; text-decoration: none;">sales@leedsaerospace.com</a>
+                      </td>
+                  </tr>
+                  <tr>
+                      <td style="vertical-align: center;">
+                          <img src="https://img.icons8.com/material-outlined/24/000000/internet.png" style="vertical-align: middle;  width: 15px;">
+                      </td>
+                      <td style="padding-left: 5px; ; font-size: 12px;">
+                          <a href="https://www.leedsaerospace.com" style="color: black; text-decoration: none;">www.leedsaerospace.com</a>
+                      </td>
+                  </tr>
+                  <tr>
+                      <td style="vertical-align: center;">
+                          <img src="https://img.icons8.com/material-outlined/24/000000/marker.png" style="vertical-align: middle; padding-top: 5px;  width: 15px;">
+                      </td>
+                      <td style="padding-left: 5px; font-size: 11px; ">
+                          Premise#S202/06, ASC, MBRAH,
+                          Near Al Maktoum Airport,
+                          Dubai South, UAE
+                      </td>
+                  </tr>
+              </table>
+          </td>
+      </tr>
+      <tr>
+          <td colspan="2" style="font-size: 9px; color: #666; padding-top: 5px; text-align: justify;">
+              <div style="width: 100%;">
+                  <p>
+                      The content of this email is confidential and intended for the recipient specified in the message only. 
+                      It is strictly forbidden to share any part of this message with any third party without written consent 
+                      of the sender. If you received this message by mistake, please reply to this message and follow with its deletion, 
+                      so that we can ensure such a mistake does not occur in the future.
+                  </p>
+              </div>
+          </td>
+      </tr>
+    </table>`;
+};
+
 router.post('/save', authenticateToken, async (req, res) => {
+    const emailSignature = await getEmailSignature(req.user.id, req.user.name);
     let { piNo, url, kamId, amId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, customerId,
         customerPoNo, customerSoNo, customerCurrency, poValue, notes, paymentMode } = req.body;
 
@@ -141,6 +217,7 @@ router.post('/save', authenticateToken, async (req, res) => {
             }
             <p><strong>Notes:</strong> ${newPi.notes}</p>
             <p>Please find the attached documents related to this Proforma Invoice.</p>
+           ${emailSignature}
         `,
         attachments: attachments
         };
@@ -168,6 +245,7 @@ router.post('/save', authenticateToken, async (req, res) => {
 
   
 router.post('/saveByKAM', authenticateToken, async (req, res) => {
+
     const { piNo, url, amId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose,
         customerId, customerPoNo, customerSoNo, customerCurrency, poValue,  notes,  paymentMode } = req.body;
 
@@ -231,9 +309,6 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
 
    const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
    const customerName = customer ? customer.companyName : 'Unknown Customer';
-
-     
-
    const attachments = [];
 
   
@@ -262,37 +337,40 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
        }
    }
 
+        const emailSubject = `New Payment request  Generated - ${piNo} / ${supplierPoNo} `;
+        const fromEmail = config.email.payUser;
+        const emailPassword = config.email.payPass;
+        const emailBody = `
+                             <p>Request Generated By <strong>${req.user.name}</strong></p>
+                             <p><strong>Entry Number:</strong> ${piNo}</p>
+                           <p><strong>Supplier Name:</strong> ${supplierName}</p>
+                           <p><strong>PO No:</strong> ${supplierPoNo}</p>
+                           <p><strong>Supplier Invoice No:</strong> ${supplierSoNo}</p>
+                           <p><strong>Supplier Currency:</strong> ${supplierCurrency}</p>
+                             <p><strong>Status:</strong> ${newPi.status}</p>
+                            <p><strong>Payment Mode:</strong> ${paymentMode}</p>
+                             ${purpose === 'Stock'
+                ? `<p><strong>Purpose:</strong> Stock</p>`
+                : `<p><strong>Purpose:</strong> Customer</p>
+                                    <p><strong>Customer Name:</strong> ${customerName}</p>
+                                    <p><strong>Customer PO No:</strong> ${customerPoNo}</p>
+                                    <p><strong>Customer SO No:</strong> ${customerSoNo}</p>
+                                    <p><strong>Customer Currency:</strong> ${customerCurrency}</p>`
+            }
+                             <p><strong>Notes:</strong> ${newPi.notes}</p>
+                             <p>Please find the attached documents related to this Proforma Invoice.</p>
+                         `;
 
-   const mailOptions = {
-       from: `Proforma Invoice <${config.email.payUser}>`,
-       to: recipientEmail,
-       cc: process.env.FINANCE_EMAIL_USER,
-       subject: `New Payment request  Generated - ${piNo} / ${supplierPoNo}`,
-       html: `
-       <p>Request Generated By <strong>${req.user.name}</strong></p>
-       <p><strong>Entry Number:</strong> ${piNo}</p>
-       <p><strong>Supplier Name:</strong> ${supplierName}</p>
-       <p><strong>PO No:</strong> ${supplierPoNo}</p>
-       <p><strong>Supplier Invoice No:</strong> ${supplierSoNo}</p>
-       <p><strong>Supplier Currency:</strong> ${supplierCurrency}</p>
-       <p><strong>Status:</strong> ${newPi.status}</p>
-       <p><strong>Payment Mode:</strong> ${paymentMode}</p>
-       ${purpose === 'Stock' 
-           ? `<p><strong>Purpose:</strong> Stock</p>` 
-           : `<p><strong>Purpose:</strong> Customer</p>
-              <p><strong>Customer Name:</strong> ${customerName}</p>
-              <p><strong>Customer PO No:</strong> ${customerPoNo}</p>
-              <p><strong>Customer SO No:</strong> ${customerSoNo}</p>
-              <p><strong>Customer Currency:</strong> ${customerCurrency}</p>`
-       }
-       <p><strong>Notes:</strong> ${newPi.notes}</p>
-       <p>Please find the attached documents related to this Proforma Invoice.</p>
-   `,
-   attachments: attachments
-   };
-
-   await transporter.sendMail(mailOptions);
-             
+   try {
+       await sendEmailNotification(
+           req.headers.authorization?.split(' ')[1], 
+           fromEmail, emailPassword, recipientEmail, 
+           emailSubject, emailBody, attachments
+       );
+   } catch (emailError) {
+       console.error('Email sending failed:', emailError);
+   }
+          
 
    await Notification.create({
     userId: notificationRecipientId,
@@ -311,7 +389,14 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
     }
 });
 
+
+
+
 router.post('/saveByAM', authenticateToken, async (req, res) => {
+
+
+    const emailSignature = await getEmailSignature(req.user.id, req.user.name);
+
     let { piNo, url, accountantId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose,
         customerId, customerPoNo, customerSoNo, customerCurrency, poValue, notes, paymentMode, kamId } = req.body;
 
@@ -434,6 +519,7 @@ router.post('/saveByAM', authenticateToken, async (req, res) => {
                 <p><strong>Payment Mode:</strong> ${newPi.paymentMode}</p>
                 <p><strong>Notes:</strong> ${newPi.notes}</p>
                 <p>Please find the attached documents related to this Proforma Invoice.</p>
+                ${emailSignature}
             `,
             attachments: attachments
         };
@@ -992,7 +1078,7 @@ async function findFinanceMail() {
 
 
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
-   
+    const emailSignature = await getEmailSignature(req.user.id, req.user.name);
     const financeEmail = await findFinanceMail()
 
     const { bankSlip } = req.body;
@@ -1166,7 +1252,8 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
                 <p><strong>Payment Mode:</strong> ${pi.paymentMode}</p>
                 <p><strong>Notes:</strong> ${pi.notes}</p>
                 <p>Thank you for your attention to this matter.</p>
-                <p>Best regards,<br> Finance Team</p>`;
+            
+                ${emailSignature}`;
       } else if (pi.status === 'BANK SLIP ISSUED') {
             emailSubject = `Payslip Issued for Proforma Invoice - ${pi.piNo}`;
             emailBody = `
@@ -1187,9 +1274,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
                 }
                 <p><strong>Payment Mode:</strong> ${pi.paymentMode}</p>
                 <p><strong>Notes:</strong> ${pi.notes}</p>
-                
-                <p>Thank you!</p>
-                <p>Best regards,<br>Finance Team</p>
+                ${emailSignature}
             `;
         }
   
@@ -1433,6 +1518,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
 
 
 router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
+    const emailSignature = await getEmailSignature(req.user.id, req.user.name);
 
     let { url, kamId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose, 
         customerId, customerSoNo, customerPoNo, customerCurrency, poValue, notes, paymentMode, amId } = req.body;
@@ -1577,6 +1663,7 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
                 <p><strong>Payment mode:</strong> ${pi.paymentMode}</p>
                 <p><strong>Notes:</strong> ${pi.notes}</p>
                 <p>Please find the attached documents related to this Proforma Invoice.</p>
+               ${emailSignature}
             `,
             attachments: attachments 
         };
@@ -1604,6 +1691,7 @@ router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
 });
 
 router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
+    const emailSignature = await getEmailSignature(req.user.id, req.user.name);
     let { url, kamId, amId, supplierId,supplierSoNo, supplierPoNo,supplierCurrency, supplierPrice, purpose, customerId,customerSoNo, customerPoNo,customerCurrency, poValue, notes, paymentMode} = req.body;
     if(amId === null || amId === undefined || amId === ''){
         return res.send("Select a manager and proceed")
@@ -1732,6 +1820,7 @@ router.patch('/updateByKAM/:id', authenticateToken, async(req, res) => {
                 <p><strong>Payment mode:</strong> ${pi.paymentMode}</p>
             <p><strong>Notes:</strong> ${pi.notes}</p>
             <p>Please find the attached documents related to this Proforma Invoice.</p>
+            ${emailSignature}
         `,
         attachments: attachments 
     };
