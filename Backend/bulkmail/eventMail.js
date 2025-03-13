@@ -32,14 +32,9 @@ const transporter = nodemailer.createTransport({
 router.post('/send-event-mail', upload.any(), async (req, res) => {
   try {
       let { emailSubject, emailMessage, selectedUsers } = req.body;
-
-      console.log("📌 Received selectedUsers:", selectedUsers);
-      console.log("📌 Type of selectedUsers:", typeof selectedUsers);
-
-      // Ensure selectedUsers is always an array
       if (typeof selectedUsers === "string") {
           try {
-              selectedUsers = JSON.parse(selectedUsers); // Convert from JSON string
+              selectedUsers = JSON.parse(selectedUsers); 
           } catch (error) {
               console.error("🚨 Error parsing selectedUsers JSON:", error);
               res.json({ error: "Invalid selectedUsers format" });
@@ -51,14 +46,13 @@ router.post('/send-event-mail', upload.any(), async (req, res) => {
           selectedUsers = [selectedUsers];
       }
 
-      console.log("✅ Parsed selectedUsers:", selectedUsers);
 
       if (selectedUsers.length === 0) {
           res.json({ error: 'No users selected' });
           return;
       }
 
-      // Fetch official email IDs of selected users
+ 
       const usersWithEmails = await UserPosition.findAll({
           where: { userId: { [Op.in]: selectedUsers } },
           attributes: ['officialMailId']
@@ -66,22 +60,20 @@ router.post('/send-event-mail', upload.any(), async (req, res) => {
 
       const officialEmails = usersWithEmails
           .map(user => user.officialMailId)
-          .filter(email => email); // Remove empty/null emails
+          .filter(email => email); 
 
       if (officialEmails.length === 0) {
           res.json({ error: 'No official emails found for selected users' });
           return;
       }
 
-      // Process file attachments
       const attachments = req.files.map(file => ({
           filename: file.originalname,
           content: file.buffer
       }));
 
-      console.log("📧 Sending Email to:", officialEmails);
 
-      // Store event log
+
       await EventLog.create({
           subject: emailSubject,
           message: emailMessage,
@@ -90,11 +82,17 @@ router.post('/send-event-mail', upload.any(), async (req, res) => {
           attachments: attachments.map(a => a.filename),
       });
 
-      // Prepare email options
+
       const mailOptions = {
-          from: '"Events Team" <anupama@onboardaero.com>',
+          from: `HR & Administration | Onboard Aero Consultant" ${config.email.leaveCommonUser}`,
           to: officialEmails.join(', '),
           subject: emailSubject,
+          html: `
+          <div style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
+              <p>${emailMessage}</p>
+          
+          </div>
+      `,
           html: `<p>${emailMessage}</p>`,
           attachments: attachments
       };
