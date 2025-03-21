@@ -457,7 +457,10 @@ router.get('/find', async (req, res) => {
     }
 
     const leave = await Leave.findAll({
-      order: [['id', 'DESC']],
+      order: [
+        [sequelize.literal(`CASE WHEN "leave"."status" = 'Requested' THEN 0 ELSE 1 END`), 'ASC'], // Explicitly reference "Leave"."status"
+        ['id', 'DESC'] // Then order by id in descending order
+      ],
       limit,
       offset,
       include: [
