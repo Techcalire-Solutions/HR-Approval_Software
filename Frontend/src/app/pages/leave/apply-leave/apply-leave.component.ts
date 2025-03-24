@@ -452,32 +452,44 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
 
   isSick: boolean = false;
   isLeaveDurationInvalid(): boolean {
-    const startDate = this.leaveRequestForm.get('startDate')?.value;
-    const endDate = this.leaveRequestForm.get('endDate')?.value;
+    // Parse the dates as moment objects
+    const startDate = moment(this.leaveRequestForm.get('startDate')?.value as string | Date);
+    const endDate = moment(this.leaveRequestForm.get('endDate')?.value as string | Date);
     const leaveTypeId = this.leaveRequestForm.get('leaveTypeId')?.value;
-    if (!moment.isMoment(startDate) || !moment.isMoment(endDate)) {
+  
+    // Check if dates are valid
+    if (!startDate.isValid() || !endDate.isValid()) {
       return false;
     }
   
+    // Check if leaveTypeId is provided
     if (!leaveTypeId) {
       return false;
     }
   
-    const diffInDays = endDate.diff(startDate, 'days');
-    const sickLeaveId = this.slId; 
-    if (leaveTypeId === sickLeaveId && diffInDays > 2) {
-      this.isFileSelected = true;
-      return false
-    }else if (leaveTypeId === sickLeaveId) {
-      this.isFileSelected = false;
-      this.isSick = true;
-    }else {
+    // Strip the time component to ensure only dates are compared
+    const startDateWithoutTime = startDate.startOf('day');
+    const endDateWithoutTime = endDate.startOf('day');
+  
+    // Calculate the difference in days
+    const diffInDays = endDateWithoutTime.diff(startDateWithoutTime, 'days');
+    const sickLeaveId = this.slId;
+  
+    if (leaveTypeId === sickLeaveId) {
+      if (diffInDays > 2) {
+        this.isFileSelected = true;
+        return false;
+      } else {
+        this.isFileSelected = false;
+        this.isSick = true;
+      }
+    } else {
       this.isFileSelected = false;
       this.isSick = false;
     }
-
+  
     return diffInDays > 2 && leaveTypeId !== sickLeaveId;
-  } 
+  }
 
   ngOnDestroy(): void {
     this.ulSub?.unsubscribe();

@@ -28,7 +28,6 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
   try {
     let { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates, status } = req.body;
 
-    // Validate required fields
     if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
       await transaction.rollback();
       return res.json({ message: 'Missing required fields' });
@@ -100,6 +99,21 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
       if (userLeave.leaveBalance < requiredDays && !isLOP) {
         await transaction.rollback();
         return res.json({ message: `Insufficient leave balance for year ${year}` });
+      }
+
+      const pendingLeaves = await Leave.sum('noOfDays', {
+        where: {
+          userId,
+          leaveTypeId,
+          status: 'Requested',
+        },
+        transaction,
+      });
+      if (userLeave.leaveBalance < (pendingLeaves + requiredDays )&& !isLOP) {
+        await transaction.rollback();
+        return res.json({ message: `Insufficient leave balance. You have already applied for ${pendingLeaves} days of leave,
+          and your current balance is ${userLeave.leaveBalance} days. 
+          You need an additional ${requiredDays} days for this request.` });
       }
     }
 
@@ -223,6 +237,23 @@ router.patch('/updateemployeeleave/:id', authenticateToken, async (req, res) => 
       if (userLeave.leaveBalance < days && newLeaveType.leaveTypeName !== 'LOP') {
         await transaction.rollback();
         return res.json({ message: `Insufficient leave balance for year ${year}` });
+      }
+
+      // Calculate pending leaves for the user
+      const pendingLeaves = await Leave.sum('noOfDays', {
+        where: {
+          userId,
+          leaveTypeId,
+          status: 'Requested',
+        },
+        transaction,
+      });
+
+      // Check if the updated leave request exceeds the available balance
+      if (userLeave.leaveBalance < (pendingLeaves + days) && newLeaveType.leaveTypeName !== 'LOP') {
+        throw new Error(`Insufficient leave balance. You have already applied for ${pendingLeaves} days of leave,
+          and your current balance is ${userLeave.leaveBalance} days. 
+          You need an additional ${days} days for this request.`);
       }
     }
 
@@ -677,6 +708,26 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
         return res.json({ message: `Insufficient leave balance for year ${year}` });
       }
 
+      const pendingLeaves = await Leave.sum('noOfDays', {
+        where: {
+          userId,
+          leaveTypeId,
+          status: 'Requested',
+        },
+        transaction,
+      });
+
+      // Check if the balance is sufficient, including pending leaves
+      if (userLeave.leaveBalance < (pendingLeaves + totalDays) && !isLOP) {
+        await transaction.rollback();
+        return res.json({
+          message: `Insufficient leave balance for year ${year}. 
+          employee have already applied for ${pendingLeaves} days of leave,
+          and employees current balance is ${userLeave.leaveBalance} days. 
+          You need an additional ${totalDays} days for this request.`,
+        });
+      }
+
       totalBalanceDays += totalDays;
     }
 
@@ -733,6 +784,7 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
   const transaction = await sequelize.transaction();
   try {
     const { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates, status } = req.body;
+
     // Validate required fields
     if (!userId || !leaveTypeId || !startDate || !endDate || !leaveDates) {
       await transaction.rollback();
@@ -745,6 +797,7 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
       await transaction.rollback();
       return res.json({ message: 'Leave type not found' });
     }
+
     // Fetch existing leave record
     const existingLeave = await Leave.findByPk(req.params.id, { transaction });
     if (!existingLeave) {
@@ -754,9 +807,13 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
 
     // Fetch existing UserLeave record for the old leave
     const oldYear = new Date(existingLeave.startDate).getFullYear().toString();
-    const oldUL = await UserLeave.findOne({ where: { userId: existingLeave.userId, leaveTypeId: existingLeave.leaveTypeId, 
-      year: oldYear }, transaction });
+    const oldUL = await UserLeave.findOne({
+      where: { userId: existingLeave.userId, leaveTypeId: existingLeave.leaveTypeId, year: oldYear },
+      transaction,
+    });
+
     if (oldUL) {
+      // Revert the old leave balance
       oldUL.takenLeaves -= existingLeave.noOfDays;
       oldUL.leaveBalance += existingLeave.noOfDays;
       await oldUL.save({ transaction });
@@ -778,7 +835,10 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
     // Track UserLeave balances per year
     const userLeaves = new Map();
 
-    // Check balance for each year
+    // Check if the leave type is LOP
+    const isLOP = leaveType.leaveTypeName === 'LOP';
+
+    // Calculate required days for each year and check balance
     for (const [year, dates] of datesByYear) {
       let totalDays = 0;
       for (const dateObj of dates) {
@@ -807,20 +867,44 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
         instance: userLeave,
         balance: userLeave.leaveBalance,
       });
-      
-      // Check if the balance is sufficient
-      if (userLeave.leaveBalance < totalDays && leaveType.leaveTypeName !== 'LOP') {
+
+      // Calculate pending leaves for the user
+      const pendingLeaves = await Leave.sum('noOfDays', {
+        where: {
+          userId,
+          leaveTypeId,
+          status: 'Requested',
+        },
+        transaction,
+      });
+
+      // Check if the balance is sufficient, including pending leaves
+      if (userLeave.leaveBalance < (pendingLeaves + totalDays) && !isLOP) {
         await transaction.rollback();
-        return res.json({ message: `Insufficient leave balance for year ${year}` });
+        return res.json({
+          message: `Insufficient leave balance for year ${year}. 
+          Employee have already applied for ${pendingLeaves} days of leave,
+          and employees current balance is ${userLeave.leaveBalance} days. 
+          You need an additional ${totalDays} days for this request.`,
+        });
       }
     }
 
     // Update UserLeave records
-    // for (const [year, { instance: userLeave, balance }] of userLeaves) {
-    //   userLeave.takenLeaves += balance - userLeave.leaveBalance;
-    //   userLeave.leaveBalance = balance;
-    //   await userLeave.save({ transaction });
-    // }
+    for (const [year, { instance: userLeave }] of userLeaves) {
+      const { dates } = datesByYear.get(year);
+      let totalDays = 0;
+      for (const dateObj of dates) {
+        const requiredDays = await calculateDays(dateObj);
+        totalDays += requiredDays;
+      }
+
+      userLeave.takenLeaves += totalDays;
+      if (!isLOP) {
+        userLeave.leaveBalance -= totalDays;
+      }
+      await userLeave.save({ transaction });
+    }
 
     // Update leave records
     const updatedLeave = await updateLeaveRecord({
@@ -834,14 +918,21 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
       transaction,
     });
 
+    // Send notifications and emails
     const not = await handleNotificationsAndEmails(req, res, updatedLeave, transaction, 'emergency', 'Update');
+
+    // Commit transaction and send response
     await transaction.commit();
-    res.json({ leaves: [updatedLeave], not, message: 'Leave updated successfully', });
+    res.json({
+      leaves: [updatedLeave],
+      not,
+      message: 'Leave updated successfully',
+    });
   } catch (error) {
     if (!transaction.finished) {
       await transaction.rollback();
     }
-    res.send(error.message);
+    res.json({ message: error.message });
   }
 });
 
