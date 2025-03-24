@@ -37,7 +37,7 @@
     "file-saver": "^2.0.5",
     "gapi-client": "^0.0.3",
     "html2canvas": "^1.4.1",
-    "jspdf": "^2.5.2",
+    "jspdf": "^3.0.1",
     "leaflet-map": "0.2.1",
     "material-icons": "1.13.12",
     "moment": "^2.30.1",
