@@ -250,7 +250,7 @@ router.post('/save', authenticateToken, async (req, res) => {
   
 router.post('/saveByKAM', authenticateToken, async (req, res) => {
 
-    const { piNo, url, amId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose,
+    let { piNo, url, amId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose,
         customerId, customerPoNo, customerSoNo, customerCurrency, poValue,  notes,  paymentMode } = req.body;
     if (Array.isArray(purpose)) {
         purpose = purpose.join(', ');
@@ -1810,7 +1810,7 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
 });
 
 router.patch('/updatePIByAdminSuperAdmin/:id', authenticateToken, async(req, res) => {
-    const { url, kamId,accountantId,supplierId, supplierSoNo,supplierPoNo,supplierCurrency, supplierPrice, purpose, 
+    let { url, kamId,accountantId,supplierId, supplierSoNo,supplierPoNo,supplierCurrency, supplierPrice, purpose, 
         customerId, customerPoNo,customerSoNo,customerCurrency, poValue,paymentMode, notes} = req.body;
     if (Array.isArray(purpose)) {
         purpose = purpose.join(', ');
