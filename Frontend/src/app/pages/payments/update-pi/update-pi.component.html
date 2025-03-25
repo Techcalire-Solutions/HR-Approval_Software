@@ -32,7 +32,7 @@
                 ADD NEW
               </mat-option>
             </mat-autocomplete>
-            
+
           </mat-form-field>
         }
 
@@ -53,7 +53,7 @@
               <mat-option value="AED">AED</mat-option>
           </mat-select>
         </mat-form-field>
-        
+
         <mat-form-field appearance="outline">
           <mat-label>Supplier Price</mat-label>
           <input type="number" matInput placeholder="Enter Supplier Cost" formControlName="supplierPrice">
@@ -83,7 +83,7 @@
                     ADD NEW
                   </mat-option>
                 </mat-autocomplete>
-                
+
               </mat-form-field>
             }
 
@@ -104,7 +104,7 @@
                   <mat-option value="AED">AED</mat-option>
               </mat-select>
           </mat-form-field>
-          
+
             <mat-form-field appearance="outline">
               <mat-label>CustomerPO Value</mat-label>
               <input type="number" matInput placeholder="Enter PO Value" formControlName="poValue">
@@ -114,7 +114,7 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Payment Mode</mat-label>
-          <mat-select formControlName="paymentMode" (selectionChange)="onPaymentModeChange()" [multiple]="true">
+          <mat-select formControlName="paymentMode" (selectionChange)="onPaymentModeChange()">
             <mat-option value="CreditCard">Credit Card</mat-option>
             <mat-option value="WireTransfer">Wire Transfer</mat-option>
           </mat-select>
@@ -179,7 +179,7 @@
             <mat-form-field class="full-width" appearance="outline">
               <mat-label>Accountant</mat-label>
               <mat-select placeholder="" formControlName="accountantId">
-                
+
               @for(item of AccountantList; track $index){
                 <mat-option [value]="item.id">
                   {{item.name}}
@@ -205,7 +205,7 @@
                   <input matInput formControlName="remarks">
                 </mat-form-field>
               </div>
-          
+
               <ng-container *ngIf="!imageUrl[i] && !newImageUrl[i]">
                 <div class="col">
                   <input type="file" class="file-input" hidden #fileInput (change)="onFileSelected($event, i)">
@@ -213,7 +213,7 @@
                   <p class="file-upload-text" (click)="fileInput.click()">Browse file to upload</p>
                 </div>
               </ng-container>
-              
+
               <ng-container *ngIf="imageUrl[i] && !newImageUrl[i]">
                 <div class="col">
                   <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
@@ -222,7 +222,7 @@
                   </div>
                 </div>
               </ng-container>
-          
+
               <ng-container *ngIf="!imageUrl[i] && newImageUrl[i]">
                 <div class="col">
                   <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="center center">
@@ -230,7 +230,7 @@
                   </div>
                 </div>
               </ng-container>
-          
+
               <ng-container *ngIf="!newImageUrl[i] && !imageUrl[i]">
                 <button mat-icon-button color="warn" type="button" (click)="removeData(i)">
                   <mat-icon>remove_circle</mat-icon>
@@ -238,13 +238,13 @@
               </ng-container>
             </div>
           </div>
-          
+
           <button mat-raised-button color="primary" (click)="addDoc()" [disabled]="!isImageUploaded()">New Doc</button>
         </div>
       </form>
       <br>
       <button mat-raised-button type="button" color="primary" class="btn btn-success"
-        (click)="onUpdate()"  
+        (click)="onUpdate()"
         [disabled]="!piForm.valid || !isImageUploaded() || doc().length === 0"> UPDATE
       </button>
     </div>
