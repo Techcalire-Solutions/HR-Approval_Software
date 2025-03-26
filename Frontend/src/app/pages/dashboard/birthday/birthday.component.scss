@@ -91,3 +91,54 @@
   color: black; /* Dark text color for paragraphs */
   font-size: 14px; /* Adjust font size */
 }
+
+.card {
+  background: rgba(255, 255, 255, 0.9); /* Semi-transparent white background for cards */
+  padding: 12px 16px; /* Add padding inside cards */
+  border-radius: 8px; /* Rounded corners for cards */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  transition: transform 0.2s, box-shadow 0.2s; /* Smooth hover effect */
+  display: flex;
+  align-items: center; /* Vertically center items */
+  gap: 12px; /* Add spacing between items */
+}
+
+.card h4 {
+  display: flex;
+  align-items: center; /* Vertically center items */
+  gap: 12px; /* Add spacing between items */
+  color: #333; /* Dark text color for card content */
+  font-size: 16px; /* Adjust font size */
+  margin: 0; /* Remove default margin */
+  flex: 1; /* Allow the text to take up remaining space */
+}
+
+.card a {
+  color: #007bff; /* Blue color for links */
+  text-decoration: none; /* Remove underline from links */
+  font-weight: bold; /* Make links stand out */
+}
+
+.card .date {
+  color: #555; /* Dark text color for dates */
+  font-weight: bold; /* Make dates stand out */
+}
+
+button.mat-icon-button {
+  background: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+  border-radius: 50%; /* Circular button */
+  transition: background 0.2s; /* Smooth hover effect */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; /* Fixed width for the button */
+  height: 36px; /* Fixed height for the button */
+}
+
+button.mat-icon-button:hover {
+  background: rgba(255, 255, 255, 1); /* Solid white background on hover */
+}
+
+mat-icon {
+  color: #007bff; 
+}

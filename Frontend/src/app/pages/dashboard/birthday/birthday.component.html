@@ -7,6 +7,9 @@
         <div class="card-container">
           @for (employee of birthdaysThisMonth; track $index) {
             <div class="card">
+              <button mat-icon-button (click)="openDraft(employee.user.name)" matTooltip="Draft Message">
+                <mat-icon (click)="openDraft(employee.user.name)">mail</mat-icon>
+              </button>
               <h4><a>{{ employee.user.name }}</a>  {{ employee.dateOfBirth | date: 'MMMM d' }}</h4>
               <!--  - Age: {{ employee.age }} -->
             </div>

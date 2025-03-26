@@ -1,0 +1,97 @@
+/* Background styling */
+.background-image-card {
+  position: relative;
+  background-image: url('../../../../public/img/steptodown.com223650.jpg'); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: white;
+  overflow: hidden;
+  filter: brightness(1.5);
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  color: white;
+}
+
+/* Header Styling */
+.birthday-container h2 {
+  color: black;
+  font-weight: bold;
+  font-size: 28px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+/* Card Container */
+.card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Birthday Card Styling */
+.card {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Hover effect */
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Flexbox for proper alignment */
+.card-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* Name Styling */
+.card-content .name {
+  font-size: 16px;
+  font-weight: bold;
+  color: black;
+}
+
+/* Date Styling */
+.card-content .date {
+  font-size: 14px;
+  color: gray;
+}
+
+/* No Data Styling */
+.no-data-container {
+  text-align: center;
+}
+
+.no-data-container h2 {
+  color: black;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.no-data-container p {
+  color: black;
+  font-size: 14px;
+}

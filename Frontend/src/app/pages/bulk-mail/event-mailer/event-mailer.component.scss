@@ -1,0 +1,77 @@
+/* Custom Stepper Styling */
+.custom-stepper {
+  max-width: 700px;
+  margin: auto;
+}
+
+/* Form Container */
+.form-container {
+  padding: 20px;
+}
+
+/* Grid Layout */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.col {
+  flex: 1;
+  padding: 5px;
+}
+
+/* Full-Width Inputs */
+.full-width {
+  width: 100%;
+}
+
+/* Email Message Box */
+mat-form-field.message-box {
+  width: 100%;
+}
+
+/* File Upload Styling */
+.file-upload-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px dashed #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.file-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+#file-upload {
+  display: none;
+}
+
+/* Preview Card */
+.preview-card {
+  margin-bottom: 10px;
+  padding: 15px;
+}
+
+/* Button Container */
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+.image-preview-container {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.preview-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}

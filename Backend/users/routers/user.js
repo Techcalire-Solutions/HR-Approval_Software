@@ -568,6 +568,10 @@ router.get('/confirmed', authenticateToken, async (req, res) => {
           model: Role,
           attributes: ['roleName']
         },
+        {
+          model: UserPosition,  
+          attributes: ['officialMailId'], // Include official email
+        },
       ],
       where: { isTemporary: false, separated: false }, order: [['name', 'ASC']], 
     })
