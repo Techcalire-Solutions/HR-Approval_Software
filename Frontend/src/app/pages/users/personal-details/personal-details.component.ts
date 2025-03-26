@@ -180,7 +180,6 @@ export class PersonalDetailsComponent implements OnDestroy {
     if (!date) return '';  // Handle null or undefined date
     const d = new Date(date);
     if (isNaN(d.getTime())) {
-      console.error("Invalid date input: ", date);
       return '';  // Return empty string for invalid dates
     }
 

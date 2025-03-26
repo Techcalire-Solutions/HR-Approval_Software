@@ -53,7 +53,7 @@ router.post('/bankslipupload', upload.single('file'), authenticateToken, async (
     if (!req.file) {
       return res.send('No file uploaded' );
     }
-    const sanitizedFileName = req.file.originalname.replace(/[^a-zA-Z0-9]/g, '_');
+    const sanitizedFileName = req.file.originalname.replace(/[^a-zA-Z0-9]/g, '_').concat(`.${fileType}`);
 
     // Create S3 upload parameters
     const params = {
