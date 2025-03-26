@@ -85,8 +85,6 @@ export class AddDesignationComponent implements OnInit, OnDestroy{
     let data = {
       ...this.form.value
     }
-    console.log(data);
-    
     if(!data.includedInPaymentFlow){
       data.roleId = null;
     }
