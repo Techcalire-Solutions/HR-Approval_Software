@@ -166,33 +166,7 @@ router.patch('/updateemployeeleave/:id', authenticateToken, async (req, res) => 
       return res.json({ message: `Leave not found with id=${leaveId}` });
     }
 
-    // Revert previous balance if not LOP
-    const existingLeaveType = await LeaveType.findByPk(existingLeave.leaveTypeId, { transaction });
-    if (existingLeaveType.leaveTypeName !== 'LOP') {
-      const existingDatesByYear = {};
-      existingLeave.leaveDates.forEach(date => {
-        const year = new Date(date.date).getFullYear();
-        if (!existingDatesByYear[year]) existingDatesByYear[year] = [];
-        existingDatesByYear[year].push(date);
-      });
-
-      for (const [year, dates] of Object.entries(existingDatesByYear)) {
-        const userLeave = await UserLeave.findOne({
-          where: { 
-            userId: existingLeave.userId, 
-            leaveTypeId: existingLeave.leaveTypeId,
-            year: parseInt(year)
-          },
-          transaction
-        });
-        
-        if (userLeave) {
-          userLeave.leaveBalance += existingLeave.noOfDays;
-          await userLeave.save({ transaction });
-        }
-      }
-    }
-    // Process new leave request
+    // Check user and leave type
     const user = await User.findByPk(userId, { transaction });
     if (!user) {
       await transaction.rollback();
@@ -205,7 +179,9 @@ router.patch('/updateemployeeleave/:id', authenticateToken, async (req, res) => 
       return res.json({ message: 'Leave type not found' });
     }
 
-    // Calculate days per year
+    const isLOP = newLeaveType.leaveTypeName === 'LOP';
+
+    // Group new leave dates by year and calculate days
     const datesByYear = {};
     leaveDates.forEach(date => {
       const year = new Date(date.date).getFullYear();
@@ -214,75 +190,69 @@ router.patch('/updateemployeeleave/:id', authenticateToken, async (req, res) => 
     });
 
     const noOfDaysByYear = {};
-    Object.entries(datesByYear).forEach(([year, dates]) => {
-      noOfDaysByYear[year] = dates.reduce((acc, date) => {
-        if (date.session1 && date.session2) return acc + 1;
-        if (date.session1 || date.session2) return acc + 0.5;
-        return acc;
-      }, 0);
+    Object.keys(datesByYear).forEach(year => {
+      let totalDays = 0;
+      datesByYear[year].forEach(date => {
+        if (date.session1 !== undefined && date.session2 !== undefined) {
+          if (date.session1 && date.session2) {
+            totalDays += 1; // Full day leave
+          } else if (date.session1 || date.session2) {
+            totalDays += 0.5; // Half day leave
+          }
+        }
+      });
+      noOfDaysByYear[year] = totalDays;
     });
 
-    // Check balance for each year
-    for (const [year, days] of Object.entries(noOfDaysByYear)) {
-      const userLeave = await UserLeave.findOne({
-        where: { userId, leaveTypeId, year: parseInt(year) },
-        transaction,
-      });
+    // For update, we need to check if the new dates would exceed the balance
+    // but we don't actually deduct the balance yet (that happens on approval)
+    if (!isLOP) {
+      for (const [year, days] of Object.entries(noOfDaysByYear)) {
+        const userLeave = await UserLeave.findOne({
+          where: { userId, leaveTypeId, year: parseInt(year) },
+          transaction,
+        });
 
-      if (!userLeave) {
-        await transaction.rollback();
-        return res.json({ message: `No leave record found for year ${year}` });
-      }
+        if (!userLeave) {
+          await transaction.rollback();
+          return res.json({ message: `No leave record found for year ${year}` });
+        }
 
-      if (userLeave.leaveBalance < days && newLeaveType.leaveTypeName !== 'LOP') {
-        await transaction.rollback();
-        return res.json({ message: `Insufficient leave balance for year ${year}` });
-      }
+        // Calculate pending leaves for the user (excluding the current leave being updated)
+        const pendingLeaves = await Leave.sum('noOfDays', {
+          where: {
+            userId,
+            leaveTypeId,
+            status: 'Requested',
+            id: { [Op.ne]: leaveId } // Exclude current leave from pending calculation
+          },
+          transaction,
+        });
 
-      // Calculate pending leaves for the user
-      const pendingLeaves = await Leave.sum('noOfDays', {
-        where: {
-          userId,
-          leaveTypeId,
-          status: 'Requested',
-        },
-        transaction,
-      });
-
-      // Check if the updated leave request exceeds the available balance
-      if (userLeave.leaveBalance < (pendingLeaves + days) && newLeaveType.leaveTypeName !== 'LOP') {
-        throw new Error(`Insufficient leave balance. You have already applied for ${pendingLeaves} days of leave,
-          and your current balance is ${userLeave.leaveBalance} days. 
-          You need an additional ${days} days for this request.`);
+        // Check if the updated leave request would exceed the available balance
+        if (userLeave.leaveBalance < (pendingLeaves + days)) {
+          await transaction.rollback();
+          return res.json({ 
+            message: `Insufficient leave balance. You have already applied for ${pendingLeaves} days of leave,
+            and your current balance is ${userLeave.leaveBalance} days. 
+            You need an additional ${days} days for this request.`
+          });
+        }
       }
     }
 
-    const updatedLeave = await updateLeaveRecord({
-      leaveId: req.params.id,
+    // Update the leave record
+    const updatedLeave = await existingLeave.update({
       userId,
       leaveTypeId,
-      dates: leaveDates,
+      startDate,
+      endDate,
+      noOfDays: Object.values(noOfDaysByYear).reduce((a, b) => a + b, 0),
       notes,
       fileUrl,
       status: 'Requested',
-      transaction,
-    });
-
-    // Create new leave record
-    // const newLeave = await Leave.create({
-    //   userId,
-    //   leaveTypeId,
-    //   startDate,
-    //   endDate,
-    //   noOfDays: leaveDates.length,
-    //   notes,
-    //   fileUrl,
-    //   status: 'Requested',
-    //   leaveDates,
-    // }, { transaction });
-
-    // Update UserLeave records
-
+      leaveDates,
+    }, { transaction });
 
     // Send notifications and emails
     const not = await handleNotificationsAndEmails(req, res, updatedLeave, transaction, 'employee', 'Update');
@@ -297,9 +267,9 @@ router.patch('/updateemployeeleave/:id', authenticateToken, async (req, res) => 
 
   } catch (error) {
     if (!transaction.finished) {
-      await transaction.rollback(); // Rollback only if the transaction is not finished
+      await transaction.rollback();
     }
-    res.json({message: error.message });
+    res.json({ message: error.message });
   }
 });
 // -----------------------------------------------------------GETBYUSERID-------------------------------------------------------------

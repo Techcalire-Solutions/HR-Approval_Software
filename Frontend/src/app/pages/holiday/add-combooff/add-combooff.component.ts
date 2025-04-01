@@ -8,7 +8,6 @@ import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CompoOff } from '../../../common/interfaces/leaves/compo-off';
 import { MatIconModule } from '@angular/material/icon';
-import { User } from '../../../common/interfaces/users/user';
 import { HolidayService } from '@services/holiday.service';
 import { NewLeaveService } from '@services/new-leave.service';
 
@@ -112,6 +111,8 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
   getComboOff(){
     this.comboOffSub = this.holidayService.getCompoOff(this.route.snapshot.params['id']).subscribe(res => {
       this.co = res;
+      console.log(this.co);
+      
       if(this.co){
         this.editStatus = true;
         this.setInitialCheckboxes(this.co.userId);

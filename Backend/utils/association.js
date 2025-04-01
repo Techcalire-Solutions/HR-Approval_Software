@@ -2,16 +2,16 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 
 const sequelize = require('./db');
-const Role = require('../users/models/role');
 const holidayData = require('./holiday.json');
-const Holiday = require("../leave/models/holiday");
-
 const designationData = require('./designation.json');
-const Designation = require('../users/models/designation');
-
-const User = require('../users/models/user');
 const userdata = require('./user.json');
 const bcrypt = require('bcrypt');
+
+const Holiday = require("../leave/models/holiday");
+const Role = require('../users/models/role');
+const Designation = require('../users/models/designation');
+const User = require('../users/models/user');
+
 
 async function syncModel() {
    
