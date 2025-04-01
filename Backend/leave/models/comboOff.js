@@ -13,7 +13,7 @@ const sequelize = require('../../utils/db')
  })
 
 
- ComboOff.sync({alter:true})
+ ComboOff.sync({force:true})
 .then(()=>console.log)
 
 module.exports = ComboOff
