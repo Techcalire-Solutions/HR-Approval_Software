@@ -96,3 +96,18 @@ span:hover{
   background-color: rgba(0, 0, 0, 0.1); /* Optional: Add a semi-transparent background */
   z-index: 1000; /* Ensures it appears above other content */
 }
+
+.warning-hint {
+  color: #f44336; /* Material red */
+  font-size: 12px;
+}
+
+.invno-edit-field {
+  min-width: 200px; /* Prevent jumping when hint appears */
+}
+
+/* In your component's CSS */
+mat-error {
+  color: #f44336; /* Material red color */
+  font-size: 12px;
+}

@@ -576,7 +576,7 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
               { model: User, attributes: ['name'] },
               { model: User, as: 'manager', attributes: ['name'] },
               { model: User, as: 'ma', attributes: ['name'] }]
-  })
+      })
       let signedUrl = [];
       if (pi.url.length > 0) {
           for(let i = 0; i < pi.url.length; i++) {
@@ -600,8 +600,8 @@ router.get('/findbyid/:id', authenticateToken, async(req, res) => {
           
           const bankParams = {
               Bucket: process.env.AWS_BUCKET_NAME,
-              Key: bankKey,
-              Expires: 60, 
+              Key: bankKey, // Ensure pi.url has the correct value
+              Expires: 60, // URL expires in 60 seconds
             };
         
             bankSlipUrl = s3.getSignedUrl('getObject', bankParams);

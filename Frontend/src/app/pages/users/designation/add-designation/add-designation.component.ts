@@ -82,7 +82,8 @@ export class AddDesignationComponent implements OnInit, OnDestroy{
   }
   submit!: Subscription;
   onSubmit(){
-    let data = {
+    
+    const data = {
       ...this.form.value
     }
     if(!data.includedInPaymentFlow){

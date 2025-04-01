@@ -58,7 +58,7 @@
   </form>
 </div>
 <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
-  <button mat-raised-button color="primary" [mat-dialog-close]="form.value" [disabled]="!form.valid" (click)="onSubmit()">
+  <button mat-raised-button color="primary" [disabled]="!form.valid" (click)="onSubmit()">
       @if (editStatus) {
           Update
       } @else {

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { UserDocumentsComponent } from './../user-documents/user-documents.component';
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,7 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { UsersService } from '../../../services/users.service';
-import { Subscription } from 'rxjs';
+import { debounce, Subject, Subscription, takeUntil, timer } from 'rxjs';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PersonalDetailsComponent } from "../personal-details/personal-details.component";
@@ -37,7 +37,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   imports: [ReactiveFormsModule, FlexLayoutModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatIconModule,
     MatNativeDateModule, MatRadioModule, MatDialogModule, MatButtonModule, MatToolbarModule, MatProgressSpinnerModule,
     PersonalDetailsComponent, UserPositionComponent, StatuatoryInfoComponent, UserAccountComponent, UserDocumentsComponent, MatCardModule,
-    MatOptionModule, MatSelectModule, CommonModule, MatAutocompleteModule, UserNomineeComponent],
+    MatOptionModule, MatSelectModule, CommonModule, MatAutocompleteModule, UserNomineeComponent, FormsModule],
   templateUrl: './user-dialog.component.html',
   styleUrl: './user-dialog.component.scss'
 })
@@ -64,6 +64,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
         this.generateEmployeeNumber()
       }
     });
+    this.setupDebounceTimer();
   }
 
   form = this.fb.group({
@@ -97,6 +98,8 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     this.usersSub?.unsubscribe();
     this.uploadSub?.unsubscribe();
     this.delete?.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   userSub!: Subscription;
@@ -158,7 +161,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
           this.form.get('url')?.setValue(invoice.fileUrl);
           this.uploadComplete = true; // Set to true when upload is complete
         },
-        error: (err) => {
+        error: () => {
           this.uploadComplete = true; // Ensure UI updates even on error
           
           // Show error alert
@@ -265,6 +268,69 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   //   }
   // }
 
+  isEditingInvNo = false;
+  originalInvNo: string = ''; // Initialize with empty string
+  showError: boolean = false;
+  // When starting to edit
+  startEditingInvNo() {
+    this.originalInvNo = this.invNo; // Save the original value
+    this.isEditingInvNo = true;
+  }
+  
+  showEmptyWarning: boolean = false;
+  checkEmpty(event: any) {
+    // Check if field will be empty after this backspace
+    if ((!this.invNo || this.invNo.length <= 1) && event.key === 'Backspace') {
+      // Temporarily show warning
+      this.showEmptyWarning = true;
+      setTimeout(() => this.showEmptyWarning = false, 1500);
+      
+      // Restore original value but keep editing
+      setTimeout(() => {
+        this.invNo = ' Cannot be empty';
+      }, 0);
+      
+      event.preventDefault();
+    }
+  }
+  
+  saveInvNo() {
+    if (!this.invNo || this.invNo.trim() === '') {
+      this.invNo = this.originalInvNo;
+      this.showEmptyWarning = true;  
+      setTimeout(() => this.showEmptyWarning = false, 1500); 
+    }
+    this.form.get('empNo')?.setValue(this.invNo);
+    this.isEditingInvNo = false;
+  }
+
+  private destroy$ = new Subject<void>();
+  private inputChange$ = new Subject<void>();
+  debounceTime = 2000;
+  setupDebounceTimer() {
+    this.inputChange$.pipe(
+      debounce(() => timer(this.debounceTime)),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.saveInvNo();
+    });
+  }
+
+  showOACWarn: boolean = false;
+  onInputChange() {
+    // Validate the input
+    if (this.invNo && this.invNo.startsWith('OAC-')) {
+      // Revert to original value
+      this.showOACWarn = true;
+      this.invNo = this.originalInvNo;
+      // Hide warning after 3 seconds
+      setTimeout(() => this.showEmptyWarning = false, 3000);
+    }
+    
+    // Emit the change
+    this.inputChange$.next();
+  }
+  
   dataToPass: any;
   positionData: any;
   statuatoryData: any;
@@ -272,48 +338,35 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   invNo: string;
   usersSub!: Subscription;
   generateEmployeeNumber() {
-    let prefix: any;
     const currentYear = new Date().getFullYear();
+    const desiredPrefix = 'OAC'; // The prefix you want to track
 
     this.userSub = this.userService.getUser().subscribe((res) => {
       const users = res;
 
-      if (users.length > 0) {
-        const maxId = users.reduce((prevMax, inv) => {
-          const empNoParts = inv.empNo.split('-'); // Split by '-'
-
-          // Extract the numeric portion that represents the ID, assuming it's the last part
+      // Filter users with the desired prefix and find the maximum ID
+      const oacUsers = users.filter(user => user.empNo.startsWith(desiredPrefix));
+      
+      if (oacUsers.length > 0) {
+        // Find the maximum ID among OAC-prefixed users
+        const maxId = oacUsers.reduce((prevMax, user) => {
+          const empNoParts = user.empNo.split('-');
           const idNumber = parseInt(empNoParts[empNoParts.length - 1], 10);
-
-          prefix = this.extractLetters(inv.empNo); // Get the prefix
-
-          if (!isNaN(idNumber)) {
-            // Compare and return the maximum ID
-            return idNumber > prevMax ? idNumber : prevMax;
-          } else {
-            return prevMax;
-          }
+          return !isNaN(idNumber) ? Math.max(prevMax, idNumber) : prevMax;
         }, 0);
 
-        // Increment the maxId by 1 to get the next ID
         const nextId = maxId + 1;
-
-        const paddedId = `${prefix}-${currentYear}-${nextId.toString().padStart(3, "0")}`;
-
-        const ivNum = paddedId;
-        this.invNo = ivNum;
-        this.form.get('empNo')?.setValue(ivNum);
+        const paddedId = `${desiredPrefix}-${currentYear}-${nextId.toString().padStart(3, "0")}`;
+        
+        this.invNo = paddedId;
+        this.form.get('empNo')?.setValue(paddedId);
       } else {
-        // If there are no employees in the array, set the employeeId to 'EMP001'
-        const nextId = 0o1;
-        prefix =  `OAC-${currentYear}-`;
-
-        const paddedId = `${prefix}${nextId.toString().padStart(3, "0")}`;
-
-        const ivNum = paddedId;
-
-        this.form.get('empNo')?.setValue(ivNum);
-        this.invNo = ivNum;
+        // No OAC-prefixed users found, start with 001
+        const nextId = 1; // Changed from 0o1 (octal) to regular decimal
+        const paddedId = `${desiredPrefix}-${currentYear}-${nextId.toString().padStart(3, "0")}`;
+        
+        this.invNo = paddedId;
+        this.form.get('empNo')?.setValue(paddedId);
       }
     });
   }
