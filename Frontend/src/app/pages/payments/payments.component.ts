@@ -18,9 +18,9 @@ import { Subscription } from 'rxjs';
 export class PaymentsComponent implements OnInit{
   ngOnInit(): void {
     const token: any = localStorage.getItem('token')
-    let user = JSON.parse(token)
+    const user = JSON.parse(token)
     // this.user = user.id;
-    let roleId = user.role
+    const roleId = user.role
     this.getRoleById(roleId);
   }
 
@@ -153,18 +153,22 @@ export class PaymentsComponent implements OnInit{
             this.data.pageStatus = true;
             break;
           case 1:
+              this.data.status = 'GENERATED';
+              this.data.pageStatus = false;
+              break;
+          case 2:
             this.data.status = 'BANK SLIP ISSUED';
             this.data.pageStatus = false;
             break;
-          case 2:
+          case 3:
             this.data.status = 'REJECTED';
             this.data.pageStatus = false;
             break;
-          case 3:
+          case 4:
             this.data.status = '';
             this.data.pageStatus = false;
             break;
-          case 4:
+          case 5:
             this.data.status = '';
             this.data.pageStatus = false;
             break;

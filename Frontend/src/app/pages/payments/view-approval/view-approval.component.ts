@@ -21,12 +21,14 @@ import { CommonModule } from '@angular/common';
 import { InvoiceService } from '@services/invoice.service';
 import { VerificationDialogueComponent } from './verification-dialogue/verification-dialogue.component';
 import { BankReceiptDialogueComponent } from './bank-receipt-dialogue/bank-receipt-dialogue.component';
+import { KAMUnavailableComponent } from './kam-unavailable/kam-unavailable.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-view-approval',
   standalone: true,
   imports: [ MatToolbarModule, MatFormFieldModule, ReactiveFormsModule, MatIconModule, MatPaginatorModule, MatDividerModule,
-    RouterModule, MatCardModule,MatDialogModule, CommonModule
+    RouterModule, MatCardModule,MatDialogModule, CommonModule, MatProgressSpinnerModule
   ],
   templateUrl: './view-approval.component.html',
   styleUrl: './view-approval.component.scss',
@@ -34,13 +36,12 @@ import { BankReceiptDialogueComponent } from './bank-receipt-dialogue/bank-recei
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ViewApprovalComponent {
-  _snackbar = inject(MatSnackBar)
-  private invoiceService = inject(InvoiceService)
-  loginService = inject(LoginService)
-  dialog = inject(MatDialog)
-  router = inject(Router)
-  snackBar = inject(MatSnackBar)
-  route = inject(ActivatedRoute)
+  private readonly invoiceService = inject(InvoiceService)
+  private readonly loginService = inject(LoginService)
+  private readonly dialog = inject(MatDialog)
+  private readonly router = inject(Router)
+  private readonly snackBar = inject(MatSnackBar)
+  private readonly route = inject(ActivatedRoute)
   @Input() data: any;
   private cd = inject(ChangeDetectorRef)
 
@@ -69,6 +70,8 @@ export class ViewApprovalComponent {
   }
 
   loadData(data: any) {
+    console.log(data);
+    
     if (!data) {
       alert("No data available for this tab.");
       return;
@@ -134,7 +137,7 @@ export class ViewApprovalComponent {
                 userStatus: true
               };
             }
-
+            
             if(invoice[i].addedById === this.user){
               if(invoice[i].addedBy.role.roleName === 'Sales Executive' &&
                 (invoice[i].status === 'GENERATED' || invoice[i].status === 'KAM REJECTED' || invoice[i].status === 'AM REJECTED' ||
@@ -200,11 +203,43 @@ export class ViewApprovalComponent {
     this.getInvoices();
   }
 
+  addBankSlip(piNo: string, id: number, status: string){
+    const dialogRef = this.dialog.open(BankReceiptDialogueComponent, {
+      data: { invoiceNo: piNo, id: id, status: status }
+    });
+
+    this.dialogSub = dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        this.getInvoices()
+        this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
+      }
+    })
+  }
+
+  deleteSub!: Subscription;
+  deleteFunction(id: number){
+    const dialogRef = this.dialog.open(DeleteDialogueComponent, {
+      width: '320px',
+      data: {}
+    });
+
+    this.dialogSub = dialogRef.afterClosed().subscribe((result) => {
+      if (result === true) {
+        this.deleteSub = this.invoiceService.deleteInvoice(id).subscribe(()=>{
+          this.snackBar.open("PI deleted successfully...","" ,{duration:3000})
+          this.getInvoices()
+        },(error=>{
+
+          this.snackBar.open(error.error.message,"" ,{duration:3000})
+        }))
+      }
+    });
+  }
+
   verifiedSub: Subscription;
   dialogSub!: Subscription;
   verified(value: string, piNo: string, sp: string, id: number, stat: string){
     let status = this.data.status;
-    this.submittingForm = true;
     if(stat === 'INITIATED' && value === 'approved') status = 'AM APPROVED';
     else if(stat === 'INITIATED' && value === 'rejected') status = 'AM DECLINED';
     if(status === 'GENERATED' && value === 'approved') status = 'KAM VERIFIED';
@@ -238,35 +273,31 @@ export class ViewApprovalComponent {
     })
   }
 
-  addBankSlip(piNo: string, id: number, status: string){
-    const dialogRef = this.dialog.open(BankReceiptDialogueComponent, {
-      data: { invoiceNo: piNo, id: id, status: status }
+  kamUpdateSub!: Subscription;
+  handleKamUnavailable(invoiceId: number, piNo: string, addName: string) {
+    const dialogRef = this.dialog.open(KAMUnavailableComponent, {
+      width: '500px',
+      data: { invoiceId, piNo }
     });
-
-    this.dialogSub = dialogRef.afterClosed().subscribe(result => {
-      if(result){
-        this.getInvoices()
-        this.snackBar.open(`BankSlip is attached with Invoice ${piNo} ...`,"" ,{duration:3000})
-      }
-    })
-  }
-
-  deleteSub!: Subscription;
-  deleteFunction(id: number){
-    const dialogRef = this.dialog.open(DeleteDialogueComponent, {
-      width: '320px',
-      data: {}
-    });
-
-    this.dialogSub = dialogRef.afterClosed().subscribe((result) => {
-      if (result === true) {
-        this.deleteSub = this.invoiceService.deleteInvoice(id).subscribe(()=>{
-          this._snackbar.open("PI deleted successfully...","" ,{duration:3000})
-          this.getInvoices()
-        },(error=>{
-
-          this._snackbar.open(error.error.message,"" ,{duration:3000})
-        }))
+  
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result.action === 'approved' || result.action === 'rejected') {
+          this.verified(result.action, piNo, addName, invoiceId, 'GENERATED');
+        } 
+        else if (result.action === 'changeKam') {
+          this.submittingForm = true;
+          console.log(this.submittingForm);
+          
+          const data = {
+            kamId: result.newKam
+          }
+          this.kamUpdateSub = this.invoiceService.updateKAM(data, invoiceId).subscribe(res =>{
+            this.submittingForm = false;
+            this.snackBar.open(`KAM is changed...`,"" ,{duration:3000})
+            this.getInvoices()
+          })
+        }
       }
     });
   }

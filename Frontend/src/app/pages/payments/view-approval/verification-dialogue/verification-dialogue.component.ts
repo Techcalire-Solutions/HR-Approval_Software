@@ -47,6 +47,7 @@ export class VerificationDialogueComponent {
   ngOnInit(): void {
     this.invoiceNo = this.dialogData.invoiceNo;
     this.status = this.dialogData.status;
+console.log(this.status);
 
     this.form.get('spId')?.setValue(this.dialogData.sp)
     if(this.status == 'KAM VERIFIED') this.getAm()

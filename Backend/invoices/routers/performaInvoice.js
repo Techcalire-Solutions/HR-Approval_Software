@@ -12,7 +12,6 @@ const s3 = require('../../utils/s3bucket');
 const Role = require('../../users/models/role');
 const nodemailer = require('nodemailer');
 const TeamMember = require('../../users/models/teamMember');
-const Team = require('../../users/models/team');
 const Company = require('../models/company');
 const Notification = require('../../notification/models/notification')
 const UserPosition = require('../../users/models/userPosition')
@@ -244,9 +243,6 @@ router.post('/save', authenticateToken, async (req, res) => {
         res.send(error.message);
     }
 });
-
-
-
   
 router.post('/saveByKAM', authenticateToken, async (req, res) => {
 
@@ -395,12 +391,7 @@ router.post('/saveByKAM', authenticateToken, async (req, res) => {
     }
 });
 
-
-
-
 router.post('/saveByAM', authenticateToken, async (req, res) => {
-
-
     const emailSignature = await getEmailSignature(req.user.id, req.user.name);
 
     let { piNo, url, accountantId, supplierId, supplierSoNo, supplierPoNo, supplierCurrency, supplierPrice, purpose,
@@ -852,19 +843,24 @@ router.get('/findbkam', authenticateToken, async(req, res) => {
 
 router.get('/findbyam', authenticateToken, async(req, res) => {
     let status = req.query.status;
-    
     let user = req.user.id;
-    
-    let where = { amId: user };
+    let where = {};
 
-    if (status !== '' && status !== 'undefined' && status !== 'REJECTED' && status != 'KAM VERIFIED' && status != 'BANK SLIP ISSUED') {
-        where.status = status;
-    } else if (status === 'BANK SLIP ISSUED') {
-        where.status = { [Op.or]: ['BANK SLIP ISSUED', 'CARD PAYMENT SUCCESS'] };
-    }else if (status === 'KAM VERIFIED') {
-        where.status = { [Op.or]: ['KAM VERIFIED', 'INITIATED'] };
-    } else if (status === 'REJECTED') {
-        where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
+    if (status === 'GENERATED') {
+        where.status = { [Op.or]: ['GENERATED', 'INITIATED'] };
+    } else {
+        where.amId = user;
+        
+        if (status !== '' && status !== 'undefined' && status !== 'REJECTED' && status != 'KAM VERIFIED' && 
+            status !== 'BANK SLIP ISSUED' && status !== 'GENERATED') {
+            where.status = status;
+        } else if (status === 'BANK SLIP ISSUED') {
+            where.status = { [Op.or]: ['BANK SLIP ISSUED', 'CARD PAYMENT SUCCESS'] };
+        } else if (status === 'KAM VERIFIED') {
+            where.status = { [Op.or]: ['KAM VERIFIED', 'INITIATED'] };
+        } else if (status === 'REJECTED') {
+            where.status = { [Op.or]: ['KAM REJECTED', 'AM REJECTED'] };
+        }
     }
     
     if (req.query.search !== '' && req.query.search !== 'undefined') {
@@ -885,10 +881,11 @@ router.get('/findbyam', authenticateToken, async(req, res) => {
     if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
         limit = req.query.pageSize;
         offset = (req.query.page - 1) * req.query.pageSize;
-      }
+    }
     try {
         const pi = await PerformaInvoice.findAll({
-            where: where, limit, offset,
+            where: where, 
+            limit, offset,
             order: [['id', 'DESC']],
             include: [  
                 {model: PerformaInvoiceStatus},
@@ -1087,11 +1084,6 @@ async function findFinanceMail() {
         return null;
     }
 }
-
-
-
-
-
 
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
     const emailSignature = await getEmailSignature(req.user.id, req.user.name);
@@ -1323,8 +1315,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
     } catch (error) {
       return res.send(error.message );
     }
-  })
-
+})
 
 router.patch('/updateBySE/:id', authenticateToken, async (req, res) => {
     const emailSignature = await getEmailSignature(req.user.id, req.user.name);
@@ -1713,7 +1704,6 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
         }
 
         const pi = await PerformaInvoice.findByPk(req.params.id);
-        const piNo = pi.piNo;
 
         kamId = kamId === '' ? null : kamId;
         accountantId = accountantId === '' ? null : accountantId;
@@ -1753,8 +1743,6 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
     const supplier = await Company.findOne({ where: { id: supplierId } });
     const customer = await Company.findOne({ where: { id: customerId } });
 
-    const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
-    const customerName = customer ? customer.companyName : 'Unknown Customer';
 
 
 
@@ -1853,8 +1841,6 @@ router.patch('/updatePIByAdminSuperAdmin/:id', authenticateToken, async(req, res
         // }
         // const accountantEmail = acc.email;
 
-        const supplier = await Company.findOne({ where: { id: supplierId } });
-        const customer = await Company.findOne({ where: { id: customerId } });
 
 
    
@@ -2171,7 +2157,137 @@ router.get('/findcount', authenticateToken, async (req, res) => {
     }
 });
 
+router.patch('/kamupdate/:id', authenticateToken, async (req, res) => {
+    const emailSignature = await getEmailSignature(req.user.id, req.user.name);
 
+    const { kamId } = req.body;
+
+    let recipientEmail = null;
+    let notificationRecipientId = null;
+
+    try {
+        if(kamId === null || kamId  === '' || kamId === undefined) {
+            return res.send('Please select Key Account Manager and proceed');
+        }
+        const kam = await UserPosition.findOne({ where: { userId: kamId },   
+            include: [{
+                model: User,
+                attributes: ['name']  // Attributes to include
+            }] 
+        });
+        
+        recipientEmail = kam ? kam.projectMailId : null; 
+        notificationRecipientId = kamId;
+
+        if (!recipientEmail) {
+            return res.send("KAM project email is missing. Please inform the admin to add it.");
+        }
+
+        const pi = await PerformaInvoice.findByPk(req.params.id, {
+            include: [
+                {
+                    model: User,
+                    as: 'kam',  // Your association alias
+                    attributes: ['name']  // Attributes to include
+                },
+                {
+                    model: Company,
+                    as: 'customers',  // Your association alias
+                    attributes: ['companyName']  // Attributes to include
+                },
+                {
+                    model: Company,
+                    as: 'suppliers',  // Your association alias
+                    attributes: ['companyName']  // Attributes to include
+                },
+        ]
+        });
+        const piNo = pi.piNo;
+        if (!pi) {
+            return res.send('Proforma Invoice not found.');
+        }
+
+        pi.kamId = kamId;
+
+        const attachments = [];
+  
+
+        for (const fileObj of pi.url) {
+            const actualUrl = fileObj.url || fileObj.file;
+            if (!actualUrl) continue;
+
+            const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+
+            const params = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: fileKey,
+            };
+
+            try {
+      
+                const s3File = await s3.getObject(params).promise();
+                const fileBuffer = s3File.Body;
+
+        
+                attachments.push({
+                    filename: actualUrl.split('/').pop(),
+                    content: fileBuffer, 
+                    contentType: s3File.ContentType 
+                });
+            } catch (error) {
+                continue; 
+            }
+        }
+    
+        const mailOptions = {
+            from: `Proforma Invoice <${config.email.payUser}>`,
+            to: recipientEmail, 
+            subject: `Proforma Invoice Updated - ${piNo}`,
+            html: `
+                <p>Proforma Invoice has been updated by <strong>${req.user.name}</strong></p>
+                <p> ${pi.kam.name} is unavailable so KAM is changed to <strong>${kam.user.name}</strong></p>
+                <p><strong>Entry Number:</strong> ${pi.piNo}</p>
+                <p><strong>Supplier Name:</strong> ${pi.suppliers.companyName}</p>
+                <p><strong>Supplier PO No:</strong> ${pi.supplierPoNo}</p>
+                <p><strong>Supplier SO No:</strong> ${pi.supplierSoNo}</p>
+                <p><strong>Status:</strong> ${pi.status}</p>
+                ${pi.purpose === 'Stock' 
+                    ? `<p><strong>Purpose:</strong> Stock</p>` 
+                    : `<p><strong>Purpose:</strong> Customer</p>
+                       <p><strong>Customer Name:</strong> ${pi.customers.companyName}</p>
+                       <p><strong>Customer PO No:</strong> ${pi.customerPoNo}</p>
+                       <p><strong>Customer SO No:</strong> ${pi.customerSoNo}</p>`
+                }
+                <p><strong>Payment mode:</strong> ${pi.paymentMode}</p>
+                <p><strong>Notes:</strong> ${pi.notes}</p>
+                <p>Please find the attached documents related to this Proforma Invoice.</p>
+               ${emailSignature}
+            `,
+            attachments: attachments 
+        };
+
+        await transporter.sendMail(mailOptions);
+
+
+        await Notification.create({
+            userId: notificationRecipientId,
+            message: `Payment Request Updated ${pi.piNo} / ${pi.supplierPoNo}`,
+            isRead: false,
+        });
+
+        await pi.save();
+        
+        res.json({
+            piNo: pi.piNo,
+            res: pi,
+            message: 'Proforma Invoice updated successfully'
+        });
+
+
+    } catch (error) {
+        return res.send(error.message);
+    }
+});
 
 
 module.exports = router;

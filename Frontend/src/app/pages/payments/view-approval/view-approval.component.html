@@ -38,7 +38,6 @@
                   <td [attr.data-label]="'MA'">{{invoice.accountant?.name}}</td>
                   <td [attr.data-label]="'Status'">{{invoice.status}}_{{invoice.count}}</td>
 
-
                   <td (click)="$event.stopPropagation()">
                     <div class="action-icons">
                       @if(data.admin || invoice.editButtonStatus){
@@ -54,6 +53,13 @@
                         <button mat-raised-button class="reject-button"
                           (click)="verified('rejected', invoice.piNo, invoice.addedBy.name, invoice.id, invoice.status)">
                           REJECT
+                        </button>
+                      }
+
+                      @if(!data.pageStatus && !data.sp && invoice.status === 'GENERATED'){
+                        <button mat-raised-button class="kam-unavailable-button"
+                          (click)="handleKamUnavailable(invoice.id, invoice.piNo, invoice.addedBy.name)">
+                          MARK KAM UNAVAILABLE
                         </button>
                       }
                       @if(!data.sp && data.ma){

@@ -1,0 +1,39 @@
+<mat-card>
+    <mat-card-content>
+        <h2 mat-dialog-title class="dialog-title">KAM Unavailable for PI: {{ data.piNo }}</h2>
+        <div mat-dialog-content class="dialog-content">
+          <p>What would you like to do?</p>
+          <mat-radio-group [(ngModel)]="selectedOption" class="radio-group">
+            <mat-radio-button value="approved">Approve myself</mat-radio-button>
+            <mat-radio-button value="changeKam">Assign to another KAM</mat-radio-button>
+            <mat-radio-button value="rejected">Reject myself</mat-radio-button>
+          </mat-radio-group>
+          @if(selectedOption === 'changeKam'){
+            <mat-form-field class="kam-select">
+                <mat-label>Select KAM</mat-label>
+                <mat-select [(ngModel)]="selectedKam">
+                    @for (user of kam; track $index) {
+                        <mat-option [value]="user.id">
+                            {{ user.name }}
+                        </mat-option>
+                    }
+                </mat-select>
+              </mat-form-field>
+          }
+
+          @if(selectedOption === 'changeKam' && !kam.length){
+            <div class="no-kams-warning">
+                No KAMs available to assign
+              </div>
+          }
+        </div>
+        <div mat-dialog-actions class="dialog-actions">
+          <button mat-button class="action-button cancel-button" (click)="onNoClick()">Cancel</button>
+          <button mat-raised-button class="action-button confirm-button" 
+                  [disabled]="selectedOption === 'changeKam' && !selectedKam"
+                  (click)="onConfirm()" cdkFocusInitial>
+            Confirm
+          </button>
+        </div>
+      </mat-card-content>
+</mat-card>
