@@ -164,4 +164,8 @@ export class InvoiceService {
     return this._http.delete(this.url + '/excelLog/delete-excel/' + id);
   }
 
+  updateKAM(data: any, id: number){
+    return this._http.patch(this.url + '/performaInvoice/kamupdate/'+ id, data);
+  }
+
 }
