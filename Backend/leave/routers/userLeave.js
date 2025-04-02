@@ -164,9 +164,6 @@ router.get('/leavecount/:userId/:typeid/:year', authenticateToken, async (req, r
   }
 });
 
-
-
-
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const { userId, leaveTypeId, noOfDays, takenLeaves, leaveBalance } = req.body;
@@ -195,7 +192,6 @@ router.get('/', authenticateToken, async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 });
-
 
 
 router.get('/byuserandtype/:userid/:typeid', authenticateToken, async (req, res) => {
