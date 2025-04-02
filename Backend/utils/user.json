@@ -1,7 +1,7 @@
 [
     {"name":"Super Admin","empNo":"SuperAdmin","email":"superadmin@gmail.com","phoneNumber":"1234567890","password":"superadmin@123", "roleId":"Super Administrator", "teamId":null,"status":true,"userImage":null,"director":false,"paswordReset":false,"isTemporary":false,"separated":false}, 
     {"name":"Approval Admin","empNo":"ApprovalAdmin","email":"admin@gmail.com","phoneNumber":"1234567890","password":"admin@123", "roleId":"Administrator", "teamId":null,"status":true,"userImage":null,"director":false,"paswordReset":false,"isTemporary":false,"separated":false},  
-    {"name":"HR Admin","empNo":"HRAdmin","email":"hradmin@gmail.com","phoneNumber":"1234567890","password":"hradmin@123", "roleId":"HR Administrator", "teamId":null,"status":true,"userImage":null,"director":false,"paswordReset":false,"isTemporary":false,"separated":false},    
+    {"name":"HR Admin","empNo":"HRAdmin","email":"hradmin@gmail.com", "officialMailId":"hradmin@hradmin.com", "phoneNumber":"1234567890","password":"hradmin@123", "roleId":"HR Administrator", "teamId":null,"status":true,"userImage":null,"director":false,"paswordReset":false,"isTemporary":false,"separated":false},    
     
     {"name":"Shibin","empNo":"Shibin","email":"shibin@gmail.com","phoneNumber":"9847391646","password":"shibin@123", "roleId":"Manager", "teamId":null,"status":true,"userImage":null,"director":true,"paswordReset":false,"isTemporary":false,"separated":false},                                   
     {"name":"Mahin","empNo":"Mahin","email":"mahin@gmail.com","phoneNumber":"0000000000","password":"mahin@123", "roleId":"Manager","teamId":null,"status":true,"userImage":null,"director":true,"paswordReset":false,"isTemporary":false,"separated":false},          

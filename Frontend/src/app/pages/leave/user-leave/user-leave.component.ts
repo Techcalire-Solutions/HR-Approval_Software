@@ -72,8 +72,8 @@ export class UserLeaveComponent implements OnInit, OnDestroy {
   updated: UserLeave[] = [];
   private updatedIndices: Set<number> = new Set();
   calculateBalance(i: number, data: UserLeave){
-    let alloted: number = data.noOfDays;
-    let taken: number = data.takenLeaves;
+    const alloted: number = data.noOfDays;
+    const taken: number = data.takenLeaves;
     const leaveBalance = alloted - taken;
 
     this.newData().at(i).patchValue({ leaveBalance }, { emitEvent: false });
@@ -112,7 +112,11 @@ export class UserLeaveComponent implements OnInit, OnDestroy {
   ulSub!: Subscription;
   snackBar = inject(MatSnackBar);
   getUserLeave(id: number, leaveTypes: LeaveType){
+    console.log(this.data.id, id);
+    
     this.ulSub = this.leaveService.getUserLeave(this.data.id, id).subscribe(res => {
+      console.log(res);
+      
       this.addNew(leaveTypes, res)
     })
   }

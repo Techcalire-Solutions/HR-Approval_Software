@@ -112,7 +112,7 @@
                             }@else{
                                 <td>-</td>
                             }
-                            @if (isGenerated(item, 'AM DECLINED') && item.status ===  'AM DECLINED') {
+                            @if (isGenerated(item, 'AM REJECTED') && (item.status ===  'AM REJECTED')) {
                                 <ng-container>
                                     <td class="cross"><span>&#10007;</span></td>
                                 </ng-container>

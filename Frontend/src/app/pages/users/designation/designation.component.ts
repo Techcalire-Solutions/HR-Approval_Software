@@ -52,10 +52,10 @@ export class DesignationComponent implements OnInit, OnDestroy{
   delete!: Subscription;
   dialogSub!: Subscription;
   deleteRole(id: number){
-    let dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+    const dialogRef = this.dialog.open(DeleteDialogueComponent, {});
     this.dialogSub = dialogRef.afterClosed().subscribe(res => {
       if(res){
-        this.delete = this.roleService.deleteRole(id).subscribe(res => {
+        this.delete = this.roleService.deleteDesignation(id).subscribe(res => {
           this.snackBar.open("Designation deleted successfully...","" ,{duration:3000})
           this.getRoles()
         });

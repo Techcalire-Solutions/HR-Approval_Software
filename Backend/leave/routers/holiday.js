@@ -356,7 +356,7 @@ router.patch('/byyear', async (req, res) => {
 router.patch('/update/:id', async (req, res) => {
   const id = req.params.id;
   const selectedEmployees = req.body;
-
+  
   const employeeLength = selectedEmployees.length; 
   
   try {
@@ -369,6 +369,7 @@ router.patch('/update/:id', async (req, res) => {
     let leaveTypeId;
     try {
       const leaveType = await LeaveType.findOne({ where: { leaveTypeName: 'Comb Off' } });
+      
       leaveTypeId = leaveType.id;
     } catch (error) {
       return res.send(error.message); // Send error if leaveType not found
@@ -383,12 +384,13 @@ router.patch('/update/:id', async (req, res) => {
       res.send(error.message)
     }
 
+    const year = new Date(holiday.date).getFullYear();
     for (let i = 0; i < selectedEmployees.length; i++) {
       try {
         let ul = await UserLeave.findOne({
-          where: { userId: selectedEmployees[i], leaveTypeId: leaveTypeId }
+          where: { userId: selectedEmployees[i], leaveTypeId: leaveTypeId, year }
         });
-
+        
         if (ul) {
           ul.noOfDays += 1; 
           ul.leaveBalance += 1;
@@ -399,9 +401,11 @@ router.patch('/update/:id', async (req, res) => {
             leaveTypeId: leaveTypeId,
             noOfDays: 1,
             takenLeaves: 0,
-            leaveBalance: 1
+            leaveBalance: 1,
+            year: year
           });
-          await userLeave.save(); // Save new UserLeave
+          
+          await userLeave.save(); 
         }
       } catch (error) {
         return res.send(error.message); // Catch inner loop error
@@ -440,9 +444,10 @@ router.patch('/updatetheupdated/:id', async (req, res) => {
       await comboOff.save();
       await comboOff.reload();
 
+      const year = new Date(holiday.date).getFullYear();
       // Update leave balances for deselected employees
       await Promise.all(deselectedEmployees.map(async (userId) => {
-          const ul = await UserLeave.findOne({ where: { userId, leaveTypeId } });
+          const ul = await UserLeave.findOne({ where: { userId, leaveTypeId, year } });
           if (ul) {
               ul.noOfDays -= 1;
               ul.leaveBalance -= 1;
@@ -452,7 +457,7 @@ router.patch('/updatetheupdated/:id', async (req, res) => {
 
       // Update leave balances for selected employees
       await Promise.all(selectedEmployees.map(async (userId) => {
-          const ul = await UserLeave.findOne({ where: { userId, leaveTypeId } });
+          const ul = await UserLeave.findOne({ where: { userId, leaveTypeId, year } });
           if (ul) {
               ul.noOfDays += 1;
               ul.leaveBalance += 1;
@@ -463,7 +468,8 @@ router.patch('/updatetheupdated/:id', async (req, res) => {
                   leaveTypeId,
                   noOfDays: 1,
                   takenLeaves: 0,
-                  leaveBalance: 1
+                  leaveBalance: 1,
+                  year: year
               });
               await userLeave.save();
           }

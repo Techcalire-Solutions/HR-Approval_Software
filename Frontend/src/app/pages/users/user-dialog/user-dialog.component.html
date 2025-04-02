@@ -1,6 +1,29 @@
 
 
-<div class="row"> @if( invNo ){ <h1>{{ invNo }}</h1> }@if( userName ){ <h1>/{{ userName }}</h1> }</div>
+<div class="row"> @if( invNo ){ 
+      <div class="editable-field">
+      @if(!isEditingInvNo) {
+        <h1 (click)="startEditingInvNo()">{{ invNo }}</h1>
+      } @else {
+        <mat-form-field appearance="outline" class="invno-edit-field">
+          <input matInput 
+            [(ngModel)]="invNo" 
+            (input)="onInputChange()"
+            (keyup.enter)="saveInvNo()">
+            <mat-hint *ngIf="showEmptyWarning" class="warning-hint">
+              Cannot be empty - original value restored
+            </mat-hint>
+            <mat-hint *ngIf="showOACWarn" class="warning-hint">
+              OAC is not allowed to be modified
+            </mat-hint>
+            <!-- <mat-error *ngIf="showOACWarn">
+              OAC prefix is not allowed to be modified
+            </mat-error> -->
+        </mat-form-field>
+      }
+    </div>
+  <!-- <h1>{{ invNo }}</h1>  -->
+}@if( userName ){ <h1>/{{ userName }}</h1> }</div>
 <mat-tab-group class="horizontal-tabs" [backgroundColor]="'primary'" [selectedIndex]="selectedTabIndex">
   <mat-tab [disabled]="!formSubmitted">
     <mat-card style="margin-top: 20px;">

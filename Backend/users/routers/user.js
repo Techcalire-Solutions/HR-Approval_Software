@@ -229,14 +229,15 @@ router.get('/findone/:id', authenticateToken, async (req, res) => {
 });
 
 router.patch('/update/:id', async(req,res)=>{
-  const { name, email, phoneNumber, url} = req.body;
+  const { name, email, phoneNumber, url, empNo} = req.body;
   // const pass = await bcrypt.hash(password, 10);
   try {
     let result = await User.findByPk(req.params.id);
     result.name = name;
     result.email = email;
     result.phoneNumber = phoneNumber;
-    result.url = url
+    result.url = url;
+    result.empNo = empNo;
 
     await result.save();
     res.send(result);
