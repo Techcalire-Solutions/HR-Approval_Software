@@ -2,28 +2,15 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 
 const sequelize = require('./db');
-const holidayData = require('./holiday.json');
-const designationData = require('./designation.json');
-const userdata = require('./user.json');
 const bcrypt = require('bcrypt');
 
-const Holiday = require("../leave/models/holiday");
 const Role = require('../users/models/role');
-const Designation = require('../users/models/designation');
 const User = require('../users/models/user');
 
 
 async function syncModel() {
    
   await sequelize.sync({alter: true})
-  
-    const holiday = await Holiday.findAll({})
-    
-    if(holiday.length === 0){
-        for(let i = 0; i < holidayData.length; i++){
-            Holiday.bulkCreate([holidayData[i]]);
-        }
-    }
   
     const roleData = [
         {roleName: 'Employee',abbreviation:'EMP'}, 
@@ -44,22 +31,20 @@ async function syncModel() {
         }
     }
 
-    const designation = await Designation.findAll({});
-    if(designation.length === 0){
-        for(let i = 0; i < designationData.length; i++){
-            Designation.bulkCreate([designationData[i]]);
-        }
-    }
-
+    const userData = [
+        {"name":"Super Admin","empNo":"SuperAdmin","email":"superadmin@gmail.com","phoneNumber":"1234567890","password":"superadmin@123", "roleId":"Super Administrator", "teamId":null,"status":true,"userImage":null,"director":false,"paswordReset":false,"isTemporary":false,"separated":false}, 
+        {"name":"Approval Admin","empNo":"ApprovalAdmin","email":"admin@gmail.com","phoneNumber":"1234567890","password":"admin@123", "roleId":"Administrator", "teamId":null,"status":true,"userImage":null,"director":false,"paswordReset":false,"isTemporary":false,"separated":false},  
+        {"name":"HR Admin","empNo":"HRAdmin","email":"hradmin@gmail.com", "officialMailId":"hradmin@hradmin.com", "phoneNumber":"1234567890","password":"hradmin@123", "roleId":"HR Administrator", "teamId":null,"status":true,"userImage":null,"director":false,"paswordReset":false,"isTemporary":false,"separated":false},    
+    ]
     const user = await User.findAll({});
     const salt = await bcrypt.genSalt(10); 
     if(user.length === 0){
-        for(let i = 0; i < userdata.length; i++){
-            const hashedPassword = await bcrypt.hash(userdata[i].password, salt)
-            userdata[i].password = hashedPassword;
+        for(let i = 0; i < userData.length; i++){
+            const hashedPassword = await bcrypt.hash(userData[i].password, salt)
+            userData[i].password = hashedPassword;
             const role = await Role.findOne({ where: { roleName: userdata[i].roleId}})
-            userdata[i].roleId = role.id
-            User.bulkCreate([userdata[i]])
+            userData[i].roleId = role.id
+            User.bulkCreate([userData[i]])
         }
     }
 }

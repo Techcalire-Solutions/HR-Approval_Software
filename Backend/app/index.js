@@ -10,6 +10,9 @@ const WebSocket = require('ws');
 dotenv.config();
 app.use(cors({ origin: '*' }));
 app.use(express.json());
+app.get("/", (req, res) => {
+    res.send("CORS is enabled!");
+  });
 
 const syncModel = require('../utils/association')
 syncModel()
