@@ -7,12 +7,12 @@ const cors = require('cors')
 const cron = require('node-cron');
 
 dotenv.config();
-// app.use(cors({ origin: '*' }));
-app.use(cors({
-    origin: 'https://leeds.aerohr.in',  // Allow only this frontend
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true  // Allow cookies or authentication headers
-}));
+app.use(cors({ origin: '*' }));
+// app.use(cors({
+//     origin: 'https://leeds.aerohr.in',  // Allow only this frontend
+//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+//     credentials: true  // Allow cookies or authentication headers
+// }));
 app.use(express.json());
 app.get("/", (req, res) => {
     res.send("CORS is enabled!");
