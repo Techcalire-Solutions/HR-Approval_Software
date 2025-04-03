@@ -179,9 +179,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     this.hidePassword = !this.hidePassword;
   }
 
-
-
-
   selectedTabIndex: number = 0;
   formSubmitted: boolean = true;
   isFormSubmitted: boolean = false;
@@ -319,15 +316,13 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   showOACWarn: boolean = false;
   onInputChange() {
     // Validate the input
-    if (this.invNo && this.invNo.startsWith('OAC-')) {
+    if (this.invNo && this.invNo.startsWith(`${this.desiredPrefix}-`)) {
       // Revert to original value
       this.showOACWarn = true;
-      this.invNo = this.originalInvNo;
+      // this.invNo = this.originalInvNo;
       // Hide warning after 3 seconds
       setTimeout(() => this.showEmptyWarning = false, 3000);
     }
-    
-    // Emit the change
     this.inputChange$.next();
   }
   
@@ -337,37 +332,77 @@ export class UserDialogComponent implements OnInit, OnDestroy {
   accountData: any;
   invNo: string;
   usersSub!: Subscription;
+  desiredPrefix: any = 'OAC';
   generateEmployeeNumber() {
     const currentYear = new Date().getFullYear();
-    const desiredPrefix = 'OAC'; // The prefix you want to track
 
     this.userSub = this.userService.getUser().subscribe((res) => {
       const users = res;
-
-      // Filter users with the desired prefix and find the maximum ID
-      const oacUsers = users.filter(user => user.empNo.startsWith(desiredPrefix));
+      console.log(users);
       
-      if (oacUsers.length > 0) {
-        // Find the maximum ID among OAC-prefixed users
-        const maxId = oacUsers.reduce((prevMax, user) => {
-          const empNoParts = user.empNo.split('-');
-          const idNumber = parseInt(empNoParts[empNoParts.length - 1], 10);
-          return !isNaN(idNumber) ? Math.max(prevMax, idNumber) : prevMax;
-        }, 0);
+      // Find all users with standard format (AAA-YYYY-NNN)
+      const standardFormatUsers = users.filter(user => 
+        typeof user.empNo === 'string' && 
+        user.empNo.match(/^[A-Za-z]{3}-\d{4}-\d{3}$/)
+      ); // Default prefix
 
-        const nextId = maxId + 1;
-        const paddedId = `${desiredPrefix}-${currentYear}-${nextId.toString().padStart(3, "0")}`;
-        
-        this.invNo = paddedId;
-        this.form.get('empNo')?.setValue(paddedId);
+      if (standardFormatUsers.length > 0) {
+        // Extract prefixes and find the most common one
+        const prefixCounts: any = {};
+        standardFormatUsers.forEach(user => {
+          const prefix = user.empNo.split('-')[0];
+          prefixCounts[prefix] = (prefixCounts[prefix] || 0) + 1;
+        });
+
+        // Get the most frequent prefix
+        this.desiredPrefix = Object.keys(prefixCounts).reduce((a, b) => 
+          prefixCounts[a] > prefixCounts[b] ? a : b
+        );
       } else {
-        // No OAC-prefixed users found, start with 001
-        const nextId = 1; // Changed from 0o1 (octal) to regular decimal
-        const paddedId = `${desiredPrefix}-${currentYear}-${nextId.toString().padStart(3, "0")}`;
+        // No standard format users found, prompt for prefix
+        this.desiredPrefix = prompt('No employees with standard format found. Enter employee number prefix (3 letters):', 'OAC');
         
-        this.invNo = paddedId;
-        this.form.get('empNo')?.setValue(paddedId);
+        // Validate the prefix input
+        while (this.desiredPrefix && !/^[A-Za-z]{3}$/.test(this.desiredPrefix)) {
+          this.desiredPrefix = prompt('Invalid prefix. Please enter exactly 3 letters:', 'OAC');
+        }
+        
+        if (!this.desiredPrefix) {
+          console.warn('No valid prefix provided');
+          return;
+        }
+        
+        this.desiredPrefix = this.desiredPrefix.toUpperCase();
       }
+
+      // Filter users with the determined prefix
+      const prefixedUsers = users.filter(user => 
+        typeof user.empNo === 'string' && 
+        user.empNo.startsWith(this.desiredPrefix)
+      );
+
+      let nextId;
+      if (prefixedUsers.length > 0) {
+        // Find the maximum ID among prefixed users
+        const maxId = prefixedUsers.reduce((prevMax, user) => {
+          const empNoParts = user.empNo.split('-');
+          if (empNoParts.length === 3) {
+            const idNumber = parseInt(empNoParts[2], 10);
+            return !isNaN(idNumber) ? Math.max(prevMax, idNumber) : prevMax;
+          }
+          return prevMax;
+        }, 0);
+        nextId = maxId + 1;
+      } else {
+        // No users with this prefix, start with 001
+        nextId = 1;
+      }
+
+      // Generate the new employee number
+      const paddedId = `${this.desiredPrefix}-${currentYear}-${nextId.toString().padStart(3, "0")}`;
+      
+      this.invNo = paddedId;
+      this.form.get('empNo')?.setValue(paddedId);
     });
   }
 
