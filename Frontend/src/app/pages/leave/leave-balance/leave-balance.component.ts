@@ -36,8 +36,8 @@ import { NewLeaveService } from '@services/new-leave.service';
 export class LeaveBalanceComponent implements OnInit, OnDestroy {
 
   selectedView: string = 'list';
-  public icons = ["home", "person", "alarm", "work", "mail", "favorite"];
-  public colors = ["primary", "accent", "warn", "pending"];
+  // public icons = ["home", "person", "alarm", "work", "mail", "favorite"];
+  // public colors = ["primary", "accent", "warn", "pending"];
   userId: number;
 
   public leaveCounts: any[] = [];
@@ -101,10 +101,6 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
         },
       });
     });
-  }
-
-  shouldDisplayLeaveType(leaveType: LeaveType): boolean {
-    return true;
   }
 
   getIcon(leaveType: string): string {

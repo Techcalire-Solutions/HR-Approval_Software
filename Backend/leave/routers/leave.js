@@ -1979,6 +1979,36 @@ router.get('/all/report', async (req, res) => {
       ],
     });
 
+    // Get all unique user IDs from the leaves
+    const userIds = [...new Set(leaves.map(leave => leave.userId))];
+
+    // Fetch leave balances for these users for the given year
+    const userLeaves = await UserLeave.findAll({
+      where: {
+        userId: userIds,
+        year: year
+      },
+      include: [
+        { model: LeaveType, attributes: ['id', 'leaveTypeName'], as: 'leaveType' }
+      ]
+    });
+
+    // Create a map of user leave balances for quick lookup
+    const userLeaveBalanceMap = {};
+    userLeaves.forEach(userLeave => {
+      const userId = userLeave.userId;
+      const leaveTypeName = userLeave.leaveType.leaveTypeName;
+      
+      if (!userLeaveBalanceMap[userId]) {
+        userLeaveBalanceMap[userId] = {};
+      }
+      
+      userLeaveBalanceMap[userId][leaveTypeName] = {
+        allotted: userLeave.noOfDays,
+        remaining: userLeave.leaveBalance
+      };
+    });
+
     // Group leave data by employees
     const employeeData = {};
     leaves.forEach((leave) => {
@@ -2002,6 +2032,11 @@ router.get('/all/report', async (req, res) => {
           type: leaveTypeName,
           monthlyData: Array(12).fill(0), // Initialize 12 months
           total: 0,
+          balance: userLeaveBalanceMap[userId]?.[leaveTypeName] || {
+            total: 0,
+            consumed: 0,
+            remaining: 0
+          }
         };
       }
 

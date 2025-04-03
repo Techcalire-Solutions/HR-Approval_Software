@@ -21,14 +21,31 @@
             </div>
             <div *ngFor="let leaveType of employee.leaveDetails" class="leave-type-report {{ leaveType.type }}"
                  [class.blocked]="!employee.status">
-                <h2 style="color: black;">{{ leaveType.type }}</h2>
+                <h2>{{ leaveType.type }}</h2>
+                
+                <!-- Leave Balance Summary -->
+                <div class="balance-summary">
+                    <div class="balance-item allocated">
+                        <span class="balance-label">Allotted</span>
+                        <span class="balance-value">{{ leaveType.balance.allotted }}</span>
+                    </div>
+                    <div class="balance-item used">
+                        <span class="balance-label">Used</span>
+                        <span class="balance-value">{{ leaveType.total }}</span>
+                    </div>
+                    <div class="balance-item remaining">
+                        <span class="balance-label">Remaining</span>
+                        <span class="balance-value">{{ leaveType.balance.remaining }}</span>
+                    </div>
+                </div>
+                
+                <!-- Monthly Breakdown -->
                 <div class="leave-calendar">
                     <div *ngFor="let monthData of leaveType.monthlyData; let i = index" class="leave-month">
                         <div class="month-name">{{ getMonthName(i) }}</div>
                         <div class="month-data">{{ monthData }}</div>
                     </div>
                 </div>
-                <div class="yearly-total">Yearly Total: {{ leaveType.total }}</div>
             </div>
         </div>
     </div>
