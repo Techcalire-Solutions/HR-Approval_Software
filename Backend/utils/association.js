@@ -42,7 +42,7 @@ async function syncModel() {
         for(let i = 0; i < userData.length; i++){
             const hashedPassword = await bcrypt.hash(userData[i].password, salt)
             userData[i].password = hashedPassword;
-            const role = await Role.findOne({ where: { roleName: userdata[i].roleId}})
+            const role = await Role.findOne({ where: { roleName: userData[i].roleId}})
             userData[i].roleId = role.id
             User.bulkCreate([userData[i]])
         }
