@@ -377,3 +377,22 @@ span{
   background-color: rgba(255, 255, 255, 0.8); /* Optional: Adds a translucent background */
   z-index: 10; /* Ensures it overlays other content */
 }
+
+::ng-deep .mat-raised-button[disabled],
+::ng-deep .mat-raised-button.mat-button-disabled {
+  background-color: #e0e0e0 !important; /* light gray background */
+  color: #9e9e9e !important;           /* gray text */
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  opacity: 0.6;
+}
+
+::ng-deep .approve-button[disabled] {
+  background-color: #989696 !important; /* soft red background for disabled reject */
+  color: #ffffff !important;
+}
+
+::ng-deep .reject-button[disabled] {
+  background-color: #989696 !important; /* soft red background for disabled reject */
+  color: #ffffff !important;
+}

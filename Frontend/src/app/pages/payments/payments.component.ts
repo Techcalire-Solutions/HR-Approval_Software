@@ -1,17 +1,17 @@
-import { Component, inject, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, inject, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
-import { Router } from '@angular/router';
+import { MatTabsModule } from '@angular/material/tabs';
 import { ViewApprovalComponent } from './view-approval/view-approval.component';
 import { ViewExpenseComponent } from './expense/view-expense/view-expense.component';
 import { InvoiceService } from '@services/invoice.service';
 import { Subscription } from 'rxjs';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-payments',
   standalone: true,
-  imports: [MatCardModule, MatTabsModule, MatIconModule, ViewApprovalComponent, ViewExpenseComponent],
+  imports: [MatCardModule, MatTabsModule, MatIconModule, ViewApprovalComponent, ViewExpenseComponent, CommonModule],
   templateUrl: './payments.component.html',
   styleUrl: './payments.component.scss'
 })
@@ -129,14 +129,18 @@ export class PaymentsComponent implements OnInit{
             this.data.pageStatus = true;
             break;
           case 1:
+            this.data.status = ['KAM VERIFIED', 'KAM REJECTED'];
+            this.data.pageStatus = true;
+            break;
+          case 2:
             this.data.status = 'BANK SLIP ISSUED';
             this.data.pageStatus = false;
             break;
-          case 2:
+          case 3:
             this.data.status = 'AM REJECTED';
             this.data.pageStatus = false;
             break;
-          case 3:
+          case 4:
             this.data.status = '';
             this.data.pageStatus = false;
             break;
@@ -153,22 +157,26 @@ export class PaymentsComponent implements OnInit{
             this.data.pageStatus = true;
             break;
           case 1:
+            this.data.status = ['AM VERIFIED', 'AM REJECTED'];
+            this.data.pageStatus = true;
+            break;
+          case 2:
               this.data.status = 'GENERATED';
               this.data.pageStatus = false;
               break;
-          case 2:
+          case 3:
             this.data.status = 'BANK SLIP ISSUED';
             this.data.pageStatus = false;
             break;
-          case 3:
+          case 4:
             this.data.status = 'REJECTED';
             this.data.pageStatus = false;
             break;
-          case 4:
+          case 5:
             this.data.status = '';
             this.data.pageStatus = false;
             break;
-          case 5:
+          case 6:
             this.data.status = '';
             this.data.pageStatus = false;
             break;
@@ -239,7 +247,20 @@ export class PaymentsComponent implements OnInit{
           }
           break;
     }
-    if (event === 4 && this.viewExpenseComponent.length > 0 ) {
+    console.log(event, this.viewApprovalComponents.length, this.viewExpenseComponent.length);
+    
+    // if (event === 4 && this.viewExpenseComponent.length > 0 ) {
+    //   const activeComponent = this.viewExpenseComponent.toArray()[0]; // or correct index if it's not 0
+    //   if (activeComponent) {
+    //     activeComponent.loadData(this.data);
+    //   } 
+    // }else 
+    if (this.roleName === 'Manager' && event === 6 && this.viewExpenseComponent.length > 0) {
+      const activeComponent = this.viewExpenseComponent.toArray()[0]; // or correct index if it's not 0
+      if (activeComponent) {
+        activeComponent.loadData(this.data);
+      } 
+    }else if (event === 5 && this.viewExpenseComponent.length > 0 && this.roleName === 'Key Account Manager') {
       const activeComponent = this.viewExpenseComponent.toArray()[0]; // or correct index if it's not 0
       if (activeComponent) {
         activeComponent.loadData(this.data);

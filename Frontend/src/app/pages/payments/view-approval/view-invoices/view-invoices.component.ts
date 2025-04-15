@@ -126,8 +126,9 @@ export class ViewInvoicesComponent {
       });
 
       this.signedUrl = signedUrlsWithType;
-
-      if( (this.pi.status === 'GENERATED' ) && this.roleName === 'Key Account Manager' ){
+      console.log(this.pi.status);
+      
+      if( (this.pi.status === 'GENERATED' || this.pi.status === 'KAM VERFIED' || this.pi.status === 'KAM REJECTED' ) && this.roleName === 'Key Account Manager' ){
         this.pi = {
           ...this.pi,
           approveButtonStatus: true

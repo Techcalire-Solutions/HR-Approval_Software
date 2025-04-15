@@ -63,6 +63,8 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
   getWTPi(){
     this.wtpiSub = this.invoiceServices.getDashboardWTPI(this.searchText, this.wtCurrentPage, this.wtPageSize).subscribe((invoice: any) => {
       this.wtInvoices = invoice.items
+      console.log(this.wtInvoices);
+      
       this.wtTotalItems = invoice.count;
     });
   }

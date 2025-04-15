@@ -6,7 +6,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
-import { PerformaInvoice } from '../../../common/interfaces/payments/performaInvoice';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -22,18 +21,19 @@ import { InvoiceService } from '@services/invoice.service';
 import { VerificationDialogueComponent } from './verification-dialogue/verification-dialogue.component';
 import { BankReceiptDialogueComponent } from './bank-receipt-dialogue/bank-receipt-dialogue.component';
 import { KAMUnavailableComponent } from './kam-unavailable/kam-unavailable.component';
+import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-view-approval',
   standalone: true,
   imports: [ MatToolbarModule, MatFormFieldModule, ReactiveFormsModule, MatIconModule, MatPaginatorModule, MatDividerModule,
-    RouterModule, MatCardModule,MatDialogModule, CommonModule, MatProgressSpinnerModule
+    RouterModule, MatCardModule,MatDialogModule, CommonModule, MatButtonModule, MatProgressSpinnerModule
   ],
   templateUrl: './view-approval.component.html',
   styleUrl: './view-approval.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  // changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ViewApprovalComponent {
   private readonly invoiceService = inject(InvoiceService)
@@ -86,17 +86,65 @@ export class ViewApprovalComponent {
   editButtonStatus: boolean = false;
   pageStatus: boolean = true;
   getInvoices() {
-    let invoice!: PerformaInvoice[];
-
+    this.submittingForm = true;
     let apiCall;
     if (this.data.roleName === 'Sales Executive') {
       apiCall = this.invoiceService.getPIBySP(this.data.status, this.filterValue, this.currentPage, this.pageSize);
     }else if (this.data.roleName === 'Team Lead') {
       apiCall = this.invoiceService.getPIBySP(this.data.status, this.filterValue, this.currentPage, this.pageSize);
     }  else if (this.data.roleName === 'Key Account Manager') {
-      apiCall = this.invoiceService.getPIByKAM(this.data.status, this.filterValue, this.currentPage, this.pageSize);
+      if (Array.isArray(this.data.status)) {
+        const statusArray = this.data.status;
+        const allInvoices: any[] = [];
+        let completedCalls = 0;
+    
+        statusArray.forEach((status: any )=> {
+          this.invoiceService.getPIByKAM(status, this.filterValue, this.currentPage, this.pageSize)
+            .subscribe((res: any) => {
+              allInvoices.push(...res.items);
+              this.totalItems = (this.totalItems || 0) + res.count;
+              completedCalls++;
+    
+              // Once all API calls are completed
+              if (completedCalls === statusArray.length) {
+                this.processInvoices(allInvoices);
+              }
+            }, () => {
+              this.submittingForm = false;
+            });
+        });
+        return; // Don't proceed to the single apiCall block
+      } else {
+        apiCall = this.invoiceService.getPIByKAM(this.data.status, this.filterValue, this.currentPage, this.pageSize);
+      }
+      // apiCall = this.invoiceService.getPIByKAM(this.data.status, this.filterValue, this.currentPage, this.pageSize);
     } else if (this.data.roleName === 'Manager') {
-      apiCall = this.invoiceService.getPIByAM(this.data.status, this.filterValue, this.currentPage, this.pageSize);
+      if (Array.isArray(this.data.status)) {
+        const statusArray = this.data.status;
+        const allInvoices: any[] = [];
+        let completedCalls = 0;
+    
+        statusArray.forEach((status: any )=> {
+          this.invoiceService.getPIByAM(status, this.filterValue, this.currentPage, this.pageSize)
+            .subscribe((res: any) => {
+              console.log(res);
+              
+              allInvoices.push(...res.items);
+              this.totalItems = (this.totalItems || 0) + res.count;
+              completedCalls++;
+    
+              // Once all API calls are completed
+              if (completedCalls === statusArray.length) {
+                this.processInvoices(allInvoices);
+              }
+            }, () => {
+              this.submittingForm = false;
+            });
+        });
+        return; // Don't proceed to the single apiCall block
+      } else {
+        apiCall = this.invoiceService.getPIByAM(this.data.status, this.filterValue, this.currentPage, this.pageSize);
+      }
     } else if (this.data.roleName === 'Accountant') {
       this.pageStatus = false
       apiCall = this.invoiceService.getPIByMA(this.data.status, this.filterValue, this.currentPage, this.pageSize);
@@ -108,83 +156,70 @@ export class ViewApprovalComponent {
       if (this.invoiceSubscriptions) {
         this.invoiceSubscriptions.unsubscribe();
       }
-
       this.invoiceSubscriptions = apiCall.subscribe((res: any) => {
-        invoice = res.items;
-        this.totalItems = res.count;
-
-        if (invoice) {
-          invoice.forEach((mainObj: any) => {
-            const matchingStatus = mainObj.performaInvoiceStatuses.find(
-              (statusObj: any) => statusObj.status === mainObj.status
-            );
-            if (matchingStatus) {
-              mainObj.remarks = matchingStatus.remarks;
-            }
-          });
-
-          this.invoices = [...invoice];
-
-          for (let i = 0; i < this.invoices.length; i++) {
-            const invoiceSP = this.invoices[i]?.salesPersonId;
-            const invoiceKAM = this.invoices[i]?.kamId;
-            const invoiceAM = this.invoices[i]?.amId;
-            const invoiceMA = this.invoices[i]?.accountantId;
-
-            if (this.user === invoiceSP || this.user === invoiceKAM || this.user === invoiceAM || this.user === invoiceMA) {
-              this.invoices[i] = {
-                ...this.invoices[i],
-                userStatus: true
-              };
-            }
-            
-            if(invoice[i].addedById === this.user){
-              if(invoice[i].addedBy.role.roleName === 'Sales Executive' &&
-                (invoice[i].status === 'GENERATED' || invoice[i].status === 'KAM REJECTED' || invoice[i].status === 'AM REJECTED' ||
-                  invoice[i].status === 'INITIATED'|| invoice[i].status === 'AM DECLINED' ) ){
-                  this.invoices[i] = {
-                    ...this.invoices[i],
-                    editButtonStatus: true
-                  };
-              }else if(invoice[i].addedBy.role.roleName === 'Key Account Manager' &&
-                (invoice[i].status === 'KAM VERIFIED' || invoice[i].status === 'AM REJECTED' || invoice[i].status === 'INITIATED') ){
-                  this.invoices[i] = {
-                    ...this.invoices[i],
-                    editButtonStatus: true
-                  };
-              }else if(invoice[i].addedBy.role.roleName === 'Manager' &&
-                (invoice[i].status === 'AM VERIFIED' ||  invoice[i].status === 'AM APPROVED') ){
-
-                  this.invoices[i] = {
-                    ...this.invoices[i],
-                    editButtonStatus: true
-                  };
-              }else{
-                this.invoices[i] = {
-                  ...this.invoices[i],
-                  editButtonStatus: false
-                };
-              }
-            }else{
-              if(this.data.roleName === 'Team Lead' &&
-                (invoice[i].status === 'GENERATED' || invoice[i].status === 'KAM REJECTED' || invoice[i].status === 'AM REJECTED' ||
-                  invoice[i].status === 'INITIATED'|| invoice[i].status === 'AM DECLINED' )) { 
-                this.invoices[i] = {
-                  ...this.invoices[i],
-                  editButtonStatus: true
-                };
-                
-              }
-            }
-          }
-        }
-        this.submittingForm = false;
-        this.cd.detectChanges();
+        this.processInvoices(res.items, res.count);
       }, () => {
         this.submittingForm = false;
       });
     }
   }
+
+  processInvoices(invoicesArray: any[], count?: number) {
+    const invoice = invoicesArray || [];
+    this.totalItems = count || invoice.length;
+  
+    invoice.forEach((mainObj: any) => {
+      const matchingStatus = mainObj.performaInvoiceStatuses?.find(
+        (statusObj: any) => statusObj.status === mainObj.status
+      );
+      if (matchingStatus) {
+        mainObj.remarks = matchingStatus.remarks;
+      }
+    });
+  
+    this.invoices = [...invoice];
+  
+    for (let i = 0; i < this.invoices.length; i++) {
+      const inv = this.invoices[i];
+      const invoiceSP = inv?.salesPersonId;
+      const invoiceKAM = inv?.kamId;
+      const invoiceAM = inv?.amId;
+      const invoiceMA = inv?.accountantId;
+  
+      if (this.user === invoiceSP || this.user === invoiceKAM || this.user === invoiceAM || this.user === invoiceMA) {
+        inv.userStatus = true;
+      }
+  
+      if (inv.addedById === this.user) {
+        const role = inv.addedBy.role.roleName;
+        const status = inv.status;
+  
+        if (
+          (role === 'Sales Executive' &&
+            ['GENERATED', 'KAM REJECTED', 'AM REJECTED', 'INITIATED', 'AM DECLINED'].includes(status)) ||
+          (role === 'Key Account Manager' &&
+            ['KAM VERIFIED', 'AM REJECTED', 'INITIATED'].includes(status)) ||
+          (role === 'Manager' &&
+            ['AM VERIFIED', 'AM APPROVED'].includes(status))
+        ) {
+          inv.editButtonStatus = true;
+        } else {
+          inv.editButtonStatus = false;
+        }
+      } else {
+        if (
+          this.data.roleName === 'Team Lead' &&
+          ['GENERATED', 'KAM REJECTED', 'AM REJECTED', 'INITIATED', 'AM DECLINED'].includes(inv.status)
+        ) {
+          inv.editButtonStatus = true;
+        }
+      }
+    }
+  
+    this.submittingForm = false;
+    this.cd.detectChanges();
+  }
+  
 
   filterValue!: string;
   applyFilter(event: Event): void {
@@ -239,21 +274,27 @@ export class ViewApprovalComponent {
   verifiedSub: Subscription;
   dialogSub!: Subscription;
   verified(value: string, piNo: string, sp: string, id: number, stat: string){
+    console.log("verificarion");
+    
     let status = this.data.status;
+    console.log(status);
+    
     if(stat === 'INITIATED' && value === 'approved') status = 'AM APPROVED';
     else if(stat === 'INITIATED' && value === 'rejected') status = 'AM DECLINED';
-    if(status === 'GENERATED' && value === 'approved') status = 'KAM VERIFIED';
-    else if(status === 'GENERATED' && value === 'rejected') status = 'KAM REJECTED';
-    else if(status === 'KAM VERIFIED' && value === 'approved') status = 'AM VERIFIED';
-    else if(status === 'KAM VERIFIED' && value === 'rejected') status = 'AM REJECTED';
+    if((status === 'GENERATED' || (Array.isArray(status) && status.includes('KAM VERIFIED'))) && value === 'approved') status = 'KAM VERIFIED';
+    else if((status === 'GENERATED' || (Array.isArray(status) && status.includes('KAM VERIFIED'))) && value === 'rejected') status = 'KAM REJECTED';
+    else if((status === 'KAM VERIFIED' || (Array.isArray(status) && status.includes('AM VERIFIED'))) && value === 'approved') status = 'AM VERIFIED';
+    else if((status === 'KAM VERIFIED' || (Array.isArray(status) && status.includes('AM VERIFIED'))) && value === 'rejected') status = 'AM REJECTED';
 
     const dialogRef = this.dialog.open(VerificationDialogueComponent, {
       data: { invoiceNo: piNo, status: status, sp: sp }
     });
 
     this.dialogSub = dialogRef.afterClosed().subscribe(result => {
+      this.submittingForm = true;
       if(result){
-        this.submittingForm = true;
+        console.log(this.submittingForm);
+        
         const data = {
           status: status,
           performaInvoiceId: id,
@@ -264,7 +305,7 @@ export class ViewApprovalComponent {
         }
 
         this.verifiedSub = this.invoiceService.updatePIStatus(data).subscribe(() => {
-          this.submittingForm = false;
+          // this.submittingForm = false;
           this.getInvoices()
           this.snackBar.open(`Invoice ${piNo} updated to ${status}...`,"" ,{duration:3000})
           this.router.navigateByUrl('login/viewApproval/view')
@@ -273,7 +314,7 @@ export class ViewApprovalComponent {
     })
   }
 
-  kamUpdateSub!: Subscription;
+  kamUpdateSub!: Subscription;  
   handleKamUnavailable(invoiceId: number, piNo: string, addName: string) {
     const dialogRef = this.dialog.open(KAMUnavailableComponent, {
       width: '500px',

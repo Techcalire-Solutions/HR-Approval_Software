@@ -47,8 +47,6 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
   employeeSub: Subscription;
   getEmployees(){
     this.employeeSub = this.userService.getConfirmedEmployees().subscribe((data) => {
-      console.log(data);
-      
       this.employees = data;
       this.addEmployeeCheckboxes();
     });
@@ -111,8 +109,6 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
   getComboOff(){
     this.comboOffSub = this.holidayService.getCompoOff(this.route.snapshot.params['id']).subscribe(res => {
       this.co = res;
-      console.log(this.co);
-      
       if(this.co){
         this.editStatus = true;
         this.setInitialCheckboxes(this.co.userId);
