@@ -34,8 +34,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
             kamId = pi.kamId
         }
 
-         
-
         if (!Array.isArray(pi.url) || pi.url.length === 0) {
             return res.send('Proforma Invoice does not have an associated file or the URL is invalid.');
         }

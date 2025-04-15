@@ -46,11 +46,19 @@
                         <button class="delete-button" (click)="deleteFunction(invoice.id)">Delete
                         </button>
                       }
-                      @if(!data.sp && data.pageStatus && !data.admin && !data.teamLead && invoice.status != 'AM APPROVED'){
-                        <button mat-raised-button class="approve-button"
+                      @if(!data.sp && data.pageStatus && !data.admin && !data.teamLead && invoice.status != 'AM APPROVED' && !invoice.editButtonStatus ){
+                        <button mat-raised-button class="approve-button" 
+                            [disabled]="
+                              (data.roleName === 'Key Account Manager' && invoice.status === 'KAM VERIFIED') ||
+                              (data.roleName === 'Manager' && invoice.status === 'AM VERIFIED')
+                            "
                           (click)="verified('approved', invoice.piNo, invoice.salesPerson?.name, invoice.id, invoice.status)"> APPROVE
                         </button>
-                        <button mat-raised-button class="reject-button"
+                        <button mat-raised-button class="reject-button" 
+                          [disabled]="
+                            (data.roleName === 'Key Account Manager' && invoice.status === 'KAM REJECTED') ||
+                            (data.roleName === 'Manager' && invoice.status === 'AM REJECTED')
+                          "
                           (click)="verified('rejected', invoice.piNo, invoice.addedBy.name, invoice.id, invoice.status)">
                           REJECT
                         </button>
@@ -100,15 +108,17 @@
                 <mat-spinner color="primary"></mat-spinner>
             </div>
         }
+        @if(submittingForm){
+          <div fxLayout="column" fxLayoutAlign="center center" class="user-spinner">
+            <mat-spinner color="primary"></mat-spinner>
+          </div>
+        }
         </div>
       </div>
     </mat-card>
+
   </div>
 
   <mat-divider></mat-divider>
-@if(submittingForm){
-  <div fxLayout="column" fxLayoutAlign="center center" class="user-spinner">
-    <mat-spinner color="primary"></mat-spinner>
-  </div>
-}
+
 </div>

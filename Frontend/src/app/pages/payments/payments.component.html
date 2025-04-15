@@ -10,6 +10,15 @@
     </mat-tab>
   }
 
+  @if (roleName === 'Key Account Manager' || roleName==='Manager') {
+    <mat-tab>
+      <ng-template mat-tab-label>
+        {{ roleName | uppercase }}
+      </ng-template>
+      <app-view-approval #viewApproval></app-view-approval>
+    </mat-tab>
+  }
+
   @if (roleName === 'Manager') {
     <mat-tab>
       <ng-template mat-tab-label>

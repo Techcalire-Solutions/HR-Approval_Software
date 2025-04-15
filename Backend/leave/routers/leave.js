@@ -1952,132 +1952,123 @@ router.get('/all/report', async (req, res) => {
   try {
     const { year, pageSize, page, search } = req.query;
 
-    // Validate year
-    if (!year) {
-      return res.json({ error: 'Year is required for fetching reports.' });
-    }
+    if (!year) return res.json({ error: 'Year is required for fetching reports.' });
 
-    // Parse pagination parameters
-    const limit = pageSize ? parseInt(pageSize, 10) : 10; // Default limit is 10
-    const pageNumber = page ? parseInt(page, 10) : 1; // Default page is 1
+    const limit = pageSize ? parseInt(pageSize, 10) : 10;
+    const pageNumber = page ? parseInt(page, 10) : 1;
     const offset = (pageNumber - 1) * limit;
 
-    // Fetch all leave data for the given year
+    // Step 1: Fetch all leave records for the year
     const leaves = await Leave.findAll({
       where: {
-        status: {
-          [Op.or]: ['Approved', 'AdminApproved'],
-        },
+        status: { [Op.or]: ['Approved', 'AdminApproved'] },
         startDate: {
           [Op.gte]: new Date(`${year}-01-01`),
-          [Op.lt]: new Date(`${+year + 1}-01-01`), // Year range filter
-        },
+          [Op.lt]: new Date(`${+year + 1}-01-01`)
+        }
       },
       include: [
         { model: User, as: 'user', attributes: ['id', 'name', 'url'] },
-        { model: LeaveType, attributes: ['id', 'leaveTypeName'], as: 'leaveType' },
-      ],
-    });
-
-    // Get all unique user IDs from the leaves
-    const userIds = [...new Set(leaves.map(leave => leave.userId))];
-
-    // Fetch leave balances for these users for the given year
-    const userLeaves = await UserLeave.findAll({
-      where: {
-        userId: userIds,
-        year: year
-      },
-      include: [
         { model: LeaveType, attributes: ['id', 'leaveTypeName'], as: 'leaveType' }
       ]
     });
 
-    // Create a map of user leave balances for quick lookup
-    const userLeaveBalanceMap = {};
-    userLeaves.forEach(userLeave => {
-      const userId = userLeave.userId;
-      const leaveTypeName = userLeave.leaveType.leaveTypeName;
-      
-      if (!userLeaveBalanceMap[userId]) {
-        userLeaveBalanceMap[userId] = {};
-      }
-      
-      userLeaveBalanceMap[userId][leaveTypeName] = {
-        allotted: userLeave.noOfDays,
-        remaining: userLeave.leaveBalance
-      };
-    });
-
-    // Group leave data by employees
-    const employeeData = {};
+    // Step 2: Map leave usages by userId and leaveType
+    const leaveUsageMap = {};
     leaves.forEach((leave) => {
       const userId = leave.userId;
       const leaveTypeName = leave.leaveType?.leaveTypeName || 'Unknown Leave';
-      const leaveDates = leave.leaveDates || [];
 
-      // Initialize employee if not present
-      if (!employeeData[userId]) {
-        employeeData[userId] = {
-          id: userId,
-          name: leave.user.name,
-          url: leave.user.url,
-          leaveDetails: {},
+      if (!leaveUsageMap[userId]) leaveUsageMap[userId] = {};
+      if (!leaveUsageMap[userId][leaveTypeName]) {
+        leaveUsageMap[userId][leaveTypeName] = {
+          monthlyData: Array(12).fill(0),
+          total: 0
         };
       }
 
-      // Initialize leave type if not present
-      if (!employeeData[userId].leaveDetails[leaveTypeName]) {
-        employeeData[userId].leaveDetails[leaveTypeName] = {
-          type: leaveTypeName,
-          monthlyData: Array(12).fill(0), // Initialize 12 months
-          total: 0,
-          balance: userLeaveBalanceMap[userId]?.[leaveTypeName] || {
-            total: 0,
-            consumed: 0,
-            remaining: 0
-          }
-        };
-      }
-
-      // Calculate leave days and group by month
-      leaveDates.forEach((date) => {
+      leave.leaveDates.forEach((date) => {
         const leaveDate = new Date(date.date);
         if (leaveDate.getFullYear() === parseInt(year, 10)) {
-          const monthIndex = leaveDate.getMonth(); // 0 = January, 11 = December
-          const leaveForDay = date.session1 && date.session2 ? 1 : date.session1 || date.session2 ? 0.5 : 0;
+          const monthIndex = leaveDate.getMonth();
+          const leaveForDay = date.session1 && date.session2 ? 1 : (date.session1 || date.session2 ? 0.5 : 0);
 
-          // Update monthly data and total
-          employeeData[userId].leaveDetails[leaveTypeName].monthlyData[monthIndex] += leaveForDay;
-          employeeData[userId].leaveDetails[leaveTypeName].total += leaveForDay;
+          leaveUsageMap[userId][leaveTypeName].monthlyData[monthIndex] += leaveForDay;
+          leaveUsageMap[userId][leaveTypeName].total += leaveForDay;
         }
       });
     });
 
-    // Convert leaveDetails object to an array
-    let result = Object.values(employeeData).map((employee) => ({
-      ...employee,
-      leaveDetails: Object.values(employee.leaveDetails),
-    }));
+    // Step 3: Fetch all UserLeaves for the year (even if they didn’t apply any leave)
+    const userLeaves = await UserLeave.findAll({
+      where: { year },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'url']
+        },
+        {
+          model: LeaveType,
+          attributes: ['id', 'leaveTypeName'],
+          as: 'leaveType'
+        }
+      ]
+    });
 
-    // Apply search filter
+    // Step 4: Group and format user data
+    const employeeMap = {};
+
+    userLeaves.forEach((record) => {
+      const userId = record.userId;
+      const userName = record.user?.name;
+      const userUrl = record.user?.url;
+      const leaveTypeName = record.leaveType?.leaveTypeName;
+
+      if (!employeeMap[userId]) {
+        employeeMap[userId] = {
+          id: userId,
+          name: userName,
+          url: userUrl,
+          leaveDetails: []
+        };
+      }
+
+      const usage = leaveUsageMap[userId]?.[leaveTypeName] || {
+        monthlyData: Array(12).fill(0),
+        total: 0
+      };
+
+      employeeMap[userId].leaveDetails.push({
+        type: leaveTypeName,
+        monthlyData: usage.monthlyData,
+        total: usage.total,
+        balance: {
+          allotted: record.noOfDays,
+          consumed: usage.total,
+          remaining: record.leaveBalance
+        }
+      });
+    });
+
+    // Step 5: Convert map to array and apply search + pagination
+    let result = Object.values(employeeMap);
+
     if (search && search !== 'undefined') {
       const searchTerm = search.replace(/\s+/g, '').trim().toLowerCase();
-      result = result.filter((employee) =>
-        employee.name.toLowerCase().includes(searchTerm)
-      );
+      result = result.filter(emp => emp.name.toLowerCase().includes(searchTerm));
     }
 
-    // Paginate the result
     const total = result.length;
     const paginatedResult = result.slice(offset, offset + limit);
 
-    // Send the response
-    res.status(200).json({ result: paginatedResult, total: total });
+    res.status(200).json({ result: paginatedResult, total });
   } catch (error) {
+    console.error('Error fetching report:', error);
     res.status(500).json({ error: error.message });
   }
 });
+
 // ---------------------------------------------------------------LEAVE BALNCE--------------------------------------------------
 router.get('/leaveBalance/:leaveId', authenticateToken, async (req, res) => {
   const leaveId = req.params.leaveId;
