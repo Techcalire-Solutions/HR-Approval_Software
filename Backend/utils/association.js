@@ -32,9 +32,9 @@ async function syncModel() {
     }
 
     const userData = [
-        {"name":"Super Admin","empNo":"SuperAdmin","email":"superadmin@gmail.com","phoneNumber":"1234567890","password":"superadmin@123", "roleId":"Super Administrator", "teamId":null,"status":true,"userImage":null,"director":false,"paswordReset":false,"isTemporary":false,"separated":false}, 
-        {"name":"Approval Admin","empNo":"ApprovalAdmin","email":"admin@gmail.com","phoneNumber":"1234567890","password":"admin@123", "roleId":"Administrator", "teamId":null,"status":true,"userImage":null,"director":false,"paswordReset":false,"isTemporary":false,"separated":false},  
-        {"name":"HR Admin","empNo":"HRAdmin","email":"hradmin@gmail.com", "officialMailId":"hradmin@hradmin.com", "phoneNumber":"1234567890","password":"hradmin@123", "roleId":"HR Administrator", "teamId":null,"status":true,"userImage":null,"director":false,"paswordReset":false,"isTemporary":false,"separated":false},    
+        {"name":"Super Admin","empNo":"SuperAdmin","email":"superadmin@gmail.com","phoneNumber":"1234567890","password":"superadmin@123", "roleId":"Super Administrator", "officialMailId":"superadmin@sa.com", "teamId":null,"status":true,"userImage":null,"director":false,"paswordReset":false,"isTemporary":false,"separated":false}, 
+        {"name":"Approval Admin","empNo":"ApprovalAdmin","email":"admin@gmail.com","phoneNumber":"1234567890","password":"admin@123", "roleId":"Administrator", "officialMailId":"admin@sa.com", "teamId":null,"status":true,"userImage":null,"director":false,"paswordReset":false,"isTemporary":false,"separated":false},  
+        {"name":"HR Admin","empNo":"HRAdmin","email":"hradmin@gmail.com", "officialMailId":"hradmin@hradmin.com", "phoneNumber":"1234567890","password":"hradmin@123", "roleId":"HR Administrator",  "teamId":null,"status":true,"userImage":null,"director":false,"paswordReset":false,"isTemporary":false,"separated":false},    
     ]
     const user = await User.findAll({});
     const salt = await bcrypt.genSalt(10); 
