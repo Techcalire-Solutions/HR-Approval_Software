@@ -15,9 +15,9 @@ app.use(cors({ origin: '*' }));
 // }));
 app.use(express.json());
 
-app.get("/", (req, res) => {
-    res.send("CORS is enabled! localhost...................................");
-});
+// app.get("/", (req, res) => {
+//     res.send("CORS is enabled! localhost...................................");
+// });
 
 const syncModel = require('../utils/association')
 syncModel()
