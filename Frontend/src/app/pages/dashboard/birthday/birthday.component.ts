@@ -1,7 +1,7 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { UsersService } from '@services/users.service';
 import { Subscription } from 'rxjs';
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { UserPersonal } from '../../../common/interfaces/users/user-personal';
 import { Router } from '@angular/router';
@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 @Component({
   selector: 'app-birthday',
   standalone: true,
-  imports: [DatePipe, MatCardModule, MatIconModule,],
+  imports: [DatePipe, MatCardModule, MatIconModule,CommonModule],
   templateUrl: './birthday.component.html',
   styleUrl: './birthday.component.scss'
 })
