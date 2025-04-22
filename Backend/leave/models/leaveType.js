@@ -12,7 +12,7 @@ const leaveTypeData = [
   { leaveTypeName: 'Casual Leave' },
   { leaveTypeName: 'Sick Leave' },
   { leaveTypeName: 'LOP' },
-  { leaveTypeName: 'Comb Off' },
+  { leaveTypeName: 'Comp Off' },
 ];
 
 const initializeLeaveTypes = async () => {

@@ -216,7 +216,7 @@ router.get('/byuser/:userid', authenticateToken, async (req, res) => {
           Sequelize.literal(`CASE
             WHEN "leaveType"."leaveTypeName" = 'Casual Leave' THEN 1
             WHEN "leaveType"."leaveTypeName" = 'Sick Leave' THEN 2
-            WHEN "leaveType"."leaveTypeName" = 'Comb Off' THEN 3
+            WHEN "leaveType"."leaveTypeName" = 'Comp Off' THEN 3
             WHEN "leaveType"."leaveTypeName" = 'LOP' THEN 4
             ELSE 5
           END`)
@@ -269,12 +269,12 @@ router.get('/forencashment/:year', async (req, res) => {
   try {
     const year = req.params.year
     const leaveTypes = await LeaveType.findAll({
-      where: { leaveTypeName: ['Casual Leave', 'Comb Off'] },
+      where: { leaveTypeName: ['Casual Leave', 'Comp Off'] },
       attributes: ['id', 'leaveTypeName']
     });
 
     const cl = leaveTypes.find(type => type.leaveTypeName === 'Casual Leave')?.id;
-    const co = leaveTypes.find(type => type.leaveTypeName === 'Comb Off')?.id;
+    const co = leaveTypes.find(type => type.leaveTypeName === 'Comp Off')?.id;
     if (!cl || !co) {
       return res.send("Required leave types not found");
     }

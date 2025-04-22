@@ -368,7 +368,7 @@ router.patch('/update/:id', async (req, res) => {
 
     let leaveTypeId;
     try {
-      const leaveType = await LeaveType.findOne({ where: { leaveTypeName: 'Comb Off' } });
+      const leaveType = await LeaveType.findOne({ where: { leaveTypeName: 'Comp Off' } });
       
       leaveTypeId = leaveType.id;
     } catch (error) {
@@ -430,7 +430,7 @@ router.patch('/updatetheupdated/:id', async (req, res) => {
       holiday.comboAddedFor += employeeLength;
       await holiday.save();
 
-      const leaveType = await LeaveType.findOne({ where: { leaveTypeName: 'Comb Off' } });
+      const leaveType = await LeaveType.findOne({ where: { leaveTypeName: 'Comp Off' } });
       const leaveTypeId = leaveType.id;
 
       let comboOff = await ComboOff.findOne({ where: { holidayId: id } });

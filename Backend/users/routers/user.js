@@ -606,7 +606,7 @@ router.get('/confirmemployee/:id', authenticateToken, async (req, res) => {
       const leaveTypes = await LeaveType.findAll({});
       const sl = leaveTypes.find(x => x.leaveTypeName === 'Sick Leave');
       const cl = leaveTypes.find(x => x.leaveTypeName === 'Casual Leave');
-      const co = leaveTypes.find(x => x.leaveTypeName === 'Comb Off');
+      const co = leaveTypes.find(x => x.leaveTypeName === 'Comp Off');
       const slId = sl ? sl.id : null;
       const clId = cl ? cl.id : null;
       const coId = co ? co.id : null;
