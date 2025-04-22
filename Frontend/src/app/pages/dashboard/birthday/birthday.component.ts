@@ -37,5 +37,12 @@ router=inject(Router)
 
       this.router.navigate(['login/mail/birthday-draft', name]);
     }
-  
+
+    isTodayBirthday(dateOfBirth: string | Date): boolean {
+      const dob = new Date(dateOfBirth);
+      const today = new Date();
+      return dob.getDate() === today.getDate() && dob.getMonth() === today.getMonth();
+    }
+    
+    
 }
