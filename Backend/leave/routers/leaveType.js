@@ -71,7 +71,7 @@ router.get('/find', async (req, res) => {
       CASE 
         WHEN "leaveTypeName" = 'Casual Leave' THEN 1
         WHEN "leaveTypeName" = 'Sick Leave' THEN 2
-        WHEN "leaveTypeName" = 'Comb Off' THEN 3
+        WHEN "leaveTypeName" = 'Comp Off' THEN 3
         WHEN "leaveTypeName" = 'LOP' THEN 4
         ELSE 5
       END

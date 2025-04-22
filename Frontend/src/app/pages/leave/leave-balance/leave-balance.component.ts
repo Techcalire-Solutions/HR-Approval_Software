@@ -113,7 +113,7 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
         return '/img/steptodown.com217905.jpg';
       case 'Sick Leave':
         return '/img/steptodown.com832314.jpg';
-      case 'Comb Off':
+      case 'Comp Off':
         return '/img/steptodown.com802865.jpg';
       default:
         return '/img/steptodown.com500724.jpg';
