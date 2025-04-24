@@ -20,6 +20,7 @@
             <thead>
               <tr>
                 <th scope="col">EntryNo</th>
+                <th scope="col">Customer</th>
                 <th scope="col">Sales Executive</th>
                 <th scope="col">KAM</th>
                 <th scope="col">Manager</th>
@@ -30,8 +31,9 @@
             </thead>
             <tbody>
               @for(invoice of invoices;let i=$index; track $index){
-                <tr [routerLink]="['/login/viewApproval/viewinvoices/', invoice.id]" >
+                <tr [routerLink]="['/login/viewApproval/viewinvoices/', invoice.id]">
                   <td [attr.data-label]="'InvoiceNo'">{{invoice.piNo || '-'}}</td>
+                  <td [attr.data-label]="'InvoiceNo'">{{ invoice.customers?.companyName ?? 'To Stock' }}</td>
                   <td [attr.data-label]="'SP'">{{invoice.salesPerson?.name || '-'}}</td>
                   <td [attr.data-label]="'KAM'">{{invoice.kam?.name || '-'}}</td>
                   <td [attr.data-label]="'AM'">{{invoice.am?.name || '-'}}</td>

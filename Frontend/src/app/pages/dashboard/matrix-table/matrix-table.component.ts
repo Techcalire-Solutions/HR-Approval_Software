@@ -5,13 +5,13 @@ import { PerformaInvoice } from '../../../common/interfaces/payments/performaInv
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { Subscription } from 'rxjs';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-matrix-table',
   standalone: true,
   imports: [
-     MatCardModule, MatPaginatorModule,
+     MatCardModule, MatPaginatorModule, RouterModule
   ],
   templateUrl: './matrix-table.component.html',
   styleUrl: './matrix-table.component.scss'

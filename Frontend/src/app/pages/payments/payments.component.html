@@ -1,4 +1,4 @@
-<mat-tab-group class="horizontal-tabs" (selectedTabChange)="onTabChange($event.index)">
+<mat-tab-group class="horizontal-tabs" [selectedIndex]="selectedTabIndex" (selectedTabChange)="onTabChange($event.index)">
   @if(roleName !=='Administrator'  && roleName !== 'Super Administrator'){
     <mat-tab>
       <mat-card style="margin-top: 20px;">

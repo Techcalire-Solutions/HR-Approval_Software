@@ -1944,7 +1944,9 @@ router.get('/dashboard/cc', authenticateToken, async (req, res) => {
                 { model: PerformaInvoiceStatus },
                 { model: User, as: 'salesPerson', attributes: ['name'] },
                 { model: User, as: 'kam', attributes: ['name'] },
-                { model: User, as: 'am', attributes: ['name'] }
+                { model: User, as: 'am', attributes: ['name'] },
+                { model: Company, as: 'suppliers', attributes: ['companyName'] },
+                { model: Company, as: 'customers', attributes: ['companyName'] },
             ]
         });
         
@@ -2005,7 +2007,9 @@ router.get('/dashboard/wt', authenticateToken, async (req, res) => {
                 { model: PerformaInvoiceStatus },
                 { model: User, as: 'salesPerson', attributes: ['name'] },
                 { model: User, as: 'kam', attributes: ['name'] },
-                { model: User, as: 'am', attributes: ['name'] }
+                { model: User, as: 'am', attributes: ['name'] },
+                { model: Company, as: 'suppliers', attributes: ['companyName'] },
+                { model: Company, as: 'customers', attributes: ['companyName'] },
             ]
         });
         

@@ -7,6 +7,7 @@
                 <thead>
                     <tr>
                         <th>Entry #</th>
+                        <th>Customer</th>
                         <th>Attempt</th>
                         <th>SP</th>
                         <th>KAM</th>
@@ -17,13 +18,18 @@
                 <tbody>
                     @for (item of wtInvoices; track $index) {
                         <tr>
-                            <td class="project" (click)="openInvoice(item.id)" 
-                                style="cursor: pointer; text-decoration: underline; color: #007bff; transition: color 0.3s;" 
-                                (mouseenter)="onMouseEnter($event)" 
-                                (mouseleave)="onMouseLeave($event)">
-                                {{ item.piNo }}
+                            <td class="project">
+                                <a [routerLink]="['/login/viewApproval/viewinvoices', item.id]" 
+                                   (click)="$event.preventDefault(); openInvoice(item.id)"
+                                   style="cursor: pointer; text-decoration: underline; color: #007bff; transition: color 0.3s;" 
+                                   (mouseenter)="onMouseEnter($event)" 
+                                   (mouseleave)="onMouseLeave($event)">
+                                   {{ item.piNo }}
+                                </a>
                             </td>
-            
+                            <td class="project" style="background-color: white; color: rgb(6, 49, 105);">
+                                {{ item.customers?.companyName ?? 'To Stock' }}
+                            </td>
                             <td class="project" style="background-color: white; color: rgb(6, 49, 105);">
                                 {{ item.count }}
                             </td>
@@ -85,6 +91,7 @@
                     <thead>
                       <tr>
                         <th>Entry #</th>
+                        <th>Customer</th>
                         <th>Attempt</th>
                         <th>INITIATED</th>
                         <th>AM APPROVED</th>
@@ -94,11 +101,18 @@
                     <tbody>
                     @for (item of invoices; track $index) {
                         <tr>
-                            <td class="project" (click)="openInvoice(item.id)" style="cursor: pointer; text-decoration: underline; color: #007bff; transition: color 0.3s;" 
-                                (mouseenter)="onMouseEnter($event)" (mouseleave)="onMouseLeave($event)">
-                                {{ item.piNo }}
+                            <td class="project">
+                                <a [routerLink]="['/login/viewApproval/viewinvoices', item.id]" 
+                                   (click)="$event.preventDefault(); openInvoice(item.id)"
+                                   style="cursor: pointer; text-decoration: underline; color: #007bff; transition: color 0.3s;" 
+                                   (mouseenter)="onMouseEnter($event)" 
+                                   (mouseleave)="onMouseLeave($event)">
+                                   {{ item.piNo }}
+                                </a>
                             </td>
-                
+                            <td class="project" style="background-color: white; color: rgb(6, 49, 105);">
+                                {{ item.customers?.companyName ?? 'To Stock' }}
+                            </td>
                             <td class="project" style="background-color: white; color: rgb(6, 49, 105);">
                                 {{ item.count }}
                             </td>
