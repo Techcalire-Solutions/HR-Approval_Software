@@ -214,6 +214,7 @@ users:User;
         (item.title === 'Payslip' && item.parentId === 13) ||
         (item.title === 'Leave' && !item.parentId)||
         (item.title === 'Request' && item.parentId === 8) ||
+        (item.title === 'View' && item.parentId === 8) ||
         (item.title === 'Balance' && item.parentId === 8)
         // (item.title === 'Payroll' && !item.parentId) ||
         // (item.title === 'Advance Salary' && item.parentId === 13) ||
