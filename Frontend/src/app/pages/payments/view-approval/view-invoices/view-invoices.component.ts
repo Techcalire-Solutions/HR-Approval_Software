@@ -68,13 +68,13 @@ export class ViewInvoicesComponent {
   }
 
   ngOnInit(): void {
-    let id = this.route.snapshot.params['id'];
+    const id = this.route.snapshot.params['id'];
 
     const token: any = localStorage.getItem('token')
-    let user = JSON.parse(token)
+    const user = JSON.parse(token)
     this.userId = user.id;
 
-    let roleId = user.role
+    const roleId = user.role
     this.getRoleById(roleId, id)
   }
 
@@ -216,7 +216,7 @@ export class ViewInvoicesComponent {
   fileName: string = '';
   excelSub!: Subscription;
   makeExcel() {
-    let data = {
+    const data = {
       EntryNo: this.pi.piNo,
       Purpose: this.pi.purpose,
       SupplierName: this.pi.suppliers.companyName,
@@ -258,6 +258,14 @@ export class ViewInvoicesComponent {
   }
 
 
+  goBack() {
+    // Get the returnPage from current route query params
+    const returnPage = this.route.snapshot.queryParams['returnPage'] || 1;
+    // Navigate back to list with pagination preserved
+    this.router.navigate(['login/viewApproval/view'], { 
+      queryParams: { page: returnPage } 
+    });
+  }
 
 
 }

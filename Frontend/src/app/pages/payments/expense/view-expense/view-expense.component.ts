@@ -60,7 +60,9 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
 
   data: any;
   isFlow: boolean = false;
-  loadData(data: any) {
+  loadData(data: any, tabIndex: number) {
+    console.log(tabIndex);
+    
     this.isFlow = true;
     if (!data) {
       alert("No data available for this tab.");

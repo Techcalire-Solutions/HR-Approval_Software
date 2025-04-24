@@ -7,6 +7,7 @@ import { ViewExpenseComponent } from './expense/view-expense/view-expense.compon
 import { InvoiceService } from '@services/invoice.service';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-payments',
@@ -16,10 +17,12 @@ import { CommonModule } from '@angular/common';
   styleUrl: './payments.component.scss'
 })
 export class PaymentsComponent implements OnInit{
+  currentTabIndex: number = 0;
+  currentPage: number = 1;
+  private readonly route = inject(ActivatedRoute);
   ngOnInit(): void {
     const token: any = localStorage.getItem('token')
     const user = JSON.parse(token)
-    // this.user = user.id;
     const roleId = user.role
     this.getRoleById(roleId);
   }
@@ -88,10 +91,17 @@ export class PaymentsComponent implements OnInit{
         teamLead: this.teamLead,
         pageStatus: this.pageStatus
       }
-      this.onTabChange(0)
+      const tabIndex = this.invoiceService.getState('tabIndex');
+      if (tabIndex !== undefined && tabIndex !== null) {
+        this.selectedTabIndex = tabIndex.tabIndex;
+        this.onTabChange(this.selectedTabIndex)
+      }else{
+        this.onTabChange(0)
+      }
     })
   }
-
+  
+  selectedTabIndex: number = 0;
   onTabChange(event: number) {
     switch (this.roleName) {
       case 'Sales Executive':
@@ -106,10 +116,6 @@ export class PaymentsComponent implements OnInit{
             break;
           case 2:
             this.data.status = 'REJECTED';
-            this.data.pageStatus = false;
-            break;
-          case 3:
-            this.data.status = '';
             this.data.pageStatus = false;
             break;
           case 3:
@@ -247,43 +253,35 @@ export class PaymentsComponent implements OnInit{
           }
           break;
     }
-    console.log(event, this.viewApprovalComponents.length, this.viewExpenseComponent.length);
-    
-    // if (event === 4 && this.viewExpenseComponent.length > 0 ) {
-    //   const activeComponent = this.viewExpenseComponent.toArray()[0]; // or correct index if it's not 0
-    //   if (activeComponent) {
-    //     activeComponent.loadData(this.data);
-    //   } 
-    // }else 
     if (this.roleName === 'Manager' && event === 6 && this.viewExpenseComponent.length > 0) {
       const activeComponent = this.viewExpenseComponent.toArray()[0]; // or correct index if it's not 0
       if (activeComponent) {
-        activeComponent.loadData(this.data);
+        activeComponent.loadData(this.data, event);
       } 
     }else if (event === 5 && this.viewExpenseComponent.length > 0 && this.roleName === 'Key Account Manager') {
       const activeComponent = this.viewExpenseComponent.toArray()[0]; // or correct index if it's not 0
       if (activeComponent) {
-        activeComponent.loadData(this.data);
+        activeComponent.loadData(this.data, event);
       } 
     }else if (event === 3 && this.viewExpenseComponent.length > 0 && this.roleName === 'Accountant') {
       const activeComponent = this.viewExpenseComponent.toArray()[0]; // or correct index if it's not 0
       if (activeComponent) {
-        activeComponent.loadData(this.data);
+        activeComponent.loadData(this.data, event);
       } 
     } else if (event === 0 && this.viewApprovalComponents.length > 0 && (this.roleName === 'Administrator' || this.roleName === 'Super Administrator')) {
       const activeComponent = this.viewApprovalComponents.toArray()[0]; 
       if (activeComponent) {
-        activeComponent.loadData(this.data);
+        activeComponent.loadData(this.data, event);
       } 
     }  else if (event === 1 && this.viewExpenseComponent.length > 0 && (this.roleName === 'Administrator' || this.roleName === 'Super Administrator')) {
       const activeComponent = this.viewExpenseComponent.toArray()[0]; 
       if (activeComponent) {
-        activeComponent.loadData(this.data);
+        activeComponent.loadData(this.data, event);
       } 
     } else if (this.viewApprovalComponents.length > 0) {
       const activeComponent = this.viewApprovalComponents.toArray()[event];
       if (activeComponent) {
-        activeComponent.loadData(this.data);
+        activeComponent.loadData(this.data, event);
       } 
     }
 

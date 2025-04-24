@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, CUSTOM_ELEMENTS_SCHEMA, inject, Input, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -66,17 +66,23 @@ export class ViewApprovalComponent {
     this.user = user.id;
     this.querySub = this.route.queryParams.subscribe(params => {
       this.isSubmitted = params['isSubmitted'] === 'true';
-    });
+    });;
   }
 
-  loadData(data: any) {
-    console.log(data);
+  loadData(data: any, tabIndex: number) {
+    this.invoiceService.setState('tabIndex', {
+      tabIndex: tabIndex
+    });
     
     if (!data) {
       alert("No data available for this tab.");
       return;
     }
     this.data = data;
+    const page = this.invoiceService.getState('invoiceList');
+    if (page !== undefined && page !== null) {
+      this.currentPage = page.page;
+    }
     this.getInvoices();
   }
 
@@ -127,8 +133,6 @@ export class ViewApprovalComponent {
         statusArray.forEach((status: any )=> {
           this.invoiceService.getPIByAM(status, this.filterValue, this.currentPage, this.pageSize)
             .subscribe((res: any) => {
-              console.log(res);
-              
               allInvoices.push(...res.items);
               this.totalItems = (this.totalItems || 0) + res.count;
               completedCalls++;
@@ -229,12 +233,15 @@ export class ViewApprovalComponent {
   }
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  pageSize = 10;
+  pageSize = 1;
   currentPage = 1;
   totalItems = 0;
   onPageChange(event: PageEvent): void {
     this.currentPage = event.pageIndex + 1;
     this.pageSize = event.pageSize;
+    this.invoiceService.setState('invoiceList', {
+      page: this.currentPage
+    });
     this.getInvoices();
   }
 
@@ -274,11 +281,7 @@ export class ViewApprovalComponent {
   verifiedSub: Subscription;
   dialogSub!: Subscription;
   verified(value: string, piNo: string, sp: string, id: number, stat: string){
-    console.log("verificarion");
-    
     let status = this.data.status;
-    console.log(status);
-    
     if(stat === 'INITIATED' && value === 'approved') status = 'AM APPROVED';
     else if(stat === 'INITIATED' && value === 'rejected') status = 'AM DECLINED';
     if((status === 'GENERATED' || (Array.isArray(status) && status.includes('KAM VERIFIED'))) && value === 'approved') status = 'KAM VERIFIED';
@@ -293,8 +296,6 @@ export class ViewApprovalComponent {
     this.dialogSub = dialogRef.afterClosed().subscribe(result => {
       this.submittingForm = true;
       if(result){
-        console.log(this.submittingForm);
-        
         const data = {
           status: status,
           performaInvoiceId: id,
@@ -305,7 +306,6 @@ export class ViewApprovalComponent {
         }
 
         this.verifiedSub = this.invoiceService.updatePIStatus(data).subscribe(() => {
-          // this.submittingForm = false;
           this.getInvoices()
           this.snackBar.open(`Invoice ${piNo} updated to ${status}...`,"" ,{duration:3000})
           this.router.navigateByUrl('login/viewApproval/view')
@@ -328,8 +328,6 @@ export class ViewApprovalComponent {
         } 
         else if (result.action === 'changeKam') {
           this.submittingForm = true;
-          console.log(this.submittingForm);
-          
           const data = {
             kamId: result.newKam
           }

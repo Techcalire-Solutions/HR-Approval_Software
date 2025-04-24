@@ -168,4 +168,13 @@ export class InvoiceService {
     return this._http.patch(this.url + '/performaInvoice/kamupdate/'+ id, data);
   }
 
+  private state = new Map<string, any>();
+  
+  setState(key: string, value: any) {
+    this.state.set(key, value);
+  }
+  
+  getState(key: string) {
+    return this.state.get(key);
+  }
 }
