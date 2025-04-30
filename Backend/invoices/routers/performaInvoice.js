@@ -2037,9 +2037,48 @@ router.get('/dashboard/wt', authenticateToken, async (req, res) => {
 });
 
 router.patch('/getforadminreport', authenticateToken, async (req, res) => {
-    let invoices;
     try {
-        invoices = await PerformaInvoice.findAll({
+        const { invoiceNo, addedBy, status, startDate, endDate } = req.body;
+
+        const whereClause = {};
+
+        // Filter by invoiceNo (case-insensitive)
+        if (invoiceNo) {
+            whereClause.piNo = {
+                [Op.iLike]: `%${invoiceNo.replace(/\s+/g, '')}%`
+            };
+        }
+
+        if (addedBy) {
+            whereClause.addedById = addedBy;
+        }
+
+        if (status) {
+            if (status === 'GENERATED') {
+                whereClause.status = {
+                    [Op.in]: ['GENERATED', 'INITIATED']
+                };
+            } else if (status === 'AM VERIFIED') {
+                whereClause.status = {
+                    [Op.in]: ['AM VERIFIED', 'AM APPROVED']
+                };
+            } else if (status === 'BANK SLIP ISSUED') {
+                whereClause.status = {
+                    [Op.in]: ['BANK SLIP ISSUED', 'CARD PAYMENT SUCCESS']
+                };
+            } else {
+                whereClause.status = status;
+            }
+        }
+
+        if (startDate && endDate) {
+            whereClause.createdAt = {
+                [Op.between]: [new Date(startDate), new Date(endDate)]
+            };
+        }
+
+        const invoices = await PerformaInvoice.findAll({
+            where: whereClause,
             include: [
                 { model: Company, as: 'suppliers' }, 
                 { model: Company, as: 'customers' }, 
@@ -2051,57 +2090,14 @@ router.patch('/getforadminreport', authenticateToken, async (req, res) => {
                 { model: User, as: 'accountant', attributes: ['name'] }
             ]
         });
+
+        res.json(invoices);
     } catch (error) {
-        return res.send(error.message);
+        console.error('Error fetching invoices:', error);
+        res.status(500).send('Internal Server Error');
     }
-    
-    let { invoiceNo, addedBy, status, startDate, endDate } = req.body;
-    
-    if (invoiceNo) {
-        const searchTerm = invoiceNo.replace(/\s+/g, '').trim().toLowerCase();
-        invoices = invoices.filter(invoice => 
-            invoice.piNo.replace(/\s+/g, '').trim().toLowerCase().includes(searchTerm)
-        );
-    }
-
-    // if (createdAt) {
-    //     invoices = invoices.filter(invoice => invoice.createdAt === createdAt);
-    // }
-    
-    if (addedBy) {
-        invoices = invoices.filter(invoice => invoice.addedById === addedBy);
-    }
-
-    if (status) {
-        if (status === 'GENERATED') {
-            invoices = invoices.filter(invoice => 
-                invoice.status === 'GENERATED' || invoice.status === 'INITIATED'
-            );
-        }else if (status === 'AM VERIFIED') {
-            invoices = invoices.filter(invoice => 
-                invoice.status === 'AM VERIFIED' || invoice.status === 'AM APPROVED'
-            );
-        }else if (status === 'BANK SLIP ISSUED') {
-            invoices = invoices.filter(invoice => 
-                invoice.status === 'BANK SLIP ISSUED' || invoice.status === 'CARD PAYMENT SUCCESS'
-            );
-        }  else {
-            invoices = invoices.filter(invoice => invoice.status === status);
-        }
-    }
-
-    if (startDate && endDate) {
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-
-        invoices = invoices.filter(invoice => {
-            const invoiceDate = new Date(invoice.createdAt);
-            return invoiceDate >= start && invoiceDate <= end;
-        });
-    }
-    
-    res.send(invoices);
 });
+
 
 
 router.get('/findcount', authenticateToken, async (req, res) => {
