@@ -92,6 +92,8 @@ export class UserLeaveComponent implements OnInit, OnDestroy {
   submit: Subscription;
   onSubmit(){
     this.submit = this.leaveService.updateUserLeave(this.updated).subscribe(res=>{
+      console.log(res);
+      
       this.dialogRef.close();
       this.snackBar.open(`Leave updated successfully for ${this.data.name}...`, 'Close', { duration: 3000 });
     })

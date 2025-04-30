@@ -2096,12 +2096,14 @@ router.get('/leaveBalance/:leaveId', authenticateToken, async (req, res) => {
         message: 'LOP leave does not require leave balance check.',
       });
     }
+    const leaveYear = new Date(leave.startDate).getFullYear();
 
     // Fetch user leave balance
     const userLeave = await UserLeave.findOne({
       where: {
         userId: leave.userId,
         leaveTypeId: leave.leaveTypeId,
+        year: leaveYear
       },
     });
 
@@ -2128,4 +2130,5 @@ router.get('/leaveBalance/:leaveId', authenticateToken, async (req, res) => {
     res.send(error.message);
   }
 });
+
 module.exports = router;

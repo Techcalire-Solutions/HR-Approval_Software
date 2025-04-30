@@ -88,6 +88,8 @@ export class LeaveComponent implements OnInit, OnDestroy{
   getLeaves(){
     this.leaveSub = this.leaveService.getLeavesPaginated(this.value, this.searchText, this.currentPage, this.pageSize).subscribe((leaves: any) => {
       this.leaves = leaves.items;
+      console.log(leaves);
+      
       this.filteredLeaves = this.leaves
       this.totalItems = leaves.count;
     })
@@ -133,6 +135,8 @@ export class LeaveComponent implements OnInit, OnDestroy{
     } else if (action === 'approve') {
       this.leaveBalSub = this.leaveService.getLeaveBalance(leaveId).subscribe(
         (res: any) => {
+          console.log(res);
+          
           if (res.leaveType === 'LOP' || res.isSufficient) {
             this.openNoteDialog(action, leaveId);
           } else {
@@ -159,6 +163,8 @@ export class LeaveComponent implements OnInit, OnDestroy{
     });
 
     this.dialogSub = dialogRef.afterClosed().subscribe(note => {
+      console.log(note);
+      
       if (note !== false) {
         action === 'approve' ? this.approveLeave(leaveId, note) : this.rejectLeave(leaveId, note);
       }else{
@@ -173,6 +179,8 @@ export class LeaveComponent implements OnInit, OnDestroy{
     const approvalData = { leaveId: leaveId, adminNotes: note };
     this.approveSub = this.leaveService.updateApproveLeaveStatus(approvalData).subscribe(
       (res) => {
+        console.log(res);
+        
         this.isLoading = false
         this.snackbar.open('Leave approved successfully', '', { duration: 3000 });
         if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){

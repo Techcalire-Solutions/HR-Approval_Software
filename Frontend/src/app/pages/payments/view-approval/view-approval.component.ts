@@ -233,7 +233,7 @@ export class ViewApprovalComponent {
   }
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  pageSize = 1;
+  pageSize = 10;
   currentPage = 1;
   totalItems = 0;
   onPageChange(event: PageEvent): void {
