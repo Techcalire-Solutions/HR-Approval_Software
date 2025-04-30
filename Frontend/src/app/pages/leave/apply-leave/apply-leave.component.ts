@@ -164,6 +164,8 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   getUserLeaves(id: number){
     this.ulSub = this.leaveService.getUserLeaveByUser(id).subscribe((response: any) => {
       this.userLeaves = response;
+      console.log(this.userLeaves);
+      
     });
   }
 
