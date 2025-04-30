@@ -88,8 +88,6 @@ export class LeaveComponent implements OnInit, OnDestroy{
   getLeaves(){
     this.leaveSub = this.leaveService.getLeavesPaginated(this.value, this.searchText, this.currentPage, this.pageSize).subscribe((leaves: any) => {
       this.leaves = leaves.items;
-      console.log(leaves);
-      
       this.filteredLeaves = this.leaves
       this.totalItems = leaves.count;
     })
@@ -135,8 +133,6 @@ export class LeaveComponent implements OnInit, OnDestroy{
     } else if (action === 'approve') {
       this.leaveBalSub = this.leaveService.getLeaveBalance(leaveId).subscribe(
         (res: any) => {
-          console.log(res);
-          
           if (res.leaveType === 'LOP' || res.isSufficient) {
             this.openNoteDialog(action, leaveId);
           } else {
