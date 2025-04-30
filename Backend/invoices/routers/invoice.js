@@ -301,14 +301,15 @@ router.post('/excelupload', async (req, res) => {
 
 router.post('/download-excel', async (req, res) => {
   const data = req.body.invoices;
-  const {invoiceNo, addedBy, status, startDate, endDate} = req.body;
+  const { invoiceNo, addedBy, status, startDate, endDate } = req.body;
+
   try {
-    
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('My Data');
+    const worksheet = workbook.addWorksheet('Proforma Report');
+
     const currentDate = new Date().toISOString().split('T')[0];
-    const uniqueIdentifier = Date.now();  
-    const fileName = `ExcelReports/Proforma/${currentDate}_${uniqueIdentifier}.xlsx`; 
+    const uniqueIdentifier = Date.now();
+    const fileName = `ExcelReports/Proforma/${currentDate}_${uniqueIdentifier}.xlsx`;
     const bucketName = process.env.AWS_BUCKET_NAME;
 
     worksheet.columns = [
@@ -316,49 +317,50 @@ router.post('/download-excel', async (req, res) => {
       { header: 'PO NO', key: 'supplierPoNo', width: 10 },
       { header: 'Supplier', key: 'supplier', width: 20 },
       { header: 'Invoice NO', key: 'supplierSoNo', width: 10 },
-      { header: 'Amount', key: 'supplierPrice', width: 10 },
-      { header: 'Purpose', key: 'purpose', width: 8 },
+      { header: 'Amount', key: 'supplierPrice', width: 15 },
+      { header: 'Purpose', key: 'purpose', width: 15 },
       { header: 'Customer', key: 'customer', width: 20 },
-      { header: 'CustomerSoNo', key: 'customerSoNo', width: 10 },
-      { header: 'CustomerPoNo', key: 'customerPoNo', width: 10 },
-      { header: 'Payment Mode', key: 'paymentMode', width: 10 },
-      { header: 'Status', key: 'status', width: 10 },
+      { header: 'CustomerSoNo', key: 'customerSoNo', width: 15 },
+      { header: 'CustomerPoNo', key: 'customerPoNo', width: 15 },
+      { header: 'Customer Price', key: 'customerPrice', width: 15 },
+      { header: 'Payment Mode', key: 'paymentMode', width: 15 },
+      { header: 'Status', key: 'status', width: 12 },
       { header: 'AddedBy', key: 'addedBy', width: 15 },
       { header: 'Sales Person', key: 'salesPerson', width: 15 },
       { header: 'KAM', key: 'kamName', width: 15 },
       { header: 'AM', key: 'amName', width: 15 },
       { header: 'Accountant', key: 'accountant', width: 15 },
-      { header: 'Created Date', key: 'createdDate', width: 8 },
-      { header: 'Updated Date', key: 'updatedDate', width: 8 },
+      { header: 'Created Date', key: 'createdDate', width: 20 },
+      { header: 'Updated Date', key: 'updatedDate', width: 20 },
       { header: 'Attachments', key: 'url', width: 80 },
       { header: 'Wire Slip', key: 'bankSlip', width: 50 },
-      { header: 'Notes', key: 'notes', width: 50 },
+      { header: 'Notes', key: 'notes', width: 50 }
     ];
 
     data.forEach(item => {
       worksheet.addRow({
         piNo: item.piNo,
         supplierPoNo: item.supplierPoNo,
-        supplier: item.suppliers.companyName,
+        supplier: item.suppliers?.companyName || '',
         supplierSoNo: item.supplierSoNo,
-        supplierPrice: `${item.poValue} ${item.supplierCurrency}`,
+        supplierPrice: `${item.poValue} ${item.supplierCurrency || ''}`,
         purpose: item.purpose,
-        customer: item.customers?.companyName,
+        customer: item.customers?.companyName || '',
         customerSoNo: item.customerSoNo,
         customerPoNo: item.customerPoNo,
-        customerPrice: `${item.customerPrice} ${item.customerCurrency}`,
+        customerPrice: `${item.customerPrice} ${item.customerCurrency || ''}`,
         paymentMode: item.paymentMode,
         status: item.status,
-        addedBy: item.addedBy.name,
-        salesPerson: item.salesPerson?.name,
-        kamName: item.kam?.name,
-        amName: item.am?.name,
-        accountant: item.accountant?.name,
-        createdDate: item.createdAt,
-        updatedDate: item.updatedAt,
+        addedBy: item.addedBy?.name || '',
+        salesPerson: item.salesPerson?.name || '',
+        kamName: item.kam?.name || '',
+        amName: item.am?.name || '',
+        accountant: item.accountant?.name || '',
+        createdDate: item.createdAt ? new Date(item.createdAt).toLocaleString() : '',
+        updatedDate: item.updatedAt ? new Date(item.updatedAt).toLocaleString() : '',
         url: item.url ? item.url.map(entry => entry.url).join(', ') : '',
-        bankSlip: item.bankSlip,
-        notes: item.notes
+        bankSlip: item.bankSlip || '',
+        notes: item.notes || ''
       });
     });
 
@@ -372,16 +374,31 @@ router.post('/download-excel', async (req, res) => {
       ACL: 'public-read'
     };
 
-    const excelLog = new ExcelLog ({ fromDate: startDate, toDate: endDate, status, userId: addedBy, 
-      downloadedDate: currentDate, fileName: fileName, invoiceNo, type: 'Proforma'  });
-      await excelLog.save();
+    // Log the Excel generation
+    const excelLog = new ExcelLog({
+      fromDate: startDate,
+      toDate: endDate,
+      status,
+      userId: addedBy,
+      downloadedDate: currentDate,
+      fileName,
+      invoiceNo,
+      type: 'Proforma'
+    });
+
+    await excelLog.save();
     const result = await s3.upload(paramsUploadNew).promise();
 
-    res.send({ message: 'File uploaded successfully', name: fileName, excelLog: excelLog });
+    res.status(200).json({
+      message: 'File uploaded successfully',
+      fileUrl: result.Location,
+      name: fileName,
+      excelLog
+    });
   } catch (error) {
-    res.send(error.message);
+    console.error('Error generating Excel:', error);
+    res.send( error.message );
   }
 });
-
 
 module.exports = router;
