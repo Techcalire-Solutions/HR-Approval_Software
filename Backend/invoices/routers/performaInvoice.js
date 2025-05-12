@@ -848,7 +848,8 @@ router.get('/findbkam', authenticateToken, async(req, res) => {
                     include: [
                         { model: Role, attributes: ['roleName']}
                     ]
-                }
+                },
+                { model: Company, as: 'customers', attributes: ['companyName'] },
             ]
         })
         
@@ -927,7 +928,8 @@ router.get('/findbyam', authenticateToken, async(req, res) => {
                     include: [
                         { model: Role, attributes: ['roleName']}
                     ]
-                }
+                },
+                { model: Company, as: 'customers', attributes: ['companyName'] },
             ]
         })
 
@@ -999,7 +1001,8 @@ router.get('/findbyma', authenticateToken, async(req, res) => {
                     include: [
                         { model: Role, attributes: ['roleName']}
                     ]
-                }
+                },
+                { model: Company, as: 'customers', attributes: ['companyName'] },
 
             ]
         })
@@ -1071,7 +1074,8 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
                     include: [
                         { model: Role, attributes: ['roleName']}
                     ]
-                }
+                },
+                { model: Company, as: 'customers', attributes: ['companyName'] },
             ]
         });
 
@@ -1749,10 +1753,6 @@ router.patch('/updateByAM/:id', authenticateToken, async(req, res) => {
 
     const supplier = await Company.findOne({ where: { id: supplierId } });
     const customer = await Company.findOne({ where: { id: customerId } });
-
-
-
-
 
     const attachments = [];
 
