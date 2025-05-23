@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>
+  Leave Details for {{ data.monthName }} - {{ data.employeeName }}
+</h2>
+<div mat-dialog-content>
+  <h3>Leave Type: {{ data.leaveType }}</h3>
+  @if (data.leaveRequests.length > 0) {
+    <div>
+      <mat-list>
+        @for (leave of data.leaveRequests; track $index) {
+          <mat-list-item>
+            <span mat-line>
+              <span class="date-range">{{ leave.startDate }} to {{ leave.endDate }}</span>
+              <span class="duration">({{ leave.duration }} days)</span>,
+            </span>
+            <span mat-line>Submitted: {{ leave.createdAt | date:'mediumDate' }}</span>
+            @if(leave.reason){
+              <span mat-line class="reason">
+                <strong>Reason:</strong> {{ leave.reason }}
+              </span>
+            }
+          </mat-list-item>
+        }
+      </mat-list>
+    </div>
+  } @else {
+    <p class="no-leaves">No leave requests for this month</p>
+  }
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onClose()">Close</button>
+</div>
