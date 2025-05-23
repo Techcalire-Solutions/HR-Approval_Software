@@ -2024,6 +2024,7 @@ router.get('/all/report', async (req, res) => {
       const userName = record.user?.name;
       const userUrl = record.user?.url;
       const leaveTypeName = record.leaveType?.leaveTypeName;
+      const leaveTypeId = record.leaveType?.id;
 
       if (!employeeMap[userId]) {
         employeeMap[userId] = {
@@ -2041,6 +2042,7 @@ router.get('/all/report', async (req, res) => {
 
       employeeMap[userId].leaveDetails.push({
         type: leaveTypeName,
+        typeId: leaveTypeId,
         monthlyData: usage.monthlyData,
         total: usage.total,
         balance: {
@@ -2130,5 +2132,46 @@ router.get('/leaveBalance/:leaveId', authenticateToken, async (req, res) => {
     res.send(error.message);
   }
 });
+
+router.get('/report/month-details', authenticateToken, async (req, res) => {
+  const { employeeId, leaveTypeId, year, month } = req.query;
+  try {
+        const startDate = new Date(year, month - 1, 1); // month is 1-12
+        const endDate = new Date(year, month, 0, 23, 59, 59); // Last day of month
+
+        const leaveDetails = await Leave.findAll({
+          where: {
+            userId: employeeId,
+            leaveTypeId: leaveTypeId,
+            [Op.or]: [
+              // Leaves that start within the month
+              {
+                startDate: {
+                  [Op.between]: [startDate, endDate]
+                }
+              },
+              // Leaves that end within the month
+              {
+                endDate: {
+                  [Op.between]: [startDate, endDate]
+                }
+              },
+              // Leaves that span the entire month
+              {
+                [Op.and]: [
+                  { startDate: { [Op.lte]: startDate } },
+                  { endDate: { [Op.gte]: endDate } }
+                ]
+              }
+            ]
+          },
+          order: [['startDate', 'ASC']] // Order by start date
+        });
+
+        res.send(leaveDetails);
+  } catch (error) {
+    res.send(error.message);
+  }
+})
 
 module.exports = router;

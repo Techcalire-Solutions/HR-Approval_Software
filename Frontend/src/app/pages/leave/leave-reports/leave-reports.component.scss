@@ -205,3 +205,19 @@
 .balance-item.remaining .balance-value {
   color: #388e3c; /* Green for remaining */
 }
+
+.leave-month {
+    cursor: default;
+    padding: 5px;
+    text-align: center;
+}
+
+.leave-month.clickable {
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+}
+
+.leave-month.clickable:hover {
+    background-color: #e0e0e0;
+}

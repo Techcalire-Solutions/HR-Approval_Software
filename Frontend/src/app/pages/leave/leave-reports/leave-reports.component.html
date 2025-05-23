@@ -41,7 +41,8 @@
                 
                 <!-- Monthly Breakdown -->
                 <div class="leave-calendar">
-                    <div *ngFor="let monthData of leaveType.monthlyData; let i = index" class="leave-month">
+                    <div *ngFor="let monthData of leaveType.monthlyData; let i = index" class="leave-month"
+                             (click)="openMonthDetails(employee, leaveType, i, monthData)" [class.clickable]="monthData > 0">
                         <div class="month-name">{{ getMonthName(i) }}</div>
                         <div class="month-data">{{ monthData }}</div>
                     </div>

@@ -5,6 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { NewLeaveService } from '@services/new-leave.service';
+import { LeaveDetailsComponent } from './leave-details/leave-details.component';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-leave-reports',
@@ -82,5 +85,54 @@ export class LeaveReportsComponent {
   onYearChange(value: any){
     this.selectedYear = value;
     this.getReport()
+  }
+
+  private readonly dialog = inject(MatDialog);
+  private readonly snackbar = inject(MatSnackBar);
+  openMonthDetails(employee: any, leaveType: any, monthIndex: number, monthValue: number) {
+    if (monthValue <= 0) return; // Don't open dialog if no leaves in this month
+    
+    const month = monthIndex + 1; // Convert from 0-based to 1-based month
+    const year = this.selectedYear;
+    console.log(month, year);
+    
+    this.leaveService.getLeaveBalanceDetails(employee.id, leaveType.typeId, year, month)
+      .subscribe({
+        next: (leaveDetails) => {
+          this.dialog.open(LeaveDetailsComponent, {
+            data: {
+              employeeName: employee.name,
+              leaveType: leaveType.type,
+              monthName: this.getMonthName(monthIndex),
+              monthIndex: monthIndex,
+              leaveRequests: leaveDetails.map(request => ({
+                ...request,
+                startDate: this.formatDate(request.startDate),
+                endDate: this.formatDate(request.endDate),
+                duration: request.noOfDays,
+                status: request.status,
+                reason: request.notes
+              })),
+              year: year
+            }
+          });
+        },
+        error: (err) => {
+          console.error('Error fetching leave details:', err);
+          this.snackbar.open('Failed to load leave details', 'Close', {
+            duration: 3000
+          });
+        }
+      });
+  }
+
+  private formatDate(dateString: string | Date): string {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   }
 }

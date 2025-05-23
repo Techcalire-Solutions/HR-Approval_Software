@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { catchError, Observable, throwError } from 'rxjs';
 import { Leave } from '../common/interfaces/leaves/leave';
 import { UserLeave } from '../common/interfaces/leaves/userLeave';
 import { LeaveType } from '../common/interfaces/leaves/leaveType';
@@ -140,6 +140,23 @@ export class NewLeaveService {
 
   getLeaveCounts(userId: number, ltId: number, year: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/userLeave/leavecount/${userId}/${ltId}/${year}`);
+  }
+
+  // In your leave.service.ts
+
+  getLeaveBalanceDetails(employeeId: number, leaveTypeId: number, year: number, month: number): Observable<Leave[]> {
+    const params = new HttpParams()
+      .set('employeeId', employeeId.toString())
+      .set('leaveTypeId', leaveTypeId.toString())
+      .set('year', year.toString())
+      .set('month', month.toString());
+
+    return this.http.get<Leave[]>(`${this.apiUrl}/newleave/report/month-details`, { params }).pipe(
+      catchError(error => {
+        console.error('Error fetching leave balance details:', error);
+        return throwError(() => new Error('Failed to fetch leave details'));
+      })
+    );
   }
 
 }
