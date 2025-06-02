@@ -78,6 +78,8 @@ router.post('/add', authenticateToken, async (req, res) => {
         teamId: team.id,
         userId: userId
       });
+      console.log(teamMember);
+      
     } 
     res.send(user);
 
@@ -133,15 +135,6 @@ router.patch('/update/:id', async(req,res)=>{
     }
     const desi = await Designation.findByPk(req.body.designationId);
     const roleId = desi?.roleId;
-    // if(desi.designationName === 'MANAGING DIRECTOR'){
-    //   let user = await User.findByPk(result.userId)
-    //   user.director = true;
-    //   await user.save();
-    // }else{
-    //   let user = await User.findByPk(result.userId)
-    //   user.director = false;
-    //   await user.save();
-    // }
 
     if(roleId != null || roleId === ''){
       try {
@@ -152,6 +145,24 @@ router.patch('/update/:id', async(req,res)=>{
         res.send(error.message)
       }
     }
+
+        if (result.teamId !== teamId) {
+      // Find and update the existing team member record
+      const teamMember = await TeamMember.findOne({
+        where: { userId: result.userId }
+      });
+
+      if (teamMember) {
+        teamMember.teamId = teamId;
+        await teamMember.save();
+      } else {
+        await TeamMember.create({
+          teamId: teamId,
+          userId: result.userId
+        });
+      }
+    }
+
     result.division = division;
     result.costCentre = costCentre;
     result.grade = grade;

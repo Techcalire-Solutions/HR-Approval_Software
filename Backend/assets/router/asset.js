@@ -9,19 +9,10 @@ const sequelize = require('../../utils/db');
 const UserAssetsDetails = require('../model/userAssetDetails');
 
 router.post('/add', authenticateToken, async (req, res) => {
-    const { assetName, identifierType, identificationNumber, description, purchasedDate, purchasedFrom, invoiceNo, assignedStatus } = req.body;
+    const { assetName, assetNumber, assetHandoverNumber, serialNumber, noOfItems, description } = req.body;
 
     try {
-      const assetExist = await Asset.findOne({ where: { identificationNumber: identificationNumber}});
-      if(assetExist){
-        return res.send("Asset details with same identification number already exist");
-      }
-    } catch (error) {
-      res.send(error.message);
-    }
-    try {
-      const assetUpdatedName = `${assetName}_${identificationNumber}`
-          const asset = new Asset({assetName: assetUpdatedName, identifierType, identificationNumber, description, purchasedDate, purchasedFrom, invoiceNo, assignedStatus });
+          const asset = new Asset({ assetName, assetNumber, assetHandoverNumber, serialNumber, noOfItems, description });
           await asset.save();
           
           res.send(asset);
@@ -29,7 +20,7 @@ router.post('/add', authenticateToken, async (req, res) => {
     } catch (error) {
         res.send(error.message);
     }
-  })
+})
 
 router.get('/find', async (req, res) => {
     try {
@@ -57,17 +48,13 @@ router.get('/find', async (req, res) => {
               }
             ),
             sequelize.where(
-              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('identifierType'), ' ', '')),
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('assetNumber'), ' ', '')),
               { [Op.like]: `%${searchTerm}%` }
             ),
             sequelize.where(
-              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('identificationNumber'), ' ', '')),
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('serialNumber'), ' ', '')),
               { [Op.like]: `%${searchTerm}%` }
-            ),
-            sequelize.where(
-              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('purchasedFrom'), ' ', '')),
-              { [Op.like]: `%${searchTerm}%` }
-            ),
+            )
           ]
         };
       }
@@ -129,16 +116,15 @@ router.get('/findbyid/:id', authenticateToken, async(req,res)=>{
 
 
 router.patch('/update/:id', authenticateToken, async (req, res) => {
-  const { assetName, identifierType, identificationNumber, description, purchasedDate, purchasedFrom, invoiceNo } = req.body;
+  const { assetName, assetNumber, assetHandoverNumber, serialNumber, noOfItems, description } = req.body;
   try {
     const asset = await Asset.findByPk(req.params.id);
     asset.assetName = assetName;
-    asset.description = description;
-    asset.identifierType = identifierType;
-    asset.identificationNumber = identificationNumber;
-    asset.purchasedDate = purchasedDate;
-    asset.purchasedFrom = purchasedFrom;
-    asset.invoiceNo = invoiceNo;
+    asset.assetNumber = assetNumber;
+    asset.assetHandoverNumber = assetHandoverNumber;
+    asset.serialNumber = serialNumber;
+    asset.noOfItems = noOfItems;
+    asset.description = description
     await asset.save();
     res.send(asset);
   } catch (error) {

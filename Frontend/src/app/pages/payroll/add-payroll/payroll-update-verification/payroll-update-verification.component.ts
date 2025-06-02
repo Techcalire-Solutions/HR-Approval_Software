@@ -13,6 +13,8 @@ export class PayrollUpdateVerificationComponent implements OnInit{
   dialogData = inject(MAT_DIALOG_DATA);
 
   ngOnInit(): void {
+    console.log(this.dialogData);
+    
   }
 
   onOkClick(): void {

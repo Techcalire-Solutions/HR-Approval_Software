@@ -14,6 +14,8 @@ import { AddAssetsComponent } from './add-assets/add-assets.component';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { AddUserAssetsComponent } from './add-user-assets/add-user-assets.component';
+import { UserAssets } from '../../common/interfaces/users/user-assets';
 
 @Component({
   selector: 'app-assets',
@@ -25,6 +27,7 @@ import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/p
 export class AssetsComponent implements OnInit, OnDestroy{
   ngOnInit(): void {
     this.getAssets();
+    this.getUserAssets();
   }
   
   public searchText!: string;
@@ -40,10 +43,26 @@ export class AssetsComponent implements OnInit, OnDestroy{
   getAssets(){
     this.assetSub = this.assetService.getAssets(this.searchText, this.currentPage, this.pageSize).subscribe((asset: any) => {
       this.assets = asset.items;
-      this.fetchAssignedUsers(this.assets);
-      
       this.totalItems = asset.count;
     })
+  }
+
+  private userAssetSub!: Subscription;
+  userAssets: UserAssets[] = [];
+  getUserAssets(){
+    this.assetSub = this.assetService.getUserAssets(this.searchText, this.userAssetsCurrentPage, this.userAssetsPageSize).subscribe((asset: any) => {
+      this.userAssets = asset.items;
+      this.userAssetsTotalItems = asset.count;
+    })
+  }
+
+  openUserDialog(asset: UserAssets | null) {
+    const dialogRef = this.dialog.open(AddUserAssetsComponent, {
+      data: asset
+    });
+    dialogRef.afterClosed().subscribe(() => {
+      this.getAssets()
+    });
   }
 
   openDialog(asset: Assets | null) {
@@ -80,20 +99,25 @@ export class AssetsComponent implements OnInit, OnDestroy{
     this.getAssets();
   }
 
-  assignedUsers: { [assetId: number]: number | null } = {};
-  fetchAssignedUsers(assetList: Assets[]): void {
-    assetList.forEach((asset) => {
-      if (asset.assignedStatus) {
-        this.assetService.getAssignedUsers(asset.id).subscribe(
-          (response: any) => {
-            this.assignedUsers[asset.id] = response.userId;
-          },
-          (error) => {
-            console.error(`Error fetching user for asset ID ${asset.id}:`, error);
-          }
-        );
+  removeUserAsset(id: number){
+    const dialogRef = this.dialog.open(DeleteDialogueComponent, {});
+    dialogRef.afterClosed().subscribe(res => {
+      if(res){
+        this.deleteSub = this.assetService.deleteUserAssets(id).subscribe(() => {
+          this.snackBar.open("User Asset deleted successfully...","" ,{duration:3000})
+          this.getAssets()
+        });
       }
     });
+  }
+
+  userAssetsPageSize = 10;
+  userAssetsCurrentPage = 1;
+  userAssetsTotalItems = 0;
+  onUserAssetsPageChange(event: PageEvent): void {
+    this.userAssetsCurrentPage = event.pageIndex + 1;
+    this.userAssetsPageSize = event.pageSize;
+    this.getUserAssets();
   }
 
   ngOnDestroy(): void {

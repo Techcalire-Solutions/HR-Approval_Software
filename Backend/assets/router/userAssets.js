@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable no-undef */
 const express = require('express');
-const router = express.Router();
+const  router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 
 const UserAssets = require('../model/userAsset');
@@ -10,6 +10,99 @@ const UserPosition = require('../../users/models/userPosition');
 const User = require('../../users/models/user');
 const Assets = require('../model/asset');
 const { Op } = require('sequelize');
+
+router.post('/', authenticateToken, async (req, res) => {
+  const {
+    assetName, assetNumber, assetHandoverNumber, serialNumber,
+    description, purchasedDate, purchasedFrom, invoiceNo, assignedStatus
+  } = req.body;
+
+  // Validation
+  if (!assetName) return res.status(400).send("assetName is required");
+
+  try {
+    const asset = await UserAssets.create({
+      assetName,
+      assetNumber,
+      assetHandoverNumber,
+      serialNumber,
+      description,
+      purchasedDate,
+      purchasedFrom,
+      invoiceNo,
+      assignedStatus
+    });
+
+    console.log("Saved asset:", asset);
+    res.status(201).send(asset);
+
+  } catch (error) {
+    console.error("Error saving asset:", error);
+    res.status(500).send(error.message);
+  }
+});
+
+router.patch('/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const {
+    assetName, assetNumber, assetHandoverNumber, serialNumber,
+    description, purchasedDate, purchasedFrom, invoiceNo, assignedStatus
+  } = req.body;
+
+  // Validation
+  if (!assetName) return res.status(400).send("assetName is required");
+
+  try {
+    // Find the asset by ID
+    const asset = await UserAssets.findByPk(id);
+    
+    if (!asset) {
+      return res.send("Asset not found");
+    }
+
+    // Update the asset
+    const updatedAsset = await asset.update({
+      assetName,
+      assetNumber,
+      assetHandoverNumber,
+      serialNumber,
+      description,
+      purchasedDate,
+      purchasedFrom,
+      invoiceNo,
+      assignedStatus
+    });
+
+    console.log("Updated asset:", updatedAsset);
+    res.send(updatedAsset);
+
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
+router.delete('/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Find the asset by ID
+    const asset = await UserAssets.findByPk(id);
+
+    if (!asset) {
+      return res.status(404).send("Asset not found");
+    }
+
+    // Delete the asset
+    await asset.destroy();
+
+    console.log("Deleted asset with ID:", id);
+    res.status(200).send({ message: "Asset deleted successfully" });
+
+  } catch (error) {
+    console.error("Error deleting asset:", error);
+    res.status(500).send(error.message);
+  }
+});
 
 router.post('/save', authenticateToken, async (req, res) => {
     const { userId, assetCode, assets } = req.body;
@@ -48,33 +141,62 @@ router.post('/save', authenticateToken, async (req, res) => {
     }
 });
  
-router.get('/find', authenticateToken, async (req, res) => {
+router.get('/find', async (req, res) => {
     try {
-        const department = req.query.department;
-        const ua = await UserAssets.findAll({
-            include: [
-                {
-                    model: User,
-                    attributes: ['id'],
-                    required: true, // Ensures only UserAssets with matching Users are included
-                    include: [
-                        {
-                            model: UserPosition,
-                            attributes: [],
-                            required: true, // Ensures UserPositions must match the department filter
-                            where: {
-                                department: department // Matching the specified department
-                            }
-                        }
-                    ]
-                }
-            ]
-        });
-        res.send(ua);
+      let whereClause = {}
+      let limit;
+      let offset;
+
+      if (req.query.pageSize && req.query.page && req.query.pageSize != 'undefined' && req.query.page != 'undefined') {
+        limit = req.query.pageSize;
+        offset = (req.query.page - 1) * req.query.pageSize;
+      }else {
+        whereClause = {
+          assignedStatus: false
+        }
+      }
+
+      if (req.query.search &&req.query.search != 'undefined') {
+        const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+        whereClause = {
+          [Op.or]: [
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('assetName'), ' ', '')),
+              { [Op.like]: `%${searchTerm}%` }
+            ),
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('assetNumber'), ' ', '')),
+              { [Op.like]: `%${searchTerm}%` }
+            ),
+            sequelize.where(
+              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('serialNumber'), ' ', '')),
+              { [Op.like]: `%${searchTerm}%` }
+            )
+          ]
+        };
+      }
+
+      const asset = await UserAssets.findAll({
+        order:['id'], limit, offset, where: whereClause
+      })
+  
+      let totalCount;
+      totalCount = await UserAssets.count({where: whereClause});
+      
+      if (req.query.page != 'undefined' && req.query.pageSize != 'undefined') {
+        const response = {
+          count: totalCount,
+          items: asset,
+        };
+  
+        res.json(response);
+      } else {
+        res.send(asset);
+      }
     } catch (error) {
-        res.send({ error: error.message });
+      res.send(error.message);
     }
-});
+})
 
 router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
     try {

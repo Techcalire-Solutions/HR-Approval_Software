@@ -236,3 +236,25 @@ thead th:first-child, tbody td:first-child {
   transform: scale(1.5);
 }
 
+.asset-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #eee; /* optional border */
+    border-radius: 4px; /* optional rounding */
+}
+
+.asset-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between; /* spreads items evenly */
+    align-items: center; /* vertical alignment */
+}
+
+.asset-row div {
+    min-width: 200px; /* prevents squeezing */
+    padding: 5px 0;
+}

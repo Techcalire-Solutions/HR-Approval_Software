@@ -1,10 +1,16 @@
-import { User } from "./user"
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface UserAssets {
-    id: number
-    userId: number
-    assetCode: string
-    userAssetsDetails: any
-    user: User
+  id: number;
+  assetName: string;
+  assetNumber: string;
+  assetHandoverNumber: string;
+  description: string;
+  serialNumber: string;
+  purchasedDate:Date
+  purchasedFrom: string
+  invoiceNo: string
+  status: boolean
+  assignedStatus: boolean
+  createdAt?: Date;
+  updatedAt?: Date;
 }

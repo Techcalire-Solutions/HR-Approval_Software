@@ -282,15 +282,20 @@
             </mat-expansion-panel-header>
             @if(assets){
               <div class="p-3">
-                <div class="flex-container">
-                  <div>AssetCode  :<strong>{{assets.assetCode}}</strong></div>
-                </div>
-                @for (item of assets.userAssetsDetails; track $index) {
-                  <div class="flex-container">
-                    <div>Assigned Date  :<strong>{{item.assignedDate | date:'dd/MM/yyyy'}}</strong></div>
-                    <div>Identifier Type  :<strong>{{item.identifierType }}</strong></div>
-                    <div>Identification Number  :<strong>{{item.identificationNumber}}</strong></div>
-                    <div>Description  :<strong>{{item.description}}</strong></div>
+                @for (item of assets; track $index) {
+                  <div class="asset-container">
+                    <div class="asset-row">
+                      <div>Asset Name: <strong>{{item.userAsset?.assetName}}</strong></div>
+                      <div>Handover Form: <strong>{{item.userAsset?.assetHandoverNumber}}</strong></div>
+                      <div>SerialNumber: <strong>{{item.userAsset?.serialNumber}}</strong></div>
+                      <div>AssetNumber: <strong>{{item.userAsset?.assetNumber}}</strong></div>
+                    </div>
+                    <div class="asset-row">
+                      <div>Purchased Date: <strong>{{item.userAsset?.purchasedDate | date: 'dd/mm/yyyy'}}</strong></div>
+                      <div>Purchased Form: <strong>{{item.userAsset?.purchasedFrom}}</strong></div>
+                      <div>InvoiceNO: <strong>{{item.userAsset?.invoiceNo}}</strong></div>
+                      <div>Description: <strong>{{item.userAsset?.description}}</strong></div>
+                    </div>
                   </div>
                 }
 

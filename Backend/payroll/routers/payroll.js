@@ -56,7 +56,7 @@ router.patch("/:id", async (req, res) => {
       return res.status(404).json({ error: "Payroll not found" });
     }
 
-    const log = new PayrollLog({ userId: payroll.userId, oldIncome: payroll.netPay, newIncome: netPay, updatedDate: new Date()})
+    const log = new PayrollLog({ userId: payroll.userId, oldIncome: payroll.grossPay, newIncome: grossPay, updatedDate: new Date()})
     
     await log.save();
 

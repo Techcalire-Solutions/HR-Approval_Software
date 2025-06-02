@@ -1,0 +1,96 @@
+<div class="promotion-container">
+    @if (user) {
+    <h2>Apply Employee Promotion to {{user.name}}</h2>
+    <form [formGroup]="promotionForm" (ngSubmit)="onSubmit()" class="promotion-form">
+        <mat-form-field appearance="fill">
+            <mat-label>Designation</mat-label>
+            <mat-select formControlName="designationId" required>
+                <!-- Non-selectable current position display -->
+                <mat-option disabled class="current-position">
+                    <div class="current-position-container">
+                        <span>Current Designation: {{ user.userPosition.designation.designationName }}</span>
+                        <!-- <mat-icon>lock</mat-icon> -->
+                    </div>
+                </mat-option>
+    
+                <mat-divider></mat-divider>
+    
+                <!-- Selectable options -->
+                @for (designation of designations; track $index) {
+                @if (designation.designationName !== user.userPosition.designation.designationName) {
+                <mat-option [value]="designation.id">
+                    {{ designation.designationName }}
+                </mat-option>
+                }
+                }
+            </mat-select>
+        </mat-form-field>
+    
+        <mat-form-field appearance="fill" (click)="openPayRoll()">
+            <mat-label>New Salary</mat-label>
+            <input matInput type="number" formControlName="newSalary" required>
+            <span matPrefix>₹ &nbsp;</span>
+            @if (promotionForm.get('newSalary')?.hasError('required')) {
+            <mat-error> New salary is required </mat-error>
+            }
+            @if (promotionForm.get('newSalary')?.hasError('min')) {
+            <mat-error>
+                Salary must be positive
+            </mat-error>
+            }
+        </mat-form-field>
+    
+        <mat-form-field appearance="fill">
+            <mat-label>Effective Date</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="effectiveDate" required>
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            @if (promotionForm.get('effectiveDate')?.hasError('required')) {
+            <mat-error>
+                Effective date is required
+            </mat-error>
+            }
+        </mat-form-field>
+    
+        <mat-form-field appearance="fill">
+            <mat-label>Promotion Reason (Optional)</mat-label>
+            <textarea matInput formControlName="promotionReason" rows="3"></textarea>
+            <mat-hint align="end">{{ promotionForm.get('promotionReason')?.value?.length || 0 }}/500</mat-hint>
+        </mat-form-field>
+    
+        <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit" [disabled]="promotionForm.invalid || isLoading">
+                @if (!isLoading) {
+                <span>Apply Promotion</span>
+                }@else {
+                <mat-spinner diameter="20"></mat-spinner>
+                }
+            </button>
+        </div>
+    </form>
+    }
+
+  @if (promotionsHistory.length > 0) {
+    <div class="promotion-history">
+        <h3>Promotion History</h3>
+        @for (promotion of promotionsHistory; track $index) {
+        <mat-card class="promotion-card">
+            <mat-card-header>
+                <mat-card-subtitle>
+                    Promoted to {{ promotion.Designation.designationName }} on {{ promotion.effectiveDate | date }}
+                </mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <p>Old Designation: {{ promotion.oldDesignation.designationName }}</p>
+                <p>Previous salary: ₹{{ promotion.previousSalary }}</p>
+                <p>New salary: ₹{{ promotion.newSalary }}</p>
+                @if(promotion.promotionReason){
+                <p>Reason: {{ promotion.promotionReason }}</p>
+                }
+            </mat-card-content>
+        </mat-card>
+        }
+    </div>
+  }
+
+</div>

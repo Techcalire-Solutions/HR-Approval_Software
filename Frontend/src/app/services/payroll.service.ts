@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Payroll } from '../common/interfaces/payRoll/payroll';
@@ -16,6 +16,13 @@ export class PayrollService {
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
+
+  private payrollData = new BehaviorSubject<any>(null);
+  currentPayrollData = this.payrollData.asObservable();
+
+  updatePayrollData(data: any) {
+    this.payrollData.next(data);
+  }
 
   public savePayroll(data: any): Observable<any> {
     return this.http.post(this.apiUrl+"/payroll", data);

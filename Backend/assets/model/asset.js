@@ -5,13 +5,11 @@ const sequelize = require('../../utils/db');
 
 const Assets = sequelize.define('assets',{     
    assetName: { type: DataTypes.STRING, allowNull: false },
-   identifierType: { type: DataTypes.STRING, allowNull: false },
-   identificationNumber: { type: DataTypes.STRING, allowNull: false },
-   description: { type: DataTypes.STRING },
-   purchasedDate: { type: DataTypes.DATEONLY },
-   purchasedFrom: { type: DataTypes.STRING  },
-   invoiceNo: { type: DataTypes.STRING },
-   assignedStatus: { type: DataTypes.BOOLEAN, defaultValue: false },
+   assetNumber: { type: DataTypes.STRING },
+   assetHandoverNumber: { type: DataTypes.STRING },
+   serialNumber: { type: DataTypes.STRING },
+   noOfItems: { type: DataTypes.INTEGER },
+   description: { type: DataTypes.STRING }
 },{
    freezeTableName :true,
    timestamps : true

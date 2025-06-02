@@ -24,5 +24,8 @@ export const routes: Routes = [
   },
   { path: 'separated',  loadComponent: () => import('../users/view-separated/view-separated.component').then(c => c.ViewSeparatedComponent),
     data: { breadcrumb: 'Separated' }, canActivate: [AuthGuard]
+  },
+  { path: 'promotion/:id',  loadComponent: () => import('../users/promotion/promotion.component').then(c => c.PromotionComponent),
+    data: { breadcrumb: 'Promotion' }, canActivate: [AuthGuard]
   }
 ];

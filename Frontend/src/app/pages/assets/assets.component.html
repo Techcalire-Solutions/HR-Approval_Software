@@ -1,7 +1,11 @@
 <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
   <div fxLayout="row" class="col">
       <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-          <mat-button-toggle value="add" (click)="openDialog(null)"><mat-icon>devices</mat-icon>
+          <mat-button-toggle value="add" (click)="openUserDialog(null)"><mat-icon>devices</mat-icon>
+          </mat-button-toggle>
+      </mat-button-toggle-group>
+      <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
+          <mat-button-toggle value="add" (click)="openDialog(null)"><mat-icon>chair_alt</mat-icon>
           </mat-button-toggle>
       </mat-button-toggle-group>
   </div>
@@ -21,25 +25,24 @@
         <thead>
           <tr>
             <th> Asset </th>
-            <th> Identification </th>
-            <th> InvoiceNo </th>
-            <th> Purchased </th>
+            <th> Number </th>
+            <th> Handover </th>
             <th> Description </th>
-            <th> Assigned To</th>
+            <th> Item Number </th>
             <th> Manage </th>
           </tr>
         </thead>
         <tbody>
           @for(asset of assets; track $index){
-            <tr [class.status-false]="asset.assignedStatus">
+            <tr>
               <td>{{ asset.assetName }}</td>
-              <td>{{ asset.identifierType }} : {{ asset.identificationNumber }}</td>
-              <td>{{ asset.invoiceNo }}</td>
-              <td>{{ asset.purchasedDate | date:'dd/MM/yyyy' }} - {{ asset.purchasedFrom }}</td>
+              <td>{{ asset.assetNumber }} / {{ asset.serialNumber }}</td>
+              <td>{{ asset.assetHandoverNumber }}</td>
               <td>{{ asset.description }}</td>
-              <td>
+              <td>{{ asset.noOfItems }}</td>
+              <!-- <td>
                 {{ assignedUsers[asset.id] || 'Loading...' }}
-              </td>
+              </td> -->
               <td>
                 <button
                   mat-icon-button
@@ -61,5 +64,47 @@
       <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
       (page)="onPageChange($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
      </mat-paginator>
+
+       <!-- User Assets Table -->
+      <h2>User Assets</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Asset Name</th>
+            <th>Handover Form</th>
+            <th>Serial Number</th>
+            <th>Purchase Date</th>
+            <th>Purchase From</th>
+            <th>Invoice Number</th>
+            <th>Assigned To</th>
+            <th>Manage</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(userAsset of userAssets; track $index){
+            <tr>
+              <td>{{ userAsset.assetName }}</td>
+              <td>{{ userAsset.assetHandoverNumber }}</td>
+              <td>{{ userAsset.serialNumber }}</td>
+              <td>{{ userAsset.purchasedDate }}</td>
+              <td>{{ userAsset.purchasedFrom }}</td>
+              <td>{{ userAsset.invoiceNo }}</td>
+              <td>{{ userAsset.assignedStatus }}</td>
+              <td>
+                <button mat-icon-button (click)="openUserDialog(userAsset)">
+                  <mat-icon>mode_edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="removeUserAsset(userAsset.id)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>   
+            </tr>
+          }
+        </tbody>
+      </table>
+      <mat-paginator [length]="userAssetsTotalItems" [pageSize]="userAssetsPageSize" 
+        [pageIndex]="userAssetsCurrentPage - 1" (page)="onUserAssetsPageChange($event)" 
+        [pageSizeOptions]="[10, 20,30,40,50,100]">
+      </mat-paginator>
     </section>
   </main>

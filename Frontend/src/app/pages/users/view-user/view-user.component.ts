@@ -33,6 +33,8 @@ import { EditUserDocumentComponent } from './edit-user-document/edit-user-docume
 import { UserAssetsComponent } from '../user-assets/user-assets.component';
 import { AddPayrollComponent } from '../../payroll/add-payroll/add-payroll.component';
 import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
+import { AssetsService } from '@services/assets.service';
+import { UserAssetDetail } from '../../../common/interfaces/users/user-asset-details';
 
 @Component({
   selector: 'app-view-user',
@@ -134,9 +136,10 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   }
 
   assetSub!: Subscription;
-  assets: UserAssets;
+  assets: UserAssetDetail[];
+  private assetService = inject(AssetsService);
   getAssets(id: number){
-    this.assetSub = this.userService.getUserAssetsByUser(id).subscribe(x => {
+    this.assetSub = this.assetService.getUserAssetsByUser(id).subscribe(x => {
       this.assets = x;
     })
   }
@@ -147,6 +150,8 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   getPayrollLog(id: number){
     this.payLogSUb = this.payrollService.getPayrollLogByUser(id).subscribe(x => {
       this.payrollLog = x;
+      console.log(this.payrollLog);
+      
     });
   }
 

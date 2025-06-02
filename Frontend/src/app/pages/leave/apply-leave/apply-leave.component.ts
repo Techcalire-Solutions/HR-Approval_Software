@@ -218,19 +218,68 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     }
   }
 
-  onEndDateChange() {
-    const startDate: any = this.leaveRequestForm.get('startDate')!.value;
-    const endDate: any = this.leaveRequestForm.get('endDate')!.value;
+  isPastDate: boolean = false;
+  // onEndDateChange() {
+  //   const today = new Date();
+  //   today.setHours(0, 0, 0, 0);
+  //   const startDate: any = this.leaveRequestForm.get('startDate')!.value;
+  //   const endDate: any = this.leaveRequestForm.get('endDate')!.value;
+  //   const diffTime = today.getTime() - endDate.getTime();
+  //   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+    
+  //   this.isPastDate = diffDays > 2;
+  //   if (this.isPastDate) {
+  //     this.leaveTypes = this.leaveTypes.filter(lt => lt.leaveTypeName === 'LOP');
+  //     // if (lopType && this.leaveRequestForm.get('leaveTypeId')?.value !== lopType.id) {
+  //       this.leaveRequestForm.get('leaveTypeId')?.setValue(this.leaveTypes[0].id);
+  //     // }
+  //   }
+  //   if (startDate && endDate && new Date(endDate) >= new Date(startDate)) {
+  //     this.updateLeaveDates(new Date(startDate), new Date(endDate));
+  //   } else {
+  //     // Clear the leaveDatesArray if the dates are invalid
+  //     const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
+  //     leaveDatesArray.clear();
+  //   }
+  // }
+onEndDateChange() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   
-    if (startDate && endDate && new Date(endDate) >= new Date(startDate)) {
-      this.updateLeaveDates(new Date(startDate), new Date(endDate));
+  const startDateValue = this.leaveRequestForm.get('startDate')!.value;
+  const endDateValue = this.leaveRequestForm.get('endDate')!.value;
+  
+  // Convert to Date objects if they aren't already
+  const startDate = startDateValue ? new Date(startDateValue) : null;
+  const endDate = endDateValue ? new Date(endDateValue) : null;
+
+  if (endDate) {
+    const diffTime = today.getTime() - endDate.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+    
+    this.isPastDate = diffDays > 2;
+    
+    if (this.isPastDate) {
+      // Filter to only show LOP
+      this.leaveTypes = this.leaveTypes.filter(lt => lt.leaveTypeName === 'LOP');
+      // Set to LOP if available
+      if (this.leaveTypes.length > 0) {
+        this.leaveRequestForm.get('leaveTypeId')?.setValue(this.leaveTypes[0].id);
+      }
     } else {
-      // Clear the leaveDatesArray if the dates are invalid
-      const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
-      leaveDatesArray.clear();
+      // Restore original leave types
+      this.leaveTypes = [...this.leaveTypes];
     }
   }
 
+  if (startDate && endDate && endDate >= startDate) {
+    this.updateLeaveDates(startDate, endDate);
+  } else {
+    // Clear the leaveDatesArray if the dates are invalid
+    const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
+    leaveDatesArray.clear();
+  }
+}
 
   endDateFilter = (date: Date | null): boolean => {
     if (!date || !this.minEndDate) {

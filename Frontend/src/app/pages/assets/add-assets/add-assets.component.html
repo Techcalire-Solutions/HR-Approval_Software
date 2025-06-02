@@ -20,14 +20,14 @@
 
               <div class="col">
                 <mat-form-field appearance="outline" class="input-field full-width">
-                    <mat-label>Identifier Type</mat-label>
-                    <input matInput formControlName="identifierType" placeholder="Identifier Type" required />
+                    <mat-label>Asset Number</mat-label>
+                    <input matInput formControlName="assetNumber" placeholder="Asset Number" />
                 </mat-form-field>
               </div>
               <div class="col">
                 <mat-form-field appearance="outline" class="input-field full-width">
-                    <mat-label>Identification Number</mat-label>
-                    <input matInput formControlName="identificationNumber" placeholder="Identification Number" required />
+                    <mat-label>Asset Handover Number</mat-label>
+                    <input matInput formControlName="assetHandoverNumber" placeholder="Asset Handover Number" />
                 </mat-form-field>
               </div>
             </div>
@@ -35,23 +35,14 @@
             <div class="row box" style="margin-top: 20px;">
                 <div class="col">
                     <mat-form-field appearance="outline" class="input-field full-width">
-                        <mat-label>Purchased Date</mat-label>
-                        <input matInput [matDatepicker]="startDatePicker" formControlName="purchasedDate" placeholder="Date" >
-                        <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
-                        <mat-datepicker #startDatePicker></mat-datepicker>
-                    </mat-form-field>
-                </div>
-  
-                <div class="col">
-                    <mat-form-field appearance="outline" class="input-field full-width">
-                        <mat-label>Purchased From</mat-label>
-                        <input matInput formControlName="purchasedFrom" placeholder="PurchasedFrom" />
+                        <mat-label>Serial Number</mat-label>
+                        <input matInput formControlName="serialNumber" placeholder="Serial Number" />
                     </mat-form-field>
                 </div>
                 <div class="col">
                     <mat-form-field appearance="outline" class="input-field full-width">
-                        <mat-label>Invoice Number</mat-label>
-                        <input matInput formControlName="invoiceNo" placeholder="InvoiceNo" />
+                        <mat-label>No Of Items</mat-label>
+                        <input matInput formControlName="noOfItems" placeholder="No Of Items" />
                     </mat-form-field>
                 </div>
 
@@ -60,7 +51,7 @@
                 <div class="col">
                     <mat-form-field appearance="outline" class="input-field full-width">
                         <mat-label>Description</mat-label>
-                        <input matInput formControlName="description" placeholder="Description" required/>
+                        <input matInput formControlName="description" placeholder="Description"/>
                     </mat-form-field>
                 </div>
             </div>
