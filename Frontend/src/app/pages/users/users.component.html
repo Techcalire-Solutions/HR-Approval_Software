@@ -63,6 +63,10 @@
                                 <mat-icon>verified_user</mat-icon>
                                 <span>Designation</span>
                               </button>
+                              <button mat-menu-item (click)="openPromotion(user.id)">
+                                  <mat-icon>trending_up</mat-icon>
+                                  <span>Promotion</span>
+                              </button>
                               <button mat-menu-item (click)="openPayRoll(user.id)">
                                   <mat-icon>payment</mat-icon>
                                   <span>Salary</span>

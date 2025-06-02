@@ -2,27 +2,26 @@
 /* eslint-disable no-undef */
 const {DataTypes} =  require('sequelize')
 const sequelize = require('../../utils/db');
-const Assets = require('./asset');
 const UserAssets = require('./userAsset');
+const User = require('../../users/models/user');
 const UserAssetsDetails = sequelize.define('userAssetsDetails',{
-    assetId: { type: DataTypes.INTEGER, allowNull: false },
     userAssetId: { type: DataTypes.INTEGER, allowNull: false },
-    note: { type: DataTypes.TEXT }, 
+    userId: { type: DataTypes.INTEGER, allowNull: false },
+    note: { type: DataTypes.TEXT },
     returnDate: { type: DataTypes.DATEONLY },
-    assignedDate: { type: DataTypes.DATEONLY, allowNull: false },
-    status: { type: DataTypes.BOOLEAN },
+    assignedDate: { type: DataTypes.DATEONLY },
 },{
     freezeTableName :true,
     timestamps : true
 })
 
-Assets.hasMany(UserAssetsDetails, { foreignKey: 'assetId', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-UserAssetsDetails.belongsTo(Assets);
+User.hasMany(UserAssetsDetails, { foreignKey: 'userId', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+UserAssetsDetails.belongsTo(User);
 
 UserAssets.hasMany(UserAssetsDetails, { foreignKey: 'userAssetId', onUpdate: 'CASCADE', onDelete: 'CASCADE' });
 UserAssetsDetails.belongsTo(UserAssets);
 
- UserAssetsDetails.sync({alter:true})
+UserAssetsDetails.sync({alter:true})
 .then(()=>console.log)
 
 module.exports = UserAssetsDetails

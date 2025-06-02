@@ -1,0 +1,29 @@
+.promotion-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.promotion-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.promotion-history {
+  margin-top: 40px;
+}
+
+.promotion-card {
+  margin-bottom: 15px;
+}
+
+mat-spinner {
+  margin: 0 auto;
+}

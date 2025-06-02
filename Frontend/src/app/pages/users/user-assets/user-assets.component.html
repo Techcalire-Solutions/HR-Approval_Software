@@ -4,44 +4,34 @@
   <form [formGroup]="form" (ngSubmit)="addRow()" class="form">
     <div formGroupName="newRow" class="input-group">
       <mat-form-field class="input-field full-width" appearance="outline">
-        <input matInput placeholder="Select Asset" formControlName="assetName" [matAutocomplete]="auto" (keyup)="search($event)"
-        (input)="validateInput($event)">
+        <input matInput placeholder="Select Asset or add new" formControlName="assetName" 
+              [matAutocomplete]="auto" (keyup)="search($event)"
+              (keyup.enter)="addNewIfNoMatch()">
         <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value)">
           @for (suggestion of filteredOptions; track $index) {
             <mat-option [value]="suggestion">
-              {{ suggestion.assetName }}
+              {{ suggestion.assetName }} / {{ suggestion.serialNumber }}
             </mat-option>
           }
+          <mat-option *ngIf="showAddOption" class="add-new-option">
+            <button mat-button (click)="addNewIfNoMatch()" class="full-width-button">
+              <span class="add-new-text">+ Add new "{{ filterValue }}"</span>
+            </button>
+          </mat-option>
         </mat-autocomplete>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="input-field full-width">
-        <mat-label>Identifier Type</mat-label>
-        <input matInput formControlName="identifierType" placeholder="Identifier Type" required />
+        <mat-label>Serial Number</mat-label>
+        <input matInput formControlName="serialNumber" placeholder="Serial Number" readonly>
       </mat-form-field>
-  
-      <mat-form-field appearance="outline" class="input-field full-width">
-        <mat-label>Identification Number</mat-label>
-        <input matInput formControlName="identificationNumber" placeholder="Identification Number" required />
-      </mat-form-field>
-  
+
       <mat-form-field appearance="outline" class="input-field full-width">
         <mat-label>Assigned Date</mat-label>
-        <input matInput [matDatepicker]="startDatePicker" formControlName="assignedDate" placeholder="Date" required >
+        <input matInput [matDatepicker]="startDatePicker" formControlName="assignedDate" placeholder="Date" required>
         <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
         <mat-datepicker #startDatePicker></mat-datepicker>
       </mat-form-field>
-  
-      <mat-form-field appearance="outline" class="input-field full-width">
-        <mat-label>Description</mat-label>
-        <input matInput formControlName="description" placeholder="Description"  />
-      </mat-form-field>
-  
-      <!-- <mat-form-field appearance="outline" class="input-field full-width">
-        <mat-label>Assigned Date</mat-label>
-        <input matInput type="date" formControlName="assignedDate" required />
-      </mat-form-field> -->
-
 
       <mat-icon (click)="form.valid && addRow()" class="add-icon" [ngClass]="{'disabled': !form.valid}">
         add_circle_outline
@@ -54,21 +44,16 @@
     <thead>
       <tr class="table-header">
         <th>Asset Name</th>
-        <th>Identifier Type</th>
-        <th>Identification Number</th>
-        <th>Description</th>
+        <th>Serial Number</th>
         <th>Assigned Date</th>
         <th>Actions</th>
-        <!-- <th>Return</th> -->
       </tr>
     </thead>
     <tbody>
       @for (row of rows; let i = $index; track $index) {
-        <tr class="table-row" (click)="row.status && editRow(row, i)" [class.status-false]="!row.status">
+        <tr class="table-row" (click)="editRow(row, i)" [class.status-false]="row.status === false">
           <td data-label="Asset Name">{{ row.assetName }}</td>
-          <td data-label="Identifier Type">{{ row.identifierType }}</td>
-          <td data-label="Identification Number">{{ row.identificationNumber }}</td>
-          <td data-label="Description">{{ row.description }}</td>
+          <td data-label="Identifier Type">{{ row.serialNumber }}</td>
           <td data-label="Assigned Date">{{ row.assignedDate | date: 'dd-MM-yyyy' }}</td>
           <td class="last-columns">
             @if(row.status){

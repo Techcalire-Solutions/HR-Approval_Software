@@ -29,12 +29,11 @@ export class AddAssetsComponent implements OnInit, OnDestroy{
   private readonly fb = inject(FormBuilder);
   form = this.fb.group({
     assetName: ['', Validators.required],
-    identifierType: ['', Validators.required],
-    identificationNumber: ['', Validators.required],
-    description: ['', Validators.required],
-    purchasedDate: <any>[],
-    purchasedFrom: [''],
-    invoiceNo: ['']
+    assetNumber: [''],
+    assetHandoverNumber: [''],
+    description: [''],
+    serialNumber: [''],
+    noOfItems: <any>[]
   });
 
   editStatus: boolean = false;
@@ -49,11 +48,10 @@ export class AddAssetsComponent implements OnInit, OnDestroy{
     this.form.patchValue({
       assetName: asset.assetName,
       description: asset.description,
-      purchasedDate: asset.purchasedDate,
-      purchasedFrom: asset.purchasedFrom,
-      invoiceNo: asset.invoiceNo,
-      identifierType: asset.identifierType,
-      identificationNumber: asset.identificationNumber
+      assetNumber: asset.assetNumber,
+      assetHandoverNumber: asset.assetHandoverNumber,
+      serialNumber: asset.serialNumber,
+      noOfItems: asset.noOfItems
     })
   }
 

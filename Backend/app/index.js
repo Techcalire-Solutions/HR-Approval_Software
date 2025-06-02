@@ -38,6 +38,8 @@ const auth = require('../users/routers/auth');
 const team = require('../users/routers/team');
 const teamMember = require('../users/routers/teamMember');
 const userEmail = require('../users/routers/userEmail');
+const userAssetsDetails = require('../assets/router/userAssetDetails');
+const promotion = require('../users/routers/promotion');
 app.use('/role', role);
 app.use('/designation', designation);
 
@@ -48,12 +50,14 @@ app.use('/account', userAccount)
 app.use('/position', userPosition)
 app.use('/document', userDocument)
 app.use('/asset', userAssets)
+app.use('/assetDetails', userAssetsDetails)
 app.use('/qualification', userQual)
 app.use('/nominee', Nominee)
 app.use('/auth', auth);
 app.use('/team', team);
 app.use('/teamMember', teamMember);
 app.use('/useremail', userEmail);
+app.use('/promotion', promotion)
 
 const invoice = require('../invoices/routers/invoice');
 const pi = require('../invoices/routers/performaInvoice');

@@ -27,6 +27,8 @@ import { Nominee } from '../../common/interfaces/users/nominee';
 import { MatDialog } from '@angular/material/dialog';
 import { UserEmailComponent } from '../users/user-email/user-email.component';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { AssetsService } from '@services/assets.service';
+import { UserAssetDetail } from '../../common/interfaces/users/user-asset-details';
 
 @Component({
   selector: 'app-profile',
@@ -128,9 +130,10 @@ export class ProfileComponent {
   }
 
   assetSub!: Subscription;
-  assets: UserAssets;
+  assets: UserAssetDetail[];
+  private assetService = inject(AssetsService);
   getAssets(id: number){
-    this.assetSub = this.userService.getUserAssetsByUser(id).subscribe(x => {
+    this.assetSub = this.assetService.getUserAssetsByUser(id).subscribe(x => {
       this.assets = x;
     })
   }

@@ -197,6 +197,10 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('login/users/payroll/'+id)
   }
 
+  openPromotion(id: number){
+    this.router.navigateByUrl('login/users/promotion/'+id)
+  }
+
   openAssets(id: number){
     this.router.navigateByUrl('/login/users/assets/'+id)
   }

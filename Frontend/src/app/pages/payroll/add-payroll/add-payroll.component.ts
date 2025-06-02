@@ -116,8 +116,10 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
   private id: number;
   netPay: number;
   patchForm(value: any){
+    console.log(value);
+    
     this.id = value.id;
-    this.netPay = value.netPay;
+    this.netPay = value.grossPay;
     this.payrollForm.patchValue({
       basic: value.basic,
       yearbasicPay: value.basic * 12,
@@ -237,11 +239,12 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
   savePayrollDetails() {
     if(this.editStaus){
       const dialogRef = this.dialog.open(PayrollUpdateVerificationComponent, {
-        data: { userName: this.user.name, currentPay: this.netPay, updated: this.payrollForm.get('netPay')?.value }
+        data: { userName: this.user.name, currentPay: this.netPay, updated: this.payrollForm.get('grossPay')?.value }
       });
       this.dialogSub = dialogRef.afterClosed().subscribe((res) => {
         if(res){
           const payrollData = { ...this.payrollForm.getRawValue() };
+          this.payrollService.updatePayrollData({old: this.netPay, current: this.payrollForm.get('grossPay')?.value});
           this.updatePaySub = this.payrollService.updatePayroll(this.id, payrollData).subscribe({
             next: () => {
               alert('Payroll details updated successfully!')
