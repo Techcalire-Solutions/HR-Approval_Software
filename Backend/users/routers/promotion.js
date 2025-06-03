@@ -113,9 +113,9 @@ router.get('/:id', async (req, res) => {
       ]
     });
 
-    if (promotion.length === 0) {
-      return res.status(404).json({ error: 'No promotions found for this user' });
-    }
+    // if (promotion.length === 0) {
+    //   return res.status(404).json({ error: 'No promotions found for this user' });
+    // }
 
     res.json(promotion);
   } catch (error) {
