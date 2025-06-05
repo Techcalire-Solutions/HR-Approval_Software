@@ -152,7 +152,7 @@ export const routes: Routes = [
         path: 'holiday',
         loadChildren: () => import('./holiday/holiday.routes').then(p => p.routes),
         data: { breadcrumb: 'Holiday' }, canActivate: [AuthGuard]
-      },
+      }
     ]
   },
 
