@@ -142,31 +142,37 @@ router.delete('/delete/:id', authenticateToken, async(req,res)=>{
   
 })
 
-router.patch('/updateholiday/:id', authenticateToken, async(req,res)=>{
+router.patch('/updateholiday/:id', authenticateToken, async (req, res) => {
   try {
-    const id = parseInt(req.params.id, 10); 
-    Holiday.update(req.body, {
-        where: { id: id }
-    })
-    .then(num => {
-        if (num == 1) {
-            res.send({
-                message: "Holiday was updated successfully."
-            });
-        } else {
-            res.send({
-                message: `Cannot update Holiday with id=${roleId}. Maybe Holiday was not found or req.body is empty!`
-            });
-        }
-    })
-    .catch(error => {
-        res.send(error.message);
-    });
-} catch (error) {
-    res.send(error.message);
-}
+    const id = parseInt(req.params.id, 10);
+    // Validate ID
+    if (isNaN(id)) {
+      return res.send('Invalid ID format' );
+    }
 
-})
+    // Validate request body
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.send('Request body cannot be empty');
+    }
+
+    // First find the holiday to ensure it exists
+    const holiday = await Holiday.findOne({ where: { id: id } });
+    if (!holiday) {
+      return res.send( `Cannot update Holiday with id=${id}. Holiday was not found.`);
+    }
+    // Perform the update
+    await Holiday.update(req.body, {
+      where: { id: id }
+    });
+
+    // Fetch the updated record (this ensures we get the latest data)
+    const updatedHoliday = await Holiday.findOne({ where: { id: id } });
+    res.send( updatedHoliday );
+
+  } catch (error) {
+    res.send( error.message );
+  }
+});
 
 router.get('/find', async (req, res) => {
     try {
