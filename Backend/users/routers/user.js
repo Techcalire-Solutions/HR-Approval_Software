@@ -350,28 +350,53 @@ router.get('/getseparated', authenticateToken, async (req, res) => {
 
 router.get('/getbyrm/:id', authenticateToken, async (req, res) => {
   try {
-    
-    const id = parseInt(req.params.id, 10)
+    const id = parseInt(req.params.id, 10);
 
     const users = await User.findAll({
+      where: {
+        separated: false, // Filter users who are not separated
+      },
       include: [
         {
-          model: UserPersonal, as: 'userpersonal',
-          required: true, // Only include users with a matching UserPersonal record
+          model: UserPersonal,
+          as: 'userpersonal',
+          required: true, // Ensures only users with a UserPersonal record are included
           where: {
-            reportingMangerId: { [Op.ne]: null },
-            reportingMangerId: id, 
-            separated: false 
+            reportingMangerId: id, // Filter by reporting manager ID
           },
         },
       ],
     });
 
-    res.send(users); // Send the retrieved users
+    res.send(users);
   } catch (error) {
-    res.send(error.message); // Send error message
+    res.status(500).send(error.message);
   }
 });
+
+// router.get('/getbyrm/:id', authenticateToken, async (req, res) => {
+//   try {
+    
+//     const id = parseInt(req.params.id, 10)
+
+//     const users = await User.findAll({
+//       include: [
+//         {
+//           model: UserPersonal, as: 'userpersonal',
+//           required: true, // Only include users with a matching UserPersonal record
+//           where: {
+//             reportingMangerId: { [Op.ne]: null },
+//             reportingMangerId: id, 
+//           },
+//         },
+//       ],
+//     });
+
+//     res.send(users); // Send the retrieved users
+//   } catch (error) {
+//     res.send(error.message); // Send error message
+//   }
+// });
 
 router.post('/fileupload', upload.single('file'), authenticateToken, async (req, res) => {
   try {
