@@ -9,7 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UserLeave } from '../../../common/interfaces/leaves/userLeave';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { UsersService } from '@services/users.service';
 import { User } from '../../../common/interfaces/users/user';
 import { MatSelectModule } from '@angular/material/select';
@@ -29,6 +29,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { LeaveInfoDialogComponent } from './leave-info-dialog/leave-info-dialog.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import moment from 'moment';
+import { LeaveType } from '../../../common/interfaces/leaves/leaveType';
 
 export const MY_FORMATS = {
   parse: {
@@ -89,18 +90,25 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   maxEndDate: Date;
   isEditMode: boolean = false;
   private readonly route = inject(ActivatedRoute);
+  originalLeaveTypes: LeaveType[] = [];
   ngOnInit(): void {
     const token: any = localStorage.getItem('token')
     const user = JSON.parse(token)
 
     const roleId = user.role
     this.getRoleById(roleId, user.id)
-    this.getLeaveType();
+    // this.getLeaveType();
     const leaveId = this.route.snapshot.params['id'];
-    if (leaveId) {
-      this.isEditMode = true;
-      this.getLeaveDetails(+leaveId)
-    }
+    // if (leaveId) {
+    //   this.isEditMode = true;
+    //   this.getLeaveDetails(+leaveId)
+    // }
+    this.getLeaveType().subscribe(() => {
+      if (leaveId) {
+        this.isEditMode = true;
+        this.getLeaveDetails(+leaveId);
+      }
+    });
 
     this.maxDate = new Date();
     this.maxDate.setDate(this.maxDate.getDate() + 7); // "Start Date" max is 7 days from today
@@ -139,6 +147,23 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
       this.minEndDate = new Date(leave.startDate);
       this.minEndDate.setDate(this.minEndDate.getDate());
       this.leave = leave;
+      
+      // Calculate difference between endDate and today
+      const endDate = new Date(leave.endDate);
+      const today = new Date();
+      const timeDiff = today.getTime() - endDate.getTime();
+      const dayDiff = timeDiff / (1000 * 3600 * 24);
+      console.log(dayDiff);
+      
+      // Filter leaveTypes if difference > 2
+      if (dayDiff > 2) {
+        console.log(this.leaveTypes);
+        
+        this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
+        console.log(this.leaveTypes);
+        
+      }
+
       this.leaveRequestForm.patchValue({
         userName: this.leave.user.name,
         userId: this.leave.userId,
@@ -147,6 +172,7 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
         endDate: this.leave.endDate,
         notes: this.leave.notes
       });
+      
       const leaveDatesArray = this.leaveRequestForm.get('leaveDates') as FormArray;
       leaveDatesArray.clear();
       this.leave.leaveDates.forEach((leaveDate: any) => {
@@ -164,8 +190,6 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   getUserLeaves(id: number){
     this.ulSub = this.leaveService.getUserLeaveByUser(id).subscribe((response: any) => {
       this.userLeaves = response;
-      console.log(this.userLeaves);
-      
     });
   }
 
@@ -196,16 +220,32 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   private leaveTypeSub!: Subscription;
   leaveTypes: any[] = [];
   slId: number;
+  // getLeaveType() {
+  //   this.leaveTypeSub = this.leaveService.getLeaveType().subscribe( (leaveTypes: any) => {
+  //       this.leaveTypes = leaveTypes;
+  //       console.log(leaveTypes);
+        
+  //       this.slId = this.leaveTypes.find(type => type.leaveTypeName === 'Sick Leave').id
+  //     },(error) => {
+  //       console.error('Error fetching leave types:', error);
+  //     }
+  //   );
+  // }
   getLeaveType() {
-    this.leaveTypeSub = this.leaveService.getLeaveType().subscribe( (leaveTypes: any) => {
-        this.leaveTypes = leaveTypes;
-        this.slId = this.leaveTypes.find(type => type.leaveTypeName === 'Sick Leave').id
-      },(error) => {
+    return new Observable(observer => {
+      this.leaveTypeSub = this.leaveService.getLeaveType().subscribe((leaveTypes: any) => {
+        this.leaveTypes = leaveTypes; 
+        this.originalLeaveTypes = [...leaveTypes];
+        
+        this.slId = this.leaveTypes.find(type => type.leaveTypeName === 'Sick Leave')?.id;
+        observer.next();
+        observer.complete();
+      }, (error) => {
         console.error('Error fetching leave types:', error);
-      }
-    );
+        observer.error(error);
+      });
+    });
   }
-
   minEndDate: Date | null = null;
   onDateChange() {
     const startDate: any = this.leaveRequestForm.get('startDate')!.value;
@@ -221,7 +261,8 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   isPastDate: boolean = false;
   onEndDateChange() {
     const startDate: any = this.leaveRequestForm.get('startDate')!.value;
-    const endDate: any = this.leaveRequestForm.get('endDate')!.value;    if (endDate) {
+    const endDate: any = this.leaveRequestForm.get('endDate')!.value;    
+    if (endDate) {
       const today = new Date();
       today.setHours(0, 0, 0, 0); // Normalize today's date by removing time component
       
@@ -231,13 +272,12 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
       // Calculate difference in days
       const diffInTime = today.getTime() - selectedDate.getTime();
       const diffInDays = diffInTime / (1000 * 3600 * 24);
-      console.log(diffInDays);
-      
       this.isPastDate = diffInDays > 2;
-      console.log(this.isPastDate);
       if(this.isPastDate) {
         this.leaveTypes = this.leaveTypes.filter(lt => lt.leaveTypeName === 'LOP');
         this.leaveRequestForm.get('leaveTypeId')?.setValue(this.leaveTypes[0].id)
+      }else{
+        this.leaveTypes = this.originalLeaveTypes;
       }
     } else {
       this.isPastDate = false;

@@ -360,7 +360,8 @@ router.get('/getbyrm/:id', authenticateToken, async (req, res) => {
           required: true, // Only include users with a matching UserPersonal record
           where: {
             reportingMangerId: { [Op.ne]: null },
-            reportingMangerId: id
+            reportingMangerId: id, 
+            separated: false 
           },
         },
       ],
@@ -671,4 +672,5 @@ router.patch('/editnote/:id', authenticateToken, async (req, res) => {
       res.send( error.message);
   }
 });
+
 module.exports = router;
