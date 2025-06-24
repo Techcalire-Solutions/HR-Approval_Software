@@ -20,7 +20,7 @@ const AdvanceSalary = sequelize.define('advanceSalary', {
   timestamps: true,
 });
 
-AdvanceSalary.sync({ force: true })
+AdvanceSalary.sync({ alter: true })
   .then(() => {
     console.log('Tables synced successfully.');
   })
