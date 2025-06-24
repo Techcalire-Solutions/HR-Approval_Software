@@ -136,19 +136,19 @@ export class UserAssetsComponent implements OnDestroy{
   
   // Show "Add new" option if no matches and input is not empty
   this.showAddOption = this.filterValue && this.filteredOptions.length === 0;
-}
+  }
 
-addNewIfNoMatch() {
-  const dialogRef = this.dialog.open(AddUserAssetsComponent, {
-    data: { initialName: this.filterValue }
-  });
+  addNewIfNoMatch() {
+    const dialogRef = this.dialog.open(AddUserAssetsComponent, {
+      data: { initialName: this.filterValue }
+    });
 
-  dialogRef.afterClosed().subscribe(result => {
-    if (result) {
-      this.getAssets()
-    }
-  });
-}
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.getAssets()
+      }
+    });
+  }
 
 onOptionSelected(event: MatAutocompleteSelectedEvent) {
   // Your existing selection logic

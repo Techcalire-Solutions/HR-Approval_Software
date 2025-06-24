@@ -99,10 +99,6 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     this.getRoleById(roleId, user.id)
     // this.getLeaveType();
     const leaveId = this.route.snapshot.params['id'];
-    // if (leaveId) {
-    //   this.isEditMode = true;
-    //   this.getLeaveDetails(+leaveId)
-    // }
     this.getLeaveType().subscribe(() => {
       if (leaveId) {
         this.isEditMode = true;
@@ -123,8 +119,8 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   employeeStat: boolean = false;
   getRoleById(id: number, userId: number){
     this.roleSub = this.roleService.getRoleById(id).subscribe((res: Role) => {
-      let roleName = res.abbreviation
-      if(roleName !== 'HR Admin' && roleName !== 'Super Admin'){
+      this.roleName = res.abbreviation
+      if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
         this.employeeStat = true;
         this.checkProbationStatus(userId);
         this.leaveRequestForm.get('userId')?.setValue(userId);
@@ -148,22 +144,16 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
       this.minEndDate.setDate(this.minEndDate.getDate());
       this.leave = leave;
       
-      // Calculate difference between endDate and today
-      const endDate = new Date(leave.endDate);
-      const today = new Date();
-      const timeDiff = today.getTime() - endDate.getTime();
-      const dayDiff = timeDiff / (1000 * 3600 * 24);
-      console.log(dayDiff);
-      
-      // Filter leaveTypes if difference > 2
-      if (dayDiff > 2) {
-        console.log(this.leaveTypes);
-        
-        this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
-        console.log(this.leaveTypes);
-        
+      if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
+        const endDate = new Date(leave.endDate);
+        const today = new Date();
+        const timeDiff = today.getTime() - endDate.getTime();
+        const dayDiff = timeDiff / (1000 * 3600 * 24);
+        // Filter leaveTypes if difference > 2
+        if (dayDiff > 2) {
+          this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
+        }
       }
-
       this.leaveRequestForm.patchValue({
         userName: this.leave.user.name,
         userId: this.leave.userId,
@@ -262,17 +252,19 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   onEndDateChange() {
     const startDate: any = this.leaveRequestForm.get('startDate')!.value;
     const endDate: any = this.leaveRequestForm.get('endDate')!.value;    
-    if (endDate) {
+    if (endDate && this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin') {
       const today = new Date();
-      today.setHours(0, 0, 0, 0); // Normalize today's date by removing time component
-      
+      today.setHours(0, 0, 0, 0); 
+    
       const selectedDate = new Date(endDate);
-      selectedDate.setHours(0, 0, 0, 0); // Normalize selected date
-      
+      selectedDate.setHours(0, 0, 0, 0);
+      const isFriday = selectedDate.getDay() === 5;
       // Calculate difference in days
       const diffInTime = today.getTime() - selectedDate.getTime();
       const diffInDays = diffInTime / (1000 * 3600 * 24);
-      this.isPastDate = diffInDays > 2;
+      const thresholdDays = isFriday ? 3 : 2;
+      
+      this.isPastDate = diffInDays > thresholdDays;
       if(this.isPastDate) {
         this.leaveTypes = this.leaveTypes.filter(lt => lt.leaveTypeName === 'LOP');
         this.leaveRequestForm.get('leaveTypeId')?.setValue(this.leaveTypes[0].id)
