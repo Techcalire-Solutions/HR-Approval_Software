@@ -575,7 +575,7 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
                           </div>
                           <div class="address">
                               <h3>ONBOARD AERO CONSULTANTS PRIVATE LIMITED</h3>
-                              <p>BUILDING NO.48/768-C-2 SHREE LATHA BUILDING EROOR, THRIPUNITHURA, ERNAKULAM, KL 682306.</p>
+                              <p>13/227, TECHNOLODGE, KAKKOOR P.O., PIRAVOM, ERNAKULAM - 686662</p>
                           </div>
                       </div>
                       <h2 class="payslip-title">Payslip for the month of ${mp.payedFor ?? ''}</h2>

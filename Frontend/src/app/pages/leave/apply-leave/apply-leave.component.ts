@@ -149,8 +149,11 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
         const today = new Date();
         const timeDiff = today.getTime() - endDate.getTime();
         const dayDiff = timeDiff / (1000 * 3600 * 24);
+        const roundedDayDiff = Math.floor(dayDiff);
+        const isFriday = endDate.getDay() === 5;
+        const thresholdDays = isFriday ? 3 : 2;
         // Filter leaveTypes if difference > 2
-        if (dayDiff > 2) {
+        if (roundedDayDiff > thresholdDays) {
           this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
         }
       }
@@ -263,7 +266,7 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
       const diffInTime = today.getTime() - selectedDate.getTime();
       const diffInDays = diffInTime / (1000 * 3600 * 24);
       const thresholdDays = isFriday ? 3 : 2;
-      
+        
       this.isPastDate = diffInDays > thresholdDays;
       if(this.isPastDate) {
         this.leaveTypes = this.leaveTypes.filter(lt => lt.leaveTypeName === 'LOP');
