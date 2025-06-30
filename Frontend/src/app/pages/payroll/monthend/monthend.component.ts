@@ -101,8 +101,6 @@ export class MonthendComponent implements OnInit, OnDestroy{
     // Generate end date (last day of the month) with local timezone adjustment
     const endDate = new Date(this.currentYear, monthNumber + 1, 0); // Last day of the month
     const formattedEndDate = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
-  
-  
     // Call the API with dynamic dates
     this.ldSub = this.leaveService.getMonthlyLeaveDays(startDate, formattedEndDate).subscribe(leave => {
       this.leaveDaysData = leave;
@@ -162,6 +160,8 @@ export class MonthendComponent implements OnInit, OnDestroy{
   }
 
   newDoc(initialValue?: any): FormGroup {
+    console.log(initialValue);
+    
     const payedForValue = `${this.month} ${this.currentYear}`;
     return this.fb.group({
       id: [initialValue ? initialValue.id : '', Validators.required],
@@ -177,7 +177,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
       ot: [initialValue ? initialValue.ot : 0,],
       incentive: [initialValue ? initialValue.incentive : 0,],
       payOut: [initialValue ? initialValue.payOut : 0,],
-      pfDeduction: [initialValue ? initialValue.pfDeduction : 0, Validators.required],
+      pfDeduction: [initialValue?.pfDeduction ?? 1800, Validators.required],
       esi: [initialValue ? initialValue.esi : 0, Validators.required],
       tds: [initialValue ? initialValue.tds : 0, Validators.required],
       advanceAmount: [initialValue ? initialValue.advanceAmount : 0],

@@ -702,65 +702,56 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
                           <thead>
                               <tr>
                                   <th>Earnings</th>
-                                  <th>Full</th>
-                                  <th>Actual</th>
+                                  <th></th>
                                   <th>Deductions</th>
-                                  <th>Actual</th>
+                                  <th></th>
                               </tr>
                           </thead>
                           <tbody>
                               <tr>
                                   <td>BASIC</td>
-                                  <td>${fullValue.basic ?? ''}</td>
                                   <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.basic ?? ''}</td>
                                   <td>PF</td>
                                   <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.pfDeduction ?? ''}</td>
                               </tr>
                               <tr>
                                   <td>HRA</td>
-                                  <td>${fullValue.hra ?? ''}</td>
                                   <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.hra ?? ''}</td>
-                                  <td>TDS</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.tds ?? ''}</td>
-                              </tr>
-                              <tr>
-                                  <td>SPECIAL ALLOWANCE</td>
-                                  <td>${fullValue.specialAllowance ?? ''}</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.specialAllowance ?? ''}</td>
-                                  <td>Advance</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.advanceAmount ?? ''}</td>
-                              </tr>
-                              <tr>
-                                  <td>CONVEYANCE ALLOWANCE</td>
-                                  <td>${fullValue.conveyanceAllowance ?? ''}</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.conveyanceAllowance ?? ''}</td>
-                                  <td>LOP</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveDeduction ?? ''}</td>
-                              </tr>
-                              <tr>
-                                  <td>TRAVEL ALLOWANCE</td>
-                                  <td>${fullValue.lta ?? ''}</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.lta ?? ''}</td>
                                   <td>ESI</td>
                                   <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.esi ?? ''}</td>
                               </tr>
                               <tr>
+                                  <td>SPECIAL ALLOWANCE</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.specialAllowance ?? ''}</td>
+                                  <td>Professional Tax</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.incentiveDeduction ?? ''}</td>
+                              </tr>
+                              <tr>
+                                  <td>CONVEYANCE ALLOWANCE</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.conveyanceAllowance ?? ''}</td>
+                                  <td>TDS</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.tds ?? ''}</td>
+                              </tr>
+                              <tr>
+                                  <td>TRAVEL ALLOWANCE</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.lta ?? ''}</td>
+                                  <td>LOP</td>
+                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveDeduction ?? ''}</td>
+                              </tr>
+                              <tr>
                                 <td>OVER TIME</td>
-                                <td></td>
                                 <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.ot ?? ''}</td>
-                                <td>INCENTIVE</td>
-                                <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.incentiveDeduction ?? ''}</td>
+                                <td>Salary Advance</td>
+                                <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.advanceSalary ?? ''}</td>
                             </tr>
                             <tr>
                               <td>PAY OUT</td>
-                              <td></td>
                               <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.payOut ?? ''}</td>
                               <td></td>
                               <td></td>
                             </tr>
                             <tr>
                               <td>INCENTIVE</td>
-                              <td></td>
                               <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.incentive ?? ''}</td>
                               <td></td>
                               <td></td>
@@ -768,7 +759,6 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
                             ${payedForWithoutYear === 'December' ? `
                             <tr>
                               <td>Earned Leave</td>
-                              <td></td>
                               <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveEncashmentAmount ?? ''}</td>
                               <td></td>
                               <td></td>
@@ -794,7 +784,7 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
                       </table>
 
                       <div class="net-pay">
-                          <p>Net Pay for the month (Total Earnings - Total Deductions): <a  style="font-weight: bolder; color: rgb(8, 72, 115);">INR ${mp.toPay ?? 0}</a></p>
+                          <p>Net Pay for the month: <a  style="font-weight: bolder; color: rgb(8, 72, 115);">INR ${mp.toPay ?? 0}</a></p>
                           <p><a  style="font-weight: bolder; color: rgb(8, 72, 115);">(Rupees ${convertNumberToWords(totalEarnings - totalDeductions) ?? ''} Only)</a></p>
                       </div>
 
