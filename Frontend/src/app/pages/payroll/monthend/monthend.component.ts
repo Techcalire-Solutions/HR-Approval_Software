@@ -44,7 +44,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
     this.month = currentMonth === 0
       ? monthNames[11]
       : monthNames[currentMonth - 1];
-      this.selectedMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    this.selectedMonth = currentMonth === 0 ? 11 : currentMonth - 1;
     this.currentYear = currentMonth === 0 ? currentDate.getFullYear() - 1 : currentDate.getFullYear();
     this.daysInMonth = new Date(this.currentYear, currentMonth, 0).getDate();
 
@@ -160,8 +160,6 @@ export class MonthendComponent implements OnInit, OnDestroy{
   }
 
   newDoc(initialValue?: any): FormGroup {
-    console.log(initialValue);
-    
     const payedForValue = `${this.month} ${this.currentYear}`;
     return this.fb.group({
       id: [initialValue ? initialValue.id : '', Validators.required],
@@ -215,7 +213,6 @@ export class MonthendComponent implements OnInit, OnDestroy{
       if(payroll.length === 0){
         this.payrollSub = this.payrollService.getPayroll().subscribe((payroll) => {
           this.payrolls = payroll;
-
           this.enchashSub = this.leaveService.getUserLeaveForEncash(this.currentYear).subscribe(leaveBalances => {
             this.payrolls.forEach((payrollItem: any) => {
               const userId = payrollItem.userId;

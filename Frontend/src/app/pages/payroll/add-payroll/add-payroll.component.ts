@@ -59,6 +59,8 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
     yearPfDeduction: <any>[{ value: null, disabled: true }],
     esi: <any>[null],
     yearEsi: <any>[{ value: null, disabled: true }],
+    incentiveDeduction: <any>[null],
+    yearIncentiveDeduction: <any>[{ value: null, disabled: true }]
   });
 
   private changeSub!: Subscription;
@@ -116,8 +118,6 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
   private id: number;
   netPay: number;
   patchForm(value: any){
-    console.log(value);
-    
     this.id = value.id;
     this.netPay = value.grossPay;
     this.payrollForm.patchValue({
@@ -210,6 +210,12 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
         const pf: any = this.payrollForm.get('esi')?.value;
         const ypf = 12 * pf;
         this.payrollForm.patchValue({ yearEsi: ypf }, { emitEvent: false });
+        this.calculateGrossPay();
+      }),
+      this.payrollForm.get('incentiveDeduction')?.valueChanges.subscribe(() => {
+        const pt: any = this.payrollForm.get('incentiveDeduction')?.value;
+        const ypt = 12 * pt;
+        this.payrollForm.patchValue({ yearIncentiveDeduction: ypt }, { emitEvent: false });
         this.calculateGrossPay();
       })
     );

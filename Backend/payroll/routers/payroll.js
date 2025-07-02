@@ -9,9 +9,9 @@ const User = require('../../users/models/user')
 
 router.post("/", async (req, res) => {
   try {
-    const { userId, basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance, pfDeduction, esi } = req.body;
+    const { userId, basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance, pfDeduction, esi, incentiveDeduction } = req.body;
 
-    const payroll = new Payroll({userId, basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance, pfDeduction, esi });
+    const payroll = new Payroll({userId, basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance, pfDeduction, esi, incentiveDeduction });
     await payroll.save();
     res.send(payroll)
   } catch (error) {
@@ -49,7 +49,7 @@ router.get("/:id", async (req, res) => {
 
 
 router.patch("/:id", async (req, res) => {
-  const { basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance, pfDeduction, esi } = req.body;
+  const { basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance, pfDeduction, esi, incentiveDeduction } = req.body;
   try {
     const payroll = await Payroll.findOne({ where: { id: req.params.id } });
     if (!payroll) {
@@ -72,6 +72,7 @@ router.patch("/:id", async (req, res) => {
     payroll.specialAllowance = specialAllowance;
     payroll.pfDeduction = pfDeduction;
     payroll.esi = esi;
+    payroll.incentiveDeduction = incentiveDeduction;
 
     await payroll.save();
 
