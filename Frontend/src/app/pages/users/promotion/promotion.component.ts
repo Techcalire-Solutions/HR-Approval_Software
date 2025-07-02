@@ -167,6 +167,8 @@ export class PromotionComponent {
       ...this.promotionForm.value,
       promotionDate: new Date()
     };
+    const momentDate: any = this.promotionForm.get('effectiveDate')?.value; 
+    promotionData.effectiveDate = momentDate.format('YYYY-MM-DD');
 
     this.promotionService.applyPromotion(promotionData).subscribe(
       (response) => {
