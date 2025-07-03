@@ -70,7 +70,7 @@ export class AddHolidayComponent implements OnInit, OnDestroy{
     const data = {
       ...this.holidayForm.getRawValue(),
     }
-    const momentDate: any = this.holidayForm.get('date')?.value; // This is a Moment.js object
+    const momentDate: any = this.holidayForm.get('date')?.value; 
     data.date = momentDate.format('YYYY-MM-DD');
     if(this.editStatus){
       this.submit = this.holidayService.updateHolidays(this.data.id, data).subscribe(() => {

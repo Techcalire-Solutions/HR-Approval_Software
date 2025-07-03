@@ -14,7 +14,7 @@ const PayrollLog = sequelize.define('payrollLog', {
   timestamps: true,
 });
 
-PayrollLog.sync({ force: true })
+PayrollLog.sync({ alter: true })
   .then(() => {
     console.log('Tables synced successfully.');
   })
