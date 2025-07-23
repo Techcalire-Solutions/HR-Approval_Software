@@ -1,0 +1,56 @@
+<div class="backup-container">
+  <h2>Database Backups</h2>
+<div style="display: flex; align-items: center;">
+  <mat-form-field appearance="outline" style="margin-right: 5px;">
+    <mat-label>Search By Date</mat-label>
+    <input matInput [matDatepicker]="picker" (dateChange)="search($event)" [value]="selectedDate" />
+    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+  </mat-form-field>
+
+  <button mat-icon-button (click)="resetDate()" style="margin-left: 5px; color: red;">
+    <mat-icon>refresh</mat-icon>
+  </button>
+</div>
+
+  <div *ngIf="loading" class="loading">Loading backups...</div>
+
+  <div *ngIf="error" class="error-alert">
+    {{ error }}
+    <button (click)="loadBackups()">Retry</button>
+  </div>
+
+  <table *ngIf="!loading && !error">
+    <thead>
+      <tr>
+        <th>Backup Name</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Size</th>
+        <th>Type</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let backup of backups">
+        <td>{{ backup.name }}</td>
+        <td>{{ backup.formattedDate }}</td>
+        <td>{{ backup.formattedTime }}</td>
+        <td>{{ formatBytes(backup.size) }}</td>
+        <td>{{ backup.type }}</td>
+        <td class="actions">
+          <button (click)="downloadBackup(backup)" class="download-btn">
+            Download
+          </button>
+          <!-- <button (click)="restoreBackup(backup.path)" class="restore-btn">
+            Restore
+          </button> -->
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <mat-paginator *ngIf="!loading && !error" [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
+    (page)="onPageChange($event)" [pageSizeOptions]="[10, 20, 30, 40, 50, 100]">
+  </mat-paginator>
+</div>

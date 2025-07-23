@@ -6,6 +6,13 @@ const dotenv = require('dotenv');
 const cors = require('cors')
 const cron = require('node-cron');
 
+const { scheduleBackups } = require('../src/services/schedulerService');
+
+if (process.env.ENABLE_SCHEDULED_BACKUPS === "true") {
+  const backupJob = scheduleBackups(); // Now properly imported
+  console.log('Scheduled backups enabled');
+}
+
 dotenv.config();
 app.use(cors({ origin: '*' }));
 // app.use(cors({
@@ -115,10 +122,14 @@ const eventMail = require('../bulkmail/eventMail')
 app.use('/birthday',birthdayMail)
 app.use('/',eventMail)
 
-const backup = require('./backUp')
-cron.schedule('0 0 5 * *', () => {
-    backup();
-});
+// const backup = require('./backUp')
+// cron.schedule('0 0 5 * *', () => {
+//     backup();
+// });
+
+
+const backuproutes = require('../src/routes/backupRoutes')
+app.use('/backupapi',backuproutes)
 
 
 // cron.schedule('* * * * *', () => {
