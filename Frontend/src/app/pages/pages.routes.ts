@@ -19,6 +19,11 @@ export const routes: Routes = [
         loadComponent: () => import('./hierarchy-tree/hierarchy-tree.component').then(c => c.HierarchyTreeComponent),
         data: { breadcrumb: 'HierarchyTree' }, canActivate: [AuthGuard]
       },
+            {
+        path: 'backuplogs',
+        loadComponent: () => import('../pages/backupandrestore/backup-list/backup-list.component').then(c => c.BackupListComponent),
+        data: { breadcrumb: 'Backup' }, canActivate: [AuthGuard]
+      },
       {
         path: 'designation',
         loadComponent: () => import('./users/designation/designation.component').then(c => c.DesignationComponent),

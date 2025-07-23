@@ -55,5 +55,8 @@ export class ApplicationsComponent implements OnInit {
   openMail():void{
     this.router.navigateByUrl('/login/mail')
   }
+    openBackup(){
+    this.router.navigateByUrl('/login/backuplogs')
+  }
 }
 
