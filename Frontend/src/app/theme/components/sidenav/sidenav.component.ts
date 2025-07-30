@@ -174,6 +174,7 @@ users:User;
 
 
         (item.title === 'Reports' && !item.parentId) ||
+        (item.title === 'Leave' && item.parentId === 21)||
         (item.title === 'Proforma' && item.parentId === 21) ||
         (item.title === 'View' && item.parentId === 22) ||
         (item.title === 'Excel' && item.parentId === 22) ||
