@@ -1973,7 +1973,7 @@ router.get('/all/report', async (req, res) => {
         { model: LeaveType, attributes: ['id', 'leaveTypeName'], as: 'leaveType' }
       ]
     });
-
+    
     // Step 2: Map leave usages by userId and leaveType
     const leaveUsageMap = {};
     leaves.forEach((leave) => {
@@ -2007,7 +2007,8 @@ router.get('/all/report', async (req, res) => {
         {
           model: User,
           as: 'user',
-          attributes: ['id', 'name', 'url']
+          attributes: ['id', 'name', 'url'],
+          where: { separated: false }
         },
         {
           model: LeaveType,
@@ -2016,7 +2017,7 @@ router.get('/all/report', async (req, res) => {
         }
       ]
     });
-
+    
     // Step 4: Group and format user data
     const employeeMap = {};
 
@@ -2053,8 +2054,7 @@ router.get('/all/report', async (req, res) => {
         }
       });
     });
-
-    // Step 5: Convert map to array and apply search + pagination
+    
     let result = Object.values(employeeMap);
 
     if (search && search !== 'undefined') {
