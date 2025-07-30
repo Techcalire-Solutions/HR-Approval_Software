@@ -1969,7 +1969,7 @@ router.get('/all/report', async (req, res) => {
         }
       },
       include: [
-        { model: User, as: 'user', attributes: ['id', 'name', 'url'] },
+        { model: User, as: 'user', attributes: ['id', 'name', 'url'], where: { separated: false } },
         { model: LeaveType, attributes: ['id', 'leaveTypeName'], as: 'leaveType' }
       ]
     });
