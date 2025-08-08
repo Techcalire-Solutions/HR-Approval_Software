@@ -8,7 +8,7 @@
           @for (employee of birthdaysThisMonth; track $index) {
             <div class="card">
             
-              @if(isTodayBirthday(employee.dateOfBirth)){
+              @if(isTodayBirthday(employee.dateOfBirth)&& canAccessDraft){
                 <button mat-icon-button
                 (click)="openDraft(employee.user.name)"
                 matTooltip="Draft Message">

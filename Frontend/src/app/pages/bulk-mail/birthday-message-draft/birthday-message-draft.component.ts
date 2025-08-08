@@ -12,6 +12,8 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { BulkMailService } from '@services/bulkmail.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog } from '@angular/material/dialog';
+import { BirthdayConfirmDialogComponent } from '../birthday-confirm-dialog/birthday-confirm-dialog.component';
 
 
 
@@ -38,6 +40,7 @@ export class BirthdayMessageDraftComponent implements OnInit {
   messageContent: string = '';
   selectedFile: File | null = null;
   router = inject(Router)
+  dialog=inject(MatDialog)
 
   constructor(
     private route: ActivatedRoute,
@@ -69,10 +72,43 @@ Happy Birthday! 🎉`
     }
   }
 
+ sendMessage(): void {
+    if (!this.employeeName || !this.messageContent) {
+      alert('Please provide a valid name and message.');
+      return;
+    }
 
+    const dialogRef = this.dialog.open(BirthdayConfirmDialogComponent, {
+      width: '400px',
+      data: { employeeName: this.employeeName }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.isLoading = true; 
+        this.bulkmailService.sendMailWishes({
+          to: this.employeeName,
+          subject: `Happy Birthday, ${this.employeeName}!`,
+          message: this.messageContent,
+          attachment: this.selectedFile || undefined,
+        }).subscribe(
+          (response) => {
+            this.isLoading = false;
+            alert(response.message); 
+            this.router.navigate(['/login/mail']);
+          },
+          (error) => {
+            this.isLoading = false;
+            alert('Error sending message.');
+            console.error(error);
+          }
+        );
+      }
+    });
+  }
 
   isLoading: boolean = false;
-  sendMessage(): void {
+  sendMessagse(): void {
     if (!this.employeeName || !this.messageContent) {
       alert('Please provide a valid name and message.');
       return;

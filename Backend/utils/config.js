@@ -13,6 +13,8 @@ module.exports = {
     leaveCommonUser: 'aerohr@onboardaero.com',
     leaveCommonPass: 'ujrk jziu amti dvdg',   
     payUser: 'aerohr@onboardaero.com',
-    payPass: 'ujrk jziu amti dvdg'
+    payPass: 'ujrk jziu amti dvdg',
+    birthdaySendEmail:'aerohr@onboardaero.com',
+    birthdaySendEmailPass:'ujrk jziu amti dvdg'
   },
 };
