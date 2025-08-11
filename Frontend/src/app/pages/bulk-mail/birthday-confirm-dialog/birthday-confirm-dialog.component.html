@@ -1,0 +1,35 @@
+<div class="birthday-confirm-dialog">
+  <div class="confetti-container">
+    <div class="confetti"></div>
+    <div class="confetti"></div>
+    <div class="confetti"></div>
+  </div>
+
+  <h2 mat-dialog-title class="dialog-title">
+    <mat-icon class="title-icon">celebration</mat-icon>
+    Birthday Wishes Ready!
+    <mat-icon class="title-icon">celebration</mat-icon>
+  </h2>
+
+  <mat-dialog-content class="dialog-content">
+    <div class="message-balloon">
+      <div class="balloon-tail"></div>
+      <p>Are you sure you want to send these birthday wishes to <span class="highlight-name">{{data.employeeName}}</span>?</p>
+      <div class="cake-container">
+        <mat-icon class="cake-icon">cake</mat-icon>
+        <div class="candle"></div>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="center" class="dialog-actions">
+    <button mat-stroked-button (click)="onNoClick()" class="cancel-btn">
+      <mat-icon>close</mat-icon>
+      Maybe Later
+    </button>
+    <button mat-raised-button color="primary" (click)="onConfirm()" cdkFocusInitial class="confirm-btn">
+      <mat-icon>send</mat-icon>
+      Send Wishes!
+    </button>
+  </mat-dialog-actions>
+</div>
