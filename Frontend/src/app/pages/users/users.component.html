@@ -31,7 +31,7 @@
             <div fxFlex="100" fxFlex.gt-md="33.3" fxFlex.md="50" class="p-2">
                 <mat-card class="p-0">
                     <div [ngClass]="{'bg-primary': !user.separated, 'bg-danger': user.separated}" fxLayout="row" fxLayoutAlign="space-between center">
-                        <h3 class="user-name">
+                        <h3 class="user-name" [class.confirmed]="user.isTemporary === false">
                             @if (!user.status && !user.separated) {
                                 User blocked
                             }@else if (!user.status && user.separated) {
@@ -74,6 +74,10 @@
                               <button mat-menu-item (click)="openAssets(user.id);">
                                   <mat-icon>devices</mat-icon>
                                   <span>Assets</span>
+                              </button>
+                              <button mat-menu-item (click)="confirmEmployee(user.id, user.empNo, user.name, user.isTemporary);">
+                                  <mat-icon>check_circle_outline</mat-icon>
+                                  <span>Confirmation</span>
                               </button>
                               <button mat-menu-item (click)="resignEmployee(user.id, user.empNo, user.name);">
                                   <mat-icon>low_priority</mat-icon>

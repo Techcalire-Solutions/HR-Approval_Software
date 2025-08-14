@@ -625,8 +625,8 @@ router.get('/confirmemployee/:id', authenticateToken, async (req, res) => {
       if (!result) {
         return res.json({ message: "Employee not found" });
       }
-
-      result.isTemporary = false;
+      
+      result.isTemporary = !result.isTemporary;
       await result.save();
 
       const leaveTypes = await LeaveType.findAll({});
@@ -647,8 +647,11 @@ router.get('/confirmemployee/:id', authenticateToken, async (req, res) => {
       for(let i = 0; i < data.length; i++){
         UserLeave.bulkCreate([data[i]]);
       }
-
-      res.json({ message: "Employee confirmed" });
+      if (result.isTemporary) {
+        res.json({ message: " is currently under probation." });
+      } else {
+        res.json({ message: " is confirmed." });
+      }
   } catch (error) {
       res.send(error.message );
   }
