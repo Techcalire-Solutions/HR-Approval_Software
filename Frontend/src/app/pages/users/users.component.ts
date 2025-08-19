@@ -23,25 +23,14 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
 import { SeparationComponent } from './separation/separation.component';
 import { User } from '../../common/interfaces/users/user';
 import { UpdateDesignationComponent } from './update-designation/update-designation.component';
+import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [
-    FormsModule,
-    FlexLayoutModule,
-    MatButtonModule,
-    MatButtonToggleModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatProgressSpinnerModule,
-    MatMenuModule,
-    MatSlideToggleModule,
-    MatCardModule,
-    NgxPaginationModule,
-    MatPaginatorModule
+  imports: [FormsModule, FlexLayoutModule, MatButtonModule, MatButtonToggleModule, MatIconModule, MatFormFieldModule, MatInputModule,
+    MatProgressSpinnerModule, MatMenuModule, MatSlideToggleModule, MatCardModule, NgxPaginationModule, MatPaginatorModule
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
@@ -212,5 +201,27 @@ export class UsersComponent implements OnInit, OnDestroy {
   selectedEmployee: any;
   isEmployeeSelected(user: any): boolean {
     return this.selectedEmployee && this.selectedEmployee.id === user.id;
+  }
+
+  snackBar = inject(MatSnackBar)
+  confirmSub!: Subscription;
+  private userService = inject(UsersService);
+  confirmEmployee(id: number, empNo: string, name: string, isTemporary: boolean){
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {id: id, empNo: empNo, name: name, isTemporary: isTemporary}
+    });
+    this.dialogSub = dialogRef.afterClosed().subscribe((res) => {
+      console.log(res);
+      
+      if(res.confirmed){
+        this.confirmSub = this.userService.confirmEmployee(id, res.note).subscribe((x) =>{
+          console.log(x);
+          
+          this.snackBar.open(`${name} ${x.message}`,"" ,{duration:3000})
+            this.getUsers()
+        })
+      }
+    })
+
   }
 }

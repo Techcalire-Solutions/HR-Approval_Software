@@ -43,7 +43,6 @@ import { Role } from '../../common/interfaces/users/role';
     MatSlideToggleModule,
     MatCardModule,
     NgxPaginationModule,
-    PipesModule,
     MatPaginatorModule
   ],
   templateUrl: './role.component.html',

@@ -1,0 +1,42 @@
+
+
+<div class="reset-password-container">
+    <mat-toolbar class="bg-blue-900">
+    <!-- @if(data.type === 'update') {
+        Update Status: {{ data.isTemporary ? 'Probation → Confirmation' : 'Confirmation → Probation' }}
+    } @else { -->
+        Probation Status Change: {{ data.isTemporary ? 'Probation → Confirmation' : 'Confirmation → Probation' }}
+    <!-- } -->
+    <mat-icon (click)="onCancel()" style="margin-left: auto;">close</mat-icon>
+    </mat-toolbar>
+
+  <form [formGroup]="separationForm" style="padding: 20px;">
+    <div mat-dialog-content>
+        <p style="font-size: 16px; margin-bottom: 15px;">
+        @if(data.isTemporary === false) {
+            You are changing status from <strong>Confirmation</strong> to <strong>Probation</strong> 
+            for <strong>{{ data.name }} ({{ data.empNo }})</strong>.
+        } @else {
+            You are changing status from <strong>Probation</strong> to <strong>Confirmation</strong> 
+            for <strong>{{ data.name }} ({{ data.empNo }})</strong>.
+        }
+        </p>
+        @if(data.isTemporary) {
+            <mat-form-field appearance="fill" style="width: 100%;">
+                <mat-label>Note</mat-label>
+                <textarea matInput formControlName="note" rows="3" placeholder="" ></textarea>
+            </mat-form-field>
+        }
+    </div>
+
+    <div mat-dialog-actions style="justify-content: space-between;">
+      <button mat-button color="warn" (click)="onConfirm()" [disabled]="separationForm.invalid">
+        @if(data.type === 'update'){
+          Update
+        }@else {
+          Confirm
+        }
+      </button>
+    </div>
+  </form>
+</div>
