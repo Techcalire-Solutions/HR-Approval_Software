@@ -900,7 +900,7 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
       <p>Please find the attached payroll Excel file for your review.</p>
         <p>Kindly click the button below to either approve or reject the payroll data as required.</p>
         <div style="text-align: center; margin-top: 20px;">
-          <a href="https://api.aerohr.in/monthlypayroll/approve?month=${month}&id=${req.user.id}" 
+          <a href="https://oac-api.aerohr.in/monthlypayroll/approve?month=${month}&id=${req.user.id}" 
             style="
               display: inline-block;
               padding: 10px 20px;
@@ -913,7 +913,7 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
             ">
             Approve
           </a>
-          <a href="https://api.aerohr.in/monthlypayroll/reject?month=${month}&id=${req.user.id}" 
+          <a href="https://oac-api.aerohr.in/monthlypayroll/reject?month=${month}&id=${req.user.id}" 
             style="
               display: inline-block;
               padding: 10px 20px;
