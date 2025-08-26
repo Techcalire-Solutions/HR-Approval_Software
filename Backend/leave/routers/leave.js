@@ -883,7 +883,6 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
         if (!isLOP) {
           userLeave.leaveBalance -= days;
         }
-        console.log(userLeave,"88888888888888888888888");
         
         await userLeave.save({ transaction });
       }
@@ -897,7 +896,6 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
       dates: sortedLeaveDates,
       notes,
       fileUrl,
-      status: status,
       transaction,
     });
 
@@ -1400,7 +1398,7 @@ async function createLeaveRecord({ userId, leaveTypeId, dates, notes, fileUrl, s
   }, { transaction });
 }
 
-async function updateLeaveRecord({ leaveId, userId, leaveTypeId, dates, notes, fileUrl, status, transaction }) {
+async function updateLeaveRecord({ leaveId, userId, leaveTypeId, dates, notes, fileUrl, transaction }) {
   const leave = await Leave.findByPk(leaveId, { transaction });
   if (!leave) throw new Error('Leave not found');
   
@@ -1428,7 +1426,6 @@ async function updateLeaveRecord({ leaveId, userId, leaveTypeId, dates, notes, f
   leave.notes = notes;
   leave.fileUrl = fileUrl;
   leave.leaveDates = dates;
-  leave.status = status;
 
   await leave.save({ transaction });
   // Update UserLeave records
