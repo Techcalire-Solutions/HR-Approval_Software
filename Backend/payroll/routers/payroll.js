@@ -24,7 +24,8 @@ router.get("/", async (req, res) => {
     const payroll = await Payroll.findAll({ 
       include:[
         { model: User, attributes: ['name','empNo']}
-      ] 
+      ] ,
+      order: [[User, 'empNo', 'ASC']]
     });
     res.send(payroll);
   } catch (error) {

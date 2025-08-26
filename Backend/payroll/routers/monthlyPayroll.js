@@ -24,7 +24,6 @@ const config = require('../../utils/config')
 const { createNotification } = require('../../app/notificationService');
 const Leave = require("../../leave/models/leave");
 
-
 router.post("/save", authenticateToken, async (req, res) => {
   const data = req.body.payrolls;
   try {
@@ -166,9 +165,11 @@ router.get("/bypayedfor", authenticateToken, async (req, res) => {
     const monthlyPayroll = await MonthlyPayroll.findAll({ 
       where: { payedFor: payedFor }, include: [
         {model: User, attributes: ['name','empNo']}
-      ]
+      ],
+      order: [[User, 'empNo', 'ASC']]
     });
-
+    console.log(monthlyPayroll);
+    
     return res.status(200).json(monthlyPayroll);
   
   } catch (error) {
@@ -828,7 +829,6 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
   }
 });
 
-// Function to generate PDF
 async function generatePDF(html) {
   const browser = await puppeteer.launch({
     ignoreDefaultArgs: ['--disable-extensions'],
@@ -840,7 +840,6 @@ async function generatePDF(html) {
   return pdfBuffer;
 }
 
-// Function to send email
 async function sendPayrollEmail(to, pdfBuffer, subject, payedFor, name, req) {
     const html =  `
       <p>Attached is your payslip for the month of ${payedFor}. Please review it at your convenience.</p>
@@ -978,7 +977,6 @@ router.get('/approve', async (req, res) => {
   }
 });
 
-// Reject Route
 router.get('/reject', async (req, res) => {
   try {
     const { month, id } = req.query;
