@@ -239,7 +239,7 @@ router.get('/findbyid/:id', authenticateToken, async (req, res) => {
     const monthlyPayroll = await MonthlyPayroll.findByPk(req.params.id,{ 
       include: [
         {model: User, attributes: ['name','empNo'], include: [
-          {model: UserPersonal, attributes: ['dateOfJoining']},
+          {model: UserPersonal, as: 'userpersonal', attributes: ['dateOfJoining']},
           {model: UserAccount},
           {model: StatutoryInfo, attributes: ['panNumber', 'uanNumber', 'pfNumber']},
           {model: UserPosition, attributes: ['designationId', 'department', 'location'], include:[
