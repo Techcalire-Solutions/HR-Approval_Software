@@ -219,7 +219,8 @@ router.get('/findone/:id', authenticateToken, async (req, res) => {
         { model: Role, attributes: ['id', 'roleName'] },
         { model: UserPosition, attributes: ['designationId'],
             include: [{ model: Designation, include: {model: Role} }]
-        }
+        },
+        { model: UserPersonal, as: 'userpersonal', attributes: ['dateOfBirth'] }
       ]
     });
     res.send(user);
@@ -229,7 +230,7 @@ router.get('/findone/:id', authenticateToken, async (req, res) => {
 });
 
 router.patch('/update/:id', async(req,res)=>{
-  const { name, email, phoneNumber, url, empNo,isTemporary} = req.body;
+  const { name, email, phoneNumber, url, empNo} = req.body;
   // const pass = await bcrypt.hash(password, 10);
   try {
     let result = await User.findByPk(req.params.id);
@@ -238,7 +239,6 @@ router.patch('/update/:id', async(req,res)=>{
     result.phoneNumber = phoneNumber;
     result.url = url;
     result.empNo = empNo;
-    result.isTemporary = isTemporary;
     await result.save();
     res.send(result);
   } catch (error) {

@@ -92,17 +92,11 @@ export class BirthdayComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.birthSub?.unsubscribe();
   }
+  router=inject(Router)
+  openDraft(id: number) {
 
-//   checkAccess() {
-//   const userRoles = this.authService.getCurrentUserRoles(); // Implement this in your auth service
-//   this.canAccessDraft = userRoles.includes('superadmin') || userRoles.includes('hradmin');
-// }
-
-  router = inject(Router)
-  openDraft(name: string) {
-
-    this.router.navigate(['login/mail/birthday-draft', name]);
-  }
+      this.router.navigate(['login/mail/birthday-draft', id]);
+    }
 
   isTodayBirthday(dateOfBirth: string | Date): boolean {
     const dob = new Date(dateOfBirth);

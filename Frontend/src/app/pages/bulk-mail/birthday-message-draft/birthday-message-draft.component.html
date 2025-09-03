@@ -1,40 +1,151 @@
-<div class="draft-container">
-    <h2>Create Birthday Message</h2>
-    
-   @if(employeeName){
-    <p>
-      Sending wishes to: <strong>{{ employeeName }}</strong>
-    </p>
-   }
-
-   @if(isLoading){
-    <div class="loading-container">
-      <mat-spinner></mat-spinner>
-      <p>Sending message...</p>
+<div class="birthday-container">
+  <div class="card">
+    <div class="card-header">
+      <h2>
+        <mat-icon class="header-icon">cake</mat-icon>
+        Create Birthday Message
+      </h2>
     </div>
-   }
 
+    <div class="card-content">
+      @if(employeeName){
+      <div class="employee-info">
+        <p class="info-label">Sending wishes to:</p>
+        <div class="employee-card">
+          <div class="employee-avatar">
+            <mat-icon>person</mat-icon>
+          </div>
+          <span class="employee-name">{{ employeeName }}</span>
+        </div>
+      </div>
+      }
 
-  
+      @if(isLoading){
+      <div class="loading-overlay">
+        <div class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Delivering your wishes...</p>
+        </div>
+      </div>
+      }
 
-    <div class="message-section">
-      <label for="messageInput">Your Message:</label><br />
-      <textarea
-        id="messageInput"
-        rows="8"
-        cols="60"
-        [(ngModel)]="messageContent"
-        placeholder="Write your birthday wishes here..."
-      ></textarea>
+      <!-- Schedule Section -->
+      <div class="schedule-section">
+        <h3 class="section-title">
+          <mat-icon>schedule</mat-icon>
+          Schedule Delivery
+        </h3>
+        
+        <div class="datetime-fields">
+          <mat-form-field appearance="outline" class="date-field">
+            <mat-label>Delivery Date</mat-label>
+            <input matInput [matDatepicker]="picker" [(ngModel)]="selectedDate" [min]="minDate">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-hint>Select when to send the message</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="time-field">
+            <mat-label>Delivery Time</mat-label>
+            <input matInput type="time" [(ngModel)]="selectedTime">
+            <mat-hint>HH:MM (24-hour format)</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- <mat-checkbox [(ngModel)]="sendImmediately" (change)="onSendImmediatelyChange()" class="immediate-checkbox">
+          Send immediately
+        </mat-checkbox> -->
+      </div>
+
+      <div class="message-section">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Your Birthday Message</mat-label>
+          <textarea
+            matInput
+            rows="15"
+            [(ngModel)]="messageContent"
+            placeholder="Write your heartfelt birthday wishes here..."
+          ></textarea>
+        </mat-form-field>
+        <div class="character-count" *ngIf="messageContent">
+          {{ messageContent.length }} characters
+        </div>
+      </div>
+      
+      <div class="file-upload-section">
+        <input type="file" id="fileInput" (change)="onFileSelected($event)" #fileUpload style="display:none;">
+        <div class="file-upload-container">
+          <button mat-stroked-button (click)="fileUpload.click()" class="upload-btn">
+            <mat-icon>attach_file</mat-icon>
+            {{ selectedFile ? selectedFile.name : 'Attach a File (optional)' }}
+          </button>
+          @if(selectedFile){
+          <button mat-icon-button color="warn" (click)="removeFile()" class="remove-btn" matTooltip="Remove file">
+            <mat-icon>close</mat-icon>
+          </button>
+          }
+        </div>
+        <small class="file-hint" *ngIf="selectedFile">
+          <mat-icon>check_circle</mat-icon> File ready to be attached  
+          <!-- ({{ formatFileSize(selectedFile.size) }}) -->
+        </small>
+      </div>
+
+      <div class="action-buttons">
+        <button mat-raised-button color="primary" (click)="sendMessage()" 
+                [disabled]="isLoading || !messageContent" class="action-btn send-btn">
+          <mat-icon>{{ sendImmediately ? 'send' : 'schedule' }}</mat-icon>
+          {{ sendImmediately ? 'Send Now' : 'Schedule Message' }}
+        </button>
+        <button mat-stroked-button color="primary" (click)="previewMessage()" 
+                [disabled]="!messageContent" class="action-btn">
+          <mat-icon>visibility</mat-icon>
+          Preview Message
+        </button>
+      </div>
+
+      <!-- Scheduled Info Banner -->
+      <!-- @if(!sendImmediately && selectedDate && selectedTime){
+      <div class="schedule-info">
+        <mat-icon>schedule</mat-icon>
+        <span>Message scheduled for {{ getScheduledDateTime() }}</span>
+      </div>
+      } -->
     </div>
-  
-    
-    <div class="file-upload-section">
-      <label for="fileInput">Attach a File (optional):</label><br />
-      <input id="fileInput" type="file" (change)="onFileSelected($event)" />
-    </div>
-  
-
-    <button (click)="sendMessage()">Send Wishes</button>
   </div>
-  
+
+  <!-- Preview Dialog -->
+  @if(showPreview){
+  <div class="preview-overlay" (click)="showPreview = false">
+    <div class="preview-dialog" (click)="$event.stopPropagation()">
+      <div class="preview-header">
+        <h3>
+          <mat-icon>preview</mat-icon>
+          Message Preview
+        </h3>
+        <button mat-icon-button (click)="showPreview = false" class="close-btn">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="preview-body">
+        <div class="preview-message" [innerHTML]="formatMessageForPreview()"></div>
+        
+        <!-- Show schedule info in preview -->
+        <!-- @if(!sendImmediately && selectedDate && selectedTime){
+        <div class="preview-schedule-info">
+          <mat-icon>schedule</mat-icon>
+          <span>Scheduled for: {{ getScheduledDateTime() }}</span>
+        </div>
+        } -->
+      </div>
+      <div class="preview-actions">
+        <button mat-stroked-button (click)="showPreview = false">Close Preview</button>
+        <button mat-raised-button color="primary" (click)="sendMessage(); showPreview = false">
+          <mat-icon>{{ sendImmediately ? 'send' : 'schedule' }}</mat-icon>
+          {{ sendImmediately ? 'Send Now' : 'Schedule' }}
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+</div>

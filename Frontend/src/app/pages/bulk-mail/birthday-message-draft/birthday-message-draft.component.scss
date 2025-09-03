@@ -1,69 +1,348 @@
-.draft-container {
-    max-width: 600px;
-    margin: 40px auto;
-    padding: 20px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    font-family: 'Arial', sans-serif;
-  }
-  
-  h2 {
-    color: #333;
-    margin-bottom: 15px;
-  }
-  
-  p {
-    font-size: 16px;
-    color: #555;
-  }
-  
-  .message-section,
-  .file-upload-section {
-    margin: 15px 0;
-    text-align: left;
-  }
-  
-  label {
-    font-weight: bold;
-    color: #444;
-  }
-  
-  textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
-    resize: none;
-  }
-  
-  input[type="file"] {
-    margin-top: 5px;
-  }
-  
-  button {
-    background: #4CAF50;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s ease-in-out;
-  }
-  
-  button:hover {
-    background: #45a049;
-  }
+/* Container styling */
+.birthday-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
 
-  .loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-top: 20px;
+/* Card styling */
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.card-header {
+  background: linear-gradient(135deg, #42A5F5 0%, #1976D2 100%);
+  color: white;
+  padding: 20px 24px;
+}
+
+.card-header h2 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.header-icon {
+  margin-right: 10px;
+}
+
+.card-content {
+  padding: 24px;
+}
+
+/* Employee info styling */
+.employee-info {
+  margin-bottom: 24px;
+}
+
+.info-label {
+  color: #666;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.employee-card {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #f5f9ff;
+  border-radius: 8px;
+  border-left: 4px solid #2196F3;
+}
+
+.employee-avatar {
+  background: #e3f2fd;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+}
+
+.employee-avatar mat-icon {
+  color: #1976D2;
+}
+
+.employee-name {
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+/* Message section */
+.message-section {
+  margin-bottom: 20px;
+}
+
+.character-count {
+  text-align: right;
+  font-size: 0.8rem;
+  color: #757575;
+  margin-top: 4px;
+}
+
+/* File upload section */
+.file-upload-section {
+  margin-bottom: 24px;
+}
+
+.file-upload-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-btn {
+  border-style: dashed !important;
+}
+
+.remove-btn {
+  margin-left: 8px;
+}
+
+.file-hint {
+  display: flex;
+  align-items: center;
+  color: #4CAF50;
+  margin-top: 6px;
+}
+
+.file-hint mat-icon {
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+  margin-right: 4px;
+}
+
+/* Action buttons */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 8px 16px;
+}
+
+.send-btn {
+  background: linear-gradient(135deg, #42A5F5 0%, #1976D2 100%);
+}
+
+/* Loading overlay */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 12px;
+}
+
+.loading-container {
+  text-align: center;
+  color: #1976D2;
+}
+
+/* Preview dialog */
+.preview-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.preview-dialog {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 11px 15px -7px rgba(0,0,0,0.2), 
+              0 24px 38px 3px rgba(0,0,0,0.14), 
+              0 9px 46px 8px rgba(0,0,0,0.12);
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.preview-header h3 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  color: #424242;
+}
+
+.preview-header mat-icon {
+  margin-right: 8px;
+  color: #666;
+}
+
+.close-btn {
+  color: #757575;
+}
+
+.preview-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.preview-message {
+  line-height: 1.6;
+  white-space: pre-wrap;
+  font-size: 1rem;
+}
+
+.preview-actions {
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Form field customization */
+::ng-deep .mat-form-field-outline {
+  border-radius: 8px !important;
+}
+
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-outline-thick {
+  color: #bbdefb !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .birthday-container {
+    padding: 10px;
   }
   
+  .card-content {
+    padding: 16px;
+  }
   
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .employee-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 16px;
+  }
+  
+  .employee-avatar {
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* Schedule Section */
+.schedule-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #3f51b5;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #3f51b5;
+  font-size: 18px;
+}
+
+.section-title mat-icon {
+  margin-right: 8px;
+}
+
+.datetime-fields {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.date-field, .time-field {
+  flex: 1;
+  min-width: 200px;
+}
+
+.immediate-checkbox {
+  margin-bottom: 8px;
+}
+
+/* Schedule Info Banner */
+.schedule-info {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: #e8f5e8;
+  color: #2e7d32;
+  border-radius: 6px;
+  margin-top: 16px;
+  border-left: 4px solid #4caf50;
+}
+
+.schedule-info mat-icon {
+  margin-right: 8px;
+  color: #4caf50;
+}
+
+/* Preview Schedule Info */
+.preview-schedule-info {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background: #fff3e0;
+  color: #ef6c00;
+  border-radius: 4px;
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.preview-schedule-info mat-icon {
+  margin-right: 8px;
+  color: #f57c00;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .datetime-fields {
+    flex-direction: column;
+  }
+  
+  .date-field, .time-field {
+    min-width: 100%;
+  }
+}

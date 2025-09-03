@@ -122,11 +122,47 @@ const eventMail = require('../bulkmail/eventMail')
 app.use('/birthday',birthdayMail)
 app.use('/',eventMail)
 
+const kpi = require('../kpi/routers/kpiRouter');
+app.use('/kpi', kpi);
+
 // const backup = require('./backUp')
 // cron.schedule('0 0 5 * *', () => {
 //     backup();
 // });
 
+const sendBirthdayMail = require("../utils/sendBirthdayMail");
+cron.schedule("* * * * *", async () => {
+  try {
+    const now = moment().utc(); // current UTC time
+    console.log("⏰ Checking birthday mails at", now.format());
+
+    // Find templates/events where time <= now and not sent yet
+    const pendingTemplates = await EventLog.findAll({
+      where: {
+        isSent: false,
+        timestamp: { [Op.lte]: now.toDate() }
+      }
+    });
+
+    for (let template of pendingTemplates) {
+      try {
+        console.log(`📧 Sending scheduled birthday mail for UserId ${template.userId}`);
+        
+        // Call your existing function
+        await birthdayMail.sendBirthdayMail(template);
+
+        // Mark as sent
+        template.isSent = true;
+        template.sentAt = new Date();
+        await template.save();
+      } catch (err) {
+        console.error("❌ Failed to send scheduled mail:", err.message);
+      }
+    }
+  } catch (err) {
+    console.error("🚨 Cron job error:", err.message);
+  }
+});
 
 const backuproutes = require('../src/routes/backupRoutes')
 app.use('/backupapi',backuproutes)
@@ -142,6 +178,7 @@ app.use('/backupapi',backuproutes)
 // * - The task will run on any day of the week.
 
 const backUpLogRouter = require('./backupLogRouter');
+const EventLog = require('../bulkmail/models/eventLogs');
 app.use('/backup', backUpLogRouter);
 
 

@@ -21,11 +21,9 @@ const upload = multer({
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-
-
           user: config.email.payUser,
           pass: config.email.payPass,
-  }
+    }
 });
 
 
@@ -114,22 +112,17 @@ router.post('/send-event-mail', upload.any(), async (req, res) => {
 });
 
 
-
-
-
-  
-
-  router.get('/email-logs',async (req, res) => {
+router.get('/email-logs',async (req, res) => {
     try {
         const logs = await EventLog.findAll({  
             where: { eventType: 'Event_Wish' },
-          order: [['timestamp', 'DESC']] });
+            order: [['timestamp', 'DESC']] });
         res.json(logs);
-      } catch (error) {
+    } catch (error) {
         console.error('❌ Error Fetching Logs:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch logs' });
-      }
-  });
+    }
+});
   
 
   

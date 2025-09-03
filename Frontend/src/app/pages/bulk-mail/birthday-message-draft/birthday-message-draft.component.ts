@@ -1,8 +1,9 @@
-import { CommonModule } from '@angular/common';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { CommonModule, formatDate } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatOptionModule } from '@angular/material/core';
+import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -12,8 +13,9 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { BulkMailService } from '@services/bulkmail.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialog } from '@angular/material/dialog';
-import { BirthdayConfirmDialogComponent } from '../birthday-confirm-dialog/birthday-confirm-dialog.component';
+import { Subscription } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 
 
 
@@ -30,111 +32,200 @@ import { BirthdayConfirmDialogComponent } from '../birthday-confirm-dialog/birth
     MatButtonModule,
     FormsModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule, MatDatepickerModule, MatNativeDateModule
   ],
   templateUrl: './birthday-message-draft.component.html',
   styleUrls: ['./birthday-message-draft.component.scss']
 })
 export class BirthdayMessageDraftComponent implements OnInit {
   employeeName: string = '';
+  employeeEmail: string = '';
   messageContent: string = '';
   selectedFile: File | null = null;
-  router = inject(Router)
-  dialog=inject(MatDialog)
+  isLoading: boolean = false;
+  showPreview: boolean = false;
+  
+  private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
+  private userService = inject(UsersService);
+  private employeeSub: Subscription;
 
-  constructor(
-    private route: ActivatedRoute,
-    private bulkmailService: BulkMailService
-  ) { }
+  constructor( private route: ActivatedRoute, private bulkmailService: BulkMailService ) { }
 
   ngOnInit(): void {
-    this.employeeName = this.route.snapshot.paramMap.get('name') || '';
-    this.messageContent = `
-Dear ${this.employeeName},
-
-
-
-On this special day, all of us at Onboard Aero Consultant would like to extend our warmest wishes to you! 🎂🎈 
-
-May this year bring you happiness, success, and good health. Your hard work and dedication are truly appreciated, and we are grateful to have you as part of our team.
-
-Enjoy your day to the fullest, and may the year ahead be filled with joy and great achievements! 🎊🥳
-
-Happy Birthday! 🎉`
+    const id = this.route.snapshot.paramMap.get('name');
+    this.selectedTime = `08:00`;
+    if (id) {
+      this.getEmployeeById(+id);
+    } else {
+      this.snackBar.open('No employee specified', 'Close', { duration: 3000 });
+    }
   }
 
+  ngOnDestroy(): void {
+    if (this.employeeSub) {
+      this.employeeSub.unsubscribe();
+    }
+  }
+
+  updateStatus: boolean = false;
+  templateId: number;
+  getEmployeeById(id: number): void {
+    this.isLoading = true;
+    this.employeeSub = this.userService.getUserById(id).subscribe({
+      next: (res) => {
+        const date = new Date(res.userpersonal[0].dateOfBirth);
+        const currentYear = new Date().getFullYear();
+        this.selectedDate = new Date(currentYear, date.getMonth(), date.getDate());
+        this.employeeName = res.name;
+        this.employeeEmail = res.email;
+        this.bulkmailService.getTemplateByUserId(res.id).subscribe(res => {
+          console.log(res);
+          if(res){
+            this.templateId = res.id;
+            this.updateStatus = true;
+            this.messageContent = res.message
+          }else{
+            this.messageContent = this.generateDefaultMessage();
+          }
+        })
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.snackBar.open('Failed to load employee details', 'Close', { duration: 3000 });
+        this.isLoading = false;
+        this.router.navigate(['/employees']);
+      }
+    });
+  }
+
+  generateDefaultMessage(): string {
+    return `Dear ${this.employeeName},
+
+      On this special day, all of us at Onboard Aero Consultant would like to extend our warmest wishes to you! 🎂🎈 
+
+      May this year bring you happiness, success, and good health. Your hard work and dedication are truly appreciated, and we are grateful to have you as part of our team.
+
+      Enjoy your day to the fullest, and may the year ahead be filled with joy and great achievements! 🎊🥳
+
+      Happy Birthday! 🎉`;
+  }
 
   onFileSelected(event: any): void {
     const file: File = event.target.files[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        this.snackBar.open('File size should be less than 5MB', 'Close', { duration: 3000 });
+        return;
+      }
       this.selectedFile = file;
-      console.log('File selected:', file);
     }
   }
 
- sendMessage(): void {
-    if (!this.employeeName || !this.messageContent) {
-      alert('Please provide a valid name and message.');
+  removeFile(): void {
+    this.selectedFile = null;
+  }
+
+  previewMessage(): void {
+    this.showPreview = true;
+  }
+
+  formatMessageForPreview(): string {
+    return this.messageContent.replace(/\n/g, '<br>');
+  }
+
+  sendMessage(): void {
+    // const scheduledTime = this.getScheduledTimestamp();
+    if (!this.messageContent.trim()) {
+      this.snackBar.open('Please write a birthday message', 'Close', { duration: 3000 });
       return;
     }
 
-    const dialogRef = this.dialog.open(BirthdayConfirmDialogComponent, {
-      width: '400px',
-      data: { employeeName: this.employeeName }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.isLoading = true; 
-        this.bulkmailService.sendMailWishes({
-          to: this.employeeName,
-          subject: `Happy Birthday, ${this.employeeName}!`,
-          message: this.messageContent,
-          attachment: this.selectedFile || undefined,
-        }).subscribe(
-          (response) => {
-            this.isLoading = false;
-            alert(response.message); 
-            this.router.navigate(['/login/mail']);
-          },
-          (error) => {
-            this.isLoading = false;
-            alert('Error sending message.');
-            console.error(error);
-          }
-        );
-      }
-    });
-  }
-
-  isLoading: boolean = false;
-  sendMessagse(): void {
-    if (!this.employeeName || !this.messageContent) {
-      alert('Please provide a valid name and message.');
+    if (!this.selectedDate || !this.selectedTime) {
+      this.snackBar.open('Please select delivery date and time', 'Close', { duration: 3000 });
       return;
     }
+    const scheduledDateTime = this.getScheduledTimestamp();
+    console.log(scheduledDateTime);
+    
+    this.isLoading = true;
+    
+    const formData = new FormData();
+    formData.append('userId', this.route.snapshot.paramMap.get('name') || '');
+    formData.append('subject', `Happy Birthday, ${this.employeeName}!`);
+    formData.append('message', this.messageContent);
+    formData.append('timestamp', scheduledDateTime); 
+    if (this.selectedFile) {
+      formData.append('attachment', this.selectedFile);
+    }
 
-    this.isLoading = true; 
-
-    this.bulkmailService.sendMailWishes({
-      to: this.employeeName,
-      subject: `Happy Birthday, ${this.employeeName}!`,
-      message: this.messageContent,
-      attachment: this.selectedFile || undefined,
-   
-    }).subscribe(
-      (response) => {
-        this.isLoading = false;
-        alert(response.message); 
-        this.router.navigate(['/login/mail']);
-      },
-      (error) => {
-        this.isLoading = false;
-        alert('Error sending message.');
-        console.error(error);
-      }
-    );
+    if(this.updateStatus){
+      this.bulkmailService.updateBirthdayTemplate(formData, this.templateId).subscribe({
+        next: (response) => {
+          console.log(response);
+          
+          this.snackBar.open('Birthday message sent successfully!', 'Close', { duration: 3000 });
+          this.isLoading = false;
+          this.router.navigate(['/mail']);
+        },
+        error: (error) => {
+          this.snackBar.open('Error sending message. Please try again.', 'Close', { duration: 3000 });
+          this.isLoading = false;
+          console.error('Error sending message:', error);
+        }
+      });
+    }else{
+      this.bulkmailService.birthdayTemplate(formData).subscribe({
+        next: (response) => {
+          console.log(response);
+          
+          this.snackBar.open('Birthday message sent successfully!', 'Close', { duration: 3000 });
+          this.isLoading = false;
+          this.router.navigate(['/mail']);
+        },
+        error: (error) => {
+          this.snackBar.open('Error sending message. Please try again.', 'Close', { duration: 3000 });
+          this.isLoading = false;
+          console.error('Error sending message:', error);
+        }
+      });
+    }
   }
 
+  selectedDate: any;
+  selectedTime: string;
+  sendImmediately: boolean = true;
+  minDate: Date = new Date();
+  onSendImmediatelyChange() {
+    if (this.sendImmediately) {
+      this.selectedDate = null;
+      this.selectedTime = '08:00';
+    }
+  }
 
+  private getScheduledTimestamp(): string {
+    const date = new Date(this.selectedDate);
+    const [hours, minutes] = this.selectedTime.split(':').map(Number);
+    date.setHours(hours, minutes, 0, 0);
+    return date.toISOString(); // or format as needed for backend
+  }
+
+  // getScheduledDateTime(): string {
+  //   if (!this.selectedDate || !this.selectedTime) return '';
+    
+  //   const dateStr = formatDate(this.selectedDate, 'MMM d, y', 'en-US');
+  //   return `${dateStr} at ${this.selectedTime}`;
+  // }
+
+  // getScheduledTimestamp(): Date | null {
+  //   if (this.sendImmediately || !this.selectedDate || !this.selectedTime) {
+  //     return null;
+  //   }
+
+  //   const [hours, minutes] = this.selectedTime.split(':').map(Number);
+  //   const scheduledDate = new Date(this.selectedDate);
+  //   scheduledDate.setHours(hours, minutes, 0, 0);
+    
+  //   return scheduledDate;
+  // }
 }
