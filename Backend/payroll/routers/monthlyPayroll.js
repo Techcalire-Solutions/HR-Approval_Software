@@ -965,6 +965,7 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
 router.get('/approve', async (req, res) => {
   try {
     const { month, id } = req.query;
+    const payrolls = await MonthlyPayroll.findAll({ where: { payedFor: month } });
     // const payrolls = await MonthlyPayroll.findAll({ where: { payedFor: month, status: 'SendforApproval' } });
     // if (payrolls.length === 0) {
     //   return res.send("Already proccesed request")
