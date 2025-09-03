@@ -32,10 +32,10 @@ export class BirthdayComponent implements OnInit, OnDestroy{
   ngOnDestroy(): void {
     this.birthSub?.unsubscribe();
   }
-router=inject(Router)
-  openDraft(name: string) {
+  router=inject(Router)
+  openDraft(id: number) {
 
-      this.router.navigate(['login/mail/birthday-draft', name]);
+      this.router.navigate(['login/mail/birthday-draft', id]);
     }
 
     isTodayBirthday(dateOfBirth: string | Date): boolean {

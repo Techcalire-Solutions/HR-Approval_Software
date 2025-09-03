@@ -36,15 +36,23 @@ export class BulkMailService {
     return this.http.post(`${this.apiUrl}/birthday/events/mark-sent/${userId}`, {});
   }
 
-
-
   sendEventMail(formData: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}/send-event-mail`, formData);
   }
 
   EventLogs():Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/email-logs`)
-
   }
 
+  birthdayTemplate(formData: FormData): Observable<any> {
+    return this.http.post(`${this.apiUrl}/birthday/birthday-template`, formData);
+  }
+  
+  getTemplateByUserId(id: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/birthday/template/${id}`);
+  }
+  
+  updateBirthdayTemplate(formData: FormData, id: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/birthday/update-birthday-template/${id}`, formData);
+  }
 }

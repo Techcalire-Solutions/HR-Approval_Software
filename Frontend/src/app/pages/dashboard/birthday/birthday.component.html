@@ -10,10 +10,10 @@
             
               @if(isTodayBirthday(employee.dateOfBirth)){
                 <button mat-icon-button
-                (click)="openDraft(employee.user.name)"
-                matTooltip="Draft Message">
-          <mat-icon [ngClass]="{ 'birthday-icon': isTodayBirthday(employee.dateOfBirth) }">cake</mat-icon>
-        </button>
+                  (click)="openDraft(employee.userId)"
+                  matTooltip="Draft Message">
+                  <mat-icon [ngClass]="{ 'birthday-icon': isTodayBirthday(employee.dateOfBirth) }">cake</mat-icon>
+                </button>
               }
       
               <h4><a>{{ employee.user.name }}</a>  {{ employee.dateOfBirth | date: 'MMMM d' }}</h4>

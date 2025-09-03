@@ -186,7 +186,8 @@ users:User;
         (item.title === 'YTD' && item.parentId === 21)||
         // (item.title === 'Leave Report' && item.parentId === 21)
 
-        item.title === 'Backup'
+        item.title === 'Backup' || 
+        item.title === 'KPI'
       );
 
     } else if ( role === 'Accountant' ) {

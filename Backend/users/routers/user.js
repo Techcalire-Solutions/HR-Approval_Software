@@ -219,7 +219,8 @@ router.get('/findone/:id', authenticateToken, async (req, res) => {
         { model: Role, attributes: ['id', 'roleName'] },
         { model: UserPosition, attributes: ['designationId'],
             include: [{ model: Designation, include: {model: Role} }]
-        }
+        },
+        { model: UserPersonal, as: 'userpersonal', attributes: ['dateOfBirth'] }
       ]
     });
     res.send(user);

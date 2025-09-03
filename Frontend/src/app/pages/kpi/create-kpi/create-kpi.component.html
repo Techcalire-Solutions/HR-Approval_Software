@@ -1,0 +1,72 @@
+<h2 mat-dialog-title>Create KPI Points</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="kpiForm">
+    <div formArrayName="kpiPoints">
+      <div *ngFor="let kpiPoint of kpiPointsArray.controls; let i = index" [formGroupName]="i" class="kpi-point-group">
+        <div class="header-row">
+          <h3>KPI Point #{{i + 1}}</h3>
+          <button *ngIf="kpiPointsArray.length > 1" mat-icon-button color="warn" (click)="removeKpiPoint(i)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Select KPI</mat-label>
+          <mat-select formControlName="kpiId" required>
+            <mat-option *ngFor="let kpi of kpis" [value]="kpi.id">
+              {{kpi.parameter}}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="kpiPoint.get('kpiId')?.hasError('required')">
+            KPI is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Points</mat-label>
+          <input matInput type="number" formControlName="points" min="0" required>
+          <mat-error *ngIf="kpiPoint.get('points')?.hasError('required')">
+            Points is required
+          </mat-error>
+          <mat-error *ngIf="kpiPoint.get('points')?.hasError('min')">
+            Points cannot be negative
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Select Designations</mat-label>
+          <mat-select formControlName="selectedDesignations" multiple required>
+            <mat-select-trigger>
+              {{kpiPoint.value.selectedDesignations?.length || 0}} selected
+            </mat-select-trigger>
+            <mat-option *ngFor="let designation of designations" [value]="designation.id">
+              {{designation.designationName}}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="kpiPoint.get('selectedDesignations')?.hasError('required')">
+            At least one designation is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-divider *ngIf="i < kpiPointsArray.length - 1"></mat-divider>
+      </div>
+    </div>
+
+    <div class="add-button">
+      <button mat-button color="primary" (click)="addKpiPoint()">
+        <mat-icon>add</mat-icon> Add Another KPI Point
+      </button>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" 
+          (click)="onSubmit()" 
+          [disabled]="kpiForm.invalid || isLoading">
+    <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+    {{isLoading ? 'Creating...' : 'Create KPI Points'}}
+  </button>
+</mat-dialog-actions>

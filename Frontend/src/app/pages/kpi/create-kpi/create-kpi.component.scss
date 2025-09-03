@@ -1,0 +1,34 @@
+.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.kpi-point-group {
+  padding: 16px 0;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.add-button {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+mat-divider {
+  margin: 16px 0;
+}
+
+mat-spinner {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.error-snackbar {
+  background-color: #f44336;
+  color: white;
+}

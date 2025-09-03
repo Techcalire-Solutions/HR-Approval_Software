@@ -157,7 +157,12 @@ export const routes: Routes = [
         path: 'holiday',
         loadChildren: () => import('./holiday/holiday.routes').then(p => p.routes),
         data: { breadcrumb: 'Holiday' }, canActivate: [AuthGuard]
-      }
+      },
+      {
+        path: 'kpi',
+        loadChildren: () => import('./kpi/kpi.routes').then(p => p.routes),
+        data: { breadcrumb: 'Holiday' }, canActivate: [AuthGuard]
+      },
     ]
   },
 

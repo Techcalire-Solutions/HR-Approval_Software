@@ -38,9 +38,6 @@ async function saveDates(dateStrings) {
   }
 }
 
-
-
-
 router.post('/add', authenticateToken, async (req, res) => {
   const { userId, empNo, dateOfJoining, probationPeriod, isTemporary, maritalStatus, dateOfBirth, gender, 
     parentName, spouseName, referredBy, reportingMangerId, bloodGroup, emergencyContactNo, emergencyContactName, 
@@ -83,7 +80,6 @@ router.post('/add', authenticateToken, async (req, res) => {
     res.send(error.message);
   }
 });
-
 
 router.get('/find', authenticateToken, async (req, res) => {
   try {
@@ -187,6 +183,7 @@ router.get('/birthdays', authenticateToken, async (req, res) => {
         ]
       };
     }
+
     const employeesWithBirthdays = await UserPersonal.findAll({
       where: whereClause,
       include: {
@@ -201,6 +198,8 @@ router.get('/birthdays', authenticateToken, async (req, res) => {
         [sequelize.fn('EXTRACT', sequelize.literal('DAY FROM "dateOfBirth"')), 'ASC']
       ],
     });
+    console.log(employeesWithBirthdays);
+    
     const employeesWithBirthdaysWithAge = employeesWithBirthdays.map(employee => {
       const birthDate = new Date(employee.dateOfBirth);
       const age = today.getFullYear() - birthDate.getFullYear();
