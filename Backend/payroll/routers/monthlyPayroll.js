@@ -830,10 +830,19 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
 });
 
 async function generatePDF(html) {
-  const browser = await puppeteer.launch({
-    headless: true,
-    ignoreDefaultArgs: ['--disable-extensions'],
-  });
+  // const browser = await puppeteer.launch({
+  //   headless: true,
+  //   ignoreDefaultArgs: ['--disable-extensions'],
+  // });
+      const browser = await puppeteer.launch({
+        headless: true, // can set to false for debugging
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-blink-features=AutomationControlled',
+        ],
+        executablePath: process.env.CHROME_PATH || '/usr/bin/chromium', // adjust if needed
+      });
   const page = await browser.newPage();
   await page.setContent(html);
   const pdfBuffer = await page.pdf({ format: "A4" });
