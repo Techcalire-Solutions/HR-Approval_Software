@@ -122,7 +122,6 @@ router.post('/send-wishes', upload.single('attachment'), async (req, res) => {
   }
 });
 
-
 router.post('/birthday-template', upload.single('attachment'), async (req, res) => {
   try {
     const { userId, subject, message, timestamp } = req.body;
