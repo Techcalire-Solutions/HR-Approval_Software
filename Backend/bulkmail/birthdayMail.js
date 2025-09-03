@@ -17,8 +17,8 @@ const Designation = require('../users/models/designation');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-          user: config.email.leaveCommonUser,
-          pass: config.email.leaveCommonPass,
+          user: config.email.birthdaySendEmail,
+          pass: config.email.birthdaySendEmailPass,
   }
 });
 
