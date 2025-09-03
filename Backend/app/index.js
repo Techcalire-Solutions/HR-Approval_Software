@@ -122,8 +122,8 @@ app.use('/companyasset', asset);
 // app.use('/birthday',birthdayMail)
 // app.use('/',eventMail)
 
-const kpi = require('../kpi/routers/kpiRouter');
-app.use('/kpi', kpi);
+// const kpi = require('../kpi/routers/kpiRouter');
+// app.use('/kpi', kpi);
 
 // const backup = require('./backUp')
 // cron.schedule('0 0 5 * *', () => {
