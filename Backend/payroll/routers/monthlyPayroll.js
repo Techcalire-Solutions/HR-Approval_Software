@@ -799,20 +799,20 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
           const pdfBuffer = await generatePDF(pdfContent);
     
           // Send email with payslip
-          // await sendPayrollEmail(
-          //   mp.user.email,
-          //   pdfBuffer,
-          //   `Payslip for - ${mp.payedFor}`,
-          //   mp.payedFor,
-          //   mp.user.name,
-          //   req
-          // );
+          await sendPayrollEmail(
+            mp.user.email,
+            pdfBuffer,
+            `Payslip for - ${mp.payedFor}`,
+            mp.payedFor,
+            mp.user.name,
+            req
+          );
 
-          // const id = element.id;
-          // const me = `PaySlip for ${mp.payedFor} is generated`;
-          // const route = `/login/payroll/month-end/payslip`;
+          const id = element.id;
+          const me = `PaySlip for ${mp.payedFor} is generated`;
+          const route = `/login/payroll/month-end/payslip`;
     
-          // await createNotification({ id, me, route, transaction });
+          await createNotification({ id, me, route, transaction });
         } catch (error) {
           console.error(`Error processing payroll for ID ${element.id}:`, error);
           throw error; // Ensure rollback on error
