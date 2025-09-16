@@ -50,7 +50,8 @@ router.post("/save", authenticateToken, async (req, res) => {
 });
 
 router.get("/find", authenticateToken, async (req, res) => {
-  let whereClause = { status: 'Locked' };
+  // let whereClause = { status: 'Locked' };
+  let whereClause;
   let limit;
   let offset;
   if (req.query.search !== 'undefined') {
@@ -303,7 +304,7 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
       toNumber(payroll.conveyanceAllowance) +
       toNumber(payroll.lta) +
       toNumber(payroll.ot) +
-      toNumber(payroll.incentiveDeduction) +
+      toNumber(payroll.incentive) +
       toNumber(payroll.payOut) + 
       toNumber(payroll.leaveEncashmentAmount)
     );
@@ -429,7 +430,8 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
               },
             ],
           });
-    
+          console.log(mp);
+          
           if (!mp) {
             throw new Error(`Payroll entry with ID ${element.id} not found.`);
           }
@@ -634,7 +636,7 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
                                   <div style="display: flex; align-items: center; width: 100%;">
                                       <span style="flex: 1;">Department</span>
                                       <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPosition?.department?.name ?? ''}</span>
+                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPosition?.department ?? ''}</span>
                                   </div>
                               </td>
                               <td>
@@ -766,7 +768,7 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
                             </tr>` : ''}
 
                               <tr>
-                                  <td colspan="3"> 
+                                  <td colspan="2"> 
                                       <div style="display: flex; align-items: center; width: 100%;">
                                           <span style="flex: 1;">Total Earnings</span>
                                           <span style="width: 20px; text-align: center;">:</span>
@@ -830,19 +832,19 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
 });
 
 async function generatePDF(html) {
-  // const browser = await puppeteer.launch({
-  //   headless: true,
-  //   ignoreDefaultArgs: ['--disable-extensions'],
-  // });
-      const browser = await puppeteer.launch({
-        headless: true, // can set to false for debugging
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-blink-features=AutomationControlled',
-        ],
-        executablePath: process.env.CHROME_PATH || '/usr/bin/chromium', // adjust if needed
-      });
+  const browser = await puppeteer.launch({
+    headless: true,
+    ignoreDefaultArgs: ['--disable-extensions'],
+  });
+      // const browser = await puppeteer.launch({
+      //   headless: true, // can set to false for debugging
+      //   args: [
+      //     '--no-sandbox',
+      //     '--disable-setuid-sandbox',
+      //     '--disable-blink-features=AutomationControlled',
+      //   ],
+      //   executablePath: process.env.CHROME_PATH || '/usr/bin/chromium', // adjust if needed
+      // });
   const page = await browser.newPage();
   await page.setContent(html);
   const pdfBuffer = await page.pdf({ format: "A4" });
@@ -883,6 +885,8 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
       let mp = await MonthlyPayroll.findByPk(element.id);
       mp.status = 'SendforApproval';
       await mp.save();
+      console.log(mp);
+      
     }
     
     let user = await User.findByPk(req.user.id, { include:[ 
@@ -909,7 +913,7 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
       <p>Please find the attached payroll Excel file for your review.</p>
         <p>Kindly click the button below to either approve or reject the payroll data as required.</p>
         <div style="text-align: center; margin-top: 20px;">
-          <a href="https://oac-api.aerohr.in/monthlypayroll/approve?month=${month}&id=${req.user.id}" 
+          <a href="${process.env.BACK_END}/monthlypayroll/approve?month=${month}&id=${req.user.id}" 
             style="
               display: inline-block;
               padding: 10px 20px;
@@ -922,7 +926,7 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
             ">
             Approve
           </a>
-          <a href="https://oac-api.aerohr.in/monthlypayroll/reject?month=${month}&id=${req.user.id}" 
+          <a href="${process.env.BACK_END}/monthlypayroll/reject?month=${month}&id=${req.user.id}" 
             style="
               display: inline-block;
               padding: 10px 20px;
