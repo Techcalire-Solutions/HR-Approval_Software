@@ -63,6 +63,8 @@ export class MonthWiseLogComponent implements OnInit, OnDestroy{
   logs: any[] = [];
   getMonthlyLog(){
     this.monthLogSub = this.payrollService.getMonthlyPayroll(this.searchText, this.currentPage, this.pageSize).subscribe(data =>{
+      console.log(data);
+      
       this.logs = data.items
       this.totalItems = data.count;
     });

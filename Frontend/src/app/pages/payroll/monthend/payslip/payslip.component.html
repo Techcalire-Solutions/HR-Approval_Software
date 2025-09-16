@@ -67,7 +67,7 @@
                     <div style="display: flex; align-items: center; width: 100%;">
                         <span style="flex: 1;">Department</span>
                         <span style="width: 20px; text-align: center;">:</span>
-                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.userPosition?.department?.name}}</span>
+                        <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.user.userPosition?.department}}</span>
                     </div>
                 </td>
                 <td>
@@ -134,78 +134,71 @@
             <thead>
                 <tr>
                     <th>Earnings</th>
-                    <th>Full</th>
-                    <th>Actual</th>
+                    <th></th>
                     <th>Deductions</th>
-                    <th>Actual</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>BASIC</td>
-                    <td>{{fullValue.basic}}</td>
                     <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.basic}}</td>
                     <td>PF</td>
                     <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.pfDeduction}}</td>
                 </tr>
                 <tr>
                     <td>HRA</td>
-                    <td>{{fullValue.hra}}</td>
                     <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.hra}}</td>
                     <td>TDS</td>
                     <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.tds}}</td>
                 </tr>
                 <tr>
                     <td>SPECIAL ALLOWANCE</td>
-                    <td>{{fullValue.specialAllowance}}</td>
                     <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.specialAllowance}}</td>
                     <td>Advance</td>
                     <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.advanceAmount}}</td>
                 </tr>
                 <tr>
                     <td>CONVEYANCE ALLOWANCE</td>
-                    <td>{{fullValue.conveyanceAllowance}}</td>
                     <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.conveyanceAllowance}}</td>
                     <td>LOP</td>
                     <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.leaveDeduction}}</td>
                 </tr>
                 <tr>
                     <td>TRAVEL ALLOWANCE</td>
-                    <td>{{fullValue.lta}}</td>
                     <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.lta}}</td>
                     <td>ESI</td>
                     <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.esi}}</td>
                 </tr>
                 <tr>
                   <td>OVER TIME</td>
-                  <td></td>
                   <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.ot}}</td>
-                  <td>INCENTIVE</td>
+                  <td>PROFESSIONAL TAX</td>
                   <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.incentiveDeduction}}</td>
               </tr>
               <tr>
                 <td>PAY OUT</td>
-                <td></td>
                 <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.payOut}}</td>
                 <td></td>
                 <td></td>
               </tr>
               <tr>
                 <td>INCENTIVE</td>
-                <td></td>
                 <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.incentive}}</td>
                 <td></td>
                 <td></td>
               </tr>
-              <tr>
-                <td>EARNED LEAVE</td>
-                <td></td>
-                <td style="font-weight: bolder; color: rgb(8, 72, 115);">{{payroll.leaveEncashmentAmount}}</td>
-                <td></td>
-                <td></td>
-              </tr>
+                <tr *ngIf="payroll.payedFor?.includes('December')">
+                    <td>EARNED LEAVE</td>
+                    <td style="font-weight: bolder; color: rgb(8, 72, 115);">
+                        {{ payroll.leaveEncashmentAmount }}
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
                 <tr>
-                    <td colspan="3">
+                    <td colspan="2">
                         <div style="display: flex; align-items: center; width: 100%;">
                             <span style="flex: 1;">Total Earnings</span>
                             <span style="width: 20px; text-align: center;">:</span>
