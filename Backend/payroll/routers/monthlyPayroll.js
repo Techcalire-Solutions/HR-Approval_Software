@@ -832,19 +832,19 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
 });
 
 async function generatePDF(html) {
-  const browser = await puppeteer.launch({
-    headless: true,
-    ignoreDefaultArgs: ['--disable-extensions'],
-  });
-      // const browser = await puppeteer.launch({
-      //   headless: true, // can set to false for debugging
-      //   args: [
-      //     '--no-sandbox',
-      //     '--disable-setuid-sandbox',
-      //     '--disable-blink-features=AutomationControlled',
-      //   ],
-      //   executablePath: process.env.CHROME_PATH || '/usr/bin/chromium', // adjust if needed
-      // });
+  // const browser = await puppeteer.launch({
+  //   headless: true,
+  //   args: ['--no-sandbox', '--disable-setuid-sandbox']
+  // });
+      const browser = await puppeteer.launch({
+        headless: true, // can set to false for debugging
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-blink-features=AutomationControlled',
+        ],
+        executablePath: process.env.CHROME_PATH || '/usr/bin/chromium', // adjust if needed
+      });
   const page = await browser.newPage();
   await page.setContent(html);
   const pdfBuffer = await page.pdf({ format: "A4" });
@@ -853,10 +853,13 @@ async function generatePDF(html) {
 }
 
 async function sendPayrollEmail(to, pdfBuffer, subject, payedFor, name, req) {
-    const html =  `
-      <p>Attached is your payslip for the month of ${payedFor}. Please review it at your convenience.</p>
-        <hr style="border: 0; border-top: 1px solid #ccc; margin: 20px 0;">
-    `
+    const html = `
+      <p>Dear ${name},</p>
+      <p>Attached is your payslip for the month of <b>${payedFor}</b>. Please review it at your convenience.</p>
+      <hr style="border: 0; border-top: 1px solid #ccc; margin: 20px 0;">
+      <p>Regards,<br/>Payroll Team</p>
+    `;
+
     const emailSubject = subject
     const fromEmail = config.email.payrollUser;
     const emailPassword = config.email.payrollPass;
@@ -870,8 +873,20 @@ async function sendPayrollEmail(to, pdfBuffer, subject, payedFor, name, req) {
     const token = req.headers.authorization?.split(' ')[1];
     try {
       await sendEmail(token, fromEmail, emailPassword, to, emailSubject, html, attachments);
+      // if (payrollId) {
+      //   await MonthlyPayroll.update(
+      //     { isSent: true },
+      //     { where: { id: payrollId } }
+      //   );
+      // }
     } catch (emailError) {
       console.error('Email sending failed:', emailError);
+      // if (payrollId) {
+      //   await MonthlyPayroll.update(
+      //     { isSent: false },
+      //     { where: { id: payrollId } }
+      //   );
+      // }
     }
 
 }
