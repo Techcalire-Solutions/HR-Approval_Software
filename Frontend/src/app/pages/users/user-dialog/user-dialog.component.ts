@@ -118,6 +118,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
       this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${user.url}`
     }
     this.form.patchValue({
+      empNo: user.empNo,
       name: user.name,
       phoneNumber: user.phoneNumber,
       email: user.email,

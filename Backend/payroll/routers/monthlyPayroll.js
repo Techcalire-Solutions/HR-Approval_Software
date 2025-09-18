@@ -50,62 +50,106 @@ router.post("/save", authenticateToken, async (req, res) => {
 });
 
 router.get("/find", authenticateToken, async (req, res) => {
-  // let whereClause = { status: 'Locked' };
-  let whereClause;
-  let limit;
-  let offset;
-  if (req.query.search !== 'undefined') {
-    const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
-    whereClause = {
-      [Op.and]: [
-        {
-          [Op.or]: [
-            sequelize.where(
-              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('payedFor'), ' ', '')),
-              {
-                [Op.like]: `%${searchTerm}%`
-              }
-            ),
-            sequelize.where(
-              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.name'), ' ', '')),
-              { [Op.like]: `%${searchTerm}%` }
-            ),
-          ]
-        },
-        { status: 'Locked' },
-      ]
-    };
-  }
-
-  if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
-    limit = req.query.pageSize;
-    offset = (req.query.page - 1) * req.query.pageSize;
-  }
-
   try {
-    const monthlyPayroll = await MonthlyPayroll.findAll({ 
-      where: whereClause, limit: limit, offset: offset,
-      include:[
-          { model: User, attributes: ['name','empNo'], as: 'user', required: false}
-      ], order: [['id', 'DESC']]
-    });
-    
-    totalCount = await MonthlyPayroll.count({});
+    if (!req.query.search || req.query.search === 'undefined') {
+      // Return unique payedFor values (panel headers)
+      const months = await MonthlyPayroll.findAll({
+        attributes: [
+          [sequelize.fn('DISTINCT', sequelize.col('payedFor')), 'payedFor']
+        ],
+        // where: { status: 'Locked' },
+        order: [[sequelize.col('payedFor'), 'DESC']]
+      });
 
-    if (req.query.page != 'undefined' && req.query.pageSize != 'undefined') {
-      const response = {
-        count: totalCount,
-        items: monthlyPayroll,
-      };
+      let monthList = months.map(m => m.payedFor);
 
-      res.json(response);
-    } else {
-      res.json(monthlyPayroll);
+      monthList.sort((a, b) => {
+        const parseDate = (val) => new Date(val);
+        return parseDate(b) - parseDate(a);
+      });
+      return res.json(monthList);
     }
+
+    const payedFor = req.query.search;
+
+    const monthlyPayroll = await MonthlyPayroll.findAll({
+      where: { payedFor },
+      include: [
+        { model: User, attributes: ['name', 'empNo'], as: 'user', required: false }
+      ],
+      order: [['id', 'DESC']]
+    });
+
+    res.json(monthlyPayroll);
+
   } catch (error) {
-    res.send(error.message);
+    console.error(error);
+    res.status(500).send(error.message);
   }
 });
+
+
+// router.get("/find", authenticateToken, async (req, res) => {
+//   // let whereClause = { status: 'Locked' };
+//   console.log(req.query.search);
+  
+//   let whereClause;
+//   let limit;
+//   let offset;
+//   // if (req.query.search !== 'undefined') {
+//   //   const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+//   //   whereClause = {
+//   //     [Op.and]: [
+//   //       {
+//   //         [Op.or]: [
+//   //           sequelize.where(
+//   //             sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('payedFor'), ' ', '')),
+//   //             {
+//   //               [Op.like]: `%${searchTerm}%`
+//   //             }
+//   //           ),
+//   //           sequelize.where(
+//   //             sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.name'), ' ', '')),
+//   //             { [Op.like]: `%${searchTerm}%` }
+//   //           ),
+//   //         ]
+//   //       },
+//   //       { status: 'Locked' },
+//   //     ]
+//   //   };
+//   // }
+//   // const searchTerm = req.query.search
+//   // whereClause = { payedFor: searchTerm }
+
+//   // if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+//   //   limit = req.query.pageSize;
+//   //   offset = (req.query.page - 1) * req.query.pageSize;
+//   // }
+
+//   try {
+//     const monthlyPayroll = await MonthlyPayroll.findAll({ 
+//       where: whereClause, limit: limit, offset: offset,
+//       include:[
+//           { model: User, attributes: ['name','empNo'], as: 'user', required: false}
+//       ], order: [['id', 'DESC']]
+//     });
+    
+//     totalCount = await MonthlyPayroll.count({ whereClause });
+
+//     if (req.query.page != 'undefined' && req.query.pageSize != 'undefined') {
+//       const response = {
+//         count: totalCount,
+//         items: monthlyPayroll,
+//       };
+
+//       res.json(response);
+//     } else {
+//       res.json(monthlyPayroll);
+//     }
+//   } catch (error) {
+//     res.send(error.message);
+//   }
+// });
 
 router.get("/findbyuser/:id", authenticateToken, async (req, res) => {
   let whereClause = { status: 'Locked', userId: req.params.id };
@@ -812,7 +856,7 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
 
           const id = element.id;
           const me = `PaySlip for ${mp.payedFor} is generated`;
-          const route = `/login/payroll/month-end/payslip`;
+          const route = `/login/payroll/payslip`;
     
           await createNotification({ id, me, route, transaction });
         } catch (error) {
@@ -832,19 +876,19 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
 });
 
 async function generatePDF(html) {
-  // const browser = await puppeteer.launch({
-  //   headless: true,
-  //   args: ['--no-sandbox', '--disable-setuid-sandbox']
-  // });
-      const browser = await puppeteer.launch({
-        headless: true, // can set to false for debugging
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-blink-features=AutomationControlled',
-        ],
-        executablePath: process.env.CHROME_PATH || '/usr/bin/chromium', // adjust if needed
-      });
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
+      // const browser = await puppeteer.launch({
+      //   headless: true, // can set to false for debugging
+      //   args: [
+      //     '--no-sandbox',
+      //     '--disable-setuid-sandbox',
+      //     '--disable-blink-features=AutomationControlled',
+      //   ],
+      //   executablePath: process.env.CHROME_PATH || '/usr/bin/chromium', // adjust if needed
+      // });
   const page = await browser.newPage();
   await page.setContent(html);
   const pdfBuffer = await page.pdf({ format: "A4" });

@@ -179,7 +179,7 @@ export class ViewUserComponent implements OnInit, OnDestroy{
 
   private router = inject(Router);
   openPayroll(id: number){
-    this.router.navigateByUrl('login/payroll/month-end/payslip/open/'+ id)
+    this.router.navigateByUrl('login/payroll/payslip/open/'+ id)
   }
 
   private dialog = inject(MatDialog);

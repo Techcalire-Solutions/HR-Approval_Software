@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <body>
-  <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
+  <!-- <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
     <div fxLayout="row" class="col">
       <form class="user-search">
         <mat-form-field class="user-search-input" appearance="outline">
@@ -9,8 +9,40 @@
         </mat-form-field>
       </form>
     </div>
-  </div>
+  </div> -->
 
+@if (isAdmin) {
+  <mat-accordion>
+    <mat-expansion-panel *ngFor="let group of groupedMonths" (opened)="setSearchText(group)">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{ group }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <main class="table" id="customers_table">
+        <section class="table__body scrollable-table">
+          <table>
+            <thead>
+              <tr>
+                <th>User Name</th>
+                <th>PayedAt</th>
+                <th>PayedAmount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let role of monthData[group]" (click)="openPayroll(role.id)">
+                <td>{{ role.user.name }}</td>
+                <td>{{ role.payedAt }}</td>
+                <td>{{ role.toPay }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </main>
+    </mat-expansion-panel>
+  </mat-accordion>
+}@else {  
   <main class="table" id="customers_table">
     <section class="table__body">
       <table>
@@ -39,4 +71,5 @@
       </mat-paginator>
     </section>
   </main>
+}
 
