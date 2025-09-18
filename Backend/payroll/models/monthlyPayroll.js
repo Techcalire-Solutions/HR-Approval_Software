@@ -32,12 +32,13 @@ const MonthlyPayroll = sequelize.define('monthlyPayroll', {
   payedAt: { type: DataTypes.DATEONLY },
   daysInMonth: { type: DataTypes.INTEGER},
   status: { type: DataTypes.STRING, defaultValue: 'Added' },
+  isSent: { type: DataTypes.BOOLEAN }
 }, {
   freezeTableName: true,
   timestamps: true,
 });
 
-MonthlyPayroll.sync({ alter: true })
+MonthlyPayroll.sync({ force: true })
   .then(() => {
     console.log('Tables synced successfully.');
   })
