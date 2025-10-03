@@ -90,7 +90,6 @@ const sendEmailNotification = async (token, fromEmail, password, to, subject, ht
   </table>`;
 
   const emailBody = html ? `${html}${emailSignature}` : `${emailSignature}`;
-  console.log(fromEmail, password);
   
   const transporter = nodemailer.createTransport({
     service: 'Gmail',

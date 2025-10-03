@@ -9,8 +9,7 @@ const cron = require('node-cron');
 const { scheduleBackups } = require('../src/services/schedulerService');
 
 if (process.env.ENABLE_SCHEDULED_BACKUPS === "true") {
-  const backupJob = scheduleBackups(); // Now properly imported
-  console.log('Scheduled backups enabled');
+  const backupJob = scheduleBackups(); 
 }
 
 dotenv.config();
@@ -187,7 +186,3 @@ const port = process.env.PORT || 8000;
 app.listen(port, () => {
     console.log(`server started on port ${port}`);
 })
-
-// const server = app.listen(port, '0.0.0.0', () => {
-//     console.log(`Server running on http://0.0.0.0:${port}`);
-// });

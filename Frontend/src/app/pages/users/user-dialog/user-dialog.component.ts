@@ -339,8 +339,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
     this.userSub = this.userService.getUser().subscribe((res) => {
       const users = res;
-      console.log(users);
-      
       // Find all users with standard format (AAA-YYYY-NNN)
       const standardFormatUsers = users.filter(user => 
         typeof user.empNo === 'string' && 

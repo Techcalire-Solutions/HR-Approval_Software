@@ -78,8 +78,6 @@ router.post('/add', authenticateToken, async (req, res) => {
         teamId: team.id,
         userId: userId
       });
-      console.log(teamMember);
-      
     } 
     res.send(user);
 

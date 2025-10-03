@@ -22,15 +22,15 @@ export class MessagesService {
   public notifications$ = this.notificationsSubject.asObservable();
 
 
- // Mark notification as read
- markAsRead(notificationId: string): Observable<any> {
-  return this.http.put(`${this.apiUrl}/mark-read/${notificationId}`, {});
-}
+  // Mark notification as read
+  markAsRead(notificationId: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/mark-read/${notificationId}`, {});
+  }
 
-// Get unread notifications count
-getUnreadCount(): Observable<any> {
-  return this.http.get(`${this.apiUrl}/unread-count`);
-}
+  // Get unread notifications count
+  getUnreadCount(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/unread-count`);
+  }
 
 
 

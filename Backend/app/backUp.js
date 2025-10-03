@@ -74,7 +74,6 @@ async function backup() {
         console.error('Error during backup:', err.message);
     } finally {
         await client.end();
-        console.log("Backup process completed.");
     }
 }
 

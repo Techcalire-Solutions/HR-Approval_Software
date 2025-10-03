@@ -32,8 +32,6 @@ export class KpiComponent {
     this.designationService.getDesignation().subscribe({
       next: (data) => {
         this.designations = data;
-        console.log(this.designations);
-        
         this.isLoading = false;
       },
       error: (err) => {

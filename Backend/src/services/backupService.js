@@ -87,7 +87,6 @@ class BackupService {
           console.error(`Command error: ${stderr}`);
           return reject(new Error(`Backup failed: ${stderr || error.message}`));
         }
-        console.log(`Backup created: ${filePath}`);
         resolve();
       });
     });
@@ -103,7 +102,6 @@ class BackupService {
       };
       
       const data = await this.s3.upload(params).promise();
-      console.log(`Uploaded to S3: ${data.Location}`);
       return data;
     } catch (err) {
       console.error('S3 upload failed:', err);

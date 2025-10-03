@@ -150,8 +150,6 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   getPayrollLog(id: number){
     this.payLogSUb = this.payrollService.getPayrollLogByUser(id).subscribe(x => {
       this.payrollLog = x;
-      console.log(this.payrollLog);
-      
     });
   }
 

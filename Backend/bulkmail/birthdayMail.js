@@ -275,7 +275,6 @@ router.patch('/update-birthday-template/:id', upload.single('attachment'), async
 
 router.post('/test-birthday-wishes', async (req, res) => {
   try {
-    console.log("🚀 Running test birthday cron logic...");
     const today = moment().format('MM-DD');
 
     // Get users without designation first to avoid the type error
@@ -298,8 +297,6 @@ router.post('/test-birthday-wishes', async (req, res) => {
         }
       ]
     });
-
-    console.log(`Found ${birthdayUsers.length} birthday users today`);
 
     if (!birthdayUsers.length) {
       return res.json({ message: "No birthday users today!" });
@@ -473,8 +470,6 @@ router.post('/test-birthday-wishes', async (req, res) => {
 });
 
 export async function sendBirthdayMail(template) {
-  console.log(template);
-  
   const userId = template.userId;
   const user = await User.findByPk(userId, {
     include: ["userpersonal", "userPosition"]

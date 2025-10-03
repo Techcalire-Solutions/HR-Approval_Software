@@ -92,8 +92,6 @@ export class LeaveBalanceComponent implements OnInit, OnDestroy {
     this.leaveTypes.forEach((leaveType) => {
       this.leaveCountsSubscription = this.leaveService.getLeaveCounts(this.userId, leaveType.id, this.selectedYear).subscribe({
         next: (response) => {
-          console.log(response);
-          
           this.leaveCounts.push({ ...response, leaveType: leaveType.leaveTypeName });
         },
         error: (error) => {

@@ -55,8 +55,6 @@ export class AddUserAssetsComponent {
   private dialogRef = inject(MatDialogRef<AddAssetsComponent>)
   private asset = inject(MAT_DIALOG_DATA);
   ngOnInit(): void {
-    console.log(this.asset);
-    
     if(this.asset) {
       if(this.asset.initialName) this.form.get('assetName')?.setValue(this.asset.initialName)
       else this.patchAsset(this.asset)}
@@ -82,8 +80,6 @@ export class AddUserAssetsComponent {
   onSubmit(){
     if(this.editStatus){
       this.submit = this.assetService.editUserAssets( this.form.getRawValue(), this.asset.id).subscribe(data => {
-        console.log(data);
-        
         this.dialogRef.close()
         this.snackBar.open("Asset updated succesfully...","" ,{duration:3000})
       });

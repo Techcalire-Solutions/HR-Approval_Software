@@ -15,8 +15,8 @@ const BackUpLog = sequelize.define('backUpLog',{
 })
 
 BackUpLog.sync({ alter: true })
-  .then(() => console.log("BackUpLog table Sync"))
-  .catch((err) => console.log("Error syncing table Role:", err));
+  .then()
+  .catch();
 
 
 module.exports = BackUpLog;

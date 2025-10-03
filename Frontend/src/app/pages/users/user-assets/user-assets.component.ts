@@ -106,8 +106,6 @@ export class UserAssetsComponent implements OnDestroy{
   }
 
   patch(selectedAsset: Assets) {
-    console.log(selectedAsset);
-    
     this.form.patchValue({
       newRow: {
         assetId: selectedAsset.id,
@@ -229,8 +227,6 @@ onOptionSelected(event: MatAutocompleteSelectedEvent) {
     
     // if(!this.isInvalidAsset){
       let newRow;
-      console.log(data);
-      
       if(data){
          newRow = {
           id: data.id,
@@ -245,8 +241,6 @@ onOptionSelected(event: MatAutocompleteSelectedEvent) {
       }
       else if (this.form.valid)  newRow = { ...this.form.value.newRow };
       this.rows.push(newRow);
-      console.log(this.rows);
-      
       this.form.reset();
     // }
     // else{
@@ -279,7 +273,6 @@ onOptionSelected(event: MatAutocompleteSelectedEvent) {
     }
     if(this.updateStatus){
       this.assetSub = this.assetService.updateUserAssets(data, this.id).subscribe((res: any) => {
-        console.log(res);
         if(res.success){
           this.getAssets();
           this.dialogRef?.close();

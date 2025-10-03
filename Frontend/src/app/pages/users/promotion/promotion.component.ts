@@ -73,8 +73,6 @@ export class PromotionComponent {
     this.loadPromotionsHistory();
 
     this.subscription = this.payrollService.currentPayrollData.subscribe(data => {
-      console.log(data);
-      
       if (data) {
         this.promotionForm.get('newSalary')?.setValue(data.current)
         this.promotionForm.get('previousSalary')?.setValue(data.old)
@@ -92,7 +90,6 @@ export class PromotionComponent {
   designations: Designation[] = [];
   getDesignation(){
     this.roleService.getDesignation().subscribe(res => {
-      console.log(res);
       this.designations = res;
     })
   }
@@ -140,8 +137,6 @@ export class PromotionComponent {
   loadPromotionsHistory(): void {
     this.promotionService.getPromotionById(this.userId).subscribe(
       (promotions) => {
-        console.log(promotions);
-        
         this.promotionsHistory = promotions;
       },
       (error) => {
@@ -172,8 +167,6 @@ export class PromotionComponent {
 
     this.promotionService.applyPromotion(promotionData).subscribe(
       (response) => {
-        console.log(response);
-        
         this.isLoading = false;
         this.snackBar.open('Promotion applied successfully!', 'Close', { duration: 3000 });
         this.promotionForm.reset();

@@ -211,12 +211,8 @@ export class UsersComponent implements OnInit, OnDestroy {
       data: {id: id, empNo: empNo, name: name, isTemporary: isTemporary}
     });
     this.dialogSub = dialogRef.afterClosed().subscribe((res) => {
-      console.log(res);
-      
       if(res.confirmed){
         this.confirmSub = this.userService.confirmEmployee(id, res.note).subscribe((x) =>{
-          console.log(x);
-          
           this.snackBar.open(`${name} ${x.message}`,"" ,{duration:3000})
             this.getUsers()
         })

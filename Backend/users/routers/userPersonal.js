@@ -198,7 +198,6 @@ router.get('/birthdays', authenticateToken, async (req, res) => {
         [sequelize.fn('EXTRACT', sequelize.literal('DAY FROM "dateOfBirth"')), 'ASC']
       ],
     });
-    console.log(employeesWithBirthdays);
     
     const employeesWithBirthdaysWithAge = employeesWithBirthdays.map(employee => {
       const birthDate = new Date(employee.dateOfBirth);
