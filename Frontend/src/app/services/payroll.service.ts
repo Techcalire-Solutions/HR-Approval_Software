@@ -118,8 +118,8 @@ export class PayrollService {
   }
 
   sendEmailWithExcel(formData: any){
-    return this.http.post(this.apiUrl+"//send-email", formData);
-  }monthlypayroll
+    return this.http.post(this.apiUrl+"/monthlypayroll/send-email", formData);
+  }
 
   sendPayrollEmail(data: any){
     return this.http.post(this.apiUrl+"/monthlypayroll/send-payroll-email", data);
