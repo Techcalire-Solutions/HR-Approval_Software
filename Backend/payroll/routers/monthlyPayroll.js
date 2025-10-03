@@ -16,8 +16,6 @@ const authenticateToken = require('../../middleware/authorization');
 const multer = require('multer');
 const fs = require('fs');
 const upload = multer({ dest: 'uploads/' });
-const puppeteer = require("puppeteer");
-const Payroll = require("../models/payroll");
 const Role = require("../../users/models/role");
 const { sendEmail } = require('../../app/emailService');
 const config = require('../../utils/config')
@@ -50,60 +48,41 @@ router.post("/save", authenticateToken, async (req, res) => {
 });
 
 router.get("/find", authenticateToken, async (req, res) => {
-  // let whereClause = { status: 'Locked' };
-  let whereClause;
-  let limit;
-  let offset;
-  if (req.query.search !== 'undefined') {
-    const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
-    whereClause = {
-      [Op.and]: [
-        {
-          [Op.or]: [
-            sequelize.where(
-              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('payedFor'), ' ', '')),
-              {
-                [Op.like]: `%${searchTerm}%`
-              }
-            ),
-            sequelize.where(
-              sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.name'), ' ', '')),
-              { [Op.like]: `%${searchTerm}%` }
-            ),
-          ]
-        },
-        { status: 'Locked' },
-      ]
-    };
-  }
-
-  if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
-    limit = req.query.pageSize;
-    offset = (req.query.page - 1) * req.query.pageSize;
-  }
-
   try {
-    const monthlyPayroll = await MonthlyPayroll.findAll({ 
-      where: whereClause, limit: limit, offset: offset,
-      include:[
-          { model: User, attributes: ['name','empNo'], as: 'user', required: false}
-      ], order: [['id', 'DESC']]
-    });
-    
-    totalCount = await MonthlyPayroll.count({});
+    if (!req.query.search || req.query.search === 'undefined') {
+      // Return unique payedFor values (panel headers)
+      const months = await MonthlyPayroll.findAll({
+        attributes: [
+          [sequelize.fn('DISTINCT', sequelize.col('payedFor')), 'payedFor']
+        ],
+        where: { status: 'Locked' },
+        order: [[sequelize.col('payedFor'), 'DESC']]
+      });
 
-    if (req.query.page != 'undefined' && req.query.pageSize != 'undefined') {
-      const response = {
-        count: totalCount,
-        items: monthlyPayroll,
-      };
+      let monthList = months.map(m => m.payedFor);
 
-      res.json(response);
-    } else {
-      res.json(monthlyPayroll);
+      monthList.sort((a, b) => {
+        const parseDate = (val) => new Date(val);
+        return parseDate(b) - parseDate(a);
+      });
+      return res.json(monthList);
     }
+
+    const payedFor = req.query.search;
+
+    const monthlyPayroll = await MonthlyPayroll.findAll({
+      where: { payedFor },
+      include: [
+        { model: User, attributes: ['name', 'empNo'], as: 'user', required: false }
+      ],
+      order: [['id', 'DESC']]
+    });
+
+    res.json(monthlyPayroll);
+
   } catch (error) {
-    res.send(error.message);
+    console.error(error);
+    res.status(500).send(error.message);
   }
 });
 
@@ -169,8 +148,6 @@ router.get("/bypayedfor", authenticateToken, async (req, res) => {
       ],
       order: [[User, 'empNo', 'ASC']]
     });
-    console.log(monthlyPayroll);
-    
     return res.status(200).json(monthlyPayroll);
   
   } catch (error) {
@@ -259,151 +236,52 @@ router.get('/findbyid/:id', authenticateToken, async (req, res) => {
 
 router.patch('/statusupdate/', authenticateToken, async (req, res) => {
   const { payrollData, status } = req.body;
-  const payedForStr = payrollData[0].payedFor;
-  const payedForDate = new Date(payedForStr);
-  const payrollYear = payedForDate.getFullYear();
-  const payrollMonth = payedForDate.getMonth();
-  if (payedForStr.startsWith("December")){
-    await Leave.update(
-      { status: 'Locked' },
-      {
-        where: {
-          startDate: {
-            [Op.gte]: new Date(payrollYear, 0, 1),
-            [Op.lt]: new Date(payrollYear + 1, 0, 1)
-          },
-        },
-      }
-    )
-  }
-
-  for (const element of payrollData) {
-    const { userId } = element;
-    const advanceSalary = await AdvanceSalary.findOne({ where: { userId, status: true } });
-    if (advanceSalary) {
-      advanceSalary.completed += 1;
-      if (advanceSalary.duration === advanceSalary.completed) {
-        advanceSalary.status = false;
-        advanceSalary.completedDate = new Date();
-        advanceSalary.closeNote = 'Advance Payment is completed successfully';
-      }
-      await advanceSalary.save();
-    }
-  }
-
-
-  function toNumber(value) {
-    return Number(value) || 0;
-  }
-
-  function calculateTotalEarnings(payroll) {
-    return (
-      toNumber(payroll.basic) +
-      toNumber(payroll.hra) +
-      toNumber(payroll.specialAllowance) +
-      toNumber(payroll.conveyanceAllowance) +
-      toNumber(payroll.lta) +
-      toNumber(payroll.ot) +
-      toNumber(payroll.incentive) +
-      toNumber(payroll.payOut) + 
-      toNumber(payroll.leaveEncashmentAmount)
-    );
-  }
-
-  function calculateTotalDeductions(payroll) {
-    return (
-      toNumber(payroll.pfDeduction) +
-      toNumber(payroll.tds) +
-      toNumber(payroll.advanceAmount) +
-      toNumber(payroll.leaveDeduction) +
-      toNumber(payroll.esi) +
-      toNumber(payroll.incentiveDeduction)
-    );
-  }
-
-  function convertNumberToWords(amount) {
-    if (isNaN(amount) || amount === null || amount === undefined) {
-      return "Invalid amount";
-    }
-
-    amount = Number(amount); // Ensure the amount is a number
-
-    if (amount === 0) return "zero";
-
-    const words = [
-        "", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-        "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
-        "seventeen", "eighteen", "nineteen"
-    ];
-    const tens = [
-        "", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"
-    ];
-    const scales = ["", "thousand", "million", "billion"];
-
-    let word = "";
-
-    function getWord(n, scale) {
-        let res = "";
-        if (n > 99) {
-            res += words[Math.floor(n / 100)] + " hundred ";
-            n %= 100;
-        }
-        if (n > 19) {
-            res += tens[Math.floor(n / 10)] + " ";
-            n %= 10;
-        }
-        if (n > 0) {
-            res += words[n] + " ";
-        }
-        return res.trim() + (scale ? " " + scale : "");
-    }
-
-    const [integerPart, fractionalPart] = amount.toFixed(2).split('.').map(Number);
-
-    // Convert integer part
-    let scaleIndex = 0;
-    let integerWord = "";
-    let tempIntPart = integerPart;
-
-    while (tempIntPart > 0) {
-        const chunk = tempIntPart % 1000;
-        if (chunk > 0) {
-            integerWord = getWord(chunk, scales[scaleIndex]) + " " + integerWord;
-        }
-        tempIntPart = Math.floor(tempIntPart / 1000);
-        scaleIndex++;
-    }
-
-    // Convert fractional part
-    let fractionalWord = "";
-    if (fractionalPart > 0) {
-        fractionalWord = getWord(fractionalPart, "") + " paise";
-    }
-
-    // Combine integer and fractional parts
-    word = integerWord.trim();
-    if (fractionalWord) {
-        word += " and " + fractionalWord;
-    }
-
-    return word.trim();
-  }
-
+  const successEmails = [];
+  const failedEmails = [];
   if (!Array.isArray(payrollData) || payrollData.length === 0) {
-    return res.send("Invalid or missing payrollData." );
+    return res.status(400).send("Invalid or missing payrollData.");
   }
 
   if (!status) {
-    return res.send("Status is required.");
+    return res.status(400).send("Status is required.");
   }
 
   try {
-    // Use a transaction for atomic updates
     await sequelize.transaction(async (transaction) => {
-      const updatePromises = payrollData.map(async (element) => {
+      for (const element of payrollData) {
+        let mp;
         try {
-          // Find the payroll entry
-          const mp = await MonthlyPayroll.findByPk(element.id, {
+          // Lock leaves for December if needed
+          const payedForDate = new Date(element.payedFor);
+          const payrollYear = payedForDate.getFullYear();
+          if (element.payedFor.startsWith("December")) {
+            await Leave.update(
+              { status: 'Locked' },
+              {
+                where: {
+                  startDate: {
+                    [Op.gte]: new Date(payrollYear, 0, 1),
+                    [Op.lt]: new Date(payrollYear + 1, 0, 1),
+                  },
+                },
+                transaction
+              }
+            );
+          }
+
+          const advanceSalary = await AdvanceSalary.findOne({ where: { userId: element.userId, status: true } });
+          if (advanceSalary) {
+            advanceSalary.completed += 1;
+            if (advanceSalary.duration === advanceSalary.completed) {
+              advanceSalary.status = false;
+              advanceSalary.completedDate = new Date();
+              advanceSalary.closeNote = 'Advance Payment is completed successfully';
+            }
+            await advanceSalary.save({ transaction });
+          }
+
+          // Fetch payroll
+          mp = await MonthlyPayroll.findByPk(element.id, {
             transaction,
             include: [
               {
@@ -412,78 +290,406 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
                 include: [
                   { model: UserPersonal, as: 'userpersonal', attributes: ['dateOfJoining'] },
                   { model: UserAccount },
-                  {
-                    model: StatutoryInfo,
-                    attributes: ['panNumber', 'uanNumber', 'pfNumber'],
-                  },
+                  { model: StatutoryInfo, attributes: ['panNumber', 'uanNumber', 'pfNumber'] },
                   {
                     model: UserPosition,
                     attributes: ['designationId', 'department', 'location'],
-                    include: [
-                      {
-                        model: Designation,
-                        attributes: ['designationName'],
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
+                    include: [{ model: Designation, attributes: ['designationName'] }]
+                  }
+                ]
+              }
+            ]
           });
-          console.log(mp);
-          
-          if (!mp) {
-            throw new Error(`Payroll entry with ID ${element.id} not found.`);
-          }
-    
-          // Update the status and save the payroll entry
+
+          if (!mp) throw new Error(`Payroll entry with ID ${element.id} not found.`);
+
+          // Update payroll status
           mp.status = status;
           await mp.save({ transaction });
-    
-          const workingDays = mp.daysInMonth - mp.leaveDays;
-    
-          // Fetch full payroll data
-          const fullValue = await Payroll.findOne({ where: { userId: mp.userId } });
-          if (!fullValue) {
-            throw new Error("Salary Details is not added for the employee");
-          }
-    
-          // Fetch user and role information
-          const user = await User.findByPk(req.user.id, {
-            include: [
-              {
-                model: UserPosition,
-                attributes: ['designationId'],
-                include: {
-                  model: Designation,
-                  attributes: ['designationName'],
-                },
-              },
-              { model: Role, attributes: ['roleName'] },
-            ],
-          });
-    
-          let designation;
-          if (
-            user.role.roleName !== 'Super Administrator' &&
-            user.role.roleName !== 'HR Administrator'
-          ) {
-            if (!user.userPosition || !user.userPosition.designationId) {
-              throw new Error(`Designation of the sender ${user.name} is not added`);
-            }
-            designation = user.userPosition.designation.designationName;
-          } else {
-            designation = user.role.roleName;
-          }
-    
-          // Calculate earnings and deductions
-          const totalEarnings = calculateTotalEarnings(mp);
-          const totalDeductions = calculateTotalDeductions(mp);
-          const payedFor = mp.payedFor
-          const payedForWithoutYear = payedFor.replace(/\s*\d{4}$/, '');
+          
+          // Create a download link instead of generating PDF immediately
+          try {
+            const jwt = require('jsonwebtoken');
+            const tokenPayload = {
+                id: mp.user.id,
+                name: mp.user.name,
+                email: mp.user.email,
+                phoneNumber: mp.user.phoneNumber,
+                roleId: mp.user.roleId,
+                payedFor: mp.payedFor // ensure this is the correct property for month
+            };
+            const token = jwt.sign(tokenPayload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
 
-          const pdfContent = `
-          <html>
+            const downloadUrl = `${req.protocol}://${req.get('host')}/monthlypayroll/download-payslip/${token}`;
+            await sendPayrollEmail(mp.user.email, null, `Payslip for - ${mp.payedFor}`, mp.payedFor, mp.user.name, req, downloadUrl);
+            
+            // Update isSent status and email status
+            mp.isSent = true;
+            mp.emailStatus = 'Success';
+            await mp.save({ transaction });
+            
+            successEmails.push({
+              payrollId: element.id,
+              email: mp.user.email,
+              name: mp.user.name,
+              status: 'Success'
+            });
+          } catch (err) {
+            console.error(`Email failed for ${mp.user.email}:`, err.message);
+            // Update email status to Failed
+            mp.emailStatus = 'Failed';
+            mp.emailError = err.message;
+            await mp.save({ transaction });
+            
+            failedEmails.push({
+              payrollId: element.id,
+              email: mp.user.email,
+              name: mp.user.name,
+              status: 'Failed',
+              error: `Email failed: ${err.message}`
+            });
+          }
+
+        } catch (err) {
+          console.error(`Error processing payroll for ID ${element.id}:`, err.message);
+          failedEmails.push({
+            payrollId: element.id,
+            email: mp?.user?.email || 'Unknown',
+            name: mp?.user?.name || 'Unknown',
+            error: err.message
+          });
+        }
+      } // end for
+    }); // end transaction
+
+    // Send response
+    res.status(200).json({
+      message: "Payroll processing completed",
+      successCount: successEmails.length,
+      failureCount: failedEmails.length,
+      success: successEmails,
+      failed: failedEmails,
+      totalTransactions: payrollData.length
+    });
+
+  } catch (error) {
+    console.error("Payroll processing transaction failed:", error.message);
+    res.status(500).json({
+      message: "Payroll processing failed",
+      error: error.message
+    });
+  }
+});
+
+const pdf = require('html-pdf');
+async function generatePDF(html) {
+  return new Promise((resolve, reject) => {
+    pdf.create(html, { format: 'A4' }).toBuffer((err, buffer) => {
+      if (err) reject(err);
+      else resolve(buffer);
+    });
+  });
+}
+// Updated sendPayrollEmail to use download links instead of attachments
+async function sendPayrollEmail(to, pdfBuffer, subject, payedFor, name, req, downloadUrl) {
+  const html = `
+    <p>Dear ${name},</p>
+    <p>Your payslip for the month of <b>${payedFor}</b> is now available.</p>
+    <p>Please click the button below to download your payslip:</p>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${downloadUrl}" style="background-color: #4CAF50; color: white; padding: 12px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">Download Payslip</a>
+    </div>
+    <hr style="border: 0; border-top: 1px solid #ccc; margin: 20px 0;">
+    <p>Regards,<br/>Payroll Team</p>
+  `;
+
+  const emailSubject = subject;
+  const fromEmail = config.email.payrollUser;
+  const emailPassword = config.email.payrollPass;
+  
+  const attachments = [];
+  
+  // Get token from request or create a system token if not available
+  let token = req.headers.authorization?.split(' ')[1];
+  try {
+    await sendEmail(token, fromEmail, emailPassword, to, emailSubject, html, attachments);
+  } catch (emailError) {
+    console.error('Email sending failed:', emailError);
+    console.error('Error details:', JSON.stringify(emailError, null, 2));
+    throw new Error(`Email failed: ${emailError.message}`);
+  }
+}
+
+router.post('/send-email', upload.single('file'), authenticateToken, async (req, res) => {
+  try {
+    const { email, month, payrollData } = req.body; 
+    const payroll = JSON.parse(payrollData);
+    for (let i = 0; i < payroll.length; i++) {
+      const element = payroll[i];
+      let mp = await MonthlyPayroll.findByPk(element.id);
+      mp.status = 'SendforApproval';
+      await mp.save();
+    }
+    
+    let user = await User.findByPk(req.user.id, { include:[ 
+      {model: UserPosition, attributes: ['designationId'], include: {
+        model: Designation, attributes: ['designationName']
+      }},
+      {model: Role, attributes: ['roleName']}]
+    });
+    
+    let designation;
+    if(user.role.roleName !== 'Super Administrator' && user.role.roleName !== 'HR Administrator'){
+      if(!user.userPosition || !user.userPosition.designationId){
+        return res.send(`Designation of the sender ${user.name} is not added`)
+      }
+      designation = user.userPosition.designation.designationName;
+    }else{
+      designation = user.role.roleName;
+    } 
+    
+    const file = req.file;
+    
+    
+    const html =  `
+      <p>Please find the attached payroll Excel file for your review.</p>
+        <p>Kindly click the button below to either approve or reject the payroll data as required.</p>
+        <div style="text-align: center; margin-top: 20px;">
+          <a href="${process.env.BACK_END}/monthlypayroll/approve?month=${month}&id=${req.user.id}" 
+            style="
+              display: inline-block;
+              padding: 10px 20px;
+              margin: 5px;
+              font-size: 16px;
+              color: white;
+              background-color: #28a745;
+              text-decoration: none;
+              border-radius: 5px;
+            ">
+            Approve
+          </a>
+          <a href="${process.env.BACK_END}/monthlypayroll/reject?month=${month}&id=${req.user.id}" 
+            style="
+              display: inline-block;
+              padding: 10px 20px;
+              margin: 5px;
+              font-size: 16px;
+              color: white;
+              background-color: #dc3545;
+              text-decoration: none;
+              border-radius: 5px;
+            ">
+            Reject
+          </a>
+        </div>
+        <br/>
+    `
+    const emailSubject = `Payroll Data for ${month}`
+    const fromEmail = config.email.payrollUser;
+    const emailPassword = config.email.payrollPass;
+    const attachments = 
+      {
+        filename: file.originalname,
+        path: file.path,  
+      }
+    
+    const token = req.headers.authorization?.split(' ')[1];
+    try {
+      await sendEmail(token, fromEmail, emailPassword, email, emailSubject, html, attachments);
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError);
+    }
+
+    fs.unlinkSync(file.path);
+
+    res.send({ message: 'Email sent successfully!' });
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
+router.get('/approve', async (req, res) => {
+  try {
+    const { month, id } = req.query;
+    const payrolls = await MonthlyPayroll.findAll({ where: { payedFor: month, status: 'SendforApproval' } });
+    if (payrolls.length === 0) {
+      return res.send("Already proccesed request")
+    }
+    payrolls.forEach(async (payroll) => {
+      payroll.status = 'Approved';
+      await payroll.save();
+    });
+    const me = `Payroll for ${month} is approved`;
+    const route = `/login/payroll/month-end`;
+
+    await createNotification({ id, me, route });
+    // const not = await Notification.create({
+    //   userId: id, message:`Payroll for ${month} is approved`, isRead: false, route: `/login/payroll/month-end`
+    // })
+    
+    res.send(`Payroll for ${month} is approved`);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
+router.get('/reject', async (req, res) => {
+  try {
+    const { month, id } = req.query;
+    const payrolls = await MonthlyPayroll.findAll({ where: { payedFor: month, status: 'SendforApproval' } });
+    if (payrolls.length === 0) {
+      return res.send("Already proccesed request")
+    }
+    payrolls.forEach(async (payroll) => {
+      payroll.status = 'Rejected';
+      await payroll.save();
+    });
+    const me = `Payroll for ${month} is rejected`;
+    const route = `/login/payroll/month-end`;
+
+    await createNotification({ id, me, route });
+    res.send(`Payroll for ${month} is rejected`);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
+router.get('/ytd', async (req, res) => {
+  try {
+    const { fromDate, toDate } = req.query;
+
+    if (!fromDate || !toDate) {
+      const monthlyPayroll = await MonthlyPayroll.findAll({
+        include: [{ model: User, attributes: ['name'] }]
+      });
+      return res.send(monthlyPayroll);
+    }
+
+    const parsedFromDate = new Date(fromDate);
+    const parsedToDate = new Date(toDate);
+
+    const monthlyPayroll = await MonthlyPayroll.findAll({
+      where: {
+        payedAt: {
+          [Op.gte]: parsedFromDate, // Use Op instead of sequelize.Op
+          [Op.lte]: parsedToDate,
+        }
+      },
+      include: [{ model: User, attributes: ['name'] }] // Include related User model
+    });
+    res.send(monthlyPayroll);
+
+  } catch (error) {
+    res.send(error.message);
+  }
+});
+
+// Secure endpoint to download payslip PDF
+router.get("/download-payslip/:token", async (req, res) => {
+  const jwt = require('jsonwebtoken');
+  
+  try {
+    const token = req.params.token;
+    const payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+    const email = payload.email;
+    const user = await User.findOne({ where: { email } });
+    const userId = user?.id;
+
+    if (!userId || !email) {
+      return res.status(400).send("Invalid token: missing user information");
+    }
+
+    const month = payload.payedFor;
+
+    const payroll = await MonthlyPayroll.findOne({
+      where: { userId, payedFor: month, status: 'Locked' },
+      include: [
+        {
+          model: User, as: 'user',
+          attributes: ['name', 'empNo', 'email'],
+          include: [
+            { model: UserPersonal, as: 'userpersonal', attributes: ['dateOfJoining'] },
+            { model: UserAccount },
+            { model: StatutoryInfo, attributes: ['panNumber', 'uanNumber', 'pfNumber'] },
+            {
+              model: UserPosition,
+              attributes: ['designationId', 'department', 'location'],
+              include: [{ model: Designation, attributes: ['designationName'] }]
+            }
+          ]
+        }
+      ]
+    });
+
+    if (!payroll) {
+      return res.status(404).send("No approved payroll found for this user");
+    }
+
+    if (!payroll.user || payroll.user.email !== email) {
+      return res.status(403).send("Unauthorized access to payslip");
+    }
+
+    // Generate HTML and PDF
+    const payslipHTML = generatePayslipHTML(payroll);
+    const pdfBuffer = await generatePDF(payslipHTML);
+
+    // ✅ Important: set headers before sending
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="PaySlip_${payroll.payedFor}_${payroll.user.name}.pdf"`,
+      'Content-Length': pdfBuffer.length
+    });
+
+    // ✅ Send PDF only once
+    res.end(pdfBuffer);
+
+  } catch (error) {
+    console.error("Error generating payslip PDF:", error);
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      return res.status(401).send("Invalid or expired link. Please request a new payslip.");
+    }
+    res.status(500).send("Error generating payslip. Please try again later.");
+  }
+});
+
+// Helper function to generate payslip HTML
+function generatePayslipHTML(mp) {
+  const toNumber = (value) => Number(value) || 0;
+
+  const calculateTotalEarnings = (payroll) =>
+    toNumber(payroll.basic) +
+    toNumber(payroll.hra) +
+    toNumber(payroll.specialAllowance) +
+    toNumber(payroll.conveyanceAllowance) +
+    toNumber(payroll.lta) +
+    toNumber(payroll.ot) +
+    toNumber(payroll.incentive) +
+    toNumber(payroll.payOut) +
+    toNumber(payroll.leaveEncashmentAmount);
+
+  const calculateTotalDeductions = (payroll) =>
+    toNumber(payroll.pfDeduction) +
+    toNumber(payroll.tds) +
+    toNumber(payroll.advanceAmount) +
+    toNumber(payroll.leaveDeduction) +
+    toNumber(payroll.esi) +
+    toNumber(payroll.incentiveDeduction);
+
+  const workingDays = mp.daysInMonth - mp.leaveDays;
+  const totalEarnings = calculateTotalEarnings(mp);
+  const totalDeductions = calculateTotalDeductions(mp);
+  // const amountInWords = convertNumberToWords(netPay);
+  const payedForWithoutYear = mp.payedFor.replace(/\s*\d{4}$/, '')
+  // Format date
+  const payDate = new Date();
+  const formattedDate = `${payDate.getDate().toString().padStart(2, '0')}/${(payDate.getMonth() + 1).toString().padStart(2, '0')}/${payDate.getFullYear()}`;
+  
+  return `
+  <!DOCTYPE html>
+
+
+   <html>
             <head>
               <style>
               body {
@@ -788,7 +994,6 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
 
                       <div class="net-pay">
                           <p>Net Pay for the month: <a  style="font-weight: bolder; color: rgb(8, 72, 115);">INR ${mp.toPay ?? 0}</a></p>
-                          <p><a  style="font-weight: bolder; color: rgb(8, 72, 115);">(Rupees ${convertNumberToWords(totalEarnings - totalDeductions) ?? ''} Only)</a></p>
                       </div>
 
                       <!-- <div class="footer">
@@ -798,263 +1003,7 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
             </body>
           </html>
           `;
-          const pdfBuffer = await generatePDF(pdfContent);
-    
-          // Send email with payslip
-          await sendPayrollEmail(
-            mp.user.email,
-            pdfBuffer,
-            `Payslip for - ${mp.payedFor}`,
-            mp.payedFor,
-            mp.user.name,
-            req
-          );
-
-          const id = element.id;
-          const me = `PaySlip for ${mp.payedFor} is generated`;
-          const route = `/login/payroll/month-end/payslip`;
-    
-          await createNotification({ id, me, route, transaction });
-        } catch (error) {
-          console.error(`Error processing payroll for ID ${element.id}:`, error);
-          throw error; // Ensure rollback on error
-        }
-      });
-    
-      // Wait for all updates and emails to complete
-      await Promise.all(updatePromises);
-    });
-    
-    res.status(200).json({ message: "Successfully updated payroll statuses and sent emails." });
-  } catch (error) {
-    res.send(error.message);
-  }
-});
-
-async function generatePDF(html) {
-  // const browser = await puppeteer.launch({
-  //   headless: true,
-  //   args: ['--no-sandbox', '--disable-setuid-sandbox']
-  // });
-      const browser = await puppeteer.launch({
-        headless: true, // can set to false for debugging
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-blink-features=AutomationControlled',
-        ],
-        executablePath: process.env.CHROME_PATH || '/usr/bin/chromium', // adjust if needed
-      });
-  const page = await browser.newPage();
-  await page.setContent(html);
-  const pdfBuffer = await page.pdf({ format: "A4" });
-  await browser.close();
-  return pdfBuffer;
-}
-
-async function sendPayrollEmail(to, pdfBuffer, subject, payedFor, name, req) {
-    const html = `
-      <p>Dear ${name},</p>
-      <p>Attached is your payslip for the month of <b>${payedFor}</b>. Please review it at your convenience.</p>
-      <hr style="border: 0; border-top: 1px solid #ccc; margin: 20px 0;">
-      <p>Regards,<br/>Payroll Team</p>
-    `;
-
-    const emailSubject = subject
-    const fromEmail = config.email.payrollUser;
-    const emailPassword = config.email.payrollPass;
-    const attachments = [
-      {
-        filename: `PaySlip_${payedFor}_${name}.pdf`,
-        content: pdfBuffer,
-      },
-    ]
-    
-    const token = req.headers.authorization?.split(' ')[1];
-    try {
-      await sendEmail(token, fromEmail, emailPassword, to, emailSubject, html, attachments);
-      // if (payrollId) {
-      //   await MonthlyPayroll.update(
-      //     { isSent: true },
-      //     { where: { id: payrollId } }
-      //   );
-      // }
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError);
-      // if (payrollId) {
-      //   await MonthlyPayroll.update(
-      //     { isSent: false },
-      //     { where: { id: payrollId } }
-      //   );
-      // }
-    }
 
 }
-
-router.post('/send-email', upload.single('file'), authenticateToken, async (req, res) => {
-  try {
-    const { email, month, payrollData } = req.body; 
-    const payroll = JSON.parse(payrollData);
-    for (let i = 0; i < payroll.length; i++) {
-      const element = payroll[i];
-      let mp = await MonthlyPayroll.findByPk(element.id);
-      mp.status = 'SendforApproval';
-      await mp.save();
-      console.log(mp);
-      
-    }
-    
-    let user = await User.findByPk(req.user.id, { include:[ 
-      {model: UserPosition, attributes: ['designationId'], include: {
-        model: Designation, attributes: ['designationName']
-      }},
-      {model: Role, attributes: ['roleName']}]
-    });
-    
-    let designation;
-    if(user.role.roleName !== 'Super Administrator' && user.role.roleName !== 'HR Administrator'){
-      if(!user.userPosition || !user.userPosition.designationId){
-        return res.send(`Designation of the sender ${user.name} is not added`)
-      }
-      designation = user.userPosition.designation.designationName;
-    }else{
-      designation = user.role.roleName;
-    } 
-    
-    const file = req.file;
-    
-    
-    const html =  `
-      <p>Please find the attached payroll Excel file for your review.</p>
-        <p>Kindly click the button below to either approve or reject the payroll data as required.</p>
-        <div style="text-align: center; margin-top: 20px;">
-          <a href="${process.env.BACK_END}/monthlypayroll/approve?month=${month}&id=${req.user.id}" 
-            style="
-              display: inline-block;
-              padding: 10px 20px;
-              margin: 5px;
-              font-size: 16px;
-              color: white;
-              background-color: #28a745;
-              text-decoration: none;
-              border-radius: 5px;
-            ">
-            Approve
-          </a>
-          <a href="${process.env.BACK_END}/monthlypayroll/reject?month=${month}&id=${req.user.id}" 
-            style="
-              display: inline-block;
-              padding: 10px 20px;
-              margin: 5px;
-              font-size: 16px;
-              color: white;
-              background-color: #dc3545;
-              text-decoration: none;
-              border-radius: 5px;
-            ">
-            Reject
-          </a>
-        </div>
-        <br/>
-    `
-    const emailSubject = `Payroll Data for ${month}`
-    const fromEmail = config.email.payrollUser;
-    const emailPassword = config.email.payrollPass;
-    const attachments = 
-      {
-        filename: file.originalname,
-        path: file.path,  
-      }
-    
-    const token = req.headers.authorization?.split(' ')[1];
-    try {
-      await sendEmail(token, fromEmail, emailPassword, email, emailSubject, html, attachments);
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError);
-    }
-
-    fs.unlinkSync(file.path);
-
-    res.send({ message: 'Email sent successfully!' });
-  } catch (error) {
-    res.send(error.message);
-  }
-});
-
-router.get('/approve', async (req, res) => {
-  try {
-    const { month, id } = req.query;
-    const payrolls = await MonthlyPayroll.findAll({ where: { payedFor: month, status: 'SendforApproval' } });
-    if (payrolls.length === 0) {
-      return res.send("Already proccesed request")
-    }
-    payrolls.forEach(async (payroll) => {
-      payroll.status = 'Approved';
-      await payroll.save();
-    });
-    const me = `Payroll for ${month} is approved`;
-    const route = `/login/payroll/month-end`;
-
-    await createNotification({ id, me, route });
-    // const not = await Notification.create({
-    //   userId: id, message:`Payroll for ${month} is approved`, isRead: false, route: `/login/payroll/month-end`
-    // })
-    
-    res.send(`Payroll for ${month} is approved`);
-  } catch (error) {
-    res.status(500).send({ error: error.message });
-  }
-});
-
-router.get('/reject', async (req, res) => {
-  try {
-    const { month, id } = req.query;
-    const payrolls = await MonthlyPayroll.findAll({ where: { payedFor: month, status: 'SendforApproval' } });
-    if (payrolls.length === 0) {
-      return res.send("Already proccesed request")
-    }
-    payrolls.forEach(async (payroll) => {
-      payroll.status = 'Rejected';
-      await payroll.save();
-    });
-    const me = `Payroll for ${month} is rejected`;
-    const route = `/login/payroll/month-end`;
-
-    await createNotification({ id, me, route });
-    res.send(`Payroll for ${month} is rejected`);
-  } catch (error) {
-    res.status(500).send({ error: error.message });
-  }
-});
-
-router.get('/ytd', async (req, res) => {
-  try {
-    const { fromDate, toDate } = req.query;
-
-    if (!fromDate || !toDate) {
-      const monthlyPayroll = await MonthlyPayroll.findAll({
-        include: [{ model: User, attributes: ['name'] }]
-      });
-      return res.send(monthlyPayroll);
-    }
-
-    const parsedFromDate = new Date(fromDate);
-    const parsedToDate = new Date(toDate);
-
-    const monthlyPayroll = await MonthlyPayroll.findAll({
-      where: {
-        payedAt: {
-          [Op.gte]: parsedFromDate, // Use Op instead of sequelize.Op
-          [Op.lte]: parsedToDate,
-        }
-      },
-      include: [{ model: User, attributes: ['name'] }] // Include related User model
-    });
-    res.send(monthlyPayroll);
-
-  } catch (error) {
-    res.send(error.message);
-  }
-});
 
 module.exports = router;

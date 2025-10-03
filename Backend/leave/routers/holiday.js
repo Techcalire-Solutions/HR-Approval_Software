@@ -145,8 +145,6 @@ router.delete('/delete/:id', authenticateToken, async(req,res)=>{
 router.patch('/updateholiday/:id', authenticateToken, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
-    console.log(id);
-    
     // Validate ID
     if (isNaN(id)) {
       return res.send('Invalid ID format' );
@@ -162,7 +160,6 @@ router.patch('/updateholiday/:id', authenticateToken, async (req, res) => {
     if (!holiday) {
       return res.send( `Cannot update Holiday with id=${id}. Holiday was not found.`);
     }
-    console.log(holiday);
     
     // Perform the update
     await Holiday.update(req.body, {
@@ -171,7 +168,6 @@ router.patch('/updateholiday/:id', authenticateToken, async (req, res) => {
 
     // Fetch the updated record (this ensures we get the latest data)
     const updatedHoliday = await Holiday.findOne({ where: { id: id } });
-    console.log(updatedHoliday);
     
     res.json( updatedHoliday );
 

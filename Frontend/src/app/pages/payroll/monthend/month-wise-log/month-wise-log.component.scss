@@ -117,4 +117,19 @@ body {
     transform: scale(1.5);
   }
   
-  
+  .scrollable-table {
+    max-height: 300px;   /* adjust as needed */
+    overflow-y: auto;
+    display: block;      /* ensures scroll works inside */
+  }
+
+  .scrollable-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .scrollable-table thead {
+    top: 0;
+    background: #f5f5f5; /* keep header visible while scrolling */
+    z-index: 1;
+  }

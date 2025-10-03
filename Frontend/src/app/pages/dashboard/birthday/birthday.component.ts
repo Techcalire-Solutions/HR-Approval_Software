@@ -44,8 +44,6 @@ export class BirthdayComponent implements OnInit, OnDestroy {
       }
 
       const authData = JSON.parse(tokenData);
-      console.log('Auth data:', authData); // Debug log
-
       // Check both possible locations for roleId
       const roleId = authData.role || authData.token?.roleId;
       

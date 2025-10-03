@@ -97,7 +97,6 @@ export class BulkMailComponent {
       next: (response) => {
         this.emailLogs = response || [];
         this.sentEmails = this.emailLogs.map(log => log.recipients); 
-        console.log('📜 Email Logs:', this.emailLogs);
       },
       error: (error) => {
         console.error('❌ Error fetching email logs:', error);

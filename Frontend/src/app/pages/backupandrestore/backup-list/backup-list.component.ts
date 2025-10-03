@@ -90,8 +90,6 @@ selectedDate: Date | null = null;
 
   onPageChange(event: PageEvent): void {
     this.currentPage = event.pageIndex + 1;
-    console.log(this.currentPage);
-    
     this.pageSize = event.pageSize;
     this.loadBackups();
   }

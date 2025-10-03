@@ -42,8 +42,6 @@ export class LeaveReportsComponent {
   getReport(): void {
     this.leaveService.getReport(this.selectedYear, this.currentPage, this.pageSize, this.searchText).subscribe((res) => {
       this.employees = res.result;
-      console.log(this.employees);
-      
       this.totalItems = res.total
     });
   }
@@ -94,8 +92,6 @@ export class LeaveReportsComponent {
     
     const month = monthIndex + 1; // Convert from 0-based to 1-based month
     const year = this.selectedYear;
-    console.log(month, year);
-    
     this.leaveService.getLeaveBalanceDetails(employee.id, leaveType.typeId, year, month)
       .subscribe({
         next: (leaveDetails) => {

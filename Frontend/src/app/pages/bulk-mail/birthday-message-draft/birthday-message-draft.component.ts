@@ -80,7 +80,6 @@ export class BirthdayMessageDraftComponent implements OnInit {
         this.employeeName = res.name;
         this.employeeEmail = res.email;
         this.bulkmailService.getTemplateByUserId(res.id).subscribe(res => {
-          console.log(res);
           if(res){
             this.templateId = res.id;
             this.updateStatus = true;
@@ -146,8 +145,6 @@ export class BirthdayMessageDraftComponent implements OnInit {
       return;
     }
     const scheduledDateTime = this.getScheduledTimestamp();
-    console.log(scheduledDateTime);
-    
     this.isLoading = true;
     
     const formData = new FormData();
@@ -162,8 +159,6 @@ export class BirthdayMessageDraftComponent implements OnInit {
     if(this.updateStatus){
       this.bulkmailService.updateBirthdayTemplate(formData, this.templateId).subscribe({
         next: (response) => {
-          console.log(response);
-          
           this.snackBar.open('Birthday message sent successfully!', 'Close', { duration: 3000 });
           this.isLoading = false;
           this.router.navigate(['/mail']);
@@ -177,8 +172,6 @@ export class BirthdayMessageDraftComponent implements OnInit {
     }else{
       this.bulkmailService.birthdayTemplate(formData).subscribe({
         next: (response) => {
-          console.log(response);
-          
           this.snackBar.open('Birthday message sent successfully!', 'Close', { duration: 3000 });
           this.isLoading = false;
           this.router.navigate(['/mail']);

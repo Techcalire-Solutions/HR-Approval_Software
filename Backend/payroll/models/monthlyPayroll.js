@@ -38,7 +38,7 @@ const MonthlyPayroll = sequelize.define('monthlyPayroll', {
   timestamps: true,
 });
 
-MonthlyPayroll.sync({ force: true })
+MonthlyPayroll.sync({ alter: true })
   .then(() => {
     console.log('Tables synced successfully.');
   })

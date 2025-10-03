@@ -33,7 +33,6 @@ router.post('/', authenticateToken, async (req, res) => {
       assignedStatus
     });
 
-    console.log("Saved asset:", asset);
     res.status(201).send(asset);
 
   } catch (error) {
@@ -73,7 +72,6 @@ router.patch('/:id', authenticateToken, async (req, res) => {
       assignedStatus
     });
 
-    console.log("Updated asset:", updatedAsset);
     res.send(updatedAsset);
 
   } catch (error) {
@@ -95,7 +93,6 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     // Delete the asset
     await asset.destroy();
 
-    console.log("Deleted asset with ID:", id);
     res.status(200).send({ message: "Asset deleted successfully" });
 
   } catch (error) {

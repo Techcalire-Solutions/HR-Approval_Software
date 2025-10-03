@@ -24,23 +24,23 @@ export const routes: Routes = [
         path: '', 
         loadComponent: () => import('./monthend/monthend.component').then(c => c.MonthendComponent),
         canActivate: [AuthGuard]
+      }
+    ]
+  },
+  {
+    path: 'payslip',  
+    data: { breadcrumb: 'PaySlip' }, 
+    children: [
+      {
+        path: '', 
+        loadComponent: () => import('./monthend/month-wise-log/month-wise-log.component').then(c => c.MonthWiseLogComponent),
+        canActivate: [AuthGuard]
       },
       {
-        path: 'payslip',  
-        data: { breadcrumb: 'PaySlip' }, 
-        children: [
-          {
-            path: '', 
-            loadComponent: () => import('./monthend/month-wise-log/month-wise-log.component').then(c => c.MonthWiseLogComponent),
-            canActivate: [AuthGuard]
-          },
-          {
-            path: 'open/:id',  
-            loadComponent: () => import('./monthend/payslip/payslip.component').then(c => c.PayslipComponent),
-            data: { breadcrumb: 'Open' }, 
-            canActivate: [AuthGuard]
-          }
-        ]
+        path: 'open/:id',  
+        loadComponent: () => import('./monthend/payslip/payslip.component').then(c => c.PayslipComponent),
+        data: { breadcrumb: 'Open' }, 
+        canActivate: [AuthGuard]
       }
     ]
   },

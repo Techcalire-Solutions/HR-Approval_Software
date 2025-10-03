@@ -66,7 +66,6 @@ router.get('/findbyuser/:id', authenticateToken, async (req, res) => {
                 { model: UserAssets }
             ]
         });
-        console.log(ua, "asset for user......");
         
         res.send(ua);
     } catch (error) {

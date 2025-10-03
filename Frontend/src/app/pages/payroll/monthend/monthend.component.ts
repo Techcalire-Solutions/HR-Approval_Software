@@ -357,7 +357,7 @@ export class MonthendComponent implements OnInit, OnDestroy{
         formData.append('month', `${this.month} ${this.currentYear}`);
         formData.append('payrollData', JSON.stringify(payrollData));
   
-        this.mailSendSub = this.payrollService.sendEmailWithExcel(formData).subscribe(() => {
+        this.mailSendSub = this.payrollService.sendEmailWithExcel(formData).subscribe((res) => {
           this.isLoading = false;
           
           this.snackBar.open(`Email sent successfully to ${email}!...`, '', { duration: 3000 });

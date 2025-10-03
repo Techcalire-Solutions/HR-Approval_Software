@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -13,7 +15,9 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-month-wise-log',
   standalone: true,
-  imports: [MatPaginatorModule, MatButtonToggleModule, MatFormFieldModule, MatInputModule],
+  imports: [MatPaginatorModule, MatButtonToggleModule, MatFormFieldModule, MatInputModule, MatAccordion, MatExpansionModule,
+    CommonModule
+  ],
   templateUrl: './month-wise-log.component.html',
   styleUrl: './month-wise-log.component.scss'
 })
@@ -32,9 +36,11 @@ export class MonthWiseLogComponent implements OnInit, OnDestroy{
 
   private roleService = inject(RoleService);
   private roleSub!: Subscription;
+  isAdmin: boolean = false;
   getRoleById(id: number, userId: number){
     this.roleSub = this.roleService.getRoleById(id).subscribe(role => {
       if(role.roleName === 'Super Administrator' || role.roleName === 'HR Administrator'){  
+        this.isAdmin = true;
         this.getMonthlyLog();
       }else{
         this.getUserById(userId)
@@ -61,15 +67,32 @@ export class MonthWiseLogComponent implements OnInit, OnDestroy{
 
   payrollService = inject(PayrollService);
   logs: any[] = [];
-  getMonthlyLog(){
-    this.monthLogSub = this.payrollService.getMonthlyPayroll(this.searchText, this.currentPage, this.pageSize).subscribe(data =>{
-      console.log(data);
-      
-      this.logs = data.items
-      this.totalItems = data.count;
-    });
+  groupedMonths: string[] = [];  // only headers (e.g. AUGUST 2025, SEPTEMBER 2025)
+  monthData: { [key: string]: any[] } = {}; // panel data cache
+
+  getMonthlyLog() {
+    // 1️⃣ First fetch unique payedFor values for expansion panels
+    this.payrollService.getMonthlyPayroll(undefined, this.currentPage, this.pageSize)
+      .subscribe(months => {
+        this.groupedMonths = months; // e.g. ["AUGUST 2025", "SEPTEMBER 2025"]
+      });
   }
 
+  // 2️⃣ Fetch data when user expands a panel
+  loadMonthData(month: string) {
+    this.payrollService.getMonthlyPayroll(month, this.currentPage, this.pageSize)
+      .subscribe(data => {
+        this.monthData[month] = data.items || data;
+        this.totalItems = data.count || this.monthData[month].length;
+      });
+  }
+
+  setSearchText(month: string) {
+    this.searchText = month;
+    this.loadMonthData(this.searchText)
+  }
+
+  public searchText: string;
   monthLogSub!: Subscription;
   getMonthlyLogByUser(id: number){
     this.monthLogSub = this.payrollService.getMonthlyPayrollByUser(id, this.searchText, this.currentPage, this.pageSize).subscribe(data =>{
@@ -80,10 +103,9 @@ export class MonthWiseLogComponent implements OnInit, OnDestroy{
 
   private router = inject(Router);
   openPayroll(id: number){
-    this.router.navigateByUrl('login/payroll/month-end/payslip/open/'+ id)
+    this.router.navigateByUrl('login/payroll/payslip/open/'+ id)
   }
 
-  public searchText!: string;
   search(event: Event){
     this.searchText = (event.target as HTMLInputElement).value.trim();
     if(this.admin) {

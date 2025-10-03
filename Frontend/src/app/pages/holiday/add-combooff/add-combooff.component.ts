@@ -21,14 +21,7 @@ import { NewLeaveService } from '@services/new-leave.service';
 export class AddCombooffComponent implements OnInit, OnDestroy{
   ngOnInit(): void {
     const id = this.route.snapshot.params['id'];
-    this.getHolidayById(id)
     this.getEmployees()
-    this.getComboOff()
-  }
-
-  holidaySub!: Subscription;
-  getHolidayById(id: number){
-
   }
 
   fb = inject(FormBuilder);
@@ -48,6 +41,7 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
   getEmployees(){
     this.employeeSub = this.userService.getConfirmedEmployees().subscribe((data) => {
       this.employees = data;
+      this.getComboOff()
       this.addEmployeeCheckboxes();
     });
   }
@@ -109,6 +103,8 @@ export class AddCombooffComponent implements OnInit, OnDestroy{
   getComboOff(){
     this.comboOffSub = this.holidayService.getCompoOff(this.route.snapshot.params['id']).subscribe(res => {
       this.co = res;
+      console.log(this.co);
+      
       if(this.co){
         this.editStatus = true;
         this.setInitialCheckboxes(this.co.userId);

@@ -118,6 +118,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
       this.imageUrl = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/${user.url}`
     }
     this.form.patchValue({
+      empNo: user.empNo,
       name: user.name,
       phoneNumber: user.phoneNumber,
       email: user.email,
@@ -338,8 +339,6 @@ export class UserDialogComponent implements OnInit, OnDestroy {
 
     this.userSub = this.userService.getUser().subscribe((res) => {
       const users = res;
-      console.log(users);
-      
       // Find all users with standard format (AAA-YYYY-NNN)
       const standardFormatUsers = users.filter(user => 
         typeof user.empNo === 'string' && 
