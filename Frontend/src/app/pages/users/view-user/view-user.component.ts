@@ -89,9 +89,22 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   userStat: StatutoryInfo;
   getStatutoryData(id: number){
     this.suSub = this.userService.getUserStatutoryuDetailsByUser(id).subscribe(x => {
+      console.log(x);
+      
       this.userStat = x;
     })
   }
+
+  getFieldName(value: string): string {
+    if (!value) return '';
+    return value.split('-')[0].trim();
+  }
+
+  getFieldValue(value: string): string {
+    if (!value) return '';
+    return value.split('-')[1]?.trim() || '';
+  }
+
 
   auSub!: Subscription;
   accounts: UserAccount

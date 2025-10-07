@@ -45,6 +45,8 @@ export class LoginComponent {
 
     this.loginService.loginUser(this.loginForm.value).subscribe({
       next: (res: boolean) => { 
+        console.log(res);
+        
         if (res) {
           const token: any = localStorage.getItem('token')
           let user = JSON.parse(token)

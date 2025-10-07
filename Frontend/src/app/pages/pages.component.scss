@@ -1,5 +1,5 @@
 @import "../theme/styles/variables";
-
+@import "../theme/styles/_colors.scss";
 .sidenav{
     width: $sidenav-width;
     overflow: hidden; 
@@ -38,7 +38,6 @@
     } 
 }
  
-
 .options{
     position: fixed;
     width: $sidenav-width;
@@ -66,45 +65,45 @@
                 border-left: 32px solid transparent;
             }
             &.indigo-light{
-                background-color: #3F51B5;
-                border: 1px solid #3F51B5;
+                background-color: $indigo-light;
+                border: 1px solid $indigo-light;
                 .skin-secondary{
                     border-bottom-color: #ececec;
                 }
             }
             &.teal-light{
-                background-color: #009688;
-                border: 1px solid #009688;
+                background-color: $teal-light;
+                border: 1px solid $teal-light;
                 .skin-secondary{
-                    border-bottom-color: #ececec;
+                    border-bottom-color: $secondary-border-light;
                 }
             }
             &.red-light{
-                background-color: #F44336;
-                border: 1px solid #F44336;
+                background-color: $red-light;
+                border: 1px solid $red-light;
                 .skin-secondary{
-                    border-bottom-color: #ececec;
+                    border-bottom-color: $secondary-border-light;
                 }
             }
             &.blue-dark{
-                background-color: #0277bd;
-                border: 1px solid #0277bd;
+                background-color: $blue-dark;
+                border: 1px solid $blue-dark;
                 .skin-secondary{
-                    border-bottom-color: #262626;
+                    border-bottom-color: $secondary-border-dark;
                 }
             }
             &.green-dark{
-                background-color: #388E3C;
-                border: 1px solid #388E3C;
+                background-color: $green-dark;
+                border: 1px solid $green-dark;
                 .skin-secondary{
-                    border-bottom-color: #262626;
+                    border-bottom-color: $secondary-border-dark;
                 }
             }
             &.pink-dark{
-                background-color: #D81B60;
-                border: 1px solid #D81B60;
+                background-color: $pink-dark;
+                border: 1px solid $pink-dark;
                 .skin-secondary{
-                    border-bottom-color: #262626;
+                    border-bottom-color: $secondary-border-dark;
                 }
             }
         }
@@ -205,32 +204,36 @@
 
 .info {
     // background-color: #d9edf7;
-    color: #4eb3e6;
+    color: $info-color;
     padding: 10px;
     border-radius: 5px;
 }
 
 .warning {
     // background-color: #fcf8e3;
-    color: #f4a113;
+    color: $warning-color;
     padding: 10px;
     border-radius: 5px;
 }
 
 .error {
     // background-color: #f2dede;
-    color: #ea221f;
+    color: $error-color;
     padding: 10px;
     border-radius: 5px;
 }
 
 .success {
     // background-color: #dff0d8;
-    color: #06e66f;
+    color: $success-color;
     padding: 10px;
     border-radius: 5px;
 }
 
 .invert-icon {
     transform: rotate(90deg);
+  }
+
+  .theme-primary{
+    background-color: $primary-color;
   }

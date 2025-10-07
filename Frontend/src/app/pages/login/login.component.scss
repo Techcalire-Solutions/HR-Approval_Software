@@ -1,23 +1,4 @@
-
-.input-field {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-field input {
-  width: 100%;
-  padding-right: 40px; /* To leave space for the eye icon inside the input */
-}
-
-.eye-icon {
-  position: absolute;
-  right: 10px; /* Position the icon inside the input field */
-  cursor: pointer;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #999; /* Optional: to give a subtle color to the icon */
-}
+@import '../../theme/styles/colors';
 
 * {
   margin: 0;
@@ -33,9 +14,57 @@ input {
 .container {
   position: relative;
   width: 100%;
-  background-color: #fff;
+  background-color: $text-light;
   min-height: 100vh;
   overflow: hidden;
+
+  &:before {
+    content: "";
+    position: absolute;
+    height: 2000px;
+    width: 2000px;
+    top: -10%;
+    right: 48%;
+    transform: translateY(-50%);
+    background-image: linear-gradient(-45deg, $panel-bg-gradient-start 0%, $panel-bg-gradient-end 100%);
+    transition: 1.8s ease-in-out;
+    border-radius: 50%;
+    z-index: 6;
+  }
+}
+
+#app-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  background: $text-light;
+  z-index: 999999;
+  visibility: visible;
+  opacity: 1;
+  transition: visibility 0.5s, opacity 0.3s linear;
+
+  &.hide {
+    visibility: hidden;
+    opacity: 0; 
+  }
+
+  h4 {
+    margin-top: 10px;
+    letter-spacing: 0.02em;
+    opacity: 0;
+    text-transform: uppercase;
+    animation: loading-text-opacity 2s linear 0s infinite normal;
+  }
+}
+
+@keyframes loading-text-opacity {
+  0%, 20%, 100% { opacity: 0; }
+  50% { opacity: 1; }
 }
 
 .forms-container {
@@ -49,35 +78,35 @@ input {
 .signin-signup {
   position: absolute;
   top: 50%;
-  transform: translate(-50%, -50%);
   left: 75%;
   width: 50%;
-  transition: 1s 0.7s ease-in-out;
   display: grid;
   grid-template-columns: 1fr;
   z-index: 5;
   overflow-y: auto;
+  transform: translate(-50%, -50%);
+  transition: 1s 0.7s ease-in-out;
 }
 
 form {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
   padding: 0rem 5rem;
-  transition: all 0.2s 0.7s;
   overflow: hidden;
   grid-column: 1 / 2;
   grid-row: 1 / 2;
-}
+  transition: all 0.2s 0.7s;
 
-form.sign-up-form {
-  opacity: 0;
-  z-index: 1;
-}
+  &.sign-up-form {
+    opacity: 0;
+    z-index: 1;
+  }
 
-form.sign-in-form {
-  z-index: 2;
+  &.sign-in-form {
+    z-index: 2;
+  }
 }
 
 .title {
@@ -89,38 +118,37 @@ form.sign-in-form {
 .input-field {
   max-width: 380px;
   width: 100%;
-  background-color: #f0f0f0;
+  background-color: $input-bg;
   margin: 10px 0;
   height: 55px;
   border-radius: 55px;
-  display: grid;
-  grid-template-columns: 15% 85%;
-  padding: 0 0.4rem;
+  display: flex; /* changed from grid */
+  align-items: center;
+  padding: 0 15px;
   position: relative;
+
+  input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-size: 1.1rem;
+    color: $text-color;
+    height: 100%;
+    padding-right: 40px; /* space for icon */
+    border-radius: 55px;
+  }
+
+  .eye-icon {
+    position: absolute;
+    right: 15px;
+    cursor: pointer;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $icon-color;
+  }
 }
 
-.input-field i {
-  text-align: center;
-  line-height: 55px;
-  color: #acacac;
-  transition: 0.5s;
-  font-size: 1.1rem;
-}
-
-.input-field input {
-  background: none;
-  outline: none;
-  border: none;
-  line-height: 1;
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: #333;
-}
-
-.input-field input {
-  color: #213781;
-  font-weight: 500;
-}
 
 .social-text {
   padding: 0.7rem 0;
@@ -130,86 +158,66 @@ form.sign-in-form {
 .social-media {
   display: flex;
   justify-content: center;
+
+  .social-icon {
+    height: 46px;
+    width: 46px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 0.45rem;
+    color: $text-color;
+    border-radius: 50%;
+    border: 1px solid $text-color;
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: 0.3s;
+
+    &:hover {
+      color: $icon-hover-color;
+      border-color: $icon-hover-color;
+    }
+  }
 }
 
-.social-icon {
-  height: 46px;
-  width: 46px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 0.45rem;
-  color: #333;
-  border-radius: 50%;
-  border: 1px solid #333;
-  text-decoration: none;
-  font-size: 1.1rem;
-  transition: 0.3s;
-}
-
-.social-icon:hover {
-  color: rgb(30 58 138);
-  border-color: rgb(30 58 138)
-}
 .btn1 {
-  width: 150px; /* Adjust size to make it square */
-  height: 50px; /* Same value as width to make it square */
-  background-color: #dde6e9; /* Change to the color you want */
-  border: none; /* Remove border */
-  color: rgb(15, 87, 158); /* Text color */
+  width: 150px;
+  height: 50px;
+  background-color: $btn-bg;
+  border: none;
+  color: $btn-text;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0; /* Remove rounded corners */
+  border-radius: 0;
 }
 
 .btn {
   width: 150px;
-  background-color: rgb(30 58 138);
+  height: 49px;
+  background-color: $primary-color;
   border: none;
   outline: none;
-  height: 49px;
   border-radius: 49px;
-  color: #fff;
+  color: $text-light;
   text-transform: uppercase;
   font-weight: 600;
   margin: 10px 0;
   cursor: pointer;
   transition: 0.5s;
+
+  &:hover {
+    background-color: $primary-color;
+  }
 }
 
-.btn:hover {
-  background-color: rgb(30 58 138);
-}
 .panels-container {
   position: absolute;
-  height: 100%;
   width: 100%;
-  top: 0;
-  left: 0;
+  height: 100%;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-}
-
-.container:before {
-  content: "";
-  position: absolute;
-  height: 2000px;
-  width: 2000px;
-  top: -10%;
-  right: 48%;
-  transform: translateY(-50%);
-  background-image: linear-gradient(-45deg, #1e3a8a 0%, #3f6ef1 100%);
-  transition: 1.8s ease-in-out;
-  border-radius: 50%;
-  z-index: 6;
-}
-
-.image {
-  width: 100%;
-  transition: transform 1.1s ease-in-out;
-  transition-delay: 0.4s;
 }
 
 .panel {
@@ -219,102 +227,85 @@ form.sign-in-form {
   justify-content: space-around;
   text-align: center;
   z-index: 6;
-}
 
-.left-panel {
-  pointer-events: all;
-  padding: 3rem 17% 2rem 12%;
-}
+  .content {
+    color: $panel-text;
+    transition: transform 0.9s ease-in-out;
+    transition-delay: 0.6s;
+  }
 
-.right-panel {
-  pointer-events: none;
-  padding: 3rem 12% 2rem 17%;
-}
+  h3 {
+    font-weight: 600;
+    line-height: 1;
+    font-size: 1.5rem;
+  }
 
-.panel .content {
-  color: #fff;
-  transition: transform 0.9s ease-in-out;
-  transition-delay: 0.6s;
-}
-
-.panel h3 {
-  font-weight: 600;
-  line-height: 1;
-  font-size: 1.5rem;
-}
-
-.panel p {
-  font-size: 0.95rem;
-  padding: 0.7rem 0;
+  p {
+    font-size: 0.95rem;
+    padding: 0.7rem 0;
+  }
 }
 
 .btn.transparent {
   margin: 0;
   background: none;
-  border: 2px solid #fff;
+  border: 2px solid $text-light;
   width: 130px;
   height: 41px;
   font-weight: 600;
   font-size: 0.8rem;
 }
 
-.right-panel .image,
-.right-panel .content {
-  transform: translateX(800px);
+.container.sign-up-mode {
+  &:before {
+    transform: translate(100%, -50%);
+    right: 52%;
+  }
+
+  .left-panel .image,
+  .left-panel .content {
+    transform: translateX(-800px);
+  }
+
+  .signin-signup {
+    left: 25%;
+  }
+
+  form.sign-up-form {
+    opacity: 1;
+    z-index: 2;
+  }
+
+  form.sign-in-form {
+    opacity: 0;
+    z-index: 1;
+  }
+
+  .right-panel .image,
+  .right-panel .content {
+    transform: translateX(0%);
+  }
+
+  .left-panel {
+    pointer-events: none;
+  }
+
+  .right-panel {
+    pointer-events: all;
+  }
 }
 
-/* ANIMATION */
-
-.container.sign-up-mode:before {
-  transform: translate(100%, -50%);
-  right: 52%;
-}
-
-.container.sign-up-mode .left-panel .image,
-.container.sign-up-mode .left-panel .content {
-  transform: translateX(-800px);
-}
-
-.container.sign-up-mode .signin-signup {
-  left: 25%;
-}
-
-.container.sign-up-mode form.sign-up-form {
-  opacity: 1;
-  z-index: 2;
-}
-
-.container.sign-up-mode form.sign-in-form {
-  opacity: 0;
-  z-index: 1;
-}
-
-.container.sign-up-mode .right-panel .image,
-.container.sign-up-mode .right-panel .content {
-  transform: translateX(0%);
-}
-
-.container.sign-up-mode .left-panel {
-  pointer-events: none;
-}
-
-.container.sign-up-mode .right-panel {
-  pointer-events: all;
-}
-
+/* Media Queries */
 @media (max-width: 870px) {
   .container {
     min-height: 800px;
     height: 100vh;
   }
-  .signin-signup {
-    top: 40%; /* Adjust to make sure form fits */
-    transform: translate(-50%, 0);
-    width: 90%; /* Reduce width to fit the screen */
-  }
 
-  .signin-signup,
-  .container.sign-up-mode .signin-signup {
+  .signin-signup {
+    top: 40%;
+    transform: translate(-50%, 0);
+    width: 90%;
     left: 50%;
   }
 
@@ -328,7 +319,6 @@ form.sign-in-form {
     justify-content: space-around;
     align-items: center;
     padding: 2.5rem 8%;
-    grid-column: 1 / 2;
   }
 
   .right-panel {
@@ -347,24 +337,12 @@ form.sign-in-form {
 
   .panel .content {
     padding-right: 15%;
-    transition: transform 0.9s ease-in-out;
     transition-delay: 0.8s;
   }
 
-  .panel h3 {
-    font-size: 1.2rem;
-  }
-
-  .panel p {
-    font-size: 0.7rem;
-    padding: 0.5rem 0;
-  }
-
-  .btn.transparent {
-    width: 110px;
-    height: 35px;
-    font-size: 0.7rem;
-  }
+  .panel h3 { font-size: 1.2rem; }
+  .panel p { font-size: 0.7rem; padding: 0.5rem 0; }
+  .btn.transparent { width: 110px; height: 35px; font-size: 0.7rem; }
 
   .container:before {
     width: 1500px;
@@ -405,19 +383,10 @@ form.sign-in-form {
 }
 
 @media (max-width: 570px) {
-  form {
-    padding: 0 1.5rem;
-  }
-
-  .image {
-    display: none;
-  }
-  .panel .content {
-    padding: 0.5rem 1rem;
-  }
-  .container {
-    padding: 1.5rem;
-  }
+  form { padding: 0 1.5rem; }
+  .image { display: none; }
+  .panel .content { padding: 0.5rem 1rem; }
+  .container { padding: 1.5rem; }
 
   .container:before {
     bottom: 72%;
@@ -429,4 +398,3 @@ form.sign-in-form {
     left: 50%;
   }
 }
-

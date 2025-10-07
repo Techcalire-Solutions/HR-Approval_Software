@@ -1,3 +1,5 @@
+@import '../../../theme/styles/colors';
+
 .upload-container {
   display: flex;
   flex-direction: column;
@@ -44,7 +46,7 @@ form {
   display: flex;
   align-items: center;
   gap: 4px;
-  color: blue;
+  color: $secondary-color;
 }
 
 button {
@@ -62,6 +64,7 @@ button {
   align-items: center;
   background-color: rgba(0, 0, 0, 0.1);
   z-index: 1000;
+  color: $primary-color;
 }
 
 @media (max-width: 768px) {
@@ -80,5 +83,17 @@ button {
 
   .col {
     width: 100%; /* Full width for smaller screens */
+  }
+}
+
+
+.button {
+  background-color: $primary-color;
+  color: #fff;
+  &:disabled {
+    background-color: #fff;
+    color: #000; // usually better contrast for disabled state
+    cursor: not-allowed;
+    opacity: 0.6;
   }
 }

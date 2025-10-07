@@ -1,3 +1,4 @@
+@import '../../../theme/styles/colors';
 .row {
     display: flex;
     flex-direction: row;
@@ -22,7 +23,7 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    color: blue
+    color: $secondary-color;
   }
 
   .user-spinner {
@@ -36,4 +37,17 @@
     align-items: center; /* Vertically center */
     background-color: rgba(0, 0, 0, 0.1); /* Optional: Add a semi-transparent background */
     z-index: 1000; /* Ensures it appears above other content */
+    color: $primary-color;
+}
+
+
+.button {
+  background-color: $primary-color;
+  color: #fff;
+  &:disabled {
+    background-color: #fff;
+    color: #000; // usually better contrast for disabled state
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 }

@@ -1,3 +1,4 @@
+@import '../../../theme/styles/colors';
 .payroll-header {
   display: flex;
   justify-content: space-between;
@@ -39,7 +40,7 @@
   }
   
   .payroll-table th {
-    background-color: #2980b9;
+    background-color: $secondary-color;
     color: #fff;
   }
   
@@ -58,7 +59,7 @@
   }
   
   .input-field:focus {
-    border-color: #2980b9;
+    border-color: $secondary-color;
     outline: none;
   }
   
@@ -81,7 +82,7 @@
   // margin-top: 10px;
   // margin-left: auto;
   padding: 10px 10px;
-  background-color: #2980b9;
+  background-color: $secondary-color;
   color: white;
   font-size: 16px;
   border: none;
@@ -93,7 +94,7 @@
 
 /* Change background on hover */
 .save-button:hover {
-  background-color: #04263c;
+  background-color: $primary-color;
 }
 
 .save-button:disabled {
@@ -117,4 +118,8 @@
 /* For All Browsers (Fallback) */
 .no-spinner {
     appearance: textfield;
+}
+
+.gross-pay {
+  background-color: $secondary-color;
 }

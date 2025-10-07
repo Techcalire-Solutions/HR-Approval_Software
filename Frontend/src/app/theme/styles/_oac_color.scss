@@ -1,0 +1,40 @@
+// src/theme/styles/colors.scss
+
+// Primary palette
+$primary-color: #1e3a8a;      
+$secondary-color: #3f6ef1;    
+
+// Text colors
+$text-color: #213781;         
+$text-light: #fff;             
+
+// Input
+$input-bg: #f0f0f0;           
+$input-text: #333;            
+$icon-color: #acacac;         
+$icon-hover-color: rgb(30, 58, 138); 
+
+// Buttons
+$btn-bg: #dde6e9;             
+$btn-text: rgb(15, 87, 158);  
+
+// Panel / card
+$panel-text: #fff;            
+$panel-bg-gradient-start: #1e3a8a;
+$panel-bg-gradient-end: #3f6ef1;
+
+// Alert colors
+$info-color: #4eb3e6;
+$warning-color: #f4a113;
+$error-color: #ea221f;
+$success-color: #06e66f;
+
+// Skins (used in options)
+$indigo-light: #3F51B5;
+$teal-light: #009688;
+$red-light: #F44336;
+$blue-dark: #0277bd;
+$green-dark: #388E3C;
+$pink-dark: #D81B60;
+$secondary-border-light: #ececec;
+$secondary-border-dark: #262626;

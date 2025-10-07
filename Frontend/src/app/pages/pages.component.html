@@ -1,13 +1,14 @@
 <mat-sidenav-container [dir]="settings.rtl ? 'rtl' : 'ltr'">
     @if (settings.menu == 'vertical') {
-        <mat-sidenav [opened]="settings.sidenavIsOpened" [mode]="settings.sidenavIsPinned ? 'side' : 'over'" #sidenav (openedStart)="showSidenav = !showSidenav" (closedStart)="showSidenav = !showSidenav" class="sidenav mat-elevation-z6">
+        <mat-sidenav [opened]="settings.sidenavIsOpened" [mode]="settings.sidenavIsPinned ? 'side' : 'over'" 
+            #sidenav (openedStart)="showSidenav = !showSidenav" (closedStart)="showSidenav = !showSidenav"
+            class="sidenav mat-elevation-z6">
             <app-sidenav></app-sidenav>
         </mat-sidenav>
     }
 
     <mat-sidenav-content #mainSidenavContent id="main" (scroll)="onPageScroll($event)">
-
-            <mat-toolbar color="primary" class="px-2">
+            <mat-toolbar class="px-2 theme-primary">
                 <div fxLayout="row" fxLayoutAlign="space-between center" class="w-100">
                     <div fxLayout="row" fxLayoutAlign="center center">
                         @if (settings.menu == 'vertical') {
@@ -60,7 +61,6 @@
                     </div>
                 </mat-toolbar>
             }
-
 
             <div #mainContent id="main-content" (scroll)="onPageScroll($event)" class="sidenav-content-inner transition-2" [class.has-footer]="settings.hasFooter" [class.fixed-header]="settings.fixedHeader" [class.no-breadcrumb]="router.url == '/'">
                 <app-breadcrumb></app-breadcrumb>

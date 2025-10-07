@@ -6,22 +6,39 @@
       <div class="row box">
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
-            <mat-label>Aadhaar Number</mat-label>
-            <input matInput formControlName="adharNo" >
+            <mat-label>ID 1</mat-label>
+            <input matInput formControlName="adharNo" placeholder="ID Name - ID Number">
+
+            @if (form.get('adharNo')?.invalid && (form.get('adharNo')?.dirty || form.get('adharNo')?.touched)) {
+              <mat-error>
+                Enter in format: ID Name - ID Number
+              </mat-error>
+            }
+
           </mat-form-field>
         </div>
 
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
-            <mat-label>PAN Number</mat-label>
+            <mat-label>ID 2</mat-label>
             <input matInput formControlName="panNumber" >
+            @if (form.get('panNumber')?.invalid && (form.get('panNumber')?.dirty || form.get('panNumber')?.touched)) {
+              <mat-error>
+                Enter in format: ID Name - ID Number
+              </mat-error>
+            }
           </mat-form-field>
         </div>
 
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
-            <mat-label>PF Number</mat-label>
+            <mat-label>ID 3</mat-label>
             <input matInput formControlName="pfNumber" >
+            @if (form.get('pfNumber')?.invalid && (form.get('pfNumber')?.dirty || form.get('pfNumber')?.touched)) {
+              <mat-error>
+                Enter in format: ID Name - ID Number
+              </mat-error>
+            }
           </mat-form-field>
         </div>
       </div>
@@ -29,21 +46,36 @@
       <div class="row box">
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
-            <mat-label>ESI Number</mat-label>
+            <mat-label>ID 4</mat-label>
             <input matInput formControlName="esiNumber" >
+            @if (form.get('esiNumber')?.invalid && (form.get('esiNumber')?.dirty || form.get('esiNumber')?.touched)) {
+              <mat-error>
+                Enter in format: ID Name - ID Number
+              </mat-error>
+            }
           </mat-form-field>
         </div>
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
-            <mat-label>UAN Number</mat-label>
+            <mat-label>ID 5</mat-label>
             <input matInput formControlName="uanNumber" >
+            @if (form.get('uanNumber')?.invalid && (form.get('uanNumber')?.dirty || form.get('uanNumber')?.touched)) {
+              <mat-error>
+                Enter in format: ID Name - ID Number
+              </mat-error>
+            }
           </mat-form-field>
         </div>
 
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
-            <mat-label>Insurance Number</mat-label>
+            <mat-label>ID 6</mat-label>
             <input matInput formControlName="insuranceNumber" >
+            @if (form.get('insuranceNumber')?.invalid && (form.get('insuranceNumber')?.dirty || form.get('insuranceNumber')?.touched)) {
+              <mat-error>
+                Enter in format: ID Name - ID Number
+              </mat-error>
+            }
           </mat-form-field>
         </div>
       </div>
@@ -67,13 +99,13 @@
     </div>
 
     <div class="col" style="text-align: right;">
-      <button mat-raised-button (click)="triggerPreviousTab()" [disabled]="!form.pristine && !form.invalid && !isNext">
+      <button mat-raised-button class="arrow-button" (click)="triggerPreviousTab()" [disabled]="!form.pristine && !form.invalid && !isNext">
         <div class="text-with-icon">
           <mat-icon>arrow_back_ios</mat-icon>
           <!-- <span>Previous</span> -->
         </div>
       </button>
-      <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.pristine || form.invalid"
+      <button mat-raised-button class="button" (click)="onSubmit()" [disabled]="form.pristine || form.invalid"
       style="margin-left: 10px;" >
         @if (editStatus) {
             Update
@@ -81,10 +113,10 @@
             Save
         }
       </button>
-      <button mat-raised-button color="primary" onclick="history.back()" [disabled]="!form.pristine && !form.invalid && !isNext" style="margin-left: 10px;">
+      <button mat-raised-button class="button" onclick="history.back()" [disabled]="!form.pristine && !form.invalid && !isNext" style="margin-left: 10px;">
         Exit
       </button>
-      <button mat-raised-button (click)="triggerNextTab()" style="margin-left: 10px;" [disabled]="!form.pristine && !form.invalid && !isNext">
+      <button mat-raised-button class="arrow-button" (click)="triggerNextTab()" style="margin-left: 10px;" [disabled]="!form.pristine && !form.invalid && !isNext">
         <div class="text-with-icon">
           <!-- <span>Next</span> -->
           <mat-icon>arrow_forward_ios</mat-icon>

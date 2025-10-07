@@ -113,7 +113,7 @@ export class PersonalDetailsComponent implements OnDestroy {
     spouseName: [''],
     referredBy: [''],
     reportingMangerId: <any>[],
-    emergencyContactNo: ['', Validators.compose([Validators.pattern(/^\d{10}$/)])],
+    emergencyContactNo: ['', Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)])],
     emergencyContactName: [''],
     emergencyContactRelation: [''],
     bloodGroup: [''],

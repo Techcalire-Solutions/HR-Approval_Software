@@ -17,6 +17,7 @@ import { Subscription } from 'rxjs';
 import { User } from '../../../common/interfaces/users/user';
 import { MenuService } from '@services/menu.service';
 import { Router } from '@angular/router';
+import { A11yModule } from "@angular/cdk/a11y";
 
 @Component({
   selector: 'app-sidenav',
@@ -28,8 +29,9 @@ import { Router } from '@angular/router';
     MatButtonModule,
     MatIconModule,
     VerticalMenuComponent,
-    CommonModule
-  ],
+    CommonModule,
+    A11yModule
+],
   templateUrl: './sidenav.component.html',
   styleUrls: ['./sidenav.component.scss'],
   encapsulation: ViewEncapsulation.None
@@ -186,8 +188,9 @@ users:User;
         (item.title === 'YTD' && item.parentId === 21)||
         // (item.title === 'Leave Report' && item.parentId === 21)
 
-        item.title === 'Backup' || 
-        item.title === 'KPI'
+        item.title === 'Backup' 
+        // || 
+        // item.title === 'KPI'
       );
 
     } else if ( role === 'Accountant' ) {

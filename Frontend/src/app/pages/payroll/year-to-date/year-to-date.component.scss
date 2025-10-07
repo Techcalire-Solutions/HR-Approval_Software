@@ -1,3 +1,5 @@
+@import '../../../theme/styles/colors';
+
 /* General Container */
 .ytd-report {
   margin: 20px auto;
@@ -45,7 +47,7 @@ input {
 
 input:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: $secondary-color;
 }
 
 /* Error Message */
@@ -58,7 +60,7 @@ div.error {
 /* Submit Button */
 button {
   padding: 12px 20px;
-  background-color: #007bff;
+  background-color: $secondary-color;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -73,7 +75,7 @@ button:disabled {
 }
 
 button:hover:enabled {
-  background-color: #0056b3;
+  background-color: $primary-color;
 }
 
 /* Loading and No Data */
@@ -167,7 +169,7 @@ input[type="date"] {
 
 input[type="date"]:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: $secondary-color;
 }
 
 .row-form {

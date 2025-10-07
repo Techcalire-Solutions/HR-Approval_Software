@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { MatButtonModule } from '@angular/material/button';
 import { UsersService } from './../../../services/users.service';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, Output, inject } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -53,12 +53,12 @@ export class StatuatoryInfoComponent implements OnDestroy {
 
   form = this.fb.group({
     userId : <any>[],
-    adharNo : [''],
-    panNumber : [''],
-    esiNumber : [''],
-    uanNumber : [''],
-    insuranceNumber: [''],
-    pfNumber : [''],
+    adharNo : ['', [ Validators.pattern(/^([A-Za-z\s]+)\s*-\s*\d{6,20}$/) ]],
+    panNumber : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*\d{6,20}$/) ]],
+    esiNumber : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*\d{6,20}$/) ]],
+    uanNumber : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*\d{6,20}$/) ]],
+    insuranceNumber: ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*\d{6,20}$/) ]],
+    pfNumber : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*\d{6,20}$/) ]],
     passportNumber : [''],
     passportExpiry: <any>[],
   });

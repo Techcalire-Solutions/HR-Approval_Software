@@ -1,3 +1,5 @@
+@import '../../../../theme/styles/colors';
+
 body {
     font-family: Arial, sans-serif;
     display: flex;
@@ -26,14 +28,14 @@ body {
   button {
     width: 100%;
     padding: 10px;
-    background-color: #083680;
+    background-color: $secondary-color;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
   }
   button:hover {
-    background-color: #04132d;
+    background-color: $primary-color;
   }
   .error {
     color: red;

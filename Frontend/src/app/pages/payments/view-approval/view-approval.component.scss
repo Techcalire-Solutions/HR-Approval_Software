@@ -1,3 +1,4 @@
+@import '../../../theme/styles/colors';
 .table-header {
   // background-color: #327ebd;
   // color: white;
@@ -47,7 +48,7 @@ table td {
   font-family:Roboto,"Helvetica Neue",sans-serif;
 }
 table th {
-  background:#cfcfcf;
+  background: $secondary-color;
   font-size: .85em;
   letter-spacing: .1em;
   text-transform: uppercase;
