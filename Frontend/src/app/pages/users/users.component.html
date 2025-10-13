@@ -30,7 +30,7 @@
         @for (user of users; track user.id) {
             <div fxFlex="100" fxFlex.gt-md="33.3" fxFlex.md="50" class="p-2">
                 <mat-card class="p-0">
-                    <div [ngClass]="{'bg-primary': !user.separated, 'bg-danger': user.separated}" fxLayout="row" fxLayoutAlign="space-between center">
+                    <div class="user-head" fxLayout="row" fxLayoutAlign="space-between center">
                         <h3 class="user-name" [class.confirmed]="user.isTemporary === false">
                             @if (!user.status && !user.separated) {
                                 User blocked

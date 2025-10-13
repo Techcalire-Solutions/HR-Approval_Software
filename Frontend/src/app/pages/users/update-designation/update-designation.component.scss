@@ -1,3 +1,4 @@
+@import '../../../theme/styles/colors';
 
 .reset-password-container {
   background-color: #fff;
@@ -49,13 +50,26 @@ button:hover {
   font-size: 18px;
 }
 
-.small-btn:hover {
-  background-color: #0056b3;
+
+.header {
+  color: $secondary-color;
 }
 
-button:disabled {
-  background-color: #cccccc; /* Light grey when disabled */
-  color: #666666; /* Dark grey text when disabled */
-  cursor: not-allowed; /* Show not-allowed cursor */
+mat-icon {
+  color: $primary-color;
 }
 
+.button {
+  background-color: $secondary-color;
+  color: #fff;
+  &:disabled {
+    background-color: #fff;
+    color: #000; // usually better contrast for disabled state
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.button:hover {
+  background-color: $primary-color;
+}

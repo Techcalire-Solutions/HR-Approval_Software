@@ -1,3 +1,5 @@
+@import '../../../theme/styles/colors';
+
 .horizontal-tabs {
   width: 100%;
 }
@@ -25,11 +27,15 @@
 }
 
 .horizontal-tabs .mat-tab-label-active .mat-icon {
-  color: var(--mat-primary); /* Change color for the active icon */
+  color: $primary-color; /* Change color for the active icon */
 }
 
 .horizontal-tabs .mat-ink-bar {
-  background-color: var(--mat-primary); /* Customize the underline color */
+  background-color: $secondary-color; /* Customize the underline color */
+}
+
+.user-head { 
+  background-color: $secondary-color;
 }
 
 @media (max-width: 768px) {
@@ -81,7 +87,7 @@ span:hover{
   display: flex;
   align-items: center;
   gap: 4px;
-  color: blue
+  color: $primary-color;
 }
 
 .user-spinner {
@@ -95,6 +101,7 @@ span:hover{
   align-items: center; /* Vertically center */
   background-color: rgba(0, 0, 0, 0.1); /* Optional: Add a semi-transparent background */
   z-index: 1000; /* Ensures it appears above other content */
+  color:  $primary-color;
 }
 
 .warning-hint {
@@ -110,4 +117,15 @@ span:hover{
 mat-error {
   color: #f44336; /* Material red color */
   font-size: 12px;
+}
+
+.button {
+  background-color: $primary-color;
+  color: #fff;
+  &:disabled {
+    background-color: #fff;
+    color: #000; // usually better contrast for disabled state
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 }

@@ -89,9 +89,26 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   userStat: StatutoryInfo;
   getStatutoryData(id: number){
     this.suSub = this.userService.getUserStatutoryuDetailsByUser(id).subscribe(x => {
+      console.log(x);
+      
       this.userStat = x;
     })
   }
+
+  getFieldName(value: string): string {
+    if (!value) return '';
+    const index = value.indexOf('-');
+    if (index === -1) return value.trim(); // no dash, return whole string
+    return value.substring(0, index).trim(); // everything before first dash
+  }
+
+  getFieldValue(value: string): string {
+    if (!value) return '';
+    const index = value.indexOf('-');
+    if (index === -1) return ''; // no dash, no value
+    return value.substring(index + 1).trim(); // everything after first dash
+  }
+
 
   auSub!: Subscription;
   accounts: UserAccount
@@ -141,6 +158,8 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   getAssets(id: number){
     this.assetSub = this.assetService.getUserAssetsByUser(id).subscribe(x => {
       this.assets = x;
+      console.log(this.assets);
+      
     })
   }
 

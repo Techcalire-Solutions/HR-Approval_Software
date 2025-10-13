@@ -90,7 +90,7 @@ export class AddPayrollComponent implements OnInit, OnDestroy {
       this.userName = res.name;
       this.empNo = res.empNo;
       this.payrollForm.get('userName')?.setValue(this.user.name);
-      this.payrollForm.get('userRole')?.setValue(this.user.userPosition.designation.designationName);
+      this.payrollForm.get('userRole')?.setValue(this.user.userPosition?.designation?.designationName);
     });
   }
 

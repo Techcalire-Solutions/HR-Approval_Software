@@ -1,3 +1,4 @@
+@import '../styles/colors';
 .messages {
     .mat-mdc-tab.mdc-tab {
         height: 40px;
@@ -81,4 +82,8 @@
   color: white; /* White icon */
   cursor: pointer; /* Pointer cursor for interactivity */
   font-size: 18px;
+}
+
+.primary { 
+    background-color: $primary-color;
 }

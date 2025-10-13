@@ -1,6 +1,6 @@
 <form [formGroup]="form">
   <div fxLayout="column" class="form-field-outer" style="margin-top: 20px;">
-    <mat-card style="margin-left: 15px;">
+    <mat-card>
       <mat-card-header><mat-card-title>Personal Details</mat-card-title></mat-card-header>
       <div class="row box" style="margin-top: 20px;">
         <div class="col">
@@ -214,14 +214,14 @@
               <!-- <span>Prev</span> -->
             </div>
           </button>
-          <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="form.pristine || form.invalid" style="margin-left: 10px;">
+          <button mat-raised-button class="button" (click)="onSubmit()" [disabled]="form.pristine || form.invalid" style="margin-left: 10px;">
             @if (editStatus) {
                 Update
             } @else {
                 Save
             }
           </button>
-          <button mat-raised-button color="primary" onclick="history.back()" [disabled]="!form.pristine && !form.invalid && !isNext" style="margin-left: 10px;">
+          <button mat-raised-button class="button" onclick="history.back()" [disabled]="!form.pristine && !form.invalid && !isNext" style="margin-left: 10px;">
             Exit
           </button>
           <button mat-raised-button (click)="triggerNextTab()" style="margin-left: 10px;" [disabled]="!form.pristine && !form.invalid && !isNext">

@@ -1,3 +1,5 @@
+@import '../../styles/colors';
+
 
 
 .chat{
@@ -138,10 +140,12 @@
     color: #34B7F1; /* Blue color for 'read' status */
   }
 
-
+  .primary {
+    background-color: $primary-color;
+  }
 
   .message-count {
-    background-color: blue; /* Change background color for unread messages */
+    background-color: $secondary-color; /* Change background color for unread messages */
     color: white; /* Ensure text is visible on red background */
     font-weight: bold; /* Make unread count more prominent */
     padding: 2px 5px; /* Add some padding for better readability */

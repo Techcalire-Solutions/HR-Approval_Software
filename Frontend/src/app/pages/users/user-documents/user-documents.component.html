@@ -45,11 +45,11 @@
             <!-- <span>Previous</span> -->
           </div>
         </button>
-        <button mat-raised-button color="primary" (click)="addDoc()"  style="margin-left: 10px;"
+        <button mat-raised-button class="button" (click)="addDoc()"  style="margin-left: 10px;"
         [disabled]="!isAllFormsValidAndSaved()">New Line</button>
-        <button mat-raised-button color="warn" (click)="completeForm()"
+        <button mat-raised-button class="button" (click)="completeForm()"
         [disabled]="!isAllFormsValidAndSaved()">Complete</button>
-        <button mat-raised-button color="primary" onclick="history.back()" style="margin-left: 10px;"
+        <button mat-raised-button class="button" onclick="history.back()" style="margin-left: 10px;"
           [disabled]="isAnyFormClicked()">
           Exit
         </button>

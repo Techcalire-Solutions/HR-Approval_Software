@@ -6,7 +6,7 @@
 </button>
 
 <mat-menu #messagesMenu="matMenu" [overlapTrigger]="false" class="toolbar-dropdown-menu messages">
-      <mat-tab-group backgroundColor="primary" (click)="stopClickPropagate($event)" [selectedIndex]="selectedTab">
+      <mat-tab-group class="primary" (click)="stopClickPropagate($event)" [selectedIndex]="selectedTab">
           <mat-tab>
               <ng-template mat-tab-label>
                   <mat-icon>message</mat-icon>&nbsp;&nbsp;Messages

@@ -3,7 +3,7 @@
         <mat-card class="p-0 chat">
             <mat-sidenav-container>
               <mat-sidenav #sidenav [opened]="sidenavOpen" [mode]="sidenavOpen ? 'side' : 'over'" class="chat-sidenav mat-elevation-z1">
-                  <mat-toolbar color="primary" class="p-0" fxLayout="row" fxLayoutAlign="space-between center">
+                  <mat-toolbar class="p-0 primary" fxLayout="row" fxLayoutAlign="space-between center">
                       <mat-list class="p-0">
                           <mat-list-item>
                               <img matListItemAvatar [src]="userImage">
@@ -55,7 +55,7 @@
               </mat-sidenav>
             
               <div>
-                  <mat-toolbar color="primary" fxLayout="row" fxLayoutAlign="space-between center">
+                  <mat-toolbar class="primary" fxLayout="row" fxLayoutAlign="space-between center">
                       <div fxLayout="row" fxLayoutAlign="start center">
                           <button mat-icon-button (click)="sidenav.toggle()">
                               <mat-icon>list</mat-icon>

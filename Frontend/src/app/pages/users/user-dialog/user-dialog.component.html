@@ -24,7 +24,7 @@
     </div>
   <!-- <h1>{{ invNo }}</h1>  -->
 }@if( userName ){ <h1>/{{ userName }}</h1> }</div>
-<mat-tab-group class="horizontal-tabs" [backgroundColor]="'primary'" [selectedIndex]="selectedTabIndex">
+<mat-tab-group class="horizontal-tabs" class="user-head" [selectedIndex]="selectedTabIndex">
   <mat-tab [disabled]="!formSubmitted">
     <mat-card style="margin-top: 20px;">
       <ng-template mat-tab-label>
@@ -138,12 +138,12 @@
               }
 
               <div fxLayout="row" fxLayoutGap="16px">
-                <button mat-raised-button color="primary" [disabled]="!form.valid" (click)="onSubmit()">
+                <button mat-raised-button class="button" [disabled]="!form.valid" (click)="onSubmit()">
                   {{ editStatus ? 'Update' : 'Save' }}
                 </button>
 
                 @if(!editStatus){
-                  <button mat-raised-button color="primary"  onClick="history.back()">
+                  <button mat-raised-button class="button"  onClick="history.back()">
                     Close
                   </button>
                 }@else if(editStatus){
@@ -214,6 +214,6 @@
 
 @if(isLoading) {
   <div fxLayout="column" fxLayoutAlign="center center" class="user-spinner">
-      <mat-spinner color="primary"></mat-spinner>
+      <mat-spinner class="user-spinner"></mat-spinner>
   </div>
 }

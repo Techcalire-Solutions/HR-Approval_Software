@@ -1,3 +1,7 @@
+@import '../../../theme/styles/colors';
+
+
+
 .announcement-container {
     display: flex;
     align-items: center;
@@ -35,4 +39,8 @@
     align-items: center; /* Vertically center */
     background-color: rgba(0, 0, 0, 0.1); /* Optional: Add a semi-transparent background */
     z-index: 1000; /* Ensures it appears above other content */
+}
+
+.primary {
+  background-color: $primary-color;
 }

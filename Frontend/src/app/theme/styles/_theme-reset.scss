@@ -1,6 +1,7 @@
 @use 'sass:map';
 @use '@angular/material' as mat;  
 @import "variables";
+@import "colors";
 
 @mixin theme-reset($theme) {  
     $color-config:  mat.m2-get-color-config($theme);
@@ -46,7 +47,7 @@
         height: $toolbar-height;
     }
     .mat-mdc-raised-button.small-logo{
-        color: mat.m2-get-color-from-palette($primary);
+        color: $secondary-color;
     }
     .mat-mdc-icon-button {
         color: mat.m2-get-color-from-palette($foreground, base);
@@ -61,7 +62,7 @@
     }
     .breadcrumb{
         a{
-            color: mat.m2-get-color-from-palette($primary);
+            color: $secondary-color
         }
         .breadcrumb-item+.breadcrumb-item:before{
             color: mat.m2-get-color-from-palette($foreground, text);
@@ -72,7 +73,7 @@
     }
     .active-link{
         border-radius: 0;
-        background-color: mat.m2-get-color-from-palette($primary); 
+        background-color: $primary-color; 
         color: #fff;
     }
     .warn-color{
