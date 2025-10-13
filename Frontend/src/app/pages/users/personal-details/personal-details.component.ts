@@ -95,7 +95,7 @@ export class PersonalDetailsComponent implements OnDestroy {
           permanentAddress: data.permanentAddress,
           qualification: data.qualification, 
           experience: data.experience,
-          reportingMangerName: data.manager.name
+          reportingMangerName: data.manager?.name
         })
       }
     })
@@ -113,7 +113,7 @@ export class PersonalDetailsComponent implements OnDestroy {
     spouseName: [''],
     referredBy: [''],
     reportingMangerId: <any>[],
-    emergencyContactNo: ['', Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)])],
+    emergencyContactNo: ['', Validators.compose([Validators.pattern(/^\+?[1-9]\d{1,14}$/)])],
     emergencyContactName: [''],
     emergencyContactRelation: [''],
     bloodGroup: [''],

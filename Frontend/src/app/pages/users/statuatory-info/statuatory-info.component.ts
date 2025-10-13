@@ -53,12 +53,12 @@ export class StatuatoryInfoComponent implements OnDestroy {
 
   form = this.fb.group({
     userId : <any>[],
-    adharNo : ['', [ Validators.pattern(/^([A-Za-z\s]+)\s*-\s*\d{6,20}$/) ]],
-    panNumber : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*\d{6,20}$/) ]],
-    esiNumber : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*\d{6,20}$/) ]],
-    uanNumber : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*\d{6,20}$/) ]],
-    insuranceNumber: ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*\d{6,20}$/) ]],
-    pfNumber : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*\d{6,20}$/) ]],
+    adharNo : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*(.+)$/)]],
+    panNumber : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*(.+)$/)]],
+    esiNumber : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*(.+)$/)]],
+    uanNumber : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*(.+)$/)]],
+    insuranceNumber: ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*(.+)$/)]],
+    pfNumber : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*(.+)$/)]],
     passportNumber : [''],
     passportExpiry: <any>[],
   });

@@ -72,7 +72,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     url: [''],
     name: [ '',  Validators.compose([Validators.required, Validators.minLength(3)]) ],
     email: [ '', Validators.compose([Validators.required, Validators.email]) ],
-    phoneNumber: [ '',  Validators.compose([Validators.required, Validators.pattern(/^\d{10}$/)]) ],
+    phoneNumber: [ '',  Validators.compose([Validators.required, Validators.pattern(/^\+?[1-9]\d{1,14}$/)]) ],
     password: [ '', Validators.compose([Validators.required, Validators.minLength(4)]) ],
     roleName: [],
     teamId: <any>[  ],

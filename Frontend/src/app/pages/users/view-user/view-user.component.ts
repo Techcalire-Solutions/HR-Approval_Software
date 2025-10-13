@@ -97,12 +97,16 @@ export class ViewUserComponent implements OnInit, OnDestroy{
 
   getFieldName(value: string): string {
     if (!value) return '';
-    return value.split('-')[0].trim();
+    const index = value.indexOf('-');
+    if (index === -1) return value.trim(); // no dash, return whole string
+    return value.substring(0, index).trim(); // everything before first dash
   }
 
   getFieldValue(value: string): string {
     if (!value) return '';
-    return value.split('-')[1]?.trim() || '';
+    const index = value.indexOf('-');
+    if (index === -1) return ''; // no dash, no value
+    return value.substring(index + 1).trim(); // everything after first dash
   }
 
 
@@ -154,6 +158,8 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   getAssets(id: number){
     this.assetSub = this.assetService.getUserAssetsByUser(id).subscribe(x => {
       this.assets = x;
+      console.log(this.assets);
+      
     })
   }
 
