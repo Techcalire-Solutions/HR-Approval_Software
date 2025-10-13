@@ -1,20 +1,18 @@
 /* eslint-disable no-undef */
 module.exports = {
-  email: {
+ email: {
     service: 'Gmail',
-    payrollUser: 'aerohr@onboardaero.com',
-    payrollPass: 'ujrk jziu amti dvdg', 
-    userAddUser: 'aerohr@onboardaero.com',
-    userAddPass: 'ujrk jziu amti dvdg',
-    announcemntUser: 'aerohr@onboardaero.com',
-    announcementPass: 'ujrk jziu amti dvdg',
-    leaveUser: 'aerohr@onboardaero.com',
-    leavePass: 'ujrk jziu amti dvdg',
-    leaveCommonUser: 'aerohr@onboardaero.com',
-    leaveCommonPass: 'ujrk jziu amti dvdg',   
-    payUser: 'aerohr@onboardaero.com',
-    payPass: 'ujrk jziu amti dvdg',
-    birthdaySendEmail:'aerohr@onboardaero.com',
-    birthdaySendEmailPass:'ujrk jziu amti dvdg'
+    payrollUser: 'admin@leedsaerospace.com',
+    payrollPass: 'rxij cvnk qqqe tpee',
+    userAddUser: 'admin@leedsaerospace.com',
+    userAddPass: 'rxij cvnk qqqe tpee',
+    announcemntUser: 'admin@leedsaerospace.com',
+    announcementPass: 'rxij cvnk qqqe tpee',
+    leaveUser: 'admin@leedsaerospace.com',
+    leavePass: 'rxij cvnk qqqe tpee',
+    leaveCommonUser: 'admin@leedsaerospace.com',
+    leaveCommonPass: 'rxij cvnk qqqe tpee',
+    payUser: 'admin@leedsaerospace.com',
+    payPass: 'rxij cvnk qqqe tpee'
   },
 };
