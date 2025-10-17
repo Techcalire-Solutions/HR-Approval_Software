@@ -404,8 +404,8 @@ async function sendPayrollEmail(to, pdfBuffer, subject, payedFor, name, req, dow
   `;
 
   const emailSubject = subject;
-  const fromEmail = config.email.payrollUser;
-  const emailPassword = config.email.payrollPass;
+  const fromEmail = process.env.EMAIL_USER;
+  const emailPassword = process.env.EMAIL_PASS;
   
   const attachments = [];
   
@@ -485,8 +485,8 @@ router.post('/send-email', upload.single('file'), authenticateToken, async (req,
         <br/>
     `
     const emailSubject = `Payroll Data for ${month}`
-    const fromEmail = config.email.payrollUser;
-    const emailPassword = config.email.payrollPass;
+    const fromEmail = process.env.EMAIL_USER;
+    const emailPassword = process.env.EMAIL_PASS;
     const attachments = 
       {
         filename: file.originalname,

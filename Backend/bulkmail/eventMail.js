@@ -21,8 +21,8 @@ const upload = multer({
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-          user: config.email.payUser,
-          pass: config.email.payPass,
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
     }
 });
 
@@ -80,9 +80,8 @@ router.post('/send-event-mail', upload.any(), async (req, res) => {
           attachments: attachments.map(a => a.filename),
       });
 
-
       const mailOptions = {
-          from: `HR & Administration | Onboard Aero Consultant" ${config.email.leaveCommonUser}`,
+          from: `HR & Administration | Onboard Aero Consultant" ${process.env.EMAIL_USER}`,
           to: officialEmails.join(', '),
           subject: emailSubject,
           html: `

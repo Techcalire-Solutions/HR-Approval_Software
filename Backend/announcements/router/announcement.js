@@ -59,8 +59,8 @@ router.post('/add', authenticateToken, async (req, res) => {
             <br>
       `
       const emailSubject = `Important Announcement`
-      const fromEmail = config.email.announcemntUser;
-      const emailPassword = config.email.announcementPass;
+      const fromEmail = process.env.EMAIL_USER;
+      const emailPassword = process.env.EMAIL_PASS;
       const attachments = fileBuffer ? [
         {
           filename: fileUrl.split('/').pop(),

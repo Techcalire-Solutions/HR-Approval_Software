@@ -1210,8 +1210,8 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
       
       await sendEmail(
         req.headers.authorization?.split(' ')[1],
-        config.email.userAddUser,
-        config.email.userAddPass,
+        process.env.EMAIL_USER,
+        process.env.EMAIL_PASS,
         reportingManagerEmail,
         `Leave Application ${mes}d - ${lt.leaveTypeName}`,
         emailHtml, // Make sure emailHtml is defined
@@ -1673,8 +1673,8 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     
       // Send email
       const emailSubject = `Leave Request is Approved`;
-      const fromEmail = config.email.userAddUser;
-      const emailPassword = config.email.userAddPass;
+      const fromEmail = process.env.EMAIL_USER;
+      const emailPassword = process.env.EMAIL_PASS;
       const html = `
         <p>Dear ${leave.user.name},</p>
         <p>This is to inform you that ${req.user.name} has approved your ${leaveType.leaveTypeName},</p>
@@ -1778,8 +1778,8 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     createNotification({ id, me, route });
 
     const emailSubject = `Leave Request is Approved`;
-    const fromEmail = config.email.userAddUser;
-    const emailPassword = config.email.userAddPass;
+    const fromEmail = process.env.EMAIL_USER;
+    const emailPassword = process.env.EMAIL_PASS;
     const html = `
       <p>Dear ${leave.user.name},</p>
       <p>This is to inform you that ${req.user.name} has approved your ${leaveType.leaveTypeName},</p>
@@ -1856,8 +1856,8 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
     const omMail = await getOMEmail();
     const ccRecipients = [ hrEmail, rmEmail, teamLeads, omMail ].filter(email => email); 
     const emailSubject = `Leave Request is Rejected`;
-    const fromEmail = config.email.userAddUser;
-    const emailPassword = config.email.userAddPass;
+    const fromEmail = process.env.EMAIL_USER;
+    const emailPassword = process.env.EMAIL_PASS;
     const html = `
       <p>Dear ${leave.user.name},</p>
       <p>This is to inform you that ${req.user.name} has rejected your ${leave.leaveType.leaveTypeName},</p>
