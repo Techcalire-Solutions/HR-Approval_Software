@@ -55,14 +55,16 @@ router.post('/add', authenticateToken, async (req, res) => {
 
     if(officialMailId){
       const emailSubject = `Welcome to the Company!`;
-      const fromEmail = config.email.userAddUser;
-      const emailPassword = config.email.userAddPass;
+      const fromEmail = process.env.EMAIL_USER;
+      const emailPassword = process.env.EMAIL_PASS;
+      const url = process.env.FRONT_END;
       const html = `
         <p>Dear ${name},</p>
         <p>Congratulations on joining our company!.</p>
         <p>Here are your login credentials:</p>
         <p>Username: ${empNo}\nPassword: ${password}</p>
         <p>Please keep this information secure.</p>
+        <p>You can log in here: <a href="${url}" target="_blank">${url}</a></p>
         <p>We are excited to have you onboard and look forward to working together.</p>
       `;
       const attachments = []
@@ -518,8 +520,8 @@ router.patch('/resetpassword/:id', authenticateToken, async (req, res) => {
       const email = userPos.officialMailId;
       // const emailText = `Hello ${user.name},\n\nYour password has been successfully reset.\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information safe.\n\nThank you!`;
       const emailSubject = `Password Reset Successful`;
-      const fromEmail = config.email.userAddUser;
-      const emailPassword = config.email.userAddPass;    
+      const fromEmail = process.env.EMAIL_USER;
+      const emailPassword = process.env.EMAIL_PASS;    
       const html = `
         <p>Dear ${user.name},</p>
         <p>Your password has been successfully reset!.</p>

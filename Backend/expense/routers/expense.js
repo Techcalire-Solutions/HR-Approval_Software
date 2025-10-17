@@ -21,8 +21,8 @@ const config = require('../../utils/config');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: config.email.payUser,
-    pass: config.email.payPass,
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   }
 });
 
@@ -156,7 +156,7 @@ router.post('/save', authenticateToken, async (req, res) => {
     }
 
     const mailOptions = {
-      from: `Expense Management System <${config.email.payUser}>`,
+      from: `Expense Management System <${process.env.EMAIL_USER}>`,
       to: recipientEmail,
       subject: `Expense Claim Request Submitted - Reference No: ${exNo} / ${req.user.name}`,
       html: emailHtml,
@@ -534,7 +534,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
       `;
 
       const mailOptions = {
-          from: `Expense Management<${config.email.payUser}>`,
+          from: `Expense Management<${process.env.EMAIL_USER}>`,
           to: recipientEmail,
           subject: emailSubject,
           html: emailBody,
@@ -777,7 +777,7 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
       }
 
       const mailOptions = {
-          from: `Expense <${config.email.payUser}>`,
+          from: `Expense <${process.env.EMAIL_USER}>`,
           to: recipientEmail, 
           subject: `Expense claim request Updated - ${pi.exNo} /${req.user.name} `,
           html: `

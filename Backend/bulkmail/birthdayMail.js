@@ -13,12 +13,13 @@ const EventLog = require('./models/eventLogs');
 const { Op, Sequelize } = require("sequelize"); 
 const moment = require("moment"); 
 const Designation = require('../users/models/designation');
+require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-          user: config.email.birthdaySendEmail,
-          pass: config.email.birthdaySendEmailPass,
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
   }
 });
 
