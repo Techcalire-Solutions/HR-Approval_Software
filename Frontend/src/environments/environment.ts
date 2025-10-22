@@ -5,19 +5,12 @@
 export const environment = {
   production: false,
   apiUrl: 'https://leeds-api.aerohr.in',
+  faviconPath: 'leeds.png',
+  // theme: 'leeds_color'
+
+  // apiUrl: 'https://oac-api.aerohr.in',
+  // faviconPath: 'oac.png'
+  theme: 'oac'
+
   // apiUrl:'http://localhost:8000',
-
-  zLevel1: 100,
-  zLevel2: 90,
-  zLevel3: 80
 };
-
-// apiUrl:'http://3.111.134.199:8000',
-/*
- * For easier debugging in development mode, you can import the following file
- * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
- *
- * This import should be commented out in production mode because it will have a negative impact
- * on performance if an error is thrown.
- */
-// import 'zone.js/plugins/zone-error';  // Included with Angular CLI.
