@@ -96,7 +96,7 @@ export class ViewInvoicesComponent {
       if(this.roleName === 'Manager') this.am = true;
       if(this.roleName === 'Accountant') this.ma = true;
       if(this.roleName === 'Administrator') { this.admin = true }
-     if(this.roleName === 'Team Lead') { this.teamLead = true }
+      if(this.roleName === 'Team Lead') { this.teamLead = true }
     })
   }
 
@@ -112,6 +112,8 @@ export class ViewInvoicesComponent {
   signedUrl: any[];
   getPiById(id: number){
     this.piSub = this.invoiceService.getPIById(id).subscribe(pi => {
+      console.log(pi);
+      
       this.pi = pi.pi;
       this.piNo = pi.pi.piNo;
 

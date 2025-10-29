@@ -4,13 +4,11 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'https://leeds-api.aerohr.in',
-  faviconPath: 'leeds.png',
-  // theme: 'leeds_color'
+  // apiUrl: 'https://leeds-api.aerohr.in',
+  // faviconPath: 'leeds.png',
 
   // apiUrl: 'https://oac-api.aerohr.in',
-  // faviconPath: 'oac.png'
-  theme: 'oac'
+  faviconPath: 'oac.png',
 
-  // apiUrl:'http://localhost:8000',
+  apiUrl:'http://localhost:8000',
 };

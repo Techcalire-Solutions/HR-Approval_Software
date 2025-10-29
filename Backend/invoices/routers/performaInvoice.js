@@ -20,15 +20,13 @@ const Designation = require('../../users/models/designation');
 const sendEmailNotification = require('../../app/invoiceEmailService')
 const TeamLeader = require('../../users/models/teamLeader')
 
-
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     }
-  });
-
+});
 
 const getEmailSignature = async (userId, userName) => {
     const roleId = await UserPosition.findOne({ where: { userId } });
@@ -104,10 +102,6 @@ const getEmailSignature = async (userId, userName) => {
       </tr>
     </table>`;
 };
-
-
-
-
 
 async function findFinanceMail() {
     try {
@@ -1094,7 +1088,6 @@ router.get('/findbyadmin', authenticateToken, async (req, res) => {
         res.send(error.message);
     }
 });
-
 
 router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
     const emailSignature = await getEmailSignature(req.user.id, req.user.name);
@@ -2097,8 +2090,6 @@ router.patch('/getforadminreport', authenticateToken, async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
-
 
 router.get('/findcount', authenticateToken, async (req, res) => {
     const userId = req.user.id;
