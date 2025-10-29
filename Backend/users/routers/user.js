@@ -57,14 +57,14 @@ router.post('/add', authenticateToken, async (req, res) => {
       const emailSubject = `Welcome to the Company!`;
       const fromEmail = process.env.EMAIL_USER;
       const emailPassword = process.env.EMAIL_PASS;
-      const url = process.env.FRONT_END;
+      const frontEndUrl = process.env.FRONT_END;
       const html = `
         <p>Dear ${name},</p>
         <p>Congratulations on joining our company!.</p>
         <p>Here are your login credentials:</p>
         <p>Username: ${empNo}\nPassword: ${password}</p>
         <p>Please keep this information secure.</p>
-        <p>You can log in here: <a href="${url}" target="_blank">${url}</a></p>
+        <p>You can log in here: <a href="${frontEndUrl}" target="_blank">${frontEndUrl}</a></p>
         <p>We are excited to have you onboard and look forward to working together.</p>
       `;
       const attachments = []
