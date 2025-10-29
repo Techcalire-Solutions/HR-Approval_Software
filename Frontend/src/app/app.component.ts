@@ -31,7 +31,7 @@ export class AppComponent {
 
   ngOnInit() {
     this.setFavicon();
-    document.body.classList.add(`${environment.theme}-theme`);
+    // document.body.classList.add(`${environment.theme}-theme`);
   }
 
   setFavicon() {
