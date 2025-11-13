@@ -63,12 +63,12 @@ export class ViewUserComponent implements OnInit, OnDestroy{
     insuranceNumber: { label: 'Insurance Number', placeholder: 'Insurance - INS12345' },
   },
   leeds: {
-    adharNo: { label: 'SSN', placeholder: 'SSN - 123-45-6789' },
-    panNumber: { label: 'Tax ID', placeholder: 'Tax ID - 123456789' },
-    pfNumber: { label: 'Retirement ID', placeholder: 'Retirement ID - 789456' },
-    esiNumber: { label: 'Medical ID', placeholder: 'Medical ID - 456789' },
-    uanNumber: { label: 'Employee Code', placeholder: 'Employee Code - EMP123' },
-    insuranceNumber: { label: 'Health Insurance', placeholder: 'Insurance - HINS456' },
+    adharNo: { label: 'Aadhar ID', placeholder: 'SSN - 123-45-6789' },
+    panNumber: { label: 'Emirates ID', placeholder: 'Tax ID - 123456789' },
+    pfNumber: { label: 'Visa Number', placeholder: 'Retirement ID - 789456' },
+    // esiNumber: { label: 'Medical ID', placeholder: 'Medical ID - 456789' },
+    // uanNumber: { label: 'Employee Code', placeholder: 'Employee Code - EMP123' },
+    // insuranceNumber: { label: 'Health Insurance', placeholder: 'Insurance - HINS456' },
   },
 };
 

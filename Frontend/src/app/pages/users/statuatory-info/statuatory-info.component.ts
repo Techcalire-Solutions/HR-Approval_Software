@@ -86,15 +86,14 @@ placeholders: any = {};
       insuranceNumber: { label: 'Insurance Number', placeholder: 'Insurance - INS12345' },
     },
     leeds: {
-      adharNo: { label: 'SSN', placeholder: '123-45-6789' },
-      panNumber: { label: 'Tax ID', placeholder: '123456789' },
-      pfNumber: { label: 'Retirement ID', placeholder: '789456' },
+      adharNo: { label: 'Aadhar ID', placeholder: '1234 5678 9012' },
+      panNumber: { label: 'Emirates ID', placeholder: '1234 5678 9012' },
+      pfNumber: { label: 'Visa Number', placeholder: '1234 5678 9012' },
       esiNumber: { label: 'Medical ID', placeholder: '456789' },
       uanNumber: { label: 'Employee Code', placeholder: 'EMP123' },
       insuranceNumber: { label: 'Health Insurance', placeholder: 'HINS456' },
     },
   };
-
   loadCompanyPlaceholders() {
     this.placeholders = this.companyPlaceholders[this.currentCompany];
   }
