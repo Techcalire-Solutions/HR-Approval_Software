@@ -48,12 +48,10 @@ export class LoginService {
 
   getJWTToken() {
     return localStorage.getItem(this.JWT_TOKEN);
-
   }
 
   isLoggedIn(): boolean {
     return !!this.getJWTToken();
-
   }
 
 

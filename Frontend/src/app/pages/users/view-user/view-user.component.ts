@@ -35,6 +35,7 @@ import { AddPayrollComponent } from '../../payroll/add-payroll/add-payroll.compo
 import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 import { AssetsService } from '@services/assets.service';
 import { UserAssetDetail } from '../../../common/interfaces/users/user-asset-details';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-view-user',
@@ -51,10 +52,31 @@ import { UserAssetDetail } from '../../../common/interfaces/users/user-asset-det
 export class ViewUserComponent implements OnInit, OnDestroy{
   apiUrl ='https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/';
   public userImage = 'img/users/default-user.jpg';
+  currentCompany = environment.company
+  companyPlaceholders: any = {
+  oac: {
+    adharNo: { label: 'Aadhar ID', placeholder: 'Aadhar - 1234 5678 9012' },
+    panNumber: { label: 'PAN', placeholder: 'PAN - ABCDE1234F' },
+    pfNumber: { label: 'PF Number', placeholder: 'PF - PF12345' },
+    esiNumber: { label: 'ESI Number', placeholder: 'ESI - ESI12345' },
+    uanNumber: { label: 'UAN Number', placeholder: 'UAN - UAN12345' },
+    insuranceNumber: { label: 'Insurance Number', placeholder: 'Insurance - INS12345' },
+  },
+  leeds: {
+    adharNo: { label: 'SSN', placeholder: 'SSN - 123-45-6789' },
+    panNumber: { label: 'Tax ID', placeholder: 'Tax ID - 123456789' },
+    pfNumber: { label: 'Retirement ID', placeholder: 'Retirement ID - 789456' },
+    esiNumber: { label: 'Medical ID', placeholder: 'Medical ID - 456789' },
+    uanNumber: { label: 'Employee Code', placeholder: 'Employee Code - EMP123' },
+    insuranceNumber: { label: 'Health Insurance', placeholder: 'Insurance - HINS456' },
+  },
+};
 
+  labels: any = {};
   accordion = viewChild.required(MatAccordion);
   ngOnInit(): void {
     this.getUser();
+    this.labels = this.companyPlaceholders[this.currentCompany];
   }
 
   userSub!: Subscription;
@@ -89,8 +111,6 @@ export class ViewUserComponent implements OnInit, OnDestroy{
   userStat: StatutoryInfo;
   getStatutoryData(id: number){
     this.suSub = this.userService.getUserStatutoryuDetailsByUser(id).subscribe(x => {
-      console.log(x);
-      
       this.userStat = x;
     })
   }
@@ -99,6 +119,8 @@ export class ViewUserComponent implements OnInit, OnDestroy{
     if (!value) return '';
     const index = value.indexOf('-');
     if (index === -1) return value.trim(); // no dash, return whole string
+    // console.log(value);
+    
     return value.substring(0, index).trim(); // everything before first dash
   }
 

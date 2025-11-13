@@ -6,9 +6,9 @@ export const environment = {
   production: false,
   // apiUrl: 'https://leeds-api.aerohr.in',
   // faviconPath: 'leeds.png',
-
+  // company: 'leeds',
   // apiUrl: 'https://oac-api.aerohr.in',
   faviconPath: 'oac.png',
-
+  company: 'oac',
   apiUrl:'http://localhost:8000',
 };

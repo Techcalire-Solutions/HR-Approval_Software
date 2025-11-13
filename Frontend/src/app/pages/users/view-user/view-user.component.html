@@ -149,26 +149,39 @@
               <mat-icon style="margin-right: 10px;">contacts</mat-icon>
             </mat-expansion-panel-header>
             @if(userStat){
-              <div class="p-3">
-
-                <div class="flex-container">
-                  <div *ngIf="userStat.adharNo">{{ getFieldName(userStat.adharNo) }} : <strong>{{ getFieldValue(userStat.adharNo) }}</strong></div>
-                  <div *ngIf="userStat.panNumber">{{ getFieldName(userStat.panNumber) }} : <strong>{{ getFieldValue(userStat.panNumber) }}</strong></div>
-                  <div *ngIf="userStat.pfNumber">{{ getFieldName(userStat.pfNumber) }} : <strong>{{ getFieldValue(userStat.pfNumber) }}</strong></div>
-                  <div *ngIf="userStat.insuranceNumber">{{ getFieldName(userStat.insuranceNumber) }} : <strong>{{ getFieldValue(userStat.insuranceNumber) }}</strong></div>
+            <div class="p-3">
+              <div class="flex-container">
+                <div *ngIf="userStat.adharNo">
+                  {{ labels.adharNo?.label }} : <strong>{{ userStat.adharNo }}</strong>
                 </div>
 
-
-                <div class="flex-container">
-                  <div *ngIf="userStat.esiNumber">{{ getFieldName(userStat.esiNumber) }}  :<strong>{{ getFieldValue(userStat.esiNumber) }}</strong></div>
-                  <div *ngIf="userStat.uanNumber">{{ getFieldName(userStat.uanNumber) }}  :<strong>{{ getFieldValue(userStat.uanNumber) }}</strong></div>
-                  <div>Passport No  :<strong>{{userStat.passportNumber}}</strong></div>
-                  <div>Passport Expiry  :<strong >{{userStat.passportExpiry | date: 'dd/MM/yyyy'}}</strong></div>
+                <div *ngIf="userStat.panNumber">
+                  {{ labels.panNumber?.label }} : <strong>{{ userStat.panNumber }}</strong>
                 </div>
 
-                <div class="flex-container">
+                <div *ngIf="userStat.pfNumber">
+                  {{ labels.pfNumber?.label }} : <strong>{{ userStat.pfNumber }}</strong>
+                </div>
+
+                <div *ngIf="userStat.insuranceNumber">
+                  {{ labels.insuranceNumber?.label }} : <strong>{{ userStat.insuranceNumber }}</strong>
                 </div>
               </div>
+
+              <div class="flex-container">
+                <div *ngIf="userStat.esiNumber">
+                  {{ labels.esiNumber?.label }} : <strong>{{ userStat.esiNumber }}</strong>
+                </div>
+
+                <div *ngIf="userStat.uanNumber">
+                  {{ labels.uanNumber?.label }} : <strong>{{ userStat.uanNumber }}</strong>
+                </div>
+
+                <div>Passport No : <strong>{{ userStat.passportNumber }}</strong></div>
+                <div>Passport Expiry : <strong>{{ userStat.passportExpiry | date: 'dd/MM/yyyy' }}</strong></div>
+              </div>
+            </div>
+
             }@else {
               <p>No Data is added</p>
             }
