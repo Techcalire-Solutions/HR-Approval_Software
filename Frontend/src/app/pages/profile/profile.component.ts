@@ -8,7 +8,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { LoginService } from '@services/login.service';
 import { Subscription } from 'rxjs';
-import { DatePipe, UpperCasePipe } from '@angular/common';
+import { DatePipe, NgIf, UpperCasePipe } from '@angular/common';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { StatutoryInfo } from '../../common/interfaces/users/statutory-info';
 import { UsersService } from '@services/users.service';
@@ -29,6 +29,7 @@ import { UserEmailComponent } from '../users/user-email/user-email.component';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AssetsService } from '@services/assets.service';
 import { UserAssetDetail } from '../../common/interfaces/users/user-asset-details';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-profile',
@@ -44,7 +45,8 @@ import { UserAssetDetail } from '../../common/interfaces/users/user-asset-detail
     MatExpansionModule,
     MatAccordion,
     UpperCasePipe,
-    SafePipe
+    SafePipe,
+    NgIf
 ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
@@ -54,13 +56,34 @@ export class ProfileComponent {
   apiUrl = 'https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/';
   private loginService = inject(LoginService)
   userService = inject(UsersService);
+  currentCompany = environment.company
+  companyPlaceholders: any = {
+    oac: {
+      adharNo: { label: 'Aadhar ID', placeholder: 'Aadhar - 1234 5678 9012' },
+      panNumber: { label: 'PAN', placeholder: 'PAN - ABCDE1234F' },
+      pfNumber: { label: 'PF Number', placeholder: 'PF - PF12345' },
+      esiNumber: { label: 'ESI Number', placeholder: 'ESI - ESI12345' },
+      uanNumber: { label: 'UAN Number', placeholder: 'UAN - UAN12345' },
+      insuranceNumber: { label: 'Insurance Number', placeholder: 'Insurance - INS12345' },
+    },
+    leeds: {
+      adharNo: { label: 'Aadhar ID', placeholder: 'SSN - 123-45-6789' },
+      panNumber: { label: 'Emirates ID', placeholder: 'Tax ID - 123456789' },
+      pfNumber: { label: 'Visa Number', placeholder: 'Retirement ID - 789456' },
+      // esiNumber: { label: 'Medical ID', placeholder: 'Medical ID - 456789' },
+      // uanNumber: { label: 'Employee Code', placeholder: 'Employee Code - EMP123' },
+      // insuranceNumber: { label: 'Health Insurance', placeholder: 'Insurance - HINS456' },
+    },
+  };
 
+  labels: any = {};
   ngOnInit(){
     if(localStorage.getItem('token')){
       const token: any = localStorage.getItem('token')
       const user = JSON.parse(token)
       this.getUser(user.id)
     }
+    this.labels = this.companyPlaceholders[this.currentCompany];
   }
 
   userSub!: Subscription;

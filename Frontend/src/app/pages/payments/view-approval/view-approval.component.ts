@@ -5,7 +5,7 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoginService } from '@services/login.service';
-import { Subscription } from 'rxjs';
+import { interval, Subscription } from 'rxjs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -66,7 +66,7 @@ export class ViewApprovalComponent {
     this.user = user.id;
     this.querySub = this.route.queryParams.subscribe(params => {
       this.isSubmitted = params['isSubmitted'] === 'true';
-    });;
+    });
   }
 
   loadData(data: any, tabIndex: number) {
@@ -92,13 +92,13 @@ export class ViewApprovalComponent {
   editButtonStatus: boolean = false;
   pageStatus: boolean = true;
   getInvoices() {
-    this.submittingForm = true;
+    // this.submittingForm = true;
     let apiCall;
     if (this.data.roleName === 'Sales Executive') {
       apiCall = this.invoiceService.getPIBySP(this.data.status, this.filterValue, this.currentPage, this.pageSize);
-    }else if (this.data.roleName === 'Team Lead') {
+    } else if (this.data.roleName === 'Team Lead') {
       apiCall = this.invoiceService.getPIBySP(this.data.status, this.filterValue, this.currentPage, this.pageSize);
-    }  else if (this.data.roleName === 'Key Account Manager') {
+    } else if (this.data.roleName === 'Key Account Manager') {
       if (Array.isArray(this.data.status)) {
         const statusArray = this.data.status;
         const allInvoices: any[] = [];
@@ -152,7 +152,7 @@ export class ViewApprovalComponent {
     } else if (this.data.roleName === 'Accountant') {
       this.pageStatus = false
       apiCall = this.invoiceService.getPIByMA(this.data.status, this.filterValue, this.currentPage, this.pageSize);
-    }else if (this.data.roleName === 'Administrator' || this.data.roleName === 'Super Administrator') {
+    } else if (this.data.roleName === 'Administrator' || this.data.roleName === 'Super Administrator') {
       apiCall = this.invoiceService.getPIByAdmin(this.data.status, this.filterValue, this.currentPage, this.pageSize);
     }
 

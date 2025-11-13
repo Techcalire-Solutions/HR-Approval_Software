@@ -1,8 +1,48 @@
 <form [formGroup]="form">
   <mat-card>
     <mat-card-header><mat-card-title>Statutory Info</mat-card-title></mat-card-header>
+      <div fxLayout="column" class="form-field-outer" style="margin-top:20px;">
+        <!-- First row (3 IDs) -->
+        <div class="row box">
+          @for (field of ['adharNo', 'panNumber', 'pfNumber']; track $index) {
+            <div class="col">
+              <mat-form-field class="w-100" appearance="outline">
+                <mat-label>{{ placeholders[field]?.label || 'ID' }}</mat-label>
+                <input
+                  matInput
+                  [formControlName]="field"
+                  [placeholder]="placeholders[field]?.placeholder || 'ID Name - ID Number'"
+                />
+                @if (form.get(field)?.invalid && (form.get(field)?.dirty || form.get(field)?.touched)) {
+                  <mat-error>Enter in format: ID Name - ID Number</mat-error>
+                }
+              </mat-form-field>
+            </div>
+          }
+        </div>
 
-    <div fxLayout="column" class="form-field-outer" style="margin-top:20px;">
+        <!-- Second row (3 IDs) -->
+        <div class="row box">
+          @for (field of ['esiNumber', 'uanNumber', 'insuranceNumber']; track $index) {
+            <div class="col">
+              <mat-form-field class="w-100" appearance="outline">
+                <mat-label>{{ placeholders[field]?.label || 'ID' }}</mat-label>
+                <input
+                  matInput
+                  [formControlName]="field"
+                  [placeholder]="placeholders[field]?.placeholder || 'ID Name - ID Number'"
+                />
+                @if (form.get(field)?.invalid && (form.get(field)?.dirty || form.get(field)?.touched)) {
+                  <mat-error>Enter in format: ID Name - ID Number</mat-error>
+                }
+              </mat-form-field>
+            </div>
+          }
+        </div>
+      </div>
+
+
+    <!-- <div fxLayout="column" class="form-field-outer" style="margin-top:20px;">
       <div class="row box">
         <div class="col">
           <mat-form-field class="w-100" appearance="outline">
@@ -79,7 +119,7 @@
           </mat-form-field>
         </div>
       </div>
-    </div>
+    </div> -->
     <div class="row box">
       <div class="col">
         <mat-form-field class="w-100" appearance="outline">

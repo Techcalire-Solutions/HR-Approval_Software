@@ -5,7 +5,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { ViewApprovalComponent } from './view-approval/view-approval.component';
 import { ViewExpenseComponent } from './expense/view-expense/view-expense.component';
 import { InvoiceService } from '@services/invoice.service';
-import { Subscription } from 'rxjs';
+import { interval, Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 
@@ -20,10 +20,14 @@ export class PaymentsComponent implements OnInit{
   currentTabIndex: number = 0;
   currentPage: number = 1;
   private readonly route = inject(ActivatedRoute);
+  private refreshSub!: Subscription;
   ngOnInit(): void {
     const token: any = localStorage.getItem('token')
     const user = JSON.parse(token)
     const roleId = user.role
+    this.refreshSub = interval(5000).subscribe(() => {
+      this.getRoleById(roleId);
+    });
     this.getRoleById(roleId);
   }
 

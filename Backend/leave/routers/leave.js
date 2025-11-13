@@ -21,6 +21,7 @@ const Notification = require('../../notification/models/notification');
 const { resolveHostname } = require('nodemailer/lib/shared');
 const TeamLeader = require('../../users/models/teamLeader');
 const Designation = require('../../users/models/designation');
+const TeamMember = require('../../users/models/teamMember');
 
 // --------------------------------------------------------LEAVE REQUESTING------------------------------------------------------------
 router.post('/employeeLeave', authenticateToken, async (req, res) => {
@@ -1295,9 +1296,16 @@ async function getTeamLeadEmails(userId) {
       if (!team) {
           return(`No team found for user with ID: ${userId}`);
       }
-      const teamId = team.id;
       
-      const tls = await TeamLeader.findAll({ 
+      let teamId = team.teamId;
+      
+      if(teamId === null){
+        const tm = await TeamMember.findOne({where: {userId}})
+        if(!tm) return
+        teamId = tm.teamId;
+      }
+      if(teamId !== null){
+        const tls = await TeamLeader.findAll({ 
           where: { teamId }, include: {
             model: User, attributes: ['name'],           
             include: { 
@@ -1306,6 +1314,7 @@ async function getTeamLeadEmails(userId) {
             }
           }
       });
+      
       if (tls.length === 0) {
           return(`No team leads found for team with ID: ${teamId}`);
       }
@@ -1313,6 +1322,7 @@ async function getTeamLeadEmails(userId) {
       const tlEmails = tls.map(tl => tl.user.userPosition?.officialMailId).filter(email => email);
       if(!tlEmails.length) return ("Official MailId is not added for TLs");
       return tlEmails;
+      }
   } catch (error) {
       return error.message;
   }
@@ -1854,6 +1864,8 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
     const rmEmail = rm.email;
     const teamLeads = await getTeamLeadEmails(leave.userId);
     const omMail = await getOMEmail();
+    console.log(hrEmail, rmEmail, teamLeads, omMail);
+    
     const ccRecipients = [ hrEmail, rmEmail, teamLeads, omMail ].filter(email => email); 
     const emailSubject = `Leave Request is Rejected`;
     const fromEmail = process.env.EMAIL_USER;

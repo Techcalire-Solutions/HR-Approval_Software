@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { MatButtonModule } from '@angular/material/button';
 import { UsersService } from './../../../services/users.service';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, Output, inject } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -13,6 +13,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import {provideMomentDateAdapter} from '@angular/material-moment-adapter';
 import { DatePipe } from '@angular/common';
+import { environment } from '../../../../environments/environment';
 export const MY_FORMATS = {
   parse: {
     dateInput: 'DD/MM/YYYY', // Change to desired format
@@ -53,12 +54,12 @@ export class StatuatoryInfoComponent implements OnDestroy {
 
   form = this.fb.group({
     userId : <any>[],
-    adharNo : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*(.+)$/)]],
-    panNumber : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*(.+)$/)]],
-    esiNumber : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*(.+)$/)]],
-    uanNumber : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*(.+)$/)]],
-    insuranceNumber: ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*(.+)$/)]],
-    pfNumber : ['', [Validators.pattern(/^([A-Za-z\s]+)\s*-\s*(.+)$/)]],
+    adharNo : [''],
+    panNumber : [''],
+    esiNumber : [''],
+    uanNumber : [''],
+    insuranceNumber: [''],
+    pfNumber : [''],
     passportNumber : [''],
     passportExpiry: <any>[],
   });
@@ -67,10 +68,37 @@ export class StatuatoryInfoComponent implements OnDestroy {
   triggerNew(data?: any): void {
     if(data){
       // if(data.updateStatus){
-        this.getStatutoryDetailsByUser(data.id)
+        this.getStatutoryDetailsByUser(data.id);
+        this.loadCompanyPlaceholders()
       // }
     }
   }
+currentCompany = environment.company;
+
+placeholders: any = {};
+  companyPlaceholders: any = {
+    oac: {
+      adharNo: { label: 'Aadhar ID', placeholder: '1234 5678 9012' },
+      panNumber: { label: 'PAN', placeholder: 'ABCDE1234F' },
+      pfNumber: { label: 'PF Number', placeholder: 'PF12345' },
+      esiNumber: { label: 'ESI Number', placeholder: 'ESI12345' },
+      uanNumber: { label: 'UAN Number', placeholder: 'UAN12345' },
+      insuranceNumber: { label: 'Insurance Number', placeholder: 'Insurance - INS12345' },
+    },
+    leeds: {
+      adharNo: { label: 'Aadhar ID', placeholder: '1234 5678 9012' },
+      panNumber: { label: 'Emirates ID', placeholder: '1234 5678 9012' },
+      pfNumber: { label: 'Visa Number', placeholder: '1234 5678 9012' },
+      esiNumber: { label: 'Medical ID', placeholder: '456789' },
+      uanNumber: { label: 'Employee Code', placeholder: 'EMP123' },
+      insuranceNumber: { label: 'Health Insurance', placeholder: 'HINS456' },
+    },
+  };
+  loadCompanyPlaceholders() {
+    this.placeholders = this.companyPlaceholders[this.currentCompany];
+  }
+
+
 
   pUSub!: Subscription;
   private id: number;

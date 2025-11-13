@@ -26,6 +26,10 @@ export class TokenInterceptor implements HttpInterceptor {
     .pipe(
       catchError((err: any)=>{
         if(err instanceof HttpErrorResponse){
+          if (err.status === 0) {
+            alert('You are not allowed to enter — backend is not reachable.');
+            return throwError(() => new Error('AEROHR is not reachable'));
+          }
           if(err.status === 403){
             alert('Token is expired, Please login again...')
             this.router.navigate([''])

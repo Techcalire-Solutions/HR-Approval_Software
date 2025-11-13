@@ -152,22 +152,35 @@
               </mat-expansion-panel-header>
               @if(userStat){
                 <div class="p-3">
-  
                   <div class="flex-container">
-                    <div>Adhar No  :<strong >{{userStat.adharNo}}</strong></div>
-                    <div>PAN No  :<strong >{{userStat.panNumber}}</strong></div>
-                    <div>PF Number  :<strong >{{userStat.pfNumber}}</strong></div>
+                    <div *ngIf="userStat.adharNo">
+                      {{ labels.adharNo?.label }} : <strong>{{ userStat.adharNo }}</strong>
+                    </div>
+
+                    <div *ngIf="userStat.panNumber">
+                      {{ labels.panNumber?.label }} : <strong>{{ userStat.panNumber }}</strong>
+                    </div>
+
+                    <div *ngIf="userStat.pfNumber">
+                      {{ labels.pfNumber?.label }} : <strong>{{ userStat.pfNumber }}</strong>
+                    </div>
+
+                    <div *ngIf="userStat.insuranceNumber">
+                      {{ labels.insuranceNumber?.label }} : <strong>{{ userStat.insuranceNumber }}</strong>
+                    </div>
                   </div>
-  
+
                   <div class="flex-container">
-                    <div>Insurance No  :<strong>{{userStat.insuranceNumber}}</strong></div>
-                    <div>ESI No  :<strong>{{userStat.esiNumber}}</strong></div>
-                    <div>UAN No  :<strong >{{userStat.uanNumber}}</strong></div>
-                  </div>
-  
-                  <div class="flex-container">
-                    <div>Passport No  :<strong>{{userStat.passportNumber}}</strong></div>
-                    <div>Passport Expiry  :<strong >{{userStat.passportExpiry | date: 'dd/MM/yyyy'}}</strong></div>
+                    <div *ngIf="userStat.esiNumber">
+                      {{ labels.esiNumber?.label }} : <strong>{{ userStat.esiNumber }}</strong>
+                    </div>
+
+                    <div *ngIf="userStat.uanNumber">
+                      {{ labels.uanNumber?.label }} : <strong>{{ userStat.uanNumber }}</strong>
+                    </div>
+
+                    <div>Passport No : <strong>{{ userStat.passportNumber }}</strong></div>
+                    <div>Passport Expiry : <strong>{{ userStat.passportExpiry | date: 'dd/MM/yyyy' }}</strong></div>
                   </div>
                 </div>
               }@else {
