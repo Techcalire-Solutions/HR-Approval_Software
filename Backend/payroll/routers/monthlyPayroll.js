@@ -585,425 +585,630 @@ router.get('/ytd', async (req, res) => {
 });
 
 // Secure endpoint to download payslip PDF
-router.get("/download-payslip/:token", async (req, res) => {
-  const jwt = require('jsonwebtoken');
+// router.get("/download-payslip/:token", async (req, res) => {
+//   const jwt = require('jsonwebtoken');
   
+//   try {
+//     const token = req.params.token;
+//     const payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+//     const email = payload.email;
+//     const user = await User.findOne({ where: { email } });
+//     const userId = user?.id;
+
+//     if (!userId || !email) {
+//       return res.status(400).send("Invalid token: missing user information");
+//     }
+
+//     const month = payload.payedFor;
+
+//     const payroll = await MonthlyPayroll.findOne({
+//       where: { userId, payedFor: month, status: 'Locked' },
+//       include: [
+//         {
+//           model: User, as: 'user',
+//           attributes: ['name', 'empNo', 'email'],
+//           include: [
+//             { model: UserPersonal, as: 'userpersonal', attributes: ['dateOfJoining'] },
+//             { model: UserAccount },
+//             { model: StatutoryInfo, attributes: ['panNumber', 'uanNumber', 'pfNumber'] },
+//             {
+//               model: UserPosition,
+//               attributes: ['designationId', 'department', 'location'],
+//               include: [{ model: Designation, attributes: ['designationName'] }]
+//             }
+//           ]
+//         }
+//       ]
+//     });
+
+//     if (!payroll) {
+//       return res.status(404).send("No approved payroll found for this user");
+//     }
+
+//     if (!payroll.user || payroll.user.email !== email) {
+//       return res.status(403).send("Unauthorized access to payslip");
+//     }
+
+//     // Generate HTML and PDF
+//     const payslipHTML = generatePayslipHTML(payroll);
+//     const pdfBuffer = await generatePDF(payslipHTML);
+
+//     // ✅ Important: set headers before sending
+//     res.set({
+//       'Content-Type': 'application/pdf',
+//       'Content-Disposition': `attachment; filename="PaySlip_${payroll.payedFor}_${payroll.user.name}.pdf"`,
+//       'Content-Length': pdfBuffer.length
+//     });
+
+//     // ✅ Send PDF only once
+//     res.end(pdfBuffer);
+
+//   } catch (error) {
+//     console.error("Error generating payslip PDF:", error);
+//     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+//       return res.status(401).send("Invalid or expired link. Please request a new payslip.");
+//     }
+//     res.status(500).send("Error generating payslip. Please try again later.");
+//   }
+// });
+router.get("/download-payslip/:token", async (req, res) => {
+  const jwt = require("jsonwebtoken");
+
   try {
     const token = req.params.token;
-    const payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
-    const email = payload.email;
-    const user = await User.findOne({ where: { email } });
-    const userId = user?.id;
-
-    if (!userId || !email) {
-      return res.status(400).send("Invalid token: missing user information");
+    if (!token) {
+      return res.status(400).send("Token missing from URL");
     }
 
-    const month = payload.payedFor;
+    let payload;
+    try {
+      payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    } catch (err) {
+      return res.status(401).send("Invalid or expired payslip link");
+    }
+
+    const { email, payedFor } = payload;
+
+    if (!email || !payedFor) {
+      return res.status(400).send("Invalid token payload");
+    }
+
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
 
     const payroll = await MonthlyPayroll.findOne({
-      where: { userId, payedFor: month, status: 'Locked' },
+      where: { userId: user.id, payedFor, status: "Locked" },
       include: [
         {
-          model: User, as: 'user',
-          attributes: ['name', 'empNo', 'email'],
+          model: User,
+          as: "user",
+          attributes: ["name", "empNo", "email"],
           include: [
-            { model: UserPersonal, as: 'userpersonal', attributes: ['dateOfJoining'] },
+            { model: UserPersonal, as: "userpersonal", attributes: ["dateOfJoining"] },
             { model: UserAccount },
-            { model: StatutoryInfo, attributes: ['panNumber', 'uanNumber', 'pfNumber'] },
+            { model: StatutoryInfo, attributes: ["panNumber", "uanNumber", "pfNumber"] },
             {
               model: UserPosition,
-              attributes: ['designationId', 'department', 'location'],
-              include: [{ model: Designation, attributes: ['designationName'] }]
-            }
-          ]
-        }
-      ]
+              attributes: ["designationId", "department", "location"],
+              include: [{ model: Designation, attributes: ["designationName"] }],
+            },
+          ],
+        },
+      ],
     });
 
     if (!payroll) {
-      return res.status(404).send("No approved payroll found for this user");
+      return res.status(404).send("Approved payslip not found for this month");
     }
 
-    if (!payroll.user || payroll.user.email !== email) {
-      return res.status(403).send("Unauthorized access to payslip");
+    if (payroll.user.email !== email) {
+      return res.status(403).send("You are not authorized to download this payslip");
     }
 
-    // Generate HTML and PDF
+    // Generate HTML & PDF
     const payslipHTML = generatePayslipHTML(payroll);
     const pdfBuffer = await generatePDF(payslipHTML);
 
-    // ✅ Important: set headers before sending
-    res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="PaySlip_${payroll.payedFor}_${payroll.user.name}.pdf"`,
-      'Content-Length': pdfBuffer.length
-    });
+    // Headers BEFORE sending PDF
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="PaySlip_${payroll.payedFor}_${payroll.user.name.replace(/\s+/g, "_")}.pdf"`
+    );
+    res.setHeader("Content-Length", pdfBuffer.length);
 
-    // ✅ Send PDF only once
-    res.end(pdfBuffer);
+    // Send PDF
+    return res.end(pdfBuffer);
 
   } catch (error) {
-    console.error("Error generating payslip PDF:", error);
-    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-      return res.status(401).send("Invalid or expired link. Please request a new payslip.");
-    }
-    res.status(500).send("Error generating payslip. Please try again later.");
+    console.error("Payslip download error:", error);
+    return res.status(500).send("Internal server error while downloading payslip");
   }
 });
 
 // Helper function to generate payslip HTML
+// function generatePayslipHTML(mp) {
+//   const toNumber = (value) => Number(value) || 0;
+
+//   const calculateTotalEarnings = (payroll) =>
+//     toNumber(payroll.basic) +
+//     toNumber(payroll.hra) +
+//     toNumber(payroll.specialAllowance) +
+//     toNumber(payroll.conveyanceAllowance) +
+//     toNumber(payroll.lta) +
+//     toNumber(payroll.ot) +
+//     toNumber(payroll.incentive) +
+//     toNumber(payroll.payOut) +
+//     toNumber(payroll.leaveEncashmentAmount);
+
+//   const calculateTotalDeductions = (payroll) =>
+//     toNumber(payroll.pfDeduction) +
+//     toNumber(payroll.tds) +
+//     toNumber(payroll.advanceAmount) +
+//     toNumber(payroll.leaveDeduction) +
+//     toNumber(payroll.esi) +
+//     toNumber(payroll.incentiveDeduction);
+
+//   const workingDays = mp.daysInMonth - mp.leaveDays;
+//   const totalEarnings = calculateTotalEarnings(mp);
+//   const totalDeductions = calculateTotalDeductions(mp);
+//   // const amountInWords = convertNumberToWords(netPay);
+//   const payedForWithoutYear = mp.payedFor.replace(/\s*\d{4}$/, '')
+//   // Format date
+//   const payDate = new Date();
+//   const formattedDate = `${payDate.getDate().toString().padStart(2, '0')}/${(payDate.getMonth() + 1).toString().padStart(2, '0')}/${payDate.getFullYear()}`;
+  
+//   return `
+//   <!DOCTYPE html>
+
+
+//    <html>
+//             <head>
+//               <style>
+//               body {
+//                   font-family: Arial, sans-serif;
+//               }
+//               .payslip-container {
+//                   width: 800px;
+//                   margin-left: 50px;
+//                   margin-right: 50px;
+//                   border: 1px solid #000;
+//                   padding: 20px;
+//               }
+//               .header, .footer {
+//                   text-align: center;
+//                   font-weight: bold;
+//               }
+//               .company-info, .employee-info, .earnings-deductions {
+//                   width: 100%;
+//                   border-collapse: collapse;
+//                   margin-top: 20px;
+//                   font-size: 12px;
+//               }
+//               .company-info td, .employee-info td, .earnings-deductions td {
+//                   padding: 8px;
+//                   border: 1px solid #000;
+//                   font-size: 12px;
+//               }
+//               .section-title {
+//                   font-weight: bold;
+//                   text-align: center;
+//                   padding: 10px 0;
+//               }
+//               .earnings-deductions th {
+//                   text-align: left;
+//                   padding: 8px;
+//               }
+//               .net-pay {
+//                   font-weight: bold;
+//                   text-align: center;
+//                   padding: 10px 0;
+//               }
+
+//               .header-row {
+//                   display: flex;
+//                   align-items: center; 
+//               }
+
+//               .logo img {
+//                   max-width: 180px;
+//                   margin-right: 30px;
+//                   margin-left: 10px;
+//               }
+
+//               .address {
+//                   text-align: center;
+//                   font-size: 14px;
+//               }
+
+//               .address h2{
+//                   text-align: center; 
+//                   font-weight: bolder;
+//               }
+
+//               .payslip-title{
+//                   text-align: center;
+//                   font-size: 14px;
+//               }
+
+//               .header {
+//                 display: flex;
+//                 justify-content: flex-end; /* Moves content to the right */
+//                 margin-bottom: 20px; /* Adds spacing between button and content */
+//               }
+              
+//               .download-button {
+//                 background-color: #007bff; /* Customize button color */
+//                 color: white;
+//                 border: none;
+//                 padding: 10px 20px;
+//                 font-size: 14px;
+//                 border-radius: 4px;
+//                 cursor: pointer;
+//               }
+                
+//               </style>
+//             </head>
+//             <body>
+//             <div class="payroll-container" style="margin-left: 30px; margin-right: 20px;"> 
+//                       <div class="header-row">
+//                           <div class="logo">
+//                               <img src="https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/images/OAC-+LOGO+edited.jpg" alt="Company Logo">
+//                           </div>
+//                           <div class="address">
+//                               <h3>ONBOARD AERO CONSULTANTS PRIVATE LIMITED</h3>
+//                               <p>13/227, TECHNOLODGE, KAKKOOR P.O., PIRAVOM, ERNAKULAM - 686662</p>
+//                           </div>
+//                       </div>
+//                       <h2 class="payslip-title">Payslip for the month of ${mp.payedFor ?? ''}</h2>
+//                       <table class="company-info">
+//                           <tr>
+//                               <td>
+//                                 <div style="display: flex; align-items: center; width: 100%;">
+//                                   <span style="flex: 1;">Name</span>
+//                                   <span style="width: 20px; text-align: center;">:</span>
+//                                   <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.name ?? ''}</span>
+//                                 </div>
+//                               </td>
+//                               <td>
+//                                 <div style="display: flex; align-items: center; width: 100%;">
+//                                   <span style="flex: 1;">Employee No</span>
+//                                   <span style="width: 20px; text-align: center;">:</span>
+//                                   <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.empNo ?? ''}</span>
+//                                 </div>
+//                               </td>
+//                             </tr>
+//                             <tr>
+//                               <td>
+//                                 <div style="display: flex; align-items: center; width: 100%;">
+//                                   <span style="flex: 1;">Joining Date</span>
+//                                   <span style="width: 20px; text-align: center;">:</span>
+//                                   <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userpersonal[0]?.dateOfJoining ?? ''}</span>
+//                                 </div>
+//                               </td>
+//                               <td>
+//                                 <div style="display: flex; align-items: center; width: 100%;">
+//                                   <span style="flex: 1;">Bank Name</span>
+//                                   <span style="width: 20px; text-align: center;">:</span>
+//                                   <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.useraccount?.bankName ?? ''}</span>
+//                                 </div>
+//                               </td>
+//                             </tr>
+//                           <tr>
+//                               <td>
+//                                   <div style="display: flex; align-items: center; width: 100%;">
+//                                       <span style="flex: 1;">Designation</span>
+//                                       <span style="width: 20px; text-align: center;">:</span>
+//                                       <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPosition?.designation?.designationName ?? ''}</span>
+//                                     </div>
+//                               </td>
+//                               <td>
+//                                   <div style="display: flex; align-items: center; width: 100%;">
+//                                       <span style="flex: 1;">Bank Account No</span>
+//                                       <span style="width: 20px; text-align: center;">:</span>
+//                                       <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.useraccount?.accountNo ?? ''}</span>
+//                                     </div>
+//                               </td>
+//                           </tr>
+//                           <tr>
+//                               <td>
+//                                   <div style="display: flex; align-items: center; width: 100%;">
+//                                       <span style="flex: 1;">Department</span>
+//                                       <span style="width: 20px; text-align: center;">:</span>
+//                                       <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPosition?.department ?? ''}</span>
+//                                   </div>
+//                               </td>
+//                               <td>
+//                                   <div style="display: flex; align-items: center; width: 100%;">
+//                                       <span style="flex: 1;">PAN Number</span>
+//                                       <span style="width: 20px; text-align: center;">:</span>
+//                                       <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.statutoryinfo?.panNumber ?? ''}</span>
+//                                   </div>
+//                               </td>
+//                           </tr>
+//                           <tr>
+//                               <td>
+//                                   <div style="display: flex; align-items: center; width: 100%;">
+//                                       <span style="flex: 1;">Location</span>
+//                                       <span style="width: 20px; text-align: center;">:</span>
+//                                       <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPosition?.location ?? ''}</span>
+//                                   </div>
+//                               </td>
+//                               <td>
+//                                   <div style="display: flex; align-items: center; width: 100%;">
+//                                       <span style="flex: 1;">PF No</span>
+//                                       <span style="width: 20px; text-align: center;">:</span>
+//                                       <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.statutoryinfo?.pfNumber ?? ''}</span>
+//                                   </div>
+//                               </td>
+//                           </tr>
+//                           <tr>
+//                               <td>
+//                                   <div style="display: flex; align-items: center; width: 100%;">
+//                                       <span style="flex: 1;">Effective Work Days</span>
+//                                       <span style="width: 20px; text-align: center;">:</span>
+//                                       <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${workingDays}</span>
+//                                   </div>
+//                               </td>
+//                               <td>
+//                                   <div style="display: flex; align-items: center; width: 100%;">
+//                                       <span style="flex: 1;">PF UAN</span>
+//                                       <span style="width: 20px; text-align: center;">:</span>
+//                                       <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.statutoryinfo?.uanNumber ?? ''}</span>
+//                                   </div>
+//                               </td>
+//                           </tr>
+//                           <tr>
+//                               <td> 
+//                                   <div style="display: flex; align-items: center; width: 100%;">
+//                                       <span style="flex: 1;">LOP</span>
+//                                       <span style="width: 20px; text-align: center;">:</span>
+//                                       <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveDays ?? ''}</span>
+//                                   </div>
+//                               </td>
+//                               <td>
+//                                 ${payedForWithoutYear === 'December' ? `
+//                                   <div style="display: flex; align-items: center; width: 100%;">
+//                                       <span style="flex: 1;">Earned Leaves</span>
+//                                       <span style="width: 20px; text-align: center;">:</span>
+//                                       <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveEncashment ?? ''}</span>
+//                                   </div>` : ''
+//                                 }
+//                               </td>
+//                           </tr>       
+//                       </table>
+
+//                       <div class="section-title">Earnings and Deductions</div>
+
+//                       <table class="earnings-deductions">
+//                           <thead>
+//                               <tr>
+//                                   <th>Earnings</th>
+//                                   <th></th>
+//                                   <th>Deductions</th>
+//                                   <th></th>
+//                               </tr>
+//                           </thead>
+//                           <tbody>
+//                               <tr>
+//                                   <td>BASIC</td>
+//                                   <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.basic ?? ''}</td>
+//                                   <td>PF</td>
+//                                   <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.pfDeduction ?? ''}</td>
+//                               </tr>
+//                               <tr>
+//                                   <td>HRA</td>
+//                                   <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.hra ?? ''}</td>
+//                                   <td>ESI</td>
+//                                   <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.esi ?? ''}</td>
+//                               </tr>
+//                               <tr>
+//                                   <td>SPECIAL ALLOWANCE</td>
+//                                   <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.specialAllowance ?? ''}</td>
+//                                   <td>Professional Tax</td>
+//                                   <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.incentiveDeduction ?? ''}</td>
+//                               </tr>
+//                               <tr>
+//                                   <td>CONVEYANCE ALLOWANCE</td>
+//                                   <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.conveyanceAllowance ?? ''}</td>
+//                                   <td>TDS</td>
+//                                   <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.tds ?? ''}</td>
+//                               </tr>
+//                               <tr>
+//                                   <td>TRAVEL ALLOWANCE</td>
+//                                   <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.lta ?? ''}</td>
+//                                   <td>LOP</td>
+//                                   <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveDeduction ?? ''}</td>
+//                               </tr>
+//                               <tr>
+//                                 <td>OVER TIME</td>
+//                                 <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.ot ?? ''}</td>
+//                                 <td>Salary Advance</td>
+//                                 <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.advanceSalary ?? ''}</td>
+//                             </tr>
+//                             <tr>
+//                               <td>PAY OUT</td>
+//                               <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.payOut ?? ''}</td>
+//                               <td></td>
+//                               <td></td>
+//                             </tr>
+//                             <tr>
+//                               <td>INCENTIVE</td>
+//                               <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.incentive ?? ''}</td>
+//                               <td></td>
+//                               <td></td>
+//                             </tr>
+//                             ${payedForWithoutYear === 'December' ? `
+//                             <tr>
+//                               <td>Earned Leave</td>
+//                               <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveEncashmentAmount ?? ''}</td>
+//                               <td></td>
+//                               <td></td>
+//                             </tr>` : ''}
+
+//                               <tr>
+//                                   <td colspan="2"> 
+//                                       <div style="display: flex; align-items: center; width: 100%;">
+//                                           <span style="flex: 1;">Total Earnings</span>
+//                                           <span style="width: 20px; text-align: center;">:</span>
+//                                           <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">INR ${totalEarnings ?? ''}</span>
+//                                       </div>
+//                                   </td>
+//                                   <td colspan="2"> 
+//                                       <div style="display: flex; align-items: center; width: 100%;">
+//                                           <span style="flex: 1;">Total Deductions</span>
+//                                           <span style="width: 20px; text-align: center;">:</span>
+//                                           <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">INR ${totalDeductions ?? ''}</span>
+//                                       </div>
+//                                   </td>
+//                               </tr>
+//                           </tbody>
+//                       </table>
+
+//                       <div class="net-pay">
+//                           <p>Net Pay for the month: <a  style="font-weight: bolder; color: rgb(8, 72, 115);">INR ${mp.toPay ?? 0}</a></p>
+//                       </div>
+
+//                       <!-- <div class="footer">
+//                           <p>This is a system-generated payslip and does not require a signature.</p>
+//                       </div> -->
+//                   </div>
+//             </body>
+//           </html>
+//           `;
+
+// }
 function generatePayslipHTML(mp) {
-  const toNumber = (value) => Number(value) || 0;
+  const toNumber = (v) => Number(v) || 0;
 
-  const calculateTotalEarnings = (payroll) =>
-    toNumber(payroll.basic) +
-    toNumber(payroll.hra) +
-    toNumber(payroll.specialAllowance) +
-    toNumber(payroll.conveyanceAllowance) +
-    toNumber(payroll.lta) +
-    toNumber(payroll.ot) +
-    toNumber(payroll.incentive) +
-    toNumber(payroll.payOut) +
-    toNumber(payroll.leaveEncashmentAmount);
+  const calculateTotalEarnings = (p) =>
+    toNumber(p.basic) +
+    toNumber(p.hra) +
+    toNumber(p.specialAllowance) +
+    toNumber(p.conveyanceAllowance) +
+    toNumber(p.lta) +
+    toNumber(p.ot) +
+    toNumber(p.incentive) +
+    toNumber(p.payOut) +
+    toNumber(p.leaveEncashmentAmount);
 
-  const calculateTotalDeductions = (payroll) =>
-    toNumber(payroll.pfDeduction) +
-    toNumber(payroll.tds) +
-    toNumber(payroll.advanceAmount) +
-    toNumber(payroll.leaveDeduction) +
-    toNumber(payroll.esi) +
-    toNumber(payroll.incentiveDeduction);
+  const calculateTotalDeductions = (p) =>
+    toNumber(p.pfDeduction) +
+    toNumber(p.tds) +
+    toNumber(p.advanceAmount) +
+    toNumber(p.leaveDeduction) +
+    toNumber(p.esi) +
+    toNumber(p.incentiveDeduction);
 
   const workingDays = mp.daysInMonth - mp.leaveDays;
   const totalEarnings = calculateTotalEarnings(mp);
   const totalDeductions = calculateTotalDeductions(mp);
-  // const amountInWords = convertNumberToWords(netPay);
-  const payedForWithoutYear = mp.payedFor.replace(/\s*\d{4}$/, '')
-  // Format date
-  const payDate = new Date();
-  const formattedDate = `${payDate.getDate().toString().padStart(2, '0')}/${(payDate.getMonth() + 1).toString().padStart(2, '0')}/${payDate.getFullYear()}`;
+
+  const payedForWithoutYear = mp.payedFor.replace(/\s*\d{4}$/, '');
   
+  const joiningDate = mp.user.userpersonal?.[0]?.dateOfJoining || '';
+  const logo = `https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/images/OAC-+LOGO+edited.jpg`;
+
   return `
-  <!DOCTYPE html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Payslip</title>
 
+<style>
+  body { font-family: Arial, sans-serif; }
+  .payslip-container { width: 800px; margin: auto; border: 1px solid #000; padding: 20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  td, th { border: 1px solid #000; padding: 8px; }
+  .header-row { display: flex; align-items: center; }
+  .logo img { max-width: 180px; margin-right: 20px; }
+  .address { text-align: center; }
+  .payslip-title { text-align: center; margin: 10px 0; font-size: 16px; font-weight: bold; }
+  .section-title { text-align: center; font-weight: bold; margin-top: 20px; }
+  .net-pay { font-weight: bold; text-align: center; margin-top: 20px; }
+</style>
+</head>
 
-   <html>
-            <head>
-              <style>
-              body {
-                  font-family: Arial, sans-serif;
-              }
-              .payslip-container {
-                  width: 800px;
-                  margin-left: 50px;
-                  margin-right: 50px;
-                  border: 1px solid #000;
-                  padding: 20px;
-              }
-              .header, .footer {
-                  text-align: center;
-                  font-weight: bold;
-              }
-              .company-info, .employee-info, .earnings-deductions {
-                  width: 100%;
-                  border-collapse: collapse;
-                  margin-top: 20px;
-                  font-size: 12px;
-              }
-              .company-info td, .employee-info td, .earnings-deductions td {
-                  padding: 8px;
-                  border: 1px solid #000;
-                  font-size: 12px;
-              }
-              .section-title {
-                  font-weight: bold;
-                  text-align: center;
-                  padding: 10px 0;
-              }
-              .earnings-deductions th {
-                  text-align: left;
-                  padding: 8px;
-              }
-              .net-pay {
-                  font-weight: bold;
-                  text-align: center;
-                  padding: 10px 0;
-              }
+<body>
+<div class="payslip-container">
 
-              .header-row {
-                  display: flex;
-                  align-items: center; 
-              }
+  <div class="header-row">
+    <div class="logo"><img src="${logo}" /></div>
+    <div class="address">
+      <h3>ONBOARD AERO CONSULTANTS PRIVATE LIMITED</h3>
+      <p>13/227, TECHNOLODGE, KAKKOOR P.O., PIRAVOM, ERNAKULAM - 686662</p>
+    </div>
+  </div>
 
-              .logo img {
-                  max-width: 180px;
-                  margin-right: 30px;
-                  margin-left: 10px;
-              }
+  <h2 class="payslip-title">Payslip for the month of ${mp.payedFor}</h2>
 
-              .address {
-                  text-align: center;
-                  font-size: 14px;
-              }
+  <table>
+    <tr>
+      <td><b>Name</b>: ${mp.user.name}</td>
+      <td><b>Employee No</b>: ${mp.user.empNo}</td>
+    </tr>
+    <tr>
+      <td><b>Joining Date</b>: ${joiningDate}</td>
+      <td><b>Bank Name</b>: ${mp.user.useraccount?.bankName || ''}</td>
+    </tr>
+    <tr>
+      <td><b>Designation</b>: ${mp.user.userPosition?.designation?.designationName || ''}</td>
+      <td><b>Account No</b>: ${mp.user.useraccount?.accountNo || ''}</td>
+    </tr>
+    <tr>
+      <td><b>Department</b>: ${mp.user.userPosition?.department || ''}</td>
+      <td><b>PAN</b>: ${mp.user.statutoryinfo?.panNumber || ''}</td>
+    </tr>
+    <tr>
+      <td><b>Location</b>: ${mp.user.userPosition?.location || ''}</td>
+      <td><b>PF No</b>: ${mp.user.statutoryinfo?.pfNumber || ''}</td>
+    </tr>
+    <tr>
+      <td><b>Effective Work Days</b>: ${workingDays}</td>
+      <td><b>UAN</b>: ${mp.user.statutoryinfo?.uanNumber || ''}</td>
+    </tr>
+    <tr>
+      <td><b>LOP</b>: ${mp.leaveDays}</td>
+      <td>${payedForWithoutYear === "December" ? `<b>Earned Leaves</b>: ${mp.leaveEncashment}` : ""}</td>
+    </tr>
+  </table>
 
-              .address h2{
-                  text-align: center; 
-                  font-weight: bolder;
-              }
+  <div class="section-title">Earnings and Deductions</div>
 
-              .payslip-title{
-                  text-align: center;
-                  font-size: 14px;
-              }
+  <table>
+    <tr><th>Earnings</th><th>Amount</th><th>Deductions</th><th>Amount</th></tr>
 
-              .header {
-                display: flex;
-                justify-content: flex-end; /* Moves content to the right */
-                margin-bottom: 20px; /* Adds spacing between button and content */
-              }
-              
-              .download-button {
-                background-color: #007bff; /* Customize button color */
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                font-size: 14px;
-                border-radius: 4px;
-                cursor: pointer;
-              }
-                
-              </style>
-            </head>
-            <body>
-            <div class="payroll-container" style="margin-left: 30px; margin-right: 20px;"> 
-                      <div class="header-row">
-                          <div class="logo">
-                              <img src="https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/images/OAC-+LOGO+edited.jpg" alt="Company Logo">
-                          </div>
-                          <div class="address">
-                              <h3>ONBOARD AERO CONSULTANTS PRIVATE LIMITED</h3>
-                              <p>13/227, TECHNOLODGE, KAKKOOR P.O., PIRAVOM, ERNAKULAM - 686662</p>
-                          </div>
-                      </div>
-                      <h2 class="payslip-title">Payslip for the month of ${mp.payedFor ?? ''}</h2>
-                      <table class="company-info">
-                          <tr>
-                              <td>
-                                <div style="display: flex; align-items: center; width: 100%;">
-                                  <span style="flex: 1;">Name</span>
-                                  <span style="width: 20px; text-align: center;">:</span>
-                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.name ?? ''}</span>
-                                </div>
-                              </td>
-                              <td>
-                                <div style="display: flex; align-items: center; width: 100%;">
-                                  <span style="flex: 1;">Employee No</span>
-                                  <span style="width: 20px; text-align: center;">:</span>
-                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.empNo ?? ''}</span>
-                                </div>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <div style="display: flex; align-items: center; width: 100%;">
-                                  <span style="flex: 1;">Joining Date</span>
-                                  <span style="width: 20px; text-align: center;">:</span>
-                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userpersonal[0]?.dateOfJoining ?? ''}</span>
-                                </div>
-                              </td>
-                              <td>
-                                <div style="display: flex; align-items: center; width: 100%;">
-                                  <span style="flex: 1;">Bank Name</span>
-                                  <span style="width: 20px; text-align: center;">:</span>
-                                  <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.useraccount?.bankName ?? ''}</span>
-                                </div>
-                              </td>
-                            </tr>
-                          <tr>
-                              <td>
-                                  <div style="display: flex; align-items: center; width: 100%;">
-                                      <span style="flex: 1;">Designation</span>
-                                      <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPosition?.designation?.designationName ?? ''}</span>
-                                    </div>
-                              </td>
-                              <td>
-                                  <div style="display: flex; align-items: center; width: 100%;">
-                                      <span style="flex: 1;">Bank Account No</span>
-                                      <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.useraccount?.accountNo ?? ''}</span>
-                                    </div>
-                              </td>
-                          </tr>
-                          <tr>
-                              <td>
-                                  <div style="display: flex; align-items: center; width: 100%;">
-                                      <span style="flex: 1;">Department</span>
-                                      <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPosition?.department ?? ''}</span>
-                                  </div>
-                              </td>
-                              <td>
-                                  <div style="display: flex; align-items: center; width: 100%;">
-                                      <span style="flex: 1;">PAN Number</span>
-                                      <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.statutoryinfo?.panNumber ?? ''}</span>
-                                  </div>
-                              </td>
-                          </tr>
-                          <tr>
-                              <td>
-                                  <div style="display: flex; align-items: center; width: 100%;">
-                                      <span style="flex: 1;">Location</span>
-                                      <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.userPosition?.location ?? ''}</span>
-                                  </div>
-                              </td>
-                              <td>
-                                  <div style="display: flex; align-items: center; width: 100%;">
-                                      <span style="flex: 1;">PF No</span>
-                                      <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.statutoryinfo?.pfNumber ?? ''}</span>
-                                  </div>
-                              </td>
-                          </tr>
-                          <tr>
-                              <td>
-                                  <div style="display: flex; align-items: center; width: 100%;">
-                                      <span style="flex: 1;">Effective Work Days</span>
-                                      <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${workingDays}</span>
-                                  </div>
-                              </td>
-                              <td>
-                                  <div style="display: flex; align-items: center; width: 100%;">
-                                      <span style="flex: 1;">PF UAN</span>
-                                      <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.user.statutoryinfo?.uanNumber ?? ''}</span>
-                                  </div>
-                              </td>
-                          </tr>
-                          <tr>
-                              <td> 
-                                  <div style="display: flex; align-items: center; width: 100%;">
-                                      <span style="flex: 1;">LOP</span>
-                                      <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveDays ?? ''}</span>
-                                  </div>
-                              </td>
-                              <td>
-                                ${payedForWithoutYear === 'December' ? `
-                                  <div style="display: flex; align-items: center; width: 100%;">
-                                      <span style="flex: 1;">Earned Leaves</span>
-                                      <span style="width: 20px; text-align: center;">:</span>
-                                      <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveEncashment ?? ''}</span>
-                                  </div>` : ''
-                                }
-                              </td>
-                          </tr>       
-                      </table>
+    <tr><td>Basic</td><td>${mp.basic}</td><td>PF</td><td>${mp.pfDeduction}</td></tr>
+    <tr><td>HRA</td><td>${mp.hra}</td><td>ESI</td><td>${mp.esi}</td></tr>
+    <tr><td>Special Allowance</td><td>${mp.specialAllowance}</td><td>Professional Tax</td><td>${mp.incentiveDeduction}</td></tr>
+    <tr><td>Conveyance</td><td>${mp.conveyanceAllowance}</td><td>TDS</td><td>${mp.tds}</td></tr>
+    <tr><td>LTA</td><td>${mp.lta}</td><td>LOP Deduction</td><td>${mp.leaveDeduction}</td></tr>
+    <tr><td>Over Time</td><td>${mp.ot}</td><td>Advance</td><td>${mp.advanceSalary}</td></tr>
+    <tr><td>Pay Out</td><td>${mp.payOut}</td><td></td><td></td></tr>
+    <tr><td>Incentive</td><td>${mp.incentive}</td><td></td><td></td></tr>
 
-                      <div class="section-title">Earnings and Deductions</div>
+    ${payedForWithoutYear === 'December'
+      ? `<tr><td>Earned Leave</td><td>${mp.leaveEncashmentAmount}</td><td></td><td></td></tr>`
+      : ""}
 
-                      <table class="earnings-deductions">
-                          <thead>
-                              <tr>
-                                  <th>Earnings</th>
-                                  <th></th>
-                                  <th>Deductions</th>
-                                  <th></th>
-                              </tr>
-                          </thead>
-                          <tbody>
-                              <tr>
-                                  <td>BASIC</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.basic ?? ''}</td>
-                                  <td>PF</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.pfDeduction ?? ''}</td>
-                              </tr>
-                              <tr>
-                                  <td>HRA</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.hra ?? ''}</td>
-                                  <td>ESI</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.esi ?? ''}</td>
-                              </tr>
-                              <tr>
-                                  <td>SPECIAL ALLOWANCE</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.specialAllowance ?? ''}</td>
-                                  <td>Professional Tax</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.incentiveDeduction ?? ''}</td>
-                              </tr>
-                              <tr>
-                                  <td>CONVEYANCE ALLOWANCE</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.conveyanceAllowance ?? ''}</td>
-                                  <td>TDS</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.tds ?? ''}</td>
-                              </tr>
-                              <tr>
-                                  <td>TRAVEL ALLOWANCE</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.lta ?? ''}</td>
-                                  <td>LOP</td>
-                                  <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveDeduction ?? ''}</td>
-                              </tr>
-                              <tr>
-                                <td>OVER TIME</td>
-                                <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.ot ?? ''}</td>
-                                <td>Salary Advance</td>
-                                <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.advanceSalary ?? ''}</td>
-                            </tr>
-                            <tr>
-                              <td>PAY OUT</td>
-                              <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.payOut ?? ''}</td>
-                              <td></td>
-                              <td></td>
-                            </tr>
-                            <tr>
-                              <td>INCENTIVE</td>
-                              <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.incentive ?? ''}</td>
-                              <td></td>
-                              <td></td>
-                            </tr>
-                            ${payedForWithoutYear === 'December' ? `
-                            <tr>
-                              <td>Earned Leave</td>
-                              <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveEncashmentAmount ?? ''}</td>
-                              <td></td>
-                              <td></td>
-                            </tr>` : ''}
+    <tr>
+      <td><b>Total Earnings</b></td><td><b>${totalEarnings}</b></td>
+      <td><b>Total Deductions</b></td><td><b>${totalDeductions}</b></td>
+    </tr>
+  </table>
 
-                              <tr>
-                                  <td colspan="2"> 
-                                      <div style="display: flex; align-items: center; width: 100%;">
-                                          <span style="flex: 1;">Total Earnings</span>
-                                          <span style="width: 20px; text-align: center;">:</span>
-                                          <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">INR ${totalEarnings ?? ''}</span>
-                                      </div>
-                                  </td>
-                                  <td colspan="2"> 
-                                      <div style="display: flex; align-items: center; width: 100%;">
-                                          <span style="flex: 1;">Total Deductions</span>
-                                          <span style="width: 20px; text-align: center;">:</span>
-                                          <span style="flex: 1; font-weight: bolder; color: rgb(8, 72, 115);">INR ${totalDeductions ?? ''}</span>
-                                      </div>
-                                  </td>
-                              </tr>
-                          </tbody>
-                      </table>
+  <div class="net-pay">Net Pay: INR ${mp.toPay}</div>
 
-                      <div class="net-pay">
-                          <p>Net Pay for the month: <a  style="font-weight: bolder; color: rgb(8, 72, 115);">INR ${mp.toPay ?? 0}</a></p>
-                      </div>
-
-                      <!-- <div class="footer">
-                          <p>This is a system-generated payslip and does not require a signature.</p>
-                      </div> -->
-                  </div>
-            </body>
-          </html>
-          `;
-
+</div>
+</body>
+</html>
+  `;
 }
 
 module.exports = router;

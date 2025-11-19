@@ -40,17 +40,17 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   private userService = inject(UsersService);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
-// UTIB0000827
-// Vyttila
-// Axis
+// 
+// 
+// 
   form = this.fb.group({
     userId : [''],
     accountNo : [''],
-    ifseCode : [''],
-    paymentFrequency : [''],
-    modeOfPayment : [''],
-    branchName : [''],
-    bankName: ['']
+    ifseCode : ['UTIB0000827'],
+    paymentFrequency : ['Monthly'],
+    modeOfPayment : ['BankTransfer'],
+    branchName : ['Vyttila'],
+    bankName: ['Axis']
   });
 
   editStatus: boolean = false;

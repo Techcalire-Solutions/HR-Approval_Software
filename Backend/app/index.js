@@ -12,6 +12,13 @@ if (process.env.ENABLE_SCHEDULED_BACKUPS === "true") {
   const backupJob = scheduleBackups(); 
 }
 
+// app.use((req, res, next) => {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   res.header("Access-Control-Expose-Headers", "Content-Disposition");
+//   next();
+// });
+
+
 dotenv.config();
 app.use(cors({ origin: '*' }));
 // app.use(cors({
