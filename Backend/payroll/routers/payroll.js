@@ -48,7 +48,6 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-
 router.patch("/:id", async (req, res) => {
   const { basic, hra, conveyanceAllowance, lta, grossPay, pf, insurance, gratuity, netPay, specialAllowance, pfDeduction, esi, incentiveDeduction } = req.body;
   try {
