@@ -318,7 +318,7 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
                 roleId: mp.user.roleId,
                 payedFor: mp.payedFor // ensure this is the correct property for month
             };
-            const token = jwt.sign(tokenPayload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
+            const token = jwt.sign(tokenPayload, process.env.ACCESS_TOKEN_SECRET);
 
             const downloadUrl = `${req.protocol}://${req.get('host')}/monthlypayroll/download-payslip/${token}`;
             await sendPayrollEmail(mp.user.email, null, `Payslip for - ${mp.payedFor}`, mp.payedFor, mp.user.name, req, downloadUrl);
@@ -586,11 +586,17 @@ router.get('/ytd', async (req, res) => {
 
 // Secure endpoint to download payslip PDF
 router.get("/download-payslip/:token", async (req, res) => {
-  const jwt = require('jsonwebtoken');
+  // const jwt = require('jsonwebtoken');
   
   try {
-    const token = req.params.token;
-    const payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    // const token = req.params.token;
+    // const payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    let payload;
+    try {
+      payload = JSON.parse(Buffer.from(req.params.token, "base64").toString());
+    } catch (err) {
+      return res.status(400).send("Invalid token format");
+    }
 
     const email = payload.email;
     const user = await User.findOne({ where: { email } });
@@ -652,7 +658,6 @@ router.get("/download-payslip/:token", async (req, res) => {
     res.status(500).send("Error generating payslip. Please try again later.");
   }
 });
-
 
 // Helper function to generate payslip HTML
 function generatePayslipHTML(mp) {
