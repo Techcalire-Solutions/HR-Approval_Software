@@ -68,4 +68,8 @@ export class ExpensesService {
   getExcelLog(): Observable<ExcelLog[]>{
     return this.http.get<ExcelLog[]>(this.url + '/excelLog/findexpenses');
   }
+  
+  getDashboardExpense(status?: string, currentPage?: number, pageSize?: number): Observable<any[]>{
+    return this.http.get<any[]>(this.url + `/expense/dashboard/expense/?status=${status}&page=${currentPage}&pageSize=${pageSize}`);
+  }
 }

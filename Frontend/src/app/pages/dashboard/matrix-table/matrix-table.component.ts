@@ -6,6 +6,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { Subscription } from 'rxjs';
 import { Router, RouterModule } from '@angular/router';
+import { environment } from '../../../../environments/environment';
+import { Expense } from '../../../common/interfaces/payments/expense';
+import { ExpensesService } from '@services/expenses.service';
 
 @Component({
   selector: 'app-matrix-table',
@@ -21,14 +24,31 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
   router = inject(Router)
 
   ngOnInit(): void {
-    this.getCCPi();
-    this.getWTPi();
+    console.log('gfjyhj', environment.company);
+
+    if(environment.company === 'leeds'){
+      this.getExpense();
+    }else {
+        this.getCCPi();
+        this.getWTPi();
+    }
+
 
     const token: any = localStorage.getItem('token')
     const user = JSON.parse(token)
     const roleId = user.role
     this.getRoleById(roleId)
   }
+
+  expenses: Expense[] = [];
+  expnseSub!: Subscription;
+  private expenseService = inject(ExpensesService);
+  getExpense(){
+    this.expnseSub = this.expenseService.getDashboardExpense(this.searchText, this.wtCurrentPage, this.wtPageSize).subscribe((invoice: any) => {
+      this.expenses = invoice.items
+    });
+  }
+
 
   roleSub!: Subscription;
   roleName!: string;
@@ -45,6 +65,15 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
 
   isGenerated(item: any, status: string | string[]): boolean {
     return this.checkStatus(item, status);
+  }
+
+  isExpenseGenerated(item: any, status: string | string[]): boolean {
+    return this.checkExpenseStatus(item, status);
+  }
+
+  checkExpenseStatus(item: any, statusesToCheck: string | string[]): boolean {
+    const statusesArray = Array.isArray(statusesToCheck) ? statusesToCheck : [statusesToCheck];
+    return item?.expensestatuses?.some((status: any) => statusesArray.includes(status.status));
   }
 
   invoices: PerformaInvoice[] = [];
@@ -74,6 +103,7 @@ export class MatrixTableComponent implements OnInit, OnDestroy{
     this.piSub?.unsubscribe();
     this.wtpiSub?.unsubscribe();
     this.roleSub?.unsubscribe();
+    this.expnseSub?.unsubscribe();
   }
 
   pageSize = 5;
