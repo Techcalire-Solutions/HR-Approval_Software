@@ -954,4 +954,63 @@ router.post('/download-excel', async (req, res) => {
     res.send( error.message );
   }
 });
+
+
+router.get('/dashboard/expense', authenticateToken, async (req, res) => {
+    let status = req.query.status;
+    let where = {};
+    if (status && status !== 'undefined') {
+        where.status = status;
+    }
+
+    let admin = await Role.findOne({ where: {roleName: 'Administrator'}});
+    let adminId = admin.id;
+
+    let superadmin = await Role.findOne({ where: {roleName: 'Super Administrator'}});
+    let superadminId = superadmin.id;
+    if (req.user.roleId !== adminId && req.user.roleId !== superadminId) {
+        const userId = req.user.id;
+        where[Op.or] = [
+            { userId: userId },
+            { amId: userId },
+            { accountantId: userId }
+        ];
+    }
+
+    let limit, offset;
+    if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+        limit = parseInt(req.query.pageSize, 10);
+        offset = (parseInt(req.query.page, 10) - 1) * limit;
+    }
+    try {
+        const pi = await Expense.findAll({
+            // where: where,
+            limit,
+            offset,
+            order: [['id', 'DESC']],
+            include: [
+                { model: ExpenseStatus },
+                { model: User, attributes: ['name'] },
+                { model: User, as: 'manager', attributes: ['name'] },
+                { model: User, as: 'ma', attributes: ['name'] }
+
+            ]
+        });
+        
+        const totalCount = await Expense.count({ where: where });
+        
+        if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+            const response = {
+                count: totalCount,
+                items: pi
+            };
+            
+            res.json(response);
+        } else {
+            res.send(pi);
+        }
+    } catch (error) {
+        res.send({ error: error.message });
+    }
+});
 module.exports = router;
