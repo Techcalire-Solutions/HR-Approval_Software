@@ -5,7 +5,8 @@ const router = express.Router();
 const Payroll = require("../models/payroll");
 const PayrollLog = require("../models/payrollLog");
 const { Op } = require('sequelize');
-const User = require('../../users/models/user')
+const User = require('../../users/models/user');
+const sequelize = require('../../utils/db');
 
 router.post("/", async (req, res) => {
   try {
@@ -21,17 +22,34 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const payroll = await Payroll.findAll({ 
-      include:[
-        { model: User, attributes: ['name','empNo']}
-      ] ,
-      order: [[User, 'empNo', 'ASC']]
+    // 🔹 Detect the alias that Sequelize uses for the included model
+    const userAlias = User.name; // <-- This will be "User" unless you used `as:`
+
+    const payroll = await Payroll.findAll({
+      include: [
+        {
+          model: User,
+          attributes: ['name', 'empNo'],
+          where: { separated: false }
+        }
+      ],
+      order: [
+        [
+          sequelize.literal(`
+            CAST(NULLIF(SPLIT_PART("${userAlias}"."empNo", '-', 2), '') AS INTEGER),
+            CAST(NULLIF(SPLIT_PART("${userAlias}"."empNo", '-', 3), '') AS INTEGER)
+          `),
+          'ASC'
+        ]
+      ]
     });
+
     res.send(payroll);
   } catch (error) {
-    res.send(error.message);
+    res.status(500).send(error.message);
   }
 });
+
 
 router.get("/:id", async (req, res) => {
   try {
