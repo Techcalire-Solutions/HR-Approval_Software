@@ -14,6 +14,7 @@ import { LeaveRequestsNotificationComponent } from './leave-requests-notificatio
 import { UsersService } from '@services/users.service';
 import { RoleService } from '@services/role.service';
 import { AnnouncementsListComponent } from './announcements-list/announcements-list.component';
+import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -37,6 +38,8 @@ export class DashboardComponent {
   invoiceService = inject(InvoiceService)
   user: number;
   ngOnInit(){
+    console.log(environment.company);
+    
     const token: any = localStorage.getItem('token')
     const user = JSON.parse(token)
 

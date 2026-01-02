@@ -1632,7 +1632,7 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     const rmEmail = rm.email;
     const teamLeads = await getTeamLeadEmails(leave.userId);
     console.log(teamLeads);
-
+    
     const omMail = await getOMEmail();
 
     const ccRecipients = [hrEmail, rmEmail, ...(Array.isArray(teamLeads) ? teamLeads : []), omMail].filter(email => email);
@@ -2131,7 +2131,7 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     const fromEmail = process.env.EMAIL_USER;
     const emailPassword = process.env.EMAIL_PASS;
     console.log(fromEmail, emailPassword);
-
+    
     const html = `
       <p>Dear ${leave.user.name},</p>
       <p>This is to inform you that ${req.user.name} has approved your ${leaveType.leaveTypeName},</p>
