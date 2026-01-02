@@ -255,28 +255,28 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   onEndDateChange() {
     const startDate: any = this.leaveRequestForm.get('startDate')!.value;
     const endDate: any = this.leaveRequestForm.get('endDate')!.value;    
-    if (endDate && this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin') {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); 
+    // if (endDate && this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin') {
+    //   const today = new Date();
+    //   today.setHours(0, 0, 0, 0); 
     
-      const selectedDate = new Date(endDate);
-      selectedDate.setHours(0, 0, 0, 0);
-      const isFriday = selectedDate.getDay() === 5;
-      // Calculate difference in days
-      const diffInTime = today.getTime() - selectedDate.getTime();
-      const diffInDays = diffInTime / (1000 * 3600 * 24);
-      const thresholdDays = isFriday ? 3 : 2;
+    //   const selectedDate = new Date(endDate);
+    //   selectedDate.setHours(0, 0, 0, 0);
+    //   const isFriday = selectedDate.getDay() === 5;
+    
+    //   const diffInTime = today.getTime() - selectedDate.getTime();
+    //   const diffInDays = diffInTime / (1000 * 3600 * 24);
+    //   const thresholdDays = isFriday ? 3 : 2;
         
-      this.isPastDate = diffInDays > thresholdDays;
-      if(this.isPastDate) {
-        this.leaveTypes = this.leaveTypes.filter(lt => lt.leaveTypeName === 'LOP');
-        this.leaveRequestForm.get('leaveTypeId')?.setValue(this.leaveTypes[0].id)
-      }else{
-        this.leaveTypes = this.originalLeaveTypes;
-      }
-    } else {
-      this.isPastDate = false;
-    }
+    //   this.isPastDate = diffInDays > thresholdDays;
+    //   if(this.isPastDate) {
+    //     this.leaveTypes = this.leaveTypes.filter(lt => lt.leaveTypeName === 'LOP');
+    //     this.leaveRequestForm.get('leaveTypeId')?.setValue(this.leaveTypes[0].id)
+    //   }else{
+    //     this.leaveTypes = this.originalLeaveTypes;
+    //   }
+    // } else {
+    //   this.isPastDate = false;
+    // }
   
     if (startDate && endDate && new Date(endDate) >= new Date(startDate)) {
       this.updateLeaveDates(new Date(startDate), new Date(endDate));

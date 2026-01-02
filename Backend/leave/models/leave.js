@@ -23,6 +23,12 @@ const Leave = sequelize.define('leave', {
     type: DataTypes.JSON, 
     allowNull: true,
   },
+   penaltyLOP:{
+    type: DataTypes.FLOAT,
+       allowNull: true,
+       defaultValue : 0,
+      
+    },
 },
 {
   freezeTableName: true,
