@@ -38,13 +38,13 @@ router.post('/add', authenticateToken, async (req, res) => {
       where: {
         [Op.or]: [
           { email: email, roleId: roleId },
-          { empNo: empNo, roleId: roleId }
+          { empNo: empNo }
         ]
       }
     });
     
     if (userExist) {
-      return res.send(`User already exists with the email or employee number and Role`);
+      return res.send(`User already exists with the email or employee number`);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);

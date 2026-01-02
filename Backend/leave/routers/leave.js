@@ -1209,8 +1209,8 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
   try {
     const rm = await getReportingManagerEmailForUser(req.body.userId ? req.body.userId : leave.userId);
     let reportingManagerEmail = rm.email
-    // let operationalManagerEmail = await getOMEmail();
-    let operationalManagerEmail = 'anupama@onboardaero.com';
+    let operationalManagerEmail = await getOMEmail();
+    // let operationalManagerEmail = 'anupama@onboardaero.com';
     let cc = [];
     if (!emailRegex.test(reportingManagerEmail)) {
       message.push(`Invalid reporting manager email: ${reportingManagerEmail}`);
@@ -2131,7 +2131,7 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     const fromEmail = process.env.EMAIL_USER;
     const emailPassword = process.env.EMAIL_PASS;
     console.log(fromEmail, emailPassword);
-
+    
     const html = `
       <p>Dear ${leave.user.name},</p>
       <p>This is to inform you that ${req.user.name} has approved your ${leaveType.leaveTypeName},</p>

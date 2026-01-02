@@ -1,159 +1,235 @@
 
 <body>
     <div class="table-container">
-        <div class="scrollable-table">
-            <h3>WIRE TRANSFER</h3>
-            <table class="matrix-table">
-                <thead>
-                    <tr>
-                        <th>Entry #</th>
-                        <th>Customer</th>
-                        <th>Attempt</th>
-                        <th>SP</th>
-                        <th>KAM</th>
-                        <th>AM</th>
-                        <th>Slip</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (item of wtInvoices; track $index) {
-                        <tr>
-                            <td class="project">
-                                <a [routerLink]="['/login/viewApproval/viewinvoices', item.id]" 
-                                   (click)="$event.preventDefault(); openInvoice(item.id)"
-                                   style="cursor: pointer; text-decoration: underline; color: #007bff; transition: color 0.3s;" 
-                                   (mouseenter)="onMouseEnter($event)" 
-                                   (mouseleave)="onMouseLeave($event)">
-                                   {{ item.piNo }}
-                                </a>
-                            </td>
-                            <td class="project" style="background-color: white; color: rgb(6, 49, 105);">
-                                {{ item.customers?.companyName ?? 'To Stock' }}
-                            </td>
-                            <td class="project" style="background-color: white; color: rgb(6, 49, 105);">
-                                {{ item.count }}
-                            </td>
-                            
-                            @if (isGenerated(item, 'GENERATED')) {
-                                <ng-container>
-                                    <td class="check">
-                                        <span>&#10003;</span>
-                                    </td>
-                                </ng-container>
-                            }@else{ <td>-</td> }
-    
-                            @if (isGenerated(item, 'KAM REJECTED') && item.status === 'KAM REJECTED') {
-                                <ng-container>
-                                    <td class="cross"><span>&#10007;</span></td>
-                                </ng-container>
-                            }@else if (isGenerated(item, 'KAM VERIFIED')) {
-                                <ng-container>
-                                    <td class="check">
-                                        <span>&#10003;</span>
-                                    </td>
-                                </ng-container>
-                            }@else {<td>-</td>}
-            
-                            @if (isGenerated(item, 'AM REJECTED') && item.status === 'AM REJECTED')
- {
-                                <ng-container>
-                                    <td class="cross"><span>&#10007;</span></td>
-                                </ng-container>
-                            }@else if (isGenerated(item, 'AM VERIFIED')) {
-                                <ng-container>
-                                    <td class="check">
-                                        <span>&#10003;</span>
-                                    </td>
-                                </ng-container>
-                            }@else { <td>-</td> }
-            
-                            @if (isGenerated(item, 'BANK SLIP ISSUED')) {
-                                <ng-container>
-                                    <td class="check">
-                                        <span>&#10003;</span>
-                                    </td>
-                                </ng-container>
-                            }@else { <td>-</td> }
-                        </tr>
-                    }
-                </tbody>
-            </table>
-             
-            <mat-paginator [length]="wtTotalItems" [pageSize]="wtPageSize" [pageIndex]="wtCurrentPage - 1"
-            (page)="onPageChangedWT($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
-            </mat-paginator>
-        </div>
-
-        @if (roleName !== 'Accountant') {
+        @if (wtInvoices.length) {
             <div class="scrollable-table">
-                <h3>CREDIT CARD</h3>
+                <h3>WIRE TRANSFER</h3>
                 <table class="matrix-table">
                     <thead>
-                      <tr>
-                        <th>Entry #</th>
-                        <th>Customer</th>
-                        <th>Attempt</th>
-                        <th>INITIATED</th>
-                        <th>AM APPROVED</th>
-                        <th>COMPLETED</th>
-                      </tr>
+                        <tr>
+                            <th>Entry #</th>
+                            <th>Customer</th>
+                            <th>Attempt</th>
+                            <th>SP</th>
+                            <th>KAM</th>
+                            <th>AM</th>
+                            <th>Slip</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    @for (item of invoices; track $index) {
-                        <tr>
-                            <td class="project">
-                                <a [routerLink]="['/login/viewApproval/viewinvoices', item.id]" 
-                                   (click)="$event.preventDefault(); openInvoice(item.id)"
-                                   style="cursor: pointer; text-decoration: underline; color: #007bff; transition: color 0.3s;" 
-                                   (mouseenter)="onMouseEnter($event)" 
-                                   (mouseleave)="onMouseLeave($event)">
-                                   {{ item.piNo }}
-                                </a>
-                            </td>
-                            <td class="project" style="background-color: white; color: rgb(6, 49, 105);">
-                                {{ item.customers?.companyName ?? 'To Stock' }}
-                            </td>
-                            <td class="project" style="background-color: white; color: rgb(6, 49, 105);">
-                                {{ item.count }}
-                            </td>
-                            
-                            @if (isGenerated(item, 'INITIATED')) {
-                                <ng-container>
-                                    <td class="check">
-                                        <span>&#10003;</span>
-                                    </td>
-                                </ng-container>
-                            }@else{
-                                <td>-</td>
-                            }
-                            @if (isGenerated(item, 'AM REJECTED') && (item.status ===  'AM REJECTED')) {
-                                <ng-container>
-                                    <td class="cross"><span>&#10007;</span></td>
-                                </ng-container>
-                            }@else if (isGenerated(item, 'AM APPROVED')) {
-                                <ng-container>
-                                    <td class="check"> <span>&#10003;</span> </td>
-                                </ng-container>
-                            }@else {<td>-</td> }
+                        @for (item of wtInvoices; track $index) {
+                            <tr>
+                                <td class="project">
+                                    <a [routerLink]="['/login/viewApproval/viewinvoices', item.id]" 
+                                    (click)="$event.preventDefault(); openInvoice(item.id)"
+                                    style="cursor: pointer; text-decoration: underline; color: #007bff; transition: color 0.3s;" 
+                                    (mouseenter)="onMouseEnter($event)" 
+                                    (mouseleave)="onMouseLeave($event)">
+                                    {{ item.piNo }}
+                                    </a>
+                                </td>
+                                <td class="project" style="background-color: white; color: rgb(6, 49, 105);">
+                                    {{ item.customers?.companyName ?? 'To Stock' }}
+                                </td>
+                                <td class="project" style="background-color: white; color: rgb(6, 49, 105);">
+                                    {{ item.count }}
+                                </td>
+                                
+                                @if (isGenerated(item, 'GENERATED')) {
+                                    <ng-container>
+                                        <td class="check">
+                                            <span>&#10003;</span>
+                                        </td>
+                                    </ng-container>
+                                }@else{ <td>-</td> }
         
-            
-                            @if (isGenerated(item, [ 'CARD PAYMENT SUCCESS'])) {
-                                <ng-container>
-                                    <td class="check">
-                                        <span>&#10003;</span>
-                                    </td>
-                                </ng-container>
-                            }@else { <td>-</td> }
-                          </tr>
-                    }
-        
+                                @if (isGenerated(item, 'KAM REJECTED') && item.status === 'KAM REJECTED') {
+                                    <ng-container>
+                                        <td class="cross"><span>&#10007;</span></td>
+                                    </ng-container>
+                                }@else if (isGenerated(item, 'KAM VERIFIED')) {
+                                    <ng-container>
+                                        <td class="check">
+                                            <span>&#10003;</span>
+                                        </td>
+                                    </ng-container>
+                                }@else {<td>-</td>}
+                
+                                @if (isGenerated(item, 'AM REJECTED') && item.status === 'AM REJECTED')
+    {
+                                    <ng-container>
+                                        <td class="cross"><span>&#10007;</span></td>
+                                    </ng-container>
+                                }@else if (isGenerated(item, 'AM VERIFIED')) {
+                                    <ng-container>
+                                        <td class="check">
+                                            <span>&#10003;</span>
+                                        </td>
+                                    </ng-container>
+                                }@else { <td>-</td> }
+                
+                                @if (isGenerated(item, 'BANK SLIP ISSUED')) {
+                                    <ng-container>
+                                        <td class="check">
+                                            <span>&#10003;</span>
+                                        </td>
+                                    </ng-container>
+                                }@else { <td>-</td> }
+                            </tr>
+                        }
                     </tbody>
-                </table>  
-                <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
-                (page)="onPageChanged($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
+                </table>
+                
+                <mat-paginator [length]="wtTotalItems" [pageSize]="wtPageSize" [pageIndex]="wtCurrentPage - 1"
+                (page)="onPageChangedWT($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
                 </mat-paginator>
-              </div>
+            </div>
         }
 
+
+        @if (roleName !== 'Accountant') {
+            @if (invoices.length) {
+                <div class="scrollable-table">
+                    <h3>CREDIT CARD</h3>
+                    <table class="matrix-table">
+                        <thead>
+                        <tr>
+                            <th>Entry #</th>
+                            <th>Customer</th>
+                            <th>Attempt</th>
+                            <th>INITIATED</th>
+                            <th>AM APPROVED</th>
+                            <th>COMPLETED</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @for (item of invoices; track $index) {
+                            <tr>
+                                <td class="project">
+                                    <a [routerLink]="['/login/viewApproval/viewinvoices', item.id]" 
+                                    (click)="$event.preventDefault(); openInvoice(item.id)"
+                                    style="cursor: pointer; text-decoration: underline; color: #007bff; transition: color 0.3s;" 
+                                    (mouseenter)="onMouseEnter($event)" 
+                                    (mouseleave)="onMouseLeave($event)">
+                                    {{ item.piNo }}
+                                    </a>
+                                </td>
+                                <td class="project" style="background-color: white; color: rgb(6, 49, 105);">
+                                    {{ item.customers?.companyName ?? 'To Stock' }}
+                                </td>
+                                <td class="project" style="background-color: white; color: rgb(6, 49, 105);">
+                                    {{ item.count }}
+                                </td>
+                                
+                                @if (isGenerated(item, 'INITIATED')) {
+                                    <ng-container>
+                                        <td class="check">
+                                            <span>&#10003;</span>
+                                        </td>
+                                    </ng-container>
+                                }@else{
+                                    <td>-</td>
+                                }
+                                @if (isGenerated(item, 'AM REJECTED') && (item.status ===  'AM REJECTED')) {
+                                    <ng-container>
+                                        <td class="cross"><span>&#10007;</span></td>
+                                    </ng-container>
+                                }@else if (isGenerated(item, 'AM APPROVED')) {
+                                    <ng-container>
+                                        <td class="check"> <span>&#10003;</span> </td>
+                                    </ng-container>
+                                }@else {<td>-</td> }
+            
+                
+                                @if (isGenerated(item, [ 'CARD PAYMENT SUCCESS'])) {
+                                    <ng-container>
+                                        <td class="check">
+                                            <span>&#10003;</span>
+                                        </td>
+                                    </ng-container>
+                                }@else { <td>-</td> }
+                            </tr>
+                        }
+            
+                        </tbody>
+                    </table>  
+                    <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
+                    (page)="onPageChanged($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
+                    </mat-paginator>
+                </div>
+            }
+        }
+
+        @if (expenses.length) {
+            <div class="scrollable-table">
+                <h3>EXPENSES</h3>
+                <table class="matrix-table">
+                    <thead>
+                        <tr>
+                            <th>Entry #</th>
+                            <th>User</th>
+                            <th>Attempt</th>
+                            <th>Added</th>
+                            <th>AM</th>
+                            <th>Slip</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (item of expenses; track $index) {
+                            <tr>
+                                <td class="project">
+                                    <a [routerLink]="['/login/viewApproval/viewinvoices', item.id]" 
+                                    (click)="$event.preventDefault(); openInvoice(item.id)"
+                                    style="cursor: pointer; text-decoration: underline; color: #007bff; transition: color 0.3s;" 
+                                    (mouseenter)="onMouseEnter($event)" 
+                                    (mouseleave)="onMouseLeave($event)">
+                                    {{ item.exNo }}
+                                    </a>
+                                </td>
+                                <td class="project" style="background-color: white; color: rgb(6, 49, 105);">
+                                    {{ item.user.name}}
+                                </td>
+                                <td class="project" style="background-color: white; color: rgb(6, 49, 105);">
+                                    {{ item.count }}
+                                </td>
+                                
+                                @if (isExpenseGenerated(item, 'Generated')) {
+                                    <ng-container>
+                                        <td class="check">
+                                            <span>&#10003;</span>
+                                        </td>
+                                    </ng-container>
+                                }@else{ <td>-</td> }
+                
+                                @if (isExpenseGenerated(item, 'AM Verified') && item.status === 'AM Rejected')
+    {
+                                    <ng-container>
+                                        <td class="cross"><span>&#10007;</span></td>
+                                    </ng-container>
+                                }@else if (isExpenseGenerated(item, 'AM Verified')) {
+                                    <ng-container>
+                                        <td class="check">
+                                            <span>&#10003;</span>
+                                        </td>
+                                    </ng-container>
+                                }@else { <td>-</td> }
+                
+                                @if (isExpenseGenerated(item, 'PaymentCompleted')) {
+                                    <ng-container>
+                                        <td class="check">
+                                            <span>&#10003;</span>
+                                        </td>
+                                    </ng-container>
+                                }@else { <td>-</td> }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                
+                <mat-paginator [length]="wtTotalItems" [pageSize]="wtPageSize" [pageIndex]="wtCurrentPage - 1"
+                (page)="onPageChangedWT($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
+                </mat-paginator>
+            </div>
+        }
     </div>
 </body>

@@ -318,7 +318,7 @@ router.patch('/statusupdate/', authenticateToken, async (req, res) => {
                 roleId: mp.user.roleId,
                 payedFor: mp.payedFor // ensure this is the correct property for month
             };
-            const token = jwt.sign(tokenPayload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
+            const token = jwt.sign(tokenPayload, process.env.ACCESS_TOKEN_SECRET);
 
             const downloadUrl = `${req.protocol}://${req.get('host')}/monthlypayroll/download-payslip/${token}`;
             await sendPayrollEmail(mp.user.email, null, `Payslip for - ${mp.payedFor}`, mp.payedFor, mp.user.name, req, downloadUrl);
@@ -586,36 +586,49 @@ router.get('/ytd', async (req, res) => {
 
 // Secure endpoint to download payslip PDF
 router.get("/download-payslip/:token", async (req, res) => {
-  const jwt = require('jsonwebtoken');
-  
   try {
     const token = req.params.token;
-    const payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
+    // -------------------------------
+    //   ⛔ NO VERIFICATION (temporary)
+    //   Decode JWT payload only
+    // -------------------------------
+    const base64Payload = token.split(".")[1]; // middle part is payload
+    // if (!base64Payload) {
+    //   return res.status(400).send("Invalid token format");
+    // }
+
+    // Base64URL → Base64
+    const normalized = base64Payload.replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(Buffer.from(normalized, "base64").toString());
+
+    // --------------------------------
+    // Extract data from payload
+    // --------------------------------
     const email = payload.email;
+    const month = payload.payedFor;
+
     const user = await User.findOne({ where: { email } });
     const userId = user?.id;
 
     if (!userId || !email) {
-      return res.status(400).send("Invalid token: missing user information");
+      return res.status(400).send("Invalid token: missing user info");
     }
 
-    const month = payload.payedFor;
-
     const payroll = await MonthlyPayroll.findOne({
-      where: { userId, payedFor: month, status: 'Locked' },
+      where: { userId, payedFor: month, status: "Locked" },
       include: [
         {
-          model: User, as: 'user',
-          attributes: ['name', 'empNo', 'email'],
+          model: User, as: "user",
+          attributes: ["name", "empNo", "email"],
           include: [
-            { model: UserPersonal, as: 'userpersonal', attributes: ['dateOfJoining'] },
+            { model: UserPersonal, as: "userpersonal", attributes: ["dateOfJoining"] },
             { model: UserAccount },
-            { model: StatutoryInfo, attributes: ['panNumber', 'uanNumber', 'pfNumber'] },
+            { model: StatutoryInfo, attributes: ["panNumber", "uanNumber", "pfNumber"] },
             {
               model: UserPosition,
-              attributes: ['designationId', 'department', 'location'],
-              include: [{ model: Designation, attributes: ['designationName'] }]
+              attributes: ["designationId", "department", "location"],
+              include: [{ model: Designation, attributes: ["designationName"] }]
             }
           ]
         }
@@ -623,33 +636,24 @@ router.get("/download-payslip/:token", async (req, res) => {
     });
 
     if (!payroll) {
-      return res.status(404).send("No approved payroll found for this user");
+      return res.status(404).send("No approved payroll found");
     }
 
-    if (!payroll.user || payroll.user.email !== email) {
-      return res.status(403).send("Unauthorized access to payslip");
-    }
-
-    // Generate HTML and PDF
+    // Generate PDF
     const payslipHTML = generatePayslipHTML(payroll);
     const pdfBuffer = await generatePDF(payslipHTML);
 
-    // ✅ Important: set headers before sending
     res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="PaySlip_${payroll.payedFor}_${payroll.user.name}.pdf"`,
-      'Content-Length': pdfBuffer.length
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="PaySlip_${payroll.payedFor}_${payroll.user.name}.pdf"`,
+      "Content-Length": pdfBuffer.length
     });
 
-    // ✅ Send PDF only once
     res.end(pdfBuffer);
 
   } catch (error) {
     console.error("Error generating payslip PDF:", error);
-    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-      return res.status(401).send("Invalid or expired link. Please request a new payslip.");
-    }
-    res.status(500).send("Error generating payslip. Please try again later.");
+    return res.status(500).send("Error generating payslip.");
   }
 });
 

@@ -317,5 +317,25 @@ router.get('/forencashment/:year', async (req, res) => {
 });
 
 
+router.delete('/:id', authenticateToken, async(req,res)=>{
+  try {
+      const result = await UserLeave.destroy({
+          where: { id: req.params.id },
+          force: true,
+      });
+
+      if (result === 0) {
+          return res.status(404).json({
+            status: "fail",
+            message: "UserLeave with that ID not found",
+          });
+        }
+    
+        res.status(204).json();
+      }  catch (error) {
+        res.send(error.message);
+  }
+  
+})
 
 module.exports = router;
