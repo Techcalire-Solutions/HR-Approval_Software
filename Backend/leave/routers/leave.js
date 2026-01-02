@@ -28,13 +28,13 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
     let { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates, status } = req.body;
+    // const penalty = calculatePenaltyLOP(endDate);
 
     if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
       await transaction.rollback();
       return res.json({ message: 'Missing required fields' });
     }
 
-    // Check user and leave type
     const user = await User.findByPk(userId);
     if (!user) {
       await transaction.rollback();
@@ -56,20 +56,37 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
     });
 
     const noOfDaysByYear = {};
-    let totalRequiredDays = 0; 
+    let totalRequiredDays = 0;
+
     Object.keys(datesByYear).forEach(year => {
-      let totalDays = 0; // Inlined logic for calculating leave days
+      let totalDays = 0;
       datesByYear[year].forEach(date => {
-        if (date.session1 !== undefined && date.session2 !== undefined) {
-          if (date.session1 && date.session2) {
-            totalDays += 1; // Full day leave
-          } else if (date.session1 || date.session2) {
-            totalDays += 0.5; // Half day leave
-          }
+        if (date.session1 && date.session2) {
+          totalDays += 1;
+        } else if (date.session1 || date.session2) {
+          totalDays += 0.5;
         }
       });
       noOfDaysByYear[year] = totalDays;
+      totalRequiredDays += totalDays; // * ONLY ADD HERE
     });
+
+    // 2. PENALTY LOGIC
+    let penaltyLOP = 0;
+    const applicationDate = new Date();
+    const leaveStartDate = new Date(startDate);
+    const diffTime = applicationDate - leaveStartDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays >= 1) {
+      penaltyLOP = totalRequiredDays;
+      notes = notes + " (Penalty: Late application - 1:1 LOP applied)";
+    }
+
+
+    // --- ADDED LOGIC START ---
+    // --- HIGHLIGHTED CHANGE AREA ---
+
 
     // Check balance for each year
     const userLeaves = new Map();
@@ -96,7 +113,7 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
       });
 
       const requiredDays = noOfDaysByYear[year];
-      totalRequiredDays += requiredDays; 
+      // totalRequiredDays += requiredDays; 
       if (userLeave.leaveBalance < requiredDays && !isLOP) {
         await transaction.rollback();
         return res.json({ message: `Insufficient leave balance for year ${year}` });
@@ -110,28 +127,43 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
         },
         transaction,
       });
-      if (userLeave.leaveBalance < (pendingLeaves + requiredDays )&& !isLOP) {
+      if (userLeave.leaveBalance < (pendingLeaves + requiredDays) && !isLOP) {
         await transaction.rollback();
-        return res.json({ message: `Insufficient leave balance. You have already applied for ${pendingLeaves} days of leave,
+        return res.json({
+          message: `Insufficient leave balance. You have already applied for ${pendingLeaves} days of leave,
           and your current balance is ${userLeave.leaveBalance} days. 
-          You need an additional ${requiredDays} days for this request.` });
+          You need an additional ${requiredDays} days for this request.`
+        });
       }
     }
 
     // Create leave records
+    // const leave = await Leave.create({
+    //   userId,
+    //   leaveTypeId,
+    //   startDate: startDate,
+    //   endDate: endDate,
+    //   noOfDays: totalRequiredDays,
+    //   notes,
+    //   fileUrl,
+    //   status: 'Requested',
+    //   leaveDates,
+    // }, { transaction });
+    // Send notifications and emails
+    //  penaltyLOP = noOfDays
     const leave = await Leave.create({
       userId,
       leaveTypeId,
-      startDate: startDate,
-      endDate: endDate,
+      startDate,
+      endDate,
       noOfDays: totalRequiredDays,
+      penaltyLOP: penaltyLOP,
       notes,
       fileUrl,
       status: 'Requested',
       leaveDates,
     }, { transaction });
-    // Send notifications and emails
-  
+
     const not = await handleNotificationsAndEmails(req, res, leave, transaction, 'employee', 'Create');
     await transaction.commit();
     res.json({
@@ -144,7 +176,7 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
     if (!transaction.finished) {
       await transaction.rollback(); // Rollback only if the transaction is not finished
     }
-    res.json({error: error.message });
+    res.json({ error: error.message });
   }
 });
 
@@ -233,7 +265,7 @@ router.patch('/updateemployeeleave/:id', authenticateToken, async (req, res) => 
         // Check if the updated leave request would exceed the available balance
         if (userLeave.leaveBalance < (pendingLeaves + days)) {
           await transaction.rollback();
-          return res.json({ 
+          return res.json({
             message: `Insufficient leave balance. You have already applied for ${pendingLeaves} days of leave,
             and your current balance is ${userLeave.leaveBalance} days. 
             You need an additional ${days} days for this request.`
@@ -313,7 +345,7 @@ router.get('/user/:userId', async (req, res) => {
       offset,
       where: whereClause,
       include: [
-        { model: User, as: 'user', attributes: ['name', 'empNo'], required: true},
+        { model: User, as: 'user', attributes: ['name', 'empNo'], required: true },
         { model: LeaveType, as: 'leaveType', attributes: ['id', 'leaveTypeName'] }
       ]
     });
@@ -401,13 +433,13 @@ router.get('/find/requested', async (req, res) => {
   try {
     let limit;
     let offset;
-  
+
     if (typeof req.query.pageSize !== 'undefined' && typeof req.query.page !== 'undefined') {
       limit = parseInt(req.query.pageSize, 10);
       offset = (parseInt(req.query.page, 10) - 1) * limit;
-    }  
+    }
     const leave = await Leave.findAll({
-      order: [['id', 'DESC']], where: {status: 'Requested'},
+      order: [['id', 'DESC']], where: { status: 'Requested' },
       limit,
       offset,
       include: [
@@ -425,9 +457,9 @@ router.get('/find/requested', async (req, res) => {
         }
       ]
     });
-    
-    const totalCount = await Leave.count({ where: {status: 'Requested'}});
-    
+
+    const totalCount = await Leave.count({ where: { status: 'Requested' } });
+
     if (typeof req.query.page !== 'undefined' && typeof req.query.pageSize !== 'undefined') {
       const response = {
         count: totalCount,
@@ -488,17 +520,17 @@ router.get('/find', async (req, res) => {
           },
           searchTerm
             ? {
-                [Op.or]: [
-                  sequelize.where(
-                    sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.name'), ' ', '')),
-                    { [Op.like]: `%${searchTerm}%` }
-                  ),
-                  sequelize.where(
-                    sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('leaveType.leaveTypeName'), ' ', '')),
-                    { [Op.like]: `%${searchTerm}%` }
-                  )
-                ]
-              }
+              [Op.or]: [
+                sequelize.where(
+                  sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.name'), ' ', '')),
+                  { [Op.like]: `%${searchTerm}%` }
+                ),
+                sequelize.where(
+                  sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('leaveType.leaveTypeName'), ' ', '')),
+                  { [Op.like]: `%${searchTerm}%` }
+                )
+              ]
+            }
             : {}
         ]
       }
@@ -566,17 +598,17 @@ router.get('/findlocked', async (req, res) => {
           },
           searchTerm
             ? {
-                [Op.or]: [
-                  sequelize.where(
-                    sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.name'), ' ', '')),
-                    { [Op.like]: `%${searchTerm}%` }
-                  ),
-                  sequelize.where(
-                    sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('leaveType.leaveTypeName'), ' ', '')),
-                    { [Op.like]: `%${searchTerm}%` }
-                  )
-                ]
-              }
+              [Op.or]: [
+                sequelize.where(
+                  sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.name'), ' ', '')),
+                  { [Op.like]: `%${searchTerm}%` }
+                ),
+                sequelize.where(
+                  sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('leaveType.leaveTypeName'), ' ', '')),
+                  { [Op.like]: `%${searchTerm}%` }
+                )
+              ]
+            }
             : {}
         ]
       }
@@ -706,7 +738,7 @@ router.post('/emergencyLeave', authenticateToken, async (req, res) => {
     for (const [year, dates] of datesByYear) {
       const { instance: userLeave } = userLeaves.get(year);
       userLeave.takenLeaves += totalBalanceDays;
-      if(!isLOP){
+      if (!isLOP) {
         userLeave.leaveBalance -= totalBalanceDays;
       }
       await userLeave.save({ transaction });
@@ -764,7 +796,7 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
 
     // Fetch leave type within transaction
     const leaveType = await LeaveType.findOne({ where: { id: leaveTypeId }, transaction });
-    
+
     if (!leaveType) {
       await transaction.rollback();
       return res.json({ message: 'Leave type not found' });
@@ -772,7 +804,7 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
 
     // Fetch existing leave record
     const existingLeave = await Leave.findByPk(req.params.id, { transaction });
-    
+
     if (!existingLeave) {
       await transaction.rollback();
       return res.json({ message: 'Leave record not found' });
@@ -783,10 +815,10 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
     if (shouldRevertPrevious) {
       const oldYear = new Date(existingLeave.startDate).getFullYear().toString();
       const oldUL = await UserLeave.findOne({
-        where: { 
-          userId: existingLeave.userId, 
-          leaveTypeId: existingLeave.leaveTypeId, 
-          year: oldYear 
+        where: {
+          userId: existingLeave.userId,
+          leaveTypeId: existingLeave.leaveTypeId,
+          year: oldYear
         },
         transaction,
       });
@@ -831,7 +863,7 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
     //     transaction,
     //   });
     //   console.log(userLeave,"6666666666666");
-      
+
     //   if (!userLeave) {
     //     userLeave = await UserLeave.create({
     //       userId,
@@ -849,7 +881,7 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
     //     days: totalDays
     //   });
     //   console.log(userLeaves);
-      
+
     //   // Calculate pending leaves for the user (excluding current leave if it was pending)
     //   const pendingWhere = {
     //     userId,
@@ -877,14 +909,14 @@ router.patch('/updateemergencyLeave/:id', authenticateToken, async (req, res) =>
 
     // Update UserLeave records only if status is Approved/AdminApproved
     const shouldUpdateCounts = ['Approved', 'AdminApproved'].includes(status);
-    
+
     if (shouldUpdateCounts) {
       for (const [year, { instance: userLeave, days }] of userLeaves) {
         userLeave.takenLeaves += days;
         if (!isLOP) {
           userLeave.leaveBalance -= days;
         }
-        
+
         await userLeave.save({ transaction });
       }
     }
@@ -928,14 +960,14 @@ router.get('/:id', async (req, res) => {
           attributes: ['id', 'leaveTypeName'],
         },
         {
-          model: User, as: 'user', include :[
-            { model: UserPersonal, as:'userpersonal', attributes: ['reportingMangerId']}
+          model: User, as: 'user', include: [
+            { model: UserPersonal, as: 'userpersonal', attributes: ['reportingMangerId'] }
           ],
           attributes: ['name'],
         },
       ],
     });
-    
+
     if (leave) {
       res.send(leave);
     } else {
@@ -1098,106 +1130,107 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
   }
 
   // for (const leave of leaves) {
-    const lt = await LeaveType.findByPk( leave.leaveTypeId );
-    
-    if(!lt) message.push(`LeaveType with ID ${leave.leaveTypeId} is not existing`)
-    // Handle Reporting Manager
-    const rmId = await getRMId(req.body.userId ? req.body.userId : leave.userId);
-    if (Number.isInteger(rmId)) {
+  const lt = await LeaveType.findByPk(leave.leaveTypeId);
+
+  if (!lt) message.push(`LeaveType with ID ${leave.leaveTypeId} is not existing`)
+  // Handle Reporting Manager
+  const rmId = await getRMId(req.body.userId ? req.body.userId : leave.userId);
+  if (Number.isInteger(rmId)) {
+    createNotification({
+      id: rmId,
+      me: `leave request has been ${mes}d by ${req.user.name}.`,
+      route: `/login/leave/open/${leave.id}`
+    });
+  } else {
+    message.push(rmId);
+  }
+
+  if (type === 'employee') {
+    const hrId = await getHRId();
+
+    if (Number.isInteger(hrId)) {
       createNotification({
-        id: rmId,
+        id: hrId,
         me: `leave request has been ${mes}d by ${req.user.name}.`,
         route: `/login/leave/open/${leave.id}`
       });
     } else {
-      message.push(rmId);
+      message.push('HR Admin not found');
     }
+  } else {
+    createNotification({
+      id: req.body.userId ? req.body.userId : leave.userId,
+      me: `leave request has been ${mes}d by ${req.user.name}.`,
+      route: `/login/leave/open/${leave.id}`
+    });
+  }
 
-    if (type === 'employee') {
-      const hrId = await getHRId();
-      
-      if (Number.isInteger(hrId)) {
+  // Handle Team Leads
+  try {
+    const teamLeadIds = await getTeamLeads(req.body.userId ? req.body.userId : leave.userId);
+    if (Array.isArray(teamLeadIds)) {
+      for (const tlId of teamLeadIds) {
         createNotification({
-          id: hrId,
+          id: tlId,
           me: `leave request has been ${mes}d by ${req.user.name}.`,
-          route: `/login/leave/open/${leave.id}`
+          route: `/login/leave/${leave.id}`
         });
-      } else {
-        message.push('HR Admin not found');
       }
     } else {
-      createNotification({
-        id: req.body.userId ? req.body.userId : leave.userId,
-        me: `leave request has been ${mes}d by ${req.user.name}.`,
-        route: `/login/leave/open/${leave.id}`
-      });
+      message.push('Failed to get team leads mail');
     }
+  } catch (error) {
+    message.push(`Team lead error: ${error.message}`);
+  }
 
-    // Handle Team Leads
-    try {
-      const teamLeadIds = await getTeamLeads(req.body.userId ? req.body.userId : leave.userId);
-      if (Array.isArray(teamLeadIds)) {
-        for (const tlId of teamLeadIds) {
-          createNotification({
-            id: tlId,
-            me: `leave request has been ${mes}d by ${req.user.name}.`,
-            route: `/login/leave/${leave.id}`
-          });
-        }
-      } else {
-        message.push('Failed to get team leads mail');
-      }
-    } catch (error) {
-      message.push(`Team lead error: ${error.message}`);
-    }
+  // Email handling
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  let hrEmail;
+  let name;
+  if (type === 'employee') {
+    const hr = await getHREmail();
 
-    // Email handling
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    let hrEmail;
-    let name;
-    if (type === 'employee') {
-      const hr = await getHREmail();
-      
-      hrEmail = hr.mail;
-      
-      if (!emailRegex.test(hrEmail)) {
-        message.push(`Invalid HR email: ${hrEmail}`);
-      }else{
-        name = hr.name;
-      }
+    hrEmail = hr.mail;
+
+    if (!emailRegex.test(hrEmail)) {
+      message.push(`Invalid HR email: ${hrEmail}`);
     } else {
-      hrEmail = userPos.officialMailId;
-      name = userPos.user.name;
-      if (!hrEmail) {
-        message.push(`Official mail missing for ${userPos.user.name}`);
-      }
+      name = hr.name;
+    }
+  } else {
+    hrEmail = userPos.officialMailId;
+    name = userPos.user.name;
+    if (!hrEmail) {
+      message.push(`Official mail missing for ${userPos.user.name}`);
+    }
+  }
+
+  // Email sending logic
+  try {
+    const rm = await getReportingManagerEmailForUser(req.body.userId ? req.body.userId : leave.userId);
+    let reportingManagerEmail = rm.email
+    // let operationalManagerEmail = await getOMEmail();
+    let operationalManagerEmail = 'anupama@onboardaero.com';
+    let cc = [];
+    if (!emailRegex.test(reportingManagerEmail)) {
+      message.push(`Invalid reporting manager email: ${reportingManagerEmail}`);
+      reportingManagerEmail = hrEmail;
+    } else {
+      cc.push(hrEmail)
+      name = rm.name
     }
 
-    // Email sending logic
-    try {
-      const rm = await getReportingManagerEmailForUser(req.body.userId ? req.body.userId : leave.userId);
-      let reportingManagerEmail = rm.email
-      let operationalManagerEmail = await getOMEmail();
-      let cc = [];
-      if (!emailRegex.test(reportingManagerEmail)) {
-        message.push(`Invalid reporting manager email: ${reportingManagerEmail}`);
-        reportingManagerEmail = hrEmail;
-      }else{
-        cc.push(hrEmail)
-        name = rm.name
-      }
-
-      if (!emailRegex.test(operationalManagerEmail)) {
-        message.push(`Invalid operational manager email: ${operationalManagerEmail}`);
-      }else{
-        cc.push(operationalManagerEmail)
-      }
-      // Get team lead emails
-      const teamLeadEmails = await getTeamLeadEmails(req.body.userId ? req.body.userId : leave.userId);
-      if (Array.isArray(teamLeadEmails)) {
-        cc.push(teamLeadEmails.filter(email => emailRegex.test(email)))
-      }
-      const emailHtml = `
+    if (!emailRegex.test(operationalManagerEmail)) {
+      message.push(`Invalid operational manager email: ${operationalManagerEmail}`);
+    } else {
+      cc.push(operationalManagerEmail)
+    }
+    // Get team lead emails
+    const teamLeadEmails = await getTeamLeadEmails(req.body.userId ? req.body.userId : leave.userId);
+    if (Array.isArray(teamLeadEmails)) {
+      cc.push(teamLeadEmails.filter(email => emailRegex.test(email)))
+    }
+    const emailHtml = `
         <p>Dear ${name},</p>
         <p>Leave Request has been successfully ${mes}d by ${req.user.name}.</p>
         <ul>
@@ -1208,40 +1241,40 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
           <li>Status: ${leave.status}</li>
         </ul>
       `;
-      
-      await sendEmail(
-        req.headers.authorization?.split(' ')[1],
-        process.env.EMAIL_USER,
-        process.env.EMAIL_PASS,
-        reportingManagerEmail,
-        `Leave Application ${mes}d - ${lt.leaveTypeName}`,
-        emailHtml, // Make sure emailHtml is defined
-        [],
-        cc
-      );
-    } catch (emailError) {
-      message.push(`Email failed: ${emailError.message}`);
-    }
+
+    await sendEmail(
+      req.headers.authorization?.split(' ')[1],
+      process.env.EMAIL_USER,
+      process.env.EMAIL_PASS,
+      reportingManagerEmail,
+      `Leave Application ${mes}d - ${lt.leaveTypeName}`,
+      emailHtml, // Make sure emailHtml is defined
+      [],
+      cc
+    );
+  } catch (emailError) {
+    message.push(`Email failed: ${emailError.message}`);
+  }
   // }
 
   return message; // Return the collected messages array
 }
 
 async function getHREmail() {
-    const hrAdminRole = await Role.findOne({ where: { roleName: 'HR Administrator' } });
-    
-    if (!hrAdminRole) {
-      return ({mail: 'HR Admin role not found'});
-    }
-    const hrAdminUser = await User.findOne({ where: { roleId: hrAdminRole.id, status: true } });
-    if (!hrAdminUser) {
-      return ({mail: 'HR Admin user not found'});
-    }
-    const userPosition = await UserPosition.findOne({ where: { userId: hrAdminUser.id } });
-    if (!userPosition || !userPosition.officialMailId) {
-      return ({mail: 'Official Mail Id not found for HR Admin', name: hrAdminUser.name});
-    }
-    return {mail: userPosition.officialMailId, name: hrAdminUser.name};
+  const hrAdminRole = await Role.findOne({ where: { roleName: 'HR Administrator' } });
+
+  if (!hrAdminRole) {
+    return ({ mail: 'HR Admin role not found' });
+  }
+  const hrAdminUser = await User.findOne({ where: { roleId: hrAdminRole.id, status: true } });
+  if (!hrAdminUser) {
+    return ({ mail: 'HR Admin user not found' });
+  }
+  const userPosition = await UserPosition.findOne({ where: { userId: hrAdminUser.id } });
+  if (!userPosition || !userPosition.officialMailId) {
+    return ({ mail: 'Official Mail Id not found for HR Admin', name: hrAdminUser.name });
+  }
+  return { mail: userPosition.officialMailId, name: hrAdminUser.name };
 }
 
 async function getOMEmail() {
@@ -1256,75 +1289,75 @@ async function getOMEmail() {
 
   return omUserPos.officialMailId;
 }
-  
+
 async function getReportingManagerEmailForUser(userId) {
-    try {
-        const userPersonal = await UserPersonal.findOne({
-        include: [{model: User, as: 'user', attributes: ['name']}],
-        where: { userId },
-        attributes: ['reportingMangerId'],
-        });
-        if (!userPersonal) {
-          return ({email: `Personal details are not added`});
-        }
-
-        const reportingMangerId = userPersonal?.reportingMangerId;
-
-        if (!reportingMangerId) {
-          return ({email: `No reporting manager found for user ${userPersonal.user.name}`});
-        }
-
-        const reportingManagerPosition = await UserPosition.findOne({
-          include: [{model: User, attributes: ['name']}],
-          where: { userId: reportingMangerId },
-          attributes: ['officialMailId'],
-        });
-        
-        if (reportingManagerPosition && reportingManagerPosition.officialMailId) {
-          return {email: reportingManagerPosition.officialMailId, name: reportingManagerPosition.user.name};
-        } else {
-          return ({email: `Official mail is not added for reportingManger ${reportingManagerPosition.user.name}`});
-        }
-    } catch (error) {
-        return {email: error.message};
+  try {
+    const userPersonal = await UserPersonal.findOne({
+      include: [{ model: User, as: 'user', attributes: ['name'] }],
+      where: { userId },
+      attributes: ['reportingMangerId'],
+    });
+    if (!userPersonal) {
+      return ({ email: `Personal details are not added` });
     }
+
+    const reportingMangerId = userPersonal?.reportingMangerId;
+
+    if (!reportingMangerId) {
+      return ({ email: `No reporting manager found for user ${userPersonal.user.name}` });
+    }
+
+    const reportingManagerPosition = await UserPosition.findOne({
+      include: [{ model: User, attributes: ['name'] }],
+      where: { userId: reportingMangerId },
+      attributes: ['officialMailId'],
+    });
+
+    if (reportingManagerPosition && reportingManagerPosition.officialMailId) {
+      return { email: reportingManagerPosition.officialMailId, name: reportingManagerPosition.user.name };
+    } else {
+      return ({ email: `Official mail is not added for reportingManger ${reportingManagerPosition.user.name}` });
+    }
+  } catch (error) {
+    return { email: error.message };
+  }
 }
 
 async function getTeamLeadEmails(userId) {
   try {
-      const team = await UserPosition.findOne({ where: { userId } });
-      if (!team) {
-          return(`No team found for user with ID: ${userId}`);
-      }
-      
-      let teamId = team.teamId;
-      
-      if(teamId === null){
-        const tm = await TeamMember.findOne({where: {userId}})
-        if(!tm) return
-        teamId = tm.teamId;
-      }
-      if(teamId !== null){
-        const tls = await TeamLeader.findAll({ 
-          where: { teamId }, include: {
-            model: User, attributes: ['name'],           
-            include: { 
-              model: UserPosition, 
-              attributes: ['officialMailId'] 
-            }
+    const team = await UserPosition.findOne({ where: { userId } });
+    if (!team) {
+      return (`No team found for user with ID: ${userId}`);
+    }
+
+    let teamId = team.teamId;
+
+    if (teamId === null) {
+      const tm = await TeamMember.findOne({ where: { userId } })
+      if (!tm) return
+      teamId = tm.teamId;
+    }
+    if (teamId !== null) {
+      const tls = await TeamLeader.findAll({
+        where: { teamId }, include: {
+          model: User, attributes: ['name'],
+          include: {
+            model: UserPosition,
+            attributes: ['officialMailId']
           }
+        }
       });
-      
+
       if (tls.length === 0) {
-          return(`No team leads found for team with ID: ${teamId}`);
+        return (`No team leads found for team with ID: ${teamId}`);
       }
 
       const tlEmails = tls.map(tl => tl.user.userPosition?.officialMailId).filter(email => email);
-      if(!tlEmails.length) return ("Official MailId is not added for TLs");
+      if (!tlEmails.length) return ("Official MailId is not added for TLs");
       return tlEmails;
-      }
+    }
   } catch (error) {
-      return error.message;
+    return error.message;
   }
 }
 
@@ -1332,19 +1365,19 @@ async function getRMId(userId) {
   try {
     const userPersonal = await UserPersonal.findOne({
       where: { userId },
-      attributes: ['reportingMangerId'], include: { model: User, as: 'user', attributes: ['name']}
-      });
-      if (!userPersonal || !userPersonal?.reportingMangerId) {
-        return ( `Reporting manager is not found`);
-      }
+      attributes: ['reportingMangerId'], include: { model: User, as: 'user', attributes: ['name'] }
+    });
+    if (!userPersonal || !userPersonal?.reportingMangerId) {
+      return (`Reporting manager is not found`);
+    }
 
-      const reportingMangerId = userPersonal?.reportingMangerId;
+    const reportingMangerId = userPersonal?.reportingMangerId;
 
-      if (!reportingMangerId) {
-        return ( `No reporting manager found for userId ${userId}`);
-      }
+    if (!reportingMangerId) {
+      return (`No reporting manager found for userId ${userId}`);
+    }
 
-      return reportingMangerId;
+    return reportingMangerId;
   } catch (error) {
     return error.message
   }
@@ -1363,25 +1396,25 @@ async function getHRId() {
     return hrAdminUser.id;
   } catch (error) {
     res.send(error.message)
-  } 
+  }
 }
 
 async function getTeamLeads(userId) {
   try {
     const team = await UserPosition.findOne({ where: { userId } });
     if (!team) {
-        return(`No team found for user with ID: ${userId}`);
+      return (`No team found for user with ID: ${userId}`);
     }
     const teamId = team.id;
-    
-    const tls = await TeamLeader.findAll({ where: { teamId }, include: {model: User, attributes: ['id']} });
+
+    const tls = await TeamLeader.findAll({ where: { teamId }, include: { model: User, attributes: ['id'] } });
     const tlIds = tls.map(tl => tl.user.id);
     return tlIds;
 
     // if(!tlEmails.length) return ("Official MailId is not added for TLs");
-} catch (error) {
+  } catch (error) {
     return error.message;
-}
+  }
 }
 
 async function calculateDays(dateObj) {
@@ -1390,7 +1423,7 @@ async function calculateDays(dateObj) {
 
 async function createLeaveRecord({ userId, leaveTypeId, dates, notes, fileUrl, status, transaction }) {
   if (dates.length === 0) return null;
-  
+
   const sortedDates = dates.sort((a, b) => new Date(a.date) - new Date(b.date));
 
   const daysArray = await Promise.all(dates.map(date => calculateDays(date)));
@@ -1411,20 +1444,20 @@ async function createLeaveRecord({ userId, leaveTypeId, dates, notes, fileUrl, s
 async function updateLeaveRecord({ leaveId, userId, leaveTypeId, dates, notes, fileUrl, transaction }) {
   const leave = await Leave.findByPk(leaveId, { transaction });
   if (!leave) throw new Error('Leave not found');
-  
+
   // Get the old leave details
   // Calculate new leave details
   const daysArray = await Promise.all(dates.map(date => calculateDays(date)));
   const newNoOfDays = daysArray.reduce((sum, days) => sum + days, 0);
   const newYear = new Date(dates[0].date).getFullYear().toString();
-  
+
   const newUL = await UserLeave.findOne({ where: { userId, leaveTypeId, year: newYear }, transaction });
-  
+
   if (newUL) {
     newUL.takenLeaves += newNoOfDays;
     newUL.leaveBalance -= newNoOfDays;
     await newUL.save({ transaction });
-    
+
   }
 
   // Update the leave record
@@ -1554,9 +1587,10 @@ router.patch('/updateLeaveFileUrl/:leaveId', authenticateToken, async (req, res)
   } catch (error) {
     return res.send({ message: error.message });
   }
-});  
+});
 
 // ------------------------------------------------------------------APPROVAL--------------------------------------------------------
+
 router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
   const leaveId = req.params.id;
   const { adminNotes } = req.body;
@@ -1571,7 +1605,7 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     });
 
     if (!leave) {
-      return res.send({message: 'Leave request not found'});
+      return res.send({ message: 'Leave request not found' });
     }
 
     const userId = leave.userId;
@@ -1597,9 +1631,11 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     const rm = (await getReportingManagerEmailForUser(leave.userId))
     const rmEmail = rm.email;
     const teamLeads = await getTeamLeadEmails(leave.userId);
+    console.log(teamLeads);
+
     const omMail = await getOMEmail();
 
-    const ccRecipients = [hrEmail, rmEmail, ...teamLeads, omMail].filter(email => email);
+    const ccRecipients = [hrEmail, rmEmail, ...(Array.isArray(teamLeads) ? teamLeads : []), omMail].filter(email => email);
 
     // Handle LOP leave type
     if (leaveType.leaveTypeName === 'LOP') {
@@ -1613,11 +1649,11 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
             year: startYear,
           },
         });
-    
+
         if (!userLeave) {
           return res.status(404).send('User leave record not found for the requested year');
         }
-    
+
         // Update takenLeave for the year
         userLeave.takenLeaves += leave.noOfDays;
         await userLeave.save();
@@ -1625,10 +1661,10 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
         // Leave spans multiple years
         const endOfStartYear = new Date(startYear, 11, 31);
         const startOfEndYear = new Date(endYear, 0, 1);
-    
+
         const daysInStartYear = calculateDays(startDate, endOfStartYear);
         const daysInEndYear = calculateDays(startOfEndYear, endDate);
-    
+
         const userLeaveStartYear = await UserLeave.findOne({
           where: {
             userId: leave.userId,
@@ -1636,7 +1672,7 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
             year: startYear,
           },
         });
-    
+
         const userLeaveEndYear = await UserLeave.findOne({
           where: {
             userId: leave.userId,
@@ -1644,43 +1680,58 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
             year: endYear,
           },
         });
-    
+
         if (!userLeaveStartYear || !userLeaveEndYear) {
           return res.send('User leave record not found for one or both years');
         }
-    
+
         // Update takenLeave for both years
         userLeaveStartYear.takenLeaves += daysInStartYear;
         userLeaveEndYear.takenLeaves += daysInEndYear;
-    
+
         await userLeaveStartYear.save();
         await userLeaveEndYear.save();
       }
-    
+
+      // Handle penalty for LOP leave types
+      if (leave.penaltyLOP > 0) {
+        // console.log("Processing Penalty LOP:", leave.penaltyLOP);
+        const lopType = await LeaveType.findOne({ where: { leaveTypeName: 'LOP' } });
+        if (lopType) {
+          const [userLOP] = await UserLeave.findOrCreate({
+            where: { userId: leave.userId, leaveTypeId: lopType.id, year: startYear },
+            defaults: { leaveBalance: 0, takenLeaves: 0, noOfDays: 0 }
+          });
+          userLOP.takenLeaves += parseFloat(leave.penaltyLOP);
+          await userLOP.save();
+          console.log("Penalty Applied to LOP record successfully");
+        }
+      }
+
       // Approve the leave
       leave.status = 'Approved';
       leave.adminNotes = adminNotes;
       await leave.save();
-    
+
       // Send notifications
       let id = userId;
       const me = `${leave.user.name}'s Leave Request Approved by ${req.user.name}`;
       const route = `/login/leave/open/${leave.id}`;
-    
+
       createNotification({ id, me, route });
-    
+
       const hrId = await getHRId();
       if (Number.isInteger(hrId)) {
         let id = hrId;
         createNotification({ id, me, route });
       }
-    
+
       const rmId = await getRMId(leave.userId);
       if (Number.isInteger(rmId)) {
         let id = rmId;
         createNotification({ id, me, route });
       }
-    
+
       // Send email
       const emailSubject = `Leave Request is Approved`;
       const fromEmail = process.env.EMAIL_USER;
@@ -1699,7 +1750,296 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
       } catch (emailError) {
         console.error('Email sending failed:', emailError);
       }
-    
+
+      return res.send({ message: 'Leave approved successfully as LOP', leave });
+    }
+
+    // Handle non-LOP leave types (Casual Leave, Sick Leave, etc.)
+    let userLeaveStartYear, userLeaveEndYear;
+    let daysInStartYear, daysInEndYear;
+
+    if (startYear === endYear) {
+      userLeaveStartYear = await UserLeave.findOne({
+        where: {
+          userId: leave.userId,
+          leaveTypeId: leave.leaveTypeId,
+          year: startYear
+        }
+      });
+
+      if (!userLeaveStartYear) {
+        return res.send('User leave record not found for the start year');
+      }
+
+      if (userLeaveStartYear.leaveBalance < leave.noOfDays) {
+        return res.json({
+          message: ` Insufficient leave balance for the year ${startYear}`,
+          openNoteDialog: true,
+          lowLeaveMessage: "Insufficient leave balance",
+        });
+      }
+
+      userLeaveStartYear.leaveBalance -= leave.noOfDays;
+      userLeaveStartYear.takenLeaves += leave.noOfDays;
+      await userLeaveStartYear.save();
+
+      // --- ADDED PENALTY LOGIC FOR SINGLE YEAR NON-LOP ---
+      if (leave.penaltyLOP > 0) {
+        console.log("Processing Penalty LOP:", leave.penaltyLOP);
+        const lopType = await LeaveType.findOne({ where: { leaveTypeName: 'LOP' } });
+        if (lopType) {
+          const [userLOP] = await UserLeave.findOrCreate({
+            where: { userId: leave.userId, leaveTypeId: lopType.id, year: startYear },
+            defaults: { leaveBalance: 0, takenLeaves: 0, noOfDays: 0 }
+          });
+          userLOP.takenLeaves += parseFloat(leave.penaltyLOP);
+          await userLOP.save();
+          console.log("Penalty Applied to LOP record successfully");
+        }
+      }
+
+    } else {
+      const endOfStartYear = new Date(startYear, 11, 31);
+      const startOfEndYear = new Date(endYear, 0, 1);
+
+      daysInStartYear = calculateDays(startDate, endOfStartYear);
+      daysInEndYear = calculateDays(startOfEndYear, endDate);
+
+      userLeaveStartYear = await UserLeave.findOne({
+        where: {
+          userId: leave.userId,
+          leaveTypeId: leave.leaveTypeId,
+          year: startYear
+        }
+      });
+
+      userLeaveEndYear = await UserLeave.findOne({
+        where: {
+          userId: leave.userId,
+          leaveTypeId: leave.leaveTypeId,
+          year: endYear
+        }
+      });
+
+      if (!userLeaveStartYear || !userLeaveEndYear) {
+        return res.send('User leave record not found for one or both years');
+      }
+
+      if (userLeaveStartYear.leaveBalance < daysInStartYear || userLeaveEndYear.leaveBalance < daysInEndYear) {
+        return res.json({
+          message: 'Insufficient leave balance for one or both years',
+          openNoteDialog: true,
+          lowLeaveMessage: "Insufficient leave balance",
+        });
+      }
+
+      userLeaveStartYear.leaveBalance -= daysInStartYear;
+      userLeaveStartYear.takenLeaves += daysInStartYear;
+      await userLeaveStartYear.save();
+
+      userLeaveEndYear.leaveBalance -= daysInEndYear;
+      userLeaveEndYear.takenLeaves += daysInEndYear;
+      await userLeaveEndYear.save();
+
+      // --- ADDED PENALTY LOGIC FOR MULTI-YEAR NON-LOP ---
+      if (leave.penaltyLOP > 0) {
+        const lopType = await LeaveType.findOne({ where: { leaveTypeName: 'LOP' } });
+        if (lopType) {
+          const [userLOP] = await UserLeave.findOrCreate({
+            where: { userId: leave.userId, leaveTypeId: lopType.id, year: startYear },
+            defaults: { leaveBalance: 0, takenLeaves: 0, noOfDays: 0 }
+          });
+          userLOP.takenLeaves += parseFloat(leave.penaltyLOP);
+          await userLOP.save();
+        }
+      }
+    }
+
+    // Approve the leave
+    leave.status = 'Approved';
+    leave.adminNotes = adminNotes;
+    await leave.save();
+
+    // Send notification and email
+    const id = userId;
+    const me = `${leave.user.name}'s Leave Request Approved by ${req.user.name}`;
+    const route = `/login/leave`;
+
+    createNotification({ id, me, route });
+
+    const emailSubject = `Leave Request is Approved`;
+    const fromEmail = process.env.EMAIL_USER;
+    const emailPassword = process.env.EMAIL_PASS;
+    console.log(fromEmail, emailPassword);
+
+    const html = `
+      <p>Dear ${leave.user.name},</p>
+      <p>This is to inform you that ${req.user.name} has approved your ${leaveType.leaveTypeName},</p>
+      <p>with note ${adminNotes}.</p>
+      <p>Please review the leave application at your earliest convenience.</p>
+      <p>If you have any questions or need further details, feel free to reach out.</p>
+    `;
+    const attachments = [];
+    const token = req.headers.authorization?.split(' ')[1];
+    try {
+      await sendEmail(token, fromEmail, emailPassword, userPos.officialMailId, emailSubject, html, attachments, ccRecipients);
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError);
+    }
+
+    res.send({ message: 'Leave approved successfully', leave });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+
+
+router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
+  const leaveId = req.params.id;
+  const { adminNotes } = req.body;
+
+  try {
+    // Fetch the leave request with associated user and leave type details
+    const leave = await Leave.findByPk(leaveId, {
+      include: [
+        { model: User, attributes: ['name', 'email'], as: 'user' },
+        { model: LeaveType, attributes: ['leaveTypeName'], as: 'leaveType' }
+      ]
+    });
+
+    if (!leave) {
+      return res.send({ message: 'Leave request not found' });
+    }
+
+    const userId = leave.userId;
+    const userPos = await UserPosition.findOne({
+      where: { userId: userId },
+      include: [{ model: User, attributes: ['name', 'email'] }]
+    });
+
+    const leaveType = await LeaveType.findByPk(leave.leaveTypeId);
+
+    if (!leaveType) {
+      return res.send({ message: 'Leave type not found' });
+    }
+
+    const startDate = new Date(leave.startDate);
+    const endDate = new Date(leave.endDate);
+    const startYear = startDate.getFullYear();
+    const endYear = endDate.getFullYear();
+
+    // Fetch HR, Reporting Manager, and Team Leads emails
+    const hr = await getHREmail();
+    const hrEmail = hr.mail;
+    const rm = (await getReportingManagerEmailForUser(leave.userId))
+    const rmEmail = rm.email;
+    const teamLeads = await getTeamLeadEmails(leave.userId);
+    console.log(teamLeads);
+
+    const omMail = await getOMEmail();
+
+    const ccRecipients = [hrEmail, rmEmail, ...(Array.isArray(teamLeads) ? teamLeads : []), omMail].filter(email => email);
+
+    // Handle LOP leave type
+    if (leaveType.leaveTypeName === 'LOP') {
+      // Update the takenLeave for the requested year(s)
+      if (startYear === endYear) {
+        // Leave spans a single year
+        const userLeave = await UserLeave.findOne({
+          where: {
+            userId: leave.userId,
+            leaveTypeId: leave.leaveTypeId,
+            year: startYear,
+          },
+        });
+
+        if (!userLeave) {
+          return res.status(404).send('User leave record not found for the requested year');
+        }
+
+        // Update takenLeave for the year
+        userLeave.takenLeaves += leave.noOfDays;
+        await userLeave.save();
+      } else {
+        // Leave spans multiple years
+        const endOfStartYear = new Date(startYear, 11, 31);
+        const startOfEndYear = new Date(endYear, 0, 1);
+
+        const daysInStartYear = calculateDays(startDate, endOfStartYear);
+        const daysInEndYear = calculateDays(startOfEndYear, endDate);
+
+        const userLeaveStartYear = await UserLeave.findOne({
+          where: {
+            userId: leave.userId,
+            leaveTypeId: leave.leaveTypeId,
+            year: startYear,
+          },
+        });
+
+        const userLeaveEndYear = await UserLeave.findOne({
+          where: {
+            userId: leave.userId,
+            leaveTypeId: leave.leaveTypeId,
+            year: endYear,
+          },
+        });
+
+        if (!userLeaveStartYear || !userLeaveEndYear) {
+          return res.send('User leave record not found for one or both years');
+        }
+
+        // Update takenLeave for both years
+        userLeaveStartYear.takenLeaves += daysInStartYear;
+        userLeaveEndYear.takenLeaves += daysInEndYear;
+
+        await userLeaveStartYear.save();
+        await userLeaveEndYear.save();
+      }
+
+      // Approve the leave
+      leave.status = 'Approved';
+      leave.adminNotes = adminNotes;
+      await leave.save();
+
+      // Send notifications
+      let id = userId;
+      const me = `${leave.user.name}'s Leave Request Approved by ${req.user.name};`
+      const route = `/login/leave/open/${leave.id}`;
+
+      createNotification({ id, me, route });
+
+      const hrId = await getHRId();
+      if (Number.isInteger(hrId)) {
+        let id = hrId;
+        createNotification({ id, me, route });
+      }
+
+      const rmId = await getRMId(leave.userId);
+      if (Number.isInteger(rmId)) {
+        let id = rmId;
+        createNotification({ id, me, route });
+      }
+
+      // Send email
+      const emailSubject = `Leave Request is Approved`;
+      const fromEmail = process.env.EMAIL_USER;
+      const emailPassword = process.env.EMAIL_PASS;
+      const html = `
+        <p>Dear ${leave.user.name},</p>
+        <p>This is to inform you that ${req.user.name} has approved your ${leaveType.leaveTypeName},</p>
+        <p>with note ${adminNotes}.</p>
+        <p>Please review the leave application at your earliest convenience.</p>
+        <p>If you have any questions or need further details, feel free to reach out.</p>
+      `;
+      const attachments = [];
+      const token = req.headers.authorization?.split(' ')[1];
+      try {
+        await sendEmail(token, fromEmail, emailPassword, userPos.officialMailId, emailSubject, html, attachments, ccRecipients);
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+      }
+
       return res.send({ message: 'Leave approved successfully as LOP', leave });
     }
 
@@ -1790,6 +2130,8 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     const emailSubject = `Leave Request is Approved`;
     const fromEmail = process.env.EMAIL_USER;
     const emailPassword = process.env.EMAIL_PASS;
+    console.log(fromEmail, emailPassword);
+
     const html = `
       <p>Dear ${leave.user.name},</p>
       <p>This is to inform you that ${req.user.name} has approved your ${leaveType.leaveTypeName},</p>
@@ -1810,16 +2152,17 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     res.status(500).send(error.message);
   }
 });
-
 // --------------------------------------------------------------REJECT--------------------------------------------------------------
 router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
   const leaveId = req.params.id;
   const { adminNotes } = req.body;
 
   try {
-    const leave = await Leave.findByPk(leaveId, {include: [
-      {model: User, attributes: ['name'], as: 'user'}, {model: LeaveType, attributes: ['leaveTypeName'], as: 'leaveType'}
-    ]});
+    const leave = await Leave.findByPk(leaveId, {
+      include: [
+        { model: User, attributes: ['name'], as: 'user' }, { model: LeaveType, attributes: ['leaveTypeName'], as: 'leaveType' }
+      ]
+    });
     if (!leave) {
       return res.send({ message: 'Leave request not found' });
     }
@@ -1837,23 +2180,24 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
     await leave.save();
 
     let id = leave.userId;
-    const userPos = await UserPosition.findOne({ 
-      where: { userId: id }, 
-      include: [{ model: User, attributes: ['name']}
-    ]})
+    const userPos = await UserPosition.findOne({
+      where: { userId: id },
+      include: [{ model: User, attributes: ['name'] }
+      ]
+    })
     const me = `${leave.user.name} Leave Request Rejected by ${req.user.name}`;
     const route = `/login/leave/open/${leave.id}`;
 
     createNotification({ id, me, route });
 
     const hrId = getHRId()
-    if(Number.isInteger(hrId)){
+    if (Number.isInteger(hrId)) {
       let id = hrId;
       createNotification({ id, me, route });
     }
 
     const rmId = getRMId(leave.userId)
-    if(Number.isInteger(hrId)){
+    if (Number.isInteger(hrId)) {
       let id = rmId;
       createNotification({ id, me, route });
     }
@@ -1865,8 +2209,8 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
     const teamLeads = await getTeamLeadEmails(leave.userId);
     const omMail = await getOMEmail();
     console.log(hrEmail, rmEmail, teamLeads, omMail);
-    
-    const ccRecipients = [ hrEmail, rmEmail, teamLeads, omMail ].filter(email => email); 
+
+    const ccRecipients = [hrEmail, rmEmail, teamLeads, omMail].filter(email => email);
     const emailSubject = `Leave Request is Rejected`;
     const fromEmail = process.env.EMAIL_USER;
     const emailPassword = process.env.EMAIL_PASS;
@@ -1880,7 +2224,7 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
     const attachments = []
     const token = req.headers.authorization?.split(' ')[1];
     try {
-      await sendEmail(token, fromEmail, emailPassword, userPos.officialMailId, emailSubject , html, attachments, ccRecipients);
+      await sendEmail(token, fromEmail, emailPassword, userPos.officialMailId, emailSubject, html, attachments, ccRecipients);
     } catch (emailError) {
       console.error('Email sending failed:', emailError);
     }
@@ -1893,67 +2237,67 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
 // ------------------------------------------------------FOR RM-----------------------------------------------------------------------
 router.get('/findbyrm/:reportingManagerId', async (req, res) => {
   try {
-      const { reportingManagerId } = req.params;
-      const { page = 1, pageSize = 10 } = req.query;
+    const { reportingManagerId } = req.params;
+    const { page = 1, pageSize = 10 } = req.query;
 
-      const limit = parseInt(pageSize, 10);
-      const offset = (parseInt(page, 10) - 1) * limit;
-      const leaves = await Leave.findAll({
-          limit,
-          offset,
+    const limit = parseInt(pageSize, 10);
+    const offset = (parseInt(page, 10) - 1) * limit;
+    const leaves = await Leave.findAll({
+      limit,
+      offset,
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name'],
+          required: true, // Ensure only leaves with users are included
           include: [
-              {
-                  model: User,
-                  as: 'user',
-                  attributes: ['id', 'name'],
-                  required: true, // Ensure only leaves with users are included
-                  include: [
-                      {
-                          model: UserPersonal,
-                          as: 'userpersonal',
-                          attributes: ['id', 'reportingMangerId'],
-                          required: true, // Ensure only userPersonal entries that match are included
-                          where: { reportingMangerId: parseInt(reportingManagerId, 10) },
-                      },
-                  ],
-              },
-              {
-                model: LeaveType, attributes: ['leaveTypeName']
-              }
-          ],
-          where: {status: 'Requested'}
-      });
-      let totalCount;
-      totalCount = await Leave.count({
-        limit,
-        offset,
-        include: [
             {
-                model: User,
-                as: 'user',
-                attributes: ['id', 'name'],
-                required: true, // Ensure only leaves with users are included
-                include: [
-                    {
-                        model: UserPersonal,
-                        as: 'userpersonal',
-                        attributes: ['id', 'reportingMangerId'],
-                        required: true, // Ensure only userPersonal entries that match are included
-                        where: { reportingMangerId: parseInt(reportingManagerId, 10) },
-                    },
-                ],
+              model: UserPersonal,
+              as: 'userpersonal',
+              attributes: ['id', 'reportingMangerId'],
+              required: true, // Ensure only userPersonal entries that match are included
+              where: { reportingMangerId: parseInt(reportingManagerId, 10) },
             },
-        ],          
-        where: {status: 'Requested'}
-      });
-      
-      const response = {
-        count: totalCount,
-        items: leaves,
-      };
-      res.json(response);
+          ],
+        },
+        {
+          model: LeaveType, attributes: ['leaveTypeName']
+        }
+      ],
+      where: { status: 'Requested' }
+    });
+    let totalCount;
+    totalCount = await Leave.count({
+      limit,
+      offset,
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name'],
+          required: true, // Ensure only leaves with users are included
+          include: [
+            {
+              model: UserPersonal,
+              as: 'userpersonal',
+              attributes: ['id', 'reportingMangerId'],
+              required: true, // Ensure only userPersonal entries that match are included
+              where: { reportingMangerId: parseInt(reportingManagerId, 10) },
+            },
+          ],
+        },
+      ],
+      where: { status: 'Requested' }
+    });
+
+    const response = {
+      count: totalCount,
+      items: leaves,
+    };
+    res.json(response);
   } catch (error) {
-      res.send(error.message);
+    res.send(error.message);
   }
 });
 
@@ -1982,7 +2326,7 @@ router.get('/all/report', async (req, res) => {
         { model: LeaveType, attributes: ['id', 'leaveTypeName'], as: 'leaveType' }
       ]
     });
-    
+
     // Step 2: Map leave usages by userId and leaveType
     const leaveUsageMap = {};
     leaves.forEach((leave) => {
@@ -2026,7 +2370,7 @@ router.get('/all/report', async (req, res) => {
         }
       ]
     });
-    
+
     // Step 4: Group and format user data
     const employeeMap = {};
 
@@ -2063,7 +2407,7 @@ router.get('/all/report', async (req, res) => {
         }
       });
     });
-    
+
     let result = Object.values(employeeMap);
 
     if (search && search !== 'undefined') {
@@ -2090,14 +2434,14 @@ router.get('/leaveBalance/:leaveId', authenticateToken, async (req, res) => {
     const leave = await Leave.findByPk(leaveId);
 
     if (!leave) {
-      return res.send( 'Leave request not found' );
+      return res.send('Leave request not found');
     }
 
     // Fetch the leave type
     const leaveType = await LeaveType.findByPk(leave.leaveTypeId);
 
     if (!leaveType) {
-      return res.send('Leave type not found' );
+      return res.send('Leave type not found');
     }
 
     // Handle LOP (Leave Without Pay) scenario
@@ -2126,7 +2470,7 @@ router.get('/leaveBalance/:leaveId', authenticateToken, async (req, res) => {
         message: 'No leave balance record found for this leave type.',
       });
     }
-    
+
     // Check if leave balance is sufficient
     const isSufficient = userLeave.leaveBalance >= leave.noOfDays;
     res.json({
@@ -2146,39 +2490,39 @@ router.get('/leaveBalance/:leaveId', authenticateToken, async (req, res) => {
 router.get('/report/month-details', authenticateToken, async (req, res) => {
   const { employeeId, leaveTypeId, year, month } = req.query;
   try {
-        const startDate = new Date(year, month - 1, 1); // month is 1-12
-        const endDate = new Date(year, month, 0, 23, 59, 59); // Last day of month
+    const startDate = new Date(year, month - 1, 1); // month is 1-12
+    const endDate = new Date(year, month, 0, 23, 59, 59); // Last day of month
 
-        const leaveDetails = await Leave.findAll({
-          where: {
-            userId: employeeId,
-            leaveTypeId: leaveTypeId,
-            [Op.or]: [
-              // Leaves that start within the month
-              {
-                startDate: {
-                  [Op.between]: [startDate, endDate]
-                }
-              },
-              // Leaves that end within the month
-              {
-                endDate: {
-                  [Op.between]: [startDate, endDate]
-                }
-              },
-              // Leaves that span the entire month
-              {
-                [Op.and]: [
-                  { startDate: { [Op.lte]: startDate } },
-                  { endDate: { [Op.gte]: endDate } }
-                ]
-              }
-            ]
+    const leaveDetails = await Leave.findAll({
+      where: {
+        userId: employeeId,
+        leaveTypeId: leaveTypeId,
+        [Op.or]: [
+          // Leaves that start within the month
+          {
+            startDate: {
+              [Op.between]: [startDate, endDate]
+            }
           },
-          order: [['startDate', 'ASC']] // Order by start date
-        });
+          // Leaves that end within the month
+          {
+            endDate: {
+              [Op.between]: [startDate, endDate]
+            }
+          },
+          // Leaves that span the entire month
+          {
+            [Op.and]: [
+              { startDate: { [Op.lte]: startDate } },
+              { endDate: { [Op.gte]: endDate } }
+            ]
+          }
+        ]
+      },
+      order: [['startDate', 'ASC']] // Order by start date
+    });
 
-        res.send(leaveDetails);
+    res.send(leaveDetails);
   } catch (error) {
     res.send(error.message);
   }
