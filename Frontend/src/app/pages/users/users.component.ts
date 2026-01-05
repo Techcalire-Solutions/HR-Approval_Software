@@ -24,6 +24,7 @@ import { SeparationComponent } from './separation/separation.component';
 import { User } from '../../common/interfaces/users/user';
 import { UpdateDesignationComponent } from './update-designation/update-designation.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
+import { RoleService } from '@services/role.service';
 
 
 @Component({
@@ -53,9 +54,24 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    const token: any = localStorage.getItem('token')
+    const user = JSON.parse(token)
+    const roleId = user.role
+    this.getRoleById(roleId)
+
     this.getUsers()
   }
 
+  roleSub!: Subscription;
+  admin: boolean = false;
+  private roleService = inject(RoleService);
+  role!: string;
+  getRoleById(id: number){
+    this.roleSub = this.roleService.getRoleById(id).subscribe(role => {
+      this.role = role.roleName; 
+    })
+  }
+  
   userSub!: Subscription;
   getUsers(): void {
     this.userSub = this.usersService.getUser(this.searchText, this.currentPage, this.pageSize).subscribe((users: any) =>{
