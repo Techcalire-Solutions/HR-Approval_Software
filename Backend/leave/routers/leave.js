@@ -81,7 +81,7 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
 
   
     const isFriday = leaveEndDate.getDay() === 5;
-    const penaltyThreshold = isFriday ? 4 : 2;
+    const penaltyThreshold = isFriday ? 4 : 3;
 
     if (diffDays >= penaltyThreshold) {
       penaltyLOP = totalRequiredDays;
