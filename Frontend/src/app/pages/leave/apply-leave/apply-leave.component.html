@@ -87,11 +87,11 @@
             </div>
         </div>
         }
-        @if(isFileSelected && !imageUrl){
-          <div style="color: red;">
-            File upload is mandatory for sick leave exceeding 3 days.
-          </div>
-        }
+@if(isSick && !imageUrl && isFileSelected){
+  <div style="color: red; margin-top: 10px; font-weight: bold;">
+    Note: Medical certificate is mandatory for Sick Leave on Mondays, Fridays, or durations over 2 days.
+  </div>
+}
       <!-- }<br> -->
 
       <div formArrayName="leaveDates">

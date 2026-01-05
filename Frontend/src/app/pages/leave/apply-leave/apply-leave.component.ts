@@ -509,7 +509,7 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   }
 
   isSick: boolean = false;
-  isLeaveDurationInvalid(): boolean {
+  isLeaveDurationInvalidOld(): boolean {
     // Parse the dates as moment objects
     const startDate = moment(this.leaveRequestForm.get('startDate')?.value as string | Date);
     const endDate = moment(this.leaveRequestForm.get('endDate')?.value as string | Date);
@@ -548,6 +548,51 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
   
     return diffInDays > 2 && leaveTypeId !== sickLeaveId;
   }
+
+isLeaveDurationInvalid(): boolean {
+  const startDateValue = this.leaveRequestForm.get('startDate')?.value;
+  const endDateValue = this.leaveRequestForm.get('endDate')?.value;
+  const leaveTypeId = this.leaveRequestForm.get('leaveTypeId')?.value;
+
+  if (!startDateValue || !endDateValue || !leaveTypeId) {
+    return false;
+  }
+
+  const startDate = moment(startDateValue).startOf('day');
+  const endDate = moment(endDateValue).startOf('day');
+  const diffInDays = endDate.diff(startDate, 'days') + 1; 
+  const sickLeaveId = this.slId;
+
+  // Check if any day in the range is a Monday (1) or Friday (5)
+  let includesMonOrFri = false;
+  let curr = moment(startDate);
+  while (curr <= endDate) {
+    const dayOfWeek = curr.day(); 
+    if (dayOfWeek === 1 || dayOfWeek === 5) { 
+      includesMonOrFri = true;
+      break;
+    }
+    curr.add(1, 'days');
+  }
+
+  if (leaveTypeId === sickLeaveId) {
+    // Sick Leave Rule: Mandatory if > 2 days OR if it touches Monday/Friday
+    if (diffInDays > 2 || includesMonOrFri) {
+      this.isSick = true;
+      // If no file is uploaded yet, this will disable the button
+      this.isFileSelected = !this.imageUrl; 
+      return false; 
+    } else {
+      this.isSick = true;
+      this.isFileSelected = false;
+      return false;
+    }
+  } else {
+    this.isSick = false;
+    this.isFileSelected = false;
+    return diffInDays > 3; // Rule for other leave types
+  }
+}
 
   ngOnDestroy(): void {
     this.ulSub?.unsubscribe();
