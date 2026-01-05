@@ -44,7 +44,7 @@ export class LeaveInfoDialogComponent {
       this.message.message?.includes('Leave processed') ||
       this.message.message?.includes('LOP leave created') ||
       this.message.message?.includes('Leave updated successfully') ||
-        this.message.message?.includes('Applied after 2 days: Converted to LOP') 
+        this.message.message?.includes('Success:') 
       
     ) {
       this.showOkButton = true;

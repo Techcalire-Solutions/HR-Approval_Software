@@ -28,7 +28,6 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
     let { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates, status } = req.body;
-    // const penalty = calculatePenaltyLOP(endDate);
 
     if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
       await transaction.rollback();
@@ -68,27 +67,30 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
         }
       });
       noOfDaysByYear[year] = totalDays;
-      totalRequiredDays += totalDays; // * ONLY ADD HERE
+      totalRequiredDays += totalDays; 
     });
 
-    // 2. PENALTY LOGIC
+  
     let penaltyLOP = 0;
     const applicationDate = new Date();
     const leaveStartDate = new Date(startDate);
+    const leaveEndDate = new Date(endDate); 
+
     const diffTime = applicationDate - leaveStartDate;
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays >= 1) {
+  
+    const isFriday = leaveEndDate.getDay() === 5;
+    const penaltyThreshold = isFriday ? 4 : 3;
+
+    if (diffDays >= penaltyThreshold) {
       penaltyLOP = totalRequiredDays;
-      notes = notes + " (Penalty: Late application - 1:1 LOP applied)";
+      const type = leaveType.leaveTypeName;
+      const penaltyTag = `[Penalty: ${totalRequiredDays} ${type} + ${penaltyLOP} LOP due to late application]`;
+      notes = notes ? `${notes} ${penaltyTag}` : penaltyTag;
+     
     }
 
-
-    // --- ADDED LOGIC START ---
-    // --- HIGHLIGHTED CHANGE AREA ---
-
-
-    // Check balance for each year
     const userLeaves = new Map();
     for (const year of Object.keys(datesByYear)) {
       let userLeave = await UserLeave.findOne({
@@ -164,11 +166,15 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
       leaveDates,
     }, { transaction });
 
+    const statusMsg = penaltyLOP > 0 
+  ? `Success: ${totalRequiredDays} ${leaveType.leaveTypeName} + ${penaltyLOP} LOP (Late Penalty)`
+  : "Leave processed successfully";
+
     const not = await handleNotificationsAndEmails(req, res, leave, transaction, 'employee', 'Create');
     await transaction.commit();
     res.json({
       not: not,
-      message: 'Leave processed successfully',
+     message: statusMsg,
       leave,
     });
 
@@ -1209,8 +1215,8 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
   try {
     const rm = await getReportingManagerEmailForUser(req.body.userId ? req.body.userId : leave.userId);
     let reportingManagerEmail = rm.email
-    // let operationalManagerEmail = await getOMEmail();
-    let operationalManagerEmail = 'anupama@onboardaero.com';
+    let operationalManagerEmail = await getOMEmail();
+    // let operationalManagerEmail = 'anupama@onboardaero.com';
     let cc = [];
     if (!emailRegex.test(reportingManagerEmail)) {
       message.push(`Invalid reporting manager email: ${reportingManagerEmail}`);
@@ -1632,7 +1638,7 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     const rmEmail = rm.email;
     const teamLeads = await getTeamLeadEmails(leave.userId);
     console.log(teamLeads);
-    
+
     const omMail = await getOMEmail();
 
     const ccRecipients = [hrEmail, rmEmail, ...(Array.isArray(teamLeads) ? teamLeads : []), omMail].filter(email => email);
@@ -1895,263 +1901,6 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
 
 
 
-router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
-  const leaveId = req.params.id;
-  const { adminNotes } = req.body;
-
-  try {
-    // Fetch the leave request with associated user and leave type details
-    const leave = await Leave.findByPk(leaveId, {
-      include: [
-        { model: User, attributes: ['name', 'email'], as: 'user' },
-        { model: LeaveType, attributes: ['leaveTypeName'], as: 'leaveType' }
-      ]
-    });
-
-    if (!leave) {
-      return res.send({ message: 'Leave request not found' });
-    }
-
-    const userId = leave.userId;
-    const userPos = await UserPosition.findOne({
-      where: { userId: userId },
-      include: [{ model: User, attributes: ['name', 'email'] }]
-    });
-
-    const leaveType = await LeaveType.findByPk(leave.leaveTypeId);
-
-    if (!leaveType) {
-      return res.send({ message: 'Leave type not found' });
-    }
-
-    const startDate = new Date(leave.startDate);
-    const endDate = new Date(leave.endDate);
-    const startYear = startDate.getFullYear();
-    const endYear = endDate.getFullYear();
-
-    // Fetch HR, Reporting Manager, and Team Leads emails
-    const hr = await getHREmail();
-    const hrEmail = hr.mail;
-    const rm = (await getReportingManagerEmailForUser(leave.userId))
-    const rmEmail = rm.email;
-    const teamLeads = await getTeamLeadEmails(leave.userId);
-    console.log(teamLeads);
-
-    const omMail = await getOMEmail();
-
-    const ccRecipients = [hrEmail, rmEmail, ...(Array.isArray(teamLeads) ? teamLeads : []), omMail].filter(email => email);
-
-    // Handle LOP leave type
-    if (leaveType.leaveTypeName === 'LOP') {
-      // Update the takenLeave for the requested year(s)
-      if (startYear === endYear) {
-        // Leave spans a single year
-        const userLeave = await UserLeave.findOne({
-          where: {
-            userId: leave.userId,
-            leaveTypeId: leave.leaveTypeId,
-            year: startYear,
-          },
-        });
-
-        if (!userLeave) {
-          return res.status(404).send('User leave record not found for the requested year');
-        }
-
-        // Update takenLeave for the year
-        userLeave.takenLeaves += leave.noOfDays;
-        await userLeave.save();
-      } else {
-        // Leave spans multiple years
-        const endOfStartYear = new Date(startYear, 11, 31);
-        const startOfEndYear = new Date(endYear, 0, 1);
-
-        const daysInStartYear = calculateDays(startDate, endOfStartYear);
-        const daysInEndYear = calculateDays(startOfEndYear, endDate);
-
-        const userLeaveStartYear = await UserLeave.findOne({
-          where: {
-            userId: leave.userId,
-            leaveTypeId: leave.leaveTypeId,
-            year: startYear,
-          },
-        });
-
-        const userLeaveEndYear = await UserLeave.findOne({
-          where: {
-            userId: leave.userId,
-            leaveTypeId: leave.leaveTypeId,
-            year: endYear,
-          },
-        });
-
-        if (!userLeaveStartYear || !userLeaveEndYear) {
-          return res.send('User leave record not found for one or both years');
-        }
-
-        // Update takenLeave for both years
-        userLeaveStartYear.takenLeaves += daysInStartYear;
-        userLeaveEndYear.takenLeaves += daysInEndYear;
-
-        await userLeaveStartYear.save();
-        await userLeaveEndYear.save();
-      }
-
-      // Approve the leave
-      leave.status = 'Approved';
-      leave.adminNotes = adminNotes;
-      await leave.save();
-
-      // Send notifications
-      let id = userId;
-      const me = `${leave.user.name}'s Leave Request Approved by ${req.user.name};`
-      const route = `/login/leave/open/${leave.id}`;
-
-      createNotification({ id, me, route });
-
-      const hrId = await getHRId();
-      if (Number.isInteger(hrId)) {
-        let id = hrId;
-        createNotification({ id, me, route });
-      }
-
-      const rmId = await getRMId(leave.userId);
-      if (Number.isInteger(rmId)) {
-        let id = rmId;
-        createNotification({ id, me, route });
-      }
-
-      // Send email
-      const emailSubject = `Leave Request is Approved`;
-      const fromEmail = process.env.EMAIL_USER;
-      const emailPassword = process.env.EMAIL_PASS;
-      const html = `
-        <p>Dear ${leave.user.name},</p>
-        <p>This is to inform you that ${req.user.name} has approved your ${leaveType.leaveTypeName},</p>
-        <p>with note ${adminNotes}.</p>
-        <p>Please review the leave application at your earliest convenience.</p>
-        <p>If you have any questions or need further details, feel free to reach out.</p>
-      `;
-      const attachments = [];
-      const token = req.headers.authorization?.split(' ')[1];
-      try {
-        await sendEmail(token, fromEmail, emailPassword, userPos.officialMailId, emailSubject, html, attachments, ccRecipients);
-      } catch (emailError) {
-        console.error('Email sending failed:', emailError);
-      }
-
-      return res.send({ message: 'Leave approved successfully as LOP', leave });
-    }
-
-    // Handle non-LOP leave types
-    let userLeaveStartYear, userLeaveEndYear;
-    let daysInStartYear, daysInEndYear;
-
-    if (startYear === endYear) {
-      userLeaveStartYear = await UserLeave.findOne({
-        where: {
-          userId: leave.userId,
-          leaveTypeId: leave.leaveTypeId,
-          year: startYear
-        }
-      });
-
-      if (!userLeaveStartYear) {
-        return res.send('User leave record not found for the start year');
-      }
-
-      if (userLeaveStartYear.leaveBalance < leave.noOfDays) {
-        return res.json({
-          message: `Insufficient leave balance for the year ${startYear}`,
-          openNoteDialog: true,
-          lowLeaveMessage: "Insufficient leave balance",
-        });
-      }
-
-      userLeaveStartYear.leaveBalance -= leave.noOfDays;
-      userLeaveStartYear.takenLeaves += leave.noOfDays;
-      await userLeaveStartYear.save();
-    } else {
-      const endOfStartYear = new Date(startYear, 11, 31);
-      const startOfEndYear = new Date(endYear, 0, 1);
-
-      daysInStartYear = calculateDays(startDate, endOfStartYear);
-      daysInEndYear = calculateDays(startOfEndYear, endDate);
-
-      userLeaveStartYear = await UserLeave.findOne({
-        where: {
-          userId: leave.userId,
-          leaveTypeId: leave.leaveTypeId,
-          year: startYear
-        }
-      });
-
-      userLeaveEndYear = await UserLeave.findOne({
-        where: {
-          userId: leave.userId,
-          leaveTypeId: leave.leaveTypeId,
-          year: endYear
-        }
-      });
-
-      if (!userLeaveStartYear || !userLeaveEndYear) {
-        return res.send('User leave record not found for one or both years');
-      }
-
-      if (userLeaveStartYear.leaveBalance < daysInStartYear || userLeaveEndYear.leaveBalance < daysInEndYear) {
-        return res.json({
-          message: 'Insufficient leave balance for one or both years',
-          openNoteDialog: true,
-          lowLeaveMessage: "Insufficient leave balance",
-        });
-      }
-
-      userLeaveStartYear.leaveBalance -= daysInStartYear;
-      userLeaveStartYear.takenLeaves += daysInStartYear;
-      await userLeaveStartYear.save();
-
-      userLeaveEndYear.leaveBalance -= daysInEndYear;
-      userLeaveEndYear.takenLeaves += daysInEndYear;
-      await userLeaveEndYear.save();
-    }
-
-    // Approve the leave
-    leave.status = 'Approved';
-    leave.adminNotes = adminNotes;
-    await leave.save();
-
-    // Send notification and email
-    const id = userId;
-    const me = `${leave.user.name}'s Leave Request Approved by ${req.user.name}`;
-    const route = `/login/leave`;
-
-    createNotification({ id, me, route });
-
-    const emailSubject = `Leave Request is Approved`;
-    const fromEmail = process.env.EMAIL_USER;
-    const emailPassword = process.env.EMAIL_PASS;
-    console.log(fromEmail, emailPassword);
-    
-    const html = `
-      <p>Dear ${leave.user.name},</p>
-      <p>This is to inform you that ${req.user.name} has approved your ${leaveType.leaveTypeName},</p>
-      <p>with note ${adminNotes}.</p>
-      <p>Please review the leave application at your earliest convenience.</p>
-      <p>If you have any questions or need further details, feel free to reach out.</p>
-    `;
-    const attachments = [];
-    const token = req.headers.authorization?.split(' ')[1];
-    try {
-      await sendEmail(token, fromEmail, emailPassword, userPos.officialMailId, emailSubject, html, attachments, ccRecipients);
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError);
-    }
-
-    res.send({ message: 'Leave approved successfully', leave });
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
 // --------------------------------------------------------------REJECT--------------------------------------------------------------
 router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
   const leaveId = req.params.id;
