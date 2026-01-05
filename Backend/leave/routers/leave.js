@@ -1899,6 +1899,8 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
   }
 });
 
+
+
 // --------------------------------------------------------------REJECT--------------------------------------------------------------
 router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
   const leaveId = req.params.id;
