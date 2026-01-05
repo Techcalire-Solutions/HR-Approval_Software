@@ -229,6 +229,25 @@ users:User;
         // (item.title === 'Pay Details' && item.parentId === 13)
 
       );
+    } else if ( role === 'HR & Admin Assistant' ) {
+      this.filteredMenuItems = allMenuItems.filter(item =>
+        item.title === 'Dashboard' ||
+        (item.title === 'Employee' && !item.parentId) ||
+        (item.title === 'Directory' && item.parentId === 3) ||
+        (item.title === 'Confirmation' && item.parentId === 3)||
+        (item.title === 'Leave' && !item.parentId) ||
+        (item.title === 'View' && item.parentId === 8) ||
+        (item.title === 'View Requests' && item.parentId === 8) ||
+        (item.title === 'Calendar' && item.parentId === 8) ||
+
+        (item.title === 'User Leave' && item.parentId === 8) ||
+        (item.title === 'Emergency' && item.parentId === 8)||
+
+        (item.title === 'Reports' && !item.parentId) ||
+        (item.title === 'Leave' && item.parentId === 21)||
+        (item.title === 'YTD' && item.parentId === 21)
+
+      );
     } else if ( role === 'Sales Executive' || role === 'Key Account Manager' || role === 'Manager' || role === 'Team Lead') {
       this.filteredMenuItems = allMenuItems.filter(item =>
         item.title === 'Dashboard' ||

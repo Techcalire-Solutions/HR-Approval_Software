@@ -13,45 +13,116 @@ const { Sequelize, Op } = require('sequelize');
 
 // -----------------------------Leave Accumulation function-----------------------------------------------
 
+// cron.schedule('0 0 1 * *', async () => {
+//   try {
+//     // Fetch all leave types for Sick Leave and Casual Leave
+//     const leaveTypes = await LeaveType.findAll({
+//       where: {
+//         leaveTypeName: ['Sick Leave', 'Casual Leave']
+//       }
+//     });
+
+//     if (leaveTypes.length === 0) {
+//       return;
+//     }
+
+//     // Iterate through each leave type (SL and CL)
+//     for (const leaveType of leaveTypes) {
+//       const userLeaves = await UserLeave.findAll({
+//         where: { leaveTypeId: leaveType.id }
+//       });
+
+//       if (userLeaves.length === 0) {
+//         continue; // Skip if no user leave records are found
+//       }
+
+//       // Update leave balance and increment noOfDays for each user
+//       for (const userLeave of userLeaves) {
+//         // Increment noOfDays by 1 (if leaveBalance is positive)
+//         const newNoOfDays = userLeave.noOfDays + 1;
+
+//         // Ensure leaveBalance doesn't go negative
+//         const newLeaveBalance = Math.max(newNoOfDays - userLeave.takenLeaves, 0);
+
+//         // Update user leave record
+//         userLeave.noOfDays = newNoOfDays;
+//         userLeave.leaveBalance = newLeaveBalance;
+//         await userLeave.save();
+//       }
+//     }
+//   } catch (error) {
+//     console.error('Error updating leave balances:', error.message);
+//   }
+// });
+
 cron.schedule('0 0 1 * *', async () => {
   try {
-    // Fetch all leave types for Sick Leave and Casual Leave
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const isJanuary = today.getMonth() === 0; // Jan = 0
+
+    // Fetch SL & CL
     const leaveTypes = await LeaveType.findAll({
       where: {
         leaveTypeName: ['Sick Leave', 'Casual Leave']
       }
     });
 
-    if (leaveTypes.length === 0) {
-      return;
-    }
+    if (!leaveTypes.length) return;
 
-    // Iterate through each leave type (SL and CL)
+    // Fetch all active users
+    const users = await User.findAll({
+      where: { isActive: true }
+    });
+
     for (const leaveType of leaveTypes) {
-      const userLeaves = await UserLeave.findAll({
-        where: { leaveTypeId: leaveType.id }
-      });
 
-      if (userLeaves.length === 0) {
-        continue; // Skip if no user leave records are found
+      // 🔹 JAN 1 → Create fresh records
+      if (isJanuary) {
+        for (const user of users) {
+
+          const exists = await UserLeave.findOne({
+            where: {
+              userId: user.id,
+              leaveTypeId: leaveType.id,
+              year: currentYear
+            }
+          });
+
+          if (!exists) {
+            await UserLeave.create({
+              userId: user.id,
+              leaveTypeId: leaveType.id,
+              noOfDays: 1,
+              takenLeaves: 0,
+              leaveBalance: 1,
+              year: currentYear
+            });
+          }
+        }
       }
 
-      // Update leave balance and increment noOfDays for each user
-      for (const userLeave of userLeaves) {
-        // Increment noOfDays by 1 (if leaveBalance is positive)
-        const newNoOfDays = userLeave.noOfDays + 1;
+      // 🔹 Other months → Increment existing records
+      else {
+        const userLeaves = await UserLeave.findAll({
+          where: {
+            leaveTypeId: leaveType.id,
+            year: currentYear
+          }
+        });
 
-        // Ensure leaveBalance doesn't go negative
-        const newLeaveBalance = Math.max(newNoOfDays - userLeave.takenLeaves, 0);
-
-        // Update user leave record
-        userLeave.noOfDays = newNoOfDays;
-        userLeave.leaveBalance = newLeaveBalance;
-        await userLeave.save();
+        for (const userLeave of userLeaves) {
+          userLeave.noOfDays += 1;
+          userLeave.leaveBalance = Math.max(
+            userLeave.noOfDays - userLeave.takenLeaves,
+            0
+          );
+          await userLeave.save();
+        }
       }
     }
   } catch (error) {
-    console.error('Error updating leave balances:', error.message);
+    console.error('Error updating leave balances:', error);
   }
 });
 

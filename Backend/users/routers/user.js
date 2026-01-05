@@ -609,55 +609,133 @@ router.get('/confirmed', authenticateToken, async (req, res) => {
     res.send(error.message)
   }
 })
-
 router.get('/confirmemployee/:id', authenticateToken, async (req, res) => {
   try {
-      let result = await User.findByPk(req.params.id);
+    const userId = req.params.id;
+    const currentYear = new Date().getFullYear();
 
-      let post = await UserPosition.findOne({
-        where: { userId: req.params.id}
-      })
-      if(!post){
-        return res.send(`Employment data is not added for the employee ${result.name}`)
-      }
-      post.probationNote = req.query.note;
-      post.confirmationDate = new Date();
-      await post.save();
-      
-      if (!result) {
-        return res.json({ message: "Employee not found" });
-      }
-      
-      result.isTemporary = !result.isTemporary;
-      await result.save();
+    // 1️⃣ Get employee
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
 
-      const leaveTypes = await LeaveType.findAll({});
-      const sl = leaveTypes.find(x => x.leaveTypeName === 'Sick Leave');
-      const cl = leaveTypes.find(x => x.leaveTypeName === 'Casual Leave');
-      const co = leaveTypes.find(x => x.leaveTypeName === 'Comp Off');
-      const slId = sl ? sl.id : null;
-      const clId = cl ? cl.id : null;
-      const coId = co ? co.id : null;
-      const currentYear = new Date().getFullYear();
-      
-      let data = [
-        {userId: req.params.id, leaveTypeId: slId, noOfDays : 1, leaveBalance : 1, year: currentYear},
-        {userId: req.params.id, leaveTypeId: clId, noOfDays : 1, leaveBalance : 1, year: currentYear},
-        {userId: req.params.id, leaveTypeId: coId, noOfDays : 0, leaveBalance : 0, year: currentYear},
-      ]
+    // 2️⃣ Get employment details
+    const post = await UserPosition.findOne({
+      where: { userId }
+    });
 
-      for(let i = 0; i < data.length; i++){
-        UserLeave.bulkCreate([data[i]]);
-      }
-      if (result.isTemporary) {
-        res.json({ message: " is currently under probation." });
-      } else {
-        res.json({ message: " is confirmed." });
-      }
+    if (!post) {
+      return res
+        .status(400)
+        .json({ message: `Employment data is not added for ${user.name}` });
+    }
+
+    // 3️⃣ Prevent reconfirming
+    if (!user.isTemporary) {
+      return res.json({ message: "Employee is already confirmed." });
+    }
+
+    // 4️⃣ Update employment details
+    post.probationNote = req.query.note || null;
+    post.confirmationDate = new Date();
+    await post.save();
+
+    // 5️⃣ Confirm employee
+    user.isTemporary = false;
+    await user.save();
+
+    // 6️⃣ Get leave types
+    const leaveTypes = await LeaveType.findAll();
+    const leaveTypeMap = {};
+
+    leaveTypes.forEach(lt => {
+      leaveTypeMap[lt.leaveTypeName] = lt.id;
+    });
+
+    const slId = leaveTypeMap['Sick Leave'];
+    const clId = leaveTypeMap['Casual Leave'];
+    const coId = leaveTypeMap['Comp Off'];
+
+    // 7️⃣ Leave data
+    const leaveData = [
+      { leaveTypeId: slId, noOfDays: 1, leaveBalance: 1 },
+      { leaveTypeId: clId, noOfDays: 1, leaveBalance: 1 },
+      { leaveTypeId: coId, noOfDays: 0, leaveBalance: 0 }
+    ];
+
+    // 8️⃣ Create or update leave balances (NO DUPLICATES)
+    for (const leave of leaveData) {
+      if (!leave.leaveTypeId) continue;
+
+      await UserLeave.upsert({
+        userId,
+        leaveTypeId: leave.leaveTypeId,
+        year: currentYear,
+        noOfDays: leave.noOfDays,
+        leaveBalance: leave.leaveBalance
+      });
+    }
+
+    // 9️⃣ Response
+    return res.json({
+      message: `${user.name} is confirmed successfully.`
+    });
+
   } catch (error) {
-      res.send(error.message );
+    console.error(error);
+    return res.status(500).json({ error: error.message });
   }
 });
+
+// router.get('/confirmemployee/:id', authenticateToken, async (req, res) => {
+//   try {
+//       let result = await User.findByPk(req.params.id);
+
+//       let post = await UserPosition.findOne({
+//         where: { userId: req.params.id}
+//       })
+//       if(!post){
+//         return res.send(`Employment data is not added for the employee ${result.name}`)
+//       }
+//       post.probationNote = req.query.note;
+//       post.confirmationDate = new Date();
+//       await post.save();
+      
+//       if (!result) {
+//         return res.json({ message: "Employee not found" });
+//       }
+      
+//       result.isTemporary = !result.isTemporary;
+//       await result.save();
+
+//       const leaveTypes = await LeaveType.findAll({});
+//       const sl = leaveTypes.find(x => x.leaveTypeName === 'Sick Leave');
+//       const cl = leaveTypes.find(x => x.leaveTypeName === 'Casual Leave');
+//       const co = leaveTypes.find(x => x.leaveTypeName === 'Comp Off');
+//       const slId = sl ? sl.id : null;
+//       const clId = cl ? cl.id : null;
+//       const coId = co ? co.id : null;
+//       const currentYear = new Date().getFullYear();
+      
+//       let data = [
+//         {userId: req.params.id, leaveTypeId: slId, noOfDays : 1, leaveBalance : 1, year: currentYear},
+//         {userId: req.params.id, leaveTypeId: clId, noOfDays : 1, leaveBalance : 1, year: currentYear},
+//         {userId: req.params.id, leaveTypeId: coId, noOfDays : 0, leaveBalance : 0, year: currentYear},
+//       ]
+
+//       for(let i = 0; i < data.length; i++){
+//         UserLeave.bulkCreate([data[i]]);
+//       }
+//       if (result.isTemporary) {
+//         res.json({ message: " is currently under probation." });
+//       } else {
+//         res.json({ message: " is confirmed." });
+//       }
+//   } catch (error) {
+//       res.send(error.message );
+//   }
+// });
 
 router.get('/', authenticateToken, async (req, res) => {
   try {

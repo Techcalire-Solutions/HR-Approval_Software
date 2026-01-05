@@ -67,10 +67,12 @@
                                   <mat-icon>trending_up</mat-icon>
                                   <span>Promotion</span>
                               </button>
-                              <button mat-menu-item (click)="openPayRoll(user.id)">
-                                  <mat-icon>payment</mat-icon>
-                                  <span>Salary</span>
-                              </button>
+                              @if(role != 'HR & Admin Assistant'){
+                                <button mat-menu-item (click)="openPayRoll(user.id)">
+                                    <mat-icon>payment</mat-icon>
+                                    <span>Salary</span>
+                                </button>
+                              }
                               <button mat-menu-item (click)="openAssets(user.id);">
                                   <mat-icon>devices</mat-icon>
                                   <span>Assets</span>
