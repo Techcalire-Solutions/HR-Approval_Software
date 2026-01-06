@@ -26,6 +26,7 @@ import { MessagesComponent } from '../theme/messages/messages.component';
 import { ContactUsComponent } from "../theme/components/contact-us/contact-us.component";
 import { Subscription } from 'rxjs';
 import { RoleService } from '@services/role.service';
+import { UsersService } from '@services/users.service';
 
 @Component({
   selector: 'app-pages',
@@ -91,10 +92,19 @@ export class PagesComponent implements OnInit {
     });
 
     const token: any = localStorage.getItem('token')
-    const user = JSON.parse(token)
+    const user = JSON.parse(token);
     const roleId = user.role
     this.getRoleById(roleId)
+    this.getUserById(user.id)
   }
+
+  userSub!: Subscription;
+  private userService = inject(UsersService);
+  getUserById(id: number){
+    this.userSub = this.userService.getUserById(id).subscribe(res=>{
+      if(res.userPosition.designation.designationName === 'HR & Admin Assistant') this.admin = true;
+    })
+  } 
 
   roleSub!: Subscription;
   admin: boolean = false;

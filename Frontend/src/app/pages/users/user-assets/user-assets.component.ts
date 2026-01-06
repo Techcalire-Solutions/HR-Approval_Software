@@ -143,6 +143,14 @@ export class UserAssetsComponent implements OnDestroy{
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        console.log(result);
+          this.form.patchValue({
+            newRow: {
+              assetId: result.id,
+              assetName: result.assetName,
+              serialNumber: result.serialNumber
+            }
+          });
         this.getAssets()
       }
     });
