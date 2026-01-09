@@ -102,7 +102,7 @@ export class PagesComponent implements OnInit {
   private userService = inject(UsersService);
   getUserById(id: number){
     this.userSub = this.userService.getUserById(id).subscribe(res=>{
-      if(res.userPosition.designation.designationName === 'HR & Admin Assistant') this.admin = true;
+      if(res.userPosition?.designation?.designationName === 'HR & Admin Assistant') this.admin = true;
     })
   } 
 

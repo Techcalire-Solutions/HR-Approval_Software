@@ -1,6 +1,6 @@
 
 <div class="container">
-  <h2 class="title"> @if(updateStatus){Update} @else{Add} Assets for {{userName}}  - <strong>{{assetCode}}</strong></h2>
+  <h2 class="title"> @if(updateStatus){Update} @else{Add} Assets for {{userName}} <strong>{{assetCode}}</strong></h2>
   <form [formGroup]="form" (ngSubmit)="addRow()" class="form">
     <div formGroupName="newRow" class="input-group">
       <mat-form-field class="input-field full-width" appearance="outline">
@@ -13,7 +13,7 @@
               {{ suggestion.assetName }} / {{ suggestion.serialNumber }}
             </mat-option>
           }
-          <mat-option *ngIf="showAddOption" class="add-new-option">
+          <mat-option class="add-new-option">
             <button mat-button (click)="addNewIfNoMatch()" class="full-width-button">
               <span class="add-new-text">+ Add new "{{ filterValue }}"</span>
             </button>
