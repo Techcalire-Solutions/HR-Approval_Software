@@ -146,7 +146,14 @@
                       }
                     </ng-container>
                   </td>
-                  <td>{{ item.leaveType.leaveTypeName }}</td>
+                  <!-- <td>{{ item.leaveType.leaveTypeName }}</td> -->
+                  <td>
+  @if (item.notes && item.notes.includes('Penalty')) {
+    <strong style="color: #ef6c00;">LOP</strong>
+  } @else {
+    {{ item.leaveType.leaveTypeName }}
+  }
+</td>
                   @if(!employeeStat){
                     <td>{{ item.user?.name }} {{item.user?.empNo}}</td>
                   }
