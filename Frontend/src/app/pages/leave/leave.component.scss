@@ -1,5 +1,16 @@
 @import '../../theme/styles/colors';
 
+
+.text-orange td {
+  color: #ff9800 !important; /* Material Orange 500 */
+  font-weight: 600; /* Making it slightly bolder for better visibility */
+}
+
+/* Background highlight to make the row stand out */
+.penalty-row {
+  background-color: #ff9800 !important; /* Light yellow background */
+  border-left: 5px solid #ff9800 !important; /* Orange left border */
+}
 body {
   font-family: Arial, sans-serif;
   margin: 0;
