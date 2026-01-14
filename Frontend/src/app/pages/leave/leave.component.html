@@ -124,9 +124,16 @@
             </thead>
             <tbody>
               @for (item of filteredLeaves; track $index) {
-                <tr [ngClass]="{'text-green': item.status === 'Approved' || item.status === 'AdminApproved', 'text-red': item.status === 'Rejected',
-                'text-gray': item.status === 'Locked'}"
-                  [routerLink]="['/login/leave/open/', item.id]">
+  <tr [ngClass]="{
+      'text-green': (item.status === 'Approved' || item.status === 'AdminApproved') && !(item.notes && item.notes.includes('Penalty')), 
+      'text-red': item.status === 'Rejected',
+      'text-gray': item.status === 'Locked',
+      'text-orange': item.notes && item.notes.includes('Penalty'),
+      'penalty-row': item.notes && item.notes.includes('Penalty')
+    }"
+  
+
+           [routerLink]="['/login/leave/open/', item.id]">
                   <td> {{item.id}} </td>
                   <td>
                     <ng-container *ngFor="let date of item.leaveDates">
