@@ -88,6 +88,26 @@ export class LeaveComponent implements OnInit, OnDestroy{
     })
   }
 
+ removePenalty(item: any) {
+  const confirmAction = confirm("Are you sure you want to remove the penalty? This will reset the LOP penalty to 0.");
+  
+  if (confirmAction) {
+    // Call the specific removePenalty endpoint
+    this.leaveService.removePenalty(item.id).subscribe({
+      next: (res) => {
+        this.snackBar.open("Penalty removed successfully", "Close", { 
+          duration: 3000,
+          panelClass: ['success-snackbar'] 
+        });
+        this.getLeaves(); // Refresh data to show updated notes and hidden button
+      },
+      error: (err) => {
+        console.error(err);
+        this.snackBar.open("Error removing penalty: " + err.error.message, "Close", { duration: 3000 });
+      }
+    });
+  }
+}
   private readonly leaveService = inject(NewLeaveService);
 
   pageSize = 10;
