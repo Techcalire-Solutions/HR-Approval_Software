@@ -24,310 +24,189 @@ const Designation = require('../../users/models/designation');
 const TeamMember = require('../../users/models/teamMember');
 
 // --------------------------------------------------------LEAVE REQUESTING------------------------------------------------------------
-router.post('/employeeLeaveOLD', authenticateToken, async (req, res) => {
-  const transaction = await sequelize.transaction();
-  try {
-    let { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates, status } = req.body;
 
-    if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
-      await transaction.rollback();
-      return res.json({ message: 'Missing required fields' });
-    }
 
-    const user = await User.findByPk(userId);
-    if (!user) {
-      await transaction.rollback();
-      return res.json({ message: 'User not found' });
-    }
-    const leaveType = await LeaveType.findByPk(leaveTypeId, { transaction });
-    if (!leaveType) {
-      await transaction.rollback();
-      return res.json({ message: 'Leave type not found' });
-    }
-    const isLOP = leaveType.leaveTypeName === 'LOP';
+  router.post('/employeeLeave', authenticateToken, async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try {
+      let { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates, status } = req.body;
 
-    // Group leave dates by year and calculate days
-    const datesByYear = {};
-    leaveDates.forEach(date => {
-      const year = new Date(date.date).getFullYear();
-      if (!datesByYear[year]) datesByYear[year] = [];
-      datesByYear[year].push(date);
-    });
-
-    const noOfDaysByYear = {};
-    let totalRequiredDays = 0;
-
-    Object.keys(datesByYear).forEach(year => {
-      let totalDays = 0;
-      datesByYear[year].forEach(date => {
-        if (date.session1 && date.session2) {
-          totalDays += 1;
-        } else if (date.session1 || date.session2) {
-          totalDays += 0.5;
-        }
-      });
-      noOfDaysByYear[year] = totalDays;
-      totalRequiredDays += totalDays; 
-    });
-
-  
-    let penaltyLOP = 0;
-    const applicationDate = new Date();
-    const leaveStartDate = new Date(startDate);
-    const leaveEndDate = new Date(endDate); 
-
-    const diffTime = applicationDate - leaveStartDate;
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-  
-    const isFriday = leaveEndDate.getDay() === 5;
-    const penaltyThreshold = isFriday ? 4 : 3;
-
-    if (diffDays >= penaltyThreshold) {
-      penaltyLOP = totalRequiredDays;
-      const type = leaveType.leaveTypeName;
-      const penaltyTag = `[Penalty: ${totalRequiredDays} ${type} + ${penaltyLOP} LOP due to late application]`;
-      notes = notes ? `${notes} ${penaltyTag}` : penaltyTag;
-     
-    }
-
-    const userLeaves = new Map();
-    for (const year of Object.keys(datesByYear)) {
-      let userLeave = await UserLeave.findOne({
-        where: { userId, leaveTypeId, year },
-        transaction,
-      });
-
-      if (!userLeave) {
-        userLeave = await UserLeave.create({
-          userId,
-          leaveTypeId,
-          year,
-          noOfDays: 0,
-          leaveBalance: 0,
-          takenLeaves: 0,
-        }, { transaction });
+      if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
+        await transaction.rollback();
+        return res.json({ message: 'Missing required fields' });
       }
 
-      userLeaves.set(year, {
-        instance: userLeave,
-        balance: userLeave.leaveBalance,
-      });
-
-      const requiredDays = noOfDaysByYear[year];
-      // totalRequiredDays += requiredDays; 
-      if (userLeave.leaveBalance < requiredDays && !isLOP) {
+      const user = await User.findByPk(userId);
+      if (!user) {
         await transaction.rollback();
-        return res.json({ message: `Insufficient leave balance for year ${year}` });
+        return res.json({ message: 'User not found' });
       }
-
-      const pendingLeaves = await Leave.sum('noOfDays', {
-        where: {
-          userId,
-          leaveTypeId,
-          status: 'Requested',
-        },
-        transaction,
-      });
-      if (userLeave.leaveBalance < (pendingLeaves + requiredDays) && !isLOP) {
+      const leaveType = await LeaveType.findByPk(leaveTypeId, { transaction });
+      if (!leaveType) {
         await transaction.rollback();
-        return res.json({
-          message: `Insufficient leave balance. You have already applied for ${pendingLeaves} days of leave,
-          and your current balance is ${userLeave.leaveBalance} days. 
-          You need an additional ${requiredDays} days for this request.`
+        return res.json({ message: 'Leave type not found' });
+      }
+      const isLOP = leaveType.leaveTypeName === 'LOP';
+
+      // Group leave dates by year and calculate days
+      const datesByYear = {};
+      leaveDates.forEach(date => {
+        const year = new Date(date.date).getFullYear();
+        if (!datesByYear[year]) datesByYear[year] = [];
+        datesByYear[year].push(date);
+      });
+
+      const noOfDaysByYear = {};
+      let totalRequiredDays = 0;
+
+      Object.keys(datesByYear).forEach(year => {
+        let totalDays = 0;
+        datesByYear[year].forEach(date => {
+          if (date.session1 && date.session2) {
+            totalDays += 1;
+          } else if (date.session1 || date.session2) {
+            totalDays += 0.5;
+          }
         });
+        noOfDaysByYear[year] = totalDays;
+        totalRequiredDays += totalDays; 
+      });
+
+      let penaltyLOP = 0;
+      const applicationDate = new Date();
+      const leaveStartDate = new Date(startDate);
+      const leaveEndDate = new Date(endDate); 
+
+      const diffTime = applicationDate - leaveStartDate;
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+      const isFriday = leaveEndDate.getDay() === 5;
+      const penaltyThreshold = isFriday ? 4 : 3;
+
+      // UPDATED CONDITION: Only apply penalty if it is NOT LOP
+      if (!isLOP && diffDays >= penaltyThreshold) {
+        penaltyLOP = totalRequiredDays;
+        const type = leaveType.leaveTypeName;
+        const penaltyTag = `[Penalty: ${totalRequiredDays} ${type} + ${penaltyLOP} LOP due to late application]`;
+        notes = notes ? `${notes} ${penaltyTag}` : penaltyTag;
       }
+
+      const userLeaves = new Map();
+      for (const year of Object.keys(datesByYear)) {
+        let userLeave = await UserLeave.findOne({
+          where: { userId, leaveTypeId, year },
+          transaction,
+        });
+
+        if (!userLeave) {
+          userLeave = await UserLeave.create({
+            userId,
+            leaveTypeId,
+            year,
+            noOfDays: 0,
+            leaveBalance: 0,
+            takenLeaves: 0,
+          }, { transaction });
+        }
+
+        userLeaves.set(year, {
+          instance: userLeave,
+          balance: userLeave.leaveBalance,
+        });
+
+        const requiredDays = noOfDaysByYear[year];
+        if (userLeave.leaveBalance < requiredDays && !isLOP) {
+          await transaction.rollback();
+          return res.json({ message: `Insufficient leave balance for year ${year}` });
+        }
+
+        const pendingLeaves = await Leave.sum('noOfDays', {
+          where: {
+            userId,
+            leaveTypeId,
+            status: 'Requested',
+          },
+          transaction,
+        });
+        if (userLeave.leaveBalance < (pendingLeaves + requiredDays) && !isLOP) {
+          await transaction.rollback();
+          return res.json({
+            message: `Insufficient leave balance. You have already applied for ${pendingLeaves} days of leave,
+            and your current balance is ${userLeave.leaveBalance} days. 
+            You need an additional ${requiredDays} days for this request.`
+          });
+        }
+      }
+
+      const leave = await Leave.create({
+        userId,
+        leaveTypeId,
+        startDate,
+        endDate,
+        noOfDays: totalRequiredDays,
+        penaltyLOP: penaltyLOP,
+        notes,
+        fileUrl,
+        status: 'Requested',
+        leaveDates,
+      }, { transaction });
+
+      const statusMsg = penaltyLOP > 0 
+        ? `Success: ${totalRequiredDays} ${leaveType.leaveTypeName} + ${penaltyLOP} LOP (Late Penalty)`
+        : "Leave processed successfully";
+
+      const not = await handleNotificationsAndEmails(req, res, leave, transaction, 'employee', 'Create');
+      await transaction.commit();
+      res.json({
+        not: not,
+        message: statusMsg,
+        leave,
+      });
+
+    } catch (error) {
+      if (!transaction.finished) {
+        await transaction.rollback();
+      }
+      res.json({ error: error.message });
+    }
+  });
+
+router.put('/removePenalty/:id', authenticateToken, async (req, res) => {
+  const leaveId = req.params.id;
+  const transaction = await sequelize.transaction();
+
+  try {
+    // 1. Fetch the leave details
+    const leave = await Leave.findByPk(leaveId, { transaction });
+
+    if (!leave) {
+      await transaction.rollback();
+      return res.status(404).json({ message: 'Leave request not found' });
     }
 
-    // Create leave records
-    // const leave = await Leave.create({
-    //   userId,
-    //   leaveTypeId,
-    //   startDate: startDate,
-    //   endDate: endDate,
-    //   noOfDays: totalRequiredDays,
-    //   notes,
-    //   fileUrl,
-    //   status: 'Requested',
-    //   leaveDates,
-    // }, { transaction });
-    // Send notifications and emails
-    //  penaltyLOP = noOfDays
-    const leave = await Leave.create({
-      userId,
-      leaveTypeId,
-      startDate,
-      endDate,
-      noOfDays: totalRequiredDays,
-      penaltyLOP: penaltyLOP,
-      notes,
-      fileUrl,
-      status: 'Requested',
-      leaveDates,
-    }, { transaction });
+    // 2. Reset the penalty value in the Leave table ONLY
+    // We do NOT touch UserLeave.takenLeaves here.
+    leave.penaltyLOP = 0;
 
-    const statusMsg = penaltyLOP > 0 
-  ? `Success: ${totalRequiredDays} ${leaveType.leaveTypeName} + ${penaltyLOP} LOP (Late Penalty)`
-  : "Leave processed successfully";
+    // 3. Clean up the notes so the "Penalty" text is gone
+    if (leave.notes) {
+      // Removes the [Penalty: ... ] block
+      leave.notes = leave.notes.replace(/\[Penalty:.*?\]/gi, '').trim();
+      leave.notes += " (Penalty Waived)";
+    }
 
-    const not = await handleNotificationsAndEmails(req, res, leave, transaction, 'employee', 'Create');
+    await leave.save({ transaction });
     await transaction.commit();
+
     res.json({
-      not: not,
-     message: statusMsg,
-      leave,
+      message: "Penalty reset to 0 successfully. Approval will not include LOP penalty.",
+      leave
     });
 
   } catch (error) {
-    if (!transaction.finished) {
-      await transaction.rollback(); // Rollback only if the transaction is not finished
-    }
-    res.json({ error: error.message });
-  }
-});
-
-router.post('/employeeLeave', authenticateToken, async (req, res) => {
-  const transaction = await sequelize.transaction();
-  try {
-    let { userId, leaveTypeId, startDate, endDate, notes, fileUrl, leaveDates, status } = req.body;
-
-    if (!leaveTypeId || !startDate || !endDate || !leaveDates) {
-      await transaction.rollback();
-      return res.json({ message: 'Missing required fields' });
-    }
-
-    const user = await User.findByPk(userId);
-    if (!user) {
-      await transaction.rollback();
-      return res.json({ message: 'User not found' });
-    }
-    const leaveType = await LeaveType.findByPk(leaveTypeId, { transaction });
-    if (!leaveType) {
-      await transaction.rollback();
-      return res.json({ message: 'Leave type not found' });
-    }
-    const isLOP = leaveType.leaveTypeName === 'LOP';
-
-    // Group leave dates by year and calculate days
-    const datesByYear = {};
-    leaveDates.forEach(date => {
-      const year = new Date(date.date).getFullYear();
-      if (!datesByYear[year]) datesByYear[year] = [];
-      datesByYear[year].push(date);
-    });
-
-    const noOfDaysByYear = {};
-    let totalRequiredDays = 0;
-
-    Object.keys(datesByYear).forEach(year => {
-      let totalDays = 0;
-      datesByYear[year].forEach(date => {
-        if (date.session1 && date.session2) {
-          totalDays += 1;
-        } else if (date.session1 || date.session2) {
-          totalDays += 0.5;
-        }
-      });
-      noOfDaysByYear[year] = totalDays;
-      totalRequiredDays += totalDays; 
-    });
-
-    let penaltyLOP = 0;
-    const applicationDate = new Date();
-    const leaveStartDate = new Date(startDate);
-    const leaveEndDate = new Date(endDate); 
-
-    const diffTime = applicationDate - leaveStartDate;
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    const isFriday = leaveEndDate.getDay() === 5;
-    const penaltyThreshold = isFriday ? 4 : 3;
-
-    // UPDATED CONDITION: Only apply penalty if it is NOT LOP
-    if (!isLOP && diffDays >= penaltyThreshold) {
-      penaltyLOP = totalRequiredDays;
-      const type = leaveType.leaveTypeName;
-      const penaltyTag = `[Penalty: ${totalRequiredDays} ${type} + ${penaltyLOP} LOP due to late application]`;
-      notes = notes ? `${notes} ${penaltyTag}` : penaltyTag;
-    }
-
-    const userLeaves = new Map();
-    for (const year of Object.keys(datesByYear)) {
-      let userLeave = await UserLeave.findOne({
-        where: { userId, leaveTypeId, year },
-        transaction,
-      });
-
-      if (!userLeave) {
-        userLeave = await UserLeave.create({
-          userId,
-          leaveTypeId,
-          year,
-          noOfDays: 0,
-          leaveBalance: 0,
-          takenLeaves: 0,
-        }, { transaction });
-      }
-
-      userLeaves.set(year, {
-        instance: userLeave,
-        balance: userLeave.leaveBalance,
-      });
-
-      const requiredDays = noOfDaysByYear[year];
-      if (userLeave.leaveBalance < requiredDays && !isLOP) {
-        await transaction.rollback();
-        return res.json({ message: `Insufficient leave balance for year ${year}` });
-      }
-
-      const pendingLeaves = await Leave.sum('noOfDays', {
-        where: {
-          userId,
-          leaveTypeId,
-          status: 'Requested',
-        },
-        transaction,
-      });
-      if (userLeave.leaveBalance < (pendingLeaves + requiredDays) && !isLOP) {
-        await transaction.rollback();
-        return res.json({
-          message: `Insufficient leave balance. You have already applied for ${pendingLeaves} days of leave,
-          and your current balance is ${userLeave.leaveBalance} days. 
-          You need an additional ${requiredDays} days for this request.`
-        });
-      }
-    }
-
-    const leave = await Leave.create({
-      userId,
-      leaveTypeId,
-      startDate,
-      endDate,
-      noOfDays: totalRequiredDays,
-      penaltyLOP: penaltyLOP,
-      notes,
-      fileUrl,
-      status: 'Requested',
-      leaveDates,
-    }, { transaction });
-
-    const statusMsg = penaltyLOP > 0 
-      ? `Success: ${totalRequiredDays} ${leaveType.leaveTypeName} + ${penaltyLOP} LOP (Late Penalty)`
-      : "Leave processed successfully";
-
-    const not = await handleNotificationsAndEmails(req, res, leave, transaction, 'employee', 'Create');
-    await transaction.commit();
-    res.json({
-      not: not,
-      message: statusMsg,
-      leave,
-    });
-
-  } catch (error) {
-    if (!transaction.finished) {
-      await transaction.rollback();
-    }
-    res.json({ error: error.message });
+    if (!transaction.finished) await transaction.rollback();
+    console.error('Reset Error:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -1744,7 +1623,7 @@ router.patch('/updateLeaveFileUrl/:leaveId', authenticateToken, async (req, res)
 
 // ------------------------------------------------------------------APPROVAL--------------------------------------------------------
 
-router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
+router.put('/approveLeaveOLD/:id', authenticateToken, async (req, res) => {
   const leaveId = req.params.id;
   const { adminNotes } = req.body;
 
@@ -2052,6 +1931,157 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
   }
 });
 
+router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
+  const leaveId = req.params.id;
+  const { adminNotes } = req.body;
+
+  try {
+    const leave = await Leave.findByPk(leaveId, {
+      include: [
+        { model: User, attributes: ['name', 'email'], as: 'user' },
+        { model: LeaveType, attributes: ['leaveTypeName'], as: 'leaveType' }
+      ]
+    });
+
+    if (!leave) {
+      return res.send({ message: 'Leave request not found' });
+    }
+
+    // Dynamic penalty note: only shows if a penalty actually exists in the DB
+    const currentPenalty = parseFloat(leave.penaltyLOP || 0);
+    const penaltyNote = currentPenalty > 0 
+      ? `<p><strong>Note:</strong> A penalty of ${currentPenalty} day(s) has been applied as LOP for this request.</p>` 
+      : '<p><em>Note: No late application penalties were applied.</em></p>';
+
+    const userId = leave.userId;
+    const userPos = await UserPosition.findOne({
+      where: { userId: userId },
+      include: [{ model: User, attributes: ['name', 'email'] }]
+    });
+
+    const leaveType = await LeaveType.findByPk(leave.leaveTypeId);
+    if (!leaveType) return res.send({ message: 'Leave type not found' });
+
+    const startDate = new Date(leave.startDate);
+    const endDate = new Date(leave.endDate);
+    const startYear = startDate.getFullYear();
+    const endYear = endDate.getFullYear();
+
+    // CC Recipients Fetching
+    const hr = await getHREmail();
+    const rm = await getReportingManagerEmailForUser(leave.userId);
+    const teamLeads = await getTeamLeadEmails(leave.userId);
+    const omMail = await getOMEmail();
+    const ccRecipients = [hr.mail, rm.email, ...(Array.isArray(teamLeads) ? teamLeads : []), omMail].filter(email => email);
+
+    // --- CASE 1: HANDLE LOP LEAVE TYPE ---
+    if (leaveType.leaveTypeName === 'LOP') {
+      if (startYear === endYear) {
+        const userLeave = await UserLeave.findOne({
+          where: { userId: leave.userId, leaveTypeId: leave.leaveTypeId, year: startYear },
+        });
+        if (!userLeave) return res.status(404).send('User leave record not found');
+        
+        userLeave.takenLeaves += leave.noOfDays;
+        await userLeave.save();
+      } else {
+        const endOfStartYear = new Date(startYear, 11, 31);
+        const startOfEndYear = new Date(endYear, 0, 1);
+        const daysInStartYear = calculateDays(startDate, endOfStartYear);
+        const daysInEndYear = calculateDays(startOfEndYear, endDate);
+
+        const userLeaveStartYear = await UserLeave.findOne({ where: { userId: leave.userId, leaveTypeId: leave.leaveTypeId, year: startYear } });
+        const userLeaveEndYear = await UserLeave.findOne({ where: { userId: leave.userId, leaveTypeId: leave.leaveTypeId, year: endYear } });
+
+        if (userLeaveStartYear && userLeaveEndYear) {
+          userLeaveStartYear.takenLeaves += daysInStartYear;
+          userLeaveEndYear.takenLeaves += daysInEndYear;
+          await userLeaveStartYear.save();
+          await userLeaveEndYear.save();
+        }
+      }
+    } 
+    // --- CASE 2: HANDLE PAID LEAVE TYPES (Casual, Sick, etc.) ---
+    else {
+      if (startYear === endYear) {
+        const userLeave = await UserLeave.findOne({ where: { userId, leaveTypeId: leave.leaveTypeId, year: startYear } });
+        if (!userLeave || userLeave.leaveBalance < leave.noOfDays) {
+          return res.json({ message: 'Insufficient balance', openNoteDialog: true });
+        }
+        userLeave.leaveBalance -= leave.noOfDays;
+        userLeave.takenLeaves += leave.noOfDays;
+        await userLeave.save();
+      } else {
+        // Multi-year logic for paid leave
+        const endOfStartYear = new Date(startYear, 11, 31);
+        const startOfEndYear = new Date(endYear, 0, 1);
+        const daysInStartYear = calculateDays(startDate, endOfStartYear);
+        const daysInEndYear = calculateDays(startOfEndYear, endDate);
+
+        const ulStart = await UserLeave.findOne({ where: { userId, leaveTypeId: leave.leaveTypeId, year: startYear } });
+        const ulEnd = await UserLeave.findOne({ where: { userId, leaveTypeId: leave.leaveTypeId, year: endYear } });
+
+        if (!ulStart || !ulEnd || ulStart.leaveBalance < daysInStartYear || ulEnd.leaveBalance < daysInEndYear) {
+          return res.json({ message: 'Insufficient balance for one or both years', openNoteDialog: true });
+        }
+        ulStart.leaveBalance -= daysInStartYear;
+        ulStart.takenLeaves += daysInStartYear;
+        ulEnd.leaveBalance -= daysInEndYear;
+        ulEnd.takenLeaves += daysInEndYear;
+        await ulStart.save();
+        await ulEnd.save();
+      }
+    }
+
+    // --- PENALTY APPLICATION (Universal) ---
+    // If penalty was removed via the button, currentPenalty will be 0 and this block is skipped.
+    if (currentPenalty > 0) {
+      const lopType = await LeaveType.findOne({ where: { leaveTypeName: 'LOP' } });
+      if (lopType) {
+        const [userLOP] = await UserLeave.findOrCreate({
+          where: { userId: leave.userId, leaveTypeId: lopType.id, year: startYear },
+          defaults: { leaveBalance: 0, takenLeaves: 0, noOfDays: 0 }
+        });
+        // Corrected column name to takenLeaves
+        userLOP.takenLeaves += currentPenalty;
+        await userLOP.save();
+        console.log(`Applied ${currentPenalty} day penalty to takenLeaves`);
+      }
+    }
+
+    // Finalize Leave Status
+    leave.status = 'Approved';
+    leave.adminNotes = adminNotes;
+    await leave.save();
+
+    // Notifications and Emails
+    const me = `${leave.user.name}'s Leave Request Approved by ${req.user.name}`;
+    const route = `/login/leave/open/${leave.id}`;
+    createNotification({ id: userId, me, route });
+
+    const emailSubject = `Leave Request is Approved`;
+    const fromEmail = process.env.EMAIL_USER;
+    const emailPassword = process.env.EMAIL_PASS;
+    const html = `
+      <p>Dear ${leave.user.name},</p>
+      <p>This is to inform you that ${req.user.name} has approved your ${leaveType.leaveTypeName}.</p>
+      <p><strong>Admin Note:</strong> ${adminNotes || 'None'}</p>
+      ${penaltyNote}
+      <p>Please review the application in the portal.</p>
+    `;
+
+    try {
+      const token = req.headers.authorization?.split(' ')[1];
+      await sendEmail(token, fromEmail, emailPassword, userPos.officialMailId, emailSubject, html, [], ccRecipients);
+    } catch (e) { console.error('Email failed:', e.message); }
+
+    res.send({ message: 'Leave approved successfully', leave });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(error.message);
+  }
+});
 
 
 // --------------------------------------------------------------REJECT--------------------------------------------------------------
