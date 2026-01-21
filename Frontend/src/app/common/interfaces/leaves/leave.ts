@@ -13,6 +13,7 @@ export interface Leave {
   notes?: string; // Optional notes for the leave
   status: string; // Current status of the leave
   fileUrl?: string; // Optional URL for any file associated with the leave
+  penaltyLOP: number; // Penalty for late or early return of LOP
   leaveDates: LeaveDate[]; // Array of dates for the leave
   adminNotes: string;
   createdAt: Date

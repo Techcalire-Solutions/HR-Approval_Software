@@ -147,15 +147,15 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
       if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
         const endDate = new Date(leave.endDate);
         const today = new Date();
-        const timeDiff = today.getTime() - endDate.getTime();
-        const dayDiff = timeDiff / (1000 * 3600 * 24);
-        const roundedDayDiff = Math.floor(dayDiff);
-        const isFriday = endDate.getDay() === 5;
-        const thresholdDays = isFriday ? 3 : 2;
-        // Filter leaveTypes if difference > 2
-        if (roundedDayDiff > thresholdDays) {
-          this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
-        }
+        // const timeDiff = today.getTime() - endDate.getTime();
+        // const dayDiff = timeDiff / (1000 * 3600 * 24);
+        // const roundedDayDiff = Math.floor(dayDiff);
+        // const isFriday = endDate.getDay() === 5;
+        // const thresholdDays = isFriday ? 3 : 2;
+        // // Filter leaveTypes if difference > 2
+        // if (roundedDayDiff > thresholdDays) {
+        //   this.leaveTypes = this.leaveTypes.filter(type => type.leaveTypeName === 'LOP');
+        // }
       }
       this.leaveRequestForm.patchValue({
         userName: this.leave.user.name,
