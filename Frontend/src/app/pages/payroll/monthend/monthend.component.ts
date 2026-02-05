@@ -136,15 +136,23 @@ export class MonthendComponent implements OnInit, OnDestroy{
     const gross = basic + hra + conveyanceAllowance + lta + specialAllowance;
 
     const perDayEncash = gross / 30;
-    const leaveEncash = (perDayEncash * leaveBal).toFixed(2);
-    payrollGroup.get('leaveEncashmentAmount')?.setValue(leaveEncash, { emitEvent: false });
+    // const leaveEncash = (perDayEncash * leaveBal).toFixed(2);
+    const leaveEncash = parseValue('leaveEncashmentAmount');
+    console.log(leaveEncash);
+    
+    // payrollGroup.get('leaveEncashmentAmount')?.setValue(leaveEncash, { emitEvent: false });
 
-    const roundedGross = Math.round(gross);
+    let updatedGross = gross;
+    if (leaveEncash) {
+      updatedGross += Number(leaveEncash);
+    }
+
+    const roundedGross = Math.round(updatedGross);
     payrollGroup.get('perDay')?.setValue((roundedGross / this.daysInMonth).toFixed(2), { emitEvent: false });
     payrollGroup.get('daysInMonth')?.setValue(this.daysInMonth, { emitEvent: false });
 
     const deduction = pf + insurance + tds + advanceAmount + incentiveDeduction;
-    const grossTotal = Math.round(gross + ot + incentive + payOut + Number(leaveEncash) - deduction);
+    const grossTotal = Math.round(updatedGross + ot + incentive + payOut - deduction);
     const perDaySalary = gross / this.daysInMonth;
     const leaveDeduction = perDaySalary * leaveDays;
 
@@ -160,6 +168,8 @@ export class MonthendComponent implements OnInit, OnDestroy{
   }
 
   newDoc(initialValue?: any): FormGroup {
+    console.log(initialValue);
+    
     const payedForValue = `${this.month} ${this.currentYear}`;
     return this.fb.group({
       id: [initialValue ? initialValue.id : '', Validators.required],
@@ -186,9 +196,9 @@ export class MonthendComponent implements OnInit, OnDestroy{
       payedFor: [payedForValue],
       daysInMonth : [ initialValue ? initialValue.daysInMonth : 0],
       leaveEncashment : [initialValue ? initialValue.leaveEncashment : 0],
+      leaveEncashmentAmount : [initialValue ? initialValue.leaveEncashmentAmount : 0],
       cl : [initialValue ? initialValue.casualLeave : 0],
-      combOff : [initialValue ? initialValue.combOff : 0],
-      leaveEncashmentAmount : []
+      combOff : [initialValue ? initialValue.combOff : 0]
     });
   }
 
@@ -210,8 +220,12 @@ export class MonthendComponent implements OnInit, OnDestroy{
     const isDecember = this.month.toLowerCase() === 'december';
 
     this.paySub = this.payrollService.getMonthlyPayrollByPayedFor(payedForValue).subscribe(payroll =>{
+      console.log(payroll);
+      
       if(payroll.length === 0){
         this.payrollSub = this.payrollService.getPayroll().subscribe((payroll) => {
+          console.log(payroll);
+          
           this.payrolls = payroll;
           this.enchashSub = this.leaveService.getUserLeaveForEncash(this.currentYear).subscribe(leaveBalances => {
             this.payrolls.forEach((payrollItem: any) => {

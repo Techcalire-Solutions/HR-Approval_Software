@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Assets } from '../common/interfaces/assets/assets';
-import { Observable, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { UserAssetDetail } from '../common/interfaces/users/user-asset-details';
 
 @Injectable({
@@ -39,11 +39,16 @@ export class AssetsService {
     return this.http.get(this.apiUrl + `/asset/getassigneduser/${id}`)
   }
 
-  addUserAssets(data: any){
+  addUserAssets(data: any) {
     return this.http.post(this.apiUrl + `/asset`, data).pipe(
-      tap((res) => console.log('Response from backend:', res))
+      map((response: any) => response.data)
     );
   }
+  // addUserAssets(data: any){
+  //   return this.http.post(this.apiUrl + `/asset`, data).pipe(
+  //     tap((res) => console.log('Response from backend:', res))
+  //   );
+  // }
 
   editUserAssets(data: any, id: number){
     return this.http.patch(this.apiUrl + `/asset/${id}`, data).pipe(

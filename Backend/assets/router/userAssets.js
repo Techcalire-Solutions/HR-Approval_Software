@@ -12,32 +12,47 @@ const Assets = require('../model/asset');
 const { Op } = require('sequelize');
 
 router.post('/', authenticateToken, async (req, res) => {
-  const {
-    assetName, assetNumber, assetHandoverNumber, serialNumber,
-    description, purchasedDate, purchasedFrom, invoiceNo, assignedStatus
-  } = req.body;
-
-  // Validation
-  if (!assetName) return res.status(400).send("assetName is required");
-
   try {
+    const {
+      assetName, assetNumber, assetHandoverNumber, serialNumber,
+      description, purchasedDate, purchasedFrom, invoiceNo, assignedStatus
+    } = req.body;
+    
+    console.log('Request body:', req.body);
+    
+    // Validation with proper return
+    if (!assetName) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "assetName is required" 
+      });
+    }
+
     const asset = await UserAssets.create({
       assetName,
-      assetNumber,
-      assetHandoverNumber,
-      serialNumber,
-      description,
-      purchasedDate,
-      purchasedFrom,
-      invoiceNo,
-      assignedStatus
+      assetNumber: assetNumber || '',
+      assetHandoverNumber: assetHandoverNumber || '',
+      serialNumber: serialNumber || '',
+      description: description || '',
+      purchasedDate: purchasedDate || null,
+      purchasedFrom: purchasedFrom || '',
+      invoiceNo: invoiceNo || '',
+      assignedStatus: assignedStatus || false
     });
-
-    res.status(201).send(asset);
+    
+    return res.status(201).json({
+      success: true,
+      message: 'Asset created successfully',
+      data: asset
+    });
 
   } catch (error) {
     console.error("Error saving asset:", error);
-    res.status(500).send(error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 

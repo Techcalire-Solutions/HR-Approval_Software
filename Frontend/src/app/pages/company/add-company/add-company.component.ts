@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs';
 import { LeaveType } from '../../../common/interfaces/leaves/leaveType';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -39,7 +39,7 @@ import { Router } from '@angular/router';
     MatProgressSpinnerModule,
     MatDialogModule,
     MatCheckboxModule],
-    providers: [DatePipe],
+    providers: [DatePipe, provideNativeDateAdapter()],
   templateUrl: './add-company.component.html',
   styleUrl: './add-company.component.scss'
 })

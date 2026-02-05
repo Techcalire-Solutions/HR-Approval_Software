@@ -20,6 +20,8 @@ import { RoleService } from '@services/role.service';
 import { Role } from '../../common/interfaces/users/role';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {MatTabsModule} from '@angular/material/tabs';
+import { UsersComponent } from '../users/users.component';
+import { UsersService } from '@services/users.service';
 
 @Component({
   selector: 'app-leave',
@@ -38,6 +40,8 @@ export class LeaveComponent implements OnInit, OnDestroy{
     const user = JSON.parse(token)
     this.id = user.id;
     this.roleId = user.role
+    console.log(user);
+    
     this.getRoleById(this.roleId, this.id)
     this.value = 'Not'
   }
@@ -46,10 +50,10 @@ export class LeaveComponent implements OnInit, OnDestroy{
   onTabChange(i: number){
     if(i === 1){
       this.value = 'Locked'
-    this.getRoleById(this.roleId, this.id)
+      this.getRoleById(this.roleId, this.id)
     }else{
       this.value = 'Not'
-    this.getRoleById(this.roleId, this.id)
+      this.getRoleById(this.roleId, this.id)
     }
   }
 
@@ -58,16 +62,23 @@ export class LeaveComponent implements OnInit, OnDestroy{
   roleName: string;
   employeeStat: boolean = false;
   userId: number = 0;
+  private readonly userService = inject(UsersService) 
   getRoleById(id: number, userId: number){
-    this.roleSub = this.roleService.getRoleById(id).subscribe((res: Role) => {
-      this.roleName = res.abbreviation
-      if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
-        this.employeeStat = true;
-        this.getLeaveByUser(userId)
-        this.getUserLeaves(userId)
-        this.userId = userId;
+    this.userService.getUserById(userId).subscribe(res=>{
+      if(res.userPosition?.designation?.designationName === 'HR & Admin Assistant'){
+          this.getLeaves()
       }else{
-        this.getLeaves()
+          this.roleSub = this.roleService.getRoleById(id).subscribe((res: Role) => {
+            this.roleName = res.abbreviation
+            if(this.roleName !== 'HR Admin' && this.roleName !== 'Super Admin'){
+              this.employeeStat = true;
+              this.getLeaveByUser(userId)
+              this.getUserLeaves(userId)
+              this.userId = userId;
+            }else{
+              this.getLeaves()
+            }
+          })
       }
     })
   }
