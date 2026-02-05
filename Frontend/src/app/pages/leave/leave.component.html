@@ -123,8 +123,9 @@
                 <th>Uploads</th>
                 @if(!employeeStat){
                 <th>Penalty</th>
-                <th>Action</th>
                 }
+                <th>Action</th>
+                
                 <th>Manage</th>
               </tr>
             </thead>
@@ -178,7 +179,6 @@
                     }
                   </div>
                 </td>
-
                 <td (click)="$event.stopPropagation()">
                   @if(!employeeStat) {
                   <ng-container>
@@ -187,6 +187,15 @@
                       (click)="removePenalty(item)">
                       <mat-icon>money_off</mat-icon>
                       Remove Penalty
+                    </button>
+                    }
+
+                    @if (['Approved', 'Admin Approved'].includes(item.status) && item.penaltyLOP > 0 &&
+                    !item.notes?.includes('Waived')) {
+                    <button mat-fab extended class="penalty-button" style="background-color: #e91e63; color: white;"
+                      (click)="waiveApprovedPenalty(item)">
+                      <mat-icon>settings_backup_restore</mat-icon>
+                      Waive & Revert LOP
                     </button>
                     }
                   </ng-container>

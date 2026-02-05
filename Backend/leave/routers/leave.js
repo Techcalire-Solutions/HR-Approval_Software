@@ -211,6 +211,80 @@ router.put('/removePenalty/:id', authenticateToken, async (req, res) => {
 });
 
 
+router.put('/removeApprovedPenalty/:id', authenticateToken, async (req, res) => {
+  const leaveId = req.params.id;
+  const transaction = await sequelize.transaction();
+
+  try {
+    // 1. Fetch the leave details
+    const leave = await Leave.findByPk(leaveId, { transaction });
+    if (!leave) {
+      await transaction.rollback();
+      return res.status(404).json({ message: 'Leave record not found' });
+    }
+
+    const penaltyAmount = parseFloat(leave.penaltyLOP) || 0;
+    const leaveYear = new Date(leave.startDate).getFullYear();
+
+    // 2. Find the LeaveType ID for 'LOP' dynamically
+    const lopType = await LeaveType.findOne({ 
+      where: { leaveTypeName: 'LOP' }, 
+      transaction 
+    });
+
+    if (!lopType) {
+      await transaction.rollback();
+      return res.status(404).json({ message: 'LOP Leave Type not configured in database' });
+    }
+
+    // 3. Find the user's specific LOP row in userLeave table
+    const userLopRecord = await UserLeave.findOne({ 
+      where: { 
+        userId: leave.userId,
+        leaveTypeId: lopType.id, // Targets ONLY the LOP row
+        year: leaveYear 
+      }, 
+      transaction 
+    });
+
+    if (userLopRecord && penaltyAmount > 0) {
+      // --- THE CORE DEDUCTION ---
+      const oldTaken = parseFloat(userLopRecord.takenLeaves) || 0;
+      userLopRecord.takenLeaves = Math.max(0, oldTaken - penaltyAmount);
+      
+      // Update balance (noOfDays - takenLeaves)
+      userLopRecord.leaveBalance = (parseFloat(userLopRecord.noOfDays) || 0) - userLopRecord.takenLeaves;
+
+      await userLopRecord.save({ transaction });
+
+      // 4. Update Leave table (reset penalty to 0)
+      leave.penaltyLOP = 0;
+      if (leave.notes) {
+        leave.notes = leave.notes.replace(/\[Penalty:.*?\]/gi, '').trim();
+        leave.notes += " (Penalty Waived - LOP Count Reduced)";
+      }
+      await leave.save({ transaction });
+
+      // Commit both updates
+      await transaction.commit();
+
+      res.json({ 
+        message: "LOP Count Updated Successfully", 
+        newTakenLeaves: userLopRecord.takenLeaves 
+      });
+    } else {
+      await transaction.rollback();
+      res.status(400).json({ message: "No LOP record found for this user to update." });
+    }
+
+  } catch (error) {
+    if (!transaction.finished) await transaction.rollback();
+    console.error("Deduction Error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 
 router.patch('/updateemployeeleave/:id', authenticateToken, async (req, res) => {
   const transaction = await sequelize.transaction();

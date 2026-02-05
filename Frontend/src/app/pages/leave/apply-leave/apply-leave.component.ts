@@ -508,47 +508,7 @@ export class ApplyLeaveComponent implements OnInit, OnDestroy{
     this.snackBar.open("Leave added successfully...", "", { duration: 3000 });
   }
 
-  isSick: boolean = false;
-  isLeaveDurationInvalidOld(): boolean {
-    // Parse the dates as moment objects
-    const startDate = moment(this.leaveRequestForm.get('startDate')?.value as string | Date);
-    const endDate = moment(this.leaveRequestForm.get('endDate')?.value as string | Date);
-    const leaveTypeId = this.leaveRequestForm.get('leaveTypeId')?.value;
-  
-    // Check if dates are valid
-    if (!startDate.isValid() || !endDate.isValid()) {
-      return false;
-    }
-  
-    // Check if leaveTypeId is provided
-    if (!leaveTypeId) {
-      return false;
-    }
-  
-    // Strip the time component to ensure only dates are compared
-    const startDateWithoutTime = startDate.startOf('day');
-    const endDateWithoutTime = endDate.startOf('day');
-  
-    // Calculate the difference in days
-    const diffInDays = endDateWithoutTime.diff(startDateWithoutTime, 'days');
-    const sickLeaveId = this.slId;
-  
-    if (leaveTypeId === sickLeaveId) {
-      if (diffInDays > 2) {
-        this.isFileSelected = true;
-        return false;
-      } else {
-        this.isFileSelected = false;
-        this.isSick = true;
-      }
-    } else {
-      this.isFileSelected = false;
-      this.isSick = false;
-    }
-  
-    return diffInDays > 2 && leaveTypeId !== sickLeaveId;
-  }
-
+isSick: boolean = false;
 isLeaveDurationInvalid(): boolean {
   const startDateValue = this.leaveRequestForm.get('startDate')?.value;
   const endDateValue = this.leaveRequestForm.get('endDate')?.value;
@@ -563,23 +523,22 @@ isLeaveDurationInvalid(): boolean {
   const diffInDays = endDate.diff(startDate, 'days') + 1; 
   const sickLeaveId = this.slId;
 
-  // Check if any day in the range is a Monday (1) or Friday (5)
-  let includesMonOrFri = false;
+  // Check if any day in range is Monday (1), Friday (5), or Saturday (6)
+  let requiresCertificateDay = false;
   let curr = moment(startDate);
   while (curr <= endDate) {
     const dayOfWeek = curr.day(); 
-    if (dayOfWeek === 1 || dayOfWeek === 5) { 
-      includesMonOrFri = true;
+    if (dayOfWeek === 1 || dayOfWeek === 5 || dayOfWeek === 6) { // Added 6 for Saturday
+      requiresCertificateDay = true;
       break;
     }
     curr.add(1, 'days');
   }
 
   if (leaveTypeId === sickLeaveId) {
-    // Sick Leave Rule: Mandatory if > 2 days OR if it touches Monday/Friday
-    if (diffInDays > 2 || includesMonOrFri) {
+    // Sick Leave Rule: Mandatory if > 2 days OR if it touches Mon/Fri/Sat
+    if (diffInDays > 2 || requiresCertificateDay) {
       this.isSick = true;
-      // If no file is uploaded yet, this will disable the button
       this.isFileSelected = !this.imageUrl; 
       return false; 
     } else {
@@ -590,7 +549,7 @@ isLeaveDurationInvalid(): boolean {
   } else {
     this.isSick = false;
     this.isFileSelected = false;
-    return diffInDays > 3; // Rule for other leave types
+    return diffInDays > 3; 
   }
 }
 
