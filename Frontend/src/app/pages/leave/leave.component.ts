@@ -65,8 +65,7 @@ export class LeaveComponent implements OnInit, OnDestroy{
   private readonly userService = inject(UsersService) 
   getRoleById(id: number, userId: number){
     this.userService.getUserById(userId).subscribe(res=>{
-      console.log(res.userPosition.designation.designationName);
-      if(res.userPosition.designation.designationName === 'HR & Admin Assistant'){
+      if(res.userPosition?.designation?.designationName === 'HR & Admin Assistant'){
           this.getLeaves()
       }else{
           this.roleSub = this.roleService.getRoleById(id).subscribe((res: Role) => {
