@@ -16,6 +16,9 @@ export class NewLeaveService {
   removePenalty(id: number): Observable<any> {
   return this.http.put(`${this.apiUrl}/newleave/removePenalty/${id}`, {});
 }
+removeApprovedPenalty(id: number): Observable<any> {
+  return this.http.put(`${this.apiUrl}/newleave/removeApprovedPenalty/${id}`, {});
+}
 
   getLeavesPaginated(value: string, search?: string, page?: number, pageSize?: number): Observable<any[]> {
     if(value === 'Not') return this.http.get<any[]>(`${this.apiUrl}/newleave/find/?search=${search}&page=${page}&pageSize=${pageSize}`);

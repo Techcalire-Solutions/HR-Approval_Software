@@ -108,6 +108,22 @@ export class LeaveComponent implements OnInit, OnDestroy{
     });
   }
 }
+
+waiveApprovedPenalty(item: any) {
+  const confirmAction = confirm(`This will decrease the user's LOP count by ${item.penaltyLOP} day(s). Proceed?`);
+  
+  if (confirmAction) {
+    this.leaveService.removeApprovedPenalty(item.id).subscribe({
+      next: (res) => {
+        this.snackBar.open("LOP balance adjusted successfully", "Close", { duration: 3000 });
+        this.getLeaves(); // Refresh the table to hide the button
+      },
+      error: (err) => {
+        this.snackBar.open("Error: " + err.error.message, "Close", { duration: 3000 });
+      }
+    });
+  }
+}
   private readonly leaveService = inject(NewLeaveService);
 
   pageSize = 10;
