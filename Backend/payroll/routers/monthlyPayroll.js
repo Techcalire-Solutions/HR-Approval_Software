@@ -899,7 +899,7 @@ function generatePayslipHTML(mp) {
                                   </div>
                               </td>
                               <td>
-                                ${payedForWithoutYear === 'December' ? `
+                                ${payedForWithoutYear === 'January' ? `
                                   <div style="display: flex; align-items: center; width: 100%;">
                                       <span style="flex: 1;">Earned Leaves</span>
                                       <span style="width: 20px; text-align: center;">:</span>
@@ -970,7 +970,7 @@ function generatePayslipHTML(mp) {
                               <td></td>
                               <td></td>
                             </tr>
-                            ${payedForWithoutYear === 'December' ? `
+                            ${payedForWithoutYear === 'January' ? `
                             <tr>
                               <td>Earned Leave</td>
                               <td style="font-weight: bolder; color: rgb(8, 72, 115);">${mp.leaveEncashmentAmount ?? ''}</td>

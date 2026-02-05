@@ -9,6 +9,7 @@ import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@a
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { TokenInterceptor } from './common/interceptors/token.interceptor';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -30,6 +31,7 @@ export const appConfig: ApplicationConfig = {
       useFactory: adapterFactory
     })),
     { provide: OverlayContainer, useClass: CustomOverlayContainer },
+    provideNativeDateAdapter()
   ]
 };
 

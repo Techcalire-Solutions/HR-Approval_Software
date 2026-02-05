@@ -34,7 +34,7 @@
                 <th rowspan="2">Employee Name</th>
                 <th rowspan="2">Employee ID</th>
                 <th rowspan="2">PerDay</th>
-                @if(month === 'December'){
+                @if(month === 'January'){
                     <th colspan="12">Earnings</th>
                 }@else {
                     <th colspan="8">Earnings</th>
@@ -52,7 +52,7 @@
                 <th class="earnings">OT</th>
                 <th class="earnings">Incentive</th>
                 <th class="earnings">PayOut</th>
-                @if(month === 'December'){
+                @if(month === 'January'){
                     <th class="earnings" colspan="4">LeaveBalance</th>
                 }
                 <th class="deductions">PF</th>
@@ -76,7 +76,7 @@
                     <td><input type="number" class="no-spinner"placeholder="OT" formControlName="ot"></td>
                     <td><input type="number" class="no-spinner"placeholder="Incentive" formControlName="incentive"></td>
                     <td><input type="number" class="no-spinner"placeholder="PayOut" formControlName="payOut"></td>
-                    @if(month === 'December'){
+                    @if(month === 'January'){
                         <td><input type="number" class="no-spinner"placeholder="CL" formControlName="cl" style="width: 25px;"></td>
                         <td><input type="number" class="no-spinner"placeholder="CombOff" formControlName="combOff" style="width: 25px;"></td>
                         <td><input type="number" class="no-spinner"placeholder="LeaveEncashment" formControlName="leaveEncashment" style="width: 25px;"></td>

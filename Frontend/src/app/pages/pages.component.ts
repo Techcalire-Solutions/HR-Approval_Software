@@ -13,7 +13,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatRadioModule } from '@angular/material/radio';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgScrollbarModule } from 'ngx-scrollbar';
-import { SidenavComponent } from '../theme/components/sidenav/sidenav.component';
+// import { SidenavComponent } from '../theme/components/sidenav/sidenav.component';
 import { FullScreenComponent } from '../theme/components/fullscreen/fullscreen.component';
 import { ApplicationsComponent } from '../theme/components/applications/applications.component';
 import { UserMenuComponent } from '../theme/components/user-menu/user-menu.component';
@@ -27,6 +27,7 @@ import { ContactUsComponent } from "../theme/components/contact-us/contact-us.co
 import { Subscription } from 'rxjs';
 import { RoleService } from '@services/role.service';
 import { UsersService } from '@services/users.service';
+import { SidenavComponent } from "../theme/components/sidenav/sidenav.component";
 
 @Component({
   selector: 'app-pages',
@@ -43,7 +44,6 @@ import { UsersService } from '@services/users.service';
     MatRadioModule,
     FlexLayoutModule,
     NgScrollbarModule,
-    SidenavComponent,
     FullScreenComponent,
     ApplicationsComponent,
     UserMenuComponent,
@@ -51,7 +51,8 @@ import { UsersService } from '@services/users.service';
     BreadcrumbComponent,
     AnnouncementsComponent,
     MessagesComponent,
-    ContactUsComponent
+    ContactUsComponent,
+    SidenavComponent
 ],
   templateUrl: './pages.component.html',
   styleUrl: './pages.component.scss'
