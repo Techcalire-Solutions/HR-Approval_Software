@@ -20,7 +20,7 @@
     "date-holidays": "^3.23.12",
     "dotenv": "^16.4.7",
     "exceljs": "^4.4.0",
-    "express": "^4.21.2",
+    "express": "^4.22.0",
     "googleapis": "^146.0.0",
     "html-pdf": "^3.0.1",
     "indian-holidays": "^2.0.1",
