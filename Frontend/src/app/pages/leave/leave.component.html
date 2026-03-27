@@ -206,16 +206,30 @@
                   <ng-container>
                     <button mat-fab extended class="approve-button" color="primary"
                       (click)="openDialog('approve', item.id)"
-                      [disabled]="item.status === 'Approved' || item.status === 'AdminApproved' || item.status === 'Locked'">
+                      [disabled]="item.status === 'Approved' || item.status === 'AdminApproved' || item.status === 'Locked' || item.status === 'Unapproved'">
                       Approve
                     </button>
                     &nbsp;
+
+    @if (item.status !== 'Approved' && item.status !== 'AdminApproved' && item.status !== 'Rejected') {
+      <button mat-flat-button 
+        class="action-btn"
+        style="background-color: #424242; color: white;"
+        (click)="openDialog('unapproved', item.id)"
+        [disabled]="item.status === 'Locked' || item.status === 'Unapproved' || item.notes?.includes('Penalty')">
+        <mat-icon style="font-size: 18px; margin-right: 4px;">person_off</mat-icon>
+        Unapproved
+      </button>
+    }
+                    &nbsp;
+
                     <button mat-fab extended class="reject-button" color="warn" (click)="openDialog('reject', item.id)"
                       [disabled]="item.status === 'Rejected' || item.status === 'AdminApproved' || item.status === 'Locked'">
                       Reject
                     </button>
                     &nbsp;
                   </ng-container>
+
                   <ng-template #disabledIcon>
                     <mat-icon color="disabled">block</mat-icon>
                   </ng-template>
