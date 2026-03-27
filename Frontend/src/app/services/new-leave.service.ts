@@ -16,6 +16,9 @@ export class NewLeaveService {
   removePenalty(id: number): Observable<any> {
   return this.http.put(`${this.apiUrl}/newleave/removePenalty/${id}`, {});
 }
+removeApprovedPenalty(id: number): Observable<any> {
+  return this.http.put(`${this.apiUrl}/newleave/removeApprovedPenalty/${id}`, {});
+}
 
 // Inside your NewLeaveService class
 updateLeaveStatus(id: number, payload: any): Observable<any> {
