@@ -158,6 +158,7 @@
                   {{ item.leaveType.leaveTypeName }}
                   }
                   <td> -->
+                    <td>
                 @if (item.notes && item.notes.includes('Penalty') && !item.notes.includes('Waived')) {
                 <strong style="color: #ef6c00;">LOP</strong>
                 }
@@ -165,7 +166,7 @@
                 {{ item.leaveType.leaveTypeName }}
                 }
                 </td>
-                </td>
+   
                 @if(!employeeStat){
                 <td>{{ item.user?.name }} {{item.user?.empNo}}</td>
                 }
