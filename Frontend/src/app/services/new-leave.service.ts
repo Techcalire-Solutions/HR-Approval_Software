@@ -24,9 +24,7 @@ removeApprovedPenalty(id: number): Observable<any> {
 updateLeaveStatus(id: number, payload: any): Observable<any> {
   return this.http.put(`${this.apiUrl}/newleave/approveLeave/${id}`, payload);
 }
-removeApprovedPenalty(id: number): Observable<any> {
-  return this.http.put(`${this.apiUrl}/newleave/removeApprovedPenalty/${id}`, {});
-}
+
 
   getLeavesPaginated(value: string, search?: string, page?: number, pageSize?: number): Observable<any[]> {
     if(value === 'Not') return this.http.get<any[]>(`${this.apiUrl}/newleave/find/?search=${search}&page=${page}&pageSize=${pageSize}`);
