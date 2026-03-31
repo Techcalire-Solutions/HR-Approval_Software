@@ -99,6 +99,15 @@
               Approve
             </button>
             &nbsp;
+             @if (leave.status !== 'Approved' && leave.status !== 'AdminApproved' && leave.status !== 'Rejected') {
+                    <button mat-flat-button class="action-btn" style="background-color: #424242; color: white;"
+                      (click)="openDialog('unapproved', leave.id)"
+                      [disabled]="leave.status === 'Locked' || leave.status === 'Unapproved' || leave.notes?.includes('Penalty')">
+                      <mat-icon style="font-size: 18px; margin-right: 4px;">person_off</mat-icon>
+                      Approve with Penalty
+                    </button>
+                    }
+                    &nbsp;
             <button
               mat-fab extended
               class="reject-button"
