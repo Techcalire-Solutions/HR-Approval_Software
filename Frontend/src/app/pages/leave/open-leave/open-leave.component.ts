@@ -85,7 +85,78 @@ export class OpenLeaveComponent implements OnInit, OnDestroy{
 
   private readonly snackbar = inject(MatSnackBar);
   private leaveBalSub!: Subscription;
-  openDialog(action: string, leaveId: number): void {
+    openDialog(action: string, leaveId: number): void {
+  // If rejecting or marking as unapproved, skip balance check
+  if (action === 'reject' || action === 'unapproved') {
+    this.openNoteDialog(action, leaveId);
+  } else if (action === 'approve') {
+    this.leaveBalSub = this.leaveService.getLeaveBalance(leaveId).subscribe(
+      (res: any) => {
+        if (res.leaveType === 'LOP' || res.isSufficient) {
+          this.openNoteDialog(action, leaveId);
+        } else {
+          this.snackbar.open('Insufficient leave balance. Cannot approve.', 'Close', { duration: 3000 });
+        }
+      },
+      () => {
+        this.snackbar.open('Error checking leave balance.', 'Close', { duration: 3000 });
+      }
+    );
+  }
+}
+
+private openNoteDialog(action: string, leaveId: number): void {
+  // Determine the dynamic heading for the dialog
+  let dialogHeading = 'Note';
+  if (action === 'approve') dialogHeading = 'Approve Note';
+  else if (action === 'unapproved') dialogHeading = 'Unapproved (LOP) Note';
+  else if (action === 'reject') dialogHeading = 'Reject Note';
+
+  const dialogRef = this.dialog.open(NoteDialogComponent, {
+    data: {
+      action,
+      leaveId,
+      heading: dialogHeading,
+    },
+  });
+
+  this.dialogSub = dialogRef.afterClosed().subscribe(note => {
+    if (note !== false) {
+      // Logic to handle the three different paths
+      if (action === 'approve') {
+        this.approveLeave(leaveId, note);
+      } else if (action === 'unapproved') {
+        // We call approveLeave but pass the note and potentially an extra flag 
+        // OR simply call approveLeave and let the service handle the status.
+        this.processUnapprovedLeave(leaveId, note);
+      } else {
+        this.rejectLeave(leaveId, note);
+      }
+    } else {
+      this.isLoading = false;
+    }
+  });
+}
+
+private processUnapprovedLeave(leaveId: number, note: any): void {
+  const payload = {
+    adminNotes: note,
+    status: 'Unapproved' // Explicitly setting the status for the backend
+  };
+  
+  // Using your existing service's update method
+  this.leaveService.updateLeaveStatus(leaveId, payload).subscribe(
+    (res) => {
+      this.snackbar.open('Leave approved with Penalty (LOP)', 'Close', { duration: 3000 });
+      // this.refreshData();
+    },
+    (err) => {
+      this.snackbar.open('Error processing request', 'Close', { duration: 3000 });
+    }
+  );
+}
+
+  openDialogOLD(action: string, leaveId: number): void {
     if (action === 'reject') {
       this.openNoteDialog(action, leaveId);
     } else if (action === 'approve') {
@@ -107,7 +178,7 @@ export class OpenLeaveComponent implements OnInit, OnDestroy{
 
   private readonly dialog = inject(MatDialog);
   private dialogSub!: Subscription;
-  private openNoteDialog(action: string, leaveId: number): void {
+  private openNoteDialogOLD(action: string, leaveId: number): void {
     const dialogRef = this.dialog.open(NoteDialogComponent, {
       data: {
         action,
