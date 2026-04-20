@@ -66,7 +66,7 @@ export class AddHolidayComponent implements OnInit, OnDestroy{
   private submit: Subscription;
   private readonly snackBar = inject(MatSnackBar);
   private readonly datePipe = inject(DatePipe)
-  onSubmit(){
+  onSubmitOld(){
     const data = {
       ...this.holidayForm.getRawValue(),
     }
@@ -82,6 +82,47 @@ export class AddHolidayComponent implements OnInit, OnDestroy{
       });
     }
   }
+
+onSubmit() {
+  if (this.holidayForm.invalid) return;
+
+  const data = {
+    ...this.holidayForm.getRawValue(),
+  };
+
+  // Cast to 'any' to bypass the 'Property format does not exist' error
+  const dateValue: any = this.holidayForm.get('date')?.value;
+  
+  if (dateValue) {
+    // Check if it's a moment object by looking for the format function
+    if (typeof dateValue.format === 'function') {
+      data.date = dateValue.format('YYYY-MM-DD');
+    } else {
+      // If it's already a string (from the patchValue), use it as is
+      data.date = dateValue;
+    }
+  }
+
+  if (this.editStatus) {
+    this.submit = this.holidayService.updateHolidays(this.data.id, data).subscribe({
+      next: () => {
+        this.snackBar.open("Holiday updated successfully...", "", { duration: 3000 });
+        this.dialogRef.close(true);
+      },
+      error: (err) => {
+        console.error("Update failed", err);
+        this.snackBar.open("Update failed", "Close", { duration: 3000 });
+      }
+    });
+  } else {
+    this.submit = this.holidayService.addHolidays(data).subscribe({
+      next: () => {
+        this.snackBar.open("Holiday added successfully...", "", { duration: 3000 });
+        this.dialogRef.close(true);
+      }
+    });
+  }
+}
 
   fileSelected: boolean = false;
   uploadError: string | null = null;

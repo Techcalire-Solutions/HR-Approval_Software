@@ -42,13 +42,22 @@
         </mat-form-field>
       </form>
     </div>
-    <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
+    <!-- <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
       <button mat-raised-button color="primary" [mat-dialog-close]="holidayForm.value" [disabled]="!holidayForm.valid" (click)="onSubmit()">
         @if(editStatus) {<span>Update</span>}
         @else {<span>Add</span>}
       </button>
       <button mat-raised-button color="warn" [mat-dialog-close]="true" type="button">Cancel</button>
-    </div>
+    </div> -->
+
+    <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
+  <button mat-raised-button color="primary" [disabled]="!holidayForm.valid" (click)="onSubmit()">
+    @if(editStatus) {<span>Update</span>}
+    @else {<span>Add</span>}
+  </button>
+  
+  <button mat-raised-button color="warn" [mat-dialog-close]="false" type="button">Cancel</button>
+</div>
   </mat-tab>
 
   <!-- Tab for Uploading a Holiday -->
