@@ -220,14 +220,18 @@
                     </button>
                     &nbsp;
 
-                    @if (item.status !== 'Approved' && item.status !== 'AdminApproved' && item.status !== 'Rejected') {
-                    <button mat-flat-button class="action-btn" style="background-color: #424242; color: white;"
-                      (click)="openDialog('unapproved', item.id)"
-                      [disabled]="item.status === 'Locked' || item.status === 'Unapproved' || item.notes?.includes('Penalty')">
-                      <mat-icon style="font-size: 18px; margin-right: 4px;">person_off</mat-icon>
-                      Approve with Penalty
-                    </button>
-                    }
+                @if (item.status !== 'Approved' && 
+     item.status !== 'AdminApproved' && 
+     item.status !== 'Rejected' && 
+     !(item.penaltyLOP > 0)) {
+  <button mat-flat-button class="action-btn" 
+    style="background-color: #424242; color: white;"
+    (click)="openDialog('unapproved', item.id)"
+    [disabled]="item.status === 'Locked' || item.status === 'Unapproved'">
+    <mat-icon style="font-size: 18px; margin-right: 4px;">person_off</mat-icon>
+    Approve with penalty
+  </button>
+}
                     &nbsp;
 
                     <button mat-fab extended class="reject-button" color="warn" (click)="openDialog('reject', item.id)"
