@@ -55,12 +55,11 @@ const { Sequelize, Op } = require('sequelize');
 //   }
 // });
 
-cron.schedule('0 0 1 * *', async () => {
+cron.schedule('0 0 1 1 * *', async () => {
   try {
     const today = new Date();
     const currentYear = today.getFullYear();
     const isJanuary = today.getMonth() === 0; // Jan = 0
-
     // Fetch SL & CL
     const leaveTypes = await LeaveType.findAll({
       where: {
@@ -72,7 +71,7 @@ cron.schedule('0 0 1 * *', async () => {
 
     // Fetch all active users
     const users = await User.findAll({
-      where: { isActive: true }
+      where: { status: true }
     });
 
     for (const leaveType of leaveTypes) {
