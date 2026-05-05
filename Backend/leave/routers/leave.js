@@ -47,6 +47,26 @@ const TeamMember = require('../../users/models/teamMember');
         return res.json({ message: 'Leave type not found' });
       }
       const isLOP = leaveType.leaveTypeName === 'LOP';
+      // const isLOP = leaveType.leaveTypeName === 'LOP';
+
+    // --- NEW VALIDATION: Prevent LOP if other balances exist ---
+    if (isLOP) {
+      const totalOtherBalance = await UserLeave.sum('leaveBalance', {
+        where: {
+          userId,
+          leaveBalance: { [Op.gt]: 0 } // Using Sequelize Operators
+        },
+        transaction
+      });
+
+      if (totalOtherBalance > 0) {
+        await transaction.rollback();
+        return res.json({ 
+          message: `You cannot apply for LOP because you still have ${totalOtherBalance} days of other leave balance remaining.` 
+        });
+      }
+    }
+    // ---------------------------------------------------------
 
       // Group leave dates by year and calculate days
       const datesByYear = {};
