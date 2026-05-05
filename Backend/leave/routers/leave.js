@@ -62,8 +62,11 @@ const TeamMember = require('../../users/models/teamMember');
       if (totalOtherBalance > 0) {
         await transaction.rollback();
         return res.json({ 
-          message: `You cannot apply for LOP because you still have ${totalOtherBalance} days of other leave balance remaining.` 
+          message: `You cannot apply for LOP because you still have other leave balance remaining.` 
         });
+        //   return res.json({ 
+        //   message: `You cannot apply for LOP because you still have ${totalOtherBalance} days of other leave balance remaining.` 
+        // });
       }
     }
     // ---------------------------------------------------------
