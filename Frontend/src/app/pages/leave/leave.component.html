@@ -139,7 +139,7 @@
       'penalty-row': item.notes && item.notes.includes('Penalty')
     }" [routerLink]="['/login/leave/open/', item.id]">
                 <td> {{item.id}} </td>
-                <td>
+                <!-- <td>
                   <ng-container *ngFor="let date of item.leaveDates">
                     {{ date.date | date: 'dd-MM-yyyy' }}<br>
                     @if(date.session1==true){
@@ -149,7 +149,18 @@
                     session 2<br>
                     }
                   </ng-container>
-                </td>
+                </td> -->
+
+                <td class="date-cell">
+  <div *ngFor="let date of item.leaveDates" class="date-container">
+    <span class="date-text">{{ date.date | date: 'dd-MM-yyyy' }}</span>
+    <div class="session-info">
+      <span *ngIf="date.session1">session 1</span>
+      <span *ngIf="date.session1 && date.session2">, </span>
+      <span *ngIf="date.session2">session 2</span>
+    </div>
+  </div>
+</td>
                 <!-- <td>{{ item.leaveType.leaveTypeName }}</td> -->
                 <!-- <td>
                   @if (item.notes && item.notes.includes('Penalty')) {
