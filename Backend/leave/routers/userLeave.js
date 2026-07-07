@@ -55,37 +55,37 @@ const { Sequelize, Op } = require('sequelize');
 //   }
 // });
 
-cron.schedule('0 0 1 1 * *', async () => {
+cron.schedule('0 0 1 * *', async () => { // Updated cron to run 1st of EVERY month ('0 0 1 * *')
   try {
     const today = new Date();
     const currentYear = today.getFullYear();
-    const isJanuary = today.getMonth() === 0; // Jan = 0
-    // Fetch SL & CL
-    const leaveTypes = await LeaveType.findAll({
-      where: {
-        leaveTypeName: ['Sick Leave', 'Casual Leave']
-      }
-    });
+    const currentMonth = today.getMonth(); // 0 = Jan, 1 = Feb, etc.
+    const isJanuary = currentMonth === 0;
 
+    // 1. Fetch SL & CL leave types
+    const leaveTypes = await LeaveType.findAll({
+      where: { leaveTypeName: ['Sick Leave', 'Casual Leave'] }
+    });
     if (!leaveTypes.length) return;
 
-    // Fetch all active users
-    const users = await User.findAll({
-      where: { status: true }
-    });
+    // 2. Fetch active users
+    const users = await User.findAll({ where: { status: true } });
 
     for (const leaveType of leaveTypes) {
+      for (const user of users) {
+        
+        // 🛑 BREAKING CONDITION: Skip if the user is separating THIS MONTH
+        if (user.separated && user.separationDate) {
+          const sepDate = new Date(user.separationDate);
+          if (sepDate.getFullYear() === currentYear && sepDate.getMonth() === currentMonth) {
+            continue; // Skip this employee completely, giving them 0 increments
+          }
+        }
 
-      // 🔹 JAN 1 → Create fresh records
-      if (isJanuary) {
-        for (const user of users) {
-
+        // 🔹 JAN 1 → Create fresh records
+        if (isJanuary) {
           const exists = await UserLeave.findOne({
-            where: {
-              userId: user.id,
-              leaveTypeId: leaveType.id,
-              year: currentYear
-            }
+            where: { userId: user.id, leaveTypeId: leaveType.id, year: currentYear }
           });
 
           if (!exists) {
@@ -98,25 +98,18 @@ cron.schedule('0 0 1 1 * *', async () => {
               year: currentYear
             });
           }
-        }
-      }
+        } 
+        // 🔹 Other months → Increment existing records for this user
+        else {
+          const userLeave = await UserLeave.findOne({
+            where: { userId: user.id, leaveTypeId: leaveType.id, year: currentYear }
+          });
 
-      // 🔹 Other months → Increment existing records
-      else {
-        const userLeaves = await UserLeave.findAll({
-          where: {
-            leaveTypeId: leaveType.id,
-            year: currentYear
+          if (userLeave) {
+            userLeave.noOfDays += 1;
+            userLeave.leaveBalance = Math.max(userLeave.noOfDays - userLeave.takenLeaves, 0);
+            await userLeave.save();
           }
-        });
-
-        for (const userLeave of userLeaves) {
-          userLeave.noOfDays += 1;
-          userLeave.leaveBalance = Math.max(
-            userLeave.noOfDays - userLeave.takenLeaves,
-            0
-          );
-          await userLeave.save();
         }
       }
     }
@@ -124,6 +117,77 @@ cron.schedule('0 0 1 1 * *', async () => {
     console.error('Error updating leave balances:', error);
   }
 });
+
+
+// cron.schedule('0 0 1 1 * *', async () => {
+//   try {
+//     const today = new Date();
+//     const currentYear = today.getFullYear();
+//     const isJanuary = today.getMonth() === 0; // Jan = 0
+//     // Fetch SL & CL
+//     const leaveTypes = await LeaveType.findAll({
+//       where: {
+//         leaveTypeName: ['Sick Leave', 'Casual Leave']
+//       }
+//     });
+
+//     if (!leaveTypes.length) return;
+
+//     // Fetch all active users
+//     const users = await User.findAll({
+//       where: { status: true }
+//     });
+
+//     for (const leaveType of leaveTypes) {
+
+//       // 🔹 JAN 1 → Create fresh records
+//       if (isJanuary) {
+//         for (const user of users) {
+
+//           const exists = await UserLeave.findOne({
+//             where: {
+//               userId: user.id,
+//               leaveTypeId: leaveType.id,
+//               year: currentYear
+//             }
+//           });
+
+//           if (!exists) {
+//             await UserLeave.create({
+//               userId: user.id,
+//               leaveTypeId: leaveType.id,
+//               noOfDays: 1,
+//               takenLeaves: 0,
+//               leaveBalance: 1,
+//               year: currentYear
+//             });
+//           }
+//         }
+//       }
+
+//       // 🔹 Other months → Increment existing records
+//       else {
+//         const userLeaves = await UserLeave.findAll({
+//           where: {
+//             leaveTypeId: leaveType.id,
+//             year: currentYear
+//           }
+//         });
+
+//         for (const userLeave of userLeaves) {
+//           userLeave.noOfDays += 1;
+//           userLeave.leaveBalance = Math.max(
+//             userLeave.noOfDays - userLeave.takenLeaves,
+//             0
+//           );
+//           await userLeave.save();
+//         }
+//       }
+//     }
+//   } catch (error) {
+//     console.error('Error updating leave balances:', error);
+//   }
+// });
 
 
 router.get('/leavecount/:userId/:typeid/:year', authenticateToken, async (req, res) => {

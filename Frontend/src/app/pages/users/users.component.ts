@@ -26,6 +26,7 @@ import { UpdateDesignationComponent } from './update-designation/update-designat
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 import { LoginService } from '@services/login.service';
 import { InvoiceService } from '@services/invoice.service';
+import moment from 'moment';
 
 
 @Component({
@@ -186,22 +187,56 @@ export class UsersComponent implements OnInit, OnDestroy {
     });
   }
 
-  rsignSub!: Subscription;
-  resignEmployee(id: number, empNo: string, name: string){
-    const dialogRef = this.dialog.open(SeparationComponent, {
-      width: '450px',
-      data: {id: id, empNo: empNo, name: name}
-    });
-    this.dialogSub = dialogRef.afterClosed().subscribe((res) => {
-      if(res.confirmed){
-        this.rsignSub = this.usersService.resignEmployee(id, res).subscribe(() => {
-          this.snackbar.open(`${empNo} is now resigned`, "", { duration: 3000 });
-          this.searchText = '';
-          this.getUsers()
-        })
-      }
-    })
-  }
+
+
+
+rsignSub!: Subscription;
+
+resignEmployee(id: number, empNo: string, name: string, type: 'create' | 'update' = 'create') {
+  // Safe cleanup if another instance was previously opened
+  this.dialogSub?.unsubscribe();
+
+  const dialogRef = this.dialog.open(SeparationComponent, {
+    width: '450px',
+    data: { id: id, empNo: empNo, name: name, type: type } // Passes 'create' or 'update' dynamically
+  });
+
+  this.dialogSub = dialogRef.afterClosed().subscribe((res) => {
+    if (res && res.confirmed) {
+      this.rsignSub?.unsubscribe(); 
+      
+      this.rsignSub = this.usersService.resignEmployee(id, res).subscribe(() => {
+        const todayStr = moment().format('YYYY-MM-DD'); 
+        let snackMessage = `${empNo} is now marked as resigned`;
+        
+        // Dynamic messaging based on whether it was an update or initial creation
+        if (type === 'update') {
+          snackMessage = `Separation details updated for ${name} (${empNo})`;
+        } else if (res.date && res.date > todayStr) {
+          snackMessage = `${name} (${empNo}) is serving notice until ${this.formatSnackbarDate(res.date)}`;
+        } else {
+          snackMessage = `${name} (${empNo}) has been separated successfully`;
+        }
+
+        this.snackbar.open(snackMessage, "", { duration: 4000 });
+        
+        this.searchText = '';
+        this.getUsers(); 
+      });
+    }
+  });
+}
+
+
+
+
+
+formatSnackbarDate(dateStr: string): string {
+  return moment(dateStr).format('DD/MM/YYYY');
+}
+
+  // Quick helper to make the snackbar date look nice (YYYY-MM-DD to DD-MM-YYYY)
+
 
   openPayRoll(id: number){
     this.router.navigateByUrl('login/users/payroll/'+id)

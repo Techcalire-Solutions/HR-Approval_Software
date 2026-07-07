@@ -134,10 +134,14 @@ export class TeamDialogueComponent {
  }
   users: User[] = [];
  getUsers() {
-   this.userService.getUser().subscribe((result) => {
-     this.users = result;
-   })
- }
+  this.userService.getUser().subscribe((result) => {
+    console.log("uNFILTERS",result)
+    // Keeps users ONLY if they are active (status === true) AND not separated (separated === false)
+    this.users = result.filter((user: any) =>!user.separated);
+    
+    console.log('Filtered Active Employees:', this.users);
+  });
+}
 
   clear() {
     this.teamForm.reset()

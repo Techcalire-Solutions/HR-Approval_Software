@@ -40,6 +40,10 @@ export interface User {
   separationNote: string
   separationDate: Date
 
+
+  noticePeriod: number      // Total notice duration in days (e.g., 30, 60)
+  noticeStartDate: Date
+
   userPosition: UserPosition
   userpersonal: UserPersonal[]
   useraccount: UserAccount
