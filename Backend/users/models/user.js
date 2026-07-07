@@ -21,7 +21,10 @@ const User = sequelize.define('user', {
   isTemporary: { type: DataTypes.BOOLEAN, defaultValue: true, allowNull: false },
   separated: { type: DataTypes.BOOLEAN, defaultValue: false},
   separationNote: { type: DataTypes.TEXT},
-  separationDate: { type: DataTypes.DATEONLY}
+  separationDate: { type: DataTypes.DATEONLY},
+
+  noticePeriod: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 }, // e.g., 30, 45, 60
+  noticeStartDate: { type: DataTypes.DATEONLY, allowNull: true }
 },
 {
   freezeTableName: true,

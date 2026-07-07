@@ -74,12 +74,34 @@ export class TeamComponent {
     })
   }
 
-  public getTeams(): void {
+  public getTeamsold(): void {
     this.teams = null; //for show spinner each time
     this.teamService.getTeam().subscribe((teams: any) =>{
       this.teams = teams
     });
   }
+
+public getTeams(): void {
+    this.teams = null;
+    const today = new Date().setHours(0,0,0,0);
+
+    this.teamService.getTeam().subscribe((res: any[]) => {
+      this.teams = res.map(team => {
+        const activeOnly = (list: any[]) => (list || []).filter(m => 
+          !m?.user?.separated || today < new Date(m.user.separationDate).setHours(0,0,0,0)
+        );
+
+        return {
+          ...team,
+          team_leaders: activeOnly(team.team_leaders),
+          team_members: activeOnly(team.team_members)
+        };
+      });
+      this.dataSource = this.teams;
+    });
+  }
+
+
   applyFilter() {
     // this.dataSource.filter = filterValue.trim().toLowerCase();
   }

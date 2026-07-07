@@ -3,18 +3,7 @@
 <body>
   <div fxLayout="row" fxLayoutAlign="space-between center" class="row">
     <div fxLayout="row" class="col">
-        <!-- <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-            <mat-button-toggle value="add" (click)="openRoleDialog(null)"><mat-icon>person_add</mat-icon>
-            </mat-button-toggle>
-        </mat-button-toggle-group> -->
     </div>
-    <!-- <div fxLayout="row" class="col">
-      <form class="user-search" [class.show]="controls.value == 'search'">
-        <mat-form-field class="user-search-input">
-            <input matInput placeholder="Search designation..." name="search" (keyup)="search($event)">
-        </mat-form-field>
-      </form>
-    </div> -->
   </div>
 
   <main class="table" id="customers_table">
@@ -24,8 +13,10 @@
           <tr>
             <th> Name </th>
             <th> Role </th>
-            <th> SeparatedNote</th>
-            <th> SeparatedDate </th>
+            <th> Separation Note </th>
+            <th> Notice Start Date </th>
+            <th> Notice Period </th>
+            <th> Separation Date (LWD) </th>
             <th> Manage </th>
           </tr>
         </thead>
@@ -33,23 +24,23 @@
           @for(user of users; track $index){
             <tr>
               <td>{{ user.name }}</td>
-              <td>{{ user.role.roleName }}</td>
+              <td>{{ user.role?.roleName }}</td>
               <td>{{ user.separationNote }}</td>
+              <td>{{ user.noticeStartDate ? (user.noticeStartDate | date: 'dd-MM-yyyy') : 'N/A' }}</td>
+              <td>{{ user.noticePeriod ? user.noticePeriod + ' Days' : '0 Days' }}</td>
               <td>{{ user.separationDate | date: 'dd-MM-yyyy' }}</td>
               <td>
-                <button mat-icon-button (click)="employeeBack(user.id)"><mat-icon>keyboard_return</mat-icon> </button>
-                <button mat-icon-button (click)="editNote(user.id, user.empNo, user.name)">
+                <button mat-icon-button (click)="employeeBack(user.id)" matTooltip="Revert Separation">
+                  <mat-icon>keyboard_return</mat-icon> 
+                </button>
+                <button mat-icon-button (click)="editNote(user.id, user.empNo, user.name)" matTooltip="Edit Separation Details">
                   <mat-icon>edit_note</mat-icon>
                 </button>
               </td>
             </tr>
           }
-
         </tbody>
       </table>
-      <!-- <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="currentPage - 1"
-       (page)="onPageChange($event)" [pageSizeOptions]="[10, 20,30,40,50,100]">
-      </mat-paginator> -->
     </section>
   </main>
 </body>

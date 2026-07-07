@@ -33,7 +33,7 @@ router.post('/', async (req, res) => {
     }
 });
   
-router.get('/', async (req, res) => {
+router.get('/old', async (req, res) => {
     try {
         const team = await Team.findAll({include: [
             { model: TeamLeader, attributes: ['userId'], include: [{model: User, attributes: ['name']}] },
@@ -46,6 +46,29 @@ router.get('/', async (req, res) => {
     }
 
 })
+
+router.get('/', async (req, res) => {
+    try {
+        const team = await Team.findAll({
+            include: [
+                { 
+                    model: TeamLeader, 
+                    attributes: ['userId'], 
+                    include: [{ model: User, attributes: ['name', 'separated', 'separationDate'] }] 
+                },
+                { 
+                    model: TeamMember, 
+                    attributes: ['userId'], 
+                    include: [{ model: User, attributes: ['name', 'separated', 'separationDate'] }] 
+                }
+            ]
+        });
+
+        res.send(team);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
 // --
 router.get('/:id', async (req, res) => {
     try {

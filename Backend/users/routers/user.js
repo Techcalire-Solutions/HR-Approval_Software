@@ -86,7 +86,7 @@ router.post('/add', authenticateToken, async (req, res) => {
   }
 });
 
-router.get('/find/', authenticateToken, async (req, res) => {
+router.get('/findold/', authenticateToken, async (req, res) => {
   try {
     let whereClause = { separated: false, status: true };
     let limit;
@@ -169,6 +169,117 @@ router.get('/find/', authenticateToken, async (req, res) => {
     }
   } catch (error) {
     res.send(error.message);
+  }
+});
+router.get('/find/', authenticateToken, async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0]; // e.g., '2026-07-02'
+
+    // --- UPDATED ACTIVE CLAUSE ---
+    // An employee is considered active if:
+    // 1. They are not separated at all (separated: false) OR
+    // 2. They are serving notice (separated: true but their final day is in the future)
+    // const activeCondition = {
+    //   [Op.or]: [
+    //     { separated: false },
+    //     { 
+    //       separated: true, 
+    //       separationDate: { [Op.gt]: today } // Separation date is Greater Than today
+    //     }
+    //   ],
+    //   status: true
+    // };
+    // --- UPDATED ACTIVE CLAUSE ---
+const activeCondition = {
+  [Op.or]: [
+    { separated: false },
+    { 
+      separated: true, 
+      separationDate: { [Op.gte]: today } // FIX: Changed [Op.gt] to [Op.gte]
+    }
+  ],
+  status: true
+};
+
+    let whereClause = { ...activeCondition };
+    let limit;
+    let offset;
+
+    if (req.query.search && req.query.search !== 'undefined') {
+      const searchTerm = req.query.search.replace(/\s+/g, '').trim().toLowerCase();
+      whereClause = {
+        [Op.and]: [
+          {
+            [Op.or]: [
+              sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.name'), ' ', '')),
+                { [Op.like]: `%${searchTerm}%` }
+              ),
+              sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.phoneNumber'), ' ', '')),
+                { [Op.like]: `%${searchTerm}%` }
+              ),
+              sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('user.email'), ' ', '')),
+                { [Op.like]: `%${searchTerm}%` }
+              ),
+              sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('statutoryinfo.adharNo'), ' ', '')),
+                { [Op.like]: `%${searchTerm}%` }
+              ),
+              sequelize.where(
+                sequelize.fn('LOWER', sequelize.fn('REPLACE', sequelize.col('statutoryinfo.panNumber'), ' ', '')),
+                { [Op.like]: `%${searchTerm}%` }
+              )
+            ]
+          },
+          activeCondition // Inject the dynamic notice window filter here
+        ]
+      };
+    } else {
+      if (req.query.pageSize && req.query.page && req.query.pageSize !== 'undefined' && req.query.page !== 'undefined') {
+        limit = parseInt(req.query.pageSize, 10);
+        offset = (parseInt(req.query.page, 10) - 1) * limit;
+      }
+    }
+
+    // Fetch paginated data
+    const users = await User.findAll({
+      where: whereClause,
+      order: [['id']],
+      include: [
+        { model: Role, as: 'role', attributes: ['id', 'roleName'] },
+        { model: StatutoryInfo, as: 'statutoryinfo', required: false }, 
+        {
+          model: UserPosition,
+          attributes: ['designationId'],
+          include: [{ model: Designation, attributes: ['designationName'] }]
+        }
+      ],
+      limit,
+      offset
+    });
+
+    // Count total records that match the search condition
+    const totalCount = await User.count({
+      where: whereClause,
+      include: [
+        { model: StatutoryInfo, as: 'statutoryinfo', required: false } 
+      ]
+    });
+
+    // Return the response
+    if (req.query.page !== 'undefined' && req.query.pageSize !== 'undefined') {
+      const response = {
+        count: totalCount,
+        items: users 
+      };
+      res.json(response);
+    } else {
+      res.send(users);
+    }
+  } catch (error) {
+    res.status(500).send(error.message);
   }
 });
 
@@ -746,7 +857,7 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-router.patch('/resignemployee/:id', authenticateToken, async (req, res) => {
+router.patch('/resignemployeeold/:id', authenticateToken, async (req, res) => {
   try {
       let result = await User.findByPk(req.params.id);
       
@@ -762,6 +873,47 @@ router.patch('/resignemployee/:id', authenticateToken, async (req, res) => {
       res.json({ result });
   } catch (error) {
       res.send(error.message );
+  }
+});
+
+router.patch('/resignemployee/:id', authenticateToken, async (req, res) => {
+  try {
+    let result = await User.findByPk(req.params.id);
+    if (!result) return res.status(404).json({ message: "Employee not found" });
+
+    // Set fields from payload
+result.separated = req.body.confirmed;      
+result.separationNote = req.body.note;
+result.separationDate = req.body.separationDate; // <-- Fixed from req.body.date
+result.noticePeriod = req.body.noticePeriod;
+result.noticeStartDate = req.body.noticeStartDate;
+
+    // --- SMART STATUS CHECK ---
+    if (result.separated === false) {
+      // FIX: If they are rejoining, explicitly make them active 
+      // and clear out values if the frontend missed any
+      result.status = true; 
+      result.separationNote = null;
+      result.separationDate = null;
+      result.noticePeriod = 0;
+      result.noticeStartDate = null;
+    } else {
+      // Normal Separation Logic
+      const today = new Date().toISOString().split('T')[0];
+      
+      if (result.separationDate && result.separationDate >= today) {
+        // Serving notice! Keep profile active (Note: >= used here to catch today)
+        result.status = true; 
+      } else {
+        // Last day passed, deactivate immediately
+        result.status = false; 
+      }
+    }
+
+    await result.save();
+    res.json({ result });
+  } catch (error) {
+    res.status(500).send(error.message);
   }
 });
 

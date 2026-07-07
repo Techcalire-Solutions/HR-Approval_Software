@@ -41,7 +41,7 @@ export class ViewSeparatedComponent implements OnInit, OnDestroy{
 
   private snackBar = inject(MatSnackBar);
   resignSub!: Subscription;
-  employeeBack(id: number){
+  employeeBackold(id: number){
     const data = {
       confirmed: false,
       separationNote: ''
@@ -52,6 +52,21 @@ export class ViewSeparatedComponent implements OnInit, OnDestroy{
       this.snackBar.open('Employee successfully rejoined', '', { duration: 3000 });
     });
   }
+
+  employeeBack(id: number) {
+  const data = {
+    confirmed: false,       // maps to result.separated = false
+    note: null,             // maps to result.separationNote
+    date: null,             // maps to result.separationDate
+    noticePeriod: 0,        // maps to result.noticePeriod
+    noticeStartDate: null   // maps to result.noticeStartDate
+  };
+
+  this.resignSub = this.userService.resignEmployee(id, data).subscribe(() => {
+    this.getSeparatedUsers();
+    this.snackBar.open('Employee successfully rejoined', '', { duration: 3000 });
+  });
+}
 
   private dialog = inject(MatDialog);
   private usersService = inject(UsersService);
