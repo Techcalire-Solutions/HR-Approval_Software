@@ -789,7 +789,8 @@ function generatePayslipHTML(mp) {
                           </div>
                           <div class="address">
                               <h3>ONBOARD AERO CONSULTANTS PRIVATE LIMITED</h3>
-                              <p>13/227, TECHNOLODGE, KAKKOOR P.O., PIRAVOM, ERNAKULAM - 686662</p>
+                              <p>48/768-C2, Sreelatha Building, Sharipadi, Eroor.P.O<br>
+                               Tripunithura, Eranakulam, Kerala - 682306</p>
                           </div>
                       </div>
                       <h2 class="payslip-title">Payslip for the month of ${mp.payedFor ?? ''}</h2>
