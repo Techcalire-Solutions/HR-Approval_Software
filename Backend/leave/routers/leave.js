@@ -26,9 +26,6 @@ const TeamMember = require('../../users/models/teamMember');
 // --------------------------------------------------------LEAVE  & PENALTIES REQUESTING------------------------------------------------------------
 
 
-// ==========================================
-// 1. CREATE EMPLOYEE LEAVE REQUEST
-// ==========================================
 router.post('/employeeLeave', authenticateToken, async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
@@ -188,9 +185,6 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
 });
 
 
-// ==========================================
-// 2. REMOVE PENALTY (BEFORE APPROVAL)
-// ==========================================
 router.put('/removePenalty/:id', authenticateToken, async (req, res) => {
   const leaveId = req.params.id;
   const transaction = await sequelize.transaction();
@@ -225,9 +219,6 @@ router.put('/removePenalty/:id', authenticateToken, async (req, res) => {
 });
 
 
-// ==========================================
-// 3. REMOVE PENALTY (AFTER APPROVAL)
-// ==========================================
 router.put('/removeApprovedPenalty/:id', authenticateToken, async (req, res) => {
   const leaveId = req.params.id;
   const transaction = await sequelize.transaction();
