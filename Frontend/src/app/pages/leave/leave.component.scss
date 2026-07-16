@@ -404,3 +404,27 @@ iframe {
     display: none; /* Hide the red border on desktop */
   }
 }
+
+/* Unify heights for all table action buttons */
+.approve-button, 
+.reject-button, 
+.action-btn,
+/* Refined styles for penalty buttons to prevent wrapping */
+.penalty-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;  /* Stops "Remove" and "Penalty" from wrapping */
+  height: 32px !important;
+  line-height: normal !important;  /* Resets line-height to let flex alignment work */
+  padding: 0 12px !important;      /* Comfortable horizontal breathing room */
+  font-size: 12px !important;
+}
+
+/* Ensure the material icon scales down and aligns properly alongside the text */
+.penalty-button mat-icon {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin-right: 6px !important;    /* Adds space between the icon and the text */
+}

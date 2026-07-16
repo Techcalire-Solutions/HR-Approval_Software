@@ -125,7 +125,7 @@
                 <th>Penalty</th>
                 }
                 <th>Action</th>
-                
+
                 <th>Manage</th>
               </tr>
             </thead>
@@ -152,15 +152,15 @@
                 </td> -->
 
                 <td class="date-cell">
-  <div *ngFor="let date of item.leaveDates" class="date-container">
-    <span class="date-text">{{ date.date | date: 'dd-MM-yyyy' }}</span>
-    <div class="session-info">
-      <span *ngIf="date.session1">session 1</span>
-      <span *ngIf="date.session1 && date.session2">, </span>
-      <span *ngIf="date.session2">session 2</span>
-    </div>
-  </div>
-</td>
+                  <div *ngFor="let date of item.leaveDates" class="date-container">
+                    <span class="date-text">{{ date.date | date: 'dd-MM-yyyy' }}</span>
+                    <div class="session-info">
+                      <span *ngIf="date.session1">session 1</span>
+                      <span *ngIf="date.session1 && date.session2">, </span>
+                      <span *ngIf="date.session2">session 2</span>
+                    </div>
+                  </div>
+                </td>
                 <!-- <td>{{ item.leaveType.leaveTypeName }}</td> -->
                 <!-- <td>
                   @if (item.notes && item.notes.includes('Penalty')) {
@@ -169,15 +169,15 @@
                   {{ item.leaveType.leaveTypeName }}
                   }
                   <td> -->
-                    <td>
-                @if (item.notes && item.notes.includes('Penalty') && !item.notes.includes('Waived')) {
-                <strong style="color: #ef6c00;">LOP</strong>
-                }
-                @else {
-                {{ item.leaveType.leaveTypeName }}
-                }
+                <td>
+                  @if (item.notes && item.notes.includes('Penalty') && !item.notes.includes('Waived')) {
+                  <strong style="color: #ef6c00;">LOP</strong>
+                  }
+                  @else {
+                  {{ item.leaveType.leaveTypeName }}
+                  }
                 </td>
-   
+
                 @if(!employeeStat){
                 <td>{{ item.user?.name }} {{item.user?.empNo}}</td>
                 }
@@ -200,21 +200,24 @@
                   </div>
                 </td>
                 <td (click)="$event.stopPropagation()">
+
                   @if(!employeeStat) {
                   <ng-container>
                     @if (item.status === 'Requested' && item.penaltyLOP > 0 && !item.notes?.includes('Waived')) {
-                    <button mat-fab extended class="penalty-button" style="background-color: #ff9800; color: white;"
+                    <button mat-flat-button class="penalty-button" style="background-color: #ff9800; color: white;"
                       (click)="removePenalty(item)">
-                      <mat-icon>money_off</mat-icon>
+                      <mat-icon
+                        style="font-size: 16px; margin-right: 4px; width: 16px; height: 16px;">money_off</mat-icon>
                       Remove Penalty
                     </button>
                     }
 
                     @if (['Approved', 'Admin Approved'].includes(item.status) && item.penaltyLOP > 0 &&
                     !item.notes?.includes('Waived')) {
-                    <button mat-fab extended class="penalty-button" style="background-color: #e91e63; color: white;"
+                    <button mat-flat-button class="penalty-button" style="background-color: #e91e63; color: white;"
                       (click)="waiveApprovedPenalty(item)">
-                      <mat-icon>settings_backup_restore</mat-icon>
+                      <mat-icon
+                        style="font-size: 16px; margin-right: 4px; width: 16px; height: 16px;">settings_backup_restore</mat-icon>
                       Waive & Revert LOP
                     </button>
                     }
@@ -224,28 +227,26 @@
                 @if(!employeeStat){
                 <td (click)="$event.stopPropagation()">
                   <ng-container>
-                    <button mat-fab extended class="approve-button" color="primary"
+                    <button mat-flat-button class="approve-button" color="primary"
                       (click)="openDialog('approve', item.id)"
                       [disabled]="item.status === 'Approved' || item.status === 'AdminApproved' || item.status === 'Locked' || item.status === 'Unapproved'">
                       Approve
                     </button>
                     &nbsp;
 
-                @if (item.status !== 'Approved' && 
-     item.status !== 'AdminApproved' && 
-     item.status !== 'Rejected' && 
-     !(item.penaltyLOP > 0)) {
-  <button mat-flat-button class="action-btn" 
-    style="background-color: #424242; color: white;"
-    (click)="openDialog('unapproved', item.id)"
-    [disabled]="item.status === 'Locked' || item.status === 'Unapproved'">
-    <mat-icon style="font-size: 18px; margin-right: 4px;">person_off</mat-icon>
-    Approve with penalty
-  </button>
-}
+                    @if (!(item.penaltyLOP > 0) && !(item.notes && item.notes.includes('Penalty') &&
+                    !item.notes.includes('Waived'))) {
+                    <button mat-flat-button class="action-btn custom-lwp-btn"
+                      (click)="openDialog('unapproved', item.id)"
+                      [disabled]="item.status === 'Approved' || item.status === 'AdminApproved' || item.status === 'Rejected' || item.status === 'Locked' || item.status === 'Unapproved'">
+                      <mat-icon
+                        style="font-size: 16px; margin-right: 4px; width: 16px; height: 16px;">person_off</mat-icon>
+                      Warning
+                    </button>
                     &nbsp;
+                    }
 
-                    <button mat-fab extended class="reject-button" color="warn" (click)="openDialog('reject', item.id)"
+                    <button mat-flat-button class="reject-button" color="warn" (click)="openDialog('reject', item.id)"
                       [disabled]="item.status === 'Rejected' || item.status === 'AdminApproved' || item.status === 'Locked'">
                       Reject
                     </button>
