@@ -60,13 +60,15 @@ getAllNotifications(page: number, limit: number): Observable<any> {
 
 
   // messages.service.ts (Add the isAdmin flag to the method)
-markAsRead(notificationId: string, isAdmin: boolean = false) {
-  const endpoint = isAdmin 
-    ? `/api/notifications/admin/mark-read/${notificationId}` 
-    : `/api/notifications/mark-read/${notificationId}`;
-    
-  return this.http.put<any>(endpoint, {});
-}
+
+  markAsRead(notificationId: string | number, isAdmin: boolean = false): Observable<any> {
+    // Uses the configured apiUrl base path to prevent hardcoding duplicate /api/ segments
+    const endpoint = isAdmin 
+      ? `${this.apiUrl}/admin/mark-read/${notificationId}` 
+      : `${this.apiUrl}/mark-read/${notificationId}`;
+      
+    return this.http.put<any>(endpoint, {});
+  }
 
   deleteNotification(notificationId: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/delete/${notificationId}`);

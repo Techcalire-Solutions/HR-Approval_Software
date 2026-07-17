@@ -41,8 +41,7 @@
           <div fxLayout="column" fxLayoutAlign="none" style="background: #ffffff; overflow: hidden;">
             
             @for (message of notifications; track message.id) {
-              <button mat-button (click)="navigateToMessage(message)" style="border-bottom: 1px solid #f0f0f0; margin: 0; border-radius: 0; text-align: left;">
-                <!-- Added min-width: 0 to prevent flex blowout -->
+              <button mat-button (click)="navigateToMessage(message)" style="border-bottom: 1px solid #f0f0f0; margin: 0; border-radius: 0; text-align: left; height: auto !important; min-height: 54px; padding: 10px 12px;">
                 <div fxLayout="column" fxLayoutAlign="none" class="w-100" style="min-width: 0;">
                   <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%;">
                     <span class="name">{{ message.name }}</span>

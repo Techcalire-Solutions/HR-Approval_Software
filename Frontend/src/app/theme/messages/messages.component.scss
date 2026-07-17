@@ -1,6 +1,30 @@
 @import '../styles/colors';
 
+::ng-deep .toolbar-dropdown-menu.messages {
+  max-width: 360px !important;
+  width: 360px !important;
+  overflow-x: hidden !important;
+}
+
 .messages {
+  ::ng-deep .mat-mdc-button {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important; 
+    min-height: 54px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+
+    .mdc-button__label {
+      width: 100% !important;
+      display: flex !important;
+      flex-direction: row !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      overflow: hidden !important;
+    }
+  }
+
   .mat-mdc-tab.mdc-tab {
     height: 40px;
   }
@@ -8,6 +32,7 @@
   .content {
     padding: 0;
     height: 250px;
+    overflow-x: hidden !important;
   }
   
   img {
@@ -18,53 +43,72 @@
   span.name {
     text-transform: capitalize;
     font-size: 13px;
-    line-height: 22px;
+    line-height: 18px;
     font-weight: 500;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+    padding-right: 8px;
   }
   
   span.info {
-    font-size: 12px;
+    font-size: 11px;
     opacity: 0.8;
-    line-height: 22px;
+    line-height: 18px;
     font-weight: 400;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+  
+  .w-100 {
+    flex: 1 1 auto !important;
+    max-width: calc(100% - 28px) !important; 
+    min-width: 0 !important;
+    overflow: hidden !important;
   }
   
   span.text {
     font-size: 11px;
-    line-height: 14px;
+    line-height: 15px;
     text-align: left;
     font-weight: 400;
     
-    // Breaking Rules: Allow normal sentence flow and break URLs safely
+    // Core auto-breaking logic
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
     white-space: normal !important;
     word-break: break-word !important;
     overflow-wrap: break-word !important;
-    
-    // Clean Webkit Line Clamping (2 lines limit)
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    overflow: visible !important;
   }
   
   .mat-mdc-button {
-    padding: 8px !important;
-    height: auto;
-    white-space: normal !important; // Strips default button "no wrap" behavior
+    padding: 10px 12px !important;
+    height: auto !important;
+    min-height: 54px;
+    white-space: normal !important;
+    box-sizing: border-box;
     
     .mdc-button__label {
       display: flex;
       flex-direction: row;
-      align-items: flex-start;
+      align-items: center;
       width: 100%;
-      min-width: 0; // Ensures content shrinking works
+      min-width: 0; 
     }
     
-    .mat-icon {
-      height: 16px;
-      font-size: 12px;
-      width: 12px;
-      vertical-align: middle;
+    > .mat-icon {
+      height: 18px;
+      font-size: 18px;
+      width: 18px;
+      flex-shrink: 0 !important;
+      margin-left: auto;
     }
   }
   
