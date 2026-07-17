@@ -22,33 +22,141 @@ router.post('/create', authenticateToken, async (req, res) => {
     }
 });
 
+
+
 router.get('/user/:userId', authenticateToken, async (req, res) => {
     const { userId } = req.params;
+    
+    // 1. Extract and parse pagination parameters from query string with defaults
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 15;
+    
+    // 2. Calculate offset (how many items to skip)
+    const offset = (page - 1) * limit;
 
     try {
-        const notifications = await Notification.findAll({
-            where : {userId},
-            order : [['createdAt','DESC']]
+        // 3. Fetch notifications and count total records simultaneously
+        const { count, rows: notifications } = await Notification.findAndCountAll({
+            where: { userId },
+            order: [['createdAt', 'DESC']],
+            limit: limit,
+            offset: offset
         });
-        res.json({ notifications });
+
+        // 4. Get the overall unread count for the badge
+        const unreadCount = await Notification.count({
+            where: { 
+                userId,
+                isRead: false // Matches the model property you use in the frontend
+            }
+        });
+
+        // 5. Send structured response back to Angular
+        res.json({
+            notifications,
+            totalCount: count,
+            unreadCount,
+            currentPage: page,
+            totalPages: Math.ceil(count / limit)
+        });
+
     } catch (error) {
-        res.send(error.message);
+        // Log on server and return a clean HTTP 500 status instead of res.send()
+        console.error('Error fetching paginated notifications:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 
 
-router.get('/', authenticateToken,  async (req, res) => {
+
+
+router.get('/', authenticateToken, async (req, res) => {
+    // 1. Get page and limit from query params (default to page 1, 10 items)
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const offset = (page - 1) * limit;
+
     try {
-        const notifications = await Notification.findAll({
+        // 2. Fetch the paginated subset of data AND the total count
+        const { count, rows: notifications } = await Notification.findAndCountAll({
             order: [['createdAt', 'DESC']], 
+            limit: limit,
+            offset: offset
         });
-        res.json(notifications);
+
+        // 3. Count global unread notifications
+        const unreadCount = await Notification.count({
+            where: { isRead: false }
+        });
+
+        // 4. Send the correct structured object back to Angular
+        res.json({
+            notifications: notifications, // This is the array of 10 items
+            totalCount: count,            // Total rows in DB (e.g., 10000)
+            unreadCount: unreadCount      // Total unread 
+        });
+
     } catch (error) {
-        res.send(error.message);
+        console.error("Error fetching notifications:", error);
+        res.status(500).json({ error: error.message });
     }
 });
 
+// --- MOVE THIS ONE ABOVE ---
+// Route for Admin and Super Admin to mark notifications as read
+router.put('/admin/mark-read/:notificationId', authenticateToken, async (req, res) => {
+    const { notificationId } = req.params;
+    try {
+        const notification = await Notification.findOne({
+            where: { id: notificationId }
+        });
+
+        if (!notification) {
+            return res.status(404).json({ error: 'Notification not found.' }); 
+        }
+
+        notification.isRead = true;
+        await notification.save();
+
+        res.json({
+            message: 'Notification marked as read.',
+            notification
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// --- KEEP THIS ONE BELOW ---
 router.put('/mark-read/:notificationId', authenticateToken, async (req, res) => {
+    const { notificationId } = req.params;
+    const userId = req.user.id; 
+
+    try {
+        const notification = await Notification.findOne({
+            where: {
+                id: notificationId,
+                userId: userId 
+            }
+        });
+
+        if (!notification) {
+            return res.status(404).json({ error: 'Notification not found or does not belong to the user.' });
+        }
+
+        notification.isRead = true;
+        await notification.save();
+
+        res.json({
+            message: 'Notification marked as read.',
+            notification
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.put('/markold-read/:notificationId', authenticateToken, async (req, res) => {
     const { notificationId } = req.params;
     const userId = req.user.id; 
 

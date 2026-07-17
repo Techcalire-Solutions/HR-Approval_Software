@@ -1,50 +1,92 @@
-<button mat-icon-button [matMenuTriggerFor]="messagesMenu" (click)="openMessagesMenu()">
+<!-- <button mat-icon-button [matMenuTriggerFor]="messagesMenu" (click)="openMessagesMenu()">
   <mat-icon>notifications</mat-icon>
-  @if (unreadCount  > 0) {
-    <span style="color: red; font-weight: bold; font-size: 0.75em; position: relative; top: -8px; left: -6px;">{{unreadCount }}</span>
+  @if (unreadCount > 0) {
+    <span style="color: red; font-weight: bold; font-size: 0.75em; position: relative; top: -8px; left: -6px;">
+      {{ unreadCount }}
+    </span>
+  }
+</button> -->
+<button mat-icon-button [matMenuTriggerFor]="messagesMenu" (click)="openMessagesMenu()" style="position: relative;">
+  <mat-icon>notifications</mat-icon>
+  
+  @if (unreadCount > 0) {
+    <span [ngStyle]="{
+      'background-color': '#f44336', 
+      'color': 'white', 
+      'font-weight': 'bold', 
+      'font-family': 'sans-serif',
+      'font-size': unreadCount > 999 ? '8px' : '9.5px', 
+      'line-height': '1',
+      'letter-spacing': '-0.3px',
+      'display': 'inline-flex',
+      'align-items': 'center',
+      'justify-content': 'center',
+      'min-width': '16px',
+      'height': '16px',
+      'padding': '0 4px',
+      'border-radius': '10px',
+      'box-sizing': 'border-box',
+      'white-space': 'nowrap',
+      'position': 'absolute', 
+      'top': '4px', 
+      'right': '4px',
+      'z-index': '1'
+    }">
+      {{ unreadCount }}
+    </span>
   }
 </button>
 
 <mat-menu #messagesMenu="matMenu" [overlapTrigger]="false" class="toolbar-dropdown-menu messages">
-      <mat-tab-group class="primary" (click)="stopClickPropagate($event)" [selectedIndex]="selectedTab">
-          <mat-tab>
-              <ng-template mat-tab-label>
-                  <mat-icon>message</mat-icon>&nbsp;&nbsp;Messages
-              </ng-template>
-              <mat-card class="content">
-                  <ng-scrollbar pointerEventsMethod="scrollbar">
-                      <div fxLayout="column" fxLayoutAlign="none">
-                          @for (message of notifications; track message.id) {
-                            <button mat-button (click)="navigateToMessage(message)">
-                              <div fxLayout="column" fxLayoutAlign="none" class="w-100">
-                                <div fxLayout="row" fxLayoutAlign="space-between start">
-                                  <span class="name">{{ message.name }}</span>
-                                  <span class="info">
-                                    <mat-icon>access_time</mat-icon> {{ message.createdAt | timeAgo }}
-                                  </span>
-                                </div>
-                                <span class="text muted-text" [innerHTML]="message.message"></span>
-                              </div>
-                              <!-- <mat-icon
-                              style="color: blue; cursor: pointer;"
-                              (click)="!isAdmin() ? markAsRead(message.id) : null"
-                              aria-label="Mark as read"
-                            > -->
-                              <!-- mark_email_read
-                            </mat-icon> -->
+  <div style="width: 360px; display: flex; flex-direction: column;" (click)="stopClickPropagate($event)">
+    <mat-tab-group class="primary" [selectedIndex]="selectedTab">
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>message</mat-icon>&nbsp;&nbsp;Messages
+        </ng-template>
+        
+        <mat-card class="content" style="height: auto; padding: 0; margin: 0; box-shadow: none; display: flex; flex-direction: column; overflow: hidden;">
+          
+          <div fxLayout="column" fxLayoutAlign="none" style="background: #ffffff; overflow: hidden;">
+            @for (message of notifications; track message.id) {
+              <button mat-button (click)="navigateToMessage(message)" style="border-bottom: 1px solid #f0f0f0; margin: 0; border-radius: 0;">
+                <div fxLayout="column" fxLayoutAlign="none" class="w-100">
+                  <div fxLayout="row" fxLayoutAlign="space-between start">
+                    <span class="name">{{ message.name }}</span>
+                    <span class="info">
+                      <mat-icon>access_time</mat-icon> {{ message.createdAt | timeAgo }}
+                    </span>
+                  </div>
+                  <span class="text muted-text" [innerHTML]="message.message"></span>
+                </div>
 
-                            <mat-icon [ngStyle]="{'color': message.isRead ? 'blue' : 'green'}"
-                                (click)="!isAdmin() ? markAsRead(message.id) : null"
-                                aria-label="Mark as read">
-                        mark_email_read
-                      </mat-icon>
-     
-                            </button>
-                          }
-                      </div>
-                  </ng-scrollbar>
-              </mat-card>
-          </mat-tab>
+                <mat-icon [ngStyle]="{'color': message.isRead ? 'blue' : 'green'}"
+                          (click)="stopClickPropagate($event); !isAdmin() ? markAsRead(message.id) : null"
+                          aria-label="Mark as read">
+                  mark_email_read
+                </mat-icon>
+              </button>
+            } @empty {
+              <div style="padding: 32px 16px; text-align: center; color: gray; font-size: 13px;">
+                No notifications found.
+              </div>
+            }
+          </div>
 
-      </mat-tab-group>
+          <div style="border-top: 1px solid #e5e5e5; background-color: #fafafa; display: flex; align-items: center; justify-content: center;">
+            <mat-paginator 
+              [length]="totalCount"
+              [pageSize]="pageSize"
+              [pageIndex]="currentPage - 1"
+              [pageSizeOptions]="[5, 10, 15]"
+              (page)="onPageChange($event)"
+              showFirstLastButtons
+              style="background: transparent; width: 100%; font-size: 11px;">
+            </mat-paginator>
+          </div>
+
+        </mat-card>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
 </mat-menu>
