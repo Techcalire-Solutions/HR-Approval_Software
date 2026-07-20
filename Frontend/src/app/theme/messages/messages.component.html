@@ -15,8 +15,12 @@
         <ng-template mat-tab-label>
           <mat-icon>message</mat-icon>&nbsp;&nbsp;Messages
         </ng-template>
+    
+
         
         <div class="notification-list-wrapper">
+        <br>
+    
           @for (message of notifications; track message.id) {
             <button mat-button (click)="navigateToMessage(message)" class="notification-item">
               <div class="notification-content">
@@ -27,12 +31,12 @@
                   </span>
                 </div>
                 
-                <!-- This safely wraps long text down to multiple lines -->
+                <!-- Renders perfectly left-aligned with a balanced text structure -->
                 <span class="text muted-text" [innerHTML]="message.message"></span>
               </div>
 
               <mat-icon class="status-icon"
-                        [ngStyle]="{'color': message.isRead ? 'blue' : 'green'}"
+                        [ngStyle]="{'color': message.isRead ? '#3f51b5' : '#4caf50'}"
                         (click)="stopClickPropagate($event); !isAdmin() ? markAsRead(message.id) : null"
                         aria-label="Mark as read">
                 mark_email_read
@@ -43,6 +47,7 @@
           }
         </div>
 
+        <!-- Premium Paginator Base -->
         <div class="paginator-footer">
           <mat-paginator 
             [length]="totalCount"

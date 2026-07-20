@@ -1,18 +1,19 @@
 @import '../styles/colors';
 
-// 1. SAFE PANEL OVERRIDE (Targets only your specific menu without breaking overlays)
+// 1. SYSTEM OVERLAYS & LAYOUT BOUNDARIES
 ::ng-deep .mat-mdc-menu-panel.custom-messages-menu {
   width: 360px !important;
   max-width: 360px !important;
   min-width: 360px !important;
   overflow: hidden !important;
+  border-radius: 8px !important;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1) !important;
 
   .mat-mdc-menu-content {
     padding: 0 !important;
     width: 100% !important;
   }
   
-  // Clean up material's nested flex components to respect limits
   .mat-mdc-tab-body-wrapper, 
   .mat-mdc-tab-body, 
   .mat-mdc-tab-body-content {
@@ -21,15 +22,160 @@
   }
 }
 
-// Fix internal material paginator layout wrapping
-::ng-deep .custom-messages-menu .mat-mdc-paginator-container {
-  flex-wrap: nowrap !important; 
-  justify-content: space-between !important;
-  padding: 0 4px !important;
-  font-size: 11px !important;
+// 2. MODERN CLEAN PAGINATOR STYLING
+::ng-deep .custom-messages-menu .mat-mdc-paginator {
+  background: transparent !important;
+  width: 100% !important;
+
+  .mat-mdc-paginator-container {
+    flex-wrap: nowrap !important; 
+    justify-content: space-between !important;
+    padding: 4px 12px !important;
+    font-size: 12px !important;
+    min-height: 48px !important;
+    color: #000000 !important; // Keeps paginator text black
+  }
+
+  .mat-mdc-paginator-navigation-next,
+  .mat-mdc-paginator-navigation-previous,
+  .mat-mdc-paginator-navigation-first,
+  .mat-mdc-paginator-navigation-last {
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    color: #000000 !important; // Keeps paginator arrow icons black
+  }
 }
 
-// 2. COMPONENT DESIGN SPECIFICS
+// 3. INTERNAL COMPONENT ARCHITECTURE
+.menu-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.notification-list-wrapper {
+  max-height: 320px; 
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+::ng-deep .custom-messages-menu .notification-item.mat-mdc-button {
+  width: 100% !important;
+  padding: 12px 16px !important;
+  border-bottom: 1px solid #f5f5f5;
+  border-radius: 0;
+  height: auto !important;
+  min-height: 68px !important;
+
+  .mdc-button__label {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important; 
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: 12px !important;
+    text-align: left !important;
+  }
+
+  &:hover {
+    background-color: #fafafa !important;
+  }
+}
+
+.notification-content {
+  flex: 1 1 0%;
+  min-width: 0; 
+  display: flex;
+  flex-direction: column;
+  gap: 4px; 
+  text-align: left !important;
+}
+
+.notification-header {
+  display: flex;
+  flex-direction: row !important;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+  text-align: left !important;
+}
+
+span.name {
+  text-transform: capitalize;
+  font-size: 13px;
+  font-weight: 600;
+  color: #000000; // Unified Black
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  text-align: left !important;
+}
+
+span.info {
+  font-size: 11px;
+  color: #000000; // Unified Black
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  
+  .time-icon {
+    font-size: 13px;
+    height: 13px;
+    width: 13px;
+    color: #000000; // Unified Black
+  }
+}
+
+span.text {
+  font-size: 12px;
+  line-height: 16px;
+  color: #111111; // Dark/Solid Black for text body readability
+  width: 100%;
+  display: block;
+  text-align: left !important;
+  
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.status-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  opacity: 0.8;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+.paginator-footer {
+  border-top: 1px solid #eeeeee;
+  background-color: #fcfcfc;
+  width: 100%;
+}
+
+.empty-state {
+  padding: 40px 16px;
+  text-align: center;
+  color: #000000;
+  font-size: 13px;
+}
+
 .notification-badge {
   background-color: #f44336;
   color: white;
@@ -50,112 +196,4 @@
   top: 4px;
   right: 4px;
   z-index: 1;
-}
-
-.menu-container {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  background: #ffffff;
-}
-
-.notification-list-wrapper {
-  max-height: 280px; // Gives the items a safe home boundary
-  overflow-y: auto;
-  overflow-x: hidden;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-::ng-deep .custom-messages-menu .notification-item.mat-mdc-button {
-  width: 100% !important;
-  padding: 10px 12px !important;
-  border-bottom: 1px solid #f0f0f0;
-  border-radius: 0;
-  height: auto !important;
-  min-height: 56px !important;
-  text-align: left;
-
-  .mdc-button__label {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    width: 100% !important;
-    gap: 8px;
-  }
-}
-
-.notification-content {
-  flex: 1 1 0%; 
-  min-width: 0; // Essential property to allow nested text nodes to shrink and wrap
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.notification-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-span.name {
-  text-transform: capitalize;
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
-}
-
-span.info {
-  font-size: 11px;
-  opacity: 0.7;
-  white-space: nowrap;
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  
-  .time-icon {
-    font-size: 13px;
-    height: 13px;
-    width: 13px;
-  }
-}
-
-span.text {
-  font-size: 11px;
-  line-height: 15px;
-  color: #666;
-  width: 100%;
-  display: block;
-  
-  // BREAKS LARGE BACKEND SENTENCES DOWNWARDS
-  white-space: normal !important;      // Allows multi-line wrapping naturally
-  word-break: break-word !important;    // Breaks long strings/words if they hit the boundary
-  overflow-wrap: anywhere !important;  // Fallback structural safety for unexpected structures
-}
-
-.status-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-}
-
-.paginator-footer {
-  border-top: 1px solid #e5e5e5;
-  background-color: #fafafa;
-  width: 100%;
-}
-
-.empty-state {
-  padding: 32px 16px;
-  text-align: center;
-  color: gray;
-  font-size: 13px;
 }
