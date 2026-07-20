@@ -139,18 +139,6 @@
       'penalty-row': item.notes && item.notes.includes('Penalty')
     }" [routerLink]="['/login/leave/open/', item.id]">
                 <td> {{item.id}} </td>
-                <!-- <td>
-                  <ng-container *ngFor="let date of item.leaveDates">
-                    {{ date.date | date: 'dd-MM-yyyy' }}<br>
-                    @if(date.session1==true){
-                    session 1<br>
-                    }
-                    @if(date.session2==true){
-                    session 2<br>
-                    }
-                  </ng-container>
-                </td> -->
-
                 <td class="date-cell">
                   <div *ngFor="let date of item.leaveDates" class="date-container">
                     <span class="date-text">{{ date.date | date: 'dd-MM-yyyy' }}</span>
@@ -161,14 +149,6 @@
                     </div>
                   </div>
                 </td>
-                <!-- <td>{{ item.leaveType.leaveTypeName }}</td> -->
-                <!-- <td>
-                  @if (item.notes && item.notes.includes('Penalty')) {
-                  <strong style="color: #ef6c00;">LOP</strong>
-                  } @else {
-                  {{ item.leaveType.leaveTypeName }}
-                  }
-                  <td> -->
                 <td>
                   @if (item.notes && item.notes.includes('Penalty') && !item.notes.includes('Waived')) {
                   <strong style="color: #ef6c00;">LOP</strong>
@@ -234,8 +214,12 @@
                     </button>
                     &nbsp;
 
-                    @if (!(item.penaltyLOP > 0) && !(item.notes && item.notes.includes('Penalty') &&
-                    !item.notes.includes('Waived'))) {
+
+
+                    @if ((roleName === 'HR Admin' || roleName === 'Super Admin') &&
+                    !(item.penaltyLOP > 0) &&
+                    !(item.notes && item.notes.includes('Penalty') && !item.notes.includes('Waived'))) {
+
                     <button mat-flat-button class="action-btn custom-lwp-btn"
                       (click)="openDialog('unapproved', item.id)"
                       [disabled]="item.status === 'Approved' || item.status === 'AdminApproved' || item.status === 'Rejected' || item.status === 'Locked' || item.status === 'Unapproved'">

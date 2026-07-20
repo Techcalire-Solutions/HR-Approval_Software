@@ -4,8 +4,9 @@ const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../../middleware/authorization');
 const Notification = require('../models/notification');
+const { Op } = require('sequelize');
 
-// 1. Create a notification
+
 router.post('/create', authenticateToken, async (req, res) => {
     const { userId, message, route } = req.body;
     try {
@@ -20,7 +21,6 @@ router.post('/create', authenticateToken, async (req, res) => {
     }
 });
 
-// 2. Get global unread count
 router.get('/unread-count', authenticateToken, async (req, res) => {
     const userId = req.user.id; 
     try {
@@ -36,7 +36,7 @@ router.get('/unread-count', authenticateToken, async (req, res) => {
     }
 });
 
-// 3. Get user-specific paginated notifications
+
 router.get('/user/:userId', authenticateToken, async (req, res) => {
     const { userId } = req.params;
     const page = parseInt(req.query.page, 10) || 1;
@@ -71,21 +71,36 @@ router.get('/user/:userId', authenticateToken, async (req, res) => {
     }
 });
 
-// 4. Get all global paginated notifications (Admin view)
+
+
+
 router.get('/', authenticateToken, async (req, res) => {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
     const offset = (page - 1) * limit;
 
     try {
+        // Define the filter conditions
+        const filterConditions = {
+            message: {
+                [Op.notLike]: '%by Super Admin%' // Excludes messages containing this text
+            }
+        };
+
+        // 1. Fetch filtered notifications and their total count
         const { count, rows: notifications } = await Notification.findAndCountAll({
+            where: filterConditions, // Added here
             order: [['createdAt', 'DESC']], 
             limit: limit,
             offset: offset
         });
 
+        // 2. Fetch unread count matching the same filter
         const unreadCount = await Notification.count({
-            where: { isRead: false }
+            where: { 
+                ...filterConditions, // Added here
+                isRead: false 
+            }
         });
 
         res.json({
@@ -94,8 +109,9 @@ router.get('/', authenticateToken, async (req, res) => {
             unreadCount: unreadCount 
         });
     } catch (error) {
+        // Safe logging: avoid leaking full detailed backend errors to the response body
         console.error("Error fetching notifications:", error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: "Failed to fetch notifications." });
     }
 });
 
