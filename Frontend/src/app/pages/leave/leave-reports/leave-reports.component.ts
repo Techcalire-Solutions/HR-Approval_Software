@@ -41,6 +41,8 @@ export class LeaveReportsComponent {
 
   getReport(): void {
     this.leaveService.getReport(this.selectedYear, this.currentPage, this.pageSize, this.searchText).subscribe((res) => {
+      console.log(res);
+      
       this.employees = res.result;
       this.totalItems = res.total
     });

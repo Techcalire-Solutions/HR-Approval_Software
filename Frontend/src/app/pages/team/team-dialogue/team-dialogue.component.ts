@@ -57,14 +57,21 @@ export class TeamDialogueComponent {
       this.patchTeam(this.team);
     }
   }
+
   patchTeam(team: any) {
     this.teamForm.patchValue({
       teamName: team.teamName,
     });
 
-    const teamMembersArray = team.teamMembers.map((member: any) => member.userId);
+    const tMembers = team.teamMembers || team.team_members || [];
+    const tLeaders = team.teamLeaders || team.team_leaders || [];
+
+    const teamMembersArray = tMembers.map((member: any) => member.userId);
+    const teamLeadersArray = tLeaders.map((leader: any) => leader.userId);
+    
     this.teamForm.patchValue({
-      teamMembers: teamMembersArray
+      teamMembers: teamMembersArray,
+      teamLeaders: teamLeadersArray
     });
   }
 
@@ -79,13 +86,24 @@ export class TeamDialogueComponent {
       };
     }
 
+    let teamL = [];
+    if (teamMem.teamLeaders) {
+      for (let i = 0; i < teamMem.teamLeaders.length; i++) {
+        teamL[i] = {
+          userId: teamMem.teamLeaders[i]
+        };
+      }
+    }
+
     const updatedTeamData = {
       teamName: teamMem.teamName,
       userId: teamMem.userId,
-      teamMembers: teamM
+      teamMembers: teamM,
+      teamLeaders: teamL
     };
     this.teamId = id;
     this.teamService.updateTeam(this.teamId, updatedTeamData).subscribe((res) => {
+      this.dialogRef.close();
       this._snackbar.open("Team updated successfully...", "", { duration: 3000 });
       this.clearControls();
     }, (error) => {
