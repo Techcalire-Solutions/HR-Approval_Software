@@ -10,5 +10,5 @@ export const environment = {
   //  apiUrl: 'https://oac-api.aerohr.in',
   faviconPath: 'oac.png',
   company: 'oac',
-apiUrl:'http://localhost:8000',
+  apiUrl:'http://localhost:8000',
 };

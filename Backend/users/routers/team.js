@@ -114,23 +114,39 @@ router.get('/:id', async (req, res) => {
 // })
 router.patch('/:id', async (req, res) => {
     try {
-        const { teamName, userId, teamMembers } = req.body;
+        const { teamName, userId, teamMembers, teamLeaders } = req.body;
 
         // Update the team
         const [num] = await Team.update({ teamName, userId }, {
             where: { id: req.params.id }
         });
-
+        console.log(num)
         if (num == 1) {
-            if (teamMembers && teamMembers.length > 0) {
+            console.log(teamMembers)
+            if (teamMembers) {
                 // Delete existing team members
                 await TeamMember.destroy({ where: { teamId: req.params.id } });
 
-                // Add new team members
-                for (let i = 0; i < teamMembers.length; i++) {
-                    teamMembers[i].teamId = req.params.id;
+                if (teamMembers.length > 0) {
+                    // Add new team members
+                    for (let i = 0; i < teamMembers.length; i++) {
+                        teamMembers[i].teamId = req.params.id;
+                    }
+                    await TeamMember.bulkCreate(teamMembers);
                 }
-                await TeamMember.bulkCreate(teamMembers);
+            }
+
+            if (teamLeaders) {
+                // Delete existing team leaders
+                await TeamLeader.destroy({ where: { teamId: req.params.id } });
+
+                if (teamLeaders.length > 0) {
+                    // Add new team leaders
+                    for (let i = 0; i < teamLeaders.length; i++) {
+                        teamLeaders[i].teamId = req.params.id;
+                    }
+                    await TeamLeader.bulkCreate(teamLeaders);
+                }
             }
 
             res.send({

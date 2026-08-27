@@ -92,7 +92,9 @@ const sendEmailNotification = async (token, fromEmail, password, to, subject, ht
   const emailBody = html ? `${html}${emailSignature}` : `${emailSignature}`;
   
   const transporter = nodemailer.createTransport({
-    service: 'Gmail',
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: process.env.SMTP_PORT || 587,
+    secure: process.env.SMTP_SECURE === 'true',
     auth: {
       user: fromEmail,
       pass: password,
