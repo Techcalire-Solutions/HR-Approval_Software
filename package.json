@@ -3,7 +3,7 @@
     "@angular/forms": "^18.2.6",
     "@angular/material": "^18.2.6",
     "@angular/material-moment-adapter": "^19.0.1",
-    "@fullcalendar/angular": "^6.1.15",
+    "@fullcalendar/angular": "^6.1.16",
     "@fullcalendar/core": "^6.1.15",
     "@fullcalendar/daygrid": "^6.1.15",
     "nodemailer": "^6.9.15"
