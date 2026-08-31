@@ -10,7 +10,7 @@
             <mat-autocomplete #auto="matAutocomplete" (optionSelected)="patch($event.option.value)">
               @for (suggestion of filteredOptions; track $index) {
                 <mat-option [value]="suggestion">
-                  {{ suggestion.designationName }}
+                  {{ suggestion.designationName }}({{ suggestion.abbreviation }})
                 </mat-option>
                 @if (filteredOptions.length === 0) {
                   <mat-option [value]="'add'" (click)="add()">
@@ -56,7 +56,7 @@
             <mat-select formControlName="teamId">
               @for(team of teams; track team){
                 <mat-option [value]="team.id">
-                  {{ team.teamName}}
+                  {{ team.teamName}} 
                 </mat-option>
               }
             </mat-select>
