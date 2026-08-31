@@ -51,16 +51,44 @@ router.post('/employeeLeave', authenticateToken, async (req, res) => {
     const isLOP = leaveType.leaveTypeName === 'LOP';
 
     // Prevent LOP if other balances exist
+    // if (isLOP) {
+    //   const totalOtherBalance = await UserLeave.sum('leaveBalance', {
+    //     where: {
+    //       userId,
+    //       leaveBalance: { [Op.gt]: 0 }
+    //     },
+    //     transaction
+    //   });
+
+    //   if (totalOtherBalance > 0) {
+    //     await transaction.rollback();
+    //     return res.json({
+    //       message: 'You cannot apply for LOP because you still have other leave balance remaining.'
+    //     });
+    //   }
+    // }
     if (isLOP) {
+      // Fetch SL leaveTypeId to exclude it alongside LOP
+      const slType = await LeaveType.findOne({
+        where: { leaveTypeName: 'SL' },
+        transaction
+      });
+
+      const excludedTypeIds = [leaveTypeId];
+      if (slType) {
+        excludedTypeIds.push(slType.id);
+      }
+
       const totalOtherBalance = await UserLeave.sum('leaveBalance', {
         where: {
           userId,
+          leaveTypeId: { [Op.notIn]: excludedTypeIds }, // Excludes both LOP & SL
           leaveBalance: { [Op.gt]: 0 }
         },
         transaction
       });
 
-      if (totalOtherBalance > 0) {
+      if ((totalOtherBalance || 0) > 0) {
         await transaction.rollback();
         return res.json({
           message: 'You cannot apply for LOP because you still have other leave balance remaining.'
