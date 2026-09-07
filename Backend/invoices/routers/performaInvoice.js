@@ -168,12 +168,12 @@ router.post('/save', authenticateToken, async (req, res) => {
                 return res.send("AM project email is missing.\n Please inform the admin to add it.");
             }
         } else if (paymentMode === 'WireTransfer') {
-            // const kam = await UserPosition.findOne({ where: { userId: kamId } });
-            // recipientEmail = kam ? kam.projectMailId : null;
-            //  notificationRecipientId = kamId;
-            // if (!recipientEmail) {
-            //     return res.send("KAM project email is missing. \n Please inform the admin to add it.");
-            // }
+            const kam = await UserPosition.findOne({ where: { userId: kamId } });
+            recipientEmail = kam ? kam.projectMailId : null;
+             notificationRecipientId = kamId;
+            if (!recipientEmail) {
+                return res.send("KAM project email is missing. \n Please inform the admin to add it.");
+            }
         }
 
         const existingInvoice = await PerformaInvoice.findOne({ where: { piNo } });
@@ -231,8 +231,7 @@ router.post('/save', authenticateToken, async (req, res) => {
             7: 'salesafrica@leedsaerospace.com',
             9: 'salesme@leedsaerospace.com',
             10: 'salesapac@leedsaerospace.com',
-            12: 'salesasia@leedsaerospace.com',
-            // Add other teamId to email mappings here
+            12: 'salesasia@leedsaerospace.com'
         };
         const teamEmail = salesPerson && salesPerson.teamId && teamMailMap[salesPerson.teamId] 
             ? teamMailMap[salesPerson.teamId] 
@@ -244,9 +243,11 @@ router.post('/save', authenticateToken, async (req, res) => {
             else ccEmails.push(financeEmails);
         }
 
+        if (teamEmail) ccEmails.push(teamEmail);
+
         const mailOptions = {
             from: `Proforma Invoice <${process.env.EMAIL_USER}>`,
-            to: teamEmail,
+            to: recipientEmail,
             cc: ccEmails,
             subject: `New Payment Request Generated ${piNo} / ${supplierPoNo}`,
             html: `
