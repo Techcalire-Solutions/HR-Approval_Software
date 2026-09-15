@@ -76,7 +76,7 @@ export class UserDialogComponent implements OnInit, OnDestroy {
     password: [ '', Validators.compose([Validators.required, Validators.minLength(4)]) ],
     roleName: [],
     teamId: <any>[  ],
-    officialMailId: [ '', Validators.compose([Validators.required, Validators.email]) ]
+    officialMailId: [ '', Validators.compose([Validators.email]) ]
   })
 
   // Function to update validators for officialMailId
@@ -86,8 +86,8 @@ export class UserDialogComponent implements OnInit, OnDestroy {
       // Remove required and email validators when editStatus is true
       officialMailIdControl?.clearValidators();
     } else {
-      // Add required and email validators when editStatus is false
-      officialMailIdControl?.setValidators([Validators.required, Validators.email]);
+      // Add email validators when editStatus is false
+      officialMailIdControl?.setValidators([Validators.email]);
     }
     // Update the control's validity
     officialMailIdControl?.updateValueAndValidity();

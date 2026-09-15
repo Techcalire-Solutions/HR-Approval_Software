@@ -53,7 +53,7 @@ router.post('/add', authenticateToken, async (req, res) => {
       name, empNo, email, phoneNumber, password: hashedPassword, roleId, status, userImage, url, director
     });
 
-    if(officialMailId){
+    if(email){
       const emailSubject = `Welcome to the Company!`;
       const fromEmail = process.env.EMAIL_USER;
       const emailPassword = process.env.EMAIL_PASS;
@@ -70,12 +70,12 @@ router.post('/add', authenticateToken, async (req, res) => {
       const attachments = []
       const token = req.headers.authorization?.split(' ')[1];
       try {
-        await sendEmail(token, fromEmail, emailPassword, officialMailId, emailSubject, html, attachments);
+        await sendEmail(token, fromEmail, emailPassword, email, emailSubject, html, attachments);
       } catch (emailError) {
         console.error('Email sending failed:', emailError);
       }
 
-      const userPos = new UserPosition({userId: user.id, officialMailId: officialMailId})
+      const userPos = new UserPosition({userId: user.id})
       await userPos.save();
     }
 
