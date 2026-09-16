@@ -348,9 +348,8 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
       : '<p><em>Note: No late application penalties were applied.</em></p>';
 
     const userId = leave.userId;
-    const userPos = await UserPosition.findOne({
-      where: { userId },
-      include: [{ model: User, attributes: ['name', 'email'] }],
+    const userPos = await User.findOne({
+      where: { id: userId },
       transaction
     });
 
@@ -378,8 +377,6 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
         where: { userId, leaveTypeId: leave.leaveTypeId, year: startYear },
         transaction
       });
-
-
 
       userLeave.leaveBalance -= leave.noOfDays;
       userLeave.takenLeaves += leave.noOfDays;
@@ -530,7 +527,7 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
 
     try {
       const token = req.headers.authorization?.split(' ')[1];
-      await sendEmail(token, fromEmail, emailPassword, userPos.officialMailId, emailSubject, html, [], ccRecipients);
+      await sendEmail(token, fromEmail, emailPassword, userPos.email, emailSubject, html, [], ccRecipients);
     } catch (e) {
       console.error('Email notification failed:', e.message);
     }
@@ -1487,13 +1484,12 @@ async function formatDate(date) {
 
 async function handleNotificationsAndEmails(req, res, leave, transaction, type, mes) {
   let message = [];
-  const userPos = await UserPosition.findOne({
-    where: { userId: req.body.userId ? req.body.userId : leave.userId },
-    include: [{ model: User, attributes: ['name'] }],
+  const userPos = await User.findOne({
+    where: { id: req.body.userId ? req.body.userId : leave.userId },
     transaction,
   });
   if (!userPos) {
-    message.push('Employment details are not added for the employee');
+    message.push('User not found');
     return message;
   }
 
@@ -1566,10 +1562,10 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
       name = hr.name;
     }
   } else {
-    hrEmail = userPos.officialMailId;
-    name = userPos.user.name;
+    hrEmail = userPos.email;
+    name = userPos.name;
     if (!hrEmail) {
-      message.push(`Official mail missing for ${userPos.user.name}`);
+      message.push(`Mail missing for ${userPos.name}`);
     }
   }
 
@@ -1638,11 +1634,11 @@ async function getHREmail() {
   if (!hrAdminUser) {
     return ({ mail: 'HR Admin user not found' });
   }
-  const userPosition = await UserPosition.findOne({ where: { userId: hrAdminUser.id } });
-  if (!userPosition || !userPosition.officialMailId) {
-    return ({ mail: 'Official Mail Id not found for HR Admin', name: hrAdminUser.name });
-  }
-  return { mail: userPosition.officialMailId, name: hrAdminUser.name };
+  // const userPosition = await UserPosition.findOne({ where: { userId: hrAdminUser.id } });
+  // if (!userPosition || !userPosition.officialMailId) {
+  //   return ({ mail: 'Official Mail Id not found for HR Admin', name: hrAdminUser.name });
+  // }
+  return { mail: hrAdminUser.email, name: hrAdminUser.name };
 }
 
 async function getOMEmail() {
@@ -1654,8 +1650,12 @@ async function getOMEmail() {
   if (!omUserPos) {
     return ('Operational Manager user is not found');
   }
+  const omUser = await User.findOne({ where: { id: omUserPos.userId } });
+  if (!omUser) {
+    return ('Operational Manager user details not found');
+  }
 
-  return omUserPos.officialMailId;
+  return omUser.email;
 }
 
 async function getReportingManagerEmailForUser(userId) {
@@ -1675,16 +1675,17 @@ async function getReportingManagerEmailForUser(userId) {
       return ({ email: `No reporting manager found for user ${userPersonal.user.name}` });
     }
 
-    const reportingManagerPosition = await UserPosition.findOne({
-      include: [{ model: User, attributes: ['name'] }],
-      where: { userId: reportingMangerId },
-      attributes: ['officialMailId'],
+    const reportingManager = await User.findOne({
+      where: { id: reportingMangerId },
+      attributes: ['email', 'name'],
     });
 
-    if (reportingManagerPosition && reportingManagerPosition.officialMailId) {
-      return { email: reportingManagerPosition.officialMailId, name: reportingManagerPosition.user.name };
+    if (reportingManager && reportingManager.email) {
+      return { email: reportingManager.email, name: reportingManager.name };
+    } else if (reportingManager) {
+      return ({ email: `Mail is not added for reporting manager ${reportingManager.name}` });
     } else {
-      return ({ email: `Official mail is not added for reportingManger ${reportingManagerPosition.user.name}` });
+      return ({ email: `Reporting manager not found` });
     }
   } catch (error) {
     return { email: error.message };
@@ -1708,11 +1709,7 @@ async function getTeamLeadEmails(userId) {
     if (teamId !== null) {
       const tls = await TeamLeader.findAll({
         where: { teamId }, include: {
-          model: User, attributes: ['name'],
-          include: {
-            model: UserPosition,
-            attributes: ['officialMailId']
-          }
+          model: User, attributes: ['name']
         }
       });
 
@@ -1720,8 +1717,8 @@ async function getTeamLeadEmails(userId) {
         return (`No team leads found for team with ID: ${teamId}`);
       }
 
-      const tlEmails = tls.map(tl => tl.user.userPosition?.officialMailId).filter(email => email);
-      if (!tlEmails.length) return ("Official MailId is not added for TLs");
+      const tlEmails = tls.map(tl => tl.user.email).filter(email => email);
+      if (!tlEmails.length) return ("MailId is not added for TLs");
       return tlEmails;
     }
   } catch (error) {
@@ -1989,10 +1986,9 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
     await leave.save();
 
     let id = leave.userId;
-    const userPos = await UserPosition.findOne({
-      where: { userId: id },
-      include: [{ model: User, attributes: ['name'] }
-      ]
+    const userPos = await User.findOne({
+      where: { id: id },
+      attributes: ['email']
     })
     const me = `${leave.user.name} Leave Request Rejected by ${req.user.name}`;
     const route = `/login/leave/open/${leave.id}`;
@@ -2017,7 +2013,6 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
     const rmEmail = rm.email;
     const teamLeads = await getTeamLeadEmails(leave.userId);
     const omMail = await getOMEmail();
-    console.log(hrEmail, rmEmail, teamLeads, omMail);
 
     const ccRecipients = [hrEmail, rmEmail, teamLeads, omMail].filter(email => email);
     const emailSubject = `Leave Request is Rejected`;
@@ -2033,7 +2028,7 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
     const attachments = []
     const token = req.headers.authorization?.split(' ')[1];
     try {
-      await sendEmail(token, fromEmail, emailPassword, userPos.officialMailId, emailSubject, html, attachments, ccRecipients);
+      await sendEmail(token, fromEmail, emailPassword, userPos.email, emailSubject, html, attachments, ccRecipients);
     } catch (emailError) {
       console.error('Email sending failed:', emailError);
     }
