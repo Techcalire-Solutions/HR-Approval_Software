@@ -48,21 +48,34 @@
                         <button class="delete-button" (click)="deleteFunction(invoice.id)">Delete
                         </button>
                       }
-                      @if(!data.sp && data.pageStatus && !data.admin && !data.teamLead && invoice.status != 'AM APPROVED' && !invoice.editButtonStatus ){
-                        <button mat-raised-button class="approve-button" 
-                            [disabled]="
-                              (data.roleName === 'Key Account Manager' && invoice.status === 'KAM VERIFIED') ||
-                              (data.roleName === 'Manager' && invoice.status === 'AM VERIFIED')
-                            "
-                          (click)="verified('approved', invoice.piNo, invoice.salesPerson?.name, invoice.id, invoice.status)"> APPROVE
-                        </button>
+                      @if(!data.sp && data.pageStatus && !data.admin && !data.teamLead && !(data.kam && invoice.status === 'AM APPROVED') && !invoice.editButtonStatus ){
+                        @if(!(data.am && (invoice.status === 'AM VERIFIED' || invoice.status === 'AM APPROVED'))){
+                          <button mat-raised-button class="approve-button" 
+                              [disabled]="
+                                (data.roleName === 'Key Account Manager' && invoice.status === 'KAM VERIFIED') ||
+                                (data.roleName === 'Manager' && (invoice.status === 'AM VERIFIED' || invoice.status === 'AM APPROVED'))
+                              "
+                            (click)="verified('approved', invoice.piNo, invoice.salesPerson?.name, invoice.id, invoice.status)"> APPROVE
+                          </button>
+                        }
                         <button mat-raised-button class="reject-button" 
                           [disabled]="
                             (data.roleName === 'Key Account Manager' && invoice.status === 'KAM REJECTED') ||
-                            (data.roleName === 'Manager' && invoice.status === 'AM REJECTED')
+                            (data.roleName === 'Manager' && (invoice.status === 'AM REJECTED' || invoice.status === 'AM DECLINED'))
                           "
                           (click)="verified('rejected', invoice.piNo, invoice.addedBy.name, invoice.id, invoice.status)">
                           REJECT
+                        </button>
+                      }
+
+                      @if(
+                        ((data.am || data.admin) && (invoice.status === 'AM APPROVED' || invoice.status === 'AM VERIFIED')) ||
+                        (data.ma && invoice.status === 'AM VERIFIED') ||
+                        (data.kam && invoice.status === 'AM APPROVED')
+                      ){
+                        <button mat-raised-button class="reassign-button"
+                          (click)="reassignManager(invoice)">
+                          REASSIGN
                         </button>
                       }
 

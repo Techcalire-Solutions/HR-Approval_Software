@@ -91,6 +91,12 @@
                           REJECT
                         </button>
                       }
+                      @if((data?.ma || data?.am || data?.admin) && invoice.status === 'AM Verified'){
+                        <button mat-raised-button class="reassign-button"
+                          (click)="reassignExpense(invoice)">
+                          REASSIGN
+                        </button>
+                      }
                       @if(data?.ma){
                         <button mat-raised-button class="add-bank-slip-button"
                         (click)="addBankSlip(invoice.exNo, invoice.id, invoice.status)"> {{ invoice.status === 'PaymentCompleted' ? 'Edit Wireslip' : 'Wireslip' }}

@@ -156,6 +156,34 @@ export class ViewExpenseComponent implements OnInit, OnDestroy{
     })
   }
 
+  reassignExpense(invoice: any) {
+    const dialogRef = this.dialog.open(VerificationDialogueComponent, {
+      data: {
+        invoiceNo: invoice.exNo,
+        status: 'AM Verified',
+        sp: invoice.user?.name,
+        isReassign: true,
+        currentAccountantId: invoice.accountantId
+      }
+    });
+
+    this.dialogSub = dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const data = {
+          status: 'AM Verified',
+          expenseId: invoice.id,
+          remarks: result.remarks,
+          accountantId: result.accountantId
+        };
+
+        this.verifiedSub = this.expenseService.updateStatus(data).subscribe(() => {
+          this.getExpenses(this.userId);
+          this.snackBar.open(`Accountant reassigned for Expense ${invoice.exNo}...`, "", { duration: 3000 });
+        });
+      }
+    });
+  }
+
   addBankSlip(piNo: string, id: number, status: string){
     const dialogRef = this.dialog.open(ExpenseReceiptDialogComponent, {
       data: { invoiceNo: piNo, id: id, status: status }

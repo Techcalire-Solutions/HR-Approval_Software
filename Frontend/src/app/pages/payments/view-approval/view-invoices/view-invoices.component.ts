@@ -178,8 +178,8 @@ export class ViewInvoicesComponent {
     });
 
     this.dialogSub = dialogRef.afterClosed().subscribe(result => {
-      this.submitted = true;
       if(result){
+        this.submitted = true;
         this.submittingForm = true;
         let data = {
           status: status,
@@ -196,9 +196,53 @@ export class ViewInvoicesComponent {
           this.getPiById(id)
           this.snackBar.open(`Invoice ${piNo} updated to ${status}...`,"" ,{duration:3000})
           this.router.navigateByUrl('login/viewApproval/view')
+        }, () => {
+          this.submittingForm = false;
+          this.submitted = false;
         });
       }
     })
+  }
+
+  reassignManager() {
+    const dialogRef = this.dialog.open(VerificationDialogueComponent, {
+      data: {
+        invoiceNo: this.pi.piNo,
+        status: this.pi.status,
+        sp: this.pi.salesPerson?.name,
+        isReassign: true,
+        currentKamId: this.pi.kamId,
+        currentAccountantId: this.pi.accountantId
+      }
+    });
+
+    this.dialogSub = dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.submitted = true;
+        this.submittingForm = true;
+        const data = {
+          status: this.pi.status,
+          performaInvoiceId: this.pi.id,
+          remarks: result.remarks,
+          kamId: result.kamId,
+          amId: result.amId,
+          accountantId: result.accountantId
+        };
+
+        this.verifiedSub = this.invoiceService.updatePIStatus(data).subscribe({
+          next: () => {
+            this.submittingForm = false;
+            this.submitted = false;
+            this.getPiById(this.pi.id);
+            this.snackBar.open(`Finance Manager reassigned for Invoice ${this.pi.piNo}...`, "", { duration: 3000 });
+          },
+          error: () => {
+            this.submittingForm = false;
+            this.submitted = false;
+          }
+        });
+      }
+    });
   }
 
   addBankSlip(piNo: string, id: number, status: string){

@@ -96,6 +96,15 @@
           REJECT
         </button>
       }
+      @if(
+        ((am || admin) && (pi.status === 'AM APPROVED' || pi.status === 'AM VERIFIED')) ||
+        (ma && pi.status === 'AM VERIFIED') ||
+        (kam && pi.status === 'AM APPROVED')
+      ) {
+        <button mat-raised-button class="approve-button" (click)="reassignManager()">
+          REASSIGN
+        </button>
+      }
     </mat-card-actions>
   @if((ma && pi.status !== 'BANK SLIP ISSUED') || (admin && pi.status !== 'BANK SLIP ISSUED')){
     <mat-card-actions>

@@ -212,7 +212,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         try {
             await transporter.sendMail(mailOptions);
         } catch (error) {
-            res.send(error.message)
+            return res.send(error.message)
         }
 
         res.json({ pi, status: newStatus });

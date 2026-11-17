@@ -1655,7 +1655,7 @@ async function getOMEmail() {
     return ('Operational Manager user details not found');
   }
 
-  return omUser.email;
+  return omUserPos.officialMailId;
 }
 
 async function getReportingManagerEmailForUser(userId) {

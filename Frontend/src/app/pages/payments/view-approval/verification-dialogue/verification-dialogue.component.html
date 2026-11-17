@@ -1,16 +1,20 @@
 
 <mat-card>
   <div class="custom-dialog">
-    <h1 class="dialog-title">Change Status</h1>
+    <h1 class="dialog-title">{{ isReassign ? 'Reassign Finance Manager' : 'Change Status' }}</h1>
 
     <mat-card-content>
       <div class="dialog-content">
-        Are you sure you are changing the invoice {{invoiceNo}} to {{status}} status?
+        @if(isReassign) {
+          Select another manager to assign for invoice {{invoiceNo}} ({{status}}):
+        } @else {
+          Are you sure you are changing the invoice {{invoiceNo}} to {{status}} status?
+        }
       </div>
 
-      <div >
+      <div>
         <form [formGroup]="form">
-          <mat-form-field appearance="outline">
+          <mat-form-field class="full-width" appearance="outline">
             <mat-label>Notes</mat-label>
             <input matInput placeholder="" formControlName="remarks">
           </mat-form-field>
@@ -34,7 +38,7 @@
               <mat-select placeholder="" formControlName="accountantId" (selectionChange)="onSelectionChange()">
                 @for(item of am; track $index){
                   <mat-option [value]="item.id">
-                    {{item.name}}
+                    {{item.name}}{{ isReassign && item.id === dialogData.currentAccountantId ? ' (Current)' : '' }}
                   </mat-option>
                 }              
               </mat-select>
@@ -47,7 +51,7 @@
               <mat-select placeholder="" formControlName="kamId" (selectionChange)="onSelectionChange()">
                 @for(item of kam; track $index){
                   <mat-option [value]="item.id">
-                    {{item.name}}
+                    {{item.name}}{{ isReassign && item.id === dialogData.currentKamId ? ' (Current)' : '' }}
                   </mat-option>
                 }
               </mat-select>

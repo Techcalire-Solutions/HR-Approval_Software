@@ -167,7 +167,7 @@ export class PaymentsComponent implements OnInit{
             this.data.pageStatus = true;
             break;
           case 1:
-            this.data.status = ['AM VERIFIED', 'AM REJECTED'];
+            this.data.status = ['AM VERIFIED', 'AM APPROVED', 'AM REJECTED', 'AM DECLINED'];
             this.data.pageStatus = true;
             break;
           case 2:
