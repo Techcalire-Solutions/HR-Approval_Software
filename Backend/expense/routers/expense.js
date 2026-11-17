@@ -91,40 +91,31 @@ router.post('/save', authenticateToken, async (req, res) => {
         return res.send("Project email is missing.\n Please inform the admin to add it")
       }
     } else if (status === 'AM Verified') {
-      const accountant = await UserPosition.findOne({ where: { userId: accountantId } });
-      recipientEmail = accountant ? accountant.projectMailId : null;
-      notificationRecipientId=accountantId
-      if(!recipientEmail){
-        return res.send("Accoutant Project email is missing.\n Please inform the admin to add it")
-      }
+      notificationRecipientId = accountantId;
     }
 
-    const attachments = [];
-    for (const fileObj of url) {
-      const actualUrl = fileObj.url || fileObj.file;
-      if (!actualUrl) continue;
+    if (status === 'Generated' && recipientEmail) {
+      const attachments = [];
+      for (const fileObj of url) {
+        const actualUrl = fileObj.url || fileObj.file;
+        if (!actualUrl) continue;
 
-      const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-      const params = { Bucket: process.env.AWS_BUCKET_NAME, Key: fileKey };
+        const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+        const params = { Bucket: process.env.AWS_BUCKET_NAME, Key: fileKey };
 
-      try {
-        const s3File = await s3.getObject(params).promise();
-        attachments.push({
-          filename: actualUrl.split('/').pop(),
-          content: s3File.Body,
-          contentType: s3File.ContentType,
-        });
-      } catch (error) {
-        res.send(error.message)
+        try {
+          const s3File = await s3.getObject(params).promise();
+          attachments.push({
+            filename: actualUrl.split('/').pop(),
+            content: s3File.Body,
+            contentType: s3File.ContentType,
+          });
+        } catch (error) {
+          res.send(error.message)
+        }
       }
-    }
 
-
-
-    
-    let emailHtml;
-    if (status === 'Generated') {
-      emailHtml = `
+      const emailHtml = `
         <p>Dear Manager,</p>
         <p>${req.user.name} has submitted an expense claim for your review and approval.</p>
         <h3>Expense Claim Details:</h3>
@@ -139,33 +130,17 @@ router.post('/save', authenticateToken, async (req, res) => {
         <p>Thank you for your attention to this request.</p>
         <p>Best Regards,<br>Expense Management System</p>
       `;
-    } else if (status === 'AM Verified') {
-      emailHtml = `
-        <p>Dear Accountant,</p>
-        <p>${req.user.name} has submitted an expense claim that has already been verified by a manager.</p>
-        <h3>Expense Claim Details:</h3>
-        <ul>
-          <li><strong>Reference Number:</strong> ${exNo}</li>
-          <li><strong>Status:</strong> ${status}</li>
-          <li><strong>Amount:</strong> ${totalAmount} ${currency}</li>
-          <li><strong>Notes:</strong> ${notes}</li>
-          <li><strong>Submission Date:</strong> ${new Date().toLocaleDateString()}</li>
-        </ul>
-        <p>Please find the attached documents related to this expense claim for your records.</p>
-        <p>Thank you for your attention.</p>
-        <p>Best Regards,<br>Expense Management System</p>
-      `;
+
+      const mailOptions = {
+        from: `Expense Management System <${process.env.EMAIL_USER}>`,
+        to: recipientEmail,
+        subject: `Expense Claim Request Submitted - Reference No: ${exNo} / ${req.user.name}`,
+        html: emailHtml,
+        attachments,
+      };
+
+      await transporter.sendMail(mailOptions);
     }
-
-    const mailOptions = {
-      from: `Expense Management System <${process.env.EMAIL_USER}>`,
-      to: recipientEmail,
-      subject: `Expense Claim Request Submitted - Reference No: ${exNo} / ${req.user.name}`,
-      html: emailHtml,
-      attachments,
-    };
-
-    await transporter.sendMail(mailOptions);
 
       await Notification.create({
         userId: notificationRecipientId,
@@ -337,16 +312,10 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
 
       try {
           us = await UserPosition.findOne({ where: { userId: expense.addedById } });
-          acc = accountantId ? await UserPosition.findOne({ where: { userId: accountantId } }) : null;
 
-          if (acc && acc.projectMailId) {
-              recipientEmail = acc.projectMailId;
-              recipientName = acc.user ? acc.user.name : 'Accountant';
+          if (status === 'AM Verified') {
               notificationRecipientId = accountantId;
               notificationMessage = `The expense claim ${expense.exNo} has been approved.`;
-              if(!recipientEmail){
-                return res.send("Accountant email is missing.\n Please inform the admin to add it")
-              }
           } else if (us && us.projectMailId) {
               recipientEmail = us.projectMailId;
               recipientName = us.user ? us.user.name : 'User'; 
@@ -356,7 +325,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                 return res.send("Project email is missing.\n Please inform the admin to add it")
               }
           }
-          if (!recipientEmail) {
+          if (status !== 'AM Verified' && !recipientEmail) {
               return res.send('Recipient email not defined for this  action.');
           }
 
@@ -364,62 +333,54 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
           return res.send(error.message);
       }
 
-      let emailSubject = `Expense Claim Update - ${expense.exNo}`;
-      let emailTextApproval =`Dear ${recipientName},\n\n` +
-      `We are pleased to inform you that the status of the expense claim ${expense.exNo} has been updated to ${status}.\n\n` +
-      `Remarks: ${remarks}\n\n` +
-      `Please find the claim details below:\n` +
-      `Expense No.: ${expense.exNo}\n` +
-      `Status: Approved\n\n` +
-      `Best regards,\n${req.user.name}\nApproval Management Team`;
+      if (status !== 'AM Verified' && recipientEmail) {
+          let emailSubject = `Expense Claim Update - ${expense.exNo}`;
+          let emailTextRejected =`Dear ${recipientName},\n\n` +
+          `The status of your expense claim ${expense.exNo} has been updated to ${status}.\n\n` +
+          `Remarks: ${remarks}\n\n` +
+          `Please review the remarks and take necessary actions.\n` +
+          `Expense No.: ${expense.exNo}\n` +
+          `Status: Rejected\n\n` +
+          `For more information, feel free to reach out to the Approval Management Team.\n\n` +
+          `Best regards,\n${req.user.name}\nApproval Management Team`;
 
-      let emailTextRejected =`Dear ${recipientName},\n\n` +
-      `The status of your expense claim ${expense.exNo} has been updated to ${status}.\n\n` +
-      `Remarks: ${remarks}\n\n` +
-      `Please review the remarks and take necessary actions.\n` +
-      `Expense No.: ${expense.exNo}\n` +
-      `Status: Rejected\n\n` +
-      `For more information, feel free to reach out to the Approval Management Team.\n\n` +
-      `Best regards,\n${req.user.name}\nApproval Management Team`;
+          let emailText = '';
 
-      let emailText = '';
+          switch (status) {
+              case 'AM Rejected':
+                  emailText = emailTextRejected;
+                  break;
+              default:
+                  return res.send(`Invalid status update: "${status}" received.`);
+          }
 
-      switch (status) {
-          case 'AM Verified':
-              emailText = emailTextApproval;
-              break;
-          case 'AM Rejected':
-              emailText = emailTextRejected;
-              break;
-          default:
-              return res.send(`Invalid status update: "${status}" received.`);
+          const attachmentUrl = expense.url[0].url;
+          const attachmentFileKey = attachmentUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+
+          const attachmentParams = {
+              Bucket: process.env.AWS_BUCKET_NAME,
+              Key: attachmentFileKey,
+          };
+
+          const attachmentS3File = await s3.getObject(attachmentParams).promise();
+
+          const mailOptions = {
+              from: `${req.user.name} <${req.user.email}>`,
+              to: recipientEmail,
+              subject: emailSubject,
+              text: emailText,
+              attachments: [
+                  {
+                      filename: attachmentFileKey.split('/').pop(),
+                      content: attachmentS3File.Body,
+                      contentType: attachmentS3File.ContentType,
+                  },
+              ],
+          };
+
+          await transporter.sendMail(mailOptions);
       }
 
-      const attachmentUrl = expense.url[0].url;
-      const attachmentFileKey = attachmentUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-
-      const attachmentParams = {
-          Bucket: process.env.AWS_BUCKET_NAME,
-          Key: attachmentFileKey,
-      };
-
-      const attachmentS3File = await s3.getObject(attachmentParams).promise();
-
-      const mailOptions = {
-          from: `${req.user.name} <${req.user.email}>`,
-          to: recipientEmail,
-          subject: emailSubject,
-          text: emailText,
-          attachments: [
-              {
-                  filename: attachmentFileKey.split('/').pop(),
-                  content: attachmentS3File.Body,
-                  contentType: attachmentS3File.ContentType,
-              },
-          ],
-      };
-
-      await transporter.sendMail(mailOptions);
       await Notification.create({
           userId: notificationRecipientId,
           message: notificationMessage,
@@ -709,18 +670,20 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
 
 
   let recipientEmail = null;
-  let notificationRecipientId = amId
+  let notificationRecipientId = status === 'AM Verified' ? accountantId : amId;
 
-  try {
-    const am = await UserPosition.findOne({where:{userId:amId}})
-    recipientEmail = am ? am.projectMailId : null ;
+  if (status !== 'AM Verified') {
+    try {
+      const am = await UserPosition.findOne({where:{userId:amId}})
+      recipientEmail = am ? am.projectMailId : null ;
 
-    if (!recipientEmail) { 
-        return res.send("AM project email is missing.\n Please inform the admin to add it.");
+      if (!recipientEmail) { 
+          return res.send("AM project email is missing.\n Please inform the admin to add it.");
+      }
+      
+    } catch (error) {
+      return res.send(error.message)
     }
-    
-  } catch (error) {
-    res.send(error.message)
   }
 
   try {
@@ -730,7 +693,8 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
       }
 
       pi.url = url;
-      pi.amId = amId;
+      if (amId != null) pi.amId = amId;
+      if (accountantId != null) pi.accountantId = accountantId;
       let count = pi.count + 1;
       pi.count = count;
       pi.notes = notes;
@@ -746,55 +710,50 @@ router.patch('/update/:id', authenticateToken, async (req, res) => {
       })
       await piStatus.save();
 
+      if (status !== 'AM Verified' && recipientEmail) {
+          const attachments = [];
+          for (const fileObj of url) {
+              const actualUrl = fileObj.url || fileObj.file;
+              if (!actualUrl) continue;
 
+              const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
 
+              const params = {
+                  Bucket: process.env.AWS_BUCKET_NAME,
+                  Key: fileKey,
+              };
 
- 
+              try {
+                  const s3File = await s3.getObject(params).promise();
+                  const fileBuffer = s3File.Body;
 
-  
-      const attachments = [];
-      for (const fileObj of url) {
-          const actualUrl = fileObj.url || fileObj.file;
-          if (!actualUrl) continue;
+                  attachments.push({
+                      filename: actualUrl.split('/').pop(),
+                      content: fileBuffer,
+                      contentType: s3File.ContentType 
+                  });
+              } catch (error) {
+                  res.send(error.message) 
+              }
+          }
 
-          const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-
-          const params = {
-              Bucket: process.env.AWS_BUCKET_NAME,
-              Key: fileKey,
+          const mailOptions = {
+              from: `Expense <${process.env.EMAIL_USER}>`,
+              to: recipientEmail, 
+              subject: `Expense claim request Updated - ${pi.exNo} /${req.user.name} `,
+              html: `
+                  <p>Expense has been updated by <strong>${req.user.name}</strong></p>
+                  <p><strong>Entry Number:</strong> ${pi.exNo}</p>
+                  <p><strong>Status:</strong> ${pi.status}</p>
+                  <p><strong>Notes:</strong> ${pi.notes}</p>
+                  <p><strong>Notes:</strong> ${pi.expenseType}</p>
+                  <p>Please find the attached documents related to this Expense.</p>
+              `,
+              attachments: attachments 
           };
 
-          try {
-              const s3File = await s3.getObject(params).promise();
-              const fileBuffer = s3File.Body;
-
-              attachments.push({
-                  filename: actualUrl.split('/').pop(),
-                  content: fileBuffer,
-                  contentType: s3File.ContentType 
-              });
-          } catch (error) {
-              res.send(error.message) 
-          }
+          await transporter.sendMail(mailOptions);
       }
-
-      const mailOptions = {
-          from: `Expense <${process.env.EMAIL_USER}>`,
-          to: recipientEmail, 
-          subject: `Expense claim request Updated - ${pi.exNo} /${req.user.name} `,
-          html: `
-              <p>Expense has been updated by <strong>${req.user.name}</strong></p>
-              <p><strong>Entry Number:</strong> ${pi.exNo}</p>
-              <p><strong>Status:</strong> ${pi.status}</p>
-              <p><strong>Notes:</strong> ${pi.notes}</p>
-              <p><strong>Notes:</strong> ${pi.expenseType}</p>
-              <p>Please find the attached documents related to this Expense.</p>
-          `,
-          attachments: attachments 
-      };
-
-    
-      await transporter.sendMail(mailOptions);
 
       await Notification.create({
         userId: notificationRecipientId,

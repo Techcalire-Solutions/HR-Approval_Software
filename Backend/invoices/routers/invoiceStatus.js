@@ -64,7 +64,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         switch (status) {
             case 'AM APPROVED':
                 notificationMessage = `The Proforma Invoice ${pi.piNo} has been approved by AM.\n\n`;
-                toEmail = kamEmail;
                 await Notification.create({
                     userId: kamId,
                     message: notificationMessage
@@ -96,7 +95,6 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                 break;
             case 'AM VERIFIED':
                 notificationMessage = `The Proforma Invoice ${pi.piNo} has been verified by AM.\n\n`;
-                toEmail = accountantEmail;
                 await Notification.create({
                     userId: accountantId,
                     message: notificationMessage
@@ -135,7 +133,7 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
                 return res.send('Invalid status update.');
         }
 
-        if (!toEmail) {
+        if (status !== 'AM APPROVED' && status !== 'AM VERIFIED' && !toEmail) {
             return res.send(`Project mail ID is missing for recipient`);
         }
 
@@ -153,66 +151,68 @@ router.post('/updatestatus', authenticateToken, async (req, res) => {
         if (accountantId != null) pi.accountantId = accountantId;
         await pi.save();
 
-        const attachments = [];
+        if (status !== 'AM APPROVED' && status !== 'AM VERIFIED' && toEmail) {
+            const attachments = [];
 
-        for (const fileObj of pi.url) {
-            const actualUrl = typeof fileObj === 'string' ? fileObj : fileObj.url;
+            for (const fileObj of pi.url) {
+                const actualUrl = typeof fileObj === 'string' ? fileObj : fileObj.url;
 
-            if (!actualUrl || typeof actualUrl !== 'string') {
-                continue;
+                if (!actualUrl || typeof actualUrl !== 'string') {
+                    continue;
+                }
+
+                const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+                const params = {
+                    Bucket: process.env.AWS_BUCKET_NAME,
+                    Key: fileKey,
+                };
+
+                try {
+                    const s3File = await s3.getObject(params).promise();
+                    attachments.push({
+                        filename: actualUrl.split('/').pop(),
+                        content: s3File.Body,
+                        contentType: s3File.ContentType
+                    });
+                } catch (error) {
+                    continue; // Continue even if fetching a specific file fails
+                }
             }
+            const supplier = await Company.findOne({ where: { id: pi.supplierId } });
+            const customer = await Company.findOne({ where: { id: pi.customerId } });
 
-            const fileKey = actualUrl.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-            const params = {
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: fileKey,
+            const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
+            const customerName = customer ? customer.companyName : 'Unknown Customer';
+            
+            const mailOptions = {
+                from: `${req.user.name} <${req.user.email}>`,
+                to: toEmail,
+                subject: notificationMessage,
+                html: `
+                <p><strong>Entry Number:</strong> ${pi.piNo}</p>
+                <p><strong>Supplier Name:</strong> ${supplierName}</p>
+                <p><strong>Supplier PO No:</strong> ${pi.supplierPoNo}</p>
+                <p><strong>Supplier SO No:</strong> ${pi.supplierSoNo}</p>
+                <p><strong>Status:</strong> ${newStatus.status}</p>
+                <p><strong>Payment Mode:</strong> ${pi.paymentMode}</p>
+                ${pi.purpose === 'Stock' 
+                    ? `<p><strong>Purpose:</strong> Stock</p>` 
+                    : `<p><strong>Purpose:</strong> Customer</p>
+                       <p><strong>Customer Name:</strong> ${customerName}</p>
+                       <p><strong>Customer PO No:</strong> ${pi.customerPoNo}</p>
+                       <p><strong>Customer SO No:</strong> ${pi.customerSoNo}</p>`
+                }
+                <p><strong>Notes:</strong> ${pi.notes}</p>
+                <p>Please find the attached documents related to this Proforma Invoice.</p>
+                `,
+                attachments: attachments
             };
 
             try {
-                const s3File = await s3.getObject(params).promise();
-                attachments.push({
-                    filename: actualUrl.split('/').pop(),
-                    content: s3File.Body,
-                    contentType: s3File.ContentType
-                });
+                await transporter.sendMail(mailOptions);
             } catch (error) {
-                continue; // Continue even if fetching a specific file fails
+                return res.send(error.message)
             }
-        }
-        const supplier = await Company.findOne({ where: { id: pi.supplierId } });
-        const customer = await Company.findOne({ where: { id: pi.customerId } });
-
-        const supplierName = supplier ? supplier.companyName : 'Unknown Supplier';
-        const customerName = customer ? customer.companyName : 'Unknown Customer';
-        
-        const mailOptions = {
-            from: `${req.user.name} <${req.user.email}>`,
-            to: toEmail,
-            subject: notificationMessage,
-            html: `
-            <p><strong>Entry Number:</strong> ${pi.piNo}</p>
-            <p><strong>Supplier Name:</strong> ${supplierName}</p>
-            <p><strong>Supplier PO No:</strong> ${pi.supplierPoNo}</p>
-            <p><strong>Supplier SO No:</strong> ${pi.supplierSoNo}</p>
-            <p><strong>Status:</strong> ${newStatus.status}</p>
-            <p><strong>Payment Mode:</strong> ${pi.paymentMode}</p>
-            ${pi.purpose === 'Stock' 
-                ? `<p><strong>Purpose:</strong> Stock</p>` 
-                : `<p><strong>Purpose:</strong> Customer</p>
-                   <p><strong>Customer Name:</strong> ${customerName}</p>
-                   <p><strong>Customer PO No:</strong> ${pi.customerPoNo}</p>
-                   <p><strong>Customer SO No:</strong> ${pi.customerSoNo}</p>`
-            }
-            <p><strong>Notes:</strong> ${pi.notes}</p>
-            <p>Please find the attached documents related to this Proforma Invoice.</p>
-            `,
-            attachments: attachments
-        };
-
-        try {
-            await transporter.sendMail(mailOptions);
-        } catch (error) {
-            return res.send(error.message)
         }
 
         res.json({ pi, status: newStatus });
