@@ -44,9 +44,11 @@ export class VerificationDialogueComponent {
 
   invoiceNo!: string;
   status!: string;
+  isReassign: boolean = false;
   ngOnInit(): void {
     this.invoiceNo = this.dialogData.invoiceNo;
     this.status = this.dialogData.status;
+    this.isReassign = !!this.dialogData.isReassign;
 
     this.form.get('spId')?.setValue(this.dialogData.sp)
     if(this.status == 'KAM VERIFIED') this.getAm()
@@ -59,7 +61,7 @@ export class VerificationDialogueComponent {
 
   isSelectionMade: any = false;
   onSelectionChange() {
-    this.isSelectionMade = this.form.get('amId')?.valid || this.form.get('accountantId')?.valid;
+    this.isSelectionMade = !!(this.form.get('amId')?.value || this.form.get('accountantId')?.value || this.form.get('kamId')?.value);
   }
 
   onCancelClick(): void {

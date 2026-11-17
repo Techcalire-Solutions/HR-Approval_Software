@@ -282,20 +282,20 @@ export class ViewApprovalComponent {
   dialogSub!: Subscription;
   verified(value: string, piNo: string, sp: string, id: number, stat: string){
     let status = this.data.status;
-    if(stat === 'INITIATED' && value === 'approved') status = 'AM APPROVED';
-    else if(stat === 'INITIATED' && value === 'rejected') status = 'AM DECLINED';
-    if((status === 'GENERATED' || (Array.isArray(status) && status.includes('KAM VERIFIED'))) && value === 'approved') status = 'KAM VERIFIED';
+    if((stat === 'INITIATED' || stat === 'AM APPROVED' || stat === 'AM DECLINED') && value === 'approved') status = 'AM APPROVED';
+    else if((stat === 'INITIATED' || stat === 'AM APPROVED' || stat === 'AM DECLINED') && value === 'rejected') status = 'AM DECLINED';
+    else if((status === 'GENERATED' || (Array.isArray(status) && status.includes('KAM VERIFIED'))) && value === 'approved') status = 'KAM VERIFIED';
     else if((status === 'GENERATED' || (Array.isArray(status) && status.includes('KAM VERIFIED'))) && value === 'rejected') status = 'KAM REJECTED';
-    else if((status === 'KAM VERIFIED' || (Array.isArray(status) && status.includes('AM VERIFIED'))) && value === 'approved') status = 'AM VERIFIED';
-    else if((status === 'KAM VERIFIED' || (Array.isArray(status) && status.includes('AM VERIFIED'))) && value === 'rejected') status = 'AM REJECTED';
+    else if((status === 'KAM VERIFIED' || stat === 'AM VERIFIED' || (Array.isArray(status) && status.includes('AM VERIFIED'))) && value === 'approved') status = 'AM VERIFIED';
+    else if((status === 'KAM VERIFIED' || stat === 'AM VERIFIED' || (Array.isArray(status) && status.includes('AM VERIFIED'))) && value === 'rejected') status = 'AM REJECTED';
 
     const dialogRef = this.dialog.open(VerificationDialogueComponent, {
       data: { invoiceNo: piNo, status: status, sp: sp }
     });
 
     this.dialogSub = dialogRef.afterClosed().subscribe(result => {
-      this.submittingForm = true;
       if(result){
+        this.submittingForm = true;
         const data = {
           status: status,
           performaInvoiceId: id,
@@ -309,9 +309,51 @@ export class ViewApprovalComponent {
           this.getInvoices()
           this.snackBar.open(`Invoice ${piNo} updated to ${status}...`,"" ,{duration:3000})
           this.router.navigateByUrl('login/viewApproval/view')
+        }, () => {
+          this.submittingForm = false;
         });
       }
     })
+  }
+
+  reassignManager(invoice: any) {
+    const dialogRef = this.dialog.open(VerificationDialogueComponent, {
+      data: {
+        invoiceNo: invoice.piNo,
+        status: invoice.status,
+        sp: invoice.salesPerson?.name,
+        isReassign: true,
+        currentKamId: invoice.kamId,
+        currentAccountantId: invoice.accountantId
+      }
+    });
+
+    this.dialogSub = dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.submittingForm = true;
+        const data = {
+          status: invoice.status,
+          performaInvoiceId: invoice.id,
+          remarks: result.remarks,
+          kamId: result.kamId,
+          amId: result.amId,
+          accountantId: result.accountantId
+        };
+
+        this.verifiedSub = this.invoiceService.updatePIStatus(data).subscribe({
+          next: () => {
+            this.submittingForm = false;
+            this.getInvoices();
+            this.snackBar.open(`Finance Manager reassigned for Invoice ${invoice.piNo}...`, "", { duration: 3000 });
+          },
+          error: (err) => {
+            this.submittingForm = false;
+            const msg = typeof err?.error === 'string' ? err.error : (err?.error?.text || err?.error?.message || 'Failed to reassign');
+            this.snackBar.open(msg, "", { duration: 3000 });
+          }
+        });
+      }
+    });
   }
 
   kamUpdateSub!: Subscription;  
