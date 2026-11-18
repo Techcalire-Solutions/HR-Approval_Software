@@ -504,11 +504,12 @@ router.put('/approveLeave/:id', authenticateToken, async (req, res) => {
     await transaction.commit();
 
     // Send notifications and emails
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const hr = await getHREmail();
     const rm = await getReportingManagerEmailForUser(leave.userId);
     const teamLeads = await getTeamLeadEmails(leave.userId);
     const omMail = await getOMEmail();
-    const ccRecipients = [hr.mail, rm.email, ...(Array.isArray(teamLeads) ? teamLeads : []), omMail].filter(email => email);
+    const ccRecipients = [hr.mail, rm.email, ...(Array.isArray(teamLeads) ? teamLeads : []), omMail].filter(email => email && emailRegex.test(email));
 
     const me = `${leave.user.name}'s Leave Request Approved by ${req.user.name}`;
     const route = `/login/leave/open/${leave.id}`;
@@ -1592,7 +1593,7 @@ async function handleNotificationsAndEmails(req, res, leave, transaction, type, 
     // Get team lead emails
     const teamLeadEmails = await getTeamLeadEmails(req.body.userId ? req.body.userId : leave.userId);
     if (Array.isArray(teamLeadEmails)) {
-      cc.push(teamLeadEmails.filter(email => emailRegex.test(email)))
+      cc.push(...teamLeadEmails.filter(email => emailRegex.test(email)));
     }
     const emailHtml = `
         <p>Dear ${name},</p>
@@ -1634,11 +1635,11 @@ async function getHREmail() {
   if (!hrAdminUser) {
     return ({ mail: 'HR Admin user not found' });
   }
-  // const userPosition = await UserPosition.findOne({ where: { userId: hrAdminUser.id } });
-  // if (!userPosition || !userPosition.officialMailId) {
-  //   return ({ mail: 'Official Mail Id not found for HR Admin', name: hrAdminUser.name });
-  // }
-  return { mail: hrAdminUser.email, name: hrAdminUser.name };
+  const userPosition = await UserPosition.findOne({ where: { userId: hrAdminUser.id } });
+  if (!userPosition || !userPosition.officialMailId) {
+    return ({ mail: 'Official Mail Id not found for HR Admin', name: hrAdminUser.name });
+  }
+  return { mail: userPosition.officialMailId, name: hrAdminUser.name };
 }
 
 async function getOMEmail() {
@@ -1654,7 +1655,11 @@ async function getOMEmail() {
   if (!omUser) {
     return ('Operational Manager user details not found');
   }
-
+  if (!omUserPos.officialMailId) {
+    return ('Official Mail Id not found for Operational Manager');
+  }
+  console.log(omUserPos.officialMailId);
+  
   return omUserPos.officialMailId;
 }
 
@@ -1675,15 +1680,21 @@ async function getReportingManagerEmailForUser(userId) {
       return ({ email: `No reporting manager found for user ${userPersonal.user.name}` });
     }
 
-    const reportingManager = await User.findOne({
-      where: { id: reportingMangerId },
-      attributes: ['email', 'name'],
-    });
+    const [reportingManager, rmPosition] = await Promise.all([
+      User.findOne({
+        where: { id: reportingMangerId },
+        attributes: ['name'],
+      }),
+      UserPosition.findOne({
+        where: { userId: reportingMangerId },
+        attributes: ['officialMailId'],
+      }),
+    ]);
 
-    if (reportingManager && reportingManager.email) {
-      return { email: reportingManager.email, name: reportingManager.name };
+    if (reportingManager && rmPosition && rmPosition.officialMailId) {
+      return { email: rmPosition.officialMailId, name: reportingManager.name };
     } else if (reportingManager) {
-      return ({ email: `Mail is not added for reporting manager ${reportingManager.name}` });
+      return ({ email: `Official Mail Id is not added for reporting manager ${reportingManager.name}` });
     } else {
       return ({ email: `Reporting manager not found` });
     }
@@ -1709,7 +1720,7 @@ async function getTeamLeadEmails(userId) {
     if (teamId !== null) {
       const tls = await TeamLeader.findAll({
         where: { teamId }, include: {
-          model: User, attributes: ['name']
+          model: User, attributes: ['name', 'email']
         }
       });
 
@@ -2007,6 +2018,7 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
       createNotification({ id, me, route });
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const hr = await getHREmail();
     const hrEmail = hr.mail;
     const rm = (await getReportingManagerEmailForUser(leave.userId))
@@ -2014,7 +2026,7 @@ router.put('/rejectLeave/:id', authenticateToken, async (req, res) => {
     const teamLeads = await getTeamLeadEmails(leave.userId);
     const omMail = await getOMEmail();
 
-    const ccRecipients = [hrEmail, rmEmail, teamLeads, omMail].filter(email => email);
+    const ccRecipients = [hrEmail, rmEmail, ...(Array.isArray(teamLeads) ? teamLeads : []), omMail].filter(email => email && emailRegex.test(email));
     const emailSubject = `Leave Request is Rejected`;
     const fromEmail = process.env.EMAIL_USER;
     const emailPassword = process.env.EMAIL_PASS;
