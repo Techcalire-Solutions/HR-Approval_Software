@@ -444,44 +444,36 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
       });
       await status.save();
       let recipientEmail = null;
-      let notificationRecipientId;
+      let notificationRecipientId = ex.userId;
 
       try {
         const user = await UserPosition.findOne({ where: { userId: ex.userId } });
-        
-        if (!user) {
-            return res.send("Recipient project mail not added.");
+        if (user) {
+          recipientEmail = typeof user.projectMailId === 'string' ? user.projectMailId.trim() : null;
+          notificationRecipientId = user.userId;
         }
-  
-        recipientEmail = user.projectMailId;
-        notificationRecipientId = user.userId;
-  
-        if (!recipientEmail) {
-          return res.send("Recipient project mail not added.");
-        }
-    
     } catch (error) {
         return res.send(error.message);
     }
-  
 
-      const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
-      const params = {
-          Bucket: process.env.AWS_BUCKET_NAME,
-          Key: fileKey,
-      };
+      if (recipientEmail) {
+        const fileKey = bankSlip.replace(`https://approval-management-data-s3.s3.ap-south-1.amazonaws.com/`, '');
+        const params = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: fileKey,
+        };
 
-      let fileBuffer, contentType;
-      try {
+        let fileBuffer, contentType;
+        try {
           const s3File = await s3.getObject(params).promise();
           fileBuffer = s3File.Body;
           contentType = s3File.ContentType;
-      } catch (error) {
+        } catch (error) {
           return res.send(error.message);
-      }
+        }
 
-      let emailSubject =` Expense Request Processed Successfully - ${ex.exNo}`;
-      let emailBody = `
+        const emailSubject = `Expense Request Processed Successfully - ${ex.exNo}`;
+        const emailBody = `
          <p>Dear Team,</p>
 
                   <p>We are pleased to inform you that the expense request for Expense ID: <strong>${ex.exNo}</strong> has been successfully ${message}, and the bank slip is now attached for your reference.</p>
@@ -496,7 +488,7 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
 
       `;
 
-      const mailOptions = {
+        const mailOptions = {
           from: `Expense Management<${process.env.EMAIL_USER}>`,
           to: recipientEmail,
           subject: emailSubject,
@@ -508,12 +500,15 @@ router.patch('/bankslip/:id', authenticateToken, async (req, res) => {
                   contentType: contentType
               }
           ]
-      };
+        };
 
-      try {
+        try {
           await transporter.sendMail(mailOptions);
-      } catch (error) {
+        } catch (error) {
           return res.send(error.message);
+        }
+      } else {
+        console.error(`No recipient project email for expense ${ex.exNo}. Email not sent.`);
       }
 
       await Notification.create({
