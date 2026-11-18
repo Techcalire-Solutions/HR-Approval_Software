@@ -627,8 +627,7 @@ router.patch('/resetpassword/:id', authenticateToken, async (req, res) => {
 
       await user.save();
       
-      const userPos = await UserPosition.findOne({ where: {userId: user.id}});
-      const email = userPos.officialMailId;
+      const email = user.email;
       // const emailText = `Hello ${user.name},\n\nYour password has been successfully reset.\n\nUsername: ${user.empNo}\nPassword: ${password}\n\nPlease keep this information safe.\n\nThank you!`;
       const emailSubject = `Password Reset Successful`;
       const fromEmail = process.env.EMAIL_USER;
