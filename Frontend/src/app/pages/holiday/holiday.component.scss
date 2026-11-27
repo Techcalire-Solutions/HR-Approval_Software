@@ -132,3 +132,59 @@ body {
     color: #ff5900; /* Stylish orange color */
     font-size: 24px; /* Adjust size if needed */
   }
+
+  .compo-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .compo-badge-btn {
+      font-size: 12px;
+      height: 32px;
+      line-height: 32px;
+      padding: 0 10px;
+      border-radius: 16px;
+      color: #1976d2;
+      border: 1px solid #90caf9;
+      background: #e3f2fd;
+      cursor: pointer;
+
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        margin-right: 4px;
+        vertical-align: middle;
+      }
+
+      &:hover {
+        background: #bbdefb;
+      }
+    }
+
+    .allot-btn {
+      font-size: 12px;
+      color: #0284c7;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        margin-right: 4px;
+        vertical-align: middle;
+      }
+    }
+  }
+
+  .compoff-nav-btn {
+    margin-left: 20px;
+    background-color: #1976d2;
+    color: white;
+    border-radius: 8px;
+    font-weight: 500;
+    height: 48px;
+
+    mat-icon {
+      margin-right: 6px;
+    }
+  }

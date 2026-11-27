@@ -51,6 +51,11 @@
         <mat-icon>delete</mat-icon>
       </mat-button-toggle>
     </mat-button-toggle-group>
+
+    <button mat-raised-button color="primary" class="compoff-nav-btn" (click)="openEmployeeCompoffDetails()">
+      <mat-icon>assignment_ind</mat-icon>
+      Employee Comp Off Details
+    </button>
 </div>
 
 
@@ -88,11 +93,35 @@
                 <mat-icon>delete</mat-icon>
               </button>
             </td>                
-            <!-- @if(roleName === 'HR Administrator' || roleName === 'Super Administrator'){ -->
-              <td>
-                  <mat-icon (click)="openCompoOff(holiday.id)">add_task</mat-icon>
-              </td>
-          <!-- } -->
+            <td>
+              <div class="compo-actions">
+                @if (holiday.comboAdded) {
+                  <button
+                    mat-stroked-button
+                    class="compo-badge-btn"
+                    (click)="viewCompoffDetails(holiday)"
+                    matTooltip="View Allotted Employees">
+                    <mat-icon>people</mat-icon>
+                    {{ holiday.comboAddedFor || 0 }} Allotted
+                  </button>
+                  <button
+                    mat-icon-button
+                    (click)="openCompoOff(holiday.id)"
+                    matTooltip="Edit Comp Off">
+                    <mat-icon color="primary">edit_calendar</mat-icon>
+                  </button>
+                } @else {
+                  <button
+                    mat-button
+                    class="allot-btn"
+                    (click)="openCompoOff(holiday.id)"
+                    matTooltip="Allot Comp Off to Employees">
+                    <mat-icon>add_task</mat-icon>
+                    Allot
+                  </button>
+                }
+              </div>
+            </td>
           </tr>
         }
 

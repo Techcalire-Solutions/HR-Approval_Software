@@ -20,12 +20,15 @@ import { MY_FORMATS } from '../users/personal-details/personal-details.component
 import { DeleteConfirmationComponent } from './delete-confirmation/delete-confirmation.component';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { HolidayCompoffDialogComponent } from './holiday-compoff-dialog/holiday-compoff-dialog.component';
 
 @Component({
   selector: 'app-holiday',
   standalone: true,
   imports: [MatButtonToggleModule, MatFormFieldModule, MatPaginatorModule, CommonModule, MatIconModule, MatInputModule,
-    MatSelectModule, MatDatepickerModule, FormsModule
+    MatSelectModule, MatDatepickerModule, FormsModule, MatButtonModule, MatTooltipModule
   ],
   templateUrl: './holiday.component.html',
   styleUrl: './holiday.component.scss',
@@ -132,6 +135,17 @@ export class HolidayComponent implements OnInit, OnDestroy{
   private readonly router = inject(Router);
   openCompoOff(id: number){
     this.router.navigateByUrl('/login/holiday/compo-off/'+id)
+  }
+
+  viewCompoffDetails(holiday: Holidays){
+    this.dialog.open(HolidayCompoffDialogComponent, {
+      data: { holiday },
+      width: '650px'
+    });
+  }
+
+  openEmployeeCompoffDetails(){
+    this.router.navigateByUrl('/login/holiday/employee-compoff');
   }
 
   ngOnDestroy(): void {

@@ -13,6 +13,9 @@ export const routes: Routes = [
       },
       { path: 'compo-off/:id',  loadComponent: () => import('./add-combooff/add-combooff.component').then(c => c.AddCombooffComponent),
         data: { breadcrumb: 'Compo-Off' } , canActivate: [AuthGuard]
+      },
+      { path: 'employee-compoff',  loadComponent: () => import('./employee-compoff/employee-compoff.component').then(c => c.EmployeeCompoffComponent),
+        data: { breadcrumb: 'Employee Comp-Off Details' } , canActivate: [AuthGuard]
       }
     ]
   },
