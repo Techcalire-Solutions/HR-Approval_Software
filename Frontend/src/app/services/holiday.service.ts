@@ -65,4 +65,13 @@ export class HolidayService {
     uploadHolidays(formData: FormData){
       return this.http.post(`${environment.apiUrl}/holidays/upload`, formData)
     }
+
+    getHolidayCompoffDetails(holidayId: number): Observable<any> {
+      return this.http.get<any>(`${this.apiUrl}/holidays/compoff-details/${holidayId}`);
+    }
+
+    getEmployeeCompoffDetails(year?: any): Observable<any> {
+      const yearQuery = year !== undefined && year !== null ? `?year=${year}` : '';
+      return this.http.get<any>(`${this.apiUrl}/holidays/employee-compoffs${yearQuery}`);
+    }
 }

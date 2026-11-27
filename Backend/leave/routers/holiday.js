@@ -9,6 +9,7 @@ const { Op, where } = require('sequelize');
 const UserLeave = require('../models/userLeave');
 const LeaveType = require('../models/leaveType');
 const ComboOff = require('../models/comboOff');
+const User = require('../../users/models/user');
 const xlsx = require('xlsx');
 const multer = require('multer');
 const moment = require('moment');
@@ -503,6 +504,155 @@ router.get('/findcombooff/:id', authenticateToken, async (req, res) => {
   }
 })
 
+// Get allotted employees for a specific holiday
+router.get('/compoff-details/:id', authenticateToken, async (req, res) => {
+  const holidayId = req.params.id;
+  try {
+    const holiday = await Holiday.findByPk(holidayId);
+    if (!holiday) {
+      return res.status(404).json({ message: 'Holiday not found' });
+    }
 
+    const comboOff = await ComboOff.findOne({ where: { holidayId: holidayId } });
+    if (!comboOff || !comboOff.userId || comboOff.userId.length === 0) {
+      return res.json({ holiday, comboOff: comboOff || null, employees: [] });
+    }
+
+    const employees = await User.findAll({
+      where: { id: comboOff.userId },
+      attributes: ['id', 'name', 'empNo', 'email'],
+      order: [['name', 'ASC']]
+    });
+
+    res.json({
+      holiday,
+      comboOff,
+      employees
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get comp-off details allotted to each employee
+router.get('/employee-compoffs', authenticateToken, async (req, res) => {
+  try {
+    const isAll = req.query.year === 'all';
+    const year = isAll ? null : (req.query.year ? parseInt(req.query.year, 10) : new Date().getFullYear());
+
+    // 1. Leave type for Comp Off
+    const leaveType = await LeaveType.findOne({ where: { leaveTypeName: 'Comp Off' } });
+    const leaveTypeId = leaveType ? leaveType.id : null;
+
+    // 2. Fetch holidays with comp-off allotted
+    let holidayWhere = { comboAdded: true };
+    if (!isAll && year) {
+      const startDate = `${year}-01-01`;
+      const endDate = `${year}-12-31`;
+      holidayWhere.date = { [Op.between]: [startDate, endDate] };
+    }
+
+    const holidays = await Holiday.findAll({
+      where: holidayWhere,
+      order: [['date', 'DESC']]
+    });
+
+    const holidayIds = holidays.map(h => h.id);
+    let comboOffs = [];
+    if (holidayIds.length > 0) {
+      comboOffs = await ComboOff.findAll({
+        where: { holidayId: holidayIds }
+      });
+    }
+
+    const holidayMap = {};
+    holidays.forEach(h => {
+      holidayMap[h.id] = h;
+    });
+
+    // 3. Fetch all active/relevant employees
+    const users = await User.findAll({
+      attributes: ['id', 'name', 'empNo', 'email', 'status', 'separated'],
+      order: [['name', 'ASC']]
+    });
+
+    // 4. Fetch UserLeave for Comp Off
+    let userLeaveWhere = {};
+    if (leaveTypeId) {
+      userLeaveWhere.leaveTypeId = leaveTypeId;
+    }
+    if (!isAll && year) {
+      userLeaveWhere.year = year;
+    }
+
+    let userLeaves = [];
+    if (leaveTypeId) {
+      userLeaves = await UserLeave.findAll({
+        where: userLeaveWhere
+      });
+    }
+
+    const userLeaveMap = {};
+    userLeaves.forEach(ul => {
+      if (!userLeaveMap[ul.userId]) {
+        userLeaveMap[ul.userId] = {
+          noOfDays: 0,
+          takenLeaves: 0,
+          leaveBalance: 0
+        };
+      }
+      userLeaveMap[ul.userId].noOfDays += Number(ul.noOfDays) || 0;
+      userLeaveMap[ul.userId].takenLeaves += Number(ul.takenLeaves) || 0;
+      userLeaveMap[ul.userId].leaveBalance += Number(ul.leaveBalance) || 0;
+    });
+
+    // 5. Build per-employee comp-off summary
+    const result = users.map(user => {
+      const userHolidays = [];
+      comboOffs.forEach(co => {
+        if (co.userId && Array.isArray(co.userId) && co.userId.includes(user.id)) {
+          const holiday = holidayMap[co.holidayId];
+          if (holiday) {
+            userHolidays.push({
+              holidayId: holiday.id,
+              holidayName: holiday.name,
+              holidayDate: holiday.date,
+              holidayType: holiday.type,
+              allottedAt: co.createdAt
+            });
+          }
+        }
+      });
+
+      const ul = userLeaveMap[user.id];
+      const totalAllotted = userHolidays.length > 0 ? userHolidays.length : (ul ? ul.noOfDays : 0);
+      const takenLeaves = ul ? ul.takenLeaves : 0;
+      const leaveBalance = ul ? ul.leaveBalance : 0;
+
+      return {
+        id: user.id,
+        name: user.name,
+        empNo: user.empNo,
+        email: user.email,
+        status: user.status,
+        separated: user.separated,
+        totalAllotted,
+        takenLeaves,
+        leaveBalance,
+        holidays: userHolidays,
+        hasCompoff: userHolidays.length > 0 || totalAllotted > 0 || leaveBalance > 0
+      };
+    });
+
+    res.json({
+      year: isAll ? 'All' : year,
+      totalHolidaysWithCompOff: holidays.length,
+      employees: result
+    });
+  } catch (error) {
+    console.error('Error in employee-compoffs:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 module.exports = router;

@@ -25,6 +25,7 @@ export const verticalMenuItems = [
   // new Menu(21, 'View Requests', '/login/admin-leave/view-leave-request', null,'edit_calendar', null, false, 8),
   new Menu(9, 'Calendar', '/login/leave/leave-calendar', null,'event_available', null, false, 8),
   new Menu(12, 'Balance', '/login/leave/leave-balance', null, 'data_usage', null, false, 8),
+  new Menu(37, 'Comp-Off Details', '/login/holiday/employee-compoff', null, 'assignment_ind', null, false, 8),
   // new Menu(10, 'Emergency', '/login/admin-leave/apply-emergency-leave', null, 'event_note', null, false, 8),
   new Menu(35, 'Encash', '/login/admin-leave/leave-encashment', null, 'event_note', null, false, 8),
 

@@ -1,0 +1,156 @@
+<div class="compoff-page-container">
+  <!-- Top Navigation & Controls Header -->
+  <div class="header-card">
+    <div class="header-title-row">
+      <div class="title-group">
+        <button mat-icon-button (click)="goBack()" matTooltip="Back to Holidays" class="back-btn">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div>
+          <h2 class="main-title">Employee Comp-Off Allotment Details</h2>
+          <span class="subtitle">Overview of compensatory off days allotted to each employee</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button mat-stroked-button (click)="goBack()" color="primary">
+          <mat-icon>celebration</mat-icon>
+          View Holidays
+        </button>
+        <button mat-icon-button (click)="fetchData()" matTooltip="Refresh Data">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Filters Toolbar -->
+    <div class="filters-row">
+      <!-- Search Input -->
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search Employee</mat-label>
+        <input
+          matInput
+          [(ngModel)]="searchText"
+          (input)="applyFilter()"
+          placeholder="Search by name, emp no, email..."
+        />
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <!-- Year Selector -->
+      <mat-form-field appearance="outline" class="year-field">
+        <mat-label>Year</mat-label>
+        <mat-select [(ngModel)]="selectedYear" (selectionChange)="onYearChange()">
+          @for (y of yearList; track y) {
+            <mat-option [value]="y">{{ y === 'all' ? 'All Years' : y }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Toggle filter -->
+      <div class="filter-toggle">
+        <mat-checkbox
+          [(ngModel)]="onlyWithCompoff"
+          (change)="applyFilter()"
+          color="primary">
+          Show only employees with comp-off
+        </mat-checkbox>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Section -->
+  <div class="table-card">
+    @if (loading) {
+      <div class="loading-state">
+        <mat-spinner diameter="44"></mat-spinner>
+        <p>Loading comp-off allotment data...</p>
+      </div>
+    } @else if (error) {
+      <div class="error-state">
+        <mat-icon color="warn">error_outline</mat-icon>
+        <p>{{ error }}</p>
+        <button mat-button color="primary" (click)="fetchData()">Retry</button>
+      </div>
+    } @else if (filteredEmployees.length === 0) {
+      <div class="empty-state">
+        <mat-icon>search_off</mat-icon>
+        <h3>No Employees Found</h3>
+        <p>No employee records matched the selected filters.</p>
+        @if (onlyWithCompoff) {
+          <button mat-stroked-button (click)="onlyWithCompoff = false; applyFilter()">
+            Show all employees
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="compoff-data-table">
+          <thead>
+            <tr>
+              <th>Emp No</th>
+              <th>Employee Name</th>
+              <th>Email</th>
+              <th class="text-center">Allotted Days</th>
+              <th class="text-center">Availed Days</th>
+              <th class="text-center">Balance Days</th>
+              <th>Allotted Holidays</th>
+              <th class="text-center">Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (emp of filteredEmployees; track emp.id) {
+              <tr [class.has-balance]="emp.leaveBalance > 0">
+                <td>
+                  <span class="emp-code">{{ emp.empNo }}</span>
+                </td>
+                <td>
+                  <span class="emp-name">{{ emp.name }}</span>
+                </td>
+                <td class="emp-email">{{ emp.email }}</td>
+                <td class="text-center">
+                  <span class="badge allotted-badge">{{ emp.totalAllotted }}</span>
+                </td>
+                <td class="text-center">
+                  <span class="badge availed-badge">{{ emp.takenLeaves }}</span>
+                </td>
+                <td class="text-center">
+                  <span class="badge balance-badge" [class.positive]="emp.leaveBalance > 0">
+                    {{ emp.leaveBalance }}
+                  </span>
+                </td>
+                <td>
+                  <div class="holiday-chips-container">
+                    @if (emp.holidays && emp.holidays.length > 0) {
+                      @for (h of emp.holidays; track h.holidayId) {
+                        <span class="holiday-pill" [matTooltip]="(h.holidayDate | date:'dd/MM/yyyy') + ' (' + (h.holidayType || 'Public') + ')'">
+                          {{ h.holidayName }}
+                          <span class="pill-date">{{ h.holidayDate | date:'dd/MM' }}</span>
+                        </span>
+                      }
+                    } @else {
+                      <span class="no-holidays-text">-</span>
+                    }
+                  </div>
+                </td>
+                <td class="text-center">
+                  <button
+                    mat-icon-button
+                    color="primary"
+                    (click)="viewEmployeeDetails(emp)"
+                    matTooltip="View full breakdown">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer">
+        <span>Showing {{ filteredEmployees.length }} employees</span>
+      </div>
+    }
+  </div>
+</div>
+

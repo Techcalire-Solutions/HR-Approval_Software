@@ -143,6 +143,7 @@ users:User;
         (item.title === 'Leave' && !item.parentId) ||
         (item.title === 'View' && item.parentId === 8) ||
         (item.title === 'View Requests' && item.parentId === 8) ||
+        (item.title === 'Comp-Off Details' && item.parentId === 8) ||
         (item.title === 'Calendar' && item.parentId === 8) ||
 
         (item.title === 'User Leave' && item.parentId === 8) ||
@@ -175,6 +176,7 @@ users:User;
         (item.title === 'Calendar' && item.parentId === 8) ||
         (item.title === 'View' && item.parentId === 8) ||
         (item.title === 'Emergency' && item.parentId === 8) ||
+        (item.title === 'Comp-Off Details' && item.parentId === 8) ||
 
 
         (item.title === 'Reports' && !item.parentId) ||

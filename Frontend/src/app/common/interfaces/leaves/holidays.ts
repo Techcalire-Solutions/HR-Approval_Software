@@ -5,4 +5,5 @@ export interface Holidays {
     comments : string
     date  : Date
     comboAdded : Boolean
+    comboAddedFor?: number;
 }

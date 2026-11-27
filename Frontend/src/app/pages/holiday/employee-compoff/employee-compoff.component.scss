@@ -1,0 +1,237 @@
+.compoff-page-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .header-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px 24px 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+
+    .header-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+
+      .title-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .back-btn {
+          color: #555;
+        }
+
+        .main-title {
+          margin: 0;
+          font-size: 22px;
+          font-weight: 700;
+          color: #1e293b;
+        }
+
+        .subtitle {
+          font-size: 13px;
+          color: #64748b;
+        }
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+    }
+
+    .filters-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+
+      .search-field {
+        flex: 1;
+        min-width: 250px;
+        margin-bottom: -1.25em;
+      }
+
+      .year-field {
+        width: 150px;
+        margin-bottom: -1.25em;
+      }
+
+      .filter-toggle {
+        display: flex;
+        align-items: center;
+        margin-left: 8px;
+      }
+    }
+  }
+
+  .table-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+
+    .loading-state, .error-state, .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      gap: 12px;
+      color: #64748b;
+
+      mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+      }
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+
+      .compoff-data-table {
+        width: 100%;
+        border-collapse: collapse;
+
+        thead {
+          background: #f8fafc;
+          border-bottom: 2px solid #e2e8f0;
+
+          th {
+            padding: 14px 18px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            letter-spacing: 0.3px;
+
+            &.text-center {
+              text-align: center;
+            }
+          }
+        }
+
+        tbody {
+          tr {
+            border-bottom: 1px solid #f1f5f9;
+            transition: background-color 0.15s ease;
+
+            &:hover {
+              background-color: #f8fafc;
+            }
+
+            &.has-balance {
+              background-color: #fcfdfd;
+            }
+
+            td {
+              padding: 12px 18px;
+              font-size: 13px;
+              color: #334155;
+
+              &.text-center {
+                text-align: center;
+              }
+            }
+
+            .emp-code {
+              font-family: monospace;
+              background: #f1f5f9;
+              color: #475569;
+              padding: 3px 8px;
+              border-radius: 6px;
+              font-size: 12px;
+              font-weight: 500;
+            }
+
+            .emp-name {
+              font-weight: 600;
+              color: #0f172a;
+            }
+
+            .emp-email {
+              color: #64748b;
+            }
+
+            .badge {
+              display: inline-block;
+              padding: 4px 12px;
+              border-radius: 20px;
+              font-weight: 600;
+              font-size: 13px;
+
+              &.allotted-badge {
+                background: #e0f2fe;
+                color: #0369a1;
+              }
+
+              &.availed-badge {
+                background: #fef3c7;
+                color: #b45309;
+              }
+
+              &.balance-badge {
+                background: #f1f5f9;
+                color: #64748b;
+
+                &.positive {
+                  background: #dcfce7;
+                  color: #15803d;
+                }
+              }
+            }
+
+            .holiday-chips-container {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 6px;
+              max-width: 450px;
+
+              .holiday-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                background: #f1f5f9;
+                color: #334155;
+                border: 1px solid #e2e8f0;
+                padding: 2px 10px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 500;
+
+                .pill-date {
+                  font-size: 10px;
+                  background: #e2e8f0;
+                  color: #475569;
+                  padding: 1px 5px;
+                  border-radius: 8px;
+                }
+              }
+
+              .no-holidays-text {
+                color: #94a3b8;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .table-footer {
+      padding: 14px 20px;
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      font-size: 12px;
+      color: #64748b;
+    }
+  }
+}
+
